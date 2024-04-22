@@ -30,7 +30,7 @@ public:
 
   void addNeighbour(unsigned int trackster_id) { neighboursId_.push_back(trackster_id); }
   const unsigned int getId() const { return index_; }
-  std::vector<unsigned int> getNeighbours() const { return neighboursId_; }
+  std::vector<unsigned int> const& getNeighbours() const { return neighboursId_; }
   int size() const { return 0; }
   /* void findSubComponents(std::vector<Node>& graph, std::vector<unsigned int>& subComponent, std::string tabs) {
     tabs += "\t";
@@ -142,6 +142,7 @@ class Partition {
 
 public:
   const std::vector<std::vector<Node<T>>>& getPartition() const { return communities_; }
+  std::vector<std::vector<Node<T>>>& setPartition() { return communities_; }
   auto flatPartition(std::vector<std::vector<ElementaryNode>> const& flattenedPartition) {
     for (auto& community : communities_) {
       std::vector<ElementaryNode> flattenedCommunity{};
@@ -151,6 +152,7 @@ public:
   }
 };
 
+//takes a community and return the vector of all the Elementary Nodes in the community
 template <class T>
 auto flatCommunity(std::vector<Node<T>> const& community, std::vector<ElementaryNode> const& flattenedCommunity) {
   for (auto const& node : community) {

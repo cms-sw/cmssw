@@ -62,4 +62,6 @@ namespace ticl {
     edm::ESHandle<Propagator> propagator_;
   };
 }  // namespace ticl
+
+auto moveNodesFast(TICLGraph const &graph, Partition const &partition);
 #endif

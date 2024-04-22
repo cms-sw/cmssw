@@ -1,5 +1,6 @@
 #include <cmath>
 #include <string>
+#include <queue>
 #include "RecoHGCal/TICL/plugins/LinkingAlgoByLeiden.h"
 
 #include "DataFormats/GeometrySurface/interface/BoundDisk.h"
@@ -74,4 +75,61 @@ void LinkingAlgoByLeiden::fillPSetDescription(edm::ParameterSetDescription &desc
                         "1.48 < abs(eta) < 3.0 && pt > 1. && quality(\"highPurity\") && "
                         "hitPattern().numberOfLostHits(\"MISSING_OUTER_HITS\") < 5");
   LinkingAlgoBase::fillPSetDescription(desc);
+}
+
+template <class T>
+auto moveNodesFast(TICLGraph const &graph, Partition &partition) {
+  auto communities{partition.setPartition()};
+  std::random_shuffle(communities.begin(), communities.end());
+  std::queue<Node<T>> queue{};
+
+  for (auto &community : communities) {  //all nodes are added to queue in random order
+    queueCommunity(community, queue);
+  }
+
+  while (!queue.empty()) {
+    auto current_node{queue.front()};
+  }
+
+  //*****NEEDS IMPLEMENTATION**********
+
+  return partition;
+}
+
+template <class T>
+auto queueCommunity(std::vector<Node<T>> &community, std::queue const &queue) {
+  std::random_shuffle(community.begin(), community.end());  //elements are added to the queue in random order
+  for (auto const &node : community) {
+    queue.push(node);
+  }
+  return queue;
+}
+
+//quality function, Constant Potts Model
+template <class T>
+auto CPM(TICLGraph const &graph, Partition &partition) {
+  //**********NEEDS IMPLEMENTATION********
+}
+
+// the number of edges b/w 2 nodes is the number of edges between their elementary nodes
+double numberOfEdges(std::vector<Node<T>> communityA, std::vector<Node<T>> communityB) {
+  double numberOfEdges{};
+
+  std::vector<ElementaryNode> const flattenedCommunityA{};
+  std::vector<ElementaryNode> const flattenedCommunityB{};
+  flatCommunity(communityA, flattenedCommunityA);
+  flatCommunity(communityB, flattenedCommunityB);
+
+  for (auto const &elementaryNodeA : flattenedCommunityA) {
+    std::vector<unsigned int> const &neighboursA{elementaryNodeA.getNeighbours()};
+    for (auto const &Id : neighboursA) {
+      auto it{std::find_if(flattenedCommunityB.begin(),
+                           flattenedCommunityB.end(),
+                           [&Id](ElementaryNode const &elNodeB) { return (elNodeB.getId()) == Id; })};
+      if (it != flattenedCommunityB.end()) {
+        ++numberOfEdges;
+      }
+    }
+  }
+  return numberOfEdges;
 }
