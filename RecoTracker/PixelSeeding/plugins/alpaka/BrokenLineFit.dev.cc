@@ -159,11 +159,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         }
         brokenline::fastFit(acc, hits, fast_fit);
 
-        // no NaN here....
-        ALPAKA_ASSERT_ACC(fast_fit(0) == fast_fit(0));
-        ALPAKA_ASSERT_ACC(fast_fit(1) == fast_fit(1));
-        ALPAKA_ASSERT_ACC(fast_fit(2) == fast_fit(2));
-        ALPAKA_ASSERT_ACC(fast_fit(3) == fast_fit(3));
+#ifdef BROKENLINE_DEBUG
+        // any NaN value should cause the track to be rejected at a later stage
+        ALPAKA_ASSERT_ACC(not alpaka::math::isnan(acc, fast_fit(0)));
+        ALPAKA_ASSERT_ACC(not alpaka::math::isnan(acc, fast_fit(1)));
+        ALPAKA_ASSERT_ACC(not alpaka::math::isnan(acc, fast_fit(2)));
+        ALPAKA_ASSERT_ACC(not alpaka::math::isnan(acc, fast_fit(3)));
+#endif
       }
     }
   };
