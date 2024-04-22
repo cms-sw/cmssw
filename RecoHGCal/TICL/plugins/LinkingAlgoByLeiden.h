@@ -60,8 +60,11 @@ namespace ticl {
 
     edm::ESHandle<MagneticField> bfield_;
     edm::ESHandle<Propagator> propagator_;
+
+    double gamma{1};  //resolution parameter of the algortihm. The higher the gamma, the more communities are yielded
   };
-}  // namespace ticl
+}  
+// namespace ticl
 
 auto moveNodesFast(TICLGraph const &graph, Partition const &partition);
 #endif

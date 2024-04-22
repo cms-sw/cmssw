@@ -1,6 +1,8 @@
 #include <cmath>
 #include <string>
 #include <queue>
+#include <cassert>
+#include <cmath>
 #include "RecoHGCal/TICL/plugins/LinkingAlgoByLeiden.h"
 
 #include "DataFormats/GeometrySurface/interface/BoundDisk.h"
@@ -82,6 +84,7 @@ auto moveNodesFast(TICLGraph const &graph, Partition &partition) {
   auto communities{partition.setPartition()};
   std::random_shuffle(communities.begin(), communities.end());
   std::queue<Node<T>> queue{};
+  std::vector<Node<T>> empty_community{};
 
   for (auto &community : communities) {  //all nodes are added to queue in random order
     queueCommunity(community, queue);
@@ -91,7 +94,7 @@ auto moveNodesFast(TICLGraph const &graph, Partition &partition) {
     auto current_node{queue.front()};
   }
 
-  //*****NEEDS IMPLEMENTATION**********
+  //**********NEEDS IMPLEMENTATION**********
 
   return partition;
 }
@@ -107,29 +110,23 @@ auto queueCommunity(std::vector<Node<T>> &community, std::queue const &queue) {
 
 //quality function, Constant Potts Model
 template <class T>
-auto CPM(TICLGraph const &graph, Partition &partition) {
-  //**********NEEDS IMPLEMENTATION********
+auto CPM(Partition &partition, double const gamma) {
+  double CPMResult{};
+  for (auto const &community : partition) {
+    CPMResult += (numberOfEdges(community, community) - gamma * binomialCoefficient(communitySize(community), 2));
+  }
+  return CPMResult;
 }
 
-// the number of edges b/w 2 nodes is the number of edges between their elementary nodes
-double numberOfEdges(std::vector<Node<T>> communityA, std::vector<Node<T>> communityB) {
-  double numberOfEdges{};
+int factorial(int n) { return (n == 1 || n == 0) ? 1 : n * factorial(n - 1); }
 
-  std::vector<ElementaryNode> const flattenedCommunityA{};
-  std::vector<ElementaryNode> const flattenedCommunityB{};
-  flatCommunity(communityA, flattenedCommunityA);
-  flatCommunity(communityB, flattenedCommunityB);
-
-  for (auto const &elementaryNodeA : flattenedCommunityA) {
-    std::vector<unsigned int> const &neighboursA{elementaryNodeA.getNeighbours()};
-    for (auto const &Id : neighboursA) {
-      auto it{std::find_if(flattenedCommunityB.begin(),
-                           flattenedCommunityB.end(),
-                           [&Id](ElementaryNode const &elNodeB) { return (elNodeB.getId()) == Id; })};
-      if (it != flattenedCommunityB.end()) {
-        ++numberOfEdges;
-      }
-    }
-  }
-  return numberOfEdges;
+int binomialCoefficient(int n, int k) {
+  assert(n >= 0);
+  assert(k >= 0);
+  if (n < k)
+    return 0;
+  else if (n = k)
+    return 1;
+  else
+    return facorial(n) / (factorial(k) * factorial(n - k));
 }
