@@ -6,7 +6,7 @@
 #include <vector>
 
 #include <hip/hip_runtime.h>
-#include <rocm_version.h>
+#include <rocm-core/rocm_version.h>
 #include <rocm_smi/rocm_smi.h>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
