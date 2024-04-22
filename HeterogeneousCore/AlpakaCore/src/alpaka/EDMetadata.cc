@@ -14,7 +14,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // TODO: a callback notifying a WaitingTaskHolder (or similar)
     // would avoid blocking the CPU, but would also require more work.
 
-    if (event_) {
+    if (event_ and not eventComplete_) {
       // Must not throw in a destructor, and if there were an
       // exception could not really propagate it anyway.
       CMS_SA_ALLOW try { alpaka::wait(*event_); } catch (...) {
@@ -42,6 +42,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       }
     }
 
+    if (eventComplete_) {
+      return;
+    }
+
     // TODO: how necessary this check is?
     if (alpaka::getDev(*queue_) != alpaka::getDev(*consumer.queue_)) {
       throw edm::Exception(edm::errors::LogicError) << "Handling data from multiple devices is not yet supported";
@@ -54,7 +58,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       return;
     }
 
-    if (not alpaka::isComplete(*event_)) {
+    if (alpaka::isComplete(*event_)) {
+      eventComplete_ = true;
+    } else {
       // Event not yet occurred, so need to add synchronization
       // here. Sychronization is done by making the queue to wait
       // for an event, so all subsequent work in the queue will run
