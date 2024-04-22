@@ -64,7 +64,6 @@ ticlTracksterLinksTask = cms.Task(ticlTracksterLinks)
 mergeTICLTask = cms.Task(ticlLayerTileTask
     ,ticlIterationsTask
     ,ticlTracksterMergeTask
-    ,ticlTracksterLinksTask # needed for the customizer
 )
 ticl_v5.toReplaceWith(mergeTICLTask, mergeTICLTask.copyAndExclude([ticlTracksterMergeTask]))
 ticl_v5.toModify(mergeTICLTask, func=lambda x : x.add(ticlTracksterLinksTask))
@@ -75,7 +74,6 @@ mtdSoATask = cms.Task(mtdSoA)
 ticlCandidateTask = cms.Task(ticlCandidate)
 
 iterTICLTask = cms.Task(mergeTICLTask,
-    mtdSoATask, ticlCandidateTask, # needed for the customizer
     ticlPFTask)
 ticl_v5.toModify(iterTICLTask, func=lambda x : x.add(mtdSoATask, ticlCandidateTask))
 
