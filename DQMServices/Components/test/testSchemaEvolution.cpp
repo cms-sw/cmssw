@@ -64,7 +64,11 @@ void TestSchemaEvolution::fillBaseline() {
   unique_classes_current_.insert(std::make_pair("TH2", 5));
   unique_classes_current_.insert(std::make_pair("TH1", 8));
   unique_classes_current_.insert(std::make_pair("TProfile", 7));
+#if ROOT_VERSION_CODE < ROOT_VERSION(6, 33, 0)
   unique_classes_current_.insert(std::make_pair("TAttMarker", 2));
+#else
+  unique_classes_current_.insert(std::make_pair("TAttMarker", 3));
+#endif
   unique_classes_current_.insert(std::make_pair("TArray", 1));
   unique_classes_current_.insert(std::make_pair("TAxis", 10));
   unique_classes_current_.insert(std::make_pair("TProfile2D", 8));
