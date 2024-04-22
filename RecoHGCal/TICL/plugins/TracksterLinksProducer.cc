@@ -237,8 +237,7 @@ void TracksterLinksProducer::fillDescriptions(edm::ConfigurationDescriptions &de
   linkingDesc.addNode(edm::PluginDescription<TracksterLinkingPluginFactory>("type", "Skeletons", true));
 
   desc.add<edm::ParameterSetDescription>("linkingPSet", linkingDesc);
-  desc.add<std::vector<edm::InputTag>>(
-      "tracksters_collections", {edm::InputTag("ticlTrackstersCLUE3DHigh")});
+  desc.add<std::vector<edm::InputTag>>("tracksters_collections", {edm::InputTag("ticlTrackstersCLUE3DHigh")});
   desc.add<std::vector<edm::InputTag>>("original_masks",
                                        {edm::InputTag("hgcalMergeLayerClusters", "InitialLayerClustersMask")});
   desc.add<edm::InputTag>("layer_clusters", edm::InputTag("hgcalMergeLayerClusters"));
