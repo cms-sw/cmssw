@@ -94,6 +94,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // consumer or not. The goal is to have a "chain" of modules to
     // queue their work to the same queue.
     mutable std::atomic<bool> mayReuseQueue_ = true;
+    // Cache to potentially reduce alpaka::wait() calls
+    mutable std::atomic<bool> eventComplete_ = false;
   };
 #endif
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
