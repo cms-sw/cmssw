@@ -65,6 +65,7 @@ private:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker&, edm::Run const& run, edm::EventSetup const& c) override;
   void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
+  void initCfgs(const edm::Run&, const edm::EventSetup&);
 
   // functions to get correct object collection for chosen object type
   std::vector<HLTGenValObject> getObjectCollection(const edm::Event&);
@@ -81,6 +82,8 @@ private:
   const edm::EDGetTokenT<reco::GenJetCollection> ak8genJetToken_;
   const edm::EDGetTokenT<trigger::TriggerEvent> trigEventToken_;
 
+  bool initalised_;
+  
   // config strings/Psets
   std::string objType_;
   std::string dirName_;
@@ -101,8 +104,8 @@ private:
 
   // some miscellaneous member variables
   std::vector<std::string> hltPathsToCheck_;
-  std::vector<std::string> hltPaths;
-  std::vector<std::string> hltPathSpecificCuts;
+  std::vector<std::string> hltPaths_;
+  std::vector<std::string> hltPathSpecificCuts_;
   double dR2limit_;
   bool doOnlyLastFilter_;
 
@@ -128,7 +131,10 @@ HLTGenValSource::HLTGenValSource(const edm::ParameterSet& iConfig)
       ak8genJetToken_(consumes<reco::GenJetCollection>(
           iConfig.getParameterSet("inputCollections").getParameter<edm::InputTag>("ak8GenJets"))),
       trigEventToken_(consumes<trigger::TriggerEvent>(
-          iConfig.getParameterSet("inputCollections").getParameter<edm::InputTag>("TrigEvent"))) {
+	  iConfig.getParameterSet("inputCollections").getParameter<edm::InputTag>("TrigEvent"))),
+      initalised_(false)
+
+{
   // getting the histogram configurations
   histConfigs_ = iConfig.getParameterSetVector("histConfigs");
   histConfigs2D_ = iConfig.getParameterSetVector("histConfigs2D");
@@ -147,7 +153,7 @@ HLTGenValSource::HLTGenValSource(const edm::ParameterSet& iConfig)
 
 }
 
-void HLTGenValSource::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
+void HLTGenValSource::initCfgs(const edm::Run& iRun, const edm::EventSetup& iSetup) {
   // writing general information to info JSON
   auto t = std::time(nullptr);
   auto tm = *std::localtime(&t);
@@ -210,14 +216,14 @@ void HLTGenValSource::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& i
     bool pathfound = false;
     for (auto const& pathFromConfig : hltConfig_.triggerNames()) {
       if (pathFromConfig.find(cleanedPathToCheck) != std::string::npos) {
-        hltPaths.push_back(pathFromConfig);
+        hltPaths_.push_back(pathFromConfig);
 
         // in case the path was added twice, we'll add a tag automatically
-        int count = std::count(hltPaths.begin(), hltPaths.end(), pathFromConfig);
+        int count = std::count(hltPaths_.begin(), hltPaths_.end(), pathFromConfig);
         if (count > 1) {
           pathSpecificCuts += std::string(",autotag=v") + std::to_string(count);
         }
-        hltPathSpecificCuts.push_back(pathSpecificCuts);
+        hltPathSpecificCuts_.push_back(pathSpecificCuts);
         pathfound = true;
       }
     }
@@ -233,6 +239,7 @@ void HLTGenValSource::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& i
                                      << notFoundPathsMessage << std::endl;
   }
 
+
   // before creating the collections for each path, we'll store the needed configurations in a pset
   // we'll copy this base multiple times and add the respective path
   // most of these options are not needed in the pathColl, but in the filterColls created in the pathColl
@@ -243,11 +250,16 @@ void HLTGenValSource::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& i
   pathCollConfig.addParameter<std::string>("hltProcessName", hltProcessName_);
 
   // creating a histogram collection for each path
-  for (const auto& path : hltPaths) {
+  for (const auto& path : hltPaths_) {
     edm::ParameterSet pathCollConfigStep = pathCollConfig;
     pathCollConfigStep.addParameter<std::string>("triggerPath", path);
     collectionPath_.emplace_back(HLTGenValHistCollPath(pathCollConfigStep, hltConfig_));
   }
+  initalised_ = true;
+}
+
+void HLTGenValSource::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
+  if(!initalised_) initCfgs(iRun,iSetup);
 }
 
 // ------------ method called for each event  ------------
@@ -280,7 +292,7 @@ void HLTGenValSource::bookHistograms(DQMStore::IBooker& iBooker, const edm::Run&
   for (long unsigned int i = 0; i < collectionPath_.size(); i++) {
     std::vector<edm::ParameterSet> histConfigs = histConfigs_;
     for (auto& histConfig : histConfigs) {
-      histConfig.addParameter<std::string>("pathSpecificCuts", hltPathSpecificCuts.at(i));
+      histConfig.addParameter<std::string>("pathSpecificCuts", hltPathSpecificCuts_.at(i));
       histConfig.addParameter<std::vector<edm::ParameterSet>>("binnings",
                                                               binnings_);  // passing along the user-defined binnings
     }
