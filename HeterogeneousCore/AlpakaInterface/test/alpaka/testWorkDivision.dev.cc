@@ -84,7 +84,7 @@ struct testWordDivisionDefaultRange {
     if constexpr (loopScope == LoopScope::Block) {
       if (firstInLoopRange<loopScope>(acc)) {
         auto expected = expectedCount<rangeType, loopScope>(acc, skip, size);
-        assert(counter == expected);
+        ALPAKA_ASSERT_ACC(counter == expected);
       }
     }
   }
