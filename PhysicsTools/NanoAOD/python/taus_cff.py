@@ -68,6 +68,7 @@ _tauVarsBase = cms.PSet(P4Vars,
        leadTkDeltaEta = Var("?leadChargedHadrCand.isNonnull()?(leadChargedHadrCand.eta - eta):0",float, doc="eta of the leading track, minus tau eta",precision=8),
        leadTkDeltaPhi = Var("?leadChargedHadrCand.isNonnull()?deltaPhi(leadChargedHadrCand.phi, phi):0",float, doc="phi of the leading track, minus tau phi",precision=8),
 
+       # lazyEval=True: leadChargedHadrCand() returns the base type `reco::CandidatePtr`, needs to be dynamically casted to PackedCandidate to call dxy() / dz()
        dxy = Var("?leadChargedHadrCand.isNonnull()?leadChargedHadrCand().dxy():0",float, doc="d_{xy} of lead track with respect to PV, in cm (with sign)",precision=10, lazyEval=True),
        dz = Var("?leadChargedHadrCand.isNonnull()?leadChargedHadrCand().dz():0",float, doc="d_{z} of lead track with respect to PV, in cm (with sign)",precision=14, lazyEval=True),
 
