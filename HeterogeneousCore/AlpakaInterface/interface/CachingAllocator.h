@@ -207,7 +207,28 @@ namespace cms::alpakatools {
 
       bool recache = (cachedBytes_.free + block.bytes <= maxCachedBytes_);
       if (recache) {
-        alpaka::enqueue(*(block.queue), *(block.event));
+        // If enqueuing the event fails, very likely an error has
+        // occurred in the asynchronous processing. In that case the
+        // error will show up in all device API function calls, and
+        // the free() will be called by destructors during stack
+        // unwinding. In order to avoid terminate() being called
+        // because of multiple exceptions it is best to ignore these
+        // errors.
+        try {
+          alpaka::enqueue(*(block.queue), *(block.event));
+        } catch (std::exception& e) {
+          if (debug_) {
+            std::ostringstream out;
+            out << "CachingAllocator::free() error from alpaka::enqueue(): " << e.what() << "\n";
+            out << "\t" << deviceType_ << " " << alpaka::getName(device_) << " freed " << block.bytes << " bytes at "
+                << ptr << " from associated queue " << block.queue->m_spQueueImpl.get() << ", event "
+                << block.event->m_spEventImpl.get() << " .\n\t\t " << cachedBlocks_.size()
+                << " available blocks cached (" << cachedBytes_.free << " bytes), " << liveBlocks_.size()
+                << " live blocks (" << cachedBytes_.live << " bytes) outstanding." << std::endl;
+            std::cout << out.str() << std::endl;
+          }
+          return;
+        }
         cachedBytes_.free += block.bytes;
         // after the call to insert(), cachedBlocks_ shares ownership of the buffer
         // TODO use std::move ?
