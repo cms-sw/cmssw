@@ -90,13 +90,12 @@ void l1t::RegionalMuonRawDigiTranslator::fillRegionalMuonCand(RegionalMuonCand& 
   } else if (tf == omtf_neg || tf == omtf_pos) {
     if (useOmtfDisplacementInfo) {  // In Run-3 2024 we receive displaced muon information from OMTF
       mu.setHwPtUnconstrained((raw_data_32_63 >> kOmtfPtUnconstrainedShift_) & ptUnconstrainedMask_);
-    } else {
-      mu.setTrackSubAddress(RegionalMuonCand::kLayers,
-                            (rawTrackAddress >> omtfTrAddrLayersShift_) & omtfTrAddrLayersMask_);
-      mu.setTrackSubAddress(RegionalMuonCand::kZero, 0);
-      mu.setTrackSubAddress(RegionalMuonCand::kWeight,
-                            (rawTrackAddress >> omtfTrAddrWeightShift_) & omtfTrAddrWeightMask_);
     }
+    mu.setTrackSubAddress(RegionalMuonCand::kLayers,
+                          (rawTrackAddress >> omtfTrAddrLayersShift_) & omtfTrAddrLayersMask_);
+    mu.setTrackSubAddress(RegionalMuonCand::kZero, 0);
+    mu.setTrackSubAddress(RegionalMuonCand::kWeight,
+                          (rawTrackAddress >> omtfTrAddrWeightShift_) & omtfTrAddrWeightMask_);
   } else {
     std::map<int, int> trackAddr;
     trackAddr[0] = rawTrackAddress;
@@ -189,7 +188,7 @@ void l1t::RegionalMuonRawDigiTranslator::generatePackedDataWords(const RegionalM
                    (mu.hwPhi() < 0) << phiSignShift_;
 
   // generate the raw track address from the subaddresses
-  int rawTrkAddr = generateRawTrkAddress(mu, isKbmtf, useOmtfDisplacementInfo);
+  int rawTrkAddr = generateRawTrkAddress(mu, isKbmtf);
 
   raw_data_32_63 = mu.hwSign() << signShift_ | mu.hwSignValid() << signValidShift_ |
                    (rawTrkAddr & trackAddressMask_) << trackAddressShift_;
@@ -215,9 +214,7 @@ uint64_t l1t::RegionalMuonRawDigiTranslator::generate64bitDataWord(const Regiona
   return (((uint64_t)msw) << 32) + lsw;
 }
 
-int l1t::RegionalMuonRawDigiTranslator::generateRawTrkAddress(const RegionalMuonCand& mu,
-                                                              const bool isKalman,
-                                                              const bool useOmtfDisplacementInfo) {
+int l1t::RegionalMuonRawDigiTranslator::generateRawTrkAddress(const RegionalMuonCand& mu, const bool isKalman) {
   int tf = mu.trackFinderType();
   int rawTrkAddr = 0;
   if (tf == bmtf) {
@@ -266,7 +263,7 @@ int l1t::RegionalMuonRawDigiTranslator::generateRawTrkAddress(const RegionalMuon
                              << " subaddresses. Check the data format. Setting track address to 0.";
       rawTrkAddr = 0;
     }
-  } else if ((tf == omtf_neg || tf == omtf_pos) && !useOmtfDisplacementInfo) {
+  } else if (tf == omtf_neg || tf == omtf_pos) {
     // protection against a track address map with the wrong size
     if (mu.trackAddress().size() == RegionalMuonCand::kNumOmtfSubAddr) {
       rawTrkAddr = (mu.trackSubAddress(RegionalMuonCand::kLayers) & omtfTrAddrLayersMask_) << omtfTrAddrLayersShift_ |
