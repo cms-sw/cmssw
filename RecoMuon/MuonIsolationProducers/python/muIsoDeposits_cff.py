@@ -11,7 +11,6 @@ import FWCore.ParameterSet.Config as cms
 from RecoMuon.MuonIsolationProducers.muIsoDeposits_setup_cff import *
 #the default set of modules first
 from RecoMuon.MuonIsolationProducers.muIsoDepositCopies_cfi import *
-#from RecoMuon.MuonIsolationProducers.muIsoDepositCalByAssociatorHits_cfi import *
 import RecoMuon.MuonIsolationProducers.muIsoDepositTk_cfi
 import RecoMuon.MuonIsolationProducers.muIsoDepositCalByAssociatorTowers_cfi
 import RecoMuon.MuonIsolationProducers.muIsoDepositCalByAssociatorHits_cfi
