@@ -5,6 +5,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include <unordered_set>
 #include <cassert>
+#include <algorithm>
 
 //NB NODE NEEDS AN ADDNEIGHBOUR METHOD BC TICLGRAPHPRODUCER NEEDS IT
 
@@ -55,8 +56,13 @@ public:
   Node(std::vector<T> const& internalStructure) : internalStructure_{internalStructure} {
     assert(internalStructure.size() != 0);
   };
-
   const std::vector<T>& getInternalStructure() const { return internalStructure_; }
+  //THIS implies that NO node can be a vector of size zero. Therefore, before creating the aggregate graph, one should remove empty communities.
+  //a node is of degree zero if it consists in a vector of ElementaryNodes
+  bool isNodeDegreeZero() {
+    assert(internalStructure_.size() != 0);
+    return (internalStructure_[0].size() == 0) ? true : false;
+  }
 };
 
 template <class T>
@@ -130,39 +136,31 @@ public:
   }*/
 };
 
-/*template <class T>
+template <class T>
 class Partition {
   std::vector<std::vector<Node<T>>> communities_{};
 
 public:
   const std::vector<std::vector<Node<T>>>& getPartition() const { return communities_; }
-  void flat() {
+  auto flatPartition(std::vector<std::vector<ElementaryNode>> const& flattenedPartition) {
     for (auto& community : communities_) {
-      std::vector<Node<T>> flattenedCommunity{};
-      for (auto const& node : community) {
-        {
-
-          const std::vector<ElementaryNode>& elemNodes{node.getElementaryNodes()};
-          for (auto const& elemNode : elemNodes) {
-            flattenedCommunity.push_back(Node{elemNode});
-          }
-        }
-        community = flattenedCommunity;
-        flattenedCommunity.clear();
-      }
+      std::vector<ElementaryNode> flattenedCommunity{};
+      flattenedPartition.push_back(flatCommunity(community, flattenedCommunity));
     }
+    return flattenedPartition;
   }
-};*/
+};
 
-//THIS implies that NO node can be a vector of size zero. Therefore, before creating the aggregate graph, one should remove empty communities.
 template <class T>
-
-//a node is of degree zero if it consists in a vector of ElementaryNodes
-//NB this method requires assumption that a Node NEVER contains an empty vector!!!!
-bool isNodeDegreeZero(Node<T> const& node) {
-  std::vector<T> const& internalStructure{node.getInternalStructure()};
-  assert(internalStructure.size() != 0);
-  return (internalStructure[0].size() == 0) ? true : false;
+auto flatCommunity(std::vector<Node<T>> const& community, std::vector<ElementaryNode> const& flattenedCommunity) {
+  for (auto const& node : community) {
+    if (node.isNodeDegreeZero()) {
+      for (auto const& elementaryNode : node.getInternalSturcture())
+        flattenedCommunity.push_back(elementaryNode);
+    } else
+      flattenedCommunity(node, flattenedCommunity);
+  }
+  return flattenedCommunity;
 }
 
 //decltype + size=1=>elementary?
