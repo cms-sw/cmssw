@@ -15,7 +15,7 @@ namespace ticl {
       }
     }
   }
-}
+}  // namespace ticl
 
 std::vector<std::vector<unsigned int>> TICLGraph::findSubComponents() {
   std::vector<std::vector<unsigned int>> components;

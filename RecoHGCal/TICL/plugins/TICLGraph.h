@@ -7,37 +7,37 @@
 
 namespace ticl {
 
-class Node {
-public:
-  Node() = default;
-  Node(unsigned index, bool isTrackster = true) : index_(index), isTrackster_(isTrackster), alreadyVisited_{false} {};
+  class Node {
+  public:
+    Node() = default;
+    Node(unsigned index, bool isTrackster = true) : index_(index), isTrackster_(isTrackster), alreadyVisited_{false} {};
 
-  inline void addOuterNeighbour(unsigned int trackster_id) { outerNeighboursId_.push_back(trackster_id); }
-  inline void addInnerNeighbour(unsigned int trackster_id) { innerNeighboursId_.push_back(trackster_id); }
+    inline void addOuterNeighbour(unsigned int trackster_id) { outerNeighboursId_.push_back(trackster_id); }
+    inline void addInnerNeighbour(unsigned int trackster_id) { innerNeighboursId_.push_back(trackster_id); }
 
-  inline const unsigned int getId() const { return index_; }
-  const std::vector<unsigned int>& getOuterNeighbours() const { return outerNeighboursId_; }
-  const std::vector<unsigned int>& getInnerNeighbours() const { return innerNeighboursId_; }
-  void findSubComponents(std::vector<Node>& graph, std::vector<unsigned int>& subComponent, std::string tabs);
+    inline const unsigned int getId() const { return index_; }
+    const std::vector<unsigned int>& getOuterNeighbours() const { return outerNeighboursId_; }
+    const std::vector<unsigned int>& getInnerNeighbours() const { return innerNeighboursId_; }
+    void findSubComponents(std::vector<Node>& graph, std::vector<unsigned int>& subComponent, std::string tabs);
 
-  inline bool isInnerNeighbour(const unsigned int tid) {
-    auto findInner = std::find(innerNeighboursId_.begin(), innerNeighboursId_.end(), tid);
-    return findInner != innerNeighboursId_.end();
-  }
+    inline bool isInnerNeighbour(const unsigned int tid) {
+      auto findInner = std::find(innerNeighboursId_.begin(), innerNeighboursId_.end(), tid);
+      return findInner != innerNeighboursId_.end();
+    }
 
-  ~Node() = default;
+    ~Node() = default;
 
-private:
-  unsigned index_;
-  bool isTrackster_;
+  private:
+    unsigned index_;
+    bool isTrackster_;
 
-  std::vector<unsigned int> outerNeighboursId_;
-  std::vector<unsigned int> innerNeighboursId_;
-  bool alreadyVisited_;
+    std::vector<unsigned int> outerNeighboursId_;
+    std::vector<unsigned int> innerNeighboursId_;
+    bool alreadyVisited_;
 
-  //bool areCompatible(const std::vector<Node>& graph, const unsigned int& outerNode) { return true; };
-};
-}
+    //bool areCompatible(const std::vector<Node>& graph, const unsigned int& outerNode) { return true; };
+  };
+}  // namespace ticl
 
 class TICLGraph {
 public:

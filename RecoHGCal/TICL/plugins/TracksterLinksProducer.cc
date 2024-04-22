@@ -208,7 +208,7 @@ void TracksterLinksProducer::produce(edm::Event &evt, const edm::EventSetup &es)
 
 void TracksterLinksProducer::printTrackstersDebug(const std::vector<Trackster> &tracksters, const char *label) const {
   int counter = 0;
-  LogDebug("TracksterLinksProducer").log([&](auto& log) {
+  LogDebug("TracksterLinksProducer").log([&](auto &log) {
     for (auto const &t : tracksters) {
       log << counter++ << " TracksterLinksProducer (" << label << ") obj barycenter: " << t.barycenter()
           << " eta,phi (baricenter): " << t.barycenter().eta() << ", " << t.barycenter().phi()
