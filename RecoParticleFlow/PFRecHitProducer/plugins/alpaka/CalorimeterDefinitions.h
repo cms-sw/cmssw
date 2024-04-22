@@ -101,7 +101,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::particleFlowRecHitProducer {
         return detId2denseIdHE(detId);
 
       printf("invalid detId: %u\n", detId);
-      return 0;
+      return -1;
     }
   };
 
