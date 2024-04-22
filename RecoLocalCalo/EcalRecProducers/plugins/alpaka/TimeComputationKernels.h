@@ -149,7 +149,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::multifit {
       auto const totalElements = nthreads_per_channel * nchannels;
 
       auto const elemsPerBlock = alpaka::getWorkDiv<alpaka::Block, alpaka::Elems>(acc)[0u];
-      assert(nthreads_per_channel * nchannels_per_block == elemsPerBlock);
+      ALPAKA_ASSERT_ACC(nthreads_per_channel * nchannels_per_block == elemsPerBlock);
 
       auto* shr_chi2s = alpaka::getDynSharedMem<ScalarType>(acc);
       auto* shr_time_wgt = shr_chi2s + elemsPerBlock;
@@ -213,8 +213,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::multifit {
           } else if (ltx <= 44) {
             sample_i = 8;
             sample_j = 9;
-          } else
-            assert(false);
+          } else {
+            // FIXME this needs a more portable solution, that wraps abort() / __trap() / throw depending on the back-end
+            ALPAKA_ASSERT_ACC(false);
+          }
 
           auto const tx_i = ch_start + sample_i;
           auto const tx_j = ch_start + sample_j;
