@@ -15,6 +15,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 #endif
     }
 
-    void EDMetadataSentry::finish() { metadata_->recordEvent(); }
+    void EDMetadataSentry::finish(bool launchedAsyncWork) {
+      if (launchedAsyncWork) {
+        metadata_->recordEvent();
+      } else {
+        // If we are certain no asynchronous work was launched (i.e.
+        // the Queue was not used in any way), there is no need to
+        // synchronize, and the Event can be discarded.
+        metadata_->discardEvent();
+      }
+    }
   }  // namespace detail
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE

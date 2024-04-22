@@ -26,7 +26,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
       std::shared_ptr<EDMetadata> metadata() { return metadata_; }
 
-      void finish();
+      // true if asynchronous work was (possibly) launched
+      void finish(bool launchedAsyncWork);
 
     private:
       std::shared_ptr<EDMetadata> metadata_;
