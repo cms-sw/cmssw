@@ -180,6 +180,8 @@ private:
     MonitorElement* hitProfile = nullptr;
     MonitorElement* hit_multiplicity = nullptr;
 
+    MonitorElement *leadingEdgeCumulativePerPlane_both = nullptr, *leadingEdgeCumulativePerPlane_le = nullptr,
+                   *trailingEdgeCumulativePerPlane_te = nullptr;
     MonitorElement* TimeOverThresholdCumulativePerPlane = nullptr;
     MonitorElement* pixelTomography_far = nullptr;
     MonitorElement* EfficiencyWRTPixelsInPlane = nullptr;
@@ -511,6 +513,18 @@ CTPPSDiamondDQMSource::PlanePlots::PlanePlots(DQMStore::IBooker& ibooker, unsign
       "hit profile", title + " hit profile;x (mm)", 19. * INV_DISPLAY_RESOLUTION_FOR_HITS_MM, -0.5, 18.5);
   hit_multiplicity = ibooker.book1D("channels per plane", title + " channels per plane; ch per plane", 13, -0.5, 12.5);
 
+  leadingEdgeCumulativePerPlane_both = ibooker.book1D("leading edge (le and te)",
+                                              title + " leading edge (recHits); leading edge (ns)",
+                                              25 * windowsNum,
+                                              0,
+                                              25 * windowsNum);
+  leadingEdgeCumulativePerPlane_le = ibooker.book1D(
+      "leading edge (le only)", title + " leading edge (DIGIs); leading edge (ns)", 25 * windowsNum, 0, 25 * windowsNum);
+  trailingEdgeCumulativePerPlane_te = ibooker.book1D("trailing edge (te only)",
+                                             title + " trailing edge (te only) (DIGIs); trailing edge (ns)",
+                                             25 * windowsNum,
+                                             0,
+                                             25 * windowsNum);
   TimeOverThresholdCumulativePerPlane =
       ibooker.book1D("time over threshold", title + " time over threshold;time over threshold (ns)", 75, -25, 50);
 
@@ -1137,6 +1151,13 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
           planePlots_[detId_plane].digiProfileCumulativePerPlane->Fill(detId.channel());
           channelsPerPlane[detId_plane]++;
         }
+
+        // Check dropped trailing edges
+        if ((digi.trailingEdge() == 0) && (digi.leadingEdge() != 0)){
+          planePlots_[detId_plane].leadingEdgeCumulativePerPlane_le->Fill(HPTDC_BIN_WIDTH_NS * digi.leadingEdge());
+        } else if ((digi.leadingEdge() == 0  && (digi.trailingEdge() != 0))) { // check dropped leading edges
+          planePlots_[detId_plane].trailingEdgeCumulativePerPlane_te->Fill(HPTDC_BIN_WIDTH_NS * digi.trailingEdge());
+        }
       }
     }
   }
@@ -1154,6 +1175,7 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
         continue;
 
       if (rechit.ootIndex() != CTPPSDiamondRecHit::TIMESLICE_WITHOUT_LEADING) {
+        planePlots_[detId_plane].leadingEdgeCumulativePerPlane_both->Fill(rechit.time() + 25 * rechit.ootIndex());
         planePlots_[detId_plane].TimeOverThresholdCumulativePerPlane->Fill(rechit.toT());
       }
       if (planePlots_.count(detId_plane) != 0) {
