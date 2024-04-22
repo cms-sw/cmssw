@@ -513,7 +513,4 @@
    <class name="std::vector<SeedStopInfo>" persistent="false"/>
    <class name="edm::Wrapper<std::vector<SeedStopInfo> >" persistent="false"/>
 
-   <class name="edm::ValueMap<Point3DBase<float,GlobalTag> >"/>
-   <class name="edm::Wrapper<edm::ValueMap<Point3DBase<float,GlobalTag> > >"/>
-
   </lcgdict>
