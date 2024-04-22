@@ -47,9 +47,9 @@ autoNANO = {
     # PromptReco config: PHYS+L1
     'Prompt' : {'sequence': '@PHYS',
                 'customize': '@PHYS+@L1'},
-    # Add lepton time-life info tables through customize combined with PHYS
-    'LepTimeLife' : {'sequence': '@PHYS',
-                     'customize': '@PHYS+PhysicsTools/NanoAOD/leptonTimeLifeInfo_common_cff.addTimeLifeInfo'},
+    # Add lepton track parameters through customize combined with PHYS
+    'LepTrackInfo' : {'sequence': '@PHYS',
+                      'customize': '@PHYS+PhysicsTools/NanoAOD/leptonTimeLifeInfo_common_cff.addTrackVarsToTimeLifeInfo'},
     # Custom BTV Nano for SF measurements or tagger training
     'BTV' : {'sequence': '@PHYS',
              'customize':'@PHYS+PhysicsTools/NanoAOD/custom_btv_cff.BTVCustomNanoAOD'}
