@@ -215,7 +215,7 @@ def customiseTICLv5FromReco(process, enableDumper = False):
     process.ticlLayerTileTask = cms.Task(ticlLayerTileProducer)
 
     process.ticlIterationsTask = cms.Task(
-        ticlCLUE3DEM,
+        process.ticlTrackstersCLUE3DHigh,
     )
 
     process.mtdSoA = _mtdSoAProducer.clone()
