@@ -22,6 +22,7 @@
 <use name="RecoLocalCalo/HcalRecAlgos"/>
 <use name="PhysicsTools/TensorFlow" />
 <use name="CommonTools/MVAUtils" />
+<use name="xgboost"/>
 <export>
   <lib name="1"/>
 </export>

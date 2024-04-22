@@ -6,6 +6,7 @@
 #include "FWCore/Framework/interface/moduleAbilities.h"
 #include "FWCore/Utilities/interface/EDPutToken.h"
 #include "FWCore/Utilities/interface/Transition.h"
+#include "HeterogeneousCore/AlpakaCore/interface/alpaka/Event.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/DeviceProductType.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/EDMetadataAcquireSentry.h"
 #include "HeterogeneousCore/AlpakaCore/interface/EventCache.h"
@@ -55,6 +56,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     template <edm::Transition Tr = edm::Transition::Event>
     [[nodiscard]] auto produces(std::string instanceName) noexcept {
       return ProducerBaseAdaptor<ProducerBase, Tr>(*this, std::move(instanceName));
+    }
+
+    // For a workaround until the ProductID problem in issue https://github.com/cms-sw/cmssw/issues/44643 is fixed
+    void producesTemporarily(std::string const& iTypeName, std::string instanceName = std::string()) {
+      auto td = edm::TypeWithDict::byName(iTypeName);
+      Base::template produces<edm::Transition::Event>(edm::TypeID(td.typeInfo()), std::move(instanceName));
     }
 
     static void prevalidate(edm::ConfigurationDescriptions& descriptions) {

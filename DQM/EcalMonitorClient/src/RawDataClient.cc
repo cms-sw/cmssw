@@ -57,7 +57,7 @@ namespace ecaldqm {
       for (unsigned iS(0); iS < nFEFlags; iS++) {
         float entries(sFEStatus.getBinContent(getEcalDQMSetupObjects(), id, iS + 1));
         towerEntries += entries;
-        if (entries > 0. && iS != Enabled && iS != Suppressed && iS != FIFOFull && iS != FIFOFullL1ADesync &&
+        if (entries > 0. && iS != Enabled && iS != Suppressed && iS != ForcedFullSupp && iS != FIFOFull &&
             iS != ForcedZS)
           towerStatus = doMask ? kMBad : kBad;
       }

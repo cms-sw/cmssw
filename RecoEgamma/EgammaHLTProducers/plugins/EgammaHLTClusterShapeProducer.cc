@@ -63,6 +63,7 @@ EgammaHLTClusterShapeProducer::EgammaHLTClusterShapeProducer(const edm::Paramete
   produces<reco::RecoEcalCandidateIsolationMap>("sigmaIPhiIPhi5x5NoiseCleaned");
   produces<reco::RecoEcalCandidateIsolationMap>("sMajor");
   produces<reco::RecoEcalCandidateIsolationMap>("sMinor");
+  produces<reco::RecoEcalCandidateIsolationMap>("e2x2");
 }
 
 EgammaHLTClusterShapeProducer::~EgammaHLTClusterShapeProducer() {}
@@ -108,6 +109,8 @@ void EgammaHLTClusterShapeProducer::produce(edm::StreamID sid,
   reco::RecoEcalCandidateIsolationMap clshSMajorMap(recoecalcandHandle);
   reco::RecoEcalCandidateIsolationMap clshSMinorMap(recoecalcandHandle);
 
+  reco::RecoEcalCandidateIsolationMap e2x2Map(recoecalcandHandle);
+
   for (unsigned int iRecoEcalCand = 0; iRecoEcalCand < recoecalcandHandle->size(); iRecoEcalCand++) {
     reco::RecoEcalCandidateRef recoecalcandref(recoecalcandHandle, iRecoEcalCand);
     if (recoecalcandref->superCluster()->seed()->seed().det() != DetId::Ecal) {  //HGCAL, skip for now
@@ -121,6 +124,8 @@ void EgammaHLTClusterShapeProducer::produce(edm::StreamID sid,
 
       clshSMajorMap.insert(recoecalcandref, 0);
       clshSMinorMap.insert(recoecalcandref, 0);
+
+      e2x2Map.insert(recoecalcandref, 0);
 
       continue;
     }
@@ -161,6 +166,9 @@ void EgammaHLTClusterShapeProducer::produce(edm::StreamID sid,
     float sMin = moments.sMin;
     clshSMajorMap.insert(recoecalcandref, sMaj);
     clshSMinorMap.insert(recoecalcandref, sMin);
+
+    auto const e2x2 = lazyTools.e2x2(*(recoecalcandref->superCluster()->seed()));
+    e2x2Map.insert(recoecalcandref, e2x2);
   }
 
   iEvent.put(std::make_unique<reco::RecoEcalCandidateIsolationMap>(clshMap));
@@ -175,6 +183,8 @@ void EgammaHLTClusterShapeProducer::produce(edm::StreamID sid,
 
   iEvent.put(std::make_unique<reco::RecoEcalCandidateIsolationMap>(clshSMajorMap), "sMajor");
   iEvent.put(std::make_unique<reco::RecoEcalCandidateIsolationMap>(clshSMinorMap), "sMinor");
+
+  iEvent.put(std::make_unique<reco::RecoEcalCandidateIsolationMap>(e2x2Map), "e2x2");
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

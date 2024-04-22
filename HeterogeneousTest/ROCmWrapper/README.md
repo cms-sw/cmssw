@@ -12,12 +12,12 @@ ROCm-based libraries, and using them from multiple plugins.
 The package `HeterogeneousTest/ROCmWrapper` implements a library that defines and exports host-side
 wrappers that launch the kernels defined in the `HeterogeneousTest/ROCmKernel` library:
 ```c++
-namespace cms::cudatest {
+namespace cms::rocmtest {
 
   void wrapper_add_vectors_f(...);
   void wrapper_add_vectors_d(...);
 
-}  // namespace cms::cudatest
+}  // namespace cms::rocmtest
 ```
 These wrappers can be used from host-only, non-ROCm aware libraries, plugins and applications. They
 can be linked with the standard host linker.
@@ -26,7 +26,7 @@ The `plugins` directory implements the `ROCmTestWrapperAdditionModule` `EDAnalyz
 wrappers defined in this library. This plugin shows how the wrappers can be used directly from a
 host-only, non-ROCm aware plugin.
 
-The `test` directory implements the `testCudaDeviceAdditionWrapper` test binary that calls the
+The `test` directory implements the `testRocmDeviceAdditionWrapper` test binary that calls the
 wrappers defined in this library, and shows how they can be used directly from a host-only, non-ROCm
 aware application.
 It also contains the `testROCmTestWrapperAdditionModule.py` python configuration to exercise the

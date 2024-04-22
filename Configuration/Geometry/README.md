@@ -160,3 +160,4 @@ Several detector combinations have been generated:
 * D107 = T32+C17+M11+I17+O9+F8
 * D108 = T35+C19+M11+I17+O9+F8
 * D109 = T35+C24+M11+I17+O9+F8
+* D110 = T35+C18+M11+I17+O9+F8

@@ -20,6 +20,7 @@
 
 #include <iostream>
 #include <memory>
+#include <string>
 
 class ScCaloRawToDigi : public edm::stream::EDProducer<> {
 public:
@@ -31,11 +32,17 @@ public:
 private:
   void produce(edm::Event&, const edm::EventSetup&) override;
 
-  void unpackOrbit(const unsigned char* buf, size_t len);
+  enum class CaloObjectType { Jet, EGamma, Tau, EtSum };
 
-  void unpackLinkJets(uint32_t* dataBlock, int bx);
-  void unpackLinkEGammas(uint32_t* dataBlock, int bx);
-  void unpackLinkTaus(uint32_t* dataBlock, int bx);
+  void unpackOrbitFromDMA(edm::Handle<SDSRawDataCollection>& ScoutingRawDataCollection, int sourceId);
+  void unpackTcpData(edm::Handle<SDSRawDataCollection>& ScoutingRawDataCollection,
+                     std::vector<int> sourceList,
+                     CaloObjectType dataType);
+  void unpackOrbitFromTCP(const unsigned char* buf, size_t len, CaloObjectType dataType);
+
+  void unpackJets(uint32_t* dataBlock, int bx, int nObjets);
+  void unpackEGammas(uint32_t* dataBlock, int bx, int nObjets);
+  void unpackTaus(uint32_t* dataBlock, int bx, int nObjets);
   void unpackEtSums(uint32_t* dataBlock, int bx);
 
   int nJetsOrbit_, nEGammasOrbit_, nTausOrbit_, nEtSumsOrbit_;
@@ -47,7 +54,13 @@ private:
   std::vector<std::vector<l1ScoutingRun3::BxSums>> orbitBufferEtSums_;
 
   bool debug_ = false;
-  bool enableAllSums_ = false;
-  edm::InputTag srcInputTag;
-  edm::EDGetToken rawToken;
+  bool enableAllSums_ = false;  // write the full sert of ET sums
+  edm::InputTag srcInputTag_;
+  edm::EDGetToken rawToken_;
+  std::string dataSourceMode_;  // data from TCP / DMA
+  edm::ParameterSet dataSourceConfig_;
+  std::vector<int> jetSourceIdList_;
+  std::vector<int> eGammaSourceIdList_;
+  std::vector<int> tauSourceIdList_;
+  std::vector<int> etSumSourceIdList_;
 };

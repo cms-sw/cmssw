@@ -113,15 +113,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           hrv_d.contentSize = nHits;
           hrv_d.contentStorage = hits_d.view().phiBinnerStorage();
 
-          // fillManyFromVector<Acc1D>(h_d.data(), nParts, v_d.data(), offsets_d.data(), offsets[10], 256, queue);
-          /*          cms::alpakatools::fillManyFromVector<Acc1D>(&(hits_d.view().phiBinner()),
-                                                      nLayers,
-                                                      hits_d.view().iphi(),
-                                                      hits_d.view().hitsLayerStart().data(),
-                                                      nHits,
-                                                      (uint32_t)256,
-                                                      queue);
-*/
           cms::alpakatools::fillManyFromVector<Acc1D>(&(hits_d.view().phiBinner()),
                                                       hrv_d,
                                                       nLayers,

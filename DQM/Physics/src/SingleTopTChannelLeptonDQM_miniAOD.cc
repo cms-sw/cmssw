@@ -268,7 +268,6 @@ namespace SingleTopTChannelLepton_miniAOD {
     // pt of the 4. leading jet (corrected to L2+L3)
     //hists_["jet4Pt_"] = ibooker.book1D("Jet4Pt", "pt_{30,loose}(jet4)", 60, 0., 300.);
     // MET (tc)
-    hists_["slimmedMETsNoHF_"] = ibooker.book1D("slimmedMETsNoHF", "MET_{slimmedNoHF}", 40, 0., 200.);
     // MET (pflow)
     hists_["slimmedMETsPuppi_"] = ibooker.book1D("slimmedMETsPuppi", "MET_{slimmedPuppi}", 40, 0., 200.);
     // dz for muons (to suppress cosmis)
@@ -316,9 +315,9 @@ namespace SingleTopTChannelLepton_miniAOD {
     //hists_["jetBDiscVtx_"] = ibooker.book1D("JetBDiscVtx",
     //    "Disc_{SSVHE}(Jet)", 35, -1., 6.);
     // multiplicity for combined secondary vertex
-    hists_["jetMultBCSVM_"] = ibooker.book1D("JetMultBCSVM", "N_{30}(CSVM)", 10, 0., 10.);
+    hists_["jetMultBDeepJetM_"] = ibooker.book1D("JetMultBDeepJetM", "N_{30}(DeepJetM)", 10, 0., 10.);
     // btag discriminator for combined secondary vertex
-    hists_["jetBCSV_"] = ibooker.book1D("JetDiscCSV", "BJet Disc_{CSV}(JET)", 100, -1., 2.);
+    hists_["jetBDeepJet_"] = ibooker.book1D("JetDiscDeepJet", "BJet Disc_{DeepJet}(JET)", 100, -1., 2.);
     // pt of the 1. leading jet (uncorrected)
     //hists_["jet1PtRaw_"] = ibooker.book1D("Jet1PtRaw", "pt_{Raw}(jet1)", 60, 0., 300.);
     // pt of the 2. leading jet (uncorrected)
@@ -572,7 +571,7 @@ namespace SingleTopTChannelLepton_miniAOD {
     pat::Jet TaggedJetCand;
     vector<double> bJetDiscVal;
 
-    unsigned int mult = 0, loosemult = 0, multBCSVM = 0;
+    unsigned int mult = 0, loosemult = 0, multBDeepJetM = 0;
 
     edm::Handle<edm::View<pat::Jet>> jets;
     if (!event.getByToken(jets_, jets)) {
@@ -604,25 +603,27 @@ namespace SingleTopTChannelLepton_miniAOD {
         correctedJets.push_back(monitorJet);
         ++loosemult;  // determine jet multiplicity
 
-        fill("jetBCSV_",
-             monitorJet.bDiscriminator(
-                 "pfCombinedInclusiveSecondaryVertexV2BJetTags"));  //hard coded discriminator and value right now.
-        if (monitorJet.bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags") > 0.89) {
-          if (multBCSVM == 0) {
+        double discriminator = monitorJet.bDiscriminator("pfDeepFlavourJetTags:probb") +
+                               monitorJet.bDiscriminator("pfDeepFlavourJetTags:probbb") +
+                               monitorJet.bDiscriminator("pfDeepFlavourJetTags:problepb");
+
+        fill("jetBDeepJet_", discriminator);  //hard coded discriminator and value right now.
+        if (discriminator > 0.2435) {
+          if (multBDeepJetM == 0) {
             TaggedJetCand = monitorJet;
-            bJetDiscVal.push_back(monitorJet.bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags"));
-          } else if (multBCSVM == 1) {
-            bJetDiscVal.push_back(monitorJet.bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags"));
+            bJetDiscVal.push_back(discriminator);
+          } else if (multBDeepJetM == 1) {
+            bJetDiscVal.push_back(discriminator);
             if (bJetDiscVal[1] > bJetDiscVal[0])
               TaggedJetCand = monitorJet;
           }
 
-          ++multBCSVM;
+          ++multBDeepJetM;
         }
 
-        // Fill a vector with Jet b-tag WP for later M3+1tag calculation: CSV
+        // Fill a vector with Jet b-tag WP for later M3+1tag calculation: DeepJet
         // tagger
-        JetTagValues.push_back(monitorJet.bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags"));
+        JetTagValues.push_back(discriminator);
         //    }
         // fill pt (raw or L2L3) for the leading four jets
         if (loosemult == 1) {
@@ -641,7 +642,7 @@ namespace SingleTopTChannelLepton_miniAOD {
     }
     fill("jetMult_", mult);
     fill("jetLooseMult_", loosemult);
-    fill("jetMultBCSVM_", multBCSVM);
+    fill("jetMultBDeepJetM_", multBDeepJetM);
 
     /*
   ------------------------------------------------------------
@@ -664,8 +665,6 @@ namespace SingleTopTChannelLepton_miniAOD {
         unsigned int idx = met_ - mets_.begin();
         if (idx == 0)
           fill("slimmedMETs_", met->begin()->et());
-        if (idx == 1)
-          fill("slimmedMETsNoHF_", met->begin()->et());
         if (idx == 2)
           fill("slimmedMETsPuppi_", met->begin()->et());
       }
@@ -689,12 +688,12 @@ namespace SingleTopTChannelLepton_miniAOD {
       fill("massTop_", topMass);
     }
 
-    // Fill M3 with Btag (CSV Tight) requirement
+    // Fill M3 with Btag (DeepJet Tight) requirement
 
     // if (!includeBTag_) return;
     //if (correctedJets.size() != JetTagValues.size()) return;
     //double btopMass =
-    //    eventKinematics.massBTopQuark(correctedJets, JetTagValues, 0.89); //hard coded CSVv2 value
+    //    eventKinematics.massBTopQuark(correctedJets, JetTagValues, 0.2435); //hard coded DeepJet value
 
     //if (btopMass >= 0) fill("massBTop_", btopMass);
 
@@ -723,14 +722,14 @@ namespace SingleTopTChannelLepton_miniAOD {
       }
     }
 
-    if (multBCSVM != 0 && mTight == 1) {
+    if (multBDeepJetM != 0 && mTight == 1) {
       double mtW = eventKinematics.tmassWBoson(&mu, mET, TaggedJetCand);
       fill("MTWm_", mtW);
       double MTT = eventKinematics.tmassTopQuark(&mu, mET, TaggedJetCand);
       fill("mMTT_", MTT);
     }
 
-    if (multBCSVM != 0 && eMultIso == 1) {
+    if (multBDeepJetM != 0 && eMultIso == 1) {
       double mtW = eventKinematics.tmassWBoson(&e, mET, TaggedJetCand);
       fill("MTWe_", mtW);
       double MTT = eventKinematics.tmassTopQuark(&e, mET, TaggedJetCand);

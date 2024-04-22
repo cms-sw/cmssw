@@ -57,6 +57,7 @@ namespace btagbtvdeep {
     c_pf_features.btagPf_trackSip2dVal = catch_infs_and_bound(trackSip2dVal, 0, -1, 70);
     c_pf_features.btagPf_trackSip2dSig = catch_infs_and_bound(trackSip2dSig, 0, -1, 4e4);
     c_pf_features.btagPf_trackJetDistVal = catch_infs_and_bound(track_info.getTrackJetDistVal(), 0, -20, 1);
+    c_pf_features.btagPf_trackDecayLen = track_info.getTrackJetDecayLen();
 
     c_pf_features.drminsv = catch_infs_and_bound(drminpfcandsv, 0, -1. * jetR, 0, -1. * jetR);
     c_pf_features.distminsv = distminpfcandsv;

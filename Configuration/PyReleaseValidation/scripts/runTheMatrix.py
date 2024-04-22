@@ -128,8 +128,6 @@ if __name__ == '__main__':
 
                     ###### Heavy Ions
                     ## Data
-                    # Run1
-                    140.53,    # HIRun2011 HIMinBiasUPC              
                     # Run2   
                     140.56,    # HIRun2018A HIHardProbes                    Run2_2018_pp_on_AA 
                     ## MC

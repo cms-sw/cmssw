@@ -70,6 +70,18 @@ private:
   // ----------member data ---------------------------
   edm::Service<TFileService> fs_;
 
+  struct IPMonitoring {
+    std::string varname_;
+    float pTcut_;
+    TH1D *IP_, *IPErr_;
+    TProfile *IPVsPhi_, *IPVsEta_;
+    TProfile *IPErrVsPhi_, *IPErrVsEta_;
+    TProfile2D *IPVsEtaVsPhi_, *IPErrVsEtaVsPhi_;
+
+    void bookIPMonitor(const edm::ParameterSet &, const edm::Service<TFileService> fs);
+  };
+
+  const edm::ParameterSet conf_;
   const int ndof_;
   bool errorPrinted_;
 
@@ -117,22 +129,134 @@ private:
   TH1D *bsX, *bsY, *bsZ, *bsSigmaZ, *bsDxdz, *bsDydz, *bsBeamWidthX, *bsBeamWidthY, *bsType;
 
   TH1D *sumpt, *ntracks, *weight, *chi2ndf, *chi2prob;
-  TH1D *dxy, *dxy2, *dz, *dxyErr, *dzErr;
+  TH1D *dxy2;
   TH1D *phi_pt1, *eta_pt1;
   TH1D *phi_pt10, *eta_pt10;
-  TProfile *dxyVsPhi_pt1, *dzVsPhi_pt1;
-  TProfile *dxyVsEta_pt1, *dzVsEta_pt1;
-  TProfile2D *dxyVsEtaVsPhi_pt1, *dzVsEtaVsPhi_pt1;
-  TProfile *dxyVsPhi_pt10, *dzVsPhi_pt10;
-  TProfile *dxyVsEta_pt10, *dzVsEta_pt10;
-  TProfile2D *dxyVsEtaVsPhi_pt10, *dzVsEtaVsPhi_pt10;
+
+  // IP monitoring structs
+  IPMonitoring dxy_pt1;
+  IPMonitoring dxy_pt10;
+
+  IPMonitoring dz_pt1;
+  IPMonitoring dz_pt10;
 };
+
+void GeneralPurposeVertexAnalyzer::IPMonitoring::bookIPMonitor(const edm::ParameterSet &config,
+                                                               const edm::Service<TFileService> fs) {
+  int VarBin = config.getParameter<int>(fmt::format("D{}Bin", varname_));
+  double VarMin = config.getParameter<double>(fmt::format("D{}Min", varname_));
+  double VarMax = config.getParameter<double>(fmt::format("D{}Max", varname_));
+
+  int PhiBin = config.getParameter<int>("PhiBin");
+  int PhiBin2D = config.getParameter<int>("PhiBin2D");
+  double PhiMin = config.getParameter<double>("PhiMin");
+  double PhiMax = config.getParameter<double>("PhiMax");
+
+  int EtaBin = config.getParameter<int>("EtaBin");
+  int EtaBin2D = config.getParameter<int>("EtaBin2D");
+  double EtaMin = config.getParameter<double>("EtaMin");
+  double EtaMax = config.getParameter<double>("EtaMax");
+
+  IP_ = fs->make<TH1D>(fmt::format("d{}_pt{}", varname_, pTcut_).c_str(),
+                       fmt::format("PV tracks (p_{{T}} > {} GeV) d_{{{}}} (#mum)", pTcut_, varname_).c_str(),
+                       VarBin,
+                       VarMin,
+                       VarMax);
+
+  IPErr_ = fs->make<TH1D>(fmt::format("d{}Err_pt{}", varname_, pTcut_).c_str(),
+                          fmt::format("PV tracks (p_{{T}} > {} GeV) d_{{{}}} error (#mum)", pTcut_, varname_).c_str(),
+                          100,
+                          0.,
+                          (varname_.find("xy") != std::string::npos) ? 2000. : 10000.);
+
+  IPVsPhi_ =
+      fs->make<TProfile>(fmt::format("d{}VsPhi_pt{}", varname_, pTcut_).c_str(),
+                         fmt::format("PV tracks (p_{{T}} > {}) d_{{{}}} VS track #phi", pTcut_, varname_).c_str(),
+                         PhiBin,
+                         PhiMin,
+                         PhiMax,
+                         //VarBin,
+                         VarMin,
+                         VarMax);
+  IPVsPhi_->SetXTitle("PV track (p_{T} > 1 GeV) #phi");
+  IPVsPhi_->SetYTitle(fmt::format("PV tracks (p_{{T}} > {} GeV) d_{{{}}} (#mum)", pTcut_, varname_).c_str());
+
+  IPVsEta_ =
+      fs->make<TProfile>(fmt::format("d{}VsEta_pt{}", varname_, pTcut_).c_str(),
+                         fmt::format("PV tracks (p_{{T}} > {}) d_{{{}}} VS track #eta", pTcut_, varname_).c_str(),
+                         EtaBin,
+                         EtaMin,
+                         EtaMax,
+                         //VarBin,
+                         VarMin,
+                         VarMax);
+  IPVsEta_->SetXTitle("PV track (p_{T} > 1 GeV) #eta");
+  IPVsEta_->SetYTitle(fmt::format("PV tracks (p_{{T}} > {} GeV) d_{{{}}} (#mum)", pTcut_, varname_).c_str());
+
+  IPErrVsPhi_ =
+      fs->make<TProfile>(fmt::format("d{}ErrVsPhi_pt{}", varname_, pTcut_).c_str(),
+                         fmt::format("PV tracks (p_{{T}} > {}) d_{{{}}} error VS track #phi", pTcut_, varname_).c_str(),
+                         PhiBin,
+                         PhiMin,
+                         PhiMax,
+                         //VarBin,
+                         0.,
+                         (varname_.find("xy") != std::string::npos) ? 100. : 200.);
+  IPErrVsPhi_->SetXTitle("PV track (p_{T} > 1 GeV) #phi");
+  IPErrVsPhi_->SetYTitle(fmt::format("PV tracks (p_{{T}} > {} GeV) d_{{{}}} error (#mum)", pTcut_, varname_).c_str());
+
+  IPErrVsEta_ =
+      fs->make<TProfile>(fmt::format("d{}ErrVsEta_pt{}", varname_, pTcut_).c_str(),
+                         fmt::format("PV tracks (p_{{T}} > {}) d_{{{}}} error VS track #eta", pTcut_, varname_).c_str(),
+                         EtaBin,
+                         EtaMin,
+                         EtaMax,
+                         //VarBin,
+                         0.,
+                         (varname_.find("xy") != std::string::npos) ? 100. : 200.);
+  IPErrVsEta_->SetXTitle("PV track (p_{T} > 1 GeV) #eta");
+  IPErrVsEta_->SetYTitle(fmt::format("PV tracks (p_{{T}} > {} GeV) d_{{{}}} error (#mum)", pTcut_, varname_).c_str());
+
+  IPVsEtaVsPhi_ = fs->make<TProfile2D>(
+      fmt::format("d{}VsEtaVsPhi_pt{}", varname_, pTcut_).c_str(),
+      fmt::format("PV tracks (p_{{T}} > {}) d_{{{}}} VS track #eta VS track #phi", pTcut_, varname_).c_str(),
+      EtaBin2D,
+      EtaMin,
+      EtaMax,
+      PhiBin2D,
+      PhiMin,
+      PhiMax,
+      //VarBin,
+      VarMin,
+      VarMax);
+  IPVsEtaVsPhi_->SetXTitle("PV track (p_{T} > 1 GeV) #eta");
+  IPVsEtaVsPhi_->SetYTitle("PV track (p_{T} > 1 GeV) #phi");
+  IPVsEtaVsPhi_->SetZTitle(fmt::format("PV tracks (p_{{T}} > {} GeV) d_{{{}}} (#mum)", pTcut_, varname_).c_str());
+
+  IPErrVsEtaVsPhi_ = fs->make<TProfile2D>(
+      fmt::format("d{}ErrVsEtaVsPhi_pt{}", varname_, pTcut_).c_str(),
+      fmt::format("PV tracks (p_{{T}} > {}) d_{{{}}} error VS track #eta VS track #phi", pTcut_, varname_).c_str(),
+      EtaBin2D,
+      EtaMin,
+      EtaMax,
+      PhiBin2D,
+      PhiMin,
+      PhiMax,
+      // VarBin,
+      0.,
+      (varname_.find("xy") != std::string::npos) ? 100. : 200.);
+  IPErrVsEtaVsPhi_->SetXTitle("PV track (p_{T} > 1 GeV) #eta");
+  IPErrVsEtaVsPhi_->SetYTitle("PV track (p_{T} > 1 GeV) #phi");
+  IPErrVsEtaVsPhi_->SetZTitle(
+      fmt::format("PV tracks (p_{{T}} > {} GeV) d_{{{}}} error (#mum)", pTcut_, varname_).c_str());
+}
 
 //
 // constructors and destructor
 //
 GeneralPurposeVertexAnalyzer::GeneralPurposeVertexAnalyzer(const edm::ParameterSet &iConfig)
-    : ndof_(iConfig.getParameter<int>("ndof")),
+    : conf_(iConfig),
+      ndof_(iConfig.getParameter<int>("ndof")),
       errorPrinted_(false),
       vertexInputTag_(iConfig.getParameter<edm::InputTag>("vertexLabel")),
       beamSpotInputTag_(iConfig.getParameter<edm::InputTag>("beamSpotLabel")),
@@ -175,27 +299,11 @@ GeneralPurposeVertexAnalyzer::GeneralPurposeVertexAnalyzer(const edm::ParameterS
       weight(nullptr),
       chi2ndf(nullptr),
       chi2prob(nullptr),
-      dxy(nullptr),
       dxy2(nullptr),
-      dz(nullptr),
-      dxyErr(nullptr),
-      dzErr(nullptr),
       phi_pt1(nullptr),
       eta_pt1(nullptr),
       phi_pt10(nullptr),
-      eta_pt10(nullptr),
-      dxyVsPhi_pt1(nullptr),
-      dzVsPhi_pt1(nullptr),
-      dxyVsEta_pt1(nullptr),
-      dzVsEta_pt1(nullptr),
-      dxyVsEtaVsPhi_pt1(nullptr),
-      dzVsEtaVsPhi_pt1(nullptr),
-      dxyVsPhi_pt10(nullptr),
-      dzVsPhi_pt10(nullptr),
-      dxyVsEta_pt10(nullptr),
-      dzVsEta_pt10(nullptr),
-      dxyVsEtaVsPhi_pt10(nullptr),
-      dzVsEtaVsPhi_pt10(nullptr) {
+      eta_pt10(nullptr) {
   usesResource(TFileService::kSharedResource);
 }
 
@@ -323,29 +431,53 @@ void GeneralPurposeVertexAnalyzer::pvTracksPlots(const reco::Vertex &v) {
     weight->Fill(w);
     chi2ndf->Fill(chi2NDF);
     chi2prob->Fill(chi2Prob);
-    dxy->Fill(Dxy);
     dxy2->Fill(Dxy);
-    dz->Fill(Dz);
-    dxyErr->Fill(DxyErr);
-    dzErr->Fill(DzErr);
     phi_pt1->Fill(phi);
     eta_pt1->Fill(eta);
-    dxyVsPhi_pt1->Fill(phi, Dxy);
-    dzVsPhi_pt1->Fill(phi, Dz);
-    dxyVsEta_pt1->Fill(eta, Dxy);
-    dzVsEta_pt1->Fill(eta, Dz);
-    dxyVsEtaVsPhi_pt1->Fill(eta, phi, Dxy);
-    dzVsEtaVsPhi_pt1->Fill(eta, phi, Dz);
+
+    dxy_pt1.IP_->Fill(Dxy);
+    dxy_pt1.IPVsPhi_->Fill(phi, Dxy);
+    dxy_pt1.IPVsEta_->Fill(eta, Dxy);
+    dxy_pt1.IPVsEtaVsPhi_->Fill(eta, phi, Dxy);
+
+    dxy_pt1.IPErr_->Fill(DxyErr);
+    dxy_pt1.IPErrVsPhi_->Fill(phi, DxyErr);
+    dxy_pt1.IPErrVsEta_->Fill(eta, DxyErr);
+    dxy_pt1.IPErrVsEtaVsPhi_->Fill(eta, phi, DxyErr);
+
+    dz_pt1.IP_->Fill(Dz);
+    dz_pt1.IPVsPhi_->Fill(phi, Dz);
+    dz_pt1.IPVsEta_->Fill(eta, Dz);
+    dz_pt1.IPVsEtaVsPhi_->Fill(eta, phi, Dz);
+
+    dz_pt1.IPErr_->Fill(DzErr);
+    dz_pt1.IPErrVsPhi_->Fill(phi, DzErr);
+    dz_pt1.IPErrVsEta_->Fill(eta, DzErr);
+    dz_pt1.IPErrVsEtaVsPhi_->Fill(eta, phi, DzErr);
 
     if (pt >= 10.f) {
       phi_pt10->Fill(phi);
       eta_pt10->Fill(eta);
-      dxyVsPhi_pt10->Fill(phi, Dxy);
-      dzVsPhi_pt10->Fill(phi, Dz);
-      dxyVsEta_pt10->Fill(eta, Dxy);
-      dzVsEta_pt10->Fill(eta, Dz);
-      dxyVsEtaVsPhi_pt10->Fill(eta, phi, Dxy);
-      dzVsEtaVsPhi_pt10->Fill(eta, phi, Dz);
+
+      dxy_pt10.IP_->Fill(Dxy);
+      dxy_pt10.IPVsPhi_->Fill(phi, Dxy);
+      dxy_pt10.IPVsEta_->Fill(eta, Dxy);
+      dxy_pt10.IPVsEtaVsPhi_->Fill(eta, phi, Dxy);
+
+      dxy_pt10.IPErr_->Fill(DxyErr);
+      dxy_pt10.IPErrVsPhi_->Fill(phi, DxyErr);
+      dxy_pt10.IPErrVsEta_->Fill(eta, DxyErr);
+      dxy_pt10.IPErrVsEtaVsPhi_->Fill(eta, phi, DxyErr);
+
+      dz_pt10.IP_->Fill(Dz);
+      dz_pt10.IPVsPhi_->Fill(phi, Dz);
+      dz_pt10.IPVsEta_->Fill(eta, Dz);
+      dz_pt10.IPVsEtaVsPhi_->Fill(eta, phi, Dz);
+
+      dz_pt10.IPErr_->Fill(DzErr);
+      dz_pt10.IPErrVsPhi_->Fill(phi, DzErr);
+      dz_pt10.IPErrVsEta_->Fill(eta, DzErr);
+      dz_pt10.IPErrVsEtaVsPhi_->Fill(eta, phi, DzErr);
     }
   }
 
@@ -514,11 +646,8 @@ void GeneralPurposeVertexAnalyzer::beginJob() {
   sumpt = book<TH1D>("sumpt", fmt::sprintf("#Sum p_{T} of %s", s_1).c_str(), 100, -0.5, 249.5);
   chi2ndf = book<TH1D>("chi2ndf", fmt::sprintf("%s #chi^{2}/ndof", s_1).c_str(), 100, 0., 20.);
   chi2prob = book<TH1D>("chi2prob", fmt::sprintf("%s #chi^{2} probability", s_1).c_str(), 100, 0., 1.);
-  dxy = book<TH1D>("dxy", fmt::sprintf("%s d_{xy} (#mum)", s_1).c_str(), dxyBin_, dxyMin_, dxyMax_);
+
   dxy2 = book<TH1D>("dxyzoom", fmt::sprintf("%s d_{xy} (#mum)", s_1).c_str(), dxyBin_, dxyMin_ / 5., dxyMax_ / 5.);
-  dxyErr = book<TH1D>("dxyErr", fmt::sprintf("%s d_{xy} error (#mum)", s_1).c_str(), 100, 0., 2000.);
-  dz = book<TH1D>("dz", fmt::sprintf("%s d_{z} (#mum)", s_1).c_str(), dzBin_, dzMin_, dzMax_);
-  dzErr = book<TH1D>("dzErr", fmt::sprintf("%s d_{z} error(#mum)", s_1).c_str(), 100, 0., 10000.);
 
   phi_pt1 =
       book<TH1D>("phi_pt1", fmt::sprintf("%s #phi; PV tracks #phi;#tracks", s_1).c_str(), phiBin_, phiMin_, phiMax_);
@@ -529,141 +658,22 @@ void GeneralPurposeVertexAnalyzer::beginJob() {
   eta_pt10 =
       book<TH1D>("eta_pt10", fmt::sprintf("%s #phi; PV tracks #eta;#tracks", s_10).c_str(), etaBin_, etaMin_, etaMax_);
 
-  dxyVsPhi_pt1 = book<TProfile>("dxyVsPhi_pt1",
-                                fmt::sprintf("%s d_{xy} (#mum) VS track #phi", s_1).c_str(),
-                                phiBin_,
-                                phiMin_,
-                                phiMax_,
-                                dxyMin_,
-                                dxyMax_);
-  dxyVsPhi_pt1->SetXTitle("PV track (p_{T} > 1 GeV) #phi");
-  dxyVsPhi_pt1->SetYTitle("PV track (p_{T} > 1 GeV) d_{xy} (#mum)");
+  // initialize and book the monitors;
+  dxy_pt1.varname_ = "xy";
+  dxy_pt1.pTcut_ = 1.f;
+  dxy_pt1.bookIPMonitor(conf_, fs_);
 
-  dzVsPhi_pt1 = book<TProfile>("dzVsPhi_pt1",
-                               fmt::sprintf("%s d_{z} (#mum) VS track #phi", s_1).c_str(),
-                               phiBin_,
-                               phiMin_,
-                               phiMax_,
-                               dzMin_,
-                               dzMax_);
-  dzVsPhi_pt1->SetXTitle("PV track (p_{T} > 1 GeV) #phi");
-  dzVsPhi_pt1->SetYTitle("PV track (p_{T} > 1 GeV) d_{z} (#mum)");
+  dxy_pt10.varname_ = "xy";
+  dxy_pt10.pTcut_ = 10.f;
+  dxy_pt10.bookIPMonitor(conf_, fs_);
 
-  dxyVsEta_pt1 = book<TProfile>("dxyVsEta_pt1",
-                                fmt::sprintf("%s d_{xy} (#mum) VS track #eta", s_1).c_str(),
-                                etaBin_,
-                                etaMin_,
-                                etaMax_,
-                                dxyMin_,
-                                dxyMax_);
-  dxyVsEta_pt1->SetXTitle("PV track (p_{T} > 1 GeV) #eta");
-  dxyVsEta_pt1->SetYTitle("PV track (p_{T} > 1 GeV) d_{xy} (#mum)");
+  dz_pt1.varname_ = "z";
+  dz_pt1.pTcut_ = 1.f;
+  dz_pt1.bookIPMonitor(conf_, fs_);
 
-  dzVsEta_pt1 = book<TProfile>("dzVsEta_pt1",
-                               fmt::sprintf("%s d_{z} (#mum) VS track #eta", s_1).c_str(),
-                               etaBin_,
-                               etaMin_,
-                               etaMax_,
-                               dzMin_,
-                               dzMax_);
-  dzVsEta_pt1->SetXTitle("PV track (p_{T} > 1 GeV) #eta");
-  dzVsEta_pt1->SetYTitle("PV track (p_{T} > 1 GeV) d_{z} (#mum)");
-
-  dxyVsEtaVsPhi_pt1 = book<TProfile2D>("dxyVsEtaVsPhi_pt1",
-                                       fmt::sprintf("%s d_{xy} (#mum) VS track #eta VS track #phi", s_1).c_str(),
-                                       etaBin2D_,
-                                       etaMin_,
-                                       etaMax_,
-                                       phiBin2D_,
-                                       phiMin_,
-                                       phiMax_,
-                                       dxyMin_,
-                                       dxyMax_);
-  dxyVsEtaVsPhi_pt1->SetXTitle("PV track (p_{T} > 1 GeV) #eta");
-  dxyVsEtaVsPhi_pt1->SetYTitle("PV track (p_{T} > 1 GeV) #phi");
-  dxyVsEtaVsPhi_pt1->SetZTitle("PV track (p_{T} > 1 GeV) d_{xy} (#mum)");
-
-  dzVsEtaVsPhi_pt1 = book<TProfile2D>("dzVsEtaVsPhi_pt1",
-                                      fmt::sprintf("%s d_{z} (#mum) VS track #eta VS track #phi", s_1).c_str(),
-                                      etaBin2D_,
-                                      etaMin_,
-                                      etaMax_,
-                                      phiBin2D_,
-                                      phiMin_,
-                                      phiMax_,
-                                      dzMin_,
-                                      dzMax_);
-  dzVsEtaVsPhi_pt1->SetXTitle("PV track (p_{T} > 1 GeV) #eta");
-  dzVsEtaVsPhi_pt1->SetYTitle("PV track (p_{T} > 1 GeV) #phi");
-  dzVsEtaVsPhi_pt1->SetZTitle("PV track (p_{T} > 1 GeV) d_{z} (#mum)");
-
-  dxyVsPhi_pt10 = book<TProfile>("dxyVsPhi_pt10",
-                                 fmt::sprintf("%s d_{xy} (#mum) VS track #phi", s_10).c_str(),
-                                 phiBin_,
-                                 phiMin_,
-                                 phiMax_,
-                                 dxyMin_,
-                                 dxyMax_);
-  dxyVsPhi_pt10->SetXTitle("PV track (p_{T} > 10 GeV) #phi");
-  dxyVsPhi_pt10->SetYTitle("PV track (p_{T} > 10 GeV) d_{xy} (#mum)");
-
-  dzVsPhi_pt10 = book<TProfile>("dzVsPhi_pt10",
-                                fmt::sprintf("%s d_{z} (#mum) VS track #phi", s_10).c_str(),
-                                phiBin_,
-                                phiMin_,
-                                phiMax_,
-                                dzMin_,
-                                dzMax_);
-  dzVsPhi_pt10->SetXTitle("PV track (p_{T} > 10 GeV) #phi");
-  dzVsPhi_pt10->SetYTitle("PV track (p_{T} > 10 GeV) d_{z} (#mum)");
-
-  dxyVsEta_pt10 = book<TProfile>("dxyVsEta_pt10",
-                                 fmt::sprintf("%s d_{xy} (#mum) VS track #eta", s_10).c_str(),
-                                 etaBin_,
-                                 etaMin_,
-                                 etaMax_,
-                                 dxyMin_,
-                                 dxyMax_);
-  dxyVsEta_pt10->SetXTitle("PV track (p_{T} > 10 GeV) #eta");
-  dxyVsEta_pt10->SetYTitle("PV track (p_{T} > 10 GeV) d_{xy} (#mum)");
-
-  dzVsEta_pt10 = book<TProfile>("dzVsEta_pt10",
-                                fmt::sprintf("%s d_{z} (#mum) VS track #eta", s_10).c_str(),
-                                etaBin_,
-                                etaMin_,
-                                etaMax_,
-                                dzMin_,
-                                dzMax_);
-  dzVsEta_pt10->SetXTitle("PV track (p_{T} > 10 GeV) #eta");
-  dzVsEta_pt10->SetYTitle("PV track (p_{T} > 10 GeV) d_{z} (#mum)");
-
-  dxyVsEtaVsPhi_pt10 = book<TProfile2D>("dxyVsEtaVsPhi_pt10",
-                                        fmt::sprintf("%s d_{xy} (#mum) VS track #eta VS track #phi", s_10).c_str(),
-                                        etaBin2D_,
-                                        etaMin_,
-                                        etaMax_,
-                                        phiBin2D_,
-                                        phiMin_,
-                                        phiMax_,
-                                        dxyMin_,
-                                        dxyMax_);
-  dxyVsEtaVsPhi_pt10->SetXTitle("PV track (p_{T} > 10 GeV) #eta");
-  dxyVsEtaVsPhi_pt10->SetYTitle("PV track (p_{T} > 10 GeV) #phi");
-  dxyVsEtaVsPhi_pt10->SetZTitle("PV track (p_{T} > 10 GeV) d_{xy} (#mum)");
-
-  dzVsEtaVsPhi_pt10 = book<TProfile2D>("dzVsEtaVsPhi_pt10",
-                                       fmt::sprintf("%s d_{z} (#mum) VS track #eta VS track #phi", s_10).c_str(),
-                                       etaBin2D_,
-                                       etaMin_,
-                                       etaMax_,
-                                       phiBin2D_,
-                                       phiMin_,
-                                       phiMax_,
-                                       dzMin_,
-                                       dzMax_);
-  dzVsEtaVsPhi_pt10->SetXTitle("PV track (p_{T} > 10 GeV) #eta");
-  dzVsEtaVsPhi_pt10->SetYTitle("PV track (p_{T} > 10 GeV) #phi");
-  dzVsEtaVsPhi_pt10->SetZTitle("PV track (p_{T} > 10 GeV) d_{z} (#mum)");
+  dz_pt10.varname_ = "z";
+  dz_pt10.pTcut_ = 10.f;
+  dz_pt10.bookIPMonitor(conf_, fs_);
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
@@ -678,8 +688,8 @@ void GeneralPurposeVertexAnalyzer::fillDescriptions(edm::ConfigurationDescriptio
   desc.add<double>("TkSizeMin", 499.5);
   desc.add<double>("TkSizeMax", -0.5);
   desc.add<int>("DxyBin", 100);
-  desc.add<double>("DxyMin", 5000.);
-  desc.add<double>("DxyMax", -5000.);
+  desc.add<double>("DxyMin", -2000.);
+  desc.add<double>("DxyMax", 2000.);
   desc.add<int>("DzBin", 100);
   desc.add<double>("DzMin", -2000.0);
   desc.add<double>("DzMax", 2000.0);

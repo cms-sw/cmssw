@@ -94,6 +94,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                            static_cast<float>(iConfig.getParameter<double>("VCaltoElectronGain_L1")),
                            static_cast<float>(iConfig.getParameter<double>("VCaltoElectronOffset")),
                            static_cast<float>(iConfig.getParameter<double>("VCaltoElectronOffset_L1"))} {
+    // Workaround until the ProductID problem in issue https://github.com/cms-sw/cmssw/issues/44643 is fixed
+#ifdef ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLED
+    producesTemporarily("edm::DeviceProduct<alpaka_cuda_async::SiPixelDigisSoACollection>");
+    producesTemporarily("edm::DeviceProduct<alpaka_cuda_async::SiPixelDigiErrorsSoACollection>");
+    producesTemporarily("edm::DeviceProduct<alpaka_cuda_async::SiPixelClustersSoACollection>");
+#endif
+
     if (includeErrors_) {
       digiErrorPutToken_ = produces();
       fmtErrorToken_ = produces();
@@ -137,12 +144,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   template <typename TrackerTraits>
   void SiPixelRawToCluster<TrackerTraits>::acquire(device::Event const& iEvent, device::EventSetup const& iSetup) {
-    [[maybe_unused]] auto const& hMap = iSetup.getData(mapToken_);
+    auto const& hMap = iSetup.getData(mapToken_);
     auto const& dGains = iSetup.getData(gainsToken_);
-    auto gains = SiPixelGainCalibrationForHLTDevice(1, iEvent.queue());
-    auto modulesToUnpackRegional =
-        cms::alpakatools::make_device_buffer<unsigned char[]>(iEvent.queue(), ::pixelgpudetails::MAX_SIZE);
-    const unsigned char* modulesToUnpack;
+
     // initialize cabling map or update if necessary
     if (recordWatcher_.check(iSetup)) {
       // cabling map, which maps online address (fed->link->ROC->local pixel) to offline (DetId->global pixel)
@@ -151,6 +155,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       cabling_ = cablingMap_->cablingTree();
       LogDebug("map version:") << cablingMap_->version();
     }
+
+    // if used, the buffer is guaranteed to stay alive until the after the execution of makePhase1ClustersAsync completes
+    std::optional<cms::alpakatools::device_buffer<Device, unsigned char[]>> modulesToUnpackRegional;
+    const unsigned char* modulesToUnpack;
     if (regions_) {
       regions_->run(iEvent, iSetup);
       LogDebug("SiPixelRawToCluster") << "region2unpack #feds: " << regions_->nFEDs();
@@ -159,7 +167,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
       modulesToUnpackRegional = SiPixelMappingUtilities::getModToUnpRegionalAsync(
           *(regions_->modulesToUnpack()), cabling_.get(), fedIds_, iEvent.queue());
-      modulesToUnpack = modulesToUnpackRegional.data();
+      modulesToUnpack = modulesToUnpackRegional->data();
     } else {
       modulesToUnpack = hMap->modToUnpDefault();
     }
@@ -235,7 +243,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       return;
 
     // copy the FED data to a single cpu buffer
-    pixelDetails::WordFedAppender wordFedAppender(nDigis_);
+    pixelDetails::WordFedAppender wordFedAppender(iEvent.queue(), nDigis_);
     for (uint32_t i = 0; i < fedIds_.size(); ++i) {
       wordFedAppender.initializeWordFed(fedIds_[i], index[i], start[i], words[i]);
     }

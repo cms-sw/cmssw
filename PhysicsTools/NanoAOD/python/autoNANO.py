@@ -28,8 +28,14 @@ autoNANO = {
     # L1 flavours: add tables through customize, supposed to be combined with PHYS
     'L1' : {'customize': 'nanoL1TrigObjCustomize'},
     'L1FULL' : {'customize': 'nanoL1TrigObjCustomizeFull'},
+    #scouting nano
+    'Scout' : {'sequence': 'PhysicsTools/NanoAOD/custom_run3scouting_cff'},
+    # JME custom NANO
+    'JME' : { 'sequence': '@PHYS',
+               'customize': '@PHYS+PhysicsTools/NanoAOD/custom_jme_cff.PrepJMECustomNanoAOD'},
     # Muon POG flavours : add tables through customize, supposed to be combined with PHYS
-    'MUPOG' : {'customize' : 'PhysicsTools/NanoAOD/custom_muon_cff.PrepMuonCustomNanoAOD'},
+    'MUPOG' : { 'sequence': '@PHYS',
+                'customize' : '@PHYS+PhysicsTools/NanoAOD/custom_muon_cff.PrepMuonCustomNanoAOD'},
     # MUDPG flavours: use their own sequence
     'MUDPG' : {'sequence': 'DPGAnalysis/MuonTools/muNtupleProducer_cff.muDPGNanoProducer',
                'customize': 'DPGAnalysis/MuonTools/muNtupleProducer_cff.muDPGNanoCustomize'},
@@ -41,7 +47,10 @@ autoNANO = {
     # PromptReco config: PHYS+L1
     'Prompt' : {'sequence': '@PHYS',
                 'customize': '@PHYS+@L1'},
-    # Add lepton time-life info tables through customize combined with PHYS
-    'LepTimeLife' : {'sequence': '@PHYS',
-                     'customize': '@PHYS+PhysicsTools/NanoAOD/leptonTimeLifeInfo_common_cff.addTimeLifeInfo'},
+    # Add lepton track parameters through customize combined with PHYS
+    'LepTrackInfo' : {'sequence': '@PHYS',
+                      'customize': '@PHYS+PhysicsTools/NanoAOD/leptonTimeLifeInfo_common_cff.addTrackVarsToTimeLifeInfo'},
+    # Custom BTV Nano for SF measurements or tagger training
+    'BTV' : {'sequence': '@PHYS',
+             'customize':'@PHYS+PhysicsTools/NanoAOD/custom_btv_cff.BTVCustomNanoAOD'}
 }

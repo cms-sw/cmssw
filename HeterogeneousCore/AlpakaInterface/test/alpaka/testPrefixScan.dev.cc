@@ -147,7 +147,7 @@ int main() {
   for (auto const& device : devices) {
     std::cout << "Test prefix scan on " << alpaka::getName(device) << '\n';
     auto queue = Queue(device);
-    const auto warpSize = alpaka::getWarpSizes(device)[0];
+    const auto warpSize = alpaka::getPreferredWarpSize(device);
     // WARP PREFIXSCAN (OBVIOUSLY GPU-ONLY)
     if constexpr (!requires_single_thread_per_block_v<Acc1D>) {
       std::cout << "warp level" << std::endl;

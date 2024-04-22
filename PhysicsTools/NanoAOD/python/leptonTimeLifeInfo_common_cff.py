@@ -22,7 +22,7 @@ prod_common = cms.PSet(
 
 # impact parameter
 ipVars = cms.PSet(
-    ipLength = Var("ipLength().value()", float, doc="lenght of impact parameter (3d)", precision=10),
+    #ipLength = Var("ipLength().value()", float, doc="lenght of impact parameter (3d)", precision=10),#MB: redundant
     ipLengthSig = Var("ipLength().significance()", float, doc="significance of impact parameter", precision=10),
     IPx = Var("ipVector().x()", float, doc="x coordinate of impact parameter vector", precision=10),
     IPy = Var("ipVector().y()", float, doc="y coordinate of impact parameter vector", precision=10),
@@ -52,8 +52,8 @@ svVars = cms.PSet(
     refitSVx = Var("?hasSV()?sv().x():0", float, doc="x coordinate of SV", precision=10),
     refitSVy = Var("?hasSV()?sv().y():0", float, doc="y coordinate of SV", precision=10),
     refitSVz = Var("?hasSV()?sv().z():0", float, doc="z coordinate of SV", precision=10),
-    refitSVchi2 = Var("?hasSV()?sv().chi2():0", float, doc="chi2 of SV fit", precision=8),
-    refitSVndof = Var("?hasSV()?sv().ndof():0", float, doc="ndof of SV fit", precision=8),
+    refitSVchi2 = Var("?hasSV()?sv().normalizedChi2():0", float, doc="reduced chi2, i.e. chi2/ndof, of SV fit", precision=8),
+    #refitSVndof = Var("?hasSV()?sv().ndof():0", float, doc="ndof of SV fit", precision=8),#MB: not important
     # flight-length
     #refitFlightLength = Var("?hasSV()?flightLength().value():0", float, doc="flight-length,i.e. the PV to SV distance", precision=10),
     #refitFlightLengthSig = Var("?hasSV()?flightLength().significance():0", float, doc="Significance of flight-length", precision=10)
@@ -80,7 +80,7 @@ run2_nanoAOD_ANY.toModify(
 
 # Definition of DQM plots
 ipVarsPlots = cms.VPSet(
-    Plot1D('ipLength', 'ipLength', 25, -0.25, 0.25, 'signed lenght of impact parameter (3d)'),
+    #Plot1D('ipLength', 'ipLength', 25, -0.25, 0.25, 'signed lenght of impact parameter (3d)'),
     Plot1D('ipLengthSig', 'ipLengthSig', 60, -5, 10, 'signed significance of impact parameter'),
     Plot1D('IPx', 'IPx', 40, -0.02, 0.02, 'x coordinate of impact parameter vector'),
     Plot1D('IPy', 'IPy', 40, -0.02, 0.02, 'y coordinate of impact parameter vector'),
@@ -103,8 +103,8 @@ svVarsPlots = cms.VPSet(
     Plot1D('refitSVx', 'refitSVx', 20, -0.1, 0.1, 'x coordinate of refitted SV'),
     Plot1D('refitSVy', 'refitSVy', 20, -0.1, 0.1, 'y coordinate of refitted SV'),
     Plot1D('refitSVz', 'refitSVz', 20, -20, 20, 'z coordinate of refitted SV'),
-    Plot1D('refitSVchi2', 'refitSVchi2', 20, 0, 100, 'chi2 of SV fit'),
-    Plot1D('refitSVndof', 'refitSVndof', 10, 0, 10, 'ndof of SV fit')
+    Plot1D('refitSVchi2', 'refitSVchi2', 20, 0, 40, 'reduced chi2 of SV fit'),
+    #Plot1D('refitSVndof', 'refitSVndof', 10, 0, 10, 'ndof of SV fit')
 )
 #no plots for SV covariance elements, but store placeholders
 for i in range(0,3):
@@ -115,13 +115,7 @@ for i in range(0,3):
 # Customization sequences and functions
 #
 # electrons
-electronVars = cms.PSet(
-    ipVars,
-    trackVars
-)
-for var in electronVars.parameters_():
-    setattr(getattr(electronVars, var), "src", cms.InputTag("electronTimeLifeInfos"))
-def addTimeLifeInfoToElectrons(process):
+def addElectronTimeLifeInfoTask(process):
     process.electronTimeLifeInfos = patElectronTimeLifeInfoProducer.clone(
         src = process.electronTable.src,
         selection = 'pt > 15',
@@ -133,7 +127,7 @@ def addTimeLifeInfoToElectrons(process):
         src = process.electronTable.src,
         doc = cms.string("Additional time-life info for non-prompt electrons"),
         extension = True,
-        externalTypedVariables = electronVars
+        externalTypedVariables = cms.PSet()
     )
     process.electronTimeLifeInfoTask = cms.Task(
         process.electronTimeLifeInfos,
@@ -147,20 +141,46 @@ def addTimeLifeInfoToElectrons(process):
     run2_nanoAOD_ANY.toReplaceWith(process.electronTimeLifeInfoTask,
                                    _electronTimeLifeInfoTaskRun2)
     process.electronTablesTask.add(process.electronTimeLifeInfoTask)
+    return process
+#base vars
+electronVars = cms.PSet(
+    ipVars
+)
+for var in electronVars.parameters_():
+    setattr(getattr(electronVars, var), "src", cms.InputTag("electronTimeLifeInfos"))
+def addTimeLifeInfoToElectrons(process):
+    if not hasattr(process,'electronTimeLifeInfoTask'):
+        process = addElectronTimeLifeInfoTask(process)
+    electronExtVars = cms.PSet(
+        process.electronTimeLifeInfoTable.externalTypedVariables,
+        electronVars
+    )
+    process.electronTimeLifeInfoTable.externalTypedVariables = electronExtVars
     # add DQM plots if needed
     if hasattr(process,'nanoDQM'):
         process.nanoDQM.vplots.Electron.plots.extend(ipVarsPlots)
+    return process
+#track vars
+electronTrackVars = cms.PSet(
+    trackVars
+)
+for var in electronTrackVars.parameters_():
+    setattr(getattr(electronTrackVars, var), "src", cms.InputTag("electronTimeLifeInfos"))
+def addElectronTrackVarsToTimeLifeInfo(process):
+    if not hasattr(process,'electronTimeLifeInfoTask'):
+        process = addElectronTimeLifeInfoTask(process)
+    electronExtVars = cms.PSet(
+        process.electronTimeLifeInfoTable.externalTypedVariables,
+        electronTrackVars
+    )
+    process.electronTimeLifeInfoTable.externalTypedVariables = electronExtVars
+    # add DQM plots if needed
+    if hasattr(process,'nanoDQM'):
         process.nanoDQM.vplots.Electron.plots.extend(trackVarsPlots)
     return process
 
 # muons
-muonVars = cms.PSet(
-    ipVars,
-    trackVars
-)
-for var in muonVars.parameters_():
-    setattr(getattr(muonVars, var), "src", cms.InputTag("muonTimeLifeInfos"))
-def addTimeLifeInfoToMuons(process):
+def addMuonTimeLifeInfoTask(process):
     process.muonTimeLifeInfos = patMuonTimeLifeInfoProducer.clone(
         src = process.muonTable.src,
         selection = 'pt > 15',
@@ -172,7 +192,7 @@ def addTimeLifeInfoToMuons(process):
         src = process.muonTable.src,
         doc = cms.string("Additional time-life info for non-prompt muon"),
         extension = True,
-        externalTypedVariables = muonVars
+        externalTypedVariables = cms.PSet()
     )
     process.muonTimeLifeInfoTask = cms.Task(
         process.muonTimeLifeInfos,
@@ -186,21 +206,46 @@ def addTimeLifeInfoToMuons(process):
     run2_nanoAOD_ANY.toReplaceWith(process.muonTimeLifeInfoTask,
                                    _muonTimeLifeInfoTaskRun2)
     process.muonTablesTask.add(process.muonTimeLifeInfoTask)
+    return process
+#base vars
+muonVars = cms.PSet(
+    ipVars
+)
+for var in muonVars.parameters_():
+    setattr(getattr(muonVars, var), "src", cms.InputTag("muonTimeLifeInfos"))
+def addTimeLifeInfoToMuons(process):
+    if not hasattr(process,'muonTimeLifeInfoTask'):
+        process = addMuonTimeLifeInfoTask(process)
+    muonExtVars = cms.PSet(
+        process.muonTimeLifeInfoTable.externalTypedVariables,
+        muonVars
+    )
+    process.muonTimeLifeInfoTable.externalTypedVariables = muonExtVars
     # add DQM plots if needed
     if hasattr(process,'nanoDQM'):
         process.nanoDQM.vplots.Muon.plots.extend(ipVarsPlots)
+    return process
+#track vars
+muonTrackVars = cms.PSet(
+    trackVars
+)
+for var in muonTrackVars.parameters_():
+    setattr(getattr(muonTrackVars, var), "src", cms.InputTag("muonTimeLifeInfos"))
+def addMuonTrackVarsToTimeLifeInfo(process):
+    if not hasattr(process,'muonTimeLifeInfoTask'):
+        process = addMuonTimeLifeInfoTask(process)
+    muonExtVars = cms.PSet(
+        process.muonTimeLifeInfoTable.externalTypedVariables,
+        muonTrackVars
+    )
+    process.muonTimeLifeInfoTable.externalTypedVariables = muonExtVars
+    # add DQM plots if needed
+    if hasattr(process,'nanoDQM'):
         process.nanoDQM.vplots.Muon.plots.extend(trackVarsPlots)
     return process
 
 # taus
-tauVars = cms.PSet(
-    svVars,
-    ipVars,
-    trackVars
-)
-for var in tauVars.parameters_():
-    setattr(getattr(tauVars, var), "src", cms.InputTag("tauTimeLifeInfos"))
-def addTimeLifeInfoToTaus(process):
+def addTauTimeLifeInfoTask(process):
     process.tauTimeLifeInfos = patTauTimeLifeInfoProducer.clone(
         src = process.tauTable.src,
         pvSource = prod_common.pvSource,
@@ -211,7 +256,7 @@ def addTimeLifeInfoToTaus(process):
         src = process.tauTable.src,
         doc = cms.string("Additional tau time-life info"),
         extension = True,
-        externalTypedVariables = tauVars
+        externalTypedVariables = cms.PSet()
     )
     process.tauTimeLifeInfoTask = cms.Task(
         process.tauTimeLifeInfos,
@@ -225,11 +270,44 @@ def addTimeLifeInfoToTaus(process):
     run2_nanoAOD_ANY.toReplaceWith(process.tauTimeLifeInfoTask,
                                    _tauTimeLifeInfoTaskRun2)
     process.tauTablesTask.add(process.tauTimeLifeInfoTask)
+    return process
+# base vars
+tauVars = cms.PSet(
+    svVars,
+    ipVars
+)
+for var in tauVars.parameters_():
+    setattr(getattr(tauVars, var), "src", cms.InputTag("tauTimeLifeInfos"))
+def addTimeLifeInfoToTaus(process):
+    if not hasattr(process,'tauTimeLifeInfoTask'):
+        process = addTauTimeLifeInfoTask(process)
+    tauExtVars = cms.PSet(
+        process.tauTimeLifeInfoTable.externalTypedVariables,
+        tauVars
+    )
+    process.tauTimeLifeInfoTable.externalTypedVariables = tauExtVars
     # add DQM plots if needed
     if hasattr(process,'nanoDQM'):
         process.nanoDQM.vplots.Tau.plots.extend(ipVarsPlots)
-        process.nanoDQM.vplots.Tau.plots.extend(trackVarsPlots)
         process.nanoDQM.vplots.Tau.plots.extend(svVarsPlots)
+    return process
+#track vars
+tauTrackVars = cms.PSet(
+    trackVars
+)
+for var in tauTrackVars.parameters_():
+    setattr(getattr(tauTrackVars, var), "src", cms.InputTag("tauTimeLifeInfos"))
+def addTauTrackVarsToTimeLifeInfo(process):
+    if not hasattr(process,'tauTimeLifeInfoTask'):
+        process = addTauTimeLifeInfoTask(process)
+    tauExtVars = cms.PSet(
+        process.tauTimeLifeInfoTable.externalTypedVariables,
+        tauTrackVars
+    )
+    process.tauTimeLifeInfoTable.externalTypedVariables = tauExtVars
+    # add DQM plots if needed
+    if hasattr(process,'nanoDQM'):
+        process.nanoDQM.vplots.Tau.plots.extend(trackVarsPlots)
     return process
 
 # Vertices
@@ -244,7 +322,7 @@ def addExtendVertexInfo(process):
             x = Var("position().x()", float, doc = "position x coordinate, in cm", precision = 10),
             y = Var("position().y()", float, doc = "position y coordinate, in cm", precision = 10),
             z = Var("position().z()", float, doc = "position z coordinate, in cm", precision = 16),
-            ndof = Var("ndof()", float, doc = "number of degrees of freedom", precision = 8),
+            #ndof = Var("ndof()", float, doc = "number of degrees of freedom", precision = 8),#MB: not important
             chi2 = Var("normalizedChi2()", float, doc = "reduced chi2, i.e. chi2/ndof", precision = 8),
         ),
     )
@@ -259,10 +337,21 @@ def addExtendVertexInfo(process):
     process.vertexTablesTask.add(process.pvbsTableTask)
     return process
 
-# Full
-def addTimeLifeInfo(process):
+# Time-life info without track parameters
+def addTimeLifeInfoBase(process):
     addTimeLifeInfoToElectrons(process)
     addTimeLifeInfoToMuons(process)
     addTimeLifeInfoToTaus(process)
     addExtendVertexInfo(process)
+    return process
+# Add track parameters to time-life info
+def addTrackVarsToTimeLifeInfo(process):
+    addElectronTrackVarsToTimeLifeInfo(process)
+    addMuonTrackVarsToTimeLifeInfo(process)
+    addTauTrackVarsToTimeLifeInfo(process)
+    return process
+# Full
+def addTimeLifeInfo(process):
+    addTimeLifeInfoBase(process)
+    addTrackVarsToTimeLifeInfo(process)
     return process

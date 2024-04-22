@@ -65,7 +65,7 @@ void ROCmTestOpaqueAdditionModule::analyze(edm::StreamID, edm::Event const& even
   }
 
   // launch the 1-dimensional kernel for vector addition
-  cms::rocmtest::opqaue_add_vectors_f(in1.data(), in2.data(), out.data(), size_);
+  cms::rocmtest::opaque_add_vectors_f(in1.data(), in2.data(), out.data(), size_);
 
   // check the results
   for (size_t i = 0; i < size_; ++i) {

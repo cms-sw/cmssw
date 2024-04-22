@@ -1,1 +1,8 @@
+<use name="catch2"/>
+<bin file="test_PhotonMvaXgb.cc" name="RecoEgammaPhotonIdentificationTest">
+  <flags EDM_PLUGIN="1"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="RecoEgamma/PhotonIdentification"/>
+</bin>
+
 <test name="runtestRecoEgammaPhotonIdentification" command="runtests.sh"/>

@@ -415,9 +415,9 @@ void ShortenedTrackValidation::beginJob() {
                    fmt::sprintf("Short Track p_{T} / Full Track p_{T} - %s layers;p_{T}^{short}/p_{T}^{full};n. tracks",
                                 hitsRemain_[i])
                        .c_str(),
-                   101,
-                   -0.05,
-                   2.05));
+                   100,
+                   0.5,
+                   1.5));
 
     histsPtDiffAll_.push_back(book<TH1F>(
         ShortTrackResolution,
@@ -436,8 +436,8 @@ void ShortenedTrackValidation::beginJob() {
                                 hitsRemain_[i])
                        .c_str(),
                    100,
-                   -0.01,
-                   0.01));
+                   -0.001,
+                   0.001));
 
     histsPhiDiffAll_.push_back(
         book<TH1F>(ShortTrackResolution,
@@ -446,8 +446,8 @@ void ShortenedTrackValidation::beginJob() {
                                 hitsRemain_[i])
                        .c_str(),
                    100,
-                   -0.01,
-                   0.01));
+                   -0.001,
+                   0.001));
 
     histsPtRatioVsDeltaRAll_.push_back(
         book<TH2F>(ShortTrackResolution,
@@ -471,16 +471,16 @@ void ShortenedTrackValidation::beginJob() {
                                 hitsRemain_[i])
                        .c_str(),
                    101,
-                   -10.,
-                   10.));
+                   -5.,
+                   5.));
 
     histsPtAll_.push_back(
         book<TH1F>(TrackQuals,
                    fmt::sprintf("trackPt_%s", hitsRemain_[i]).c_str(),
                    fmt::sprintf("Short Track p_{T} - %s layers;p_{T}^{short} [GeV];n. tracks", hitsRemain_[i]).c_str(),
-                   101,
-                   -0.05,
-                   200.5));
+                   100,
+                   0.,
+                   100.));
 
     histsNhitsAll_.push_back(
         book<TH1F>(TrackQuals,
@@ -496,7 +496,7 @@ void ShortenedTrackValidation::beginJob() {
         fmt::sprintf("Short Track / Long Track #DeltaR %s layers;#DeltaR(short,long);n. tracks", hitsRemain_[i]).c_str(),
         100,
         0.,
-        0.01));
+        0.005));
 
     currentFolder = fmt::sprintf("%s/Compare_%sHit", folderName_, hitsRemain_[i]);
     comparators_[i]->book(fs_->mkdir(currentFolder));

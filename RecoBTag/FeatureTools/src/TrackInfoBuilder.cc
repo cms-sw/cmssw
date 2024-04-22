@@ -27,7 +27,8 @@ namespace btagbtvdeep {
         trackSip3dVal_(0),
         trackSip3dSig_(0),
         trackJetDistVal_(0),
-        trackJetDistSig_(0) {}
+        trackJetDistSig_(0),
+        trackJetDecayLen_(0) {}
 
   void TrackInfoBuilder::buildTrackInfo(const reco::Candidate *candidate,
                                         const math::XYZVector &jetDir,
@@ -63,6 +64,7 @@ namespace btagbtvdeep {
       trackSip3dSig_ = 0.;
       trackJetDistVal_ = 0.;
       trackJetDistSig_ = 0.;
+      trackJetDecayLen_ = 0.;
       return;
     }
 
@@ -84,12 +86,15 @@ namespace btagbtvdeep {
     Measurement1D meas_ip2d = IPTools::signedTransverseImpactParameter(transientTrack, refjetdirection, pv).second;
     Measurement1D meas_ip3d = IPTools::signedImpactParameter3D(transientTrack, refjetdirection, pv).second;
     Measurement1D jetdist = IPTools::jetTrackDistance(transientTrack, refjetdirection, pv).second;
+    Measurement1D decayl = IPTools::signedDecayLength3D(transientTrack, refjetdirection, pv).second;
     trackSip2dVal_ = static_cast<float>(meas_ip2d.value());
     trackSip2dSig_ = static_cast<float>(meas_ip2d.significance());
     trackSip3dVal_ = static_cast<float>(meas_ip3d.value());
     trackSip3dSig_ = static_cast<float>(meas_ip3d.significance());
     trackJetDistVal_ = static_cast<float>(jetdist.value());
     trackJetDistSig_ = static_cast<float>(jetdist.significance());
+
+    trackJetDecayLen_ = static_cast<float>(decayl.value());
   }
 
 }  // namespace btagbtvdeep
