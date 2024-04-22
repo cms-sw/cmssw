@@ -32,10 +32,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::testDigisSoA {
     template <typename TAcc, typename = std::enable_if_t<isAccelerator<TAcc>>>
     ALPAKA_FN_ACC void operator()(TAcc const& acc, SiPixelDigiErrorsSoAConstView digiErrors_view) const {
       for (uint32_t j : cms::alpakatools::uniform_elements(acc, digiErrors_view.metadata().size())) {
-        assert(digiErrors_view[j].pixelErrors().rawId == j);
-        assert(digiErrors_view[j].pixelErrors().word == j);
-        assert(digiErrors_view[j].pixelErrors().errorType == j % 256);
-        assert(digiErrors_view[j].pixelErrors().fedId == j % 256);
+        ALPAKA_ASSERT_ACC(digiErrors_view[j].pixelErrors().rawId == j);
+        ALPAKA_ASSERT_ACC(digiErrors_view[j].pixelErrors().word == j);
+        ALPAKA_ASSERT_ACC(digiErrors_view[j].pixelErrors().errorType == j % 256);
+        ALPAKA_ASSERT_ACC(digiErrors_view[j].pixelErrors().fedId == j % 256);
       }
     }
   };
