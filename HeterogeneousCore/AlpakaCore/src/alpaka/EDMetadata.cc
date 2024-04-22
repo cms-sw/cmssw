@@ -47,6 +47,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       throw edm::Exception(edm::errors::LogicError) << "Handling data from multiple devices is not yet supported";
     }
 
+    // If the event has been discarded, the produce() function that
+    // constructed this EDMetadata object did not launch any
+    // asynchronous work.
+    if (not event_) {
+      return;
+    }
+
     if (not alpaka::isComplete(*event_)) {
       // Event not yet occurred, so need to add synchronization
       // here. Sychronization is done by making the queue to wait

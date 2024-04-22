@@ -48,6 +48,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     Queue& queue() const { return *queue_; }
 
     void recordEvent() {}
+    void discardEvent() {}
 
   private:
     std::shared_ptr<Queue> queue_;
@@ -73,6 +74,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     void enqueueCallback(edm::WaitingTaskWithArenaHolder holder);
 
     void recordEvent() { alpaka::enqueue(*queue_, *event_); }
+    void discardEvent() { event_.reset(); }
 
     /**
      * Synchronizes 'consumer' metadata wrt. 'this' in the event product
