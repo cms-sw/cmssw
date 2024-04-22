@@ -81,7 +81,12 @@ def customiseTICLForDumper(process):
     )
 
     from Configuration.ProcessModifiers.ticl_v5_cff import ticl_v5
-    ticl_v5.toModify(process.ticlDumper, trackstersclue3d = cms.InputTag('mergedTrackstersProducer'), ticlcandidates = cms.InputTag("ticlCandidate"), trackstersmerged = cms.InputTag("ticlCandidate"), trackstersInCand = cms.InputTag("ticlCandidate"))
+    ticl_v5.toModify(process.ticlDumper,
+                     # trackstersclue3d = cms.InputTag('mergedTrackstersProducer'), # For future separate iterations
+                     trackstersclue3d = cms.InputTag('ticlTrackstersCLUE3DHigh'),
+                     ticlcandidates = cms.InputTag("ticlCandidate"),
+                     trackstersmerged = cms.InputTag("ticlCandidate"),
+                     trackstersInCand = cms.InputTag("ticlCandidate"))
 
     process.TFileService = cms.Service("TFileService",
                                        fileName=cms.string("histo.root")

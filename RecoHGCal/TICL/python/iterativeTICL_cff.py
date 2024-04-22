@@ -25,7 +25,11 @@ from Configuration.ProcessModifiers.ticl_v5_cff import ticl_v5
 ticlLayerTileTask = cms.Task(ticlLayerTileProducer)
 
 ticlTrackstersMerge = _trackstersMergeProducer.clone()
-ticlTracksterLinks = _tracksterLinksProducer.clone()
+ticlTracksterLinks = _tracksterLinksProducer.clone(
+    tracksters_collections = cms.VInputTag(
+        'ticlTrackstersCLUE3DHigh'
+    ),
+)
 ticlCandidate = _ticlCandidateProducer.clone()
 mtdSoA = _mtdSoAProducer.clone()
 
@@ -35,17 +39,24 @@ ticl_v5.toModify(pfTICL, ticlCandidateSrc = cms.InputTag('ticlCandidate'), isTIC
 ticlPFTask = cms.Task(pfTICL)
 
 ticlIterationsTask = cms.Task(
-    ticlCLUE3DHighStepTask,
-    ticlCLUE3DEMStepTask,
-    ticlCLUE3DHADStepTask
+    ticlCLUE3DHighStepTask
 )
+''' For future separate iterations
+,ticlCLUE3DEMStepTask,
+,ticlCLUE3DHADStepTask
+    '''
 
+''' For future separate iterations
 ticl_v5.toReplaceWith(ticlIterationsTask, ticlIterationsTask.copyAndExclude([ticlCLUE3DHighStepTask]))
+'''
 
 from Configuration.ProcessModifiers.fastJetTICL_cff import fastJetTICL
 fastJetTICL.toModify(ticlIterationsTask, func=lambda x : x.add(ticlFastJetStepTask))
 
-ticlIterLabels = ["CLUE3DEM", "CLUE3DHAD", "CLUE3DHigh"]
+ticlIterLabels = ["CLUE3DHigh"]
+''' For future separate iterations
+"CLUE3DEM", "CLUE3DHAD",
+'''
 
 ticlTracksterMergeTask = cms.Task(ticlTrackstersMerge)
 ticlTracksterLinksTask = cms.Task(ticlTracksterLinks)

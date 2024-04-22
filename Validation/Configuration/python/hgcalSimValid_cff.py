@@ -9,7 +9,7 @@ from SimCalorimetry.HGCalAssociatorProducers.LCToSCAssociation_cfi import layerC
 from SimCalorimetry.HGCalAssociatorProducers.LCToSimTSAssociation_cfi import layerClusterSimTracksterAssociation as layerClusterSimTracksterAssociationProducer
 from SimCalorimetry.HGCalAssociatorProducers.LCToCPAssociation_cfi import layerClusterCaloParticleAssociationHFNose as layerClusterCaloParticleAssociationProducerHFNose
 from SimCalorimetry.HGCalAssociatorProducers.LCToSCAssociation_cfi import layerClusterSimClusterAssociationHFNose as layerClusterSimClusterAssociationProducerHFNose
-from SimCalorimetry.HGCalAssociatorProducers.TSToSimTSAssociation_cfi import tracksterSimTracksterAssociationLinking, tracksterSimTracksterAssociationPR,tracksterSimTracksterAssociationLinkingbyCLUE3D, tracksterSimTracksterAssociationPRbyCLUE3D, tracksterSimTracksterAssociationLinkingPU, tracksterSimTracksterAssociationPRPU, tracksterSimTracksterAssociationLinkingbyCLUE3DEM, tracksterSimTracksterAssociationLinkingbyCLUE3DHAD, tracksterSimTracksterAssociationPRbyCLUE3DEM, tracksterSimTracksterAssociationPRbyCLUE3DHAD
+from SimCalorimetry.HGCalAssociatorProducers.TSToSimTSAssociation_cfi import tracksterSimTracksterAssociationLinking, tracksterSimTracksterAssociationPR,tracksterSimTracksterAssociationLinkingbyCLUE3D, tracksterSimTracksterAssociationPRbyCLUE3D, tracksterSimTracksterAssociationLinkingPU, tracksterSimTracksterAssociationPRPU #, tracksterSimTracksterAssociationLinkingbyCLUE3DEM, tracksterSimTracksterAssociationLinkingbyCLUE3DHAD, tracksterSimTracksterAssociationPRbyCLUE3DEM, tracksterSimTracksterAssociationPRbyCLUE3DHAD
 from RecoHGCal.TICL.mergedTrackstersProducer_cfi import mergedTrackstersProducer as _mergedTrackstersProducer
 from SimCalorimetry.HGCalAssociatorProducers.SimTauProducer_cfi import *
 
@@ -41,12 +41,14 @@ hgcalAssociators = cms.Task(lcAssocByEnergyScoreProducer, layerClusterCaloPartic
                             tracksterSimTracksterAssociationLinking, tracksterSimTracksterAssociationPR,
                             tracksterSimTracksterAssociationLinkingbyCLUE3D, tracksterSimTracksterAssociationPRbyCLUE3D,
                             tracksterSimTracksterAssociationLinkingPU, tracksterSimTracksterAssociationPRPU,
-                            SimTauProducer # to remove in v5??
+                            SimTauProducer
                             )
 
-mergedTrackstersProducer = _mergedTrackstersProducer.clone()
 from Configuration.ProcessModifiers.ticl_v5_cff import ticl_v5
+''' For future separate iterations
+mergedTrackstersProducer = _mergedTrackstersProducer.clone()
 ticl_v5.toModify(hgcalAssociators, lambda x: x.add(mergedTrackstersProducer, tracksterSimTracksterAssociationLinkingbyCLUE3DEM, tracksterSimTracksterAssociationLinkingbyCLUE3DHAD, tracksterSimTracksterAssociationPRbyCLUE3DEM, tracksterSimTracksterAssociationPRbyCLUE3DHAD))
+'''
 
 hgcalValidation = cms.Sequence(hgcalSimHitValidationEE
                                + hgcalSimHitValidationHEF

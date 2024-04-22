@@ -56,6 +56,7 @@ tracksterSimTracksterAssociationPRPU = cms.EDProducer("TSToSimTSHitLCAssociatorE
 )
 
 from Configuration.ProcessModifiers.ticl_v5_cff import ticl_v5
+''' For future separate iterations
 ticl_v5.toModify(tracksterSimTracksterAssociationLinkingbyCLUE3D, label_tst = cms.InputTag("mergedTrackstersProducer"))
 tracksterSimTracksterAssociationLinkingbyCLUE3DEM = tracksterSimTracksterAssociationLinkingbyCLUE3D.clone(label_tst = cms.InputTag("ticlTrackstersCLUE3DEM"))
 tracksterSimTracksterAssociationLinkingbyCLUE3DHAD = tracksterSimTracksterAssociationLinkingbyCLUE3D.clone(label_tst = cms.InputTag("ticlTrackstersCLUE3DHAD"))
@@ -63,6 +64,7 @@ tracksterSimTracksterAssociationLinkingbyCLUE3DHAD = tracksterSimTracksterAssoci
 ticl_v5.toModify(tracksterSimTracksterAssociationPRbyCLUE3D, label_tst = cms.InputTag("mergedTrackstersProducer"))
 tracksterSimTracksterAssociationPRbyCLUE3DEM = tracksterSimTracksterAssociationPRbyCLUE3D.clone(label_tst = cms.InputTag("ticlTrackstersCLUE3DEM"))
 tracksterSimTracksterAssociationPRbyCLUE3DHAD = tracksterSimTracksterAssociationPRbyCLUE3D.clone(label_tst = cms.InputTag("ticlTrackstersCLUE3DHAD"))
+'''
 
 ticl_v5.toModify(tracksterSimTracksterAssociationLinking, label_tst = cms.InputTag("ticlCandidate"))
 ticl_v5.toModify(tracksterSimTracksterAssociationPR, label_tst = cms.InputTag("ticlCandidate"))
