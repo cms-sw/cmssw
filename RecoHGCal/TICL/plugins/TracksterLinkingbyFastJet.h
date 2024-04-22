@@ -28,6 +28,8 @@ namespace ticl {
         case 2:
           algorithm_ = fastjet::antikt_algorithm;
           break;
+        default:
+          throw cms::Exception("BadConfig") << "FastJet jet clustering algorithm not set correctly.";
       }
     }
 
