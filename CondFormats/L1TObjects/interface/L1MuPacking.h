@@ -82,6 +82,11 @@ public:
           << "L1MuUnignedPacking::packedFromIdx: warning value " << idx << "exceeds " << nbits << "-bit range !!!";
     return (unsigned)idx;
   };
+
+private:
+  int signFromPacked(unsigned packed) const = 0;
+  int idxFromPacked(unsigned packed) const = 0;
+  unsigned packedFromIdx(int idx) const = 0;
 };
 
 /**
@@ -127,6 +132,11 @@ public:
           << "L1MuSignedPacking::packedFromIdx: warning value " << idx << "exceeds " << nbits << "-bit range !!!";
     return ~(std::numeric_limits<unsigned>::max() << nbits) & (idx < 0 ? (1U << nbits) + idx : idx);
   };
+
+private:
+  int signFromPacked(unsigned packed) const = 0;
+  int idxFromPacked(unsigned packed) const = 0;
+  unsigned packedFromIdx(int idx) const = 0;
 };
 
 /**
