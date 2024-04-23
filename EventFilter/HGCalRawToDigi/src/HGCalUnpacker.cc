@@ -25,6 +25,15 @@ void HGCalUnpacker::parseFEDData(unsigned fedId,
     return std::array<uint32_t, 2>{{ptr_32b[1], ptr_32b[0]}};
   };
 
+  auto to_econd_payload = [](const uint64_t* ptr_64b, uint64_t payload_length) -> std::vector<uint32_t> {
+    std::vector<uint32_t> payload(payload_length, 0);
+    auto* ptr_32b = reinterpret_cast<const uint32_t*>(ptr_64b);
+    for (unsigned i = 0; i < payload_length; ++i) {
+      payload[i] = ptr_32b[(i % 2 == 0) ? i + 1 : i - 1];
+    }
+    return payload;
+  };
+
   const auto* ptr = header;
   for (unsigned iword = 0; ptr < trailer; ++iword) {
     std::cout << std::setw(8) << iword << ": 0x" << std::hex << std::setfill('0') << std::setw(16) << *ptr << " ("
@@ -78,6 +87,9 @@ void HGCalUnpacker::parseFEDData(unsigned fedId,
       std::cout << "fedId = " << fedId << ", captureblockIdx = " << captureblockIdx << ", econdIdx = " << econdIdx
                 << ", econd_headers = " << std::hex << std::setfill('0') << std::setw(8) << econd_headers[0] << " "
                 << econd_headers[1] << std::dec << ", econd_payload_length = " << econd_payload_length << std::endl;
+
+      // convert ECON-D packets into 32b words -- need to swap the order of the two 32b words in the 64b word
+      auto econd_payload = to_econd_payload(ptr, econd_payload_length);
 
       // forward ptr to the next ECON-D; use integer division with (... + 1) / 2 to round up
       ptr += (econd_payload_length + 1) / 2;
