@@ -69,8 +69,16 @@ pp_on_PbPb_run3.toModify(TrackToTrackEfficiencies,
                              "HLT/Tracking/ValidationWRTOffline/hltMergedPPonAAWrtHighPurity",
                              "HLT/Tracking/ValidationWRTOffline/hltMergedPPonAAWrtHighPurityPV"])
 
+EGMTrackToTrackEfficiencies = TrackToTrackEfficiencies.clone(
+    subDirs        = cms.untracked.vstring(
+        "HLT/EGM/Tracking/ValidationWRTOffline/hltEgammaGsfTracks",
+        "HLT/EGM/Tracking/ValidationWRTOffline/hltEgammaGsfTracksPV",
+    )
+)
+
 trackEfficiencyMonitoringClientHLT = cms.Sequence(
-    TrackToTrackEfficiencies
+    TrackToTrackEfficiencies+
+    EGMTrackToTrackEfficiencies
 )
 
 def _modifyForRun3Default(efffromhitpattern):

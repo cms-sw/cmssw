@@ -172,7 +172,7 @@ pp_on_PbPb_run3.toModify(doubletRecoveryHPTracksMonitoringHLT,
 # Iter1HP: hltIter1MergedForElectrons
 # Iter2HP: hltIter2MergedForElectrons
 egmTrackingMonHLT = trackingMonHLT.clone(
-    primaryVertex = "hltElectronsVertex",
+    primaryVertex = "hltPixelVertices",
     doEffFromHitPatternVsPU   = False,
     doEffFromHitPatternVsBX   = False,
     doEffFromHitPatternVsLUMI = False 

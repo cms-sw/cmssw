@@ -30,8 +30,8 @@ TrackToTrackComparisonHists::TrackToTrackComparisonHists(const edm::ParameterSet
   initialize_parameter(iConfig);
 
   //now do what ever initialization is needed
-  monitoredTrackToken_ = consumes<reco::TrackCollection>(monitoredTrackInputTag_);
-  referenceTrackToken_ = consumes<reco::TrackCollection>(referenceTrackInputTag_);
+  monitoredTrackToken_ = consumes<edm::View<reco::Track>>(monitoredTrackInputTag_);
+  referenceTrackToken_ = consumes<edm::View<reco::Track>>(referenceTrackInputTag_);
   monitoredBSToken_ = consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("monitoredBeamSpot"));
   referenceBSToken_ = consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("referenceBeamSpot"));
   monitoredPVToken_ = consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("monitoredPrimaryVertices"));
@@ -100,13 +100,14 @@ void TrackToTrackComparisonHists::analyze(const edm::Event& iEvent, const edm::E
   //
   //  Get Reference Track Info
   //
-  edm::Handle<reco::TrackCollection> referenceTracksHandle;
+  edm::Handle<edm::View<reco::Track>> referenceTracksHandle;
   iEvent.getByToken(referenceTrackToken_, referenceTracksHandle);
   if (!referenceTracksHandle.isValid()) {
-    edm::LogError("TrackToTrackComparisonHists") << "referenceTracksHandle not found, skipping event";
+    edm::LogError("TrackToTrackComparisonHists")
+        << "referenceTracksHandle with input tag " << referenceTrackInputTag_.encode() << " not found, skipping event";
     return;
   }
-  reco::TrackCollection referenceTracks = *referenceTracksHandle;
+  const edm::View<reco::Track>& referenceTracks = *referenceTracksHandle;
 
   edm::Handle<reco::BeamSpot> referenceBSHandle;
   iEvent.getByToken(referenceBSToken_, referenceBSHandle);
@@ -131,13 +132,14 @@ void TrackToTrackComparisonHists::analyze(const edm::Event& iEvent, const edm::E
   //
   //  Get Monitored Track Info
   //
-  edm::Handle<reco::TrackCollection> monitoredTracksHandle;
+  edm::Handle<edm::View<reco::Track>> monitoredTracksHandle;
   iEvent.getByToken(monitoredTrackToken_, monitoredTracksHandle);
   if (!monitoredTracksHandle.isValid()) {
-    edm::LogError("TrackToTrackComparisonHists") << "monitoredTracksHandle not found, skipping event";
+    edm::LogError("TrackToTrackComparisonHists")
+        << "monitoredTracksHandle with input tag " << monitoredTrackInputTag_.encode() << " not found, skipping event";
     return;
   }
-  reco::TrackCollection monitoredTracks = *monitoredTracksHandle;
+  const edm::View<reco::Track>& monitoredTracks = *monitoredTracksHandle;
 
   edm::Handle<reco::BeamSpot> monitoredBSHandle;
   iEvent.getByToken(monitoredBSToken_, monitoredBSHandle);
@@ -333,8 +335,8 @@ void TrackToTrackComparisonHists::fillDescriptions(edm::ConfigurationDescription
   descriptions.add("trackToTrackComparisonHists", desc);
 }
 
-void TrackToTrackComparisonHists::fillMap(reco::TrackCollection tracks1,
-                                          reco::TrackCollection tracks2,
+void TrackToTrackComparisonHists::fillMap(const edm::View<reco::Track>& tracks1,
+                                          const edm::View<reco::Track>& tracks2,
                                           idx2idxByDoubleColl& map,
                                           float dRMin) {
   //
