@@ -67,8 +67,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       // link to default empty
       theOuterNeighbors = &cellNeighbors[0];
       theTracks = &cellTracks[0];
-      assert(outerNeighbors().empty());
-      assert(tracks().empty());
+      ALPAKA_ASSERT_ACC(outerNeighbors().empty());
+      ALPAKA_ASSERT_ACC(tracks().empty());
     }
 
     template <typename TAcc>
@@ -334,7 +334,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                   hits[nh++] = cells[c].theFishboneId;  // Fishbone hit is always outer than inner hit
                 }
               }
-              assert(nh < TrackerTraits::maxHitsOnTrack);
+              ALPAKA_ASSERT_ACC(nh < TrackerTraits::maxHitsOnTrack);
               hits[nh] = theOuterHitId;
               auto it = foundNtuplets.bulkFill(acc, apc, hits, nh + 1);
               if (it >= 0) {  // if negative is overflow....
@@ -346,7 +346,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           }
         }
         tmpNtuplet.pop_back();
-        assert(tmpNtuplet.size() < int(TrackerTraits::maxHitsOnTrack - 1));
+        ALPAKA_ASSERT_ACC(tmpNtuplet.size() < int(TrackerTraits::maxHitsOnTrack - 1));
       }
     }
 

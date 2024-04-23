@@ -34,7 +34,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                   uint32_t const* __restrict__ hitsModuleStart,
                                   pixelCPEforDevice::ParamsOnDeviceT<TrackerTraits> const* __restrict__ cpeParams,
                                   uint32_t* __restrict__ hitsLayerStart) const {
-      assert(0 == hitsModuleStart[0]);
+      ALPAKA_ASSERT_ACC(0 == hitsModuleStart[0]);
 
       for (int32_t i : cms::alpakatools::uniform_elements(acc, TrackerTraits::numberOfLayers + 1)) {
         hitsLayerStart[i] = hitsModuleStart[cpeParams->layerGeometry().layerStart[i]];

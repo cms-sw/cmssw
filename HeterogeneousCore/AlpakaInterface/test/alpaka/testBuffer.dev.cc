@@ -35,7 +35,7 @@ namespace {
           div,
           [] ALPAKA_FN_ACC(Acc1D const& acc, int* data, size_t size) {
             for (auto index : cms::alpakatools::uniform_elements(acc, size)) {
-              assert(data[index] != 0);
+              ALPAKA_ASSERT_ACC(data[index] != 0);
             }
           },
           buf_d.data(),
