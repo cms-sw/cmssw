@@ -111,9 +111,9 @@ reco::RecoToSimCollectionMtd MtdRecoClusterToSimLayerClusterAssociatorByHitsImpl
           float dtSig = std::abs((recoClus.time() - simClus.simLCTime()) / recoClus.timeError());
 
           // -- If the sim and reco clusters have common hits, fill the std:vector of sim clusters refs
-          if (!sharedHitIds.empty() && dE < energyCut_ &&
-              dtSig < timeCut_) {  // at least one hit in common + requirement on energy and time compatibility
-
+          if (!sharedHitIds.empty() &&
+              ((clusId.mtdSubDetector() == MTDDetId::BTL && dE < energyCut_ && dtSig < timeCut_) ||
+               (clusId.mtdSubDetector() == MTDDetId::ETL && dtSig < timeCut_))) {
             simClusterRefs.push_back(simClusterRef);
 
             LogDebug("MtdRecoClusterToSimLayerClusterAssociatorByHitsImpl")
@@ -214,7 +214,9 @@ reco::SimToRecoCollectionMtd MtdRecoClusterToSimLayerClusterAssociatorByHitsImpl
           float dtSig = std::abs((recoClus.time() - simClus.simLCTime()) / recoClus.timeError());
 
           // -- If the sim and reco clusters have common hits, fill the std:vector of reco clusters refs
-          if (!sharedHitIds.empty() && dE < energyCut_ && dtSig < timeCut_) {
+          if (!sharedHitIds.empty() &&
+              ((clusId.mtdSubDetector() == MTDDetId::BTL && dE < energyCut_ && dtSig < timeCut_) ||
+               (clusId.mtdSubDetector() == MTDDetId::ETL && dtSig < timeCut_))) {
             // Create a persistent edm::Ref to the cluster
             edm::Ref<edmNew::DetSetVector<FTLCluster>, FTLCluster> recoClusterRef =
                 edmNew::makeRefTo(recoClusH, &recoClus);
