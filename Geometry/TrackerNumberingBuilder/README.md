@@ -195,6 +195,31 @@ Only the subdetector 2 schema is different wrt the original Phase 2 upgrade DetI
 The configuration names for this detid schema are `trackerNumberingGeometry_cfi` (to run on geometry built from xml files) or `trackerNumberingGeometryDB_cfi` (to run on geometry from DB) for `TrackerGeometricDetESModule` and `trackerTopology2023Constants_cfi` for `TrackerTopology`
 The xml description of tracker parameters for this detid schema is in [Geometry/TrackerCommonData/data/PhaseII/TFPXTEPXReordered/trackerParameters.xml](../TrackerCommonData/data/PhaseII/TFPXTEPXReordered/trackerParameters.xml
 
+### Phase 2 Upgrade Detector DetId schema modified to account for the re-ordering of the pixel + L1 split sensor 
+
+From CMSSW_14_1_X on [Geometry/TrackerCommonData/data/PhaseII/TFPXTEPXReordered/trackerParameters.xml](../TrackerCommonData/data/PhaseII/TFPXTEPXReordered/trackerParameters.xml) has been updated to reflect a single geometry merging the splitted sensors detID numbering and the detID rearrangement described above. 
+
+* Subdetector 1: (`DetId::subDetId() == PixelSubdetector::PixelBarrel`): Phase2 Pixel Barrel
+
+| Name | start bit | hex mask | bit size | `TrackerTopology` method | Notes |
+|------|-----------|-----------|-----|----|-----|
+| _not used_ | 24 | 0x1 | 1 | | |
+| Layer | 20 | 0xF | 4 | pxbLayer(id) or layer(id) | increasing r |
+| Ladder | 12 | 0xFF | 8 | pxbLadder(id) | increasing phi |
+| Module | 2 | 0x3FF | 10 | pxbModule(id) | increasing z |
+| Sensor | 0 | 0x3 | 2 |pxbSensor(id) | |
+
+* Subdetector 2: (`DetId::subDetId() == PixelSubdetector::PixelEndcap`): Phase2 Pixel Forward
+
+| Name | start bit | hex mask | bit size | `TrackerTopology` method | Notes |
+|------|-----------|-----------|----|-----|-----|
+| subdetector part | 23 | 0x3 | 2 | pxfSide(id) or side(id) | 1=FPIX- 2=FPIX+ |
+| DoubleDisk | 19 | 0xF | 4 |pxfDisk(id) or layer(id) | increasing abs(z) |
+| _SubDisk_ | 18 | 0x1 | 1 | | increasing abs(z) |
+| _SingleRing_ | 12 | 0x3F | 6 | pxfBlade(id) | increasing r |
+| Panel | 10 | 0x3 | 2 | pxfPanel(id) | always 1 |
+| Module | 2 | 0xFF | 8 | pxfModule(id) | increasing phi |
+| _not used_ | 0 | 0x3 | 2 | | |
 
 ### Subdetector `GeometricDet` Enumerators
 
