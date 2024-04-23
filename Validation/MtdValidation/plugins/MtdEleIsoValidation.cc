@@ -969,10 +969,11 @@ void MtdEleIsoValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
         const auto genParticle = *(tp.first->genParticles()[0]);
         // check if prompt (not from hadron, muon, or tau decay) and final state
         // or if is a direct decay product of a prompt tau and is final state
-        if ((genParticle.isPromptFinalState() or genParticle.isDirectPromptTauDecayProductFinalState()) and
-            pdgCheck(genParticle.mother()->pdgId())) {
-          ele_Promt = true;
-          // TODO get simtrackster from mtd, simtrack to tp and check that a recocluster was there
+        if (genParticle.isPromptFinalState() or genParticle.isDirectPromptTauDecayProductFinalState()) {
+          if (genParticle.mother() != nullptr and pdgCheck(genParticle.mother()->pdgId())) {
+            ele_Promt = true;
+            // TODO get simtrackster from mtd, simtrack to tp and check that a recocluster was there
+          }
         }
       }
     }
@@ -1325,7 +1326,7 @@ void MtdEleIsoValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
         // now compute the isolation
         rel_pT_sum_noMTD = pT_sum_noMTD / ele.gsfTrack()->pt();
 
-        rel_pT_sum_gen = pT_sum_gen / ele.gsfTrack()->pt();
+        rel_pT_sum_gen = pT_sum_gen / ele_sim_pt;
       }
 
       for (long unsigned int i = 0; i < N_tracks_MTD_significance.size(); i++) {
