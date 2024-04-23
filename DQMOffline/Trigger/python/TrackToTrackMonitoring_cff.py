@@ -54,8 +54,35 @@ phase2_tracker.toModify(hltMerged2highPurityPV,
                         monitoredTrack           = cms.InputTag("generalTracks","","HLT"),
                         monitoredPrimaryVertices = cms.InputTag("offlinePrimaryVertices","","HLT"))
 
+#
+# E/gamma monitoring
+#
+
+hltEgammaGsfTracksVsOffline = TrackToTrackComparisonHists.clone(
+    monitoredTrack           = "hltEgammaGsfTracks",
+    referenceTrack           = "electronGsfTracks",
+    monitoredBeamSpot        = "hltOnlineBeamSpot",
+    referenceBeamSpot        = "offlineBeamSpot",
+    topDirName               = "HLT/EGM/Tracking/ValidationWRTOffline/hltEgammaGsfTracks",
+    referencePrimaryVertices = "offlinePrimaryVertices",
+    monitoredPrimaryVertices = "hltVerticesPFSelector"
+)
+
+hltEgammaGsfTracksVsOfflinePV = TrackToTrackComparisonHists.clone(
+    dzWRTPvCut               = 0.1,
+    monitoredTrack           = "hltEgammaGsfTracks",
+    referenceTrack           = "electronGsfTracks",
+    monitoredBeamSpot        = "hltOnlineBeamSpot",
+    referenceBeamSpot        = "offlineBeamSpot",
+    topDirName               = "HLT/EGM/Tracking/ValidationWRTOffline/hltEgammaGsfTracksPV",
+    referencePrimaryVertices = "offlinePrimaryVertices",
+    monitoredPrimaryVertices = "hltVerticesPFSelector"
+)
+
 hltToOfflineTrackValidatorSequence = cms.Sequence(
     cms.ignore(highPurityTracks)
     + hltMerged2highPurity
     + hltMerged2highPurityPV
+    + hltEgammaGsfTracksVsOffline
+    + hltEgammaGsfTracksVsOfflinePV
 )
