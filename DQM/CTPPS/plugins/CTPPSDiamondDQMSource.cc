@@ -267,15 +267,15 @@ CTPPSDiamondDQMSource::SectorPlots::SectorPlots(DQMStore::IBooker& ibooker, unsi
                                     19. * INV_DISPLAY_RESOLUTION_FOR_HITS_MM,
                                     -1,
                                     18);
-  trackCorrelationLowMultiplicity =
-      ibooker.book2D("tracks correlation with low multiplicity near-far",
-                     title + " tracks correlation with low multiplicity near-far;track x 220nr_hr (mm);track x 220cyl(mm)",
-                     19. * INV_DISPLAY_RESOLUTION_FOR_HITS_MM,
-                     -1,
-                     18,
-                     19. * INV_DISPLAY_RESOLUTION_FOR_HITS_MM,
-                     -1,
-                     18);
+  trackCorrelationLowMultiplicity = ibooker.book2D(
+      "tracks correlation with low multiplicity near-far",
+      title + " tracks correlation with low multiplicity near-far;track x 220nr_hr (mm);track x 220cyl(mm)",
+      19. * INV_DISPLAY_RESOLUTION_FOR_HITS_MM,
+      -1,
+      18,
+      19. * INV_DISPLAY_RESOLUTION_FOR_HITS_MM,
+      -1,
+      18);
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -514,17 +514,20 @@ CTPPSDiamondDQMSource::PlanePlots::PlanePlots(DQMStore::IBooker& ibooker, unsign
   hit_multiplicity = ibooker.book1D("channels per plane", title + " channels per plane; ch per plane", 13, -0.5, 12.5);
 
   leadingEdgeCumulativePerPlane_both = ibooker.book1D("leading edge (le and te)",
-                                              title + " leading edge (le and te) (recHits); leading edge (ns)",
-                                              25 * windowsNum,
-                                              0,
-                                              25 * windowsNum);
-  leadingEdgeCumulativePerPlane_le = ibooker.book1D(
-      "leading edge (le only)", title + " leading edge (le only) (DIGIs); leading edge (ns)", 25 * windowsNum, 0, 25 * windowsNum);
+                                                      title + " leading edge (le and te) (recHits); leading edge (ns)",
+                                                      25 * windowsNum,
+                                                      0,
+                                                      25 * windowsNum);
+  leadingEdgeCumulativePerPlane_le = ibooker.book1D("leading edge (le only)",
+                                                    title + " leading edge (le only) (DIGIs); leading edge (ns)",
+                                                    25 * windowsNum,
+                                                    0,
+                                                    25 * windowsNum);
   trailingEdgeCumulativePerPlane_te = ibooker.book1D("trailing edge (te only)",
-                                             title + " trailing edge (te only) (DIGIs); trailing edge (ns)",
-                                             25 * windowsNum,
-                                             0,
-                                             25 * windowsNum);
+                                                     title + " trailing edge (te only) (DIGIs); trailing edge (ns)",
+                                                     25 * windowsNum,
+                                                     0,
+                                                     25 * windowsNum);
   TimeOverThresholdCumulativePerPlane =
       ibooker.book1D("time over threshold", title + " time over threshold;time over threshold (ns)", 75, -25, 50);
 
@@ -571,8 +574,11 @@ CTPPSDiamondDQMSource::ChannelPlots::ChannelPlots(DQMStore::IBooker& ibooker, un
                                               25 * windowsNum,
                                               0,
                                               25 * windowsNum);
-  leadingEdgeCumulative_le = ibooker.book1D(
-      "leading edge (le only)", title + " leading edge (le only) (DIGIs); leading edge (ns)", 25 * windowsNum, 0, 25 * windowsNum);
+  leadingEdgeCumulative_le = ibooker.book1D("leading edge (le only)",
+                                            title + " leading edge (le only) (DIGIs); leading edge (ns)",
+                                            25 * windowsNum,
+                                            0,
+                                            25 * windowsNum);
   trailingEdgeCumulative_te = ibooker.book1D("trailing edge (te only)",
                                              title + " trailing edge (te only) (DIGIs); trailing edge (ns)",
                                              25 * windowsNum,
@@ -590,8 +596,14 @@ CTPPSDiamondDQMSource::ChannelPlots::ChannelPlots(DQMStore::IBooker& ibooker, un
   //                    0,
   //                    75);
 
-  pixelTomography_far = ibooker.book2D(
-      "tomography pixel", "tomography with pixel;x + 25 OOT (mm);y (mm)", 25 * windowsNum, 0, 25 * windowsNum, 16, -8, 8);
+  pixelTomography_far = ibooker.book2D("tomography pixel",
+                                       "tomography with pixel;x + 25 OOT (mm);y (mm)",
+                                       25 * windowsNum,
+                                       0,
+                                       25 * windowsNum,
+                                       16,
+                                       -8,
+                                       8);
 
   hit_rate = ibooker.book1D("hit rate", title + "hit rate;rate (Hz)", 40, 0, 20);
 
@@ -779,16 +791,16 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
     //   - 220nr_hr: "220m"  station (id=2), in horizontal Roman Pot with id=2 ("near horizontal")
 
     for (const auto& tracks_220nr_hr : *diamondLocalTracks) {
-      
       // to preprare correlation plot, we need to select tracks from nr_hr pot in 220m station
       const CTPPSDiamondDetId detId_220nr_hr(tracks_220nr_hr.detId());
 
       // selecting only tracks from 220nr station, realised as skipping tracks from 220cyl station
-      if((detId_220nr_hr.rp() == CTPPS_DIAMOND_CYL_RP_ID) && (detId_220nr_hr.station() == CTPPS_DIAMOND_CYL_STATION_ID))
+      if ((detId_220nr_hr.rp() == CTPPS_DIAMOND_CYL_RP_ID) &&
+          (detId_220nr_hr.station() == CTPPS_DIAMOND_CYL_STATION_ID))
         continue;
-      
+
       if (potPlots_.count(detId_220nr_hr.rpId()) == 0)
-          continue;
+        continue;
       TH1F* trackHistoInTimeTmp = potPlots_[detId_220nr_hr.rpId()].trackDistribution->getTH1F();
 
       for (const auto& track_220nr_hr : tracks_220nr_hr) {
@@ -796,8 +808,8 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
           continue;
 
         // get the bins from per-pot plots
-        int startBin_220nr_hr =
-            trackHistoInTimeTmp->FindBin(track_220nr_hr.x0() - diamShifts_[detId_220nr_hr.rpId()].global - track_220nr_hr.x0Sigma());
+        int startBin_220nr_hr = trackHistoInTimeTmp->FindBin(
+            track_220nr_hr.x0() - diamShifts_[detId_220nr_hr.rpId()].global - track_220nr_hr.x0Sigma());
         int numOfBins_220nr_hr = 2 * track_220nr_hr.x0Sigma() * INV_DISPLAY_RESOLUTION_FOR_HITS_MM;
 
         for (const auto& tracks_220cyl : *diamondLocalTracks) {
@@ -811,7 +823,7 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
 
           if (sectorPlots_.count(detId_220cyl.armId()) == 0)
             continue;
-          
+
           TH2F* trackHistoTmp = sectorPlots_[detId_220cyl.armId()].trackCorrelation->getTH2F();
           TAxis* trackHistoTmpXAxis = trackHistoTmp->GetXaxis();
           TAxis* trackHistoTmpYAxis = trackHistoTmp->GetYaxis();
@@ -819,7 +831,8 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
           for (const auto& track_220cyl : tracks_220cyl) {
             if (!track_220cyl.isValid())
               continue;
-            int startBin_220cyl = trackHistoTmpYAxis->FindBin(track_220cyl.x0() - diamShifts_[detId_220cyl.rpId()].global - track_220cyl.x0Sigma());
+            int startBin_220cyl = trackHistoTmpYAxis->FindBin(
+                track_220cyl.x0() - diamShifts_[detId_220cyl.rpId()].global - track_220cyl.x0Sigma());
             int numOfBins_220cyl = 2 * track_220cyl.x0Sigma() * INV_DISPLAY_RESOLUTION_FOR_HITS_MM;
 
             // fill the correlation plot
@@ -830,7 +843,8 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
                 trackHistoTmp->Fill(track_220nr_hr_x, track_220cyl_x);
                 // fill low multiplicity histogram
                 if (tracks_220nr_hr.size() < 3 && tracks_220cyl.size() < trackCorrelationThreshold_)
-                  sectorPlots_[detId_220cyl.armId()].trackCorrelationLowMultiplicity->Fill(track_220nr_hr_x, track_220cyl_x);
+                  sectorPlots_[detId_220cyl.armId()].trackCorrelationLowMultiplicity->Fill(track_220nr_hr_x,
+                                                                                           track_220cyl_x);
               }
           }
         }
@@ -1153,9 +1167,9 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
         }
 
         // Check dropped trailing edges
-        if ((digi.trailingEdge() == 0) && (digi.leadingEdge() != 0)){
+        if ((digi.trailingEdge() == 0) && (digi.leadingEdge() != 0)) {
           planePlots_[detId_plane].leadingEdgeCumulativePerPlane_le->Fill(HPTDC_BIN_WIDTH_NS * digi.leadingEdge());
-        } else if ((digi.leadingEdge() == 0  && (digi.trailingEdge() != 0))) { // check dropped leading edges
+        } else if ((digi.leadingEdge() == 0 && (digi.trailingEdge() != 0))) {  // check dropped leading edges
           planePlots_[detId_plane].trailingEdgeCumulativePerPlane_te->Fill(HPTDC_BIN_WIDTH_NS * digi.trailingEdge());
         }
       }
