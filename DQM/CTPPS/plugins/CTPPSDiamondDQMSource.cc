@@ -514,12 +514,12 @@ CTPPSDiamondDQMSource::PlanePlots::PlanePlots(DQMStore::IBooker& ibooker, unsign
   hit_multiplicity = ibooker.book1D("channels per plane", title + " channels per plane; ch per plane", 13, -0.5, 12.5);
 
   leadingEdgeCumulativePerPlane_both = ibooker.book1D("leading edge (le and te)",
-                                              title + " leading edge (recHits); leading edge (ns)",
+                                              title + " leading edge (le and te) (recHits); leading edge (ns)",
                                               25 * windowsNum,
                                               0,
                                               25 * windowsNum);
   leadingEdgeCumulativePerPlane_le = ibooker.book1D(
-      "leading edge (le only)", title + " leading edge (DIGIs); leading edge (ns)", 25 * windowsNum, 0, 25 * windowsNum);
+      "leading edge (le only)", title + " leading edge (le only) (DIGIs); leading edge (ns)", 25 * windowsNum, 0, 25 * windowsNum);
   trailingEdgeCumulativePerPlane_te = ibooker.book1D("trailing edge (te only)",
                                              title + " trailing edge (te only) (DIGIs); trailing edge (ns)",
                                              25 * windowsNum,
@@ -567,12 +567,12 @@ CTPPSDiamondDQMSource::ChannelPlots::ChannelPlots(DQMStore::IBooker& ibooker, un
   HPTDCErrorFlags->setBinLabel(16, "MH  (%)");
 
   leadingEdgeCumulative_both = ibooker.book1D("leading edge (le and te)",
-                                              title + " leading edge (recHits); leading edge (ns)",
+                                              title + " leading edge (le and te) (recHits); leading edge (ns)",
                                               25 * windowsNum,
                                               0,
                                               25 * windowsNum);
   leadingEdgeCumulative_le = ibooker.book1D(
-      "leading edge (le only)", title + " leading edge (DIGIs); leading edge (ns)", 25 * windowsNum, 0, 25 * windowsNum);
+      "leading edge (le only)", title + " leading edge (le only) (DIGIs); leading edge (ns)", 25 * windowsNum, 0, 25 * windowsNum);
   trailingEdgeCumulative_te = ibooker.book1D("trailing edge (te only)",
                                              title + " trailing edge (te only) (DIGIs); trailing edge (ns)",
                                              25 * windowsNum,
