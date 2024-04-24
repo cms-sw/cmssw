@@ -290,7 +290,7 @@ process.gtStage2Raw.TauInputTag = cms.InputTag("gtInput")
 process.gtStage2Raw.JetInputTag = cms.InputTag("gtInput")
 process.gtStage2Raw.EtSumInputTag = cms.InputTag("gtInput")
 process.gtStage2Raw.MuonInputTag = cms.InputTag("gtInput")
-process.gtStage2Raw.MuonShowerInputTag = cms.InputTag("gtInput)
+process.gtStage2Raw.MuonShowerInputTag = cms.InputTag("gtInput")
 
 process.load('EventFilter.L1TRawToDigi.gtStage2Digis_cfi')
 process.newGtStage2Digis = process.gtStage2Digis.clone()
