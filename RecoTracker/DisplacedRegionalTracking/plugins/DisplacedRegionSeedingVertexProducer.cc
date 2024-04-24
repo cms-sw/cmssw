@@ -103,8 +103,12 @@ void DisplacedRegionSeedingVertexProducer::produce(edm::StreamID streamID,
     const math::XYZVector x(trackCluster.vertex());
     if (minRadius_ < 0.0 || minTrackClusterRadius < 0.0 || (x - bs).rho() > minTrackClusterRadius)
       pseudoROIs.emplace_back(&trackClusters.at(i), rParam_);
-    if (pseudoROIs.size() == maxPseudoROIs_)
+    if (pseudoROIs.size() == maxPseudoROIs_) {
+      edm::LogWarning("DisplacedRegionSeedingVertexProducer")
+          << "Truncated list of pseudoROIs at " << maxPseudoROIs_ << " out of " << trackClusters.size()
+          << " possible track clusters.";
       break;
+    }
   }
   if (pseudoROIs.size() > 1) {
     distances.reserve(pseudoROIs.size() * std::max(1.0, pseudoROIs.size() * 0.05));
@@ -124,16 +128,19 @@ void DisplacedRegionSeedingVertexProducer::produce(edm::StreamID streamID,
     }
   }
 
+  auto itBegin = distances.begin();
+  auto itLast = distances.end();
+
   // Do clustering.
-  while (!distances.empty()) {
+  while (itBegin != itLast) {
     //find the lowest distance. Lots of repeatitive calculations done here
     //as from loop iteration to loop iteration only sqrt(distances.size()) distances
     //need to be recomputed (those involving best_i
     //but this is much better than sorting distances..
-    DistanceItr dBest = distances.begin();
+    DistanceItr dBest = itBegin;
     double distanceBest = dBest->distance2();
 
-    for (auto i = distances.begin(); i != distances.end(); i++) {
+    for (auto i = itBegin; i != itLast; i++) {
       if (distanceBest > i->distance2()) {
         dBest = i;
         distanceBest = i->distance2();
@@ -149,8 +156,7 @@ void DisplacedRegionSeedingVertexProducer::produce(edm::StreamID streamID,
     const auto distancePred = [](const Distance &a) {
       return (!a.entities().first->valid() || !a.entities().second->valid());
     };
-    auto remove_dist = std::remove_if(distances.begin(), distances.end(), distancePred);
-    distances.erase(remove_dist, distances.end());
+    itLast = std::remove_if(itBegin, itLast, distancePred);
   }
 
   const auto pseudoROIPred = [](const DisplacedVertexCluster &a) { return !a.valid(); };
