@@ -88,7 +88,6 @@ DisplacedRegionSeedingVertexProducer::~DisplacedRegionSeedingVertexProducer() {
 void DisplacedRegionSeedingVertexProducer::produce(edm::StreamID streamID,
                                                    edm::Event &event,
                                                    const edm::EventSetup &setup) const {
-
   const auto &beamSpot = event.get(beamSpotToken_);
   const math::XYZVector bs(beamSpot.position());
 
@@ -104,10 +103,11 @@ void DisplacedRegionSeedingVertexProducer::produce(edm::StreamID streamID,
     const math::XYZVector x(trackCluster.vertex());
     if (minRadius_ < 0.0 || minTrackClusterRadius < 0.0 || (x - bs).rho() > minTrackClusterRadius)
       pseudoROIs.emplace_back(&trackClusters.at(i), rParam_);
-    if ( pseudoROIs.size() == maxPseudoROIs_ ) break;
+    if (pseudoROIs.size() == maxPseudoROIs_)
+      break;
   }
   if (pseudoROIs.size() > 1) {
-    distances.reserve(pseudoROIs.size()*std::max(1.0,pseudoROIs.size()*0.05));
+    distances.reserve(pseudoROIs.size() * std::max(1.0, pseudoROIs.size() * 0.05));
     DisplacedVertexClusterItr secondToLast = pseudoROIs.end();
     secondToLast--;
     for (DisplacedVertexClusterItr i = pseudoROIs.begin(); i != secondToLast; i++) {
@@ -127,16 +127,16 @@ void DisplacedRegionSeedingVertexProducer::produce(edm::StreamID streamID,
   // Do clustering.
   while (!distances.empty()) {
     //find the lowest distance. Lots of repeatitive calculations done here
-    //as from loop iteration to loop iteration only sqrt(distances.size()) distances 
+    //as from loop iteration to loop iteration only sqrt(distances.size()) distances
     //need to be recomputed (those involving best_i
     //but this is much better than sorting distances..
     DistanceItr dBest = distances.begin();
     double distanceBest = dBest->distance2();
 
-    for ( auto i = distances.begin(); i!= distances.end(); i++ ) {
-      if ( distanceBest > i->distance2() ) {
-	dBest = i;
-	distanceBest = i->distance2();
+    for (auto i = distances.begin(); i != distances.end(); i++) {
+      if (distanceBest > i->distance2()) {
+        dBest = i;
+        distanceBest = i->distance2();
       }
     }
 
@@ -149,12 +149,12 @@ void DisplacedRegionSeedingVertexProducer::produce(edm::StreamID streamID,
     const auto distancePred = [](const Distance &a) {
       return (!a.entities().first->valid() || !a.entities().second->valid());
     };
-    auto remove_dist = std::remove_if(distances.begin(), distances.end(), distancePred );
+    auto remove_dist = std::remove_if(distances.begin(), distances.end(), distancePred);
     distances.erase(remove_dist, distances.end());
   }
 
   const auto pseudoROIPred = [](const DisplacedVertexCluster &a) { return !a.valid(); };
-  auto remove_it = std::remove_if(pseudoROIs.begin(), pseudoROIs.end(), pseudoROIPred );
+  auto remove_it = std::remove_if(pseudoROIs.begin(), pseudoROIs.end(), pseudoROIPred);
   pseudoROIs.erase(remove_it, pseudoROIs.end());
 
   // Remove invalid ROIs.
@@ -169,7 +169,7 @@ void DisplacedRegionSeedingVertexProducer::produce(edm::StreamID streamID,
       return true;
     return false;
   };
-  auto remove_it2 = std::remove_if(pseudoROIs.begin(), pseudoROIs.end(), roiPred );
+  auto remove_it2 = std::remove_if(pseudoROIs.begin(), pseudoROIs.end(), roiPred);
   pseudoROIs.erase(remove_it2, pseudoROIs.end());
 
   auto nearRegionsOfInterest = make_unique<vector<reco::Vertex> >();
