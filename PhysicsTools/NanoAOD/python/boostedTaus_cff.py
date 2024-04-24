@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.NanoAOD.common_cff import *
 from PhysicsTools.NanoAOD.nano_eras_cff import *
-from PhysicsTools.NanoAOD.simpleCandidateFlatTableProducer_cfi import simpleCandidateFlatTableProducer
+from PhysicsTools.NanoAOD.simplePATTauFlatTableProducer_cfi import simplePATTauFlatTableProducer
 
 ##################### Import reusable funtions and objects from std taus ########
 from PhysicsTools.NanoAOD.taus_cff import _tauIdWPMask, tausMCMatchLepTauForTable, tausMCMatchHadTauForTable,tauMCTable
@@ -18,7 +18,7 @@ run2_nanoAOD_106Xv2.toModify(
     cut = "pt > 40 && tauID('decayModeFindingNewDMs') && (tauID('byVVLooseIsolationMVArun2DBoldDMwLT') || tauID('byVVLooseIsolationMVArun2DBoldDMdR0p3wLT') || tauID('byVVLooseIsolationMVArun2DBnewDMwLT'))"
 )
 
-boostedTauTable = simpleCandidateFlatTableProducer.clone(
+boostedTauTable = simplePATTauFlatTableProducer.clone(
     src = cms.InputTag("linkedObjects", "boostedTaus"),
     name= cms.string("boostedTau"),
     doc = cms.string("slimmedBoostedTaus after basic selection (" + finalBoostedTaus.cut.value()+")"),

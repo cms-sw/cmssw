@@ -10,7 +10,9 @@ from PhysicsTools.NanoAOD.simpleVertexFlatTableProducer_cfi import simpleVertexF
 from PhysicsTools.PatAlgos.patElectronTimeLifeInfoProducer_cfi import patElectronTimeLifeInfoProducer
 from PhysicsTools.PatAlgos.patMuonTimeLifeInfoProducer_cfi import patMuonTimeLifeInfoProducer
 from PhysicsTools.PatAlgos.patTauTimeLifeInfoProducer_cfi import patTauTimeLifeInfoProducer
-from PhysicsTools.NanoAOD.simpleCandidate2TrackTimeLifeInfoFlatTableProducer_cfi import simpleCandidate2TrackTimeLifeInfoFlatTableProducer
+from PhysicsTools.NanoAOD.simplePATElectron2TrackTimeLifeInfoFlatTableProducer_cfi import simplePATElectron2TrackTimeLifeInfoFlatTableProducer
+from PhysicsTools.NanoAOD.simplePATMuon2TrackTimeLifeInfoFlatTableProducer_cfi import simplePATMuon2TrackTimeLifeInfoFlatTableProducer
+from PhysicsTools.NanoAOD.simplePATTau2TrackTimeLifeInfoFlatTableProducer_cfi import simplePATTau2TrackTimeLifeInfoFlatTableProducer
 from TrackingTools.TransientTrack.TransientTrackBuilder_cfi import *
 from PhysicsTools.NanoAOD.nanoDQM_tools_cff import *
 
@@ -22,7 +24,7 @@ prod_common = cms.PSet(
 
 # impact parameter
 ipVars = cms.PSet(
-    #ipLength = Var("ipLength().value()", float, doc="lenght of impact parameter (3d)", precision=10),#MB: redundant
+    #ipLength = Var("ipLength().value()", float, doc="lenght of impact parameter (3d)", precision=10),
     ipLengthSig = Var("ipLength().significance()", float, doc="significance of impact parameter", precision=10),
     IPx = Var("ipVector().x()", float, doc="x coordinate of impact parameter vector", precision=10),
     IPy = Var("ipVector().y()", float, doc="y coordinate of impact parameter vector", precision=10),
@@ -53,7 +55,7 @@ svVars = cms.PSet(
     refitSVy = Var("?hasSV()?sv().y():0", float, doc="y coordinate of SV", precision=10),
     refitSVz = Var("?hasSV()?sv().z():0", float, doc="z coordinate of SV", precision=10),
     refitSVchi2 = Var("?hasSV()?sv().normalizedChi2():0", float, doc="reduced chi2, i.e. chi2/ndof, of SV fit", precision=8),
-    #refitSVndof = Var("?hasSV()?sv().ndof():0", float, doc="ndof of SV fit", precision=8),#MB: not important
+    #refitSVndof = Var("?hasSV()?sv().ndof():0", float, doc="ndof of SV fit", precision=8),
     # flight-length
     #refitFlightLength = Var("?hasSV()?flightLength().value():0", float, doc="flight-length,i.e. the PV to SV distance", precision=10),
     #refitFlightLengthSig = Var("?hasSV()?flightLength().significance():0", float, doc="Significance of flight-length", precision=10)
@@ -122,7 +124,7 @@ def addElectronTimeLifeInfoTask(process):
         pvSource = prod_common.pvSource,
         pvChoice = prod_common.pvChoice
     )
-    process.electronTimeLifeInfoTable = simpleCandidate2TrackTimeLifeInfoFlatTableProducer.clone(
+    process.electronTimeLifeInfoTable = simplePATElectron2TrackTimeLifeInfoFlatTableProducer.clone(
         name = process.electronTable.name,
         src = process.electronTable.src,
         doc = cms.string("Additional time-life info for non-prompt electrons"),
@@ -187,7 +189,7 @@ def addMuonTimeLifeInfoTask(process):
         pvSource = prod_common.pvSource,
         pvChoice = prod_common.pvChoice
     )
-    process.muonTimeLifeInfoTable = simpleCandidate2TrackTimeLifeInfoFlatTableProducer.clone(
+    process.muonTimeLifeInfoTable = simplePATMuon2TrackTimeLifeInfoFlatTableProducer.clone(
         name = process.muonTable.name,
         src = process.muonTable.src,
         doc = cms.string("Additional time-life info for non-prompt muon"),
@@ -251,7 +253,7 @@ def addTauTimeLifeInfoTask(process):
         pvSource = prod_common.pvSource,
         pvChoice = prod_common.pvChoice
     )
-    process.tauTimeLifeInfoTable = simpleCandidate2TrackTimeLifeInfoFlatTableProducer.clone(
+    process.tauTimeLifeInfoTable = simplePATTau2TrackTimeLifeInfoFlatTableProducer.clone(
         name = process.tauTable.name,
         src = process.tauTable.src,
         doc = cms.string("Additional tau time-life info"),

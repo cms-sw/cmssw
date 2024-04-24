@@ -3,11 +3,11 @@ import FWCore.ParameterSet.Config as cms
 from PhysicsTools.NanoAOD.common_cff import *
 from DPGAnalysis.MuonTools.common_cff import *
 
-from PhysicsTools.NanoAOD.simpleCandidateFlatTableProducer_cfi import simpleCandidateFlatTableProducer
+from PhysicsTools.NanoAOD.simplePATMuonFlatTableProducer_cfi import simplePATMuonFlatTableProducer
 
 from PhysicsTools.PatAlgos.producersLayer1.muonProducer_cfi import *
 
-muonFlatTableProducer = simpleCandidateFlatTableProducer.clone(
+muonFlatTableProducer = simplePATMuonFlatTableProducer.clone(
     src = cms.InputTag("patMuons"),
     name = cms.string("muon"),
     doc  = cms.string("RECO muon information"),
