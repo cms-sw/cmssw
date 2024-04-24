@@ -75,9 +75,9 @@ namespace {
       // radix sort works in a single block (and the assert macro does not like the comma of the template parameters).
       const auto blocksPerGrid = alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[0u];
       const auto blocksIdx = alpaka::getIdx<alpaka::Grid, alpaka::Blocks>(acc)[0u];
-      assert(1 == blocksPerGrid);
-      assert(0 == blocksIdx);
-      assert(elements <= 2048);
+      ALPAKA_ASSERT_ACC(1 == blocksPerGrid);
+      ALPAKA_ASSERT_ACC(0 == blocksIdx);
+      ALPAKA_ASSERT_ACC(elements <= 2048);
 
       auto& order = alpaka::declareSharedVar<uint16_t[2048], __COUNTER__>(acc);
       auto& sws = alpaka::declareSharedVar<uint16_t[2048], __COUNTER__>(acc);
@@ -100,7 +100,7 @@ namespace {
       for (auto itrack : uniform_elements(acc, elements - 1)) {
         auto ntrack = order[itrack];
         auto mtrack = order[itrack + 1];
-        assert(truncate<2>(z[ntrack]) <= truncate<2>(z[mtrack]));
+        ALPAKA_ASSERT_ACC(truncate<2>(z[ntrack]) <= truncate<2>(z[mtrack]));
       }
 
       alpaka::syncBlockThreads(acc);
@@ -128,7 +128,7 @@ namespace {
       for (auto itrack : uniform_elements(acc, elements - 1)) {
         auto ntrack = order[itrack];
         auto mtrack = order[itrack + 1];
-        assert(iz[ntrack] <= iz[mtrack]);
+        ALPAKA_ASSERT_ACC(iz[ntrack] <= iz[mtrack]);
       }
 
       if (doPrint)

@@ -37,13 +37,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::testZVertexSoAT {
       }
 
       for (int32_t j : cms::alpakatools::uniform_elements(acc, zvertex_view.nvFinal())) {
-        assert(zvertex_view[j].idv() == j);
-        assert(zvertex_view[j].zv() - (float)j < 0.0001);
-        assert(zvertex_view[j].wv() - (float)j < 0.0001);
-        assert(zvertex_view[j].chi2() - (float)j < 0.0001);
-        assert(zvertex_view[j].ptv2() - (float)j < 0.0001);
-        assert(zvertex_view[j].ndof() == j);
-        assert(zvertex_view[j].sortInd() == uint32_t(j));
+        ALPAKA_ASSERT_ACC(zvertex_view[j].idv() == j);
+        ALPAKA_ASSERT_ACC(zvertex_view[j].zv() - (float)j < 0.0001);
+        ALPAKA_ASSERT_ACC(zvertex_view[j].wv() - (float)j < 0.0001);
+        ALPAKA_ASSERT_ACC(zvertex_view[j].chi2() - (float)j < 0.0001);
+        ALPAKA_ASSERT_ACC(zvertex_view[j].ptv2() - (float)j < 0.0001);
+        ALPAKA_ASSERT_ACC(zvertex_view[j].ndof() == j);
+        ALPAKA_ASSERT_ACC(zvertex_view[j].sortInd() == uint32_t(j));
       }
     }
   };
