@@ -48,7 +48,9 @@ customElectronFilterBits = cms.PSet(
         #HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL (wildcarded as the name is likely going to change soon) 
         mksel("filter('hltMu*TrkIsoVVLEle23CaloIdLTrackIdLIsoVLElectronlegTrackIsoFilter')","1mu-1e eLeg"),
         #HLT_Ele24_eta2p1_WPTight_Gsf_PNetTauhPFJet30_*_eta2p3_CrossL1 OR HLT_Ele24_eta2p1_WPTight_Gsf_LooseDeepTauPFTauHPS30_eta2p1_CrossL1
-        mksel("filter('hltEle24erWPTightGsfTrackIsoFilterForTau')","1e-1tau eLeg"), 
+        mksel("filter('hltEle24erWPTightGsfTrackIsoFilterForTau')","1e-1tau eLeg"),
+        #HLT_Ele115_CaloIdVT_GsfTrkIdT
+        mksel("filter('hltEle115CaloIdVTGsfTrkIdTGsfDphiFilter')","1e high pT noIso"),
     )
 )
 
