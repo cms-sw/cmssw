@@ -25,4 +25,4 @@ CatStreamerFiles refconsistency_cat.dat refconsistency_1.dat refconsistency_10.d
 echo
 
 # ... fails
-runFailure ${SCRAM_TEST_PATH}/testModuleTypeResolverRefTest_cfg.py --input moduletyperesolver_ref_cat.dat
+runSuccess ${SCRAM_TEST_PATH}/testRefProductIDMetadataConsistencyStreamerTest_cfg.py --input refconsistency_cat.dat

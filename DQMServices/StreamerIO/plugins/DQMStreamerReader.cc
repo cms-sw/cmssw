@@ -82,6 +82,13 @@ namespace dqmservices {
     fiterator_.logFileAction("DQMStreamerReader initialised.");
   }
 
+  void DQMStreamerReader::setupMetaData(edm::streamer::InitMsgView const& msg, bool subsequent) {
+    deserializeAndMergeWithRegistry(msg, subsequent);
+    auto event = getEventMsg();
+    assert(event and event->isEventMetaData());
+    deserializeEventMetaData(*event);
+    updateEventMetaData();
+  }
   void DQMStreamerReader::openFileImp_(const DQMFileIterator::LumiEntry& entry) {
     processedEventPerLs_ = 0;
 
@@ -92,7 +99,7 @@ namespace dqmservices {
 
     InitMsgView const* header = getHeaderMsg();
     if (isFirstFile_) {
-      deserializeAndMergeWithRegistry(*header, false);
+      setupMetaData(*header, false);
     }
 
     // dump the list of HLT trigger name from the header
@@ -136,9 +143,14 @@ namespace dqmservices {
       return;
     }
 
+    if (artificialFileBoundary_) {
+      updateEventMetaData();
+      artificialFileBoundary_ = false;
+      return;
+    }
     //Get header/init from reader
     InitMsgView const* header = getHeaderMsg();
-    deserializeAndMergeWithRegistry(*header, true);
+    setupMetaData(*header, true);
   }
 
   bool DQMStreamerReader::openNextFileImp_() {
@@ -286,6 +298,25 @@ namespace dqmservices {
           // this means end of file, so close the file
           closeFileImp_("eof");
         } else {
+          //NOTE: at this point need to see if meta data checksum changed. If it did
+          // we need to issue a 'new File' transition
+          if (eview->isEventMetaData()) {
+            auto lastEventMetaData = presentEventMetaDataChecksum();
+            if (eventMetaDataChecksum(*eview) != lastEventMetaData) {
+              deserializeEventMetaData(*eview);
+              artificialFileBoundary_ = true;
+              return nullptr;
+            } else {
+              //skipping
+              eview = getEventMsg();
+              assert( (eview==nullptr) or (not eview->isEventMetaData()));
+              if (eview == nullptr) {
+                closeFileImp_("eof");
+                continue;
+              }
+            }
+          }
+
           if (!acceptEvent(eview)) {
             continue;
           } else {
@@ -304,7 +335,7 @@ namespace dqmservices {
     try {
       EventMsgView const* eview = prepareNextEvent();
       if (eview == nullptr) {
-        if (file_.streamFile_ and file_.streamFile_->newHeader()) {
+        if (artificialFileBoundary_ or (file_.streamFile_ and file_.streamFile_->newHeader())) {
           return Next::kFile;
         }
         return Next::kStop;
