@@ -10,3 +10,4 @@
 <use name="MagneticField/Engine"/>
 <use name="vdt_headers"/>
 <use name="rootmath"/>
+<use name="ofast-flag"/>

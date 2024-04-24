@@ -23,8 +23,18 @@ namespace {
 }  // namespace
 
 #include "FWCore/Utilities/interface/HRRealTime.h"
-void st() {}
-void en() {}
+void st(void* ptr) {
+  asm("" /* no instructions */
+      :  /* no inputs */
+      : /* output */ "rax"(ptr)
+      : /* pretend to clobber */ "memory");
+}
+void en(void const* ptr) {
+  asm("" /* no instructions */
+      :  /* no inputs */
+      : /* output */ "rax"(ptr)
+      : /* pretend to clobber */ "memory");
+}
 
 int main() {
   // GlobalVector xx(0.5,1.,1.);
@@ -92,73 +102,93 @@ int main() {
   // verify cart to curv and back....
   // AlgebraicMatrixID();
 
-  // L ->Cart
+  int N = 1000000;
+
+  // L =>Cart
   {
-    std::cout << "L ->Cart" << std::endl;
+    std::cout << "L =>Cart ";
     edm::HRTimeType s = edm::hrRealTime();
-    st();
+    for (int i = 0; i < N; ++i) {
+      st(&tp);
+      JacobianLocalToCartesian __attribute__((aligned(16))) jl2c(plane, tp);
+      en(&jl2c.jacobian());
+    }
+    edm::HRTimeType e = edm::hrRealTime();
+    std::cout << double(e - s) / N << std::endl;
     JacobianLocalToCartesian __attribute__((aligned(16))) jl2c(plane, tp);
-    en();
-    edm::HRTimeType e = edm::hrRealTime();
-    std::cout << e - s << std::endl;
     std::cout << jl2c.jacobian() << std::endl;
   }
 
-  // L -> Curv
+  // L => Curv
   {
-    std::cout << "L ->Curv from loc" << std::endl;
+    std::cout << "L =>Curv from loc ";
     edm::HRTimeType s = edm::hrRealTime();
-    st();
+    for (int i = 0; i < N; ++i) {
+      st(&tp);
+      JacobianLocalToCurvilinear __attribute__((aligned(16))) jl2c(plane, tp, m);
+      en(&jl2c.jacobian());
+    }
+    edm::HRTimeType e = edm::hrRealTime();
+    std::cout << double(e - s) / N << std::endl;
     JacobianLocalToCurvilinear __attribute__((aligned(16))) jl2c(plane, tp, m);
-    en();
-    edm::HRTimeType e = edm::hrRealTime();
-    std::cout << e - s << std::endl;
     std::cout << jl2c.jacobian() << std::endl;
   }
 
   {
-    std::cout << "L ->Curv from loc+glob" << std::endl;
+    std::cout << "L =>Curv from loc+glob ";
     edm::HRTimeType s = edm::hrRealTime();
-    st();
+    for (int i = 0; i < N; ++i) {
+      st(&tp);
+      JacobianLocalToCurvilinear __attribute__((aligned(16))) jl2c(plane, tp, gp, m);
+      en(&jl2c.jacobian());
+    }
+    edm::HRTimeType e = edm::hrRealTime();
+    std::cout << double(e - s) / N << std::endl;
     JacobianLocalToCurvilinear __attribute__((aligned(16))) jl2c(plane, tp, gp, m);
-    en();
-    edm::HRTimeType e = edm::hrRealTime();
-    std::cout << e - s << std::endl;
     std::cout << jl2c.jacobian() << std::endl;
   }
 
-  // Cart -> Loc
+  // Cart => Loc
   {
-    std::cout << "Cart -> Loc" << std::endl;
+    std::cout << "Cart => Loc ";
     edm::HRTimeType s = edm::hrRealTime();
-    st();
+    for (int i = 0; i < N; ++i) {
+      st(&tp);
+      JacobianCartesianToLocal __attribute__((aligned(16))) jl2c(plane, tp);
+      en(&jl2c.jacobian());
+    }
+    edm::HRTimeType e = edm::hrRealTime();
+    std::cout << double(e - s) / N << std::endl;
     JacobianCartesianToLocal __attribute__((aligned(16))) jl2c(plane, tp);
-    en();
-    edm::HRTimeType e = edm::hrRealTime();
-    std::cout << e - s << std::endl;
     std::cout << jl2c.jacobian() << std::endl;
   }
 
-  // Curv -> Loc
+  // Curv => Loc
   {
-    std::cout << "Curv -> Loc from loc" << std::endl;
+    std::cout << "Curv => Loc from loc ";
     edm::HRTimeType s = edm::hrRealTime();
-    st();
+    for (int i = 0; i < N; ++i) {
+      st(&tp);
+      JacobianCurvilinearToLocal __attribute__((aligned(16))) jl2c(plane, tp, m);
+      en(&jl2c.jacobian());
+    }
+    edm::HRTimeType e = edm::hrRealTime();
+    std::cout << double(e - s) / N << std::endl;
     JacobianCurvilinearToLocal __attribute__((aligned(16))) jl2c(plane, tp, m);
-    en();
-    edm::HRTimeType e = edm::hrRealTime();
-    std::cout << e - s << std::endl;
     std::cout << jl2c.jacobian() << std::endl;
   }
 
   {
-    std::cout << "Curv -> Loc from loc + glob" << std::endl;
+    std::cout << "Curv => Loc from loc + glob ";
     edm::HRTimeType s = edm::hrRealTime();
-    st();
-    JacobianCurvilinearToLocal __attribute__((aligned(16))) jl2c(plane, tp, gp, m);
-    en();
+    for (int i = 0; i < N; ++i) {
+      st(&tp);
+      JacobianCurvilinearToLocal __attribute__((aligned(16))) jl2c(plane, tp, gp, m);
+      en(&jl2c.jacobian());
+    }
     edm::HRTimeType e = edm::hrRealTime();
-    std::cout << e - s << std::endl;
+    std::cout << double(e - s) / N << std::endl;
+    JacobianCurvilinearToLocal __attribute__((aligned(16))) jl2c(plane, tp, gp, m);
     std::cout << jl2c.jacobian() << std::endl;
   }
 
