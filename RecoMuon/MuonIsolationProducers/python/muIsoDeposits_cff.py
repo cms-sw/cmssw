@@ -11,9 +11,9 @@ import FWCore.ParameterSet.Config as cms
 from RecoMuon.MuonIsolationProducers.muIsoDeposits_setup_cff import *
 #the default set of modules first
 from RecoMuon.MuonIsolationProducers.muIsoDepositCopies_cfi import *
-from RecoMuon.MuonIsolationProducers.muIsoDepositCalByAssociatorHits_cfi import *
 import RecoMuon.MuonIsolationProducers.muIsoDepositTk_cfi
 import RecoMuon.MuonIsolationProducers.muIsoDepositCalByAssociatorTowers_cfi
+import RecoMuon.MuonIsolationProducers.muIsoDepositCalByAssociatorHits_cfi
 import RecoMuon.MuonIsolationProducers.muIsoDepositJets_cfi
 import RecoMuon.MuonIsolationProducers.muIsoDepositCal_cfi
 
@@ -30,15 +30,15 @@ muParamGlobalIsoDepositCalByAssociatorHits   = RecoMuon.MuonIsolationProducers.m
 #
 #------------------------------
 # "standard sequences"
-muIsoDeposits_muonsTask = cms.Task(muIsoDepositTk,muIsoDepositCalByAssociatorTowers,muIsoDepositJets)
+muIsoDeposits_muonsTask = cms.Task(muIsoDepositTk,muIsoDepositCalByAssociatorHits,muIsoDepositJets)
 muIsoDeposits_muons = cms.Sequence(muIsoDeposits_muonsTask)
 # "displaced sequences"
-muIsoDeposits_displacedMuonsTask = cms.Task(muIsoDepositTkDisplaced,muIsoDepositCalByAssociatorTowersDisplaced,muIsoDepositJetsDisplaced)
+muIsoDeposits_displacedMuonsTask = cms.Task(muIsoDepositTkDisplaced,muIsoDepositCalByAssociatorHitsDisplaced,muIsoDepositJetsDisplaced)
 muIsoDeposits_displacedMuons = cms.Sequence(muIsoDeposits_displacedMuonsTask)
 #old one, using a reduced config set
 muIsoDeposits_ParamGlobalMuonsOldTask = cms.Task(muParamGlobalIsoDepositGsTk,muParamGlobalIsoDepositCalEcal,muParamGlobalIsoDepositCalHcal)
 muIsoDeposits_ParamGlobalMuonsOld = cms.Sequence(muIsoDeposits_ParamGlobalMuonsOldTask)
-muIsoDeposits_ParamGlobalMuonsTask = cms.Task(muParamGlobalIsoDepositTk,muParamGlobalIsoDepositCalByAssociatorTowers,muParamGlobalIsoDepositJets)
+muIsoDeposits_ParamGlobalMuonsTask = cms.Task(muParamGlobalIsoDepositTk,muParamGlobalIsoDepositCalByAssociatorHits,muParamGlobalIsoDepositJets)
 muIsoDeposits_ParamGlobalMuons = cms.Sequence(muIsoDeposits_ParamGlobalMuonsTask)
 muParamGlobalIsoDepositCtfTk.IOPSet = cms.PSet(
     MIsoDepositParamGlobalViewIOBlock
