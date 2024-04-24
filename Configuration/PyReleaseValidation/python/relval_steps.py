@@ -36,11 +36,11 @@ step1Up2018ProdDefaults = merge ([{'--eventcontent':'RAWSIM'},step1Up2018Default
 step1Up2018HiProdDefaults = merge ([{'--eventcontent':'RAWSIM'},step1Up2018HiDefaults])
 # step1 gensim: for 2022 HI prod
 step1Up2022HiProdDefaults = merge ([{'--conditions':'auto:phase1_2022_realistic_hi','--era':'Run3_pp_on_PbPb','--beamspot':'Realistic2022PbPbCollision','--eventcontent':'RAWSIM','--geometry':'DB:Extended'},step1Up2018HiDefaults])
-step1Up2023HiProdDefaults = merge ([{'--conditions':'auto:phase1_2023_realistic_hi','--era':'Run3_pp_on_PbPb_2023','--beamspot':'Realistic2022PbPbCollision','--eventcontent':'RAWSIM','--geometry':'DB:Extended'},step1Up2018HiDefaults])
+step1Up2023HiProdDefaults = merge ([{'--conditions':'auto:phase1_2023_realistic_hi','--era':'Run3_pp_on_PbPb_2023','--beamspot':'Realistic2023PbPbCollision','--eventcontent':'RAWSIM','--geometry':'DB:Extended'},step1Up2018HiDefaults])
 # step1 gensim: for 2024
 step1Up2024Defaults = merge ([{'--conditions':'auto:phase1_2024_realistic','--era':'Run3','--beamspot':'Realistic25ns13p6TeVEarly2023Collision'},step1Up2018Defaults])
 # step1 gensim: for 2024 HI prod
-step1Up2024HiProdDefaults = merge ([{'--conditions':'auto:phase1_2023_realistic_hi','--era':'Run3_pp_on_PbPb','--beamspot':'Realistic2023PbPbCollision'},step1Up2023HiProdDefaults])
+step1Up2024HiProdDefaults = merge ([{'--conditions':'auto:phase1_2024_realistic_hi','--era':'Run3_pp_on_PbPb','--beamspot':'Realistic2023PbPbCollision'},step1Up2023HiProdDefaults])
 
 steps = Steps()
 
@@ -1155,8 +1155,8 @@ hiDefaults2022_ppReco_approxClusters = {'--conditions':'auto:phase1_2022_realist
 hiDefaults2023_ppReco = {'--conditions':'auto:phase1_2023_realistic_hi', '--era':'Run3_pp_on_PbPb_2023'}
 hiDefaults2023_ppReco_approxClusters = {'--conditions':'auto:phase1_2023_realistic_hi', '--era':'Run3_pp_on_PbPb_approxSiStripClusters_2023'}
 upcDefaults2023 = {'--conditions':'auto:phase1_2023_realistic_hi', '--era':'Run3_2023_UPC'}
-hiDefaults2024_ppReco = {'--conditions':'auto:phase1_2023_realistic_hi', '--era':'Run3_pp_on_PbPb'}
-upcDefaults2024 = {'--conditions':'auto:phase1_2023_realistic_hi', '--era':'Run3_UPC'}
+hiDefaults2024_ppReco = {'--conditions':'auto:phase1_2024_realistic_hi', '--era':'Run3_pp_on_PbPb'}
+upcDefaults2024 = {'--conditions':'auto:phase1_2024_realistic_hi', '--era':'Run3_UPC'}
 
 steps['Hydjet2Q_MinBias_5020GeV_2018_ppReco']=merge([{'-n':1},hiDefaults2018_ppReco,gen2018hiprod('Hydjet2_Quenched_MinBias_5020GeV_cfi',U2000by1)])
 steps['HydjetQ_MinBias_XeXe_5442GeV_2017']=merge([{'-n':1},hiDefaults2017,gen2017('Hydjet_Quenched_MinBias_XeXe_5442GeV_cfi',U2000by1)])
@@ -1181,6 +1181,7 @@ steps['ZMM_5362_HI_2023']=merge([hiDefaults2023_ppReco,gen2023hiprod('ZMM_5362Ge
 steps['ZEE_5362_HI_2023']=merge([hiDefaults2023_ppReco,gen2023hiprod('ZEE_5362GeV_TuneCP5_cfi',Kby(18,300))])
 
 steps['Starlight_DoubleDiffraction_5360_HI_2023']=merge([{'-s':'LHE,GEN,SIM'},gen2023hiprod('Configuration/Generator/python/Starlight_DoubleDiffraction_5p36TeV_cfi.py',Kby(9,150))])
+steps['Starlight_DoubleDiffraction_5360_HI_2024']=merge([{'-s':'LHE,GEN,SIM'},gen2024hiprod('Configuration/Generator/python/Starlight_DoubleDiffraction_5p36TeV_cfi.py',Kby(9,150))])
 steps['Pythia8_GammaNucleus_5360_HI_2023']=gen2023hiprod('Pythia8_GammaNucleus_5p36TeV_cfi',Kby(9,150))
 steps['Pythia8_GammaNucleus_5360_HI_2024']=gen2024hiprod('Pythia8_GammaNucleus_5p36TeV_cfi',Kby(9,150))
 
@@ -1923,7 +1924,7 @@ steps['RESIM']=merge([{'-s':'reGEN,reSIM','-n':10},steps['DIGI']])
 
 steps['DIGIHI2024PPRECO']=merge([{'-s':'DIGI:pdigi_hi_nogen,L1,DIGI2RAW,HLT:@fake2'}, hiDefaults2024_ppReco, {'--pileup':'HiMixNoPU'}, step2Upg2015Defaults])
 steps['DIGIHI2023PPRECOAPPROXCLUSTERS']=merge([{'-s':'DIGI:pdigi_hi_nogen,L1,DIGI2RAW,HLT:@fake2'}, hiDefaults2023_ppReco_approxClusters, {'--pileup':'HiMixNoPU'}, step2Upg2015Defaults])
-steps['DIGIHI2023PPRECO']=merge([{'-s':'DIGI:pdigi_hi_nogen,L1,DIGI2RAW,HLT:@fake2'}, hiDefaults2023_ppReco, {'--pileup':'HiMixNoPU'}, step2Upg2015Defaults])
+steps['DIGIHI2023PPRECO']=merge([{'-s':'DIGI:pdigi_hi_nogen,L1,DIGI2RAW,HLT:HIon'}, hiDefaults2023_ppReco, {'--pileup':'HiMixNoPU'}, step2Upg2015Defaults])
 steps['DIGIHI2022PPRECOAPPROXCLUSTERS']=merge([{'-s':'DIGI:pdigi_hi_nogen,L1,DIGI2RAW,HLT:@fake2'}, hiDefaults2022_ppReco_approxClusters, {'--pileup':'HiMixNoPU'}, step2Upg2015Defaults])
 steps['DIGIHI2022PPRECO']=merge([{'-s':'DIGI:pdigi_hi_nogen,L1,DIGI2RAW,HLT:@fake2'}, hiDefaults2022_ppReco, {'--pileup':'HiMixNoPU'}, step2Upg2015Defaults])
 steps['DIGIHI2018PPRECO']=merge([{'-s':'DIGI:pdigi_hi_nogen,L1,DIGI2RAW,HLT:@fake2'}, hiDefaults2018_ppReco, {'--pileup':'HiMixNoPU'}, step2Upg2015Defaults])
