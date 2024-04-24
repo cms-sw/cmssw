@@ -115,7 +115,7 @@ void MkFitEventOfHitsProducer::produce(edm::StreamID iID, edm::Event& iEvent, co
           deadvectors[ilay].push_back({surf.phiSpan().first, surf.phiSpan().second, q1, q2});
       }
     }
-
+    // For Phase-2, disable (momentarily?) SiStrip quality check
     if (useStripStripQualityDB_) {
       const auto& siStripQuality = iSetup.getData(stripQualityToken_);
       const auto& badStrips = siStripQuality.getBadComponentList();
