@@ -13,12 +13,12 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 ### SETUP OPTIONS
 options = VarParsing.VarParsing('standard')
 options.register('geometry',
-                 "2021",
+                 "2024",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
                   "geometry of operations: 2016, 2017, 2018, 2021, 2023, 2024")
 options.register('tol',
-                 0.1,
+                 0.01,
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.float,
                  "Tolerance for checking overlaps: 0.0, 0.01, 0.1, 1.0"
