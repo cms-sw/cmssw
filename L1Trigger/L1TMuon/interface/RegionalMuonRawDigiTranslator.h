@@ -42,7 +42,7 @@ namespace l1t {
                                           bool isKbmtf,
                                           bool useOmtfDisplacementInfo,
                                           bool useEmtfDisplacementInfo);
-    static int generateRawTrkAddress(const RegionalMuonCand&, bool isKalman, bool useOmtfDisplacementInfo);
+    static int generateRawTrkAddress(const RegionalMuonCand&, bool isKalman);
 
     static constexpr unsigned ptMask_ = 0x1FF;
     static constexpr unsigned ptShift_ = 0;
@@ -63,7 +63,7 @@ namespace l1t {
     static constexpr unsigned emtfDxyShift_ = 29;
     static constexpr unsigned ptUnconstrainedMask_ = 0xFF;
     static constexpr unsigned bmtfPtUnconstrainedShift_ = 23;
-    static constexpr unsigned kOmtfPtUnconstrainedShift_ = 18;
+    static constexpr unsigned kOmtfPtUnconstrainedShift_ = 20;
     static constexpr unsigned emtfPtUnconstrainedShift_ = 20;
     static constexpr unsigned trackAddressMask_ = 0x1FFFFFFF;
     static constexpr unsigned trackAddressShift_ = 2;
