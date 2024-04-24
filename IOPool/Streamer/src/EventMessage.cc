@@ -66,40 +66,42 @@ EventMsgView::EventMsgView(void* buf) : buf_((uint8*)buf), head_(buf), v2Detecte
 }
 
 uint32 EventMsgView::protocolVersion() const {
-  EventHeader* h = (EventHeader*)buf_;
+  EventHeader* h = reinterpret_cast<EventHeader*>(buf_);
   return h->protocolVersion_;
 }
 
 uint32 EventMsgView::run() const {
-  EventHeader* h = (EventHeader*)buf_;
+  EventHeader* h = reinterpret_cast<EventHeader*>(buf_);
   return convert32(h->run_);
 }
 
 uint64 EventMsgView::event() const {
-  EventHeader* h = (EventHeader*)buf_;
+  EventHeader* h = reinterpret_cast<EventHeader*>(buf_);
   return convert64(h->event_);
 }
 
 uint32 EventMsgView::lumi() const {
-  EventHeader* h = (EventHeader*)buf_;
+  EventHeader* h = reinterpret_cast<EventHeader*>(buf_);
   return convert32(h->lumi_);
 }
 
 uint32 EventMsgView::origDataSize() const {
-  EventHeader* h = (EventHeader*)buf_;
+  EventHeader* h = reinterpret_cast<EventHeader*>(buf_);
   return convert32(h->origDataSize_);
 }
 
 uint32 EventMsgView::outModId() const {
-  EventHeader* h = (EventHeader*)buf_;
+  EventHeader* h = reinterpret_cast<EventHeader*>(buf_);
   return convert32(h->outModId_);
 }
 
 uint32 EventMsgView::droppedEventsCount() const {
-  EventHeader* h = (EventHeader*)buf_;
+  EventHeader* h = reinterpret_cast<EventHeader*>(buf_);
   return convert32(h->droppedEventsCount_);
   return 0;
 }
+
+bool EventMsgView::isEventMetaData() const { return run() == 0; }
 
 void EventMsgView::l1TriggerBits(std::vector<bool>& put_here) const {
   put_here.clear();

@@ -87,6 +87,7 @@ namespace edm::streamer {
     uint32 origDataSize() const;
     uint32 outModId() const;
     uint32 droppedEventsCount() const;
+    bool isEventMetaData() const;
 
     void l1TriggerBits(std::vector<bool>& put_here) const;
     void hltTriggerBits(uint8* put_here) const;

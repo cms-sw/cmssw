@@ -45,12 +45,14 @@ namespace edm {
       static void fillDescription(ParameterSetDescription& desc);
 
       std::unique_ptr<InitMsgBuilder> serializeRegistry(SerializeDataBuffer& sbuf,
-                                                        BranchIDLists const& branchLists,
-                                                        ThinnedAssociationsHelper const& helper,
                                                         std::string const& processName,
                                                         std::string const& moduleLabel,
                                                         ParameterSetID const& toplevel,
                                                         SendJobHeader::ParameterSetMap const* psetMap);
+
+      std::unique_ptr<EventMsgBuilder> serializeEventMetaData(SerializeDataBuffer& sbuf,
+                                                              BranchIDLists const& branchLists,
+                                                              ThinnedAssociationsHelper const& helper);
 
       std::unique_ptr<EventMsgBuilder> serializeEvent(SerializeDataBuffer& sbuf,
                                                       EventForOutput const& e,
@@ -63,6 +65,13 @@ namespace edm {
       std::unique_ptr<SerializeDataBuffer> serializerBuffer_;
 
     private:
+      std::unique_ptr<EventMsgBuilder> serializeEventCommon(uint32 run,
+                                                            uint32 lumi,
+                                                            uint64 event,
+                                                            std::vector<unsigned char> hltbits,
+                                                            unsigned int hltsize,
+                                                            SerializeDataBuffer& sbuf);
+
       void setHltMask(EventForOutput const& e,
                       Handle<TriggerResults> const& triggerResults,
                       std::vector<unsigned char>& hltbits) const;
@@ -86,6 +95,7 @@ namespace edm {
       Strings hltTriggerSelections_;
       uint32 outputModuleId_;
 
+      uint32_t eventMetaDataChecksum_ = 0;
     };  //end-of-class-def
   }     // namespace streamer
 }  // namespace edm

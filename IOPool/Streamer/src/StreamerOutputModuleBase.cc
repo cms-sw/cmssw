@@ -30,14 +30,14 @@ namespace edm::streamer {
 
     std::unique_ptr<InitMsgBuilder> init_message =
         serializeRegistry(*getSerializerBuffer(),
-                          *branchIDLists(),
-                          *thinnedAssociationsHelper(),
                           OutputModule::processName(),
                           description().moduleLabel(),
                           moduleDescription().mainParameterSetID(),
                           psetMapHandle.isValid() ? psetMapHandle.product() : nullptr);
 
     doOutputHeader(*init_message);
+    lastCallWasBeginRun_ = true;
+
     serializerBuffer_->clearHeaderBuffer();
   }
 
@@ -54,7 +54,13 @@ namespace edm::streamer {
   void StreamerOutputModuleBase::write(EventForOutput const& e) {
     Handle<TriggerResults> const& triggerResults = getTriggerResults(trToken_, e);
 
-    std::unique_ptr<EventMsgBuilder> msg = serializeEvent(*getSerializerBuffer(), e, triggerResults, selectorConfig());
+    if (lastCallWasBeginRun_) {
+      auto msg = serializeEventMetaData(*getSerializerBuffer(), *branchIDLists(), *thinnedAssociationsHelper());
+      doOutputEvent(*msg);
+      lastCallWasBeginRun_ = false;
+    }
+    auto msg = serializeEvent(*getSerializerBuffer(), e, triggerResults, selectorConfig());
+
     doOutputEvent(*msg);  // You can't use msg in StreamerOutputModuleBase after this point
   }
 
