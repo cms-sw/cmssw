@@ -2,6 +2,8 @@ import FWCore.ParameterSet.Config as cms
 from PhysicsTools.NanoAOD.common_cff import *
 from PhysicsTools.NanoAOD.nano_eras_cff import run3_nanoAOD_124
 from PhysicsTools.NanoAOD.simpleCandidateFlatTableProducer_cfi import simpleCandidateFlatTableProducer
+from PhysicsTools.NanoAOD.simpleGenParticleFlatTableProducer_cfi import simpleGenParticleFlatTableProducer
+from PhysicsTools.NanoAOD.simplePATTauFlatTableProducer_cfi import simplePATTauFlatTableProducer
 
 from PhysicsTools.JetMCAlgos.TauGenJets_cfi import tauGenJets
 from PhysicsTools.JetMCAlgos.TauGenJetsDecayModeSelectorAllHadrons_cfi import tauGenJetsSelectorAllHadrons
@@ -45,7 +47,7 @@ def _tauIdWPMask(pattern, choices, doc="", from_raw=False, wp_thrs=None):
     return Var(var_definition, "uint8", doc=doc)
 
 
-tauTable = simpleCandidateFlatTableProducer.clone(
+tauTable = simplePATTauFlatTableProducer.clone(
     src = cms.InputTag("linkedObjects","taus"),
     name= cms.string("Tau"),
     doc = cms.string("slimmedTaus after basic selection (" + finalTaus.cut.value()+")")
@@ -66,8 +68,9 @@ _tauVarsBase = cms.PSet(P4Vars,
        leadTkDeltaEta = Var("?leadChargedHadrCand.isNonnull()?(leadChargedHadrCand.eta - eta):0",float, doc="eta of the leading track, minus tau eta",precision=8),
        leadTkDeltaPhi = Var("?leadChargedHadrCand.isNonnull()?deltaPhi(leadChargedHadrCand.phi, phi):0",float, doc="phi of the leading track, minus tau phi",precision=8),
 
-       dxy = Var("?leadChargedHadrCand.isNonnull()?leadChargedHadrCand().dxy():0",float, doc="d_{xy} of lead track with respect to PV, in cm (with sign)",precision=10),
-       dz = Var("?leadChargedHadrCand.isNonnull()?leadChargedHadrCand().dz():0",float, doc="d_{z} of lead track with respect to PV, in cm (with sign)",precision=14),
+       # lazyEval=True: leadChargedHadrCand() returns the base type `reco::CandidatePtr`, needs to be dynamically casted to PackedCandidate to call dxy() / dz()
+       dxy = Var("?leadChargedHadrCand.isNonnull()?leadChargedHadrCand().dxy():0",float, doc="d_{xy} of lead track with respect to PV, in cm (with sign)",precision=10, lazyEval=True),
+       dz = Var("?leadChargedHadrCand.isNonnull()?leadChargedHadrCand().dz():0",float, doc="d_{z} of lead track with respect to PV, in cm (with sign)",precision=14, lazyEval=True),
 
        # these are too many, we may have to suppress some
        rawIso = Var("?isTauIDAvailable('byCombinedIsolationDeltaBetaCorrRaw3Hits')?tauID('byCombinedIsolationDeltaBetaCorrRaw3Hits'):-1", float, doc = "combined isolation (deltaBeta corrections)", precision=10),
@@ -197,7 +200,7 @@ genVisTaus = cms.EDProducer("GenVisTauProducer",
     srcGenParticles = cms.InputTag("finalGenParticles")
 )
 
-genVisTauTable = simpleCandidateFlatTableProducer.clone(
+genVisTauTable = simpleGenParticleFlatTableProducer.clone(
     src = cms.InputTag("genVisTaus"),
     cut = cms.string("pt > 10."),
     name = cms.string("GenVisTau"),

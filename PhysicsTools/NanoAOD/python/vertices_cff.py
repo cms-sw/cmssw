@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.NanoAOD.common_cff import *
-from PhysicsTools.NanoAOD.simpleCandidateFlatTableProducer_cfi import simpleCandidateFlatTableProducer
+from PhysicsTools.NanoAOD.simpleSecondaryVertexFlatTableProducer_cfi import simpleSecondaryVertexFlatTableProducer
 
 
 ##################### User floats producers, selectors ##########################
@@ -20,7 +20,7 @@ vertexTable = cms.EDProducer("VertexTableProducer",
     svDoc  = cms.string("secondary vertices from IVF algorithm"),
 )
 
-svCandidateTable =  simpleCandidateFlatTableProducer.clone(
+svCandidateTable = simpleSecondaryVertexFlatTableProducer.clone(
     src = cms.InputTag("vertexTable"),
     name = cms.string("SV"),
     extension = cms.bool(True),

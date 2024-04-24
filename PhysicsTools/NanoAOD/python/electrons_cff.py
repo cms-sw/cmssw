@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-from PhysicsTools.NanoAOD.simpleCandidateFlatTableProducer_cfi import simpleCandidateFlatTableProducer
+from PhysicsTools.NanoAOD.simplePATElectronFlatTableProducer_cfi import simplePATElectronFlatTableProducer
 from PhysicsTools.NanoAOD.nano_eras_cff import *
 from PhysicsTools.NanoAOD.common_cff import *
 from math import ceil,log
@@ -292,7 +292,7 @@ run2_egamma_2016.toModify(
 ################################################electronPROMPTMVA end#####################
 
 ################################################electronTable defn #####################
-electronTable = simpleCandidateFlatTableProducer.clone(
+electronTable = simplePATElectronFlatTableProducer.clone(
     src = cms.InputTag("linkedObjects","electrons"),
     name= cms.string("Electron"),
     doc = cms.string("slimmedElectrons after basic selection (" + finalElectrons.cut.value()+")"),

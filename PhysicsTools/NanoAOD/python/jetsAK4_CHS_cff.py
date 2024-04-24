@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from PhysicsTools.NanoAOD.nano_eras_cff import *
 from PhysicsTools.NanoAOD.common_cff import *
-from PhysicsTools.NanoAOD.simpleCandidateFlatTableProducer_cfi import simpleCandidateFlatTableProducer
+from PhysicsTools.NanoAOD.simplePATJetFlatTableProducer_cfi import simplePATJetFlatTableProducer
 
 ##################### User floats producers, selectors ##########################
 
@@ -113,7 +113,7 @@ finalJets = cms.EDFilter("PATJetRefSelector",
 ##################### Tables for final output and docs ##########################
 
 
-jetTable = simpleCandidateFlatTableProducer.clone(
+jetTable = simplePATJetFlatTableProducer.clone(
     src = cms.InputTag("linkedObjects","jets"),
     name = cms.string("Jet"),
     doc  = cms.string("slimmedJets, i.e. ak4 PFJets CHS with JECs applied, after basic selection (" + finalJets.cut.value()+")"),
@@ -522,7 +522,7 @@ basicJetsForMetForT1METNano = cms.EDProducer("PATJetCleanerForType1MET",
 
 updatedJetsWithUserData.userFloats.muonSubtrRawPt = cms.InputTag("basicJetsForMetForT1METNano:MuonSubtrRawPt")
 
-corrT1METJetTable = simpleCandidateFlatTableProducer.clone(
+corrT1METJetTable = simplePATJetFlatTableProducer.clone(
     src = finalJets.src,
     cut = cms.string("pt<15 && abs(eta)<9.9"),
     name = cms.string("CorrT1METJet"),
