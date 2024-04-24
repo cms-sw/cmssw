@@ -31,6 +31,7 @@ namespace edm {
       InitMsgView const* getHeader();
       EventMsgView const* getNextEvent();
       bool newHeader();
+      void updateMetaData(bool subsequent);
 
       Next checkNext() override;
       void skip(int toSkip) override;
@@ -49,6 +50,7 @@ namespace edm {
       int initialNumberOfEventsToSkip_;
       int prefetchMBytes_;
       bool isFirstFile_ = true;
+      bool didArtificialFile_ = false;
     };
   }  // namespace streamer
 }  // namespace edm

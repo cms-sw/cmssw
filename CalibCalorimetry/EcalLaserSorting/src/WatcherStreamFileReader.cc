@@ -19,6 +19,7 @@
 
 //using namespace edm;
 using namespace std;
+using namespace edm::streamer;
 
 //std::string WatcherStreamFileReader::fileName_;
 
@@ -153,13 +154,10 @@ WatcherStreamFileReader::WatcherStreamFileReader(edm::ParameterSet const& pset)
 
 WatcherStreamFileReader::~WatcherStreamFileReader() {}
 
-const bool WatcherStreamFileReader::newHeader() {
-  edm::StreamerInputFile* inputFile = getInputFile();
-  return inputFile ? inputFile->newHeader() : false;
-}
+const bool WatcherStreamFileReader::newHeader() { return getInputFile() != nullptr; }
 
 const InitMsgView* WatcherStreamFileReader::getHeader() {
-  edm::StreamerInputFile* inputFile = getInputFile();
+  StreamerInputFile* inputFile = getInputFile();
 
   //TODO: shall better send an exception...
   if (inputFile == nullptr) {
@@ -177,21 +175,20 @@ const InitMsgView* WatcherStreamFileReader::getHeader() {
 
 const EventMsgView* WatcherStreamFileReader::getNextEvent() {
   if (end_) {
-    closeFile();
+    moveJustReadFile();
     return nullptr;
   }
 
-  edm::StreamerInputFile* inputFile;
-
-  //go to next input file, till no new event is found
-  while ((inputFile = getInputFile()) != nullptr && inputFile->next() != edm::StreamerInputFile::Next::kEvent) {
-    closeFile();
+  StreamerInputFile* inputFile;
+  if ((inputFile = getInputFile()) != nullptr and inputFile->next() == StreamerInputFile::Next::kStop) {
+    moveJustReadFile();
+    return nullptr;
   }
 
   return inputFile == nullptr ? nullptr : inputFile->currentRecord();
 }
 
-edm::StreamerInputFile* WatcherStreamFileReader::getInputFile() {
+StreamerInputFile* WatcherStreamFileReader::getInputFile() {
   char* lineptr = nullptr;
   size_t n = 0;
   static stringstream cmd;
@@ -379,7 +376,7 @@ edm::StreamerInputFile* WatcherStreamFileReader::getInputFile() {
         cout << "[WatcherSource " << now() << "]"
              << " Opening file " << fileName_ << "\n"
              << flush;
-        streamerInputFile_ = std::make_unique<edm::StreamerInputFile>(fileName_);
+        streamerInputFile_ = std::make_unique<StreamerInputFile>(fileName_);
 
         ofstream f(".watcherfile");
         f << fileName_;
@@ -392,7 +389,9 @@ edm::StreamerInputFile* WatcherStreamFileReader::getInputFile() {
   return streamerInputFile_.get();
 }
 
-void WatcherStreamFileReader::closeFile() {
+void WatcherStreamFileReader::closeFile() {}
+
+void WatcherStreamFileReader::moveJustReadFile() {
   if (streamerInputFile_.get() == nullptr)
     return;
   //delete the streamer input file:

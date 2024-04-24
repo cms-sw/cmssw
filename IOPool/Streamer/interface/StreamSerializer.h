@@ -75,21 +75,25 @@ namespace edm::streamer {
   public:
     StreamSerializer(SelectedProducts const *selections);
 
-    int serializeRegistry(SerializeDataBuffer &data_buffer,
-                          const BranchIDLists &branchIDLists,
-                          ThinnedAssociationsHelper const &thinnedAssociationsHelper);
+    int serializeRegistry(SerializeDataBuffer &data_buffer);
 
-    int serializeRegistry(SerializeDataBuffer &data_buffer,
-                          const BranchIDLists &branchIDLists,
-                          ThinnedAssociationsHelper const &thinnedAssociationsHelper,
-                          SendJobHeader::ParameterSetMap const &psetMap);
+    int serializeRegistry(SerializeDataBuffer &data_buffer, SendJobHeader::ParameterSetMap const &psetMap);
 
     int serializeEvent(SerializeDataBuffer &data_buffer,
                        EventForOutput const &event,
                        ParameterSetID const &selectorConfig,
+                       uint32_t metaDataChecksum,
                        StreamerCompressionAlgo compressionAlgo,
                        int compression_level,
                        unsigned int reserveSize) const;
+
+    ///data_buffer.adler32_chksum_ is the meta data checksum to pass to subsequent events
+    int serializeEventMetaData(SerializeDataBuffer &data_buffer,
+                               const BranchIDLists &branchIDLists,
+                               ThinnedAssociationsHelper const &thinnedAssociationsHelper,
+                               StreamerCompressionAlgo compressionAlgo,
+                               int compression_level,
+                               unsigned int reserveSize) const;
 
     /**
      * Compresses the data in the specified input buffer into the
@@ -117,6 +121,12 @@ namespace edm::streamer {
                                            bool addHeader = true);
 
   private:
+    int serializeEventCommon(SerializeDataBuffer &data_buffer,
+                             edm::SendEvent const &iEvent,
+                             StreamerCompressionAlgo compressionAlgo,
+                             int compression_level,
+                             unsigned int reserveSize) const;
+
     SelectedProducts const *selections_;
     edm::propagate_const<TClass *> tc_;
   };

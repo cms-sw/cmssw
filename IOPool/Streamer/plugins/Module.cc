@@ -11,9 +11,6 @@
 using EventStreamFileWriter = edm::streamer::StreamerOutputModule<edm::streamer::StreamerFileWriter>;
 using NewEventStreamFileReader = edm::streamer::StreamerFileReader;
 
-using edm::streamer::StreamerFileReader;
-using edm::streamer::StreamerFileWriter;
-
 DEFINE_FWK_INPUT_SOURCE(NewEventStreamFileReader);
 
 DEFINE_FWK_MODULE(EventStreamFileWriter);

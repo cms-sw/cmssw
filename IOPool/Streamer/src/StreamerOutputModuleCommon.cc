@@ -111,16 +111,14 @@ namespace edm::streamer {
 
   std::unique_ptr<InitMsgBuilder> StreamerOutputModuleCommon::serializeRegistry(
       SerializeDataBuffer& sbuf,
-      const BranchIDLists& branchLists,
-      ThinnedAssociationsHelper const& helper,
       std::string const& processName,
       std::string const& moduleLabel,
       ParameterSetID const& toplevel,
       SendJobHeader::ParameterSetMap const* psetMap) {
     if (psetMap) {
-      serializer_.serializeRegistry(sbuf, branchLists, helper, *psetMap);
+      serializer_.serializeRegistry(sbuf, *psetMap);
     } else {
-      serializer_.serializeRegistry(sbuf, branchLists, helper);
+      serializer_.serializeRegistry(sbuf);
     }
     // resize header_buf_ to reflect space used in serializer_ + header
     // I just added an overhead for header of 50000 for now
@@ -219,11 +217,6 @@ namespace edm::streamer {
     constexpr unsigned int reserve_size = SerializeDataBuffer::reserve_size;
     //Lets Build the Event Message first
 
-    //Following is strictly DUMMY Data for L! Trig and will be replaced with actual
-    // once figured out, there is no logic involved here.
-    std::vector<bool> l1bit = {true, true, false};
-    //End of dummy data
-
     std::vector<unsigned char> hltbits;
     setHltMask(e, triggerResults, hltbits);
 
@@ -237,23 +230,50 @@ namespace edm::streamer {
       // what about overflows?
       lumi = static_cast<uint32>(timeInSec / std::abs(lumiSectionInterval_)) + 1;
     }
+    serializer_.serializeEvent(
+        sbuf, e, selectorCfg, eventMetaDataChecksum_, compressionAlgo_, compressionLevel_, reserve_size);
 
-    serializer_.serializeEvent(sbuf, e, selectorCfg, compressionAlgo_, compressionLevel_, reserve_size);
+    return serializeEventCommon(e.id().run(), lumi, e.id().event(), hltbits, hltsize_, sbuf);
+  }
 
+  std::unique_ptr<EventMsgBuilder> StreamerOutputModuleCommon::serializeEventMetaData(
+      SerializeDataBuffer& sbuf, BranchIDLists const& branchLists, ThinnedAssociationsHelper const& helper) {
+    constexpr unsigned int reserve_size = SerializeDataBuffer::reserve_size;
+    //Lets Build the Event Message first
+
+    std::vector<unsigned char> hltbits;
+    serializer_.serializeEventMetaData(sbuf, branchLists, helper, compressionAlgo_, compressionLevel_, reserve_size);
+    eventMetaDataChecksum_ = sbuf.adler32_chksum_;
+
+    return serializeEventCommon(0, 0, 0, hltbits, 0, sbuf);
+  }
+
+  std::unique_ptr<EventMsgBuilder> StreamerOutputModuleCommon::serializeEventCommon(uint32 run,
+                                                                                    uint32 lumi,
+                                                                                    uint64 event,
+                                                                                    std::vector<unsigned char> hltbits,
+                                                                                    unsigned int hltsize,
+                                                                                    SerializeDataBuffer& sbuf) {
     // resize header_buf_ to reserved size on first written event
+    constexpr unsigned int reserve_size = SerializeDataBuffer::reserve_size;
     if (sbuf.header_buf_.size() < reserve_size)
       sbuf.header_buf_.resize(reserve_size);
 
+    //Following is strictly DUMMY Data for L! Trig and will be replaced with actual
+    // once figured out, there is no logic involved here.
+    std::vector<bool> l1bit = {true, true, false};
+    //End of dummy data
+
     auto msg = std::make_unique<EventMsgBuilder>(&sbuf.header_buf_[0],
                                                  sbuf.comp_buf_.size(),
-                                                 e.id().run(),
-                                                 e.id().event(),
+                                                 run,
+                                                 event,
                                                  lumi,
                                                  outputModuleId_,
                                                  0,
                                                  l1bit,
                                                  (uint8*)&hltbits[0],
-                                                 hltsize_,
+                                                 hltsize,
                                                  (uint32)sbuf.adler32_chksum(),
                                                  host_name_);
 

@@ -359,14 +359,11 @@ namespace evf {
 
     StreamerOutputFile stream_writer_preamble(openIniFileName);
     uint32 preamble_adler32 = 1;
-    edm::BranchIDLists const* bidlPtr = branchIDLists();
 
     auto psetMapHandle = run.getHandle(psetToken_);
 
     std::unique_ptr<InitMsgBuilder> init_message =
         streamerCommon.serializeRegistry(*streamerCommon.getSerializerBuffer(),
-                                         *bidlPtr,
-                                         *thinnedAssociationsHelper(),
                                          OutputModule::processName(),
                                          description().moduleLabel(),
                                          moduleDescription().mainParameterSetID(),
@@ -430,7 +427,16 @@ namespace evf {
       edm::LuminosityBlockForOutput const& iLB) const {
     auto openDatFilePath = edm::Service<evf::EvFDaqDirector>()->getOpenDatFilePath(iLB.luminosityBlock(), streamLabel_);
 
-    return std::make_shared<GlobalEvFOutputEventWriter>(openDatFilePath, iLB.luminosityBlock());
+    auto ret = std::make_shared<GlobalEvFOutputEventWriter>(openDatFilePath, iLB.luminosityBlock());
+
+    StreamerOutputModuleCommon streamerCommon(
+        commonParameters_, &keptProducts()[edm::InEvent], description().moduleLabel());
+
+    auto msg = streamerCommon.serializeEventMetaData(
+        *streamerCommon.getSerializerBuffer(), *branchIDLists(), *thinnedAssociationsHelper());
+
+    ret->doOutputEvent(*msg);
+    return ret;
   }
 
   void GlobalEvFOutputModule::acquire(edm::StreamID id,
