@@ -7,7 +7,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/Records/interface/PTrackerAdditionalParametersPerDetRcd.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 #include "CondFormats/GeometryObjects/interface/PTrackerAdditionalParametersPerDet.h"
 

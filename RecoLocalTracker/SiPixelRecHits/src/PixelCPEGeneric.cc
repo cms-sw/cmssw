@@ -262,8 +262,8 @@ LocalPoint PixelCPEGeneric::localPosition(DetParam const& theDetParam, ClusterPa
       theDetParam.theThickness,
       theClusterParam.cotalpha,
       theDetParam.thePitchX,
-      theDetParam.theTopol->getPixelFractionInX(theClusterParam.theCluster->minPixelRow()),
-      theDetParam.theTopol->getPixelFractionInX(theClusterParam.theCluster->maxPixelRow()),
+      theDetParam.theTopol->pixelFractionInX(theClusterParam.theCluster->minPixelRow()),
+      theDetParam.theTopol->pixelFractionInX(theClusterParam.theCluster->maxPixelRow()),
       the_eff_charge_cut_lowX,
       the_eff_charge_cut_highX,
       the_size_cutX);  // cut for eff charge width &&&
@@ -286,8 +286,8 @@ LocalPoint PixelCPEGeneric::localPosition(DetParam const& theDetParam, ClusterPa
       theDetParam.theThickness,
       theClusterParam.cotbeta,
       theDetParam.thePitchY,
-      theDetParam.theTopol->getPixelFractionInY(theClusterParam.theCluster->minPixelCol()),
-      theDetParam.theTopol->getPixelFractionInY(theClusterParam.theCluster->maxPixelCol()),
+      theDetParam.theTopol->pixelFractionInY(theClusterParam.theCluster->minPixelCol()),
+      theDetParam.theTopol->pixelFractionInY(theClusterParam.theCluster->maxPixelCol()),
       the_eff_charge_cut_lowY,
       the_eff_charge_cut_highY,
       the_size_cutY);  // cut for eff charge width &&&

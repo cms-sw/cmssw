@@ -20,16 +20,16 @@ public:
   enum FloatParamIndex { BIGPIXELS_PITCH_X = 0, BIGPIXELS_PITCH_Y = 1, FSIZE = 2 };
 
   int getGeographicalId(int theIndex) const;
-  int getBigPixelsX(int theIndex) const;
-  int getBigPixelsY(int theIndex) const;
-  float getBigPixelsPitchX(int theIndex) const;
-  float getBigPixelsPitchY(int theIndex) const;
+  int bigPixelsX(int theIndex) const;
+  int bigPixelsY(int theIndex) const;
+  float bigPixelsPitchX(int theIndex) const;
+  float bigPixelsPitchY(int theIndex) const;
 
   std::vector<int> getAllGeographicalIds() const;
-  std::vector<int> getAllBigPixelsXs() const;
-  std::vector<int> getAllBigPixelsYs() const;
-  std::vector<float> getAllBigPixelsPitchXs() const;
-  std::vector<float> getAllBigPixelsPitchYs() const;
+  std::vector<int> allBigPixelsXs() const;
+  std::vector<int> allBigPixelsYs() const;
+  std::vector<float> allBigPixelsPitchXs() const;
+  std::vector<float> allBigPixelsPitchYs() const;
 
   void setGeographicalId(int geographicalId);
   void setBigPixelsX(int bigPixelsX);

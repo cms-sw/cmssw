@@ -38,11 +38,11 @@ void PTrackerAdditionalParametersPerDet::setGeographicalId(int geographicalId) {
   setThisParam(intParams_, GEOGRAPHICAL_ID, geographicalId);
 }
 //
-int PTrackerAdditionalParametersPerDet::getBigPixelsX(int theIndex) const {
+int PTrackerAdditionalParametersPerDet::bigPixelsX(int theIndex) const {
   return getThisParam(intParams_, BIGPIXELS_X, theIndex);
 }
 
-std::vector<int> PTrackerAdditionalParametersPerDet::getAllBigPixelsXs() const {
+std::vector<int> PTrackerAdditionalParametersPerDet::allBigPixelsXs() const {
   return getAllParams(intParams_, BIGPIXELS_X);
 }
 
@@ -50,11 +50,11 @@ void PTrackerAdditionalParametersPerDet::setBigPixelsX(int bigpixelsX) {
   setThisParam(intParams_, BIGPIXELS_X, bigpixelsX);
 }
 //
-int PTrackerAdditionalParametersPerDet::getBigPixelsY(int theIndex) const {
+int PTrackerAdditionalParametersPerDet::bigPixelsY(int theIndex) const {
   return getThisParam(intParams_, BIGPIXELS_Y, theIndex);
 }
 
-std::vector<int> PTrackerAdditionalParametersPerDet::getAllBigPixelsYs() const {
+std::vector<int> PTrackerAdditionalParametersPerDet::allBigPixelsYs() const {
   return getAllParams(intParams_, BIGPIXELS_Y);
 }
 
@@ -62,11 +62,11 @@ void PTrackerAdditionalParametersPerDet::setBigPixelsY(int bigpixelsY) {
   setThisParam(intParams_, BIGPIXELS_Y, bigpixelsY);
 }
 //
-float PTrackerAdditionalParametersPerDet::getBigPixelsPitchX(int theIndex) const {
+float PTrackerAdditionalParametersPerDet::bigPixelsPitchX(int theIndex) const {
   return getThisParam(floatParams_, BIGPIXELS_PITCH_X, theIndex);
 }
 
-std::vector<float> PTrackerAdditionalParametersPerDet::getAllBigPixelsPitchXs() const {
+std::vector<float> PTrackerAdditionalParametersPerDet::allBigPixelsPitchXs() const {
   return getAllParams(floatParams_, BIGPIXELS_PITCH_X);
 }
 
@@ -74,11 +74,11 @@ void PTrackerAdditionalParametersPerDet::setBigPixelsPitchX(float bigpixelspitch
   setThisParam(floatParams_, BIGPIXELS_PITCH_X, bigpixelspitchX);
 }
 //
-float PTrackerAdditionalParametersPerDet::getBigPixelsPitchY(int theIndex) const {
+float PTrackerAdditionalParametersPerDet::bigPixelsPitchY(int theIndex) const {
   return getThisParam(floatParams_, BIGPIXELS_PITCH_Y, theIndex);
 }
 
-std::vector<float> PTrackerAdditionalParametersPerDet::getAllBigPixelsPitchYs() const {
+std::vector<float> PTrackerAdditionalParametersPerDet::allBigPixelsPitchYs() const {
   return getAllParams(floatParams_, BIGPIXELS_PITCH_Y);
 }
 

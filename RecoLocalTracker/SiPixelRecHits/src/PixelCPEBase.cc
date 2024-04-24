@@ -173,12 +173,6 @@ void PixelCPEBase::fillDetParams() {
 
     auto topol = &(p.theDet->specificTopology());
     p.theTopol = topol;
-    // auto const proxyT = dynamic_cast<const ProxyPixelTopology*>(p.theTopol);
-    // if (proxyT)
-    //   p.theRecTopol = dynamic_cast<const RectangularPixelTopology*>(&(proxyT->specificTopology()));
-    // else
-    //   p.theRecTopol = dynamic_cast<const RectangularPixelTopology*>(p.theTopol);
-    // assert(p.theRecTopol);
 
     //--- The geometrical description of one module/plaquette
     std::pair<float, float> pitchxy = p.theTopol->pitch();

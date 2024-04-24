@@ -1,9 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
-# This config was generated automatically using generate2021Geometry.py
+# This config was generated automatically using generate2026Geometry.py
 # If you notice a mistake, please update the generating script, not just this config
 
-from Configuration.Geometry.GeometryDD4hepExtended2024_cff import *
+from Configuration.Geometry.GeometryDD4hepExtended2026D114_cff import *
 
 # tracker
 from Geometry.CommonTopologies.globalTrackingGeometry_cfi import *
@@ -12,26 +12,29 @@ from Geometry.TrackerGeometryBuilder.TrackerAdditionalParametersPerDet_cfi impor
 from Geometry.TrackerGeometryBuilder.trackerParameters_cff import *
 from Geometry.TrackerNumberingBuilder.trackerTopology_cfi import *
 from Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff import *
+trackerGeometry.applyAlignment = True
 
 # calo
+from Geometry.CaloEventSetup.HGCalTopology_cfi import *
+from Geometry.HGCalGeometry.HGCalGeometryESProducer_cfi import *
 from Geometry.CaloEventSetup.CaloTopology_cfi import *
 from Geometry.CaloEventSetup.CaloGeometryBuilder_cfi import *
 CaloGeometryBuilder = cms.ESProducer("CaloGeometryBuilder",
     SelectedCalos = cms.vstring("HCAL",
                                 "ZDC",
                                 "EcalBarrel",
-                                "EcalEndcap",
-                                "EcalPreshower",
                                 "TOWER",
+                                "HGCalEESensitive",
+                                "HGCalHESiliconSensitive",
+                                "HGCalHEScintillatorSensitive"
     )
 )
-from Geometry.EcalAlgo.EcalGeometry_cfi import *
+from Geometry.EcalAlgo.EcalBarrelGeometry_cfi import *
 from Geometry.HcalEventSetup.HcalGeometry_cfi import *
 from Geometry.HcalEventSetup.CaloTowerGeometry_cfi import *
 from Geometry.HcalEventSetup.CaloTowerTopology_cfi import *
 from Geometry.HcalCommonData.hcalDDDRecConstants_cfi import *
 from Geometry.HcalEventSetup.hcalTopologyIdeal_cfi import *
-from Geometry.ForwardGeometry.ForwardGeometry_cfi import *
 from Geometry.CaloEventSetup.EcalTrigTowerConstituents_cfi import *
 from Geometry.EcalMapping.EcalMapping_cfi import *
 from Geometry.EcalMapping.EcalMappingRecord_cfi import *
@@ -44,8 +47,14 @@ from Geometry.CSCGeometryBuilder.idealForDigiCscGeometry_cff import *
 from Geometry.DTGeometryBuilder.idealForDigiDtGeometry_cff import *
 
 # forward
-from Geometry.ForwardGeometry.ForwardGeometry_cfi import *
+from Geometry.ForwardGeometry.ZdcGeometry_cfi import *
 
-# pps
-
+# timing
+from RecoMTD.DetLayers.mtdDetLayerGeometry_cfi import *
+from Geometry.MTDGeometryBuilder.mtdParameters_cff import *
+from Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cff import *
+from Geometry.MTDNumberingBuilder.mtdTopology_cfi import *
+from Geometry.MTDGeometryBuilder.mtdGeometry_cfi import *
+from Geometry.MTDGeometryBuilder.idealForDigiMTDGeometry_cff import *
+mtdGeometry.applyAlignment = False
 

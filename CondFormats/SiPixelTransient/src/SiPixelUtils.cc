@@ -47,10 +47,6 @@ namespace siPixelUtils {
 
     //--- Total length of the two edge pixels (first+last)
     float sum_of_edge = pitchfraction_first + pitchfraction_last;
-    //if (first_is_big)
-    //  sum_of_edge += 1.0f;
-    //if (last_is_big)
-    //  sum_of_edge += 1.0f;
 
     //--- The `effective' charge width -- particle's path in first and last pixels only
     float w_eff = std::abs(w_pred) - w_inner;

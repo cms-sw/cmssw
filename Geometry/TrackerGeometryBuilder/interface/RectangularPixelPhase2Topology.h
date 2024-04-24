@@ -122,7 +122,7 @@ public:
     return !no_big_pixel;
   }
 
-  float getPixelFractionInX(const int ixbin) const override {
+  float pixelFractionInX(const int ixbin) const override {
     bool no_big_pixel = (m_BIG_PIX_PER_ROC_X == 0);
 
     if (no_big_pixel) {
@@ -137,7 +137,7 @@ public:
     }
   }
 
-  float getPixelFractionInY(const int iybin) const override {
+  float pixelFractionInY(const int iybin) const override {
     bool no_big_pixel = (m_BIG_PIX_PER_ROC_Y == 0);
     if (no_big_pixel) {
       return 1.0f;

@@ -78,26 +78,6 @@ std::pair<float, float> RectangularPixelPhase2Topology::pixel(const LocalPoint& 
   }
 
   mpY = fractionY + iybin;
-  // Normalize it all to 1 ROC
-  //  int iybin0 = 0;
-  //  int numROC = 0;
-  //  float mpY = 0.;
-  //
-  ////  if (m_ROCS_Y == 2) {
-  //// 	if(iybin == ( m_ROWS_PER_ROC)){
-  ////		iybin = iybin - 1;
-  ////  	}else if (iybin ==  m_ROWS_PER_ROC + 1){
-  ////		iybin = iybin ;
-  ////
-  ////  }else{
-  //
-  //	  iybin0 = (iybin % m_COLS_PER_ROC);  // 0-51
-  //	  numROC = iybin / m_COLS_PER_ROC;    // 0-7
-  // 	  mpY = float(numROC * m_COLS_PER_ROC + iybin0) + fractionY;
-  ////  }
-  //
-
-  //std::cout << mpY << std::endl;
 #ifdef EDM_ML_DEBUG
 
   if (iybin0 > m_COLS_PER_ROC) {
@@ -226,8 +206,6 @@ float RectangularPixelPhase2Topology::localX(const float mpx) const {
     binoffx = m_nrows / 2 - 2;
     fractionX = mpx - float(m_nrows / 2 - 2);
     local_pitchx = m_BIG_PIX_PITCH_X;
-    // else if (binoffx>=0) {       // ROC 0
-    //  binoffx=binoffx+0;
   }
 
 #ifdef EDM_ML_DEBUG
@@ -270,8 +248,6 @@ float RectangularPixelPhase2Topology::localY(const float mpy) const {
     binoffy = m_ncols / 2 - 1;
     fractionY = mpy - float(m_ncols / 2 - 1);
     local_pitchy = m_BIG_PIX_PITCH_Y;
-    // else if (binoffx>=0) {       // ROC 0
-    //  binoffx=binoffx+0;
   }
 
 #ifdef EDM_ML_DEBUG

@@ -3,7 +3,6 @@
 
 // Geometry services
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
-//#include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
 
 //#define DEBUG
 
