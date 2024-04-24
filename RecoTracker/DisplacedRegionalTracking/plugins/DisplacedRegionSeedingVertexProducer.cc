@@ -160,8 +160,7 @@ void DisplacedRegionSeedingVertexProducer::produce(edm::StreamID streamID,
   }
 
   const auto pseudoROIPred = [](const DisplacedVertexCluster &a) { return !a.valid(); };
-  auto remove_it = std::remove_if(pseudoROIs.begin(), pseudoROIs.end(), pseudoROIPred);
-  pseudoROIs.erase(remove_it, pseudoROIs.end());
+  auto remove_invalid = std::remove_if(pseudoROIs.begin(), pseudoROIs.end(), pseudoROIPred);
 
   // Remove invalid ROIs.
   const auto roiPred = [&](const DisplacedVertexCluster &roi) {
@@ -175,8 +174,7 @@ void DisplacedRegionSeedingVertexProducer::produce(edm::StreamID streamID,
       return true;
     return false;
   };
-  auto remove_it2 = std::remove_if(pseudoROIs.begin(), pseudoROIs.end(), roiPred);
-  pseudoROIs.erase(remove_it2, pseudoROIs.end());
+  auto remove_pred = std::remove_if(pseudoROIs.begin(), remove_invalid, roiPred);
 
   auto nearRegionsOfInterest = make_unique<vector<reco::Vertex> >();
   auto farRegionsOfInterest = make_unique<vector<reco::Vertex> >();
@@ -184,7 +182,8 @@ void DisplacedRegionSeedingVertexProducer::produce(edm::StreamID streamID,
   constexpr std::array<double, 6> errorA{{1.0, 0.0, 1.0, 0.0, 0.0, 1.0}};
   static const reco::Vertex::Error errorRegion(errorA.begin(), errorA.end(), true, true);
 
-  for (const auto &roi : pseudoROIs) {
+  for (auto it = pseudoROIs.begin(); it != remove_pred; ++it) {
+    auto const &roi = *it;
     const auto &x(roi.centerOfMass());
     if ((x - bs).rho() < nearThreshold_)
       nearRegionsOfInterest->emplace_back(reco::Vertex::Point(roi.centerOfMass()), errorRegion);
