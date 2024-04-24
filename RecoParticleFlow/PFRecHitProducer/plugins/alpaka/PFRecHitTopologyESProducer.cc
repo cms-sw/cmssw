@@ -4,9 +4,9 @@
 #include <utility>
 #include <variant>
 
-#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "CondFormats/DataRecord/interface/HcalPFCutsRcd.h"
 #include "CondTools/Hcal/interface/HcalPFCutsHandler.h"
+#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -18,6 +18,9 @@
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/ESProducer.h"
+#include "RecoParticleFlow/PFRecHitProducer/interface/PFRecHitParamsRecord.h"
+#include "RecoParticleFlow/PFRecHitProducer/interface/PFRecHitTopologyRecord.h"
+
 #include "CalorimeterDefinitions.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
