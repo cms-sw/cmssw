@@ -137,12 +137,15 @@ inline auto dot(V x, V y) -> typename std::remove_reference<decltype(x[0])>::typ
 
 template <typename V1, typename V2>
 inline auto dot2(V1 x, V2 y) -> typename std::remove_reference<decltype(x[0])>::type {
-  typedef typename std::remove_reference<decltype(x[0])>::type T;
-  T ret = 0;
-  for (int i = 0; i != 2; ++i)
-    ret += x[i] * y[i];
-  return ret;
+  return  x[0] * y[0] + x[1] * y[1];
 }
+
+template <typename V1, typename V2>
+inline auto dot3(V1 x, V2 y) -> typename std::remove_reference<decltype(x[0])>::type {
+  auto z = x*y; 
+  return  z[0] + z[1] + z[2];
+}
+
 
 typedef Vec2<float> Vec2F;
 typedef Vec4<float> Vec4F;
