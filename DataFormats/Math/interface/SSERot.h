@@ -72,7 +72,6 @@ namespace mathSSE {
 
   typedef Rot3<double> Rot3D;
 
-
 #ifdef CMS_USE_SSE4
   template <>
   inline Vec4<float> Rot3<float>::rotate(Vec4<float> v) const {
@@ -85,7 +84,6 @@ namespace mathSSE {
   }
 
 #endif
-
 
 }  // namespace mathSSE
 

@@ -9,9 +9,9 @@
 #elif defined(__INTEL_COMPILER)
 // intel compiler does not support the extended vector syntax
 #define USE_SSEVECT
-#elif defined(__GNUC__) || defined(__clang__) 
+#elif defined(__GNUC__) || defined(__clang__)
 #if defined(__x86_64__) && defined(__SSE__) && defined(CMS_PREFER_SSEVECT)
- #define USE_SSEVECT
+#define USE_SSEVECT
 #else
 #define USE_EXTVECT
 #endif
@@ -60,8 +60,8 @@ namespace mathSSE {
 
 #if defined(USE_EXTVECT)
 #include "DataFormats/Math/interface/ExtVec.h"
-#elif defined(USE_SSEVECT) 
-#if !defined(CMS_PREFER_SSEVECT)  || !defined(__INTEL_COMPILER)
+#elif defined(USE_SSEVECT)
+#if !defined(CMS_PREFER_SSEVECT) || !defined(__INTEL_COMPILER)
 #warning "using SSEVECT even if not requirested?????"
 #endif
 #include "DataFormats/Math/interface/SSEVec.h"
