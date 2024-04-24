@@ -6,8 +6,8 @@ import FWCore.ParameterSet.Config as cms
 ##
 
 def doNotFilterLS(process):
-    if hasattr(process,'lsNumberFilter'):
-        process.lsNumberFilter.minLS = 1
+    if hasattr(process,'LSNumberFilter'):
+        process.LSNumberFilter.minLS = 1
     return process
 
 ##
