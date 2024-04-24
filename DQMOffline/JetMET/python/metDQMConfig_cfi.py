@@ -207,6 +207,12 @@ pfMetT1DQMAnalyzer = caloMetDQMAnalyzer.clone(
         Filter = True
         ),
 )
+pfMetPUPPIDQMAnalyzer = pfMetDQMAnalyzer.clone(
+    METType = 'pf',
+    METCollectionLabel     = "pfMetPuppi",
+    JetCollectionLabel  = "ak4PFJetsPuppi",
+    JetCorrections = "dqmAk4PuppiL2L3ResidualCorrector",
+)
 pfMetDQMAnalyzerMiniAOD = pfMetDQMAnalyzer.clone(
     fillMetHighLevel = True,#fills only lumisec plots
     fillCandidateMaps = False,
