@@ -7,6 +7,7 @@ from PhysicsTools.NanoAOD.particlelevel_cff import *
 from PhysicsTools.NanoAOD.genWeightsTable_cfi import *
 from PhysicsTools.NanoAOD.genVertex_cff import *
 from PhysicsTools.NanoAOD.common_cff import Var,CandVars
+from PhysicsTools.NanoAOD.simpleSingletonCandidateFlatTableProducer_cfi import simpleSingletonCandidateFlatTableProducer
 
 nanoMetadata = cms.EDProducer("UniqueStringProducer",
     strings = cms.PSet(
@@ -81,8 +82,12 @@ def customizeNanoGENFromMini(process):
     return process
 
 def customizeNanoGEN(process):
-    process.metMCTable.src = "genMetTrue"
-    process.metMCTable.variables = cms.PSet(PTVars)
+    process.metMCTable = simpleSingletonCandidateFlatTableProducer.clone(
+        src = "genMetTrue",
+        name = process.metMCTable.name,
+        doc = process.metMCTable.doc,
+        variables = cms.PSet(PTVars)
+    )
 
     process.rivetProducerHTXS.HepMCCollection = "generatorSmeared"
     process.genParticleTable.src = "genParticles"
