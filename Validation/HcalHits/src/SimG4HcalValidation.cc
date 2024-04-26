@@ -33,6 +33,8 @@
 #include "Validation/HcalHits/interface/SimG4HcalHitCluster.h"
 #include "Validation/HcalHits/interface/SimG4HcalHitJetFinder.h"
 
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
+
 #include "G4HCofThisEvent.hh"
 #include "G4SDManager.hh"
 #include "G4Step.hh"

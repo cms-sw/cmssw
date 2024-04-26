@@ -4,7 +4,7 @@
 // CLHEP
 #include "CLHEP/Geometry/Normal3D.h"
 #include "CLHEP/Geometry/Point3D.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "CLHEP/Units/SystemOfUnits.h"
 #include "CLHEP/Vector/Rotation.h"
 #include "CLHEP/Vector/ThreeVector.h"
 
@@ -21,6 +21,7 @@
  */
 
 namespace TrackPropagation {
+  using CLHEP::cm;
   /**
  Convert a CMS GlobalPoint to a CLHEP HepGeom::Point3D<double>
  CMS uses cm while Geant4 uses mm. This is taken into account in the

@@ -1,6 +1,7 @@
 #include "catch.hpp"
 #include "SimG4CMS/Calo/interface/HFShowerLibrary.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "FWCore/PluginManager/interface/PresenceFactory.h"
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
