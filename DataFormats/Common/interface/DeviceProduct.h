@@ -3,6 +3,7 @@
 
 #include <cassert>
 #include <memory>
+#include <optional>
 
 namespace edm {
   class DeviceProductBase {
@@ -49,7 +50,7 @@ namespace edm {
 
     template <typename M, typename... Args>
     explicit DeviceProduct(std::shared_ptr<M> metadata, Args&&... args)
-        : DeviceProductBase(std::move(metadata)), data_(std::forward<Args>(args)...) {}
+        : DeviceProductBase(std::move(metadata)), data_(std::in_place_t{}, std::forward<Args>(args)...) {}
 
     DeviceProduct(const DeviceProduct&) = delete;
     DeviceProduct& operator=(const DeviceProduct&) = delete;
@@ -66,11 +67,14 @@ namespace edm {
     T const& getSynchronized(Args&&... args) const {
       auto const& md = metadata<M>();
       md.synchronize(std::forward<Args>(args)...);
-      return data_;
+      return *data_;
     }
 
   private:
-    T data_;  //!
+    // Using optional to allow T to not have a default constructor
+    // Default-constructed DeviceProduct should in any case appear
+    // only when edm::Wrapper::present == false
+    std::optional<T> data_;  //!
   };
 }  // namespace edm
 #endif
