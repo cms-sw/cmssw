@@ -23,9 +23,9 @@ namespace cms::alpakatools {
   struct CopyToHost<SiPixelDigisDevice<TDevice>> {
     template <typename TQueue>
     static auto copyAsync(TQueue &queue, SiPixelDigisDevice<TDevice> const &srcData) {
-      SiPixelDigisHost dstData(srcData.view().metadata().size(), queue);
+      SiPixelDigisHost dstData(srcData.view().metadata().size() - 1, queue);
       alpaka::memcpy(queue, dstData.buffer(), srcData.buffer());
-      dstData.setNModulesDigis(srcData.nModules(), srcData.nDigis());
+      dstData.setNModules(srcData.nModules());
       return dstData;
     }
   };

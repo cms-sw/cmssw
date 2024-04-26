@@ -2,7 +2,8 @@
   <class name="SiPixelDigisSoA"/>
   <class name="SiPixelDigisSoA::View"/>
   <class name="PortableHostCollection<SiPixelDigisSoA>"/>
-  <class name="SiPixelDigisHost" ClassVersion="3">
+  <class name="SiPixelDigisHost" ClassVersion="4">
+    <version ClassVersion="4" checksum="2247404879"/>
     <version ClassVersion="3" checksum="3022474662"/>
   </class>
   <class name="edm::Wrapper<SiPixelDigisHost>" splitLevel="0"/>
