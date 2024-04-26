@@ -36,16 +36,8 @@ TEST_CASE("PortableCollection<T, TDev>", s_tag) {
     //coll->num() = 42;
     //REQUIRE(coll->num() == 42);
 
-    // CopyToDevice<PortableHostCollection<T>> is not defined
-#ifndef ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLED
-    for (auto const& device : devices) {
-      auto queue = Queue(device);
-      auto coll_d = cms::alpakatools::CopyToDevice<PortableHostCollection<TestSoA>>::copyAsync(queue, coll_h);
-      REQUIRE(coll_d.size() == 0);
-      REQUIRE(not coll_d.isValid());
-      alpaka::wait(queue);
-    }
-#endif
+    // This would lead to an assertion failure
+    // cms::alpakatools::CopyToDevice<PortableHostCollection<TestSoA>>::copyAsync(queue, coll_h)
   }
 
   SECTION("Zero size") {

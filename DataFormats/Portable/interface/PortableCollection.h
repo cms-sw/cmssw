@@ -50,9 +50,6 @@ namespace cms::alpakatools {
   struct CopyToHost<PortableDeviceCollection<TLayout, TDevice>> {
     template <typename TQueue>
     static auto copyAsync(TQueue& queue, PortableDeviceCollection<TLayout, TDevice> const& srcData) {
-      if (not srcData.isValid()) {
-        return PortableHostCollection<TLayout>();
-      }
       PortableHostCollection<TLayout> dstData(srcData->metadata().size(), queue);
       alpaka::memcpy(queue, dstData.buffer(), srcData.buffer());
       return dstData;
@@ -74,9 +71,7 @@ namespace cms::alpakatools {
     template <typename TQueue>
     static auto copyAsync(TQueue& queue, PortableHostCollection<TLayout> const& srcData) {
       using TDevice = typename alpaka::trait::DevType<TQueue>::type;
-      if (not srcData.isValid()) {
-        return PortableDeviceCollection<TLayout, TDevice>();
-      }
+      assert(srcData.isValid());
       PortableDeviceCollection<TLayout, TDevice> dstData(srcData->metadata().size(), queue);
       alpaka::memcpy(queue, dstData.buffer(), srcData.buffer());
       return dstData;

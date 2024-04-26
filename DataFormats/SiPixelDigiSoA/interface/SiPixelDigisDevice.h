@@ -12,7 +12,6 @@
 template <typename TDev>
 class SiPixelDigisDevice : public PortableDeviceCollection<SiPixelDigisSoA, TDev> {
 public:
-  SiPixelDigisDevice() = default;
   template <typename TQueue>
   explicit SiPixelDigisDevice(size_t maxFedWords, TQueue queue)
       : PortableDeviceCollection<SiPixelDigisSoA, TDev>(maxFedWords + 1, queue) {}

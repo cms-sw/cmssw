@@ -24,23 +24,21 @@ public:
   using Buffer = cms::alpakatools::device_buffer<TDev, std::byte[]>;
   using ConstBuffer = cms::alpakatools::const_device_buffer<TDev, std::byte[]>;
 
-  PortableDeviceCollection() = default;
-
   PortableDeviceCollection(int32_t elements, TDev const& device)
       : buffer_{cms::alpakatools::make_device_buffer<std::byte[]>(device, Layout::computeDataSize(elements))},
-        layout_{buffer_->data(), elements},
+        layout_{buffer_.data(), elements},
         view_{layout_} {
     // Alpaka set to a default alignment of 128 bytes defining ALPAKA_DEFAULT_HOST_MEMORY_ALIGNMENT=128
-    assert(reinterpret_cast<uintptr_t>(buffer_->data()) % Layout::alignment == 0);
+    assert(reinterpret_cast<uintptr_t>(buffer_.data()) % Layout::alignment == 0);
   }
 
   template <typename TQueue, typename = std::enable_if_t<alpaka::isQueue<TQueue>>>
   PortableDeviceCollection(int32_t elements, TQueue const& queue)
       : buffer_{cms::alpakatools::make_device_buffer<std::byte[]>(queue, Layout::computeDataSize(elements))},
-        layout_{buffer_->data(), elements},
+        layout_{buffer_.data(), elements},
         view_{layout_} {
     // Alpaka set to a default alignment of 128 bytes defining ALPAKA_DEFAULT_HOST_MEMORY_ALIGNMENT=128
-    assert(reinterpret_cast<uintptr_t>(buffer_->data()) % Layout::alignment == 0);
+    assert(reinterpret_cast<uintptr_t>(buffer_.data()) % Layout::alignment == 0);
   }
 
   // non-copyable
@@ -55,61 +53,31 @@ public:
   ~PortableDeviceCollection() = default;
 
   // has a valid buffer?
-  bool isValid() const { return buffer_.has_value(); }
+  bool isValid() const { return true; }
 
   // a way to access the number of elements without the buffer validity assertion
   auto size() const { return view_.metadata().size(); }
 
   // access the View
-  View& view() {
-    assert(isValid());
-    return view_;
-  }
-  ConstView const& view() const {
-    assert(isValid());
-    return view_;
-  }
-  ConstView const& const_view() const {
-    assert(isValid());
-    return view_;
-  }
+  View& view() { return view_; }
+  ConstView const& view() const { return view_; }
+  ConstView const& const_view() const { return view_; }
 
-  View& operator*() {
-    assert(isValid());
-    return view_;
-  }
-  ConstView const& operator*() const {
-    assert(isValid());
-    return view_;
-  }
+  View& operator*() { return view_; }
+  ConstView const& operator*() const { return view_; }
 
-  View* operator->() {
-    assert(isValid());
-    return &view_;
-  }
-  ConstView const* operator->() const {
-    assert(isValid());
-    return &view_;
-  }
+  View* operator->() { return &view_; }
+  ConstView const* operator->() const { return &view_; }
 
   // access the Buffer
-  Buffer buffer() {
-    assert(isValid());
-    return *buffer_;
-  }
-  ConstBuffer buffer() const {
-    assert(isValid());
-    return *buffer_;
-  }
-  ConstBuffer const_buffer() const {
-    assert(isValid());
-    return *buffer_;
-  }
+  Buffer buffer() { return buffer_; }
+  ConstBuffer buffer() const { return buffer_; }
+  ConstBuffer const_buffer() const { return buffer_; }
 
 private:
-  std::optional<Buffer> buffer_;  //!
-  Layout layout_;                 //
-  View view_;                     //!
+  Buffer buffer_;  //!
+  Layout layout_;  //
+  View view_;      //!
 };
 
 // generic SoA-based product in device memory
