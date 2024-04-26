@@ -14,17 +14,13 @@ public:
   explicit SiPixelDigisHost(size_t maxFedWords, TQueue queue)
       : PortableHostCollection<SiPixelDigisSoA>(maxFedWords + 1, queue) {}
 
-  void setNModulesDigis(uint32_t nModules, uint32_t nDigis) {
-    nModules_h = nModules;
-    nDigis_h = nDigis;
-  }
+  void setNModules(uint32_t nModules) { nModules_h = nModules; }
 
   uint32_t nModules() const { return nModules_h; }
-  uint32_t nDigis() const { return nDigis_h; }
+  uint32_t nDigis() const { return view().metadata().size() - 1; }
 
 private:
   uint32_t nModules_h = 0;
-  uint32_t nDigis_h = 0;
 };
 
 #endif  // DataFormats_SiPixelDigiSoA_interface_SiPixelDigisHost_h
