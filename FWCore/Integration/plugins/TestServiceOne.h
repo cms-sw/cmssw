@@ -31,9 +31,6 @@ namespace edmtest {
     void preBeginProcessBlock(edm::GlobalContext const&);
     void preEndProcessBlock(edm::GlobalContext const&);
 
-    void preGlobalBeginRun(edm::GlobalContext const&);
-    void preGlobalEndRun(edm::GlobalContext const&);
-
     void preStreamBeginLumi(edm::StreamContext const&);
     void postStreamBeginLumi(edm::StreamContext const&);
     void preStreamEndLumi(edm::StreamContext const&);
@@ -57,6 +54,29 @@ namespace edmtest {
     void preGlobalWriteLumi(edm::GlobalContext const&);
     void postGlobalWriteLumi(edm::GlobalContext const&);
 
+    void preStreamBeginRun(edm::StreamContext const&);
+    void postStreamBeginRun(edm::StreamContext const&);
+    void preStreamEndRun(edm::StreamContext const&);
+    void postStreamEndRun(edm::StreamContext const&);
+
+    void preModuleStreamBeginRun(edm::StreamContext const&, edm::ModuleCallingContext const&);
+    void postModuleStreamBeginRun(edm::StreamContext const&, edm::ModuleCallingContext const&);
+    void preModuleStreamEndRun(edm::StreamContext const&, edm::ModuleCallingContext const&);
+    void postModuleStreamEndRun(edm::StreamContext const&, edm::ModuleCallingContext const&);
+
+    void preGlobalBeginRun(edm::GlobalContext const&);
+    void postGlobalBeginRun(edm::GlobalContext const&);
+    void preGlobalEndRun(edm::GlobalContext const&);
+    void postGlobalEndRun(edm::GlobalContext const&);
+
+    void preModuleGlobalBeginRun(edm::GlobalContext const&, edm::ModuleCallingContext const&);
+    void postModuleGlobalBeginRun(edm::GlobalContext const&, edm::ModuleCallingContext const&);
+    void preModuleGlobalEndRun(edm::GlobalContext const&, edm::ModuleCallingContext const&);
+    void postModuleGlobalEndRun(edm::GlobalContext const&, edm::ModuleCallingContext const&);
+
+    void preGlobalWriteRun(edm::GlobalContext const&);
+    void postGlobalWriteRun(edm::GlobalContext const&);
+
     unsigned int nPreStreamBeginLumi() const;
     unsigned int nPostStreamBeginLumi() const;
     unsigned int nPreStreamEndLumi() const;
@@ -79,6 +99,29 @@ namespace edmtest {
 
     unsigned int nPreGlobalWriteLumi() const;
     unsigned int nPostGlobalWriteLumi() const;
+
+    unsigned int nPreStreamBeginRun() const;
+    unsigned int nPostStreamBeginRun() const;
+    unsigned int nPreStreamEndRun() const;
+    unsigned int nPostStreamEndRun() const;
+
+    unsigned int nPreModuleStreamBeginRun() const;
+    unsigned int nPostModuleStreamBeginRun() const;
+    unsigned int nPreModuleStreamEndRun() const;
+    unsigned int nPostModuleStreamEndRun() const;
+
+    unsigned int nPreGlobalBeginRun() const;
+    unsigned int nPostGlobalBeginRun() const;
+    unsigned int nPreGlobalEndRun() const;
+    unsigned int nPostGlobalEndRun() const;
+
+    unsigned int nPreModuleGlobalBeginRun() const;
+    unsigned int nPostModuleGlobalBeginRun() const;
+    unsigned int nPreModuleGlobalEndRun() const;
+    unsigned int nPostModuleGlobalEndRun() const;
+
+    unsigned int nPreGlobalWriteRun() const;
+    unsigned int nPostGlobalWriteRun() const;
 
   private:
     bool verbose_;
@@ -106,6 +149,29 @@ namespace edmtest {
 
     std::atomic<unsigned int> nPreGlobalWriteLumi_ = 0;
     std::atomic<unsigned int> nPostGlobalWriteLumi_ = 0;
+
+    std::atomic<unsigned int> nPreStreamBeginRun_ = 0;
+    std::atomic<unsigned int> nPostStreamBeginRun_ = 0;
+    std::atomic<unsigned int> nPreStreamEndRun_ = 0;
+    std::atomic<unsigned int> nPostStreamEndRun_ = 0;
+
+    std::atomic<unsigned int> nPreModuleStreamBeginRun_ = 0;
+    std::atomic<unsigned int> nPostModuleStreamBeginRun_ = 0;
+    std::atomic<unsigned int> nPreModuleStreamEndRun_ = 0;
+    std::atomic<unsigned int> nPostModuleStreamEndRun_ = 0;
+
+    std::atomic<unsigned int> nPreGlobalBeginRun_ = 0;
+    std::atomic<unsigned int> nPostGlobalBeginRun_ = 0;
+    std::atomic<unsigned int> nPreGlobalEndRun_ = 0;
+    std::atomic<unsigned int> nPostGlobalEndRun_ = 0;
+
+    std::atomic<unsigned int> nPreModuleGlobalBeginRun_ = 0;
+    std::atomic<unsigned int> nPostModuleGlobalBeginRun_ = 0;
+    std::atomic<unsigned int> nPreModuleGlobalEndRun_ = 0;
+    std::atomic<unsigned int> nPostModuleGlobalEndRun_ = 0;
+
+    std::atomic<unsigned int> nPreGlobalWriteRun_ = 0;
+    std::atomic<unsigned int> nPostGlobalWriteRun_ = 0;
   };
 }  // namespace edmtest
 #endif

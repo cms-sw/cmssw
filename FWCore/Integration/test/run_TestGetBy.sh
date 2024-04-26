@@ -8,12 +8,11 @@ LOCAL_TEST_DIR=${SCRAM_TEST_PATH}
 
   echo "testGetBy1"
   cmsRun ${LOCAL_TEST_DIR}/${test}1_cfg.py > testGetBy1.log 2>/dev/null || die "cmsRun ${test}1_cfg.py" $?
-  grep -v "LegacyModules" testGetBy1.log > testGetBy1_1.log
-  diff ${LOCAL_TEST_DIR}/unit_test_outputs/testGetBy1.log testGetBy1_1.log || die "comparing testGetBy1.log" $?
+  diff ${LOCAL_TEST_DIR}/unit_test_outputs/testGetBy1.log testGetBy1.log || die "comparing testGetBy1.log" $?
 
   echo "testGetBy2"
   cmsRun ${LOCAL_TEST_DIR}/${test}2_cfg.py > testGetBy2.log 2>/dev/null || die "cmsRun ${test}2_cfg.py" $?
-  grep -v 'Initiating request to open file\|Successfully opened file\|Closed file\|LegacyModules' testGetBy2.log > testGetBy2_1.log
+  grep -v 'Initiating request to open file\|Successfully opened file\|Closed file' testGetBy2.log > testGetBy2_1.log
   diff ${LOCAL_TEST_DIR}/unit_test_outputs/testGetBy2.log testGetBy2_1.log || die "comparing testGetBy2.log" $?
 
   echo "testGetBy3"

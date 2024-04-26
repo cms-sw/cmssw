@@ -60,9 +60,6 @@ namespace edmtest {
     iRegistry.watchPreBeginProcessBlock(this, &TestServiceOne::preBeginProcessBlock);
     iRegistry.watchPreEndProcessBlock(this, &TestServiceOne::preEndProcessBlock);
 
-    iRegistry.watchPreGlobalBeginRun(this, &TestServiceOne::preGlobalBeginRun);
-    iRegistry.watchPreGlobalEndRun(this, &TestServiceOne::preGlobalEndRun);
-
     iRegistry.watchPreStreamBeginLumi(this, &TestServiceOne::preStreamBeginLumi);
     iRegistry.watchPostStreamBeginLumi(this, &TestServiceOne::postStreamBeginLumi);
     iRegistry.watchPreStreamEndLumi(this, &TestServiceOne::preStreamEndLumi);
@@ -85,6 +82,29 @@ namespace edmtest {
 
     iRegistry.watchPreGlobalWriteLumi(this, &TestServiceOne::preGlobalWriteLumi);
     iRegistry.watchPostGlobalWriteLumi(this, &TestServiceOne::postGlobalWriteLumi);
+
+    iRegistry.watchPreStreamBeginRun(this, &TestServiceOne::preStreamBeginRun);
+    iRegistry.watchPostStreamBeginRun(this, &TestServiceOne::postStreamBeginRun);
+    iRegistry.watchPreStreamEndRun(this, &TestServiceOne::preStreamEndRun);
+    iRegistry.watchPostStreamEndRun(this, &TestServiceOne::postStreamEndRun);
+
+    iRegistry.watchPreModuleStreamBeginRun(this, &TestServiceOne::preModuleStreamBeginRun);
+    iRegistry.watchPostModuleStreamBeginRun(this, &TestServiceOne::postModuleStreamBeginRun);
+    iRegistry.watchPreModuleStreamEndRun(this, &TestServiceOne::preModuleStreamEndRun);
+    iRegistry.watchPostModuleStreamEndRun(this, &TestServiceOne::postModuleStreamEndRun);
+
+    iRegistry.watchPreGlobalBeginRun(this, &TestServiceOne::preGlobalBeginRun);
+    iRegistry.watchPostGlobalBeginRun(this, &TestServiceOne::postGlobalBeginRun);
+    iRegistry.watchPreGlobalEndRun(this, &TestServiceOne::preGlobalEndRun);
+    iRegistry.watchPostGlobalEndRun(this, &TestServiceOne::postGlobalEndRun);
+
+    iRegistry.watchPreModuleGlobalBeginRun(this, &TestServiceOne::preModuleGlobalBeginRun);
+    iRegistry.watchPostModuleGlobalBeginRun(this, &TestServiceOne::postModuleGlobalBeginRun);
+    iRegistry.watchPreModuleGlobalEndRun(this, &TestServiceOne::preModuleGlobalEndRun);
+    iRegistry.watchPostModuleGlobalEndRun(this, &TestServiceOne::postModuleGlobalEndRun);
+
+    iRegistry.watchPreGlobalWriteRun(this, &TestServiceOne::preGlobalWriteRun);
+    iRegistry.watchPostGlobalWriteRun(this, &TestServiceOne::postGlobalWriteRun);
   }
 
   void TestServiceOne::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -104,18 +124,6 @@ namespace edmtest {
   void TestServiceOne::preEndProcessBlock(GlobalContext const&) {
     if (verbose_) {
       edm::LogAbsolute("TestServiceOne") << "test message from TestServiceOne::preEndProcessBlock";
-    }
-  }
-
-  void TestServiceOne::preGlobalBeginRun(GlobalContext const&) {
-    if (verbose_) {
-      edm::LogAbsolute("TestServiceOne") << "test message from TestServiceOne::preGlobalBeginRun";
-    }
-  }
-
-  void TestServiceOne::preGlobalEndRun(GlobalContext const&) {
-    if (verbose_) {
-      edm::LogAbsolute("TestServiceOne") << "test message from TestServiceOne::preGlobalEndRun";
     }
   }
 
@@ -293,6 +301,172 @@ namespace edmtest {
     }
   }
 
+  void TestServiceOne::preStreamBeginRun(StreamContext const& sc) {
+    ++nPreStreamBeginRun_;
+    if (verbose_) {
+      edm::LogAbsolute out("TestServiceOne");
+      out << streamIndent << "TestServiceOne::preStreamBeginRun " << TimeStamper(printTimestamps_)
+          << " stream = " << sc.streamID() << " run = " << sc.eventID().run();
+    }
+  }
+
+  void TestServiceOne::postStreamBeginRun(StreamContext const& sc) {
+    ++nPostStreamBeginRun_;
+    if (verbose_) {
+      edm::LogAbsolute out("TestServiceOne");
+      out << streamIndent << "TestServiceOne::postStreamBeginRun " << TimeStamper(printTimestamps_)
+          << " stream = " << sc.streamID() << " run = " << sc.eventID().run();
+    }
+  }
+
+  void TestServiceOne::preStreamEndRun(StreamContext const& sc) {
+    ++nPreStreamEndRun_;
+    if (verbose_) {
+      edm::LogAbsolute out("TestServiceOne");
+      out << streamIndent << "TestServiceOne::preStreamEndRun " << TimeStamper(printTimestamps_)
+          << " stream = " << sc.streamID() << " run = " << sc.eventID().run();
+    }
+  }
+
+  void TestServiceOne::postStreamEndRun(StreamContext const& sc) {
+    ++nPostStreamEndRun_;
+    if (verbose_) {
+      edm::LogAbsolute out("TestServiceOne");
+      out << streamIndent << "TestServiceOne::postStreamEndRun " << TimeStamper(printTimestamps_)
+          << " stream = " << sc.streamID() << " run = " << sc.eventID().run();
+    }
+  }
+
+  void TestServiceOne::preModuleStreamBeginRun(StreamContext const& sc, ModuleCallingContext const& mcc) {
+    ++nPreModuleStreamBeginRun_;
+    if (verbose_) {
+      edm::LogAbsolute out("TestServiceOne");
+      out << streamModuleIndent << "TestServiceOne::preModuleStreamBeginRun " << TimeStamper(printTimestamps_)
+          << " stream = " << sc.streamID() << " label = " << mcc.moduleDescription()->moduleLabel()
+          << " run = " << sc.eventID().run();
+    }
+  }
+
+  void TestServiceOne::postModuleStreamBeginRun(StreamContext const& sc, ModuleCallingContext const& mcc) {
+    ++nPostModuleStreamBeginRun_;
+    if (verbose_) {
+      edm::LogAbsolute out("TestServiceOne");
+      out << streamModuleIndent << "TestServiceOne::postModuleStreamBeginRun " << TimeStamper(printTimestamps_)
+          << " stream = " << sc.streamID() << " label = " << mcc.moduleDescription()->moduleLabel()
+          << " run = " << sc.eventID().run();
+    }
+  }
+
+  void TestServiceOne::preModuleStreamEndRun(StreamContext const& sc, ModuleCallingContext const& mcc) {
+    ++nPreModuleStreamEndRun_;
+    if (verbose_) {
+      edm::LogAbsolute out("TestServiceOne");
+      out << streamModuleIndent << "TestServiceOne::preModuleStreamEndRun " << TimeStamper(printTimestamps_)
+          << " stream = " << sc.streamID() << " label = " << mcc.moduleDescription()->moduleLabel()
+          << " run = " << sc.eventID().run();
+    }
+  }
+
+  void TestServiceOne::postModuleStreamEndRun(StreamContext const& sc, ModuleCallingContext const& mcc) {
+    ++nPostModuleStreamEndRun_;
+    if (verbose_) {
+      edm::LogAbsolute out("TestServiceOne");
+      out << streamModuleIndent << "TestServiceOne::postModuleStreamEndRun " << TimeStamper(printTimestamps_)
+          << " stream = " << sc.streamID() << " label = " << mcc.moduleDescription()->moduleLabel()
+          << " run = " << sc.eventID().run();
+    }
+  }
+
+  void TestServiceOne::preGlobalBeginRun(GlobalContext const& gc) {
+    ++nPreGlobalBeginRun_;
+    if (verbose_) {
+      edm::LogAbsolute out("TestServiceOne");
+      out << globalIndent << "TestServiceOne::preGlobalBeginRun " << TimeStamper(printTimestamps_)
+          << " run = " << gc.luminosityBlockID().run();
+    }
+  }
+
+  void TestServiceOne::postGlobalBeginRun(GlobalContext const& gc) {
+    ++nPostGlobalBeginRun_;
+    if (verbose_) {
+      edm::LogAbsolute out("TestServiceOne");
+      out << globalIndent << "TestServiceOne::postGlobalBeginRun " << TimeStamper(printTimestamps_)
+          << " run = " << gc.luminosityBlockID().run();
+    }
+  }
+
+  void TestServiceOne::preGlobalEndRun(GlobalContext const& gc) {
+    ++nPreGlobalEndRun_;
+    if (verbose_) {
+      edm::LogAbsolute out("TestServiceOne");
+      out << globalIndent << "TestServiceOne::preGlobalEndRun " << TimeStamper(printTimestamps_)
+          << " run = " << gc.luminosityBlockID().run();
+    }
+  }
+
+  void TestServiceOne::postGlobalEndRun(GlobalContext const& gc) {
+    ++nPostGlobalEndRun_;
+    if (verbose_) {
+      edm::LogAbsolute out("TestServiceOne");
+      out << globalIndent << "TestServiceOne::postGlobalEndRun " << TimeStamper(printTimestamps_)
+          << " run = " << gc.luminosityBlockID().run();
+    }
+  }
+
+  void TestServiceOne::preModuleGlobalBeginRun(GlobalContext const& gc, ModuleCallingContext const& mcc) {
+    ++nPreModuleGlobalBeginRun_;
+    if (verbose_) {
+      edm::LogAbsolute out("TestServiceOne");
+      out << globalModuleIndent << "TestServiceOne::preModuleGlobalBeginRun " << TimeStamper(printTimestamps_)
+          << " label = " << mcc.moduleDescription()->moduleLabel() << " run = " << gc.luminosityBlockID().run();
+    }
+  }
+
+  void TestServiceOne::postModuleGlobalBeginRun(GlobalContext const& gc, ModuleCallingContext const& mcc) {
+    ++nPostModuleGlobalBeginRun_;
+    if (verbose_) {
+      edm::LogAbsolute out("TestServiceOne");
+      out << globalModuleIndent << "TestServiceOne::postModuleGlobalBeginRun " << TimeStamper(printTimestamps_)
+          << " label = " << mcc.moduleDescription()->moduleLabel() << " run = " << gc.luminosityBlockID().run();
+    }
+  }
+
+  void TestServiceOne::preModuleGlobalEndRun(GlobalContext const& gc, ModuleCallingContext const& mcc) {
+    ++nPreModuleGlobalEndRun_;
+    if (verbose_) {
+      edm::LogAbsolute out("TestServiceOne");
+      out << globalModuleIndent << "TestServiceOne::preModuleGlobalEndRun " << TimeStamper(printTimestamps_)
+          << " label = " << mcc.moduleDescription()->moduleLabel() << " run = " << gc.luminosityBlockID().run();
+    }
+  }
+
+  void TestServiceOne::postModuleGlobalEndRun(GlobalContext const& gc, ModuleCallingContext const& mcc) {
+    ++nPostModuleGlobalEndRun_;
+    if (verbose_) {
+      edm::LogAbsolute out("TestServiceOne");
+      out << globalModuleIndent << "TestServiceOne::postModuleGlobalEndRun " << TimeStamper(printTimestamps_)
+          << " label = " << mcc.moduleDescription()->moduleLabel() << " run = " << gc.luminosityBlockID().run();
+    }
+  }
+
+  void TestServiceOne::preGlobalWriteRun(GlobalContext const& gc) {
+    ++nPreGlobalWriteRun_;
+    if (verbose_) {
+      edm::LogAbsolute out("TestServiceOne");
+      out << globalIndent << "TestServiceOne::preGlobalWriteRun " << TimeStamper(printTimestamps_)
+          << " run = " << gc.luminosityBlockID().run();
+    }
+  }
+
+  void TestServiceOne::postGlobalWriteRun(GlobalContext const& gc) {
+    ++nPostGlobalWriteRun_;
+    if (verbose_) {
+      edm::LogAbsolute out("TestServiceOne");
+      out << globalIndent << "TestServiceOne::postGlobalWriteRun " << TimeStamper(printTimestamps_)
+          << " run = " << gc.luminosityBlockID().run();
+    }
+  }
+
   unsigned int TestServiceOne::nPreStreamBeginLumi() const { return nPreStreamBeginLumi_.load(); }
   unsigned int TestServiceOne::nPostStreamBeginLumi() const { return nPostStreamBeginLumi_.load(); }
   unsigned int TestServiceOne::nPreStreamEndLumi() const { return nPreStreamEndLumi_.load(); }
@@ -315,6 +489,29 @@ namespace edmtest {
 
   unsigned int TestServiceOne::nPreGlobalWriteLumi() const { return nPreGlobalWriteLumi_.load(); }
   unsigned int TestServiceOne::nPostGlobalWriteLumi() const { return nPostGlobalWriteLumi_.load(); }
+
+  unsigned int TestServiceOne::nPreStreamBeginRun() const { return nPreStreamBeginRun_.load(); }
+  unsigned int TestServiceOne::nPostStreamBeginRun() const { return nPostStreamBeginRun_.load(); }
+  unsigned int TestServiceOne::nPreStreamEndRun() const { return nPreStreamEndRun_.load(); }
+  unsigned int TestServiceOne::nPostStreamEndRun() const { return nPostStreamEndRun_.load(); }
+
+  unsigned int TestServiceOne::nPreModuleStreamBeginRun() const { return nPreModuleStreamBeginRun_.load(); }
+  unsigned int TestServiceOne::nPostModuleStreamBeginRun() const { return nPostModuleStreamBeginRun_.load(); }
+  unsigned int TestServiceOne::nPreModuleStreamEndRun() const { return nPreModuleStreamEndRun_.load(); }
+  unsigned int TestServiceOne::nPostModuleStreamEndRun() const { return nPostModuleStreamEndRun_.load(); }
+
+  unsigned int TestServiceOne::nPreGlobalBeginRun() const { return nPreGlobalBeginRun_.load(); }
+  unsigned int TestServiceOne::nPostGlobalBeginRun() const { return nPostGlobalBeginRun_.load(); }
+  unsigned int TestServiceOne::nPreGlobalEndRun() const { return nPreGlobalEndRun_.load(); }
+  unsigned int TestServiceOne::nPostGlobalEndRun() const { return nPostGlobalEndRun_.load(); }
+
+  unsigned int TestServiceOne::nPreModuleGlobalBeginRun() const { return nPreModuleGlobalBeginRun_.load(); }
+  unsigned int TestServiceOne::nPostModuleGlobalBeginRun() const { return nPostModuleGlobalBeginRun_.load(); }
+  unsigned int TestServiceOne::nPreModuleGlobalEndRun() const { return nPreModuleGlobalEndRun_.load(); }
+  unsigned int TestServiceOne::nPostModuleGlobalEndRun() const { return nPostModuleGlobalEndRun_.load(); }
+
+  unsigned int TestServiceOne::nPreGlobalWriteRun() const { return nPreGlobalWriteRun_.load(); }
+  unsigned int TestServiceOne::nPostGlobalWriteRun() const { return nPostGlobalWriteRun_.load(); }
 }  // namespace edmtest
 
 using edmtest::TestServiceOne;

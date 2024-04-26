@@ -35,10 +35,6 @@
 ++++ finished: begin stream for module: stream = 0 label = 'two' id = 5
 ++++ starting: begin stream for module: stream = 0 label = 'getTwo' id = 6
 ++++ finished: begin stream for module: stream = 0 label = 'getTwo' id = 6
-++++ starting: begin stream for module: stream = 0 label = 'TriggerResults' id = 1
-++++ finished: begin stream for module: stream = 0 label = 'TriggerResults' id = 1
-++++ starting: begin stream for module: stream = 0 label = 'p' id = 2
-++++ finished: begin stream for module: stream = 0 label = 'p' id = 2
 ++++ starting: begin process block
 ++++ finished: begin process block
 ++++ queuing: EventSetup synchronization run: 1 lumi: 0 event: 0
@@ -49,10 +45,10 @@
 ++++ starting: global begin run 1 : time = 1000000
 ++++ finished: global begin run 1 : time = 1000000
 ++++ starting: begin run: stream = 0 run = 1 time = 1000000
-++++++ starting: begin run for module: stream = 0 label = 'two' id = 5
-++++++ finished: begin run for module: stream = 0 label = 'two' id = 5
 ++++++ starting: begin run for module: stream = 0 label = 'one' id = 3
 ++++++ finished: begin run for module: stream = 0 label = 'one' id = 3
+++++++ starting: begin run for module: stream = 0 label = 'two' id = 5
+++++++ finished: begin run for module: stream = 0 label = 'two' id = 5
 ++++ finished: begin run: stream = 0 run = 1 time = 1000000
 ++++ queuing: EventSetup synchronization run: 1 lumi: 1 event: 0
 ++++ pre: EventSetup synchronizing run: 1 lumi: 1 event: 0
@@ -62,10 +58,10 @@
 ++++ starting: global begin lumi: run = 1 lumi = 1 time = 1000000
 ++++ finished: global begin lumi: run = 1 lumi = 1 time = 1000000
 ++++ starting: begin lumi: stream = 0 run = 1 lumi = 1 time = 1000000
-++++++ starting: begin lumi for module: stream = 0 label = 'two' id = 5
-++++++ finished: begin lumi for module: stream = 0 label = 'two' id = 5
 ++++++ starting: begin lumi for module: stream = 0 label = 'one' id = 3
 ++++++ finished: begin lumi for module: stream = 0 label = 'one' id = 3
+++++++ starting: begin lumi for module: stream = 0 label = 'two' id = 5
+++++++ finished: begin lumi for module: stream = 0 label = 'two' id = 5
 ++++ finished: begin lumi: stream = 0 run = 1 lumi = 1 time = 1000000
 ++++ starting: source event
 ++++ finished: source event
@@ -149,20 +145,20 @@
 ++++ pre: EventSetup synchronizing run: 1 lumi: 4294967295 event: 18446744073709551615
 ++++ post: EventSetup synchronizing run: 1 lumi: 4294967295 event: 18446744073709551615
 ++++ starting: end lumi: stream = 0 run = 1 lumi = 1 time = 1000030
-++++++ starting: end lumi for module: stream = 0 label = 'two' id = 5
-++++++ finished: end lumi for module: stream = 0 label = 'two' id = 5
 ++++++ starting: end lumi for module: stream = 0 label = 'one' id = 3
 ++++++ finished: end lumi for module: stream = 0 label = 'one' id = 3
+++++++ starting: end lumi for module: stream = 0 label = 'two' id = 5
+++++++ finished: end lumi for module: stream = 0 label = 'two' id = 5
 ++++ finished: end lumi: stream = 0 run = 1 lumi = 1 time = 1000030
 ++++ starting: global end lumi: run = 1 lumi = 1 time = 1000000
 ++++ finished: global end lumi: run = 1 lumi = 1 time = 1000000
 ++++ starting: global write lumi: run = 1 lumi = 1 time = 1000000
 ++++ finished: global write lumi: run = 1 lumi = 1 time = 1000000
 ++++ starting: end run: stream = 0 run = 1 time = 1000030
-++++++ starting: end run for module: stream = 0 label = 'two' id = 5
-++++++ finished: end run for module: stream = 0 label = 'two' id = 5
 ++++++ starting: end run for module: stream = 0 label = 'one' id = 3
 ++++++ finished: end run for module: stream = 0 label = 'one' id = 3
+++++++ starting: end run for module: stream = 0 label = 'two' id = 5
+++++++ finished: end run for module: stream = 0 label = 'two' id = 5
 ++++ finished: end run: stream = 0 run = 1 time = 1000030
 ++++ starting: global end run 1 : time = 1000030
 ++++ finished: global end run 1 : time = 1000030
@@ -180,10 +176,6 @@
 ++++ finished: end stream for module: stream = 0 label = 'two' id = 5
 ++++ starting: end stream for module: stream = 0 label = 'getTwo' id = 6
 ++++ finished: end stream for module: stream = 0 label = 'getTwo' id = 6
-++++ starting: end stream for module: stream = 0 label = 'TriggerResults' id = 1
-++++ finished: end stream for module: stream = 0 label = 'TriggerResults' id = 1
-++++ starting: end stream for module: stream = 0 label = 'p' id = 2
-++++ finished: end stream for module: stream = 0 label = 'p' id = 2
 ++++ starting: end job for module with label 'one' id = 3
 ++++ finished: end job for module with label 'one' id = 3
 ++++ starting: end job for module with label 'getOne' id = 4
