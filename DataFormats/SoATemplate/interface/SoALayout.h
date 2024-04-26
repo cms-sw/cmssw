@@ -261,9 +261,9 @@
       /* Scalar (empty) */                                                                                             \
       ,                                                                                                                \
       /* Column */                                                                                                     \
-      (NAME{NAME}),                                                                                                    \
+      (NAME{BOOST_PP_CAT(NAME, _l)}),                                                                                  \
       /* Eigen column */                                                                                               \
-      (NAME{NAME})                                                                                                     \
+      (NAME{BOOST_PP_CAT(NAME, _l)})                                                                                   \
   )
 // clang-format on
 
