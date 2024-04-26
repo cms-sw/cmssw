@@ -244,9 +244,9 @@
       /* Scalar (empty) */                                                                                             \
       ,                                                                                                                \
       /* Column */                                                                                                     \
-      (CPP_TYPE NAME),                                                                                                 \
+      (CPP_TYPE BOOST_PP_CAT(NAME, _l)),                                                                               \
       /* Eigen column */                                                                                               \
-      (CPP_TYPE NAME)                                                                                                  \
+      (CPP_TYPE BOOST_PP_CAT(NAME, _l))                                                                                \
   )
 // clang-format on
 
