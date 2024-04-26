@@ -11,7 +11,7 @@ muDPGNanoProducerBkg = cms.Sequence(lhcInfoTableProducer
 
 def muDPGNanoBkgCustomize(process) :
 
-     for output in ["NANOEDMAODoutput", "NANOAODoutput", "NANOAODSIMoutput"]:
+     for output in ["NANOEDMAODoutput", "NANOAODoutput", "NANOEDMAODSIMoutput", "NANOAODSIMoutput"]:
           if hasattr(process, output):
                getattr(process,output).outputCommands.append("keep nanoaodFlatTable_*Table*_*_*")
                getattr(process,output).outputCommands.append("drop edmTriggerResults_*_*_*")           
