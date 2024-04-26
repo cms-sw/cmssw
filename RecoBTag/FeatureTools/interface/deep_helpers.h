@@ -96,7 +96,12 @@ namespace btagbtvdeep {
   struct PreprocessParams {
     struct VarInfo {
       VarInfo() {}
-      VarInfo(float median, float lnorm_factor, float lreplace_inf_value, float llower_bound, float lupper_bound, float lpad)
+      VarInfo(float median,
+              float lnorm_factor,
+              float lreplace_inf_value,
+              float llower_bound,
+              float lupper_bound,
+              float lpad)
           : center(median),
             norm_factor(lnorm_factor),
             replace_inf_value(lreplace_inf_value),

@@ -212,7 +212,9 @@ namespace pat {
     /// Return the hcal IsoDeposit
     const IsoDeposit* hcalIsoDeposit() const { return isoDeposit(pat::HcalIso); }
     /// Return a specified user-level IsoDeposit
-    const IsoDeposit* userIsoDeposit(uint8_t lindex = 0) const { return isoDeposit(IsolationKeys(UserBaseIso + lindex)); }
+    const IsoDeposit* userIsoDeposit(uint8_t lindex = 0) const {
+      return isoDeposit(IsolationKeys(UserBaseIso + lindex));
+    }
     /// Sets the IsoDeposit associated with some key; if it is already existent, it is overwritten.
     void setIsoDeposit(IsolationKeys key, const IsoDeposit& dep) {
       IsoDepositPairs::iterator it = isoDeposits_.begin(), ed = isoDeposits_.end();

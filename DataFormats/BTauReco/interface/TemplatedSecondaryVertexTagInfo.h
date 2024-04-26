@@ -59,7 +59,8 @@ namespace reco {
     };
 
     struct TrackFinder {
-      TrackFinder(const typename IPTI::input_container &ltracks, const typename IPTI::input_container::value_type &ltrack)
+      TrackFinder(const typename IPTI::input_container &ltracks,
+                  const typename IPTI::input_container::value_type &ltrack)
           : tracks(ltracks), track(ltrack) {}
 
       bool operator()(const IndexedTrackData &idt) { return tracks[idt.first] == track; }
