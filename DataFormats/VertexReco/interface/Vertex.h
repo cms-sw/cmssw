@@ -76,11 +76,11 @@ namespace reco {
     /// For a primary vertex, it could simply be the beam line.
     bool isFake() const { return (chi2_ == 0 && ndof_ == 0 && tracks_.empty()); }
     /// reserve space for the tracks
-    void reserve(int size, bool refitAsWell = false) {
-      tracks_.reserve(size);
+    void reserve(int vsize, bool refitAsWell = false) {
+      tracks_.reserve(vsize);
       if (refitAsWell)
-        refittedTracks_.reserve(size);
-      weights_.reserve(size);
+        refittedTracks_.reserve(vsize);
+      weights_.reserve(vsize);
     }
     /// add a reference to a Track
     template <typename Ref>

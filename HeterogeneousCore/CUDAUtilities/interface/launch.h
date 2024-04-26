@@ -51,11 +51,11 @@ namespace cms {
       size_t sharedMem;
       cudaStream_t stream;
 
-      LaunchParameters(dim3 gridDim, dim3 blockDim, size_t sharedMem = 0, cudaStream_t stream = nullptr)
-          : gridDim(gridDim), blockDim(blockDim), sharedMem(sharedMem), stream(stream) {}
+      LaunchParameters(dim3 lgridDim, dim3 lblockDim, size_t lsharedMem = 0, cudaStream_t lstream = nullptr)
+          : gridDim(lgridDim), blockDim(lblockDim), sharedMem(lsharedMem), stream(lstream) {}
 
-      LaunchParameters(int gridDim, int blockDim, size_t sharedMem = 0, cudaStream_t stream = nullptr)
-          : gridDim(gridDim), blockDim(blockDim), sharedMem(sharedMem), stream(stream) {}
+      LaunchParameters(int lgridDim, int lblockDim, size_t lsharedMem = 0, cudaStream_t lstream = nullptr)
+          : gridDim(lgridDim), blockDim(lblockDim), sharedMem(lsharedMem), stream(lstream) {}
     };
 
     namespace detail {

@@ -47,7 +47,7 @@ namespace PhysicsTools {
     public:
       inline Value() {}
       inline Value(const Value &orig) : name(orig.name), value(orig.value) {}
-      inline Value(AtomicId name, double value) : name(name), value(value) {}
+      inline Value(AtomicId lname, double lvalue) : name(lname), value(lvalue) {}
 
       inline Value &operator=(const Value &orig) {
         name = orig.name;
@@ -55,8 +55,8 @@ namespace PhysicsTools {
         return *this;
       }
 
-      inline void setName(AtomicId name) { this->name = name; }
-      inline void setValue(double value) { this->value = value; }
+      inline void setName(AtomicId lname) { this->name = lname; }
+      inline void setValue(double lvalue) { this->value = lvalue; }
 
       inline AtomicId getName() const { return name; }
       inline double getValue() const { return value; }
@@ -131,7 +131,7 @@ namespace PhysicsTools {
 
     inline Variable() {}
     inline Variable(const Variable &orig) : name(orig.name), flags(orig.flags) {}
-    inline Variable(AtomicId name, Flags flags = FLAG_NONE) : name(name), flags(flags) {}
+    inline Variable(AtomicId lname, Flags lflags = FLAG_NONE) : name(lname), flags(lflags) {}
     Variable &operator=(const Variable &other) = default;
 
     const AtomicId getName() const { return name; }

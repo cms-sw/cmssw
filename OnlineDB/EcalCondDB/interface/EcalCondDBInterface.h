@@ -49,8 +49,8 @@ public:
    *  pass:    Password for user
    *  port:    port number to connect, default 1521
    */
-  EcalCondDBInterface(std::string host, std::string sid, std::string user, std::string pass, int port = 1521)
-      : EcalDBConnection(host, sid, user, pass, port) {
+  EcalCondDBInterface(std::string lhost, std::string lsid, std::string luser, std::string lpass, int lport = 1521)
+      : EcalDBConnection(lhost, lsid, luser, lpass, lport) {
     // call the parent constructor
 
     // create a DateHandler
@@ -64,7 +64,7 @@ public:
    *  user:    User to connect
    *  pass:    Password for user
    */
-  EcalCondDBInterface(std::string sid, std::string user, std::string pass) : EcalDBConnection(sid, user, pass) {
+  EcalCondDBInterface(std::string lsid, std::string luser, std::string lpass) : EcalDBConnection(lsid, luser, lpass) {
     // call the parent constructor
 
     // create a DateHandler

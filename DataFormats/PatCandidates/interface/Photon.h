@@ -136,7 +136,7 @@ namespace pat {
     float puChargedHadronIso() const { return userIsolation(pat::PfPUChargedHadronIso); }
 
     /// Returns a user defined isolation value
-    float userIso(uint8_t index = 0) const { return userIsolation(IsolationKeys(UserBaseIso + index)); }
+    float userIso(uint8_t lindex = 0) const { return userIsolation(IsolationKeys(UserBaseIso + lindex)); }
     /// Returns the isolation variable for a specifc key (or
     /// pseudo-key like CaloIso), or -1.0 if not available
     float userIsolation(IsolationKeys key) const {
@@ -188,7 +188,7 @@ namespace pat {
     /// Sets hcal isolation variable
     void setHcalIso(float caloIso) { setIsolation(HcalIso, caloIso); }
     /// Sets user isolation variable #index
-    void setUserIso(float value, uint8_t index = 0) { setIsolation(IsolationKeys(UserBaseIso + index), value); }
+    void setUserIso(float value, uint8_t lindex = 0) { setIsolation(IsolationKeys(UserBaseIso + lindex), value); }
     /// Sets PUPPI isolation
     void setIsolationPUPPI(float chargedhadrons_, float neutralhadrons_, float photons_) {
       puppiChargedHadronIso_ = chargedhadrons_;
@@ -212,7 +212,7 @@ namespace pat {
     /// Return the hcal IsoDeposit
     const IsoDeposit* hcalIsoDeposit() const { return isoDeposit(pat::HcalIso); }
     /// Return a specified user-level IsoDeposit
-    const IsoDeposit* userIsoDeposit(uint8_t index = 0) const { return isoDeposit(IsolationKeys(UserBaseIso + index)); }
+    const IsoDeposit* userIsoDeposit(uint8_t lindex = 0) const { return isoDeposit(IsolationKeys(UserBaseIso + lindex)); }
     /// Sets the IsoDeposit associated with some key; if it is already existent, it is overwritten.
     void setIsoDeposit(IsolationKeys key, const IsoDeposit& dep) {
       IsoDepositPairs::iterator it = isoDeposits_.begin(), ed = isoDeposits_.end();
@@ -231,8 +231,8 @@ namespace pat {
     /// Sets hcal IsoDeposit
     void hcalIsoDeposit(const IsoDeposit& dep) { setIsoDeposit(pat::HcalIso, dep); }
     /// Sets user-level IsoDeposit
-    void userIsoDeposit(const IsoDeposit& dep, uint8_t index = 0) {
-      setIsoDeposit(IsolationKeys(UserBaseIso + index), dep);
+    void userIsoDeposit(const IsoDeposit& dep, uint8_t lindex = 0) {
+      setIsoDeposit(IsolationKeys(UserBaseIso + lindex), dep);
     }
     /// vertex fit method
     bool passElectronVeto() const { return passElectronVeto_; }

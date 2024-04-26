@@ -45,7 +45,7 @@ public:
   public:
     typedef Basic2DVector<double> Base;
     LocalTrackAngles() {}
-    LocalTrackAngles(const Base &v) : Base(v) {}
+    LocalTrackAngles(const Base &va) : Base(va) {}
     LocalTrackAngles(double dxdz, double dydz) : Base(dxdz, dydz) {}
     double dxdz() const { return x(); }
     double dydz() const { return y(); }

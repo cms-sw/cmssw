@@ -59,8 +59,8 @@ namespace reco {
     };
 
     struct TrackFinder {
-      TrackFinder(const typename IPTI::input_container &tracks, const typename IPTI::input_container::value_type &track)
-          : tracks(tracks), track(track) {}
+      TrackFinder(const typename IPTI::input_container &ltracks, const typename IPTI::input_container::value_type &ltrack)
+          : tracks(ltracks), track(ltrack) {}
 
       bool operator()(const IndexedTrackData &idt) { return tracks[idt.first] == track; }
 
@@ -73,7 +73,7 @@ namespace reco {
     };
 
     struct IndexedVertexTrackSelector {
-      IndexedVertexTrackSelector(unsigned int index) : index(index) {}
+      IndexedVertexTrackSelector(unsigned int lindex) : index(lindex) {}
 
       bool operator()(const IndexedTrackData &idt) { return idt.second.associatedToVertex(index); }
 

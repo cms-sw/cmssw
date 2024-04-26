@@ -108,7 +108,7 @@ namespace PhysicsTools {
 	 * \short variable processor container
 	 */
     struct Processor {
-      inline Processor(VarProcessor *processor, unsigned int nOutput) : processor(processor), nOutput(nOutput) {}
+      inline Processor(VarProcessor *lprocessor, unsigned int lnOutput) : processor(lprocessor), nOutput(lnOutput) {}
 
       inline Processor(const Processor &orig) {
         processor = std::move(orig.processor);

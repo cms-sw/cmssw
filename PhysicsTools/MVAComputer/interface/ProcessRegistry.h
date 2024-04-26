@@ -64,7 +64,7 @@ namespace PhysicsTools {
     friend class Factory;
 
     /// instantiate registry and registers itself with \a name
-    ProcessRegistry(const char *name) : name(name) { registerProcess(name, this); }
+    ProcessRegistry(const char *lname) : name(lname) { registerProcess(lname, this); }
     virtual ~ProcessRegistry() { unregisterProcess(name); }
 
     /// create an instance of \a name, given a calibration \a calib and parent \a parent
@@ -97,11 +97,11 @@ namespace PhysicsTools {
   template <class Base_t, class CalibBase_t, class Parent_t, class Instance_t, class Calibration_t>
   class ProcessRegistryImpl : public ProcessRegistry<Base_t, CalibBase_t, Parent_t> {
   public:
-    ProcessRegistryImpl(const char *name) : ProcessRegistry<Base_t, CalibBase_t, Parent_t>(name) {}
+    ProcessRegistryImpl(const char *lname) : ProcessRegistry<Base_t, CalibBase_t, Parent_t>(lname) {}
 
   protected:
-    Base_t *instance(const char *name, const CalibBase_t *calib, Parent_t *parent) const override {
-      return new Instance_t(name, dynamic_cast<const Calibration_t *>(calib), parent);
+    Base_t *instance(const char *lname, const CalibBase_t *calib, Parent_t *parent) const override {
+      return new Instance_t(lname, dynamic_cast<const Calibration_t *>(calib), parent);
     }
   };  // class ProcessRegistryImpl
 

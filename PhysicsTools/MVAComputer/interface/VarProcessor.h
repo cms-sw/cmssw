@@ -46,7 +46,7 @@ namespace PhysicsTools {
 	 ************************************************************/
     struct Config {
       inline Config() : mask(Variable::FLAG_NONE), origin(0) {}
-      inline Config(Variable::Flags mask, unsigned int origin) : mask(mask), origin(origin) {}
+      inline Config(Variable::Flags lmask, unsigned int lorigin) : mask(lmask), origin(lorigin) {}
 
       Variable::Flags mask;
       unsigned int origin;
@@ -190,7 +190,7 @@ namespace PhysicsTools {
     protected:
       friend class VarProcessor;
 
-      ConfIterator(BitSet::Iterator cur, ConfigCtx &config) : cur(cur), config(config) {}
+      ConfIterator(BitSet::Iterator lcur, ConfigCtx &lconfig) : cur(lcur), config(lconfig) {}
 
     private:
       BitSet::Iterator cur;
@@ -273,27 +273,27 @@ namespace PhysicsTools {
     protected:
       friend class VarProcessor;
 
-      ValueIterator(BitSet::Iterator cur,
-                    double *values,
-                    int *conf,
-                    double *output,
-                    int *outConf,
-                    int *loop,
-                    LoopCtx &ctx,
-                    unsigned int offset)
-          : cur(cur),
-            ctx(ctx),
-            offset(offset),
-            start(values + offset),
-            values(values),
-            conf(conf),
-            loop(loop),
-            output(output + offset),
-            outConf(outConf) {
+      ValueIterator(BitSet::Iterator lcur,
+                    double *lvalues,
+                    int *lconf,
+                    double *loutput,
+                    int *loutConf,
+                    int *lloop,
+                    LoopCtx &lctx,
+                    unsigned int loffset)
+          : cur(lcur),
+            ctx(lctx),
+            offset(loffset),
+            start(lvalues + loffset),
+            values(lvalues),
+            conf(lconf),
+            loop(lloop),
+            output(loutput + loffset),
+            outConf(loutConf) {
         this->conf += cur();
         this->values += *this->conf;
-        if (loop && this->conf >= loop) {
-          this->values += offset;
+        if (lloop && this->conf >= lloop) {
+          this->values += loffset;
           this->loop = nullptr;
         }
       }

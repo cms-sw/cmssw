@@ -511,28 +511,28 @@ namespace pat {
 
     /// Update bare FwdPtr and FwdRef "forward" pointers while keeping the
     /// "back" pointers the same (i.e. the ref "forwarding")
-    void updateFwdCaloTowerFwdPtr(unsigned int index, const edm::Ptr<CaloTower>& updateFwd) {
-      if (index < caloTowersFwdPtr_.size()) {
-        caloTowersFwdPtr_[index] = CaloTowerFwdPtrVector::value_type(updateFwd, caloTowersFwdPtr_[index].backPtr());
+    void updateFwdCaloTowerFwdPtr(unsigned int lindex, const edm::Ptr<CaloTower>& updateFwd) {
+      if (lindex < caloTowersFwdPtr_.size()) {
+        caloTowersFwdPtr_[lindex] = CaloTowerFwdPtrVector::value_type(updateFwd, caloTowersFwdPtr_[lindex].backPtr());
       } else {
-        throw cms::Exception("OutOfRange") << "Index " << index << " is out of range" << std::endl;
+        throw cms::Exception("OutOfRange") << "Index " << lindex << " is out of range" << std::endl;
       }
     }
 
-    void updateFwdPFCandidateFwdPtr(unsigned int index, const edm::Ptr<reco::PFCandidate>& updateFwd) {
-      if (index < pfCandidatesFwdPtr_.size()) {
-        pfCandidatesFwdPtr_[index] =
-            reco::PFCandidateFwdPtrVector::value_type(updateFwd, pfCandidatesFwdPtr_[index].backPtr());
+    void updateFwdPFCandidateFwdPtr(unsigned int lindex, const edm::Ptr<reco::PFCandidate>& updateFwd) {
+      if (lindex < pfCandidatesFwdPtr_.size()) {
+        pfCandidatesFwdPtr_[lindex] =
+            reco::PFCandidateFwdPtrVector::value_type(updateFwd, pfCandidatesFwdPtr_[lindex].backPtr());
       } else {
-        throw cms::Exception("OutOfRange") << "Index " << index << " is out of range" << std::endl;
+        throw cms::Exception("OutOfRange") << "Index " << lindex << " is out of range" << std::endl;
       }
     }
 
-    void updateFwdTagInfoFwdPtr(unsigned int index, const edm::Ptr<reco::BaseTagInfo>& updateFwd) {
-      if (index < tagInfosFwdPtr_.size()) {
-        tagInfosFwdPtr_[index] = TagInfoFwdPtrCollection::value_type(updateFwd, tagInfosFwdPtr_[index].backPtr());
+    void updateFwdTagInfoFwdPtr(unsigned int lindex, const edm::Ptr<reco::BaseTagInfo>& updateFwd) {
+      if (lindex < tagInfosFwdPtr_.size()) {
+        tagInfosFwdPtr_[lindex] = TagInfoFwdPtrCollection::value_type(updateFwd, tagInfosFwdPtr_[lindex].backPtr());
       } else {
-        throw cms::Exception("OutOfRange") << "Index " << index << " is out of range" << std::endl;
+        throw cms::Exception("OutOfRange") << "Index " << lindex << " is out of range" << std::endl;
       }
     }
 
@@ -564,9 +564,9 @@ namespace pat {
     std::vector<std::string> const& subjetCollectionNames() const { return subjetLabels_; }
 
     /// Access to mass of subjets
-    double groomedMass(unsigned int index = 0) const {
-      auto const& sub = subjets(index);
-      return nSubjetCollections() > index && !sub.empty()
+    double groomedMass(unsigned int lindex = 0) const {
+      auto const& sub = subjets(lindex);
+      return nSubjetCollections() > lindex && !sub.empty()
                  ? std::accumulate(
                        sub.begin(),
                        sub.end(),

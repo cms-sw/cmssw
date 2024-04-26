@@ -23,36 +23,36 @@ struct SiPixelClusterThresholds {
   const uint8_t phase2KinkADC = 0;
 
   //Basic just for thresholds
-  SiPixelClusterThresholds(const int32_t layer1, const int32_t otherLayers)
-      : layer1(layer1), otherLayers(otherLayers) {}
+  SiPixelClusterThresholds(const int32_t llayer1, const int32_t lotherLayers)
+      : layer1(llayer1), otherLayers(lotherLayers) {}
 
   //For Phase1
-  SiPixelClusterThresholds(const int32_t layer1,
-                           const int32_t otherLayers,
-                           const float vCaltoElectronGain,
-                           const float vCaltoElectronGain_L1,
-                           const float vCaltoElectronOffset,
-                           const float vCaltoElectronOffset_L1)
-      : layer1(layer1),
-        otherLayers(otherLayers),
-        vCaltoElectronGain(vCaltoElectronGain),
-        vCaltoElectronGain_L1(vCaltoElectronGain_L1),
-        vCaltoElectronOffset(vCaltoElectronOffset),
-        vCaltoElectronOffset_L1(vCaltoElectronOffset_L1) {}
+  SiPixelClusterThresholds(const int32_t llayer1,
+                           const int32_t lotherLayers,
+                           const float lvCaltoElectronGain,
+                           const float lvCaltoElectronGain_L1,
+                           const float lvCaltoElectronOffset,
+                           const float lvCaltoElectronOffset_L1)
+      : layer1(llayer1),
+        otherLayers(lotherLayers),
+        vCaltoElectronGain(lvCaltoElectronGain),
+        vCaltoElectronGain_L1(lvCaltoElectronGain_L1),
+        vCaltoElectronOffset(lvCaltoElectronOffset),
+        vCaltoElectronOffset_L1(lvCaltoElectronOffset_L1) {}
 
   //For Phase2
-  SiPixelClusterThresholds(const int32_t layer1,
-                           const int32_t otherLayers,
-                           const float electronPerADCGain,
-                           const int8_t phase2ReadoutMode,
-                           const uint16_t phase2DigiBaseline,
-                           const uint8_t phase2KinkADC)
-      : layer1(layer1),
-        otherLayers(otherLayers),
-        electronPerADCGain(electronPerADCGain),
-        phase2ReadoutMode(phase2ReadoutMode),
-        phase2DigiBaseline(phase2DigiBaseline),
-        phase2KinkADC(phase2KinkADC) {}
+  SiPixelClusterThresholds(const int32_t llayer1,
+                           const int32_t lotherLayers,
+                           const float lelectronPerADCGain,
+                           const int8_t lphase2ReadoutMode,
+                           const uint16_t lphase2DigiBaseline,
+                           const uint8_t lphase2KinkADC)
+      : layer1(llayer1),
+        otherLayers(lotherLayers),
+        electronPerADCGain(lelectronPerADCGain),
+        phase2ReadoutMode(lphase2ReadoutMode),
+        phase2DigiBaseline(lphase2DigiBaseline),
+        phase2KinkADC(lphase2KinkADC) {}
 };
 
 #endif  // RecoLocalTracker_SiPixelClusterizer_interface_SiPixelClusterThresholds_h

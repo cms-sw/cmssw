@@ -211,10 +211,10 @@ namespace edm {
       }
 
     private:
-      const_iterator(const id_offset_vector::const_iterator& i_,
+      const_iterator(const id_offset_vector::const_iterator& it,
                      const id_offset_vector::const_iterator& end,
                      const container* values)
-          : values_(values), i_(i_), end_(end) {}
+          : values_(values), i_(it), end_(end) {}
       const container* values_;
       id_offset_vector::const_iterator i_, end_;
       friend class ValueMap<T>;

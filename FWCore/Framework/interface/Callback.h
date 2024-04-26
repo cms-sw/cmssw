@@ -58,11 +58,11 @@ namespace edm {
                          ServiceToken const& token,
                          ESParentContext const& iParent) {
         return Base::prefetchAsyncImpl(
-            [this](auto&& group, auto&& token, auto&& record, auto&& es) {
+            [this](auto&& group, auto&& ltoken, auto&& record, auto&& es) {
               constexpr bool emitPostPrefetchingSignal = true;
-              auto produceFunctor = [this](TRecord const& record) { return (*Base::produceFunction())(record); };
+              auto produceFunctor = [this](TRecord const& lrecord) { return (*Base::produceFunction())(lrecord); };
               return Base::makeProduceTask(
-                  group, token, record, es, emitPostPrefetchingSignal, std::move(produceFunctor));
+                  group, ltoken, record, es, emitPostPrefetchingSignal, std::move(produceFunctor));
             },
             std::move(iTask),
             iRecord,

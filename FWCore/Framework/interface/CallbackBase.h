@@ -150,8 +150,8 @@ namespace edm {
                         storeReturnedValues(produceFunctor(rec));
                         decorator_.post(rec);
                       });
-                    } catch (cms::Exception& iException) {
-                      exceptionContext(iException, callingContext_);
+                    } catch (cms::Exception& lException) {
+                      exceptionContext(lException, callingContext_);
                       exceptPtr = std::current_exception();
                     }
                     taskList_.doneWaiting(exceptPtr);

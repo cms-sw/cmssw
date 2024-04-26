@@ -60,7 +60,7 @@ namespace PhysicsTools {
     protected:
       friend class BitSet;
 
-      inline Manipulator(Word_t *word, unsigned int bit) : word(word), mask((Word_t)1 << bit) {}
+      inline Manipulator(Word_t *lword, unsigned int bit) : word(lword), mask((Word_t)1 << bit) {}
 
     private:
       Word_t *word;
@@ -116,7 +116,7 @@ namespace PhysicsTools {
     protected:
       friend class BitSet;
 
-      Iterator(Word_t *begin, Word_t *end) : begin(begin), store(begin), end(end), pos(0) {
+      Iterator(Word_t *lbegin, Word_t *lend) : begin(lbegin), store(lbegin), end(lend), pos(0) {
         if (store < end && !(*store & 1))
           ++*this;
       }
