@@ -109,10 +109,24 @@ std::vector<l1t::RegionalMuonCand> OMTFProcessor<GoldenPatternType>::getFinalcan
 
     //the charge is only for the constrained measurement. The constrained measurement is always defined for a valid candidate
     if (ptAssignment) {
-      candidate.setHwPt(myCand->getPtNNConstr());
+      if (myCand->getPdfSumConstr() > 0 && myCand->getFiredLayerCntConstr() >= 3)
+        candidate.setHwPt(myCand->getPtNNConstr());
+      else if (myCand->getPtUnconstr() > 0)
+        candidate.setHwPt(1);
+      else
+        candidate.setHwPt(0);
+
       candidate.setHwSign(myCand->getChargeNNConstr() < 0 ? 1 : 0);
     } else {
-      candidate.setHwPt(myCand->getPtConstr());
+      if (myCand->getPdfSumConstr() > 0 && myCand->getFiredLayerCntConstr() >= 3)
+        candidate.setHwPt(myCand->getPtConstr());
+      else if (myCand->getPtUnconstr() > 0)
+        //if myCand->getPdfSumConstr() == 0, the myCand->getPtConstr() might not be 0, see the end of GhostBusterPreferRefDt::select
+        //but 0 means empty candidate, 1 means pt=0, therefore here we set HwPt to 1, as the PtUnconstr > 0
+        candidate.setHwPt(1);
+      else
+        candidate.setHwPt(0);
+
       candidate.setHwSign(myCand->getChargeConstr() < 0 ? 1 : 0);
     }
 
@@ -139,7 +153,7 @@ std::vector<l1t::RegionalMuonCand> OMTFProcessor<GoldenPatternType>::getFinalcan
     if (this->myOmtfConfig->fwVersion() <= 6)
       quality = checkHitPatternValidity(myCand->getFiredLayerBits()) ? 0 | (1 << 2) | (1 << 3) : 0 | (1 << 2);  //12 : 4
 
-    if (abs(myCand->getEtaHw()) == 115 &&  //115 is eta 1.25                         rrrrrrrrccccdddddd
+    if (abs(myCand->getEtaHw()) == 115 &&  //115 is eta 1.25                        rrrrrrrrccccdddddd
         (static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("100000001110000000").to_ulong() ||
          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("000000001110000000").to_ulong() ||
          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("100000000110000000").to_ulong() ||
@@ -281,7 +295,7 @@ std::vector<l1t::RegionalMuonCand> OMTFProcessor<GoldenPatternType>::getFinalcan
     trackAddr[1] = myCand->getRefLayer();
     trackAddr[2] = myCand->getDisc();
     trackAddr[3] = myCand->getGpResultUnconstr().getPdfSumUnconstr();
-    if (candidate.hwPt() > 0) {
+    if (candidate.hwPt() > 0 || candidate.hwPtUnconstrained() > 0) {
       candidate.setTrackAddress(trackAddr);
       candidate.setTFIdentifiers(iProcessor, mtfType);
       result.push_back(candidate);
@@ -467,8 +481,10 @@ int OMTFProcessor<GoldenPatternType>::extrapolateDtPhiBFloatPoint(const int& ref
     phiExtr = round(deltaPhiExtr / omtfConfig->omtfPhiUnit());                         //[halfStrip]
 
     if (useEndcapStubsRInExtr) {
-      extrapolFactors[reflLayerIndex][targetLayer][abs(targetStubEta)] += extrFactor;
-      extrapolFactorsNorm[reflLayerIndex][targetLayer][abs(targetStubEta)]++;
+      //extrapolFactors[reflLayerIndex][targetLayer][std::abs(targetStubEta)] += extrFactor;
+      //extrapolFactorsNorm[reflLayerIndex][targetLayer][std::abs(targetStubEta)]++;
+      extrapolFactors[reflLayerIndex][targetLayer][std::abs(rME)] += extrFactor;
+      extrapolFactorsNorm[reflLayerIndex][targetLayer][std::abs(rME)]++;
       //extrapolFactors[reflLayerIndex][targetLayer][0] += extrFactor;
       //extrapolFactorsNorm[reflLayerIndex][targetLayer][0]++;
     } else {
@@ -508,7 +524,7 @@ int OMTFProcessor<GoldenPatternType>::extrapolateDtPhiBFixedPoint(const int& ref
     else
       extrFactor = extrapolFactors[reflLayerIndex][targetLayer][0];
   } else if (targetLayer == 1 || targetLayer == 3 || targetLayer == 5) {
-    int deltaPhi = targetStubPhi - refPhi;  //[halfStrip]
+    int deltaPhi = targetStubPhi - refPhi;  //here targetStubPhi is phi, not phiB
 
     int scaleFactor = this->myOmtfConfig->omtfPhiUnit() * this->myOmtfConfig->dtPhiBUnitsRad() * 512;
     //= 305 for phase-1, 512 is multiplier so that scaleFactor is non-zero integer
@@ -524,7 +540,9 @@ int OMTFProcessor<GoldenPatternType>::extrapolateDtPhiBFixedPoint(const int& ref
     if (useEndcapStubsRInExtr) {
       //if given abs(targetStubEta) value is not present in the map, it is added with default value of 0
       //so it should be good. The only problem is that the map can grow...
+      //TODO change to targetStubR when it is implemented in the FW
       extrFactor = extrapolFactors[reflLayerIndex][targetLayer][abs(targetStubEta)];
+      //extrFactor = extrapolFactors[reflLayerIndex][targetLayer][abs(targetStubR)];
     } else {
       extrFactor = extrapolFactors[reflLayerIndex][targetLayer][0];
     }

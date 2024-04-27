@@ -364,7 +364,7 @@ void GoldenPatternResult::finalise10() {
     //the efficiency difference between quality 8 and 12 seems to be at a level of 1-2%
     //but in the uGT menu e.g. the L1_DoubleMu0_Upt6_IP_Min1_Upt4 uses quality >= 0, so should be OK
 
-    //hard cut - the phiB of the refHit must fit to the pdf
+    //hard cut - the phiB of the refHit must fit to the pdfS
     //but this cut has sometimes side effect: there can be a muon which has has pdfSum = 0 for every pattern,
     //then in the OMTFSorter<GoldenPatternType>::sortRefHitResults the first pattern that has FiredLayerCnt >= 3 is chosen
     //and not the one with highest pdfSum as it should be
@@ -403,10 +403,13 @@ void GoldenPatternResult::finalise11() {
           //so in this case simply pdfSum += 0;
         }
       } else {
-        //the penalty is not applied here when the phiB does not fit to the pdf
-        //because when extrapolation from the ref layer using the phiB is applied
-        //it "normal" for the displaced muons to not fit to the pdf
-        pdfSum += stubResults[iLogicLayer].getPdfVal();  //bending layer not fired at all
+        //bending layer fired, but not fits to the pdf, N.B works only with the patterns having "no hit value" and with noHitValueInPdf = True
+        if (stubResults[iLogicLayer].getPdfVal() == 0) {
+          //high penalty, we set the pdf value in the  stubResults[iLogicLayer], so that this penalty is removed from pdfSumUnconstr
+          pdfSum -= 63;
+          stubResults[iLogicLayer].setPdfVal(-63);
+        } else
+          pdfSum += stubResults[iLogicLayer].getPdfVal();  //bending layer not fired at all
       }
     } else {
       if (iLogicLayer < 10 && stubResults[iLogicLayer].getPdfVal() == 0)
@@ -436,6 +439,10 @@ void GoldenPatternResult::finalise11() {
 ////////////////////////////////////////////
 ////////////////////////////////////////////
 std::ostream& operator<<(std::ostream& out, const GoldenPatternResult& gpResult) {
+  if (gpResult.omtfConfig == nullptr) {
+    out << "empty GoldenPatternResult" << std::endl;
+    return out;
+  }
   unsigned int refLayerLogicNum = gpResult.omtfConfig->getRefToLogicNumber()[gpResult.getRefLayer()];
 
   unsigned int sumOverFiredLayers = 0;
