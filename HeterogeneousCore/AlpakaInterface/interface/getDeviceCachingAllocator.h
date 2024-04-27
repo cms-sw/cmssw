@@ -59,8 +59,8 @@ namespace cms::alpakatools {
         throw;
       }
 
-        // GCC warns about the variable inside the lambda shadowing the one outside,
-        // even though the outermost one is not in scope.
+      // GCC warns about the variable inside the lambda shadowing the one outside,
+      // even though the outermost one is not in scope.
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wshadow"
       // use a custom deleter to destroy all objects and deallocate the memory
