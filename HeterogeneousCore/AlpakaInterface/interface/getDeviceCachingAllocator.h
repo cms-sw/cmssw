@@ -59,13 +59,18 @@ namespace cms::alpakatools {
         throw;
       }
 
+        // GCC warns about the variable inside the lambda shadowing the one outside,
+        // even though the outermost one is not in scope.
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wshadow"
       // use a custom deleter to destroy all objects and deallocate the memory
-      auto deleter = [size](Allocator* lptr) {
+      auto deleter = [size](Allocator* ptr) {
         for (size_t i = size; i > 0; --i) {
-          std::destroy_at(lptr + i - 1);
+          std::destroy_at(ptr + i - 1);
         }
-        std::allocator<Allocator>().deallocate(lptr, size);
+        std::allocator<Allocator>().deallocate(ptr, size);
       };
+#pragma GCC diagnostic pop
 
       return std::unique_ptr<Allocator[], decltype(deleter)>(ptr, deleter);
     }
