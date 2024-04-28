@@ -241,7 +241,7 @@ void EtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
       continue;
     }
 
-    const auto &position = simHit.localPosition();
+    const auto& position = simHit.localPosition();
 
     LocalPoint simscaled(convertMmToCm(position.x()), convertMmToCm(position.y()), convertMmToCm(position.z()));
     std::pair<uint8_t, uint8_t> pixel = geomUtil.pixelInModule(id, simscaled);

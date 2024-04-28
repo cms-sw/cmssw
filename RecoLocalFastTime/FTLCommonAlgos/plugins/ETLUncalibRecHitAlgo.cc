@@ -51,8 +51,8 @@ FTLUncalibratedRecHit ETLUncalibRecHitAlgo::makeRecHit(const ETLDataFrame& dataF
 
   unsigned char flag = 0;
 
-  LogDebug("ETLUncalibRecHit") << "ADC+: set the charge to: " << time_over_threshold << ' ' << sample.tot() << ' ' << toaLSBToNS_
-                               << ' ' << std::endl;
+  LogDebug("ETLUncalibRecHit") << "ADC+: set the charge to: " << time_over_threshold << ' ' << sample.tot() << ' '
+                               << toaLSBToNS_ << ' ' << std::endl;
 
   if (time_over_threshold == 0) {
     LogDebug("ETLUncalibRecHit") << "ADC+: set the time to: " << time << ' ' << sample.toa() << ' ' << toaLSBToNS_

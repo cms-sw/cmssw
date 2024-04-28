@@ -56,7 +56,7 @@ private:
   const std::string folder_;
   const float hitMinEnergy2Dis_;
 
-  edm::EDGetTokenT<CrossingFrame<PSimHit> > etlSimHitsToken_;
+  edm::EDGetTokenT<CrossingFrame<PSimHit>> etlSimHitsToken_;
 
   edm::ESGetToken<MTDGeometry, MTDDigiGeometryRecord> mtdgeoToken_;
   edm::ESGetToken<MTDTopology, MTDTopologyRcd> mtdtopoToken_;
@@ -92,7 +92,7 @@ private:
 EtlSimHitsValidation::EtlSimHitsValidation(const edm::ParameterSet& iConfig)
     : folder_(iConfig.getParameter<std::string>("folder")),
       hitMinEnergy2Dis_(iConfig.getParameter<double>("hitMinimumEnergy2Dis")) {
-  etlSimHitsToken_ = consumes<CrossingFrame<PSimHit> >(iConfig.getParameter<edm::InputTag>("inputTag"));
+  etlSimHitsToken_ = consumes<CrossingFrame<PSimHit>>(iConfig.getParameter<edm::InputTag>("inputTag"));
   mtdgeoToken_ = esConsumes<MTDGeometry, MTDDigiGeometryRecord>();
   mtdtopoToken_ = esConsumes<MTDTopology, MTDTopologyRcd>();
 }
@@ -148,7 +148,7 @@ void EtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
       continue;
     }
 
-    const auto &position = simHit.localPosition();
+    const auto& position = simHit.localPosition();
 
     LocalPoint simscaled(convertMmToCm(position.x()), convertMmToCm(position.y()), convertMmToCm(position.z()));
     std::pair<uint8_t, uint8_t> pixel = geomUtil.pixelInModule(id, simscaled);

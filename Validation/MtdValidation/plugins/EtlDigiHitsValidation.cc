@@ -267,17 +267,17 @@ void EtlDigiHitsValidation::bookHistograms(DQMStore::IBooker& ibook,
       ibook.book1D("EtlHitTimeZposD2", "ETL DIGI hits ToA (+Z, Second disk);ToA_{DIGI} [TDC counts]", 100, 0., 2000.);
 
   meHitToT_[0] = ibook.book1D("EtlHitToTZnegD1",
-                               "ETL DIGI hits ToT (-Z, Single(topo1D)/First(topo2D) disk);ToT_{DIGI} [TDC counts]",
-                               100,
-                               0.,
-                               500.);
+                              "ETL DIGI hits ToT (-Z, Single(topo1D)/First(topo2D) disk);ToT_{DIGI} [TDC counts]",
+                              100,
+                              0.,
+                              500.);
   meHitToT_[1] =
       ibook.book1D("EtlHitToTZnegD2", "ETL DIGI hits ToT (-Z, Second disk);ToT_{DIGI} [TDC counts]", 100, 0., 500.);
   meHitToT_[2] = ibook.book1D("EtlHitToTZposD1",
-                               "ETL DIGI hits ToT (+Z, Single(topo1D)/First(topo2D) disk);ToT_{DIGI} [TDC counts]",
-                               100,
-                               0.,
-                               500.);
+                              "ETL DIGI hits ToT (+Z, Single(topo1D)/First(topo2D) disk);ToT_{DIGI} [TDC counts]",
+                              100,
+                              0.,
+                              500.);
   meHitToT_[3] =
       ibook.book1D("EtlHitToTZposD2", "ETL DIGI hits ToT (+Z, Second disk);ToT_{DIGI} [TDC counts]", 100, 0., 500.);
 
@@ -408,7 +408,7 @@ void EtlDigiHitsValidation::bookHistograms(DQMStore::IBooker& ibook,
                         256.,
                         0.,
                         1024.);
-meHitToTvsQ_[0] = ibook.bookProfile(
+  meHitToTvsQ_[0] = ibook.bookProfile(
       "EtlHitToTvsQZnegD1",
       "ETL DIGI ToT vs charge (-Z, Single(topo1D)/First(topo2D) disk);Q_{DIGI} [ADC counts];ToT_{DIGI} [TDC counts]",
       50,
