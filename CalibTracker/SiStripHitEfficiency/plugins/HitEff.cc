@@ -640,7 +640,7 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es) {
                 prev_tmpTmeas = layerMeasurements.measurements(*prevTobLayer, tsos, *thePropagator, *estimator);
               }
             }
-            if (misLayer > k_LayersAtTIDEnd && misLayer < k_LayersAtTECEnd && previousMisLayer > k_LayersAtTIDEnd &&
+            else if (misLayer > k_LayersAtTIDEnd && misLayer < k_LayersAtTECEnd && previousMisLayer > k_LayersAtTIDEnd &&
                 previousMisLayer < k_LayersAtTECEnd) {  //TEC
               std::vector<ForwardDetLayer const*> negTECLayers =
                   measurementTrackerHandle->geometricSearchTracker()->negTecLayers();
