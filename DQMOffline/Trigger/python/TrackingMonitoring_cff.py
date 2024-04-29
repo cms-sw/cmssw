@@ -182,6 +182,13 @@ gsfTracksMonitoringHLT = egmTrackingMonHLT.clone(
     TrackProducer    = 'hltEgammaGsfTracks',
     allTrackProducer = 'hltEgammaGsfTracks'
 )
+
+from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+phase2_common.toModify(gsfTracksMonitoringHLT,
+                       primaryVertex    = 'hltPhase2PixelVertices',
+                       TrackProducer    = 'hltEgammaGsfTracksL1Seeded',
+                       allTrackProducer = 'hltEgammaGsfTracksL1Seeded')
+
 pixelTracksForElectronsTracksMonitoringHLT = egmTrackingMonHLT.clone(
     FolderName       = 'HLT/EGM/Tracking/pixelTracks',
     TrackProducer    = 'hltPixelTracksElectrons',
