@@ -12,6 +12,9 @@
 #include "DataFormats/Portable/interface/PortableCollectionCommon.h"
 
 // generic SoA-based product in host memory
+//
+// Moving from PortableHostCollection leaves the source object in a
+// "not isValid()" state that has 0 size
 template <typename T>
 class PortableHostCollection {
 public:
@@ -47,8 +50,31 @@ public:
   PortableHostCollection& operator=(PortableHostCollection const&) = delete;
 
   // movable
-  PortableHostCollection(PortableHostCollection&&) = default;
-  PortableHostCollection& operator=(PortableHostCollection&&) = default;
+  PortableHostCollection(PortableHostCollection&& other):
+    buffer_(std::move(other.buffer_)),
+    layout_(std::move(other.layout_)),
+    view_(std::move(other.view_))
+          {
+            other.buffer_.reset();
+            other.view_ = View();
+          }
+  PortableHostCollection& operator=(PortableHostCollection&& other) {
+    // Protection for self-assignment without if-statements, following
+    // what was suggested in the C++ core guidelines
+    {
+      auto tmp = std::move(other.buffer_);
+      other.buffer_.reset();
+      buffer_.reset();
+      buffer_ = std::move(tmp);
+    }
+    {
+      auto tmp = std::move(other.view_);
+      other.view_ = View();
+      view_ = View();
+      view_ = std::move(tmp);
+    }
+    return *this;
+  }
 
   // default destructor
   ~PortableHostCollection() = default;

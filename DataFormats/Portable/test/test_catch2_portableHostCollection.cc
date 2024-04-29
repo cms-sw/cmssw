@@ -49,5 +49,38 @@ TEST_CASE("PortableHostCollection<T>", s_tag) {
     for (int i = 0; i < size; ++i) {
       REQUIRE(coll->id()[i] == i * 2);
     }
+
+    SECTION("Move constructor") {
+      PortableHostCollection<TestSoA> coll2(std::move(coll));
+      REQUIRE(coll2.size() == size);
+      REQUIRE(coll2.isValid());
+
+      REQUIRE(coll.size() == 0);
+      REQUIRE(not coll.isValid());
+    }
+
+    SECTION("Move assignment") {
+      PortableHostCollection<TestSoA> coll2(2*size, cms::alpakatools::host());
+      REQUIRE(coll2.size() == 2*size);
+      REQUIRE(coll2.isValid());
+
+      coll2 = std::move(coll);
+      REQUIRE(coll2.size() == size);
+      REQUIRE(coll2.isValid());
+
+      REQUIRE(coll.size() == 0);
+      REQUIRE(not coll.isValid());
+
+      SECTION("Self assignment") {
+        coll2 = std::move(coll2);
+        REQUIRE(coll2.size() == size);
+        REQUIRE(coll2.isValid());
+
+        REQUIRE(coll2->num() == 42);
+        for (int i = 0; i < size; ++i) {
+          REQUIRE(coll2->id()[i] == i * 2);
+        }
+      }
+    }
   }
 }
