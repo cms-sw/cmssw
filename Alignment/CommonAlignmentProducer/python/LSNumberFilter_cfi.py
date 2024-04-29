@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-lsNumberFilter = cms.EDFilter("LSNumberFilter",
-                              minLS = cms.untracked.uint32(21)
-                              )
+from Alignment.CommonAlignmentProducer.lsNumberFilter_cfi import lsNumberFilter
+LSNumberFilter = lsNumberFilter.clone(minLS = 21,
+                                      veto_HLT_Menu = ["LumiScan"])
