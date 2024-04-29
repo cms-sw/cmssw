@@ -13,10 +13,11 @@
 #include "RecoParticleFlow/PFRecHitProducer/interface/alpaka/PFRecHitParamsDeviceCollection.h"
 #include "RecoParticleFlow/PFRecHitProducer/interface/alpaka/PFRecHitTopologyDeviceCollection.h"
 
-class PFRecHitHCALTopologyRecord;
-class PFRecHitECALTopologyRecord;
+// Forward declaration of EventSetup records, to avoid propagating the dependency on framework headers to device code
 class PFRecHitHCALParamsRecord;
+class PFRecHitHCALTopologyRecord;
 class EcalPFRecHitThresholdsRcd;
+class PFRecHitECALTopologyRecord;
 
 // This file defines two structs:
 // 1) ALPAKA_ACCELERATOR_NAMESPACE::particleFlowRecHitProducer::HCAL
