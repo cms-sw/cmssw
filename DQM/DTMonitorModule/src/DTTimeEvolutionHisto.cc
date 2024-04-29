@@ -161,7 +161,7 @@ void DTTimeEvolutionHisto::updateTimeSlot(int ls, int nEventsInLS) {
       if (nEventsInLastTimeSlot.size() > 1)
         binLabel << "-" << lastLSinTimeSlot;
 
-      if (lastLSinTimeSlot % (5 * (int)theLSPrescale) == 0)  //JF allow easy reading of labels
+      if (nBookedBins % (5 * (int)theLSPrescale) == 0)  //JF allow easy reading of labels
         histo->setBinLabel(nBookedBins, binLabel.str(), 1);
 
       // reset the counters for the time slot
