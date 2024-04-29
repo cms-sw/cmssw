@@ -112,12 +112,12 @@ void ParticleTransformerAK4ONNXJetTagsProducer::produce(edm::Event& iEvent, cons
       get_input_sizes(taginfo);
 
       // run prediction with dynamic batch size per event
-      input_shapes_ = {{(int64_t)1, (int64_t)n_cpf_, (int64_t)parT::n_features_cpf},
-                       {(int64_t)1, (int64_t)n_npf_, (int64_t)parT::n_features_npf},
-                       {(int64_t)1, (int64_t)n_sv_, (int64_t)parT::n_features_sv},
-                       {(int64_t)1, (int64_t)n_cpf_, (int64_t)parT::n_pairwise_features_cpf},
-                       {(int64_t)1, (int64_t)n_npf_, (int64_t)parT::n_pairwise_features_npf},
-                       {(int64_t)1, (int64_t)n_sv_, (int64_t)parT::n_pairwise_features_sv}};
+      input_shapes_ = {{(int64_t)1, (int64_t)n_cpf_, (int64_t)parT::N_InputFeatures.at(parT::kChargedCandidates)},
+                       {(int64_t)1, (int64_t)n_npf_, (int64_t)parT::N_InputFeatures.at(parT::kNeutralCandidates)},
+                       {(int64_t)1, (int64_t)n_sv_, (int64_t)parT::N_InputFeatures.at(parT::kVertices)},
+                       {(int64_t)1, (int64_t)n_cpf_, (int64_t)parT::N_InputFeatures.at(parT::kChargedCandidates4Vec)},
+                       {(int64_t)1, (int64_t)n_npf_, (int64_t)parT::N_InputFeatures.at(parT::kNeutralCandidates4Vec)},
+                       {(int64_t)1, (int64_t)n_sv_, (int64_t)parT::N_InputFeatures.at(parT::kVertices4Vec)}};
 
       outputs = globalCache()->run(input_names_, data_, input_shapes_, output_names_, 1)[0];
       assert(outputs.size() == flav_names_.size());
@@ -139,21 +139,17 @@ void ParticleTransformerAK4ONNXJetTagsProducer::get_input_sizes(
     const reco::FeaturesTagInfo<btagbtvdeep::ParticleTransformerAK4Features> taginfo) {
   const auto& features = taginfo.features();
 
-  n_cpf_ = features.c_pf_features.size();
-  n_npf_ = features.n_pf_features.size();
-  n_sv_ = features.sv_features.size();
-
-  n_cpf_ = std::clamp(n_cpf_, (unsigned int)1, (unsigned int)25);
-  n_npf_ = std::clamp(n_npf_, (unsigned int)1, (unsigned int)25);
-  n_sv_ = std::clamp(n_sv_, (unsigned int)1, (unsigned int)5);
+  n_cpf_ = std::clamp((unsigned int)features.c_pf_features.size(), (unsigned int)1, (unsigned int)parT::n_cpf_accept);
+  n_npf_ = std::clamp((unsigned int)features.n_pf_features.size(), (unsigned int)1, (unsigned int)parT::n_npf_accept);
+  n_sv_ = std::clamp((unsigned int)features.sv_features.size(), (unsigned int)1, (unsigned int)parT::n_sv_accept);
 
   input_sizes_ = {
-      n_cpf_ * parT::n_features_cpf,
-      n_npf_ * parT::n_features_npf,
-      n_sv_ * parT::n_features_sv,
-      n_cpf_ * parT::n_pairwise_features_cpf,
-      n_npf_ * parT::n_pairwise_features_npf,
-      n_sv_ * parT::n_pairwise_features_sv,
+      n_cpf_ * parT::N_InputFeatures.at(parT::kChargedCandidates),
+      n_npf_ * parT::N_InputFeatures.at(parT::kNeutralCandidates),
+      n_sv_ * parT::N_InputFeatures.at(parT::kVertices),
+      n_cpf_ * parT::N_InputFeatures.at(parT::kChargedCandidates4Vec),
+      n_npf_ * parT::N_InputFeatures.at(parT::kNeutralCandidates4Vec),
+      n_sv_ * parT::N_InputFeatures.at(parT::kVertices4Vec),
   };
   // init data storage
   data_.clear();
@@ -165,69 +161,26 @@ void ParticleTransformerAK4ONNXJetTagsProducer::get_input_sizes(
 }
 
 void ParticleTransformerAK4ONNXJetTagsProducer::make_inputs(btagbtvdeep::ParticleTransformerAK4Features features) {
-  float* ptr = nullptr;
+  //float* ptr = nullptr;
   const float* start = nullptr;
   unsigned offset = 0;
 
+  auto max_c_pf_n = std::min(features.c_pf_features.size(), (std::size_t)n_cpf_);
+  auto max_n_pf_n = std::min(features.n_pf_features.size(), (std::size_t)n_npf_);
+  auto max_sv_n = std::min(features.sv_features.size(), (std::size_t)n_sv_);
+
   // c_pf candidates
-  const auto max_c_pf_n = std::min(features.c_pf_features.size(), (std::size_t)n_cpf_);
-  for (std::size_t c_pf_n = 0; c_pf_n < max_c_pf_n; c_pf_n++) {
-    const auto& c_pf_features = features.c_pf_features.at(c_pf_n);
-    ptr = &data_[parT::kChargedCandidates][offset + c_pf_n * parT::n_features_cpf];
-    start = ptr;
-    parT_tensor_filler(ptr, parT::kChargedCandidates, c_pf_features);
-    assert(start + parT::n_features_cpf - 1 == ptr);
-  }
-
+  parT_tensor_filler(data_, parT::kChargedCandidates, features.c_pf_features, max_c_pf_n, start, offset);
   // n_pf candidates
-  const auto max_n_pf_n = std::min(features.n_pf_features.size(), (std::size_t)n_npf_);
-  for (std::size_t n_pf_n = 0; n_pf_n < max_n_pf_n; n_pf_n++) {
-    const auto& n_pf_features = features.n_pf_features.at(n_pf_n);
-    ptr = &data_[parT::kNeutralCandidates][offset + n_pf_n * parT::n_features_npf];
-    start = ptr;
-    parT_tensor_filler(ptr, parT::kNeutralCandidates, n_pf_features);
-    assert(start + parT::n_features_npf - 1 == ptr);
-  }
-
+  parT_tensor_filler(data_, parT::kNeutralCandidates, features.n_pf_features, max_n_pf_n, start, offset);
   // sv candidates
-  const auto max_sv_n = std::min(features.sv_features.size(), (std::size_t)n_sv_);
-  for (std::size_t sv_n = 0; sv_n < max_sv_n; sv_n++) {
-    const auto& sv_features = features.sv_features.at(sv_n);
-    ptr = &data_[parT::kVertices][offset + sv_n * parT::n_features_sv];
-    start = ptr;
-    parT_tensor_filler(ptr, parT::kVertices, sv_features);
-    assert(start + parT::n_features_sv - 1 == ptr);
-  }
-
+  parT_tensor_filler(data_, parT::kVertices, features.sv_features, max_sv_n, start, offset);
   // cpf pairwise features (4-vectors)
-  const auto max_cpf_n = std::min(features.c_pf_features.size(), (std::size_t)n_cpf_);
-  for (std::size_t cpf_n = 0; cpf_n < max_cpf_n; cpf_n++) {
-    const auto& cpf_pairwise_features = features.c_pf_features.at(cpf_n);
-    ptr = &data_[parT::kChargedCandidates4Vec][offset + cpf_n * parT::n_pairwise_features_cpf];
-    start = ptr;
-    parT_tensor_filler(ptr, parT::kChargedCandidates4Vec, cpf_pairwise_features);
-    assert(start + parT::n_pairwise_features_cpf - 1 == ptr);
-  }
-
+  parT_tensor_filler(data_, parT::kChargedCandidates4Vec, features.c_pf_features, max_c_pf_n, start, offset);
   // npf pairwise features (4-vectors)
-  const auto max_npf_n = std::min(features.n_pf_features.size(), (std::size_t)n_npf_);
-  for (std::size_t npf_n = 0; npf_n < max_npf_n; npf_n++) {
-    const auto& npf_pairwise_features = features.n_pf_features.at(npf_n);
-    ptr = &data_[parT::kNeutralCandidates4Vec][offset + npf_n * parT::n_pairwise_features_npf];
-    start = ptr;
-    parT_tensor_filler(ptr, parT::kNeutralCandidates4Vec, npf_pairwise_features);
-    assert(start + parT::n_pairwise_features_npf - 1 == ptr);
-  }
-
+  parT_tensor_filler(data_, parT::kNeutralCandidates4Vec, features.n_pf_features, max_n_pf_n, start, offset);
   // sv pairwise features (4-vectors)
-  const auto max_sv_N = std::min(features.sv_features.size(), (std::size_t)n_sv_);
-  for (std::size_t sv_N = 0; sv_N < max_sv_N; sv_N++) {
-    const auto& sv_pairwise_features = features.sv_features.at(sv_N);
-    ptr = &data_[parT::kVertices4Vec][offset + sv_N * parT::n_pairwise_features_sv];
-    start = ptr;
-    parT_tensor_filler(ptr, parT::kVertices4Vec, sv_pairwise_features);
-    assert(start + parT::n_pairwise_features_sv - 1 == ptr);
-  }
+  parT_tensor_filler(data_, parT::kVertices4Vec, features.sv_features, max_sv_n, start, offset);
 }
 
 //define this as a plug-in

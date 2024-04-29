@@ -39,7 +39,6 @@ private:
   std::vector<std::string> output_names_;
 
   bool skippedInference_ = false;
-  bool padding_ = true;
 };
 
 ParticleTransformerAK4SonicJetTagsProducer::ParticleTransformerAK4SonicJetTagsProducer(const edm::ParameterSet& iConfig)
@@ -75,11 +74,11 @@ void ParticleTransformerAK4SonicJetTagsProducer::acquire(edm::Event const &iEven
   client_->setBatchSize(tag_infos->size());
   skippedInference_ = false;
   if (tag_infos->empty()) return;
+
+  // Find the max n_cpf, n_npf and n_vtx among all the jets in an event. 
   unsigned int max_n_cpf_counter = 0; 
   unsigned int max_n_npf_counter = 0; 
   unsigned int max_n_vtx_counter = 0; 
-
-  // Find the max n_cpf, n_npf and n_vtx among all the jets in an event. 
   for (unsigned jet_n = 0; jet_n < tag_infos->size(); ++jet_n) {
     max_n_cpf_counter = std::max(max_n_cpf_counter,
                          static_cast<unsigned int>(((*tag_infos)[jet_n]).features().c_pf_features.size()));
@@ -97,92 +96,37 @@ void ParticleTransformerAK4SonicJetTagsProducer::acquire(edm::Event const &iEven
   }
     
   // all the jets in the same event will fill up the same amount of n_cpf, n_npf, n_vtx and send to server
-  const unsigned int max_n_cpf = std::clamp(max_n_cpf_counter, (unsigned int)0, (unsigned int)25);
-  const unsigned int max_n_npf = std::clamp(max_n_npf_counter, (unsigned int)0, (unsigned int)25);
-  const unsigned int max_n_vtx = std::clamp(max_n_vtx_counter, (unsigned int)0, (unsigned int)5);
+  const unsigned int target_n_cpf = std::clamp(max_n_cpf_counter, (unsigned int)1, (unsigned int)parT::n_cpf_accept);
+  const unsigned int target_n_npf = std::clamp(max_n_npf_counter, (unsigned int)1, (unsigned int)parT::n_npf_accept);
+  const unsigned int target_n_vtx = std::clamp(max_n_vtx_counter, (unsigned int)1, (unsigned int)parT::n_sv_accept);
 
+  const std::map<parT::InputFeatures, unsigned int> target_n {
+    {parT::kChargedCandidates,     target_n_cpf},
+    {parT::kNeutralCandidates,     target_n_npf},
+    {parT::kVertices,              target_n_vtx},
+    {parT::kChargedCandidates4Vec, target_n_cpf},
+    {parT::kNeutralCandidates4Vec, target_n_npf},
+    {parT::kVertices4Vec,          target_n_vtx}
+  };
+  
   for (unsigned igroup = 0; igroup < input_names_.size(); ++igroup) {
     const auto &group_name = input_names_[igroup];
     auto &input = iInput.at(group_name);
-    unsigned target = 0;
-    
-    if (igroup == parT::kChargedCandidates || igroup == parT::kChargedCandidates4Vec) target = std::max((unsigned int)1, max_n_cpf);
-    else if (igroup == parT::kNeutralCandidates || igroup == parT::kNeutralCandidates4Vec) target = std::max((unsigned int)1, max_n_npf);
-    else if (igroup == parT::kVertices || igroup == parT::kVertices4Vec) target = std::max((unsigned int)1, max_n_vtx);
-    
-    input.setShape(0, target);
+   
+    const parT::InputFeatures ifeature = parT::InputIndexes.at(igroup);
+    input.setShape(0, target_n.at(ifeature));
     auto tdata = input.allocate<float>(true);
+
     for (unsigned jet_n = 0; jet_n < tag_infos->size(); ++jet_n) {
       const auto &taginfo = (*tag_infos)[jet_n];
       const auto &features = taginfo.features();
       auto &vdata = (*tdata)[jet_n];
-      // Loop through the n cpf, and in the case that n_cpf is smaller than max_n_cpf, add padding values to all features
-      if (igroup == parT::kChargedCandidates) {
-        unsigned int n_cpf = features.c_pf_features.size();
-        n_cpf = std::clamp(n_cpf, (unsigned int)0,  (unsigned int)25);
-        for (unsigned int count = 0; count < n_cpf; count++) {
-          parT_tensor_filler(vdata, parT::kChargedCandidates, features.c_pf_features.at(count));
-        }
-        if (padding_ && n_cpf < max_n_cpf)
-          vdata.insert(vdata.end(), (max_n_cpf - n_cpf) * parT::n_features_cpf, 0); // Add 0 to unfilled part as padding value
-        if (max_n_cpf == 0) 
-          vdata.insert(vdata.end(), parT::n_features_cpf, 0); // Add at least 1 row of 0 for a jet that has 0 cpf/npf/sv.
-      }
-      else if (igroup == parT::kNeutralCandidates) {
-        unsigned int n_npf = features.n_pf_features.size();
-        n_npf = std::clamp(n_npf, (unsigned int)0, (unsigned int)25);
-        for (unsigned int count = 0; count < n_npf; count++) {
-          parT_tensor_filler(vdata, parT::kNeutralCandidates, features.n_pf_features.at(count));
-        }
-        if (padding_ && n_npf < max_n_npf)
-          vdata.insert(vdata.end(), (max_n_npf - n_npf) * parT::n_features_npf, 0); // Add 0 to unfilled part as padding value
-        if (max_n_npf == 0)
-          vdata.insert(vdata.end(), parT::n_features_npf, 0);
-      }
-      else if (igroup == parT::kVertices) {
-        unsigned int n_vtx= features.sv_features.size();
-        n_vtx = std::clamp(n_vtx, (unsigned int)0, (unsigned int)5);
-        for (unsigned int count = 0; count < n_vtx; count++) {
-          parT_tensor_filler(vdata, parT::kVertices, features.sv_features.at(count));
-        }
-        if (padding_ && n_vtx < max_n_vtx)
-          vdata.insert(vdata.end(), (max_n_vtx - n_vtx) * parT::n_features_sv, 0); 
-        if (max_n_vtx == 0)
-          vdata.insert(vdata.end(), parT::n_features_sv, 0);
-      }
-      else if (igroup == parT::kChargedCandidates4Vec) {
-        unsigned int n_cpf = features.c_pf_features.size();
-        n_cpf = std::clamp(n_cpf,  (unsigned int)0,  (unsigned int)25);
-        for (unsigned int count = 0; count < n_cpf; count++) {
-          parT_tensor_filler(vdata, parT::kChargedCandidates4Vec, features.c_pf_features.at(count));
-        }
-        if (padding_ && n_cpf < max_n_cpf) 
-          vdata.insert(vdata.end(), (max_n_cpf - n_cpf) * parT::n_pairwise_features_cpf, 0); 
-        if (max_n_cpf == 0)
-          vdata.insert(vdata.end(), parT::n_pairwise_features_cpf, 0);
-      }
-      else if (igroup == parT::kNeutralCandidates4Vec) {
-        unsigned int n_npf = features.n_pf_features.size();
-        n_npf = std::clamp(n_npf, (unsigned int)0, (unsigned int)25);
-        for (unsigned int count = 0; count < n_npf; count++) {
-          parT_tensor_filler(vdata, parT::kNeutralCandidates4Vec, features.n_pf_features.at(count));
-        }
-        if (padding_ && n_npf < max_n_npf)
-          vdata.insert(vdata.end(), (max_n_npf - n_npf) * parT::n_pairwise_features_npf, 0);
-        if (max_n_npf == 0)
-          vdata.insert(vdata.end(), parT::n_pairwise_features_npf, 0);
-      }
-      else if (igroup == parT::kVertices4Vec) {
-        unsigned int n_vtx = features.sv_features.size();
-        n_vtx = std::clamp(n_vtx, (unsigned int)0, (unsigned int)5);
-        for (unsigned int count = 0; count < n_vtx; count++) {
-          parT_tensor_filler(vdata, parT::kVertices4Vec, features.sv_features.at(count));
-        }
-        if (padding_ && n_vtx < max_n_vtx)
-          vdata.insert(vdata.end(), (max_n_vtx - n_vtx) * parT::n_pairwise_features_sv, 0);
-        if (max_n_vtx == 0)
-          vdata.insert(vdata.end(), parT::n_pairwise_features_sv, 0);
-      }
+      if (ifeature == parT::kChargedCandidates || ifeature == parT::kChargedCandidates4Vec) 
+        parT_tensor_filler(vdata, ifeature, features.c_pf_features, target_n_cpf);
+      else if (ifeature == parT::kNeutralCandidates || ifeature == parT::kNeutralCandidates4Vec) 
+        parT_tensor_filler(vdata, ifeature, features.n_pf_features, target_n_npf);
+      else if (ifeature == parT::kVertices || ifeature == parT::kVertices4Vec)
+        parT_tensor_filler(vdata, ifeature, features.sv_features, target_n_vtx);
     }
     input.toServer(tdata);
   } 
