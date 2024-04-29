@@ -19,6 +19,8 @@
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/ESProducer.h"
 #include "CalorimeterDefinitions.h"
+#include "RecoParticleFlow/PFRecHitProducer/interface/PFRecHitParamsRecord.h"
+#include "RecoParticleFlow/PFRecHitProducer/interface/PFRecHitTopologyRecord.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
   using namespace particleFlowRecHitProducer;
