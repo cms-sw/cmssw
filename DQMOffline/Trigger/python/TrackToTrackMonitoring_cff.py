@@ -79,6 +79,15 @@ hltEgammaGsfTracksVsOfflinePV = TrackToTrackComparisonHists.clone(
     monitoredPrimaryVertices = "hltVerticesPFSelector"
 )
 
+from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+phase2_common.toModify(hltEgammaGsfTracksVsOffline,
+                       monitoredTrack           = cms.InputTag("hltEgammaGsfTracksL1Seeded"),
+                       monitoredPrimaryVertices = cms.InputTag("offlinePrimaryVertices","","HLT"))
+
+phase2_common.toModify(hltEgammaGsfTracksVsOfflinePV,
+                       monitoredTrack           = cms.InputTag("hltEgammaGsfTracksL1Seeded"),
+                       monitoredPrimaryVertices = cms.InputTag("offlinePrimaryVertices","","HLT"))
+
 hltToOfflineTrackValidatorSequence = cms.Sequence(
     cms.ignore(highPurityTracks)
     + hltMerged2highPurity
