@@ -621,8 +621,8 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es) {
             const TrajectoryStateOnSurface tsos = itm->updatedState();
             std::vector<DetLayer::DetWithState> compatDets = detlayer->compatibleDets(tsos, *thePropagator, *estimator);
 
-            if (misLayer > k_LayersStart && misLayer < k_LayersAtTOBEnd && previousMisLayer > k_LayersStart &&
-                previousMisLayer < k_LayersAtTOBEnd) {  //Barrel case
+            if (misLayer > k_LayersStart && misLayer <= k_LayersAtTOBEnd && previousMisLayer > k_LayersStart &&
+                previousMisLayer <= k_LayersAtTOBEnd) {  //Barrel case
               std::vector<BarrelDetLayer const*> barrelTIBLayers =
                   measurementTrackerHandle->geometricSearchTracker()->tibLayers();
               std::vector<BarrelDetLayer const*> barrelTOBLayers =
