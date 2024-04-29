@@ -438,7 +438,7 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es) {
           }
 
           //##### Layers from TEC
-          if (diffPreviousLayer == -3 && missedLayer > k_LayersAtTIDEnd && missedLayer <= k_LayersAtTECEnd &&
+          else if (diffPreviousLayer == -3 && missedLayer > k_LayersAtTIDEnd && missedLayer <= k_LayersAtTECEnd &&
               previousMissedLayer > k_LayersAtTIDEnd && previousMissedLayer <= k_LayersAtTECEnd) {
             missHitPerLayer[missedLayer] += 1;
             missHitPerLayer[previousMissedLayer] += 1;
