@@ -97,7 +97,8 @@ void DTTimeEvolutionHisto::setTimeSlotValue(float value, int timeSlot) {
       } else if (bin != nBookedBins) {
         histo->setBinContent(bin, histo->getBinContent(bin + 1));
         histo->setBinError(bin, histo->getBinError(bin + 1));
-        histo->setBinLabel(bin, histo->getTH1F()->GetXaxis()->GetBinLabel(bin + 1), 1);
+        histo->setBinLabel(bin, histo->getTH1F()->GetXaxis()->GetBinLabel(bin + 1), 1);  //slide to left
+        histo->setBinLabel(bin + 1, "", 1);  //delete old label to avoid duplication
       }
     }
     histo->setBinContent(nBookedBins, value);
@@ -164,8 +165,10 @@ void DTTimeEvolutionHisto::updateTimeSlot(int ls, int nEventsInLS) {
         binLabelCounter++;
       }
 
-      if (binLabelCounter % (5 * (int)theLSPrescale) == 0)  //JF allow easy reading of labels
+      // Set only labels which can be seen in the plot without zooming
+      if (binLabelCounter % ((int)(nBookedBins / 25)) == 0)  //around 25 labels fit in a full size hist
         histo->setBinLabel(nBookedBins, binLabel.str(), 1);
+      //first label, LS=1 ideally, is guaranteed by setting binLabelCounter=-1 in constructor
 
       // reset the counters for the time slot
       nEventsInLastTimeSlot.clear();
