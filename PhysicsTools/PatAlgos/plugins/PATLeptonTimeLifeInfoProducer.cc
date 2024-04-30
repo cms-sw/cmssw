@@ -12,6 +12,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
@@ -169,6 +170,14 @@ void PATLeptonTimeLifeInfoProducer<T>::produceAndFillIPInfo(const T& lepton,
     AnalyticalImpactPointExtrapolator extrapolator(transTrack.field());
     TrajectoryStateOnSurface closestState =
         extrapolator.extrapolate(transTrack.impactPointState(), RecoVertex::convertPos(pv.position()));
+    if (!closestState.isValid()) {
+      edm::LogError("PATLeptonTimeLifeInfoProducer")
+          << "closestState not valid! From:\n"
+          << "transTrack.impactPointState():\n"
+          << transTrack.impactPointState() << "RecoVertex::convertPos(pv.position()):\n"
+          << RecoVertex::convertPos(pv.position());
+      return;
+    }
     GlobalPoint pca = closestState.globalPosition();
     GlobalError pca_cov = closestState.cartesianError().position();
     GlobalVector ip_vec = GlobalVector(pca.x() - pv.x(), pca.y() - pv.y(), pca.z() - pv.z());
