@@ -26,7 +26,7 @@ struct HGCalFEDReadoutSequence_t {
   ///>dense sequence of modules in the readout: the type is the one in use in the cell mapping
   std::vector<int> readoutTypes_;
   ///>dense sequence of offsets for modules, e-Rx and channel data
-  std::vector<uint32_t> modOffsets_, erxOffsets_, chDataOffsets_;
+  std::vector<uint32_t> modOffsets_, erxOffsets_, chDataOffsets_,enabledERX_;
   COND_SERIALIZABLE;
 };
 
@@ -139,6 +139,8 @@ public:
       fedit.modOffsets_.resize(nmods, 0);
       fedit.erxOffsets_.resize(nmods, 0);
       fedit.chDataOffsets_.resize(nmods, 0);
+      fedit.enabledERX_.resize(nmods, 0);
+
       for (size_t i = 0; i < nmods; i++) {
         uint32_t type_val = fedit.readoutTypes_[i];
 
@@ -155,6 +157,9 @@ public:
         uint32_t baseData_offset = dataOffsets_[type_val];
         uint32_t internalData_offset = globalTypesNWords_[type_val] * typeCounters[type_val];
         fedit.chDataOffsets_[i] = baseData_offset + internalData_offset;
+
+        //enable erx flags
+        fedit.enabledERX_[i] = (0b1<<globalTypesNErx_[type_val])-0b1;
 
         typeCounters[type_val]++;
       }

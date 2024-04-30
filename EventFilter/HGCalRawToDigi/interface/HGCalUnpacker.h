@@ -1,6 +1,6 @@
 /****************************************************************************
  *
- * Unpacker to decode HGCal raw data from SLinks / Capture blocks / ECON-Ds.
+ * Unpacker to decode HGCal raw data from SLinks
  * Authors:
  *   Yulun Miao, Northwestern University
  *   Huilin Qu, CERN
@@ -13,85 +13,16 @@
 
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/HGCalDigi/interface/HGCalDigiHost.h"
-
-// TODO @hqucms
-// #include "DataFormats/HGCalDigi/interface/HGCalFlaggedECONDInfo.h"
+#include "DataFormats/HGCalDigi/interface/HGCalRawDataDefinitions.h"
+#include "CondFormats/HGCalObjects/interface/HGCalMappingModuleIndexer.h"
+#include "CondFormats/HGCalObjects/interface/HGCalMappingCellIndexer.h"
 
 #include <cstdint>
 #include <functional>
 #include <vector>
 
-struct HGCalECONDFlags {
-  // TODO @hqucms
-  // revisit the content and move to a central place ?
-
-  // uint32_t sLinkBOE{0x2a};            ///< S-Link BOE pattern
-  // uint32_t cbHeaderMarker{0x5f};      ///< Capture block reserved pattern for a new event
-  // uint32_t econdHeaderMarker{0x154};  ///< ECON-D header Marker pattern for a new event
-  // uint32_t maxFEDsPerEndcap{512};     ///< maximum number of FEDs on one side
-  // uint32_t sLinkCaptureBlockMax{10};  ///< maximum number of capture blocks in one S-Link
-  // uint32_t captureBlockECONDMax{12};  ///< maximum number of ECON-Ds in one capture block
-  // uint32_t econdERXMax{12};           ///< maximum number of eRxs in one ECON-D
-  // uint32_t erxChannelMax{37};         ///< maximum number of channels in one eRx
-  // uint32_t payloadLengthMax{469};     ///< maximum length of payload length
-  // uint32_t channelMax{7000000};       ///< maximum number of channels unpacked
-  // uint32_t commonModeMax{4000000};    ///< maximum number of common modes unpacked
-};
-
-struct HGCalFlaggedECONDInfo {
-  // TODO @hqucms
-  // implement this properly in a file in DataFormats/HGCalDigi
-};
-
 class HGCalUnpacker {
 public:
-  // TODO @hqucms
-  // use central definitions in DataFormats/HGCalDigi/interface/HGCalRawDataDefinitions.h
-
-  // enum SLinkHeaderShift {
-  //   kSLinkBOEShift = 24,
-  //   kSLinkFEDIdShift = 0,
-  // };
-  // enum SLinkHeaderMask {
-  //   kSLinkBOEMask = 0b11111111,
-  //   kSLinkFEDIdMask = 0b1111111111,
-  // };
-  // enum CaptureBlockHeaderShift {
-  //   kCaptureBlockReservedShift = 25,
-  // };
-  // enum CaptureBlockMask {
-  //   kCaptureBlockReservedMask = 0b1111111,
-  //   kCaptureBlockECONDStatusMask = 0b111,
-  // };
-  // enum ECONDHeaderShift {
-  //   kHeaderShift = 23,
-  //   kPayloadLengthShift = 14,
-  //   kPassThroughShift = 13,
-  //   kHTShift = 10,
-  //   kEBOShift = 8,
-  //   kMatchShift = 7,
-  //   kTruncatedShift = 6,
-  // };
-  // enum ECONDHeaderMask {
-  //   kHeaderMask = 0b111111111,
-  //   kPayloadLengthMask = 0b111111111,
-  //   kPassThroughMask = 0b1,
-  //   kHTMask = 0b11,
-  //   kEBOMask = 0b11,
-  //   kMatchMask = 0b1,
-  //   kTruncatedMask = 0b1,
-  // };
-  // enum ERXHeaderShift {
-  //   kFormatShift = 25,
-  //   kCommonmode0Shift = 15,
-  //   kCommonmode1Shift = 5,
-  // };
-  // enum ERXHeaderMask {
-  //   kFormatMask = 0b1,
-  //   kCommonmode0Mask = 0b1111111111,
-  //   kCommonmode1Mask = 0b1111111111,
-  // };
-
   HGCalUnpacker() {}
 
   // TODO @hqucms
@@ -100,32 +31,53 @@ public:
 
   void parseFEDData(unsigned fedId,
                     const FEDRawData& fed_data,
+                    const HGCalMappingModuleIndexer& moduleIndexer, 
                     hgcaldigi::HGCalDigiHost& digis,
-                    hgcaldigi::HGCalDigiHost& common_modes,
-                    std::vector<HGCalFlaggedECONDInfo>& errors);
+                    bool headerOnlyMode=false);
 
 private:
-  // TODO @hqucms
+  const uint8_t tctp_[16] = {0b00, 0b00, 0b01, 0b00,
+                             0b00, 0b00, 0b00, 0b00, 
+                             0b10, 0b10, 0b10, 0b10,
+                             0b11, 0b11, 0b11, 0b11};
 
-  // const uint32_t erxBodyLeftShift_[16] = {2, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-  // const uint32_t erxBodyRightShift_[16] = {0, 8, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-  // const uint32_t erxBodyMask_[16] = {0b00111111111111111111110000000000,
-  //                                    0b00000000000011111111110000000000,
-  //                                    0b00111111111111111111110000000000,
-  //                                    0b00000000000011111111111111111111,
-  //                                    0b00111111111111111111111111111111,
-  //                                    0b00111111111111111111111111111111,
-  //                                    0b00111111111111111111111111111111,
-  //                                    0b00111111111111111111111111111111,
-  //                                    0b11111111111111111111111111111111,
-  //                                    0b11111111111111111111111111111111,
-  //                                    0b11111111111111111111111111111111,
-  //                                    0b11111111111111111111111111111111,
-  //                                    0b11111111111111111111111111111111,
-  //                                    0b11111111111111111111111111111111,
-  //                                    0b11111111111111111111111111111111,
-  //                                    0b11111111111111111111111111111111};
-  // const uint32_t erxBodyBits_[16] = {24, 16, 24, 24, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32};
+  const uint32_t adcm1Mask_[16] = {0b1111111111, 0b0000000000, 0b1111111111, 0b0000000000,
+                                   0b1111111111, 0b1111111111, 0b1111111111, 0b1111111111,
+                                   0b1111111111, 0b1111111111, 0b1111111111, 0b1111111111,
+                                   0b1111111111, 0b1111111111, 0b1111111111, 0b1111111111};
+  const uint32_t adcm1Shift_[16] = {18, 28, 18 , 0,
+                                    20, 20, 20, 20,
+                                    20, 20, 20, 20,
+                                    20, 20, 20, 20,};
+
+  const uint32_t adcShift_[16] = {8, 18, 8, 18,
+                                  10, 10, 10, 10,
+                                  10, 10, 10, 10,
+                                  0, 0, 0, 0};
+  const uint32_t adcMask_[16] = {0b1111111111, 0b1111111111, 0b1111111111, 0b1111111111,
+                                 0b1111111111, 0b1111111111, 0b1111111111, 0b1111111111,
+                                 0b1111111111, 0b1111111111, 0b1111111111, 0b1111111111,
+                                 0b0000000000, 0b0000000000, 0b0000000000, 0b0000000000};
+                                
+  const uint32_t totShift_[16] = {0, 0, 0, 0,
+                                  0, 0, 0, 0,
+                                  0, 0, 0, 0,
+                                  10, 10, 10, 10};
+  const uint32_t totMask_[16] = {0b0000000000, 0b0000000000, 0b0000000000, 0b0000000000,
+                                 0b0000000000, 0b0000000000, 0b0000000000, 0b0000000000,
+                                 0b0000000000, 0b0000000000, 0b0000000000, 0b0000000000,
+                                 0b1111111111, 0b1111111111, 0b1111111111, 0b1111111111};
+
+  const uint32_t toaShift_[16] = {0, 0, 0, 8,
+                                  0, 0, 0, 0,
+                                  0, 0, 0, 0,
+                                  0, 0, 0, 0};
+  const uint32_t toaMask_[16] = {0b0000000000, 0b0000000000, 0b0000000000, 0b1111111111,
+                                 0b1111111111, 0b1111111111, 0b1111111111, 0b1111111111,
+                                 0b1111111111, 0b1111111111, 0b1111111111, 0b1111111111,
+                                 0b1111111111, 0b1111111111, 0b1111111111, 0b1111111111};
+
+  const uint32_t erxBodyBits_[16] = {24, 16, 24, 24, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32};
   // HGCalUnpackerConfig config_;
   // size_t channelDataSize_{0};                                             ///< Size of unpacked channels
   // size_t commonModeDataSize_{0};                                          ///< Size of unpacked common modes

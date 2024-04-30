@@ -109,7 +109,7 @@ void HGCalRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
     const auto& fed_data = raw_data.FEDData(fedId);
     if (fed_data.size() == 0)
       continue;
-    unpacker_.parseFEDData(fedId, fed_data, digis, common_modes, errors);
+    unpacker_.parseFEDData(fedId, fed_data, digis, errors);
   }
 
   // TODO @hqucms
