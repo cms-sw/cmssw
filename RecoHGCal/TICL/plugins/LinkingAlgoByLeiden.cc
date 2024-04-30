@@ -79,45 +79,6 @@ void LinkingAlgoByLeiden::fillPSetDescription(edm::ParameterSetDescription &desc
   LinkingAlgoBase::fillPSetDescription(desc);
 }
 
-template <class T>
-auto moveNodesFast(TICLGraph const &graph, Partition &partition) {
-  auto communities{partition.setPartition()};
-  std::random_shuffle(communities.begin(), communities.end());
-  std::queue<Node<T>> queue{};
-  std::vector<Node<T>> empty_community{};
-
-  for (auto &community : communities) {  //all nodes are added to queue in random order
-    queueCommunity(community, queue);
-  }
-
-  while (!queue.empty()) {
-    auto current_node{queue.front()};
-  }
-
-  //**********NEEDS IMPLEMENTATION**********
-
-  return partition;
-}
-
-template <class T>
-auto queueCommunity(std::vector<Node<T>> &community, std::queue const &queue) {
-  std::random_shuffle(community.begin(), community.end());  //elements are added to the queue in random order
-  for (auto const &node : community) {
-    queue.push(node);
-  }
-  return queue;
-}
-
-//quality function, Constant Potts Model
-template <class T>
-auto CPM(Partition &partition, double const gamma) {
-  double CPMResult{};
-  for (auto const &community : partition) {
-    CPMResult += (numberOfEdges(community, community) - gamma * binomialCoefficient(communitySize(community), 2));
-  }
-  return CPMResult;
-}
-
 int factorial(int n) { return (n == 1 || n == 0) ? 1 : n * factorial(n - 1); }
 
 int binomialCoefficient(int n, int k) {
@@ -129,4 +90,103 @@ int binomialCoefficient(int n, int k) {
     return 1;
   else
     return facorial(n) / (factorial(k) * factorial(n - k));
+}
+
+//quality function, Constant Potts Model
+template <class T>
+double CPM(Partition const &partition, double gamma) {
+  double CPMResult{};
+  for (auto const &community : partition) {
+    CPMResult += (numberOfEdges(community, community) - gamma * binomialCoefficient(communitySize(community), 2));
+  }
+  return CPMResult;
+}
+
+template <class T>
+double CPM_contribution_from_new_community(Node<T> const &node, double gamma) {
+  std::vector<Node<T>> newCommunity{node};
+  double result{(-gamma * binomialCoefficient(communitySize(newCommunity), 2))};
+  assert(result <= 0.);
+  return result;
+}
+
+template <class T>
+double CPM_after_move(Partition const &partition,
+                      double gamma,
+                      std::vector<Node<T>> const &communityFrom,
+                      std::vector<Node<T>> const &communityTo,
+                      Node<T> const &node) {
+  double CPMResult{};
+  auto const &communities{partition.getPartition()};
+  for (auto const &community : communities) {
+    if (community == communityFrom) {
+      std::vector<Node<T>> communityWithoutNode{community};
+      std::remove(communityWithoutNode.begin(), communityWithoutNode.end(), node);
+      communityWithoutNode.pop_back();
+      CPMResult += (numberOfEdges(communityWithoutNode, communityWithoutNode) -
+                    gamma * binomialCoefficient(communitySize(communityWithoutNode), 2));
+    } else if (community == communityTo) {
+      std::vector<Node<T>> communityWithNewNode{community};
+      communityWithNewNode.push_back(node);
+      CPMResult += (numberOfEdges(communityWithNewNode, communityWithNewNode) -
+                    gamma * binomialCoefficient(communitySize(communityWithNewNode), 2));
+    } else {
+      CPMResult += (numberOfEdges(community, community) - gamma * binomialCoefficient(communitySize(community), 2));
+    }
+  }
+  return CPMResult;
+}
+
+template <class T>
+void moveNode(std::vector<Node<T>> &communityFrom, std::vector<Node<T>> &communityTo, Node<T> const &node) {
+  std::remove(communityFrom.begin(), communityFrom.end(), node);
+  communityFrom.pop_back();
+  communityTo.push_back(node);
+}
+
+template <class T>
+auto moveNodesFast(TICLGraph const &graph, Partition &partition, double gamma) {
+  auto communities{partition.getPartition()};
+  std::random_shuffle(communities.begin(), communities.end());
+  std::queue<Node<T>> queue{};
+  std::vector<Node<T>> empty_community{};
+
+  for (auto &community : communities) {  //all nodes are added to queue in random order
+    queueCommunity(community, queue);
+  }
+
+  while (!queue.empty()) {
+    Node<T> const &currentNode{queue.front()};
+    auto currentCPM{CPM(partition, gamma) + CPM_contribution_from_new_community(currentNode, gamma)};
+    auto &currentCommunity{partition.findCommunity(currentNode)};
+    auto &communities{partition.getPartition()};
+
+    int indexBestCommunity{};
+    int iterationIndex{-1};
+    double bestDeltaCPM{0.};
+    for (auto const &community : communities) {
+      ++iterationIndex;
+      double AfterMoveCPM{CPM_after_move(partition, gamma, currentCommunity, community, currentNode)};
+      double deltaCPM{AfterMoveCPM - currentCPM};
+      if (deltaCPM > bestDeltaCPM) {
+        bestDeltaCPM = deltaCPM;
+        indexBestCommunity = iterationIndex;
+      }
+    }
+    if (bestDeltaCPM > 0.) {
+      moveNode(currentCommunity, communities[indexBestCommunity], currentNode);
+      //**********NEEDS IMPLEMENTATION**********
+    }
+  }
+
+    return partition;
+}
+
+template <class T>
+auto queueCommunity(std::vector<Node<T>> &community, std::queue const &queue) {
+  std::random_shuffle(community.begin(), community.end());  //elements are added to the queue in random order
+  for (auto const &node : community) {
+    queue.push(node);
+  }
+  return queue;
 }

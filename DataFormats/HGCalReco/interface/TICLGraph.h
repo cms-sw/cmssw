@@ -136,6 +136,19 @@ public:
   }*/
 };
 
+//takes a community and return the vector of all the Elementary Nodes in the community
+template <class T>
+auto flatCommunity(std::vector<Node<T>> const& community, std::vector<ElementaryNode> const& flattenedCommunity) {
+  for (auto const& node : community) {
+    if (node.isNodeDegreeZero()) {
+      for (auto const& elementaryNode : node.getInternalSturcture())
+        flattenedCommunity.push_back(elementaryNode);
+    } else
+      flattenedCommunity(node, flattenedCommunity);
+  }
+  return flattenedCommunity;
+}
+
 template <class T>
 class Partition {
   std::vector<std::vector<Node<T>>> communities_{};
@@ -150,20 +163,18 @@ public:
     }
     return flattenedPartition;
   }
-};
 
-//takes a community and return the vector of all the Elementary Nodes in the community
-template <class T>
-auto flatCommunity(std::vector<Node<T>> const& community, std::vector<ElementaryNode> const& flattenedCommunity) {
-  for (auto const& node : community) {
-    if (node.isNodeDegreeZero()) {
-      for (auto const& elementaryNode : node.getInternalSturcture())
-        flattenedCommunity.push_back(elementaryNode);
-    } else
-      flattenedCommunity(node, flattenedCommunity);
+  //implemented on the assumption that when I work with community of std::vector<Node<T>> my node will be Node<T> (nesting degree matches)
+  //a node is always in a community from the beginning so it always returns something
+  std::vector<Node<T>> const& findCommunity(Node<T> const& node) const {
+    for (auto const& community : communities_) {
+      auto it{std::find(community.begin(), community.end(), node)};
+      if (it != community.end()) {
+        return community;
+      }
+    }
   }
-  return flattenedCommunity;
-}
+};
 
 template <class T>
 // the number of edges b/w 2 nodes is the number of edges between their elementary nodes
@@ -190,7 +201,6 @@ int numberOfEdges(std::vector<Node<T>> const& communityA, std::vector<Node<T>> c
 }
 
 template <class T>
-
 //the size of a community is the number of elementary nodes in it
 int communitySize(std::vector<Node<T>> const& community) {
   int size{};
