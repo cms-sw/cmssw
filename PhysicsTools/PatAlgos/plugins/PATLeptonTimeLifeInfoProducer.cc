@@ -162,9 +162,6 @@ void PATLeptonTimeLifeInfoProducer<T>::produceAndFillIPInfo(const T& lepton,
                                                             TrackTimeLifeInfo& info) {
   const reco::Track* track = getTrack(lepton);
   if (track != nullptr) {
-    info.setTrack(track);
-    info.setBField_z(transTrackBuilder.field()->inInverseGeV(GlobalPoint(track->vx(), track->vy(), track->vz())).z());
-
     // Extrapolate track to the point closest to PV
     reco::TransientTrack transTrack = transTrackBuilder.build(track);
     AnalyticalImpactPointExtrapolator extrapolator(transTrack.field());
@@ -187,7 +184,9 @@ void PATLeptonTimeLifeInfoProducer<T>::produceAndFillIPInfo(const T& lepton,
     if (ip_vec.dot(GlobalVector(lepton.px(), lepton.py(), lepton.pz())) < 0)
       ip_mes = Measurement1D(-1. * ip_mes.value(), ip_mes.error());
 
-    // Store PCA info
+    // Store Track and PCA info
+    info.setTrack(track);
+    info.setBField_z(transTrackBuilder.field()->inInverseGeV(GlobalPoint(track->vx(), track->vy(), track->vz())).z());
     info.setPCA(pca, pca_cov);
     info.setIP(ip_vec, ip_cov);
     info.setIPLength(ip_mes);
