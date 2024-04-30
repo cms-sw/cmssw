@@ -23,7 +23,7 @@ process = cms.Process("EfficiencyAnalysisDQMWorker", eras.Run3)
 process.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool(True),
     )
-options = VarParsing.VarParsing ('analysis')
+options = VarParsing.VarParsing('analysis')
 options.register('outputFileName',
                 'outputEfficiencyAnalysisDQMWorker.root',
                 VarParsing.VarParsing.multiplicity.singleton,
@@ -105,9 +105,7 @@ options.register('recoInfo',
 
 options.parseArguments()
 
-
-#PROCESS PARAMETERS
-
+# PROCESS PARAMETERS
 # Prefer input from files over source
 if len(options.inputFiles) != 0:
     fileList = [f'file:{f}' if not (f.startswith('/store/') or f.startswith('file:') or f.startswith('root:')) else f for f in options.inputFiles]
@@ -173,15 +171,6 @@ process.MessageLogger = cms.Service("MessageLogger",
 #CONFIGURE PROCESS
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
-if options.useJsonFile == True:
-    print("Using JSON file...")
-    import FWCore.PythonUtilities.LumiList as LumiList
-    if options.jsonFileName == '':
-        jsonFileName = 'test/JSONFiles/Run'+str(options.runNumber)+'.json'
-    else:
-        jsonFileName = options.jsonFileName
-    print(jsonFileName)
-    process.source.lumisToProcess = LumiList.LumiList(filename = jsonFileName).getVLuminosityBlockRange()
 
 #SETUP GLOBAL TAG
 if options.globalTag != '':
@@ -205,12 +194,24 @@ process.source = cms.Source("PoolSource",
     )
 )
 
+if options.useJsonFile == True:
+    print("Using JSON file...")
+    import FWCore.PythonUtilities.LumiList as LumiList
+    if options.jsonFileName == '':
+        jsonFileName = 'test/JSONFiles/Run'+str(options.runNumber)+'.json'
+    else:
+        jsonFileName = options.jsonFileName
+    print(jsonFileName)
+    process.source.lumisToProcess = LumiList.LumiList(filename = jsonFileName).getVLuminosityBlockRange()
+
 #SETUP TAG FLEXIBILITY
 trackTag = 'ctppsPixelLocalTracks'
 protonTag = 'ctppsProtons'
+l1digiTag = 'gtStage2Digis'
 tagSuffix = 'AlCaRecoProducer' # only if using ALCAPPS datasets, otherwise it should be ''
 trackTag += tagSuffix
 protonTag += tagSuffix
+l1digiTag += tagSuffix
 print('Using track InputTag:',trackTag)
 print('Using proton InputTag:',protonTag)
 
@@ -247,13 +248,12 @@ process.worker = DQMEDAnalyzer('EfficiencyTool_2018DQMWorker',
     debug=cms.untracked.bool(False),
 
     # Configs for prescale provider
+    usePrescales=cms.bool(True),
     processName = cms.string("HLT"),
     triggerPattern = cms.string("HLT_PPSMaxTracksPerRP4_v*"),
     stageL1Trigger = cms.uint32(2),
-    # l1tAlgBlkInputTag = cms.InputTag('hltGtStage2ObjectMap'),
-    # l1tExtBlkInputTag = cms.InputTag('hltGtStage2ObjectMap')
-    l1tAlgBlkInputTag = cms.InputTag('gtStage2Digis'),
-    l1tExtBlkInputTag = cms.InputTag('gtStage2Digis')
+    l1tAlgBlkInputTag = cms.InputTag(l1digiTag),
+    l1tExtBlkInputTag = cms.InputTag(l1digiTag)
 )
 
 #SETUP OUTPUT
@@ -270,17 +270,17 @@ process.fileOutput = cms.OutputModule("PoolOutputModule",
 )
 
 # Filter only ZB events to be sure that we're getting the right prescale
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter
-process.filterL1ZeroBias = triggerResultsFilter.clone(
-    hltResults = cms.InputTag('TriggerResults', '', 'HLT'),
-    l1tResults = cms.InputTag("hltGtStage2ObjectMap", "", "HLT"),  # Adjust the InputTag accordingly
-    # l1tResults = cms.InputTag("gtStage2Digis"),  # Adjust the InputTag accordingly
-    triggerConditions = cms.vstring("L1_ZeroBias"),  # Replace with the name of your L1 trigger
-)
+# from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter
+# process.filterL1ZeroBias = triggerResultsFilter.clone(
+#     hltResults = cms.InputTag('TriggerResults', '', 'HLT'),
+#     l1tResults = cms.InputTag("hltGtStage2ObjectMap", "", "HLT"),  # Adjust the InputTag accordingly
+#     # l1tResults = cms.InputTag("gtStage2Digis"),  # Adjust the InputTag accordingly
+#     triggerConditions = cms.vstring("L1_ZeroBias"),  # Replace with the name of your L1 trigger
+# )
 
 #SCHEDULE JOB
 process.path = cms.Path(
-    process.filterL1ZeroBias *
+    # process.filterL1ZeroBias *
     process.worker
 )
 

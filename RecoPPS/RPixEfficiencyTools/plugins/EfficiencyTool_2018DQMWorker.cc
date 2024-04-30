@@ -397,9 +397,9 @@ void EfficiencyTool_2018DQMWorker::bookHistograms(DQMStore::IBooker &ibooker,
   h1CrossingAngle_ = ibooker.book1DD("h1CrossingAngle", "h1CrossingAngle", 70, 100., 170);
   // Assume max. 1000 LSs
   h1L1Prescale_ =
-      ibooker.bookProfile("h1L1Prescale", "h1L1Prescale;LS;Prescale", 3000, 0., 3000, 1, 1E4, "");
+      ibooker.bookProfile("h1L1Prescale", "h1L1Prescale;LS;Prescale", 3000, 0., 3000, 1, 1E6, "");
   h1HLTPrescale_ =
-      ibooker.bookProfile("h1HLTPrescale", "h1HLTPrescale;LS;Prescale", 3000, 0., 3000, 1, 1E4, "");
+      ibooker.bookProfile("h1HLTPrescale", "h1HLTPrescale;LS;Prescale", 3000, 0., 3000, 1, 1E6, "");
 
   const auto &geom = eventSetup.getData(geomEsToken_);
 
@@ -988,7 +988,7 @@ void EfficiencyTool_2018DQMWorker::analyze(const edm::Event &iEvent, const edm::
     }
 
     h1HLTPrescale_->Fill(ls,prescales.second);
-    // weight *= prescales.second; // Correct for the HLT prescale value
+    weight *= prescales.second; // Correct for the HLT prescale value
   }
 
   if (!validBunchArray_[iEvent.eventAuxiliary().bunchCrossing()])
