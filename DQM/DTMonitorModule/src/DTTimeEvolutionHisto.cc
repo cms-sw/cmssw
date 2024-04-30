@@ -35,6 +35,7 @@ DTTimeEvolutionHisto::DTTimeEvolutionHisto(DQMStore::IBooker& ibooker,
     : valueLastTimeSlot(0), theFirstLS(firstLS), theLSPrescale(lsPrescale), doSlide(sliding), theMode(mode) {
   // set the number of bins to be booked
   nBookedBins = nbins;
+  binLabelCounter = -1;
   if (sliding)
     nBookedBins++;
   if (!sliding && theMode == 0)
@@ -158,10 +159,12 @@ void DTTimeEvolutionHisto::updateTimeSlot(int ls, int nEventsInLS) {
       // set the bin label
       stringstream binLabel;
       binLabel << "LS " << firstLSinTimeSlot;
-      if (nEventsInLastTimeSlot.size() > 1)
+      if (nEventsInLastTimeSlot.size() > 1) {
         binLabel << "-" << lastLSinTimeSlot;
+        binLabelCounter++;
+      }
 
-      if (nBookedBins % (5 * (int)theLSPrescale) == 0)  //JF allow easy reading of labels
+      if (binLabelCounter % (5 * (int)theLSPrescale) == 0)  //JF allow easy reading of labels
         histo->setBinLabel(nBookedBins, binLabel.str(), 1);
 
       // reset the counters for the time slot
