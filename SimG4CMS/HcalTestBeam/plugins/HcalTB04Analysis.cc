@@ -64,11 +64,11 @@
 
 #include <cstdint>
 
-using CLHEP::GeV;
-using CLHEP::twopi;
 using CLHEP::c_light;
+using CLHEP::GeV;
 using CLHEP::mm;
 using CLHEP::ns;
+using CLHEP::twopi;
 
 //#define EDM_ML_DEBUG
 

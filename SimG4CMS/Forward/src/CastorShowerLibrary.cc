@@ -17,7 +17,7 @@
 #include "G4ParticleTable.hh"
 #include "Randomize.hh"
 #include "CLHEP/Units/PhysicalConstants.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include <CLHEP/Units/SystemOfUnits.h>
 
 //ROOT
 #include "TROOT.h"

@@ -39,12 +39,12 @@
 #include <string>
 #include <vector>
 
-using CLHEP::MeV;
-using CLHEP::GeV;
-using CLHEP::mm;
-using CLHEP::ns;
 using CLHEP::c_light;
 using CLHEP::deg;
+using CLHEP::GeV;
+using CLHEP::MeV;
+using CLHEP::mm;
+using CLHEP::ns;
 
 class HcalTestAnalysis : public SimProducer,
                          public Observer<const BeginOfRun*>,

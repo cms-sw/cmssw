@@ -5,7 +5,7 @@
 #include "G4ChordFinder.hh"
 #include "G4Track.hh"
 
-#include "CLHEP/Units/SystemOfUnits.h"
+#include <CLHEP/Units/SystemOfUnits.h>
 
 #include <iostream>
 

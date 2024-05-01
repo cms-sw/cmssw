@@ -35,7 +35,7 @@
 #include "G4StateManager.hh"
 
 // CLHEP
-#include "CLHEP/Units/SystemOfUnits.h"
+#include <CLHEP/Units/SystemOfUnits.h>
 
 /** Constructor.
  */

@@ -50,8 +50,8 @@
 #include <string>
 #include <vector>
 
-using CLHEP::twopi;
 using CLHEP::mm;
+using CLHEP::twopi;
 
 //#define EDM_ML_DEBUG
 

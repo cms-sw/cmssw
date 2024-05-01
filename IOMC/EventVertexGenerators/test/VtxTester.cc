@@ -17,7 +17,7 @@
 #include "TH2.h"
 
 #include "CLHEP/Units/PhysicalConstants.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include <CLHEP/Units/SystemOfUnits.h>
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
