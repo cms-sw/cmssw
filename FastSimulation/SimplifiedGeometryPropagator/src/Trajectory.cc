@@ -19,10 +19,6 @@ std::unique_ptr<fastsim::Trajectory> fastsim::Trajectory::createTrajectory(const
   if (particle.charge() == 0. || magneticFieldZ == 0.) {
     LogDebug("FastSim") << "create straight trajectory";
     return std::unique_ptr<fastsim::Trajectory>(new fastsim::StraightTrajectory(particle));
-  } else if (std::abs(particle.momentum().Pt() /
-                      (fastsim::Constants::speedOfLight * 1e-4 * particle.charge() * magneticFieldZ)) > 1e5) {
-    LogDebug("FastSim") << "create straight trajectory (huge radius)";
-    return std::unique_ptr<fastsim::Trajectory>(new fastsim::StraightTrajectory(particle));
   } else {
     LogDebug("FastSim") << "create helix trajectory";
     return std::unique_ptr<fastsim::Trajectory>(new fastsim::HelixTrajectory(particle, magneticFieldZ));
