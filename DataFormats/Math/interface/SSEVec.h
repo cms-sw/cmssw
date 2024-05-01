@@ -6,6 +6,10 @@
 #if defined(__GNUC__)
 #include <x86intrin.h>
 #define CMS_USE_SSE
+#ifdef __SSE4_1__
+// slower than sse3
+// #define CMS_USE_SSE4
+#endif
 #ifdef __AVX2__
 #define CMS_USE_AVX2
 #endif /* __AVX2__ */
@@ -25,9 +29,11 @@ namespace mathSSE {
 #ifdef CMS_USE_SSE
   //dot
   inline __m128 __attribute__((always_inline)) __attribute__((pure)) _mm_dot_ps(__m128 v1, __m128 v2) {
-#ifdef __SSE4_1__
+#ifdef CMS_USE_SSE4
+    /// this is slower than the scalar version!
     return _mm_dp_ps(v1, v2, 0xff);
 #else
+
     __m128 mul = _mm_mul_ps(v1, v2);
 #ifdef __SSE3__
     mul = _mm_hadd_ps(mul, mul);
@@ -548,6 +554,8 @@ inline float dot(mathSSE::Vec4F a, mathSSE::Vec4F b) {
   return s;
 }
 
+inline float dot3(mathSSE::Vec4F a, mathSSE::Vec4F b) { return dot(a, b); }
+
 inline mathSSE::Vec4F cross(mathSSE::Vec4F a, mathSSE::Vec4F b) {
   using mathSSE::_mm_cross_ps;
   return _mm_cross_ps(a.vec, b.vec);
@@ -750,6 +758,10 @@ inline mathSSE::Vec4D operator-(mathSSE::Vec4D b, mathSSE::Vec4F a) {
 */
 
 inline double dot(mathSSE::Vec4D a, mathSSE::Vec4D b) __attribute__((always_inline)) __attribute__((pure));
+
+inline double __attribute__((always_inline)) __attribute__((pure)) dot3(mathSSE::Vec4D a, mathSSE::Vec4D b) {
+  return dot(a, b);
+}
 
 inline double dot(mathSSE::Vec4D a, mathSSE::Vec4D b) {
   __m128d res = _mm_add_sd(_mm_mul_pd(a.vec[0], b.vec[0]), _mm_mul_sd(a.vec[1], b.vec[1]));

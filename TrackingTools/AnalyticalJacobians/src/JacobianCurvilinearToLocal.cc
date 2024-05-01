@@ -52,11 +52,11 @@ void JacobianCurvilinearToLocal::compute(Surface::RotationType const& rot,
   if (cosl < 1.e-30)
     cosl = 1.e-30;
   double cosl1 = 1. / cosl;
-  GlobalVector un(-tn.y() * cosl1, tn.x() * cosl1, 0.);
-  GlobalVector vn(-tn.z() * un.y(), tn.z() * un.x(), cosl);
+  const GlobalVector un(-tn.y() * cosl1, tn.x() * cosl1, 0.);
+  const GlobalVector vn(-tn.z() * un.y(), tn.z() * un.x(), cosl);
 
-  auto u = rot.rotate(un.basicVector());
-  auto v = rot.rotate(vn.basicVector());
+  auto const u = rot.rotate(un.basicVector());
+  auto const v = rot.rotate(vn.basicVector());
 
   int j = 0, k = 1, i = 2;
 
