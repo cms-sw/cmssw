@@ -3,6 +3,7 @@
 #include <string>
 #include <algorithm>
 #include <stdexcept>
+#include <cstdint>
 
 namespace pixelTrack {
 
