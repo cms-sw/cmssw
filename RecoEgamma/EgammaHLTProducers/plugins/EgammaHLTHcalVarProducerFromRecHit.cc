@@ -229,12 +229,12 @@ void EgammaHLTHcalVarProducerFromRecHit::produce(edm::StreamID,
       int iEA = -1;
       auto scEta = std::abs(recoEcalCandRef->superCluster()->eta());
       for (int bIt = absEtaLowEdges_.size() - 1; bIt > -1; bIt--) {
-        if (scEta > absEtaLowEdges_.at(bIt)) {
+        if (scEta >= absEtaLowEdges_[bIt]) {
           iEA = bIt;
           break;
         }
       }
-      isol = isol - rho * effectiveAreas_.at(iEA);
+      isol = isol - rho * effectiveAreas_[iEA];
     }
 
     isoMap.insert(recoEcalCandRef, isol);

@@ -58,7 +58,7 @@ private:
   static constexpr double T2_BIN_WIDTH_NS_ = 25. / 4;
   MonitorElement* totemT2ErrorFlags_2D_ = nullptr;
 
-  enum evFlag { t2TE = 0, t2LE, t2MT, t2ML };
+  static constexpr int t2TE = 0, t2LE = 1, t2MT = 2, t2ML = 3;
 
   const unsigned int nbinsx_, nbinsy_;
   const unsigned int windowsNum_;

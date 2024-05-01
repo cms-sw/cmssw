@@ -12,6 +12,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
@@ -161,14 +162,19 @@ void PATLeptonTimeLifeInfoProducer<T>::produceAndFillIPInfo(const T& lepton,
                                                             TrackTimeLifeInfo& info) {
   const reco::Track* track = getTrack(lepton);
   if (track != nullptr) {
-    info.setTrack(track);
-    info.setBField_z(transTrackBuilder.field()->inInverseGeV(GlobalPoint(track->vx(), track->vy(), track->vz())).z());
-
     // Extrapolate track to the point closest to PV
     reco::TransientTrack transTrack = transTrackBuilder.build(track);
     AnalyticalImpactPointExtrapolator extrapolator(transTrack.field());
     TrajectoryStateOnSurface closestState =
         extrapolator.extrapolate(transTrack.impactPointState(), RecoVertex::convertPos(pv.position()));
+    if (!closestState.isValid()) {
+      edm::LogError("PATLeptonTimeLifeInfoProducer")
+          << "closestState not valid! From:\n"
+          << "transTrack.impactPointState():\n"
+          << transTrack.impactPointState() << "RecoVertex::convertPos(pv.position()):\n"
+          << RecoVertex::convertPos(pv.position());
+      return;
+    }
     GlobalPoint pca = closestState.globalPosition();
     GlobalError pca_cov = closestState.cartesianError().position();
     GlobalVector ip_vec = GlobalVector(pca.x() - pv.x(), pca.y() - pv.y(), pca.z() - pv.z());
@@ -178,7 +184,9 @@ void PATLeptonTimeLifeInfoProducer<T>::produceAndFillIPInfo(const T& lepton,
     if (ip_vec.dot(GlobalVector(lepton.px(), lepton.py(), lepton.pz())) < 0)
       ip_mes = Measurement1D(-1. * ip_mes.value(), ip_mes.error());
 
-    // Store PCA info
+    // Store Track and PCA info
+    info.setTrack(track);
+    info.setBField_z(transTrackBuilder.field()->inInverseGeV(GlobalPoint(track->vx(), track->vy(), track->vz())).z());
     info.setPCA(pca, pca_cov);
     info.setIP(ip_vec, ip_cov);
     info.setIPLength(ip_mes);

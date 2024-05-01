@@ -52,6 +52,9 @@ private:
   edm::EDGetTokenT<HBHEDigiCollection> tok_hbhe_;
   edm::EDGetTokenT<HFDigiCollection> tok_hf_;
 
+  bool overrideDBvetoThresholdsHE_;
+  bool overrideDBvetoThresholdsHB_;
+
   bool overrideDBweightsAndFilterHE_;
   bool overrideDBweightsAndFilterHB_;
 
@@ -104,10 +107,14 @@ HcalTrigPrimDigiProducer::HcalTrigPrimDigiProducer(const edm::ParameterSet& ps)
   upgrade_ = std::any_of(std::begin(upgrades), std::end(upgrades), [](bool a) { return a; });
   legacy_ = std::any_of(std::begin(upgrades), std::end(upgrades), [](bool a) { return !a; });
 
+  overrideDBvetoThresholdsHE_ = ps.getParameter<bool>("overrideDBvetoThresholdsHE");
+  overrideDBvetoThresholdsHB_ = ps.getParameter<bool>("overrideDBvetoThresholdsHB");
+
   overrideDBweightsAndFilterHE_ = ps.getParameter<bool>("overrideDBweightsAndFilterHE");
   overrideDBweightsAndFilterHB_ = ps.getParameter<bool>("overrideDBweightsAndFilterHB");
 
   theAlgo_.setWeightsQIE11(ps.getParameter<edm::ParameterSet>("weightsQIE11"));
+  theAlgo_.setCodedVetoThresholds(ps.getParameter<edm::ParameterSet>("codedVetoThresholds"));
 
   if (ps.exists("parameters")) {
     auto pset = ps.getUntrackedParameter<edm::ParameterSet>("parameters");
@@ -173,40 +180,46 @@ void HcalTrigPrimDigiProducer::beginRun(const edm::Run& run, const edm::EventSet
       continue;
 
     int aieta = abs(hcalTTDetId.ieta());
+    // Do not let ieta 29 in the map
+    if (aieta >= lastHERing)
+      continue;
 
     // Filter weight represented in fixed point 8 bit
-    int fixedPointWeight = -1;
+    int fixedPointWeight = 255;
+    // Coded veto threshold in range (0, 2048)
+    // Default, special value of 0 will disable vetoing
+    int codedVetoThreshold = 0;
+    // Number of filter presamples
+    int presamples = 0;
 
     // The absence of TT channels in the HcalTPChannelParameters
     // is intepreted as to not use the new filter
     auto tpParam = db->getHcalTPChannelParameter(hcalTTDetId, false);
-    if (tpParam)
-      fixedPointWeight = tpParam->getauxi1();
-
-    // Do not let ieta 29 in the map
-    // If the aieta already has a weight in the map, then move on
-    if (aieta <= lastHBRing) {
+    if (tpParam) {
       // Fix number of filter presamples to one if we are using DB weights
       // Size of filter is already known when using DB weights
       // Weight from DB represented as 8-bit integer
+      fixedPointWeight = tpParam->getauxi1();
+      codedVetoThreshold = tpParam->getauxi2();
+      presamples = 1;
+    }
+
+    // If the aieta already has a weight in the map, then move on
+    if (aieta <= lastHBRing) {
+      if (!overrideDBvetoThresholdsHB_) {
+        theAlgo_.setCodedVetoThreshold(aieta, codedVetoThreshold);
+      }
       if (!overrideDBweightsAndFilterHB_) {
-        if (fixedPointWeight != -1) {
-          theAlgo_.setNumFilterPresamplesHBQIE11(1);
-          theAlgo_.setWeightQIE11(aieta, fixedPointWeight);
-        } else {
-          theAlgo_.setNumFilterPresamplesHBQIE11(0);
-          theAlgo_.setWeightQIE11(aieta, 255);
-        }
+        theAlgo_.setNumFilterPresamplesHBQIE11(presamples);
+        theAlgo_.setWeightQIE11(aieta, fixedPointWeight);
       }
     } else if (aieta < lastHERing) {
+      if (!overrideDBvetoThresholdsHE_) {
+        theAlgo_.setCodedVetoThreshold(aieta, codedVetoThreshold);
+      }
       if (!overrideDBweightsAndFilterHE_) {
-        if (fixedPointWeight != -1) {
-          theAlgo_.setNumFilterPresamplesHEQIE11(1);
-          theAlgo_.setWeightQIE11(aieta, fixedPointWeight);
-        } else {
-          theAlgo_.setNumFilterPresamplesHEQIE11(0);
-          theAlgo_.setWeightQIE11(aieta, 255);
-        }
+        theAlgo_.setNumFilterPresamplesHEQIE11(presamples);
+        theAlgo_.setWeightQIE11(aieta, fixedPointWeight);
       }
     }
   }

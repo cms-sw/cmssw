@@ -112,7 +112,7 @@ namespace mkfit {
     // Geometry / LayerInfo accessors
     //--------------------------------
 
-    const LayerInfo* layer_info() const { return m_layer_info; }
+    const LayerInfo& layer_info() const { return *m_layer_info; }
     int layer_id() const { return m_layer_info->layer_id(); }
 
     bool is_barrel() const { return m_is_barrel; }

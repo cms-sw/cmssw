@@ -547,9 +547,17 @@ void testLimitedFilter::testTransitions(std::shared_ptr<T> iMod, Expectations co
 
   edm::maker::ModuleHolderT<edm::limited::EDFilterBase> h(iMod, nullptr);
   h.preallocate(edm::PreallocationConfiguration{});
-  edm::WorkerT<edm::limited::EDFilterBase> w{iMod, m_desc, nullptr};
+  edm::WorkerT<edm::limited::EDFilterBase> wOther{iMod, m_desc, nullptr};
+  edm::WorkerT<edm::limited::EDFilterBase> wGlobalLumi{iMod, m_desc, nullptr};
+  edm::WorkerT<edm::limited::EDFilterBase> wStreamLumi{iMod, m_desc, nullptr};
   for (auto& keyVal : m_transToFunc) {
-    testTransition(iMod, &w, keyVal.first, iExpect, keyVal.second);
+    edm::Worker* worker = &wOther;
+    if (keyVal.first == Trans::kStreamBeginLuminosityBlock || keyVal.first == Trans::kStreamEndLuminosityBlock) {
+      worker = &wStreamLumi;
+    } else if (keyVal.first == Trans::kGlobalBeginLuminosityBlock || keyVal.first == Trans::kGlobalEndLuminosityBlock) {
+      worker = &wGlobalLumi;
+    }
+    testTransition(iMod, worker, keyVal.first, iExpect, keyVal.second);
   }
 }
 

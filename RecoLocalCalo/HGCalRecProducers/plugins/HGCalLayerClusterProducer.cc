@@ -74,6 +74,7 @@ private:
   double positionDeltaRho2_;
   hgcal::RecHitTools rhtools_;
   edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
+  const bool calculatePositionInAlgo_;
 
   /**
    * @brief Sets algoId accordingly to the detector type
@@ -107,7 +108,8 @@ HGCalLayerClusterProducer::HGCalLayerClusterProducer(const edm::ParameterSet& ps
       detector_(ps.getParameter<std::string>("detector")),  // one of EE, FH, BH, HFNose
       timeClname_(ps.getParameter<std::string>("timeClname")),
       hitsTime_(ps.getParameter<unsigned int>("nHitsTime")),
-      caloGeomToken_(consumesCollector().esConsumes<CaloGeometry, CaloGeometryRecord>()) {
+      caloGeomToken_(consumesCollector().esConsumes<CaloGeometry, CaloGeometryRecord>()),
+      calculatePositionInAlgo_(ps.getParameter<bool>("calculatePositionInAlgo")) {
   setAlgoId();  //sets algo id according to detector type
   hits_token_ = consumes<HGCRecHitCollection>(ps.getParameter<edm::InputTag>("recHits"));
 
@@ -139,6 +141,7 @@ void HGCalLayerClusterProducer::fillDescriptions(edm::ConfigurationDescriptions&
   desc.add<edm::InputTag>("recHits", edm::InputTag("HGCalRecHit", "HGCEERecHits"));
   desc.add<std::string>("timeClname", "timeLayerCluster");
   desc.add<unsigned int>("nHitsTime", 3);
+  desc.add<bool>("calculatePositionInAlgo", true);
   descriptions.add("hgcalLayerClusters", desc);
 }
 
@@ -212,10 +215,10 @@ std::pair<float, float> HGCalLayerClusterProducer::calculateTime(
 
       float rhTimeE = rechit->timeError();
       //check on timeError to exclude scintillator
-      if (rhTimeE < 0.)
+      if (rhTimeE < 0.f)
         continue;
       timeClhits.push_back(rechit->time());
-      timeErrorClhits.push_back(1. / (rhTimeE * rhTimeE));
+      timeErrorClhits.push_back(1.f / (rhTimeE * rhTimeE));
     }
     hgcalsimclustertime::ComputeClusterTime timeEstimator;
     timeCl = timeEstimator.fixSizeHighestDensity(timeClhits, timeErrorClhits, hitsTime_);
@@ -249,12 +252,14 @@ void HGCalLayerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& 
   times.reserve(clusters->size());
 
   for (unsigned i = 0; i < clusters->size(); ++i) {
-    const reco::CaloCluster& sCl = (*clusters)[i];
-    (*clusters)[i].setPosition(calculatePosition(hitmap, sCl.hitsAndFractions()));
+    reco::CaloCluster& sCl = (*clusters)[i];
+    if (!calculatePositionInAlgo_) {
+      sCl.setPosition(calculatePosition(hitmap, sCl.hitsAndFractions()));
+    }
     if (detector_ != "BH") {
       times.push_back(calculateTime(hitmap, sCl.hitsAndFractions(), sCl.size()));
     } else {
-      times.push_back(std::pair<float, float>(-99., -1.));
+      times.push_back(std::pair<float, float>(-99.f, -1.f));
     }
   }
 

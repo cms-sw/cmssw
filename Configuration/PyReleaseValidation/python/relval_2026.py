@@ -25,6 +25,7 @@ numWFIB.extend([24034.0]) #2026D96
 numWFIB.extend([24434.0]) #2026D97
 numWFIB.extend([24834.0,24834.911,24834.103]) #2026D98 DDD XML, DD4hep XML, aging
 numWFIB.extend([25061.97]) #2026D98 premixing stage1 (NuGun+PU)
+numWFIB.extend([24834.702]) #2026D98 mkFit tracking (initialStep)
 numWFIB.extend([24834.5,24834.9]) #2026D98 pixelTrackingOnly, vector hits
 numWFIB.extend([24834.501,24834.502]) #2026D98 Patatrack local reconstruction on CPU, Patatrack local reconstruction on GPU
 numWFIB.extend([25034.99,25034.999]) #2026D98 premixing combined stage1+stage2 (ttbar+PU200, ttbar+PU50 for PR test)
@@ -42,6 +43,9 @@ numWFIB.extend([28434.0]) #2026D107
 numWFIB.extend([28834.0]) #2026D108
 numWFIB.extend([29234.0]) #2026D109
 numWFIB.extend([29634.0]) #2026D110
+numWFIB.extend([30034.0]) #2026D111
+numWFIB.extend([30434.0]) #2026D112
+numWFIB.extend([30834.0]) #2026D113
 
 #Additional sample for short matrix and IB
 #CloseByPGun for HGCAL

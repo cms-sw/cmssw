@@ -7,6 +7,7 @@ void l1t::RegionalMuonRawDigiTranslator::fillRegionalMuonCand(RegionalMuonCand& 
                                                               const int proc,
                                                               const tftype tf,
                                                               const bool isKbmtf,
+                                                              const bool useOmtfDisplacementInfo,
                                                               const bool useEmtfDisplacementInfo) {
   // translations as defined in DN-15-017
   mu.setHwPt((raw_data_00_31 >> ptShift_) & ptMask_);
@@ -87,6 +88,9 @@ void l1t::RegionalMuonRawDigiTranslator::fillRegionalMuonCand(RegionalMuonCand& 
       mu.setTrackSubAddress(RegionalMuonCand::kBX, (rawTrackAddress >> emtfTrAddrBxShift_) & emtfTrAddrBxMask_);
     }
   } else if (tf == omtf_neg || tf == omtf_pos) {
+    if (useOmtfDisplacementInfo) {  // In Run-3 2024 we receive displaced muon information from OMTF
+      mu.setHwPtUnconstrained((raw_data_32_63 >> kOmtfPtUnconstrainedShift_) & ptUnconstrainedMask_);
+    }
     mu.setTrackSubAddress(RegionalMuonCand::kLayers,
                           (rawTrackAddress >> omtfTrAddrLayersShift_) & omtfTrAddrLayersMask_);
     mu.setTrackSubAddress(RegionalMuonCand::kZero, 0);
@@ -107,6 +111,7 @@ void l1t::RegionalMuonRawDigiTranslator::fillRegionalMuonCand(RegionalMuonCand& 
                                                               const int proc,
                                                               const tftype tf,
                                                               const bool isKbmtf,
+                                                              const bool useOmtfDisplacementInfo,
                                                               const bool useEmtfDisplacementInfo) {
   fillRegionalMuonCand(mu,
                        (uint32_t)(dataword & 0xFFFFFFFF),
@@ -114,6 +119,7 @@ void l1t::RegionalMuonRawDigiTranslator::fillRegionalMuonCand(RegionalMuonCand& 
                        proc,
                        tf,
                        isKbmtf,
+                       useOmtfDisplacementInfo,
                        useEmtfDisplacementInfo);
 }
 
@@ -166,6 +172,7 @@ void l1t::RegionalMuonRawDigiTranslator::generatePackedDataWords(const RegionalM
                                                                  uint32_t& raw_data_00_31,
                                                                  uint32_t& raw_data_32_63,
                                                                  const bool isKbmtf,
+                                                                 const bool useOmtfDisplacementInfo,
                                                                  const bool useEmtfDisplacementInfo) {
   int abs_eta = mu.hwEta();
   if (abs_eta < 0) {
@@ -188,6 +195,8 @@ void l1t::RegionalMuonRawDigiTranslator::generatePackedDataWords(const RegionalM
   if (isKbmtf && mu.trackFinderType() == bmtf) {
     raw_data_32_63 |= (mu.hwPtUnconstrained() & ptUnconstrainedMask_) << bmtfPtUnconstrainedShift_ |
                       (mu.hwDXY() & dxyMask_) << bmtfDxyShift_;
+  } else if (useOmtfDisplacementInfo && (mu.trackFinderType() == omtf_pos || mu.trackFinderType() == omtf_neg)) {
+    raw_data_32_63 |= (mu.hwPtUnconstrained() & ptUnconstrainedMask_) << kOmtfPtUnconstrainedShift_;
   } else if (useEmtfDisplacementInfo && (mu.trackFinderType() == emtf_pos || mu.trackFinderType() == emtf_neg)) {
     raw_data_32_63 |= (mu.hwPtUnconstrained() & ptUnconstrainedMask_) << emtfPtUnconstrainedShift_ |
                       (mu.hwDXY() & dxyMask_) << emtfDxyShift_;
@@ -196,11 +205,12 @@ void l1t::RegionalMuonRawDigiTranslator::generatePackedDataWords(const RegionalM
 
 uint64_t l1t::RegionalMuonRawDigiTranslator::generate64bitDataWord(const RegionalMuonCand& mu,
                                                                    const bool isKbmtf,
+                                                                   const bool useOmtfDisplacementInfo,
                                                                    const bool useEmtfDisplacementInfo) {
   uint32_t lsw;
   uint32_t msw;
 
-  generatePackedDataWords(mu, lsw, msw, isKbmtf, useEmtfDisplacementInfo);
+  generatePackedDataWords(mu, lsw, msw, isKbmtf, useOmtfDisplacementInfo, useEmtfDisplacementInfo);
   return (((uint64_t)msw) << 32) + lsw;
 }
 

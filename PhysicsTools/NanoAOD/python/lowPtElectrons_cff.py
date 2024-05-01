@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.NanoAOD.nano_eras_cff import *
 from PhysicsTools.NanoAOD.common_cff import *
-from PhysicsTools.NanoAOD.simpleCandidateFlatTableProducer_cfi import simpleCandidateFlatTableProducer
+from PhysicsTools.NanoAOD.simplePATElectronFlatTableProducer_cfi import simplePATElectronFlatTableProducer
 
 ################################################################################
 # Modules
@@ -60,7 +60,7 @@ finalLowPtElectrons = cms.EDFilter(
 # electronTable
 ################################################################################
 
-lowPtElectronTable = simpleCandidateFlatTableProducer.clone(
+lowPtElectronTable = simplePATElectronFlatTableProducer.clone(
     src = cms.InputTag("linkedObjects","lowPtElectrons"),
     name= cms.string("LowPtElectron"),
     doc = cms.string("slimmedLowPtElectrons after basic selection (" + finalLowPtElectrons.cut.value()+")"),

@@ -66,3 +66,7 @@ double nanoaod::FlatTable::getAnyValue(unsigned int row, unsigned int column) co
   }
   throw cms::Exception("LogicError", "Unsupported type");
 }
+
+void nanoaod::FlatTable::RowView::throwUnknownColumn(const std::string& column) {
+  throw cms::Exception("LogicError") << "Invalid column name '" << column << "'";
+}

@@ -11,7 +11,7 @@ class TrackInformation : public G4VUserTrackInformation {
 public:
   TrackInformation(){};
   ~TrackInformation() override = default;
-  inline void *operator new(size_t);
+  inline void *operator new(std::size_t);
   inline void operator delete(void *TrackInformation);
 
   bool storeTrack() const { return storeTrack_; }
@@ -127,7 +127,7 @@ private:
 
 extern G4ThreadLocal G4Allocator<TrackInformation> *fpTrackInformationAllocator;
 
-inline void *TrackInformation::operator new(size_t) {
+inline void *TrackInformation::operator new(std::size_t) {
   if (!fpTrackInformationAllocator)
     fpTrackInformationAllocator = new G4Allocator<TrackInformation>;
   return (void *)fpTrackInformationAllocator->MallocSingle();

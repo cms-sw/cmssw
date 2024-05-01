@@ -27,3 +27,16 @@ pfParticleTransformerAK4Task = cms.Task(puppi, primaryVertexAssociation,
 pfParticleTransformerAK4FromMiniAODTask = cms.Task(pfParticleTransformerAK4TagInfos,
                              pfParticleTransformerAK4JetTags,
                              pfParticleTransformerAK4DiscriminatorsJetTags)
+
+# === Negative tags ===
+pfNegativeParticleTransformerAK4TagInfos = pfParticleTransformerAK4TagInfos.clone(
+    flip = True,
+    secondary_vertices = 'inclusiveCandidateNegativeSecondaryVertices',
+)
+pfNegativeParticleTransformerAK4JetTags = pfParticleTransformerAK4JetTags.clone(
+    src = 'pfNegativeParticleTransformerAK4TagInfos',
+)
+
+# probs
+_pfNegativeParticleTransformerAK4JetTagsProbs = ['pfNegativeParticleTransformerAK4JetTags:' + flav_name
+                                 for flav_name in pfParticleTransformerAK4JetTags.flav_names]

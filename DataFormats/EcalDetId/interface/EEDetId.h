@@ -319,15 +319,13 @@ public:
    */
   static const int ICR_MAX = 25;
 
-  enum {
-    /** Number of crystals per Dee
-     */
-    kEEhalf = 7324,
-    /** Number of dense crystal indices, that is number of
+  /** Number of crystals per Dee
+   */
+  static constexpr int kEEhalf = 7324;
+  /** Number of dense crystal indices, that is number of
      * crystals per endcap.
      */
-    kSizeForDenseIndexing = 2 * kEEhalf
-  };
+  static constexpr int kSizeForDenseIndexing = 2 * kEEhalf;
 
   /*@{*/
   /** function modes for EEDetId(int, int, int, int) constructor

@@ -23,7 +23,6 @@ public:
   */
   HGCDataFrame() : id_(0), maxSampleSize_(15) { data_.resize(maxSampleSize_); }
   HGCDataFrame(const D& id) : id_(id), maxSampleSize_(15) { data_.resize(maxSampleSize_); }
-  HGCDataFrame(const HGCDataFrame& o) : data_(o.data_), id_(o.id_), maxSampleSize_(o.maxSampleSize_) {}
 
   /**
     @short det id

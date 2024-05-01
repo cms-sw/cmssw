@@ -3,7 +3,7 @@
 
 #include <cmath>
 #include <limits>
-#include <list>
+#include <vector>
 #include <utility>
 
 #include "DataFormats/Common/interface/View.h"
@@ -11,7 +11,7 @@
 #include "DataFormats/Math/interface/Vector3D.h"
 
 class DisplacedVertexCluster;
-typedef std::list<DisplacedVertexCluster>::iterator DisplacedVertexClusterItr;
+typedef std::vector<DisplacedVertexCluster>::iterator DisplacedVertexClusterItr;
 
 class DisplacedVertexCluster {
 public:
@@ -53,7 +53,7 @@ public:
     std::pair<DisplacedVertexClusterItr, DisplacedVertexClusterItr> entities_;
   };
 
-  typedef std::list<Distance>::iterator DistanceItr;
+  typedef std::vector<Distance>::iterator DistanceItr;
 
 private:
   bool valid_;

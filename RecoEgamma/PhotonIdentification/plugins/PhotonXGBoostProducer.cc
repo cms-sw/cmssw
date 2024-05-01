@@ -110,6 +110,7 @@ void PhotonXGBoostProducer::produce(edm::StreamID, edm::Event& event, edm::Event
     float hoe = (*hoEMap).find(ref)->val / scEnergy;
     float siEtaiEta = (*sigmaiEtaiEtaMap).find(ref)->val;
     float e2x2 = (*e2x2Map).find(ref)->val;
+    float s4 = e2x2 / scEnergy;
     float iso = (*isoMap).find(ref)->val;
 
     float rawEnergy = ref->superCluster()->rawEnergy();
@@ -124,9 +125,9 @@ void PhotonXGBoostProducer::produce(edm::StreamID, edm::Event& event, edm::Event
     //compute only above threshold used for training and cand filter, else store negative value into the association map.
     if (scEt >= mvaThresholdEt_) {
       if (std::abs(etaSC) < 1.5)
-        xgbScore = mvaEstimatorB_->computeMva(rawEnergy, r9, siEtaiEta, etaW, phiW, e2x2, etaSC, hoe, iso);
+        xgbScore = mvaEstimatorB_->computeMva(rawEnergy, r9, siEtaiEta, etaW, phiW, s4, etaSC, hoe, iso);
       else
-        xgbScore = mvaEstimatorE_->computeMva(rawEnergy, r9, siEtaiEta, etaW, phiW, e2x2, etaSC, hoe, iso);
+        xgbScore = mvaEstimatorE_->computeMva(rawEnergy, r9, siEtaiEta, etaW, phiW, s4, etaSC, hoe, iso);
     }
     mvaScoreMap.insert(ref, xgbScore);
   }

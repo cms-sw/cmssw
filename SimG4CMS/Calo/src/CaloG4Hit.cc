@@ -18,7 +18,7 @@ CaloG4Hit::CaloG4Hit() {
   theIncidentEnergy = 0.;
 }
 
-CaloG4Hit::~CaloG4Hit() {}
+//CaloG4Hit::~CaloG4Hit() {}
 
 CaloG4Hit::CaloG4Hit(const CaloG4Hit& right) {
   entry = right.entry;

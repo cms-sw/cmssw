@@ -10,6 +10,19 @@
 
 #include "SimpleAlgoGPU.h"
 
+#include "CondFormats/DataRecord/interface/HcalCombinedRecordsGPU.h"
+#include "CondFormats/DataRecord/interface/HcalGainWidthsRcd.h"
+#include "CondFormats/DataRecord/interface/HcalGainsRcd.h"
+#include "CondFormats/DataRecord/interface/HcalLUTCorrsRcd.h"
+#include "CondFormats/DataRecord/interface/HcalQIEDataRcd.h"
+#include "CondFormats/DataRecord/interface/HcalQIETypesRcd.h"
+#include "CondFormats/DataRecord/interface/HcalRecoParamsRcd.h"
+#include "CondFormats/DataRecord/interface/HcalRespCorrsRcd.h"
+#include "CondFormats/DataRecord/interface/HcalSiPMCharacteristicsRcd.h"
+#include "CondFormats/DataRecord/interface/HcalSiPMParametersRcd.h"
+#include "CondFormats/DataRecord/interface/HcalTimeCorrsRcd.h"
+#include "CondFormats/DataRecord/interface/HcalChannelQualityRcd.h"
+
 class HBHERecHitProducerGPU : public edm::stream::EDProducer<edm::ExternalWork> {
 public:
   explicit HBHERecHitProducerGPU(edm::ParameterSet const&);

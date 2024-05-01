@@ -326,8 +326,7 @@ namespace trklet {
            // Route Tracks in eta based on their sort key
       for (int iRegion = 0; iRegion < setup_->numRegions(); iRegion++) {
         int buffered_tracks[] = {0, 0};
-        for (int iTrack = 0;
-             iTrack < setup_->numFramesIO() * ((double)TTBV::S_ / TTTrack_TrackWord::TrackBitWidths::kTrackWordSize);
+        for (int iTrack = 0; iTrack < setup_->numFramesIO() * ((double)TTBV::S_ / TTTrack_TrackWord::kTrackWordSize);
              iTrack++) {
           for (int iWorker = 0; iWorker < setup_->kfNumWorker(); iWorker++) {
             for (int iLink = 0; iLink < setup_->tfpNumChannel(); iLink++) {
@@ -376,8 +375,7 @@ namespace trklet {
             if (it.second == outputStreamsTracks[iLink][(int)(iTrack - 1) / 3].first)
               trackRef = it.first;
           }
-          if ((int)iTrack / 3 <=
-              setup_->numFramesIO() * ((double)TTBV::S_ / TTTrack_TrackWord::TrackBitWidths::kTrackWordSize))
+          if ((int)iTrack / 3 <= setup_->numFramesIO() * ((double)TTBV::S_ / TTTrack_TrackWord::kTrackWordSize))
             accepted[iLink].emplace_back(
                 std::make_pair(trackRef,
                                (sortedPartialTracks[iLink][iTrack - 1].slice(partialTrackWordBits_) +

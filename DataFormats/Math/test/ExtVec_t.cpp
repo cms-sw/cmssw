@@ -166,6 +166,7 @@ void go(bool dovec = true) {
   std::cout << apply(x, [](T x) { return std::sqrt(x); }) << std::endl;
 
   std::cout << dot(x, y) << std::endl;
+  std::cout << dot3(x, y) << std::endl;
   std::cout << dotSimple(x, y) << std::endl;
 
   //  std::cout << "equal" << (x==x ? " " : " not ") << "ok" << std::endl;

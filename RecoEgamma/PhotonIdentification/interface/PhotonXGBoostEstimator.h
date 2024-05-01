@@ -14,7 +14,7 @@ public:
                    float sigmaIEtaIEtaIn,
                    float etaWidthIn,
                    float phiWidthIn,
-                   float e2x2In,
+                   float s4In,
                    float etaIn,
                    float hOvrEIn,
                    float ecalPFIsoIn) const;

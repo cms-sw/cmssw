@@ -250,14 +250,17 @@ void OscarMTProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   evt->load(*p2);
 
   if (0 < m_verbose) {
-    edm::LogVerbatim("SimG4CoreApplication") << "Produced " << p2->size() << " SimVertex objects";
+    edm::LogVerbatim("SimG4CoreApplication")
+        << "Produced " << p2->size() << " SimVertecies: position(cm), time(s), parentID, vertexID, processType";
     if (1 < m_verbose) {
       int nn = p2->size();
       for (int i = 0; i < nn; ++i) {
-        edm::LogVerbatim("Vertex") << " " << (*p2)[i] << " " << (*p2)[i].processType();
+        edm::LogVerbatim("Vertex") << " " << i << ". " << (*p2)[i] << " " << (*p2)[i].processType();
       }
     }
-    edm::LogVerbatim("SimG4CoreApplication") << "Produced " << p1->size() << " SimTrack objects";
+    edm::LogVerbatim("SimG4CoreApplication")
+        << "Produced " << p1->size()
+        << " SimTracks: pdg, 4-momentum(GeV), vertexID, mcTruthID, flagBoundary, trackID at boundary";
     if (1 < m_verbose) {
       int nn = p1->size();
       for (int i = 0; i < nn; ++i) {

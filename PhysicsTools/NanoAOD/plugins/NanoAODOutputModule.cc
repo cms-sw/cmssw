@@ -85,12 +85,14 @@ private:
       tree.Branch("luminosityBlock", &m_luminosityBlock, "luminosityBlock/i");
       tree.Branch("event", &m_event, "event/l");
       tree.Branch("bunchCrossing", &m_bunchCrossing, "bunchCrossing/i");
+      tree.Branch("orbitNumber", &m_orbitNumber, "orbitNumber/i");
     }
     void fill(const edm::EventAuxiliary& aux) {
       m_run = aux.id().run();
       m_luminosityBlock = aux.id().luminosityBlock();
       m_event = aux.id().event();
       m_bunchCrossing = aux.bunchCrossing();
+      m_orbitNumber = aux.orbitNumber();
     }
 
   private:
@@ -98,6 +100,7 @@ private:
     UInt_t m_luminosityBlock;
     ULong64_t m_event;
     UInt_t m_bunchCrossing;
+    UInt_t m_orbitNumber;
   } m_commonBranches;
 
   class CommonLumiBranches {

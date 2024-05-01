@@ -22,6 +22,9 @@ grep "Exception Message:" $logfile || die " - Cannot find the following string i
 
 grep "End Fatal Exception" $logfile || die " - Cannot find the following string in the exception message: End Fatal Exception " $?
 
+grep "ExceptionThrowingProducer PASSED" $logfile || die " - FAILED because cannot find the following string in the log file: ExceptionThrowingProducer PASSED " $?
+grep "ExceptionThrowingProducer FAILED" $logfile && die " - FAILED because found the following string in the log file: ExceptionThrowingProducer FAILED " 1
+
 if [ $1 -eq 1 ]
 then
     grep "Processing  Event run: 3 lumi: 1 event: 5" $logfile || die " - Cannot find the following string in the exception message: Processing  Event run: 3 lumi: 1 event: 5 " $?

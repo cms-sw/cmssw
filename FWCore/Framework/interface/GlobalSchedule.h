@@ -19,6 +19,8 @@
 #include "FWCore/Framework/interface/WorkerRegistry.h"
 #include "FWCore/MessageLogger/interface/ExceptionMessages.h"
 #include "FWCore/ServiceRegistry/interface/GlobalContext.h"
+#include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
+#include "FWCore/ServiceRegistry/interface/ServiceToken.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/BranchType.h"
 #include "FWCore/Utilities/interface/ConvertException.h"
@@ -28,6 +30,7 @@
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 
+#include <exception>
 #include <map>
 #include <memory>
 #include <set>
@@ -37,37 +40,6 @@
 #include "boost/range/adaptor/reversed.hpp"
 
 namespace edm {
-
-  namespace {
-    template <typename T>
-    class GlobalScheduleSignalSentry {
-    public:
-      GlobalScheduleSignalSentry(ActivityRegistry* a, typename T::Context const* context)
-          : a_(a), context_(context), allowThrow_(false) {
-        if (a_)
-          T::preScheduleSignal(a_, context_);
-      }
-      ~GlobalScheduleSignalSentry() noexcept(false) {
-        // Caught exception is rethrown
-        CMS_SA_ALLOW try {
-          if (a_)
-            T::postScheduleSignal(a_, context_);
-        } catch (...) {
-          if (allowThrow_) {
-            throw;
-          }
-        }
-      }
-
-      void allowThrow() { allowThrow_ = true; }
-
-    private:
-      // We own none of these resources.
-      ActivityRegistry* a_;  // We do not use propagate_const because the registry itself is mutable.
-      typename T::Context const* context_;
-      bool allowThrow_;
-    };
-  }  // namespace
 
   class ActivityRegistry;
   class ExceptionCollector;
@@ -131,25 +103,16 @@ namespace edm {
     AllWorkers const& allWorkers() const { return workerManagers_[0].allWorkers(); }
 
   private:
-    //Sentry class to only send a signal if an
-    // exception occurs. An exception is identified
-    // by the destructor being called without first
-    // calling completedSuccessfully().
-    class SendTerminationSignalIfException {
-    public:
-      SendTerminationSignalIfException(edm::ActivityRegistry* iReg, edm::GlobalContext const* iContext)
-          : reg_(iReg), context_(iContext) {}
-      ~SendTerminationSignalIfException() {
-        if (reg_) {
-          reg_->preGlobalEarlyTerminationSignal_(*context_, TerminationOrigin::ExceptionFromThisContext);
-        }
-      }
-      void completedSuccessfully() { reg_ = nullptr; }
+    template <typename T>
+    void preScheduleSignal(GlobalContext const*, ServiceToken const&);
 
-    private:
-      edm::ActivityRegistry* reg_;  // We do not use propagate_const because the registry itself is mutable.
-      GlobalContext const* context_;
-    };
+    template <typename T>
+    void postScheduleSignal(GlobalContext const*, ServiceWeakToken const&, std::exception_ptr&);
+
+    void handleException(GlobalContext const*,
+                         ServiceWeakToken const&,
+                         bool cleaningUpAfterException,
+                         std::exception_ptr&);
 
     /// returns the action table
     ExceptionToActionTable const& actionTable() const { return workerManagers_[0].actionTable(); }
@@ -173,72 +136,88 @@ namespace edm {
       //need the doneTask to own the memory
       auto globalContext = std::make_shared<GlobalContext>(T::makeGlobalContext(principal, processContext_));
 
-      if (actReg_) {
-        //Services may depend upon each other
-        ServiceRegistry::Operate op(token);
-        T::preScheduleSignal(actReg_.get(), globalContext.get());
-      }
-
       ServiceWeakToken weakToken = token;
       auto doneTask = make_waiting_task(
           [this, iHolder, cleaningUpAfterException, globalContext, weakToken](std::exception_ptr const* iPtr) mutable {
             std::exception_ptr excpt;
             if (iPtr) {
               excpt = *iPtr;
-              //add context information to the exception and print message
-              try {
-                convertException::wrap([&]() { std::rethrow_exception(excpt); });
-              } catch (cms::Exception& ex) {
-                //TODO: should add the transition type info
-                std::ostringstream ost;
-                if (ex.context().empty()) {
-                  ost << "Processing " << T::transitionName() << " ";
-                }
-                ServiceRegistry::Operate op(weakToken.lock());
-                addContextAndPrintException(ost.str().c_str(), ex, cleaningUpAfterException);
-                excpt = std::current_exception();
-              }
-              if (actReg_) {
-                ServiceRegistry::Operate op(weakToken.lock());
-                actReg_->preGlobalEarlyTerminationSignal_(*globalContext, TerminationOrigin::ExceptionFromThisContext);
-              }
+              // add context information to the exception and print message
+              handleException(globalContext.get(), weakToken, cleaningUpAfterException, excpt);
             }
-            if (actReg_) {
-              // Caught exception is propagated via WaitingTaskHolder
-              CMS_SA_ALLOW try {
-                ServiceRegistry::Operate op(weakToken.lock());
-                T::postScheduleSignal(actReg_.get(), globalContext.get());
-              } catch (...) {
-                if (not excpt) {
-                  excpt = std::current_exception();
-                }
-              }
-            }
+            postScheduleSignal<T>(globalContext.get(), weakToken, excpt);
             iHolder.doneWaiting(excpt);
           });
-      unsigned int managerIndex = principal.index();
-      if constexpr (T::branchType_ == InRun) {
-        managerIndex += numberOfConcurrentLumis_;
-      }
-      WorkerManager& workerManager = workerManagers_[managerIndex];
-      workerManager.resetAll();
-
-      ParentContext parentContext(globalContext.get());
-      //make sure the ProductResolvers know about their
-      // workers to allow proper data dependency handling
-      workerManager.setupResolvers(transitionInfo.principal());
 
       //make sure the task doesn't get run until all workers have beens started
       WaitingTaskHolder holdForLoop(*iHolder.group(), doneTask);
-      auto& aw = workerManager.allWorkers();
-      for (Worker* worker : boost::adaptors::reverse(aw)) {
-        worker->doWorkAsync<T>(
-            holdForLoop, transitionInfo, token, StreamID::invalidStreamID(), parentContext, globalContext.get());
+
+      CMS_SA_ALLOW try {
+        preScheduleSignal<T>(globalContext.get(), token);
+
+        unsigned int managerIndex = principal.index();
+        if constexpr (T::branchType_ == InRun) {
+          managerIndex += numberOfConcurrentLumis_;
+        }
+        WorkerManager& workerManager = workerManagers_[managerIndex];
+        workerManager.resetAll();
+
+        ParentContext parentContext(globalContext.get());
+        // make sure the ProductResolvers know about their
+        // workers to allow proper data dependency handling
+        workerManager.setupResolvers(transitionInfo.principal());
+
+        auto& aw = workerManager.allWorkers();
+        for (Worker* worker : boost::adaptors::reverse(aw)) {
+          worker->doWorkAsync<T>(
+              holdForLoop, transitionInfo, token, StreamID::invalidStreamID(), parentContext, globalContext.get());
+        }
+      } catch (...) {
+        holdForLoop.doneWaiting(std::current_exception());
       }
     } catch (...) {
       iHolder.doneWaiting(std::current_exception());
     }
   }
+
+  template <typename T>
+  void GlobalSchedule::preScheduleSignal(GlobalContext const* globalContext, ServiceToken const& token) {
+    if (actReg_) {
+      try {
+        ServiceRegistry::Operate op(token);
+        convertException::wrap([this, globalContext]() { T::preScheduleSignal(actReg_.get(), globalContext); });
+      } catch (cms::Exception& ex) {
+        std::ostringstream ost;
+        ex.addContext("Handling pre signal, likely in a service function");
+        exceptionContext(ost, *globalContext);
+        ex.addContext(ost.str());
+        throw;
+      }
+    }
+  }
+
+  template <typename T>
+  void GlobalSchedule::postScheduleSignal(GlobalContext const* globalContext,
+                                          ServiceWeakToken const& weakToken,
+                                          std::exception_ptr& excpt) {
+    if (actReg_) {
+      try {
+        convertException::wrap([this, &weakToken, globalContext]() {
+          ServiceRegistry::Operate op(weakToken.lock());
+          T::postScheduleSignal(actReg_.get(), globalContext);
+        });
+      } catch (cms::Exception& ex) {
+        if (not excpt) {
+          std::ostringstream ost;
+          ex.addContext("Handling post signal, likely in a service function");
+          exceptionContext(ost, *globalContext);
+          ex.addContext(ost.str());
+          excpt = std::current_exception();
+        }
+      }
+    }
+  }
+
 }  // namespace edm
 
 #endif

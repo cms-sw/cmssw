@@ -4,6 +4,7 @@ import FWCore.ParameterSet.Config as cms
 from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 from Validation.RecoMuon.PostProcessor_RecoMuonValidator_cff import *
+from Validation.RecoMuon.PostProcessor_RecoDisplacedMuonValidator_cff import *
 
 postProcessorMuonTrack = DQMEDHarvester("DQMGenericClient",
     subDirs = cms.untracked.vstring("Muons/RecoMuonV/MuonTrack/*"),
@@ -95,4 +96,5 @@ postProcessorMuonTrackComp = DQMEDHarvester("DQMGenericClient",
 
 recoMuonPostProcessors = cms.Sequence( postProcessorMuonTrack 
                                           * postProcessorMuonTrackComp 
-                                          * postProcessorsRecoMuonValidator_seq )
+                                          * postProcessorsRecoMuonValidator_seq
+                                          * postProcessorsRecoDisplacedMuonValidator_seq )

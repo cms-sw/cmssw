@@ -3,7 +3,8 @@
 #   cmsRun runMaterialBudgetVolume2026DDD_cfg.py geometry=D92
 #
 #   Options for geometry D86, D88, D91, D92, D93, D94, D95, D96, D97, D98,
-#                        D99, D100, D101, D102, D103
+#                        D99, D100, D101, D102, D103, D104, D105, D106, D107,
+#                        D108, D109, D110
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -17,7 +18,7 @@ options.register('geometry',
                  "D88",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D86, D88, D91, D92, D93, D94, D95, D96, D97, D98, D99, D100, D101, D102, D103")
+                  "geometry of operations: D86, D88, D91, D92, D93, D94, D95, D96, D97, D98, D99, D100, D101, D102, D103, D104, D105, D106, D107, D108, D109, D110")
 ### get and parse the command line arguments
 options.parseArguments()
 

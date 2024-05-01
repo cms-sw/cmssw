@@ -7,7 +7,7 @@
 
 #include "CUDATestDeviceAdditionAlgo.h"
 
-namespace HeterogeneousCoreCUDATestDevicePlugins {
+namespace HeterogeneousTestCUDADevicePlugins {
 
   __global__ void kernel_add_vectors_f(const float* __restrict__ in1,
                                        const float* __restrict__ in2,
@@ -24,4 +24,4 @@ namespace HeterogeneousCoreCUDATestDevicePlugins {
     cudaCheck(cudaGetLastError());
   }
 
-}  // namespace HeterogeneousCoreCUDATestDevicePlugins
+}  // namespace HeterogeneousTestCUDADevicePlugins

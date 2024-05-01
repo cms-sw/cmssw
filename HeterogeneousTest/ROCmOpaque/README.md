@@ -12,19 +12,19 @@ ROCm-based libraries, and using them from multiple plugins.
 The package `HeterogeneousTest/ROCmOpaque` implements a non-ROCm aware library, with functions that
 call the wrappers defined in the `HeterogeneousTest/ROCmWrapper` library:
 ```c++
-namespace cms::cudatest {
+namespace cms::rocmtest {
 
   void opaque_add_vectors_f(...);
   void opaque_add_vectors_d(...);
 
-}  // namespace cms::cudatest
+}  // namespace cms::rocmtest
 ```
 
 The `plugins` directory implements the `ROCmTestOpqaueAdditionModule` `EDAnalyzer` that calls the 
 function defined in this library. This plugin shows how the function can be used directly from a 
 host-only, non-ROCm aware plugin.
 
-The `test` directory implements the `testCudaDeviceAdditionOpqaue` test binary that calls the
+The `test` directory implements the `testRocmDeviceAdditionOpqaue` test binary that calls the
 function defined in this library, and shows how they can be used directly from a host-only, non-ROCm
 aware application.
 It also contains the `testROCmTestOpqaueAdditionModule.py` python configuration to exercise the

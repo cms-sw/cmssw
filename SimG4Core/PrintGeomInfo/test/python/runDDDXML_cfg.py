@@ -1,19 +1,51 @@
+###############################################################################
+# Way to use this:
+#   cmsRun runDDDXML_cfg.py geometry=2023
+#
+#   Options for geometry 2021, 2023, 2024
+#
+###############################################################################
 import FWCore.ParameterSet.Config as cms
+import os, sys, importlib, re
+import FWCore.ParameterSet.VarParsing as VarParsing
 
-#from Configuration.Eras.Era_Run2_cff import Run2
-#process = cms.Process('G4PrintGeometry',Run2)
-#process.load('Configuration.Geometry.GeometryExtended2015Reco_cff')
-#process.load('Configuration.Geometry.GeometryExtended2017Reco_cff')
+####################################################################
+### SETUP OPTIONS
+options = VarParsing.VarParsing('standard')
+options.register('geometry',
+                 "2024",
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.string,
+                  "geometry of operations: 2021, 2023, 2024")
+
+### get and parse the command line arguments
+options.parseArguments()
+
+print(options)
+
+#####p###############################################################
+# Use the options
 
 from Configuration.Eras.Era_Run3_DDD_cff import Run3_DDD
 process = cms.Process('G4PrintGeometry',Run3_DDD)
-process.load('Configuration.Geometry.GeometryExtended2021Reco_cff')
 
-#from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
-#process = cms.Process('G4PrintGeometry',Phase2C11)
-#process.load('Configuration.Geometry.GeometryExtended2026D77Reco_cff')
-#process.load('Configuration.Geometry.GeometryExtended2026D83Reco_cff')
+geomFile = "Configuration.Geometry.GeometryExtended" + options.geometry + "Reco_cff"
+materialFileName = "matfile" + options.geometry + "DDD.txt"
+solidFileName    = "solidfile" + options.geometry + "DDD.txt"
+lvFileName       = "lvfile" + options.geometry + "DDD.txt"
+pvFileName       = "pvfile" + options.geometry + "DDD.txt"
+touchFileName    = "touchfile" + options.geometry + "DDD.txt"
+regionFileName   = "regionfile" + options.geometry + "DDD.txt"
 
+print("Geometry file: ", geomFile)
+print("Material file Name: ", materialFileName)
+print("Solid file Name:    ", solidFileName)
+print("LV file Name:       ", lvFileName)
+print("PV file Name:       ", pvFileName)
+print("Touch file Name:    ", touchFileName)
+print("Region file Name:   ", regionFileName)
+
+process.load(geomFile)
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
 from SimG4Core.PrintGeomInfo.g4PrintGeomInfo_cfi import *
@@ -41,12 +73,12 @@ process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     DD4hep           = cms.untracked.bool(False),
     Name             = cms.untracked.string(''),
     Names            = cms.untracked.vstring(''),
-    MaterialFileName = cms.untracked.string('matfileDDD.txt'),
-    SolidFileName    = cms.untracked.string('solidfileDDD.txt'),
-    LVFileName       = cms.untracked.string('lvfileDDD.txt'),
-    PVFileName       = cms.untracked.string('pvfileDDD.txt'),
-    TouchFileName    = cms.untracked.string('touchfileDDD.txt'),
-    RegionFileName   = cms.untracked.string('regionfileDDD.txt'),
+    MaterialFileName = cms.untracked.string(materialFileName),
+    SolidFileName    = cms.untracked.string(solidFileName),
+    LVFileName       = cms.untracked.string(lvFileName),
+    PVFileName       = cms.untracked.string(pvFileName),
+    TouchFileName    = cms.untracked.string(touchFileName),
+    RegionFileName   = cms.untracked.string(regionFileName),
     FileDetail       = cms.untracked.bool(True),
     type             = cms.string('PrintGeomInfoAction')
 ))

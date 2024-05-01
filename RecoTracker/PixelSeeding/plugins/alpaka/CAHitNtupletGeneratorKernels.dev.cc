@@ -37,6 +37,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
         // workspace
         device_hitToTuple_{cms::alpakatools::make_device_buffer<HitToTuple>(queue)},
+        device_hitToTupleStorage_{
+            cms::alpakatools::make_device_buffer<typename HitToTuple::Counter[]>(queue, nhits + 1)},
         device_tupleMultiplicity_{cms::alpakatools::make_device_buffer<TupleMultiplicity>(queue)},
 
         // NB: In legacy, device_theCells_ and device_isOuterHitOfCell_ were allocated inside buildDoublets
@@ -66,6 +68,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         device_hitToTuple_apc_{reinterpret_cast<cms::alpakatools::AtomicPairCounter *>(device_storage_.data() + 1)},
         device_nCells_{cms::alpakatools::make_device_view(alpaka::getDev(queue),
                                                           *reinterpret_cast<uint32_t *>(device_storage_.data() + 2))} {
+#ifdef GPU_DEBUG
+    std::cout << "Allocation for tuple building. N hits " << nhits << std::endl;
+#endif
+
     alpaka::memset(queue, counters_, 0);
     alpaka::memset(queue, device_nCells_, 0);
     alpaka::memset(queue, cellStorage_, 0);
@@ -74,14 +80,21 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     alpaka::memcpy(queue, device_cellCuts_, cellCuts_h);
 
     [[maybe_unused]] TupleMultiplicity *tupleMultiplicityDeviceData = device_tupleMultiplicity_.data();
-    [[maybe_unused]] HitToTuple *hitToTupleDeviceData = device_hitToTuple_.data();
     using TM = cms::alpakatools::OneToManyAssocRandomAccess<typename TrackerTraits::tindex_type,
                                                             TrackerTraits::maxHitsOnTrack + 1,
                                                             TrackerTraits::maxNumberOfTuples>;
     TM *tm = device_tupleMultiplicity_.data();
     TM::template launchZero<Acc1D>(tm, queue);
     TupleMultiplicity::template launchZero<Acc1D>(tupleMultiplicityDeviceData, queue);
-    HitToTuple::template launchZero<Acc1D>(hitToTupleDeviceData, queue);
+
+    device_hitToTupleView_.assoc = device_hitToTuple_.data();
+    device_hitToTupleView_.offStorage = device_hitToTupleStorage_.data();
+    device_hitToTupleView_.offSize = nhits + 1;
+
+    HitToTuple::template launchZero<Acc1D>(device_hitToTupleView_, queue);
+#ifdef GPU_DEBUG
+    std::cout << "Allocations for CAHitNtupletGeneratorKernels: done!" << std::endl;
+#endif
   }
 
   template <typename TrackerTraits>
@@ -401,7 +414,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                           tracks_view,
                           this->device_hitToTuple_.data());  //CHECK
 
-      HitToTuple::template launchFinalize<Acc1D>(this->device_hitToTuple_.data(), queue);
+      HitToTuple::template launchFinalize<Acc1D>(this->device_hitToTupleView_, queue);
       alpaka::exec<Acc1D>(
           queue, workDiv1D, Kernel_fillHitInTracks<TrackerTraits>{}, tracks_view, this->device_hitToTuple_.data());
 #ifdef GPU_DEBUG

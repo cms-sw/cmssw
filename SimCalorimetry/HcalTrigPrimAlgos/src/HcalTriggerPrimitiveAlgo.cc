@@ -516,13 +516,12 @@ void HcalTriggerPrimitiveAlgo::analyzeQIE11(IntegerCaloSamples& samples,
       int sampleTSminus1 = samples[ibin];
 
       if (fix_saturation_ && (sample_saturation.size() > ibin + 1))
-        check_sat = (sample_saturation[ibin + 1] || (sampleTS >= QIE11_MAX_LINEARIZATION_ET) ||
-                     sample_saturation[ibin] || (sampleTSminus1 >= QIE11_MAX_LINEARIZATION_ET));
+        check_sat |= sample_saturation[ibin + 1] | (sampleTS >= QIE11_MAX_LINEARIZATION_ET);
 
       if (sampleTS > QIE11_MAX_LINEARIZATION_ET)
         sampleTS = QIE11_MAX_LINEARIZATION_ET;
 
-      if (sampleTSminus1 > QIE11_MAX_LINEARIZATION_ET)
+      if (sampleTSminus1 > QIE11_MAX_LINEARIZATION_ET || sample_saturation[ibin])
         sampleTSminus1 = QIE11_MAX_LINEARIZATION_ET;
 
       // Usually use a segmentation factor of 1.0 but for ieta >= 21 use 2
@@ -553,6 +552,26 @@ void HcalTriggerPrimitiveAlgo::analyzeQIE11(IntegerCaloSamples& samples,
   IntegerCaloSamples output(samples.id(), tpSamples);
   output.setPresamples(tpPresamples);
 
+  // Based on the |ieta| of the sample, retrieve the correct region "coded" veto threshold
+  // where two of the possible values have special meaning
+  unsigned int codedVetoThreshold = codedVetoThresholds_[theIeta];
+
+  // Anything in range (1, 2048) inclusive shall activate the veto
+  unsigned int actualVetoThreshold = codedVetoThreshold;
+  bool applyVetoThreshold = codedVetoThreshold > 0 && codedVetoThreshold <= 2048;
+
+  // Special value to disable vetoing in the PFA1' algo is 0
+  if (codedVetoThreshold > 0) {
+    if (codedVetoThreshold <= 2048) {
+      // Special value to run the veto in PFA1' with no threshold
+      if (codedVetoThreshold == 2048)
+        actualVetoThreshold = 0;
+    } else {
+      edm::LogWarning("HcalTPAlgo") << "Specified veto threshold value " << codedVetoThreshold
+                                    << " is not in range (1, 2048) ! Vetoing in PFA1' will not be enabled !";
+    }
+  }
+
   for (unsigned int ibin = 0; ibin < tpSamples; ++ibin) {
     // ibin - index for output TP
     // idx - index for samples + shift - filterPresamples
@@ -580,12 +599,22 @@ void HcalTriggerPrimitiveAlgo::analyzeQIE11(IntegerCaloSamples& samples,
         output[ibin] = 0;
       }
     } else {
-      output[ibin] = std::min<unsigned int>(sum[idx], QIE11_MAX_LINEARIZATION_ET);
-
-      if (fix_saturation_ && force_saturation[idx] && ids.size() == 2)
-        output[ibin] = QIE11_MAX_LINEARIZATION_ET / 2;
-      else if (fix_saturation_ && force_saturation[idx])
-        output[ibin] = QIE11_MAX_LINEARIZATION_ET;
+      // Only if the sum for the future time sample is above the veto
+      // threshold and the now sum is not a peak and the now sum is not
+      // saturated does the current sum get zeroed
+      if (applyVetoThreshold && sum[idx + 1] >= actualVetoThreshold &&
+          (sum[idx] < sum[idx + 1] || force_saturation[idx + 1]) && !force_saturation[idx])
+        output[ibin] = 0;
+      else {
+        // Here, either the "now" sum is a peak or the vetoing criteria are not satisfied
+        // so assign the appropriate sum to the output
+        output[ibin] = std::min<unsigned int>(sum[idx], QIE11_MAX_LINEARIZATION_ET);
+        if (fix_saturation_ && force_saturation[idx]) {
+          output[ibin] = QIE11_MAX_LINEARIZATION_ET;
+          if (ids.size() == 2)
+            output[ibin] /= 2;
+        }
+      }
     }
     // peak-finding is not applied for FG bits
     // compute(msb) returns two bits (MIP). compute(timingTDC,ids) returns 6 bits (1 depth, 1 prompt, 1 delayed 01, 1 delayed 10, 2 reserved)
@@ -1065,6 +1094,21 @@ void HcalTriggerPrimitiveAlgo::setWeightQIE11(int aieta, int weight) {
   // Simple map of |ieta| in HBHE to weight
   // Only one weight for SOI-1 TS
   weightsQIE11_[aieta] = {{weight, 255}};
+}
+
+void HcalTriggerPrimitiveAlgo::setCodedVetoThresholds(const edm::ParameterSet& codedVetoThresholds) {
+  // Names are just abs(ieta) for HBHE
+  std::vector<std::string> ietaStrs = codedVetoThresholds.getParameterNames();
+  for (auto& ietaStr : ietaStrs) {
+    // Strip off "ieta" part of key and just use integer value in map
+    auto const& v = codedVetoThresholds.getParameter<int>(ietaStr);
+    codedVetoThresholds_[std::stoi(ietaStr.substr(4))] = {v};
+  }
+}
+
+void HcalTriggerPrimitiveAlgo::setCodedVetoThreshold(int aieta, int codedVetoThreshold) {
+  // Simple map of |ieta| in HBHE to veto threshold
+  codedVetoThresholds_[aieta] = {codedVetoThreshold};
 }
 
 void HcalTriggerPrimitiveAlgo::setPeakFinderAlgorithm(int algo) {

@@ -22,10 +22,12 @@
 //
 
 // system include files
+#include <exception>
 #include <vector>
 #include <functional>
 
 // user include files
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 // forward declarations
 
@@ -46,8 +48,16 @@ namespace edm {
       // ---------- const member functions ---------------------
       template <typename... Args>
       void emit(Args&&... args) const {
+        std::exception_ptr exceptionPtr;
         for (auto& slot : m_slots) {
-          slot(std::forward<Args>(args)...);
+          CMS_SA_ALLOW try { slot(std::forward<Args>(args)...); } catch (...) {
+            if (!exceptionPtr) {
+              exceptionPtr = std::current_exception();
+            }
+          }
+        }
+        if (exceptionPtr) {
+          std::rethrow_exception(exceptionPtr);
         }
       }
 

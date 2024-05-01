@@ -43,6 +43,26 @@ PuppiMET200 = l1tGTSingleObjectCond.clone(
 pPuppiMET200 = cms.Path(PuppiMET200)
 algorithms.append(cms.PSet(expression = cms.string("pPuppiMET200")))
 
+DoublePuppiJet112112 = l1tGTDoubleObjectCond.clone(
+    collection1 = cms.PSet(
+        tag = cms.InputTag("l1tGTProducer", "CL2Jets"),
+        minEta = cms.double(-2.4),
+        maxEta = cms.double(2.4),
+        regionsAbsEtaLowerBounds=cms.vdouble(0,1.5),
+        regionsMinPt=cms.vdouble(70,51)
+    ),
+    collection2 = cms.PSet(
+        tag = cms.InputTag("l1tGTProducer", "CL2Jets"),
+        minEta = cms.double(-2.4),
+        maxEta = cms.double(2.4),
+        regionsAbsEtaLowerBounds=cms.vdouble(0,1.5),
+        regionsMinPt=cms.vdouble(70,51)
+    ),
+    maxDEta = cms.double(1.6),
+)
+pDoublePuppiJet112_112 = cms.Path(DoublePuppiJet112112)
+algorithms.append(cms.PSet(expression = cms.string("pDoublePuppiJet112_112")))
+
 QuadJet70554040 = l1tGTQuadObjectCond.clone(
     collection1 = cms.PSet(
         tag = cms.InputTag("l1tGTProducer", "CL2Jets"),

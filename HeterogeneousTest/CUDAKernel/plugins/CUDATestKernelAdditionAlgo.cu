@@ -7,7 +7,7 @@
 
 #include "CUDATestKernelAdditionAlgo.h"
 
-namespace HeterogeneousCoreCUDATestKernelPlugins {
+namespace HeterogeneousTestCUDAKernelPlugins {
 
   void wrapper_add_vectors_f(const float* __restrict__ in1,
                              const float* __restrict__ in2,
@@ -17,4 +17,4 @@ namespace HeterogeneousCoreCUDATestKernelPlugins {
     cudaCheck(cudaGetLastError());
   }
 
-}  // namespace HeterogeneousCoreCUDATestKernelPlugins
+}  // namespace HeterogeneousTestCUDAKernelPlugins
