@@ -1744,22 +1744,18 @@ namespace edm {
                           looper_->prefetchAsync(
                               nextTask, serviceToken_, Transition::BeginLuminosityBlock, *(status->lumiPrincipal()), es);
                         }) | ifThen(looper_, [this, status, &es](auto nextTask) {
-                          status->globalBeginDidSucceed();
                           ServiceRegistry::Operate operateLooper(serviceToken_);
                           looper_->doBeginLuminosityBlock(*(status->lumiPrincipal()), es, &processContext_);
                         }) | then([this, status, iRunStatus](std::exception_ptr const* iException, auto holder) mutable {
+                          status->setGlobalEndRunHolder(iRunStatus->globalEndRunHolder());
+
                           if (iException) {
-                            status->resetResources();
-                            queueWhichWaitsForIOVsToFinish_.resume();
                             WaitingTaskHolder copyHolder(holder);
                             copyHolder.doneWaiting(*iException);
+                            globalEndLumiAsync(holder, status);
                             endRunAsync(iRunStatus, holder);
                           } else {
-                            if (not looper_) {
-                              status->globalBeginDidSucceed();
-                            }
-
-                            status->setGlobalEndRunHolder(iRunStatus->globalEndRunHolder());
+                            status->globalBeginDidSucceed();
 
                             EventSetupImpl const& es = status->eventSetupImpl(esp_->subProcessIndex());
                             using Traits = OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamBegin>;
@@ -1957,18 +1953,16 @@ namespace edm {
     auto eventSetupImpls = &lumiStatus->eventSetupImpls();
     bool cleaningUpAfterException = lumiStatus->cleaningUpAfterException() || iTask.taskHasFailed();
 
-    if (lumiStatus->didGlobalBeginSucceed()) {
-      auto& lumiPrincipal = *lumiStatus->lumiPrincipal();
-      using Traits = OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamEnd>;
-      LumiTransitionInfo transitionInfo(lumiPrincipal, es, eventSetupImpls);
-      endStreamTransitionAsync<Traits>(std::move(lumiDoneTask),
-                                       *schedule_,
-                                       iStreamIndex,
-                                       transitionInfo,
-                                       serviceToken_,
-                                       subProcesses_,
-                                       cleaningUpAfterException);
-    }
+    auto& lumiPrincipal = *lumiStatus->lumiPrincipal();
+    using Traits = OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamEnd>;
+    LumiTransitionInfo transitionInfo(lumiPrincipal, es, eventSetupImpls);
+    endStreamTransitionAsync<Traits>(std::move(lumiDoneTask),
+                                     *schedule_,
+                                     iStreamIndex,
+                                     transitionInfo,
+                                     serviceToken_,
+                                     subProcesses_,
+                                     cleaningUpAfterException);
   }
 
   void EventProcessor::endUnfinishedLumi(bool cleaningUpAfterException) {

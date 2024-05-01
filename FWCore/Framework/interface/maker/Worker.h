@@ -650,7 +650,12 @@ namespace edm {
       }
       void preModuleSignal() {
         if (a_) {
-          T::preModuleSignal(a_, context_, moduleCallingContext_);
+          try {
+            convertException::wrap([this]() { T::preModuleSignal(a_, context_, moduleCallingContext_); });
+          } catch (cms::Exception& ex) {
+            ex.addContext("Handling pre module signal, likely in a service function immediately before module method");
+            throw;
+          }
         }
       }
       void postModuleSignal() {
@@ -659,7 +664,12 @@ namespace edm {
           // Setting a_ to null informs the destructor that the signal
           // was already run and that it should do nothing.
           a_ = nullptr;
-          T::postModuleSignal(temp, context_, moduleCallingContext_);
+          try {
+            convertException::wrap([this, temp]() { T::postModuleSignal(temp, context_, moduleCallingContext_); });
+          } catch (cms::Exception& ex) {
+            ex.addContext("Handling post module signal, likely in a service function immediately after module method");
+            throw;
+          }
         }
       }
 
@@ -831,6 +841,7 @@ namespace edm {
         cpp.preModuleSignal();
         auto returnValue = iWorker->implDoBegin(info, mcc);
         cpp.postModuleSignal();
+        iWorker->beginSucceeded_ = true;
         return returnValue;
       }
       static void esPrefetchAsync(Worker* worker,
@@ -885,11 +896,16 @@ namespace edm {
                        ActivityRegistry* actReg,
                        ModuleCallingContext const* mcc,
                        Arg::Context const* context) {
-        ModuleSignalSentry<Arg> cpp(actReg, context, mcc);
-        cpp.preModuleSignal();
-        auto returnValue = iWorker->implDoEnd(info, mcc);
-        cpp.postModuleSignal();
-        return returnValue;
+        if (iWorker->beginSucceeded_) {
+          iWorker->beginSucceeded_ = false;
+
+          ModuleSignalSentry<Arg> cpp(actReg, context, mcc);
+          cpp.preModuleSignal();
+          auto returnValue = iWorker->implDoEnd(info, mcc);
+          cpp.postModuleSignal();
+          return returnValue;
+        }
+        return true;
       }
       static void esPrefetchAsync(Worker* worker,
                                   WaitingTaskHolder waitingTask,

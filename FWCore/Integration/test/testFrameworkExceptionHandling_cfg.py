@@ -23,11 +23,13 @@ process = cms.Process("TEST")
 from FWCore.ParameterSet.VarParsing import VarParsing
 
 process.TestServiceOne = cms.Service("TestServiceOne",
-    verbose = cms.untracked.bool(False)
+    verbose = cms.untracked.bool(False),
+    printTimestamps = cms.untracked.bool(True)
 )
 
 process.TestServiceTwo = cms.Service("TestServiceTwo",
-    verbose = cms.untracked.bool(False)
+    verbose = cms.untracked.bool(False),
+    printTimestamps = cms.untracked.bool(True)
 )
 
 options = VarParsing()
@@ -75,10 +77,18 @@ elif options.testNumber == 2:
     process.throwException.eventIDThrowOnGlobalBeginRun = cms.untracked.EventID(4, 0, 0)
 elif options.testNumber == 3:
     process.throwException.eventIDThrowOnGlobalBeginLumi = cms.untracked.EventID(4, 1, 0)
+    process.throwException.expectedGlobalBeginLumi = cms.untracked.uint32(4)
+    process.throwException.expectedOffsetNoGlobalEndLumi = cms.untracked.uint32(1)
+    process.throwException.expectedOffsetNoWriteLumi = cms.untracked.uint32(1)
+    process.doNotThrowException.expectedOffsetNoGlobalEndLumi = cms.untracked.uint32(1)
+    process.doNotThrowException.expectedOffsetNoWriteLumi = cms.untracked.uint32(1)
 elif options.testNumber == 4:
     process.throwException.eventIDThrowOnGlobalEndRun = cms.untracked.EventID(3, 0, 0)
 elif options.testNumber == 5:
     process.throwException.eventIDThrowOnGlobalEndLumi = cms.untracked.EventID(3, 1, 0)
+    process.throwException.expectedGlobalBeginLumi = cms.untracked.uint32(3)
+    process.throwException.expectedOffsetNoWriteLumi = cms.untracked.uint32(1)
+    process.doNotThrowException.expectedOffsetNoWriteLumi = cms.untracked.uint32(1)
 elif options.testNumber == 6:
     process.throwException.eventIDThrowOnStreamBeginRun = cms.untracked.EventID(4, 0, 0)
 elif options.testNumber == 7:

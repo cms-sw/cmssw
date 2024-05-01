@@ -131,4 +131,34 @@ namespace edm {
     }
     return result;
   }
+
+  void GlobalSchedule::handleException(GlobalContext const* globalContext,
+                                       ServiceWeakToken const& weakToken,
+                                       bool cleaningUpAfterException,
+                                       std::exception_ptr& excpt) {
+    //add context information to the exception and print message
+    try {
+      convertException::wrap([&excpt]() { std::rethrow_exception(excpt); });
+    } catch (cms::Exception& ex) {
+      std::ostringstream ost;
+      // In most cases the exception will already have context at this point,
+      // but add some context here in those rare cases where it does not.
+      if (ex.context().empty()) {
+        exceptionContext(ost, *globalContext);
+      }
+      ServiceRegistry::Operate op(weakToken.lock());
+      addContextAndPrintException(ost.str().c_str(), ex, cleaningUpAfterException);
+      excpt = std::current_exception();
+    }
+    // We are already handling an earlier exception, so ignore it
+    // if this signal results in another exception being thrown.
+    CMS_SA_ALLOW try {
+      if (actReg_) {
+        ServiceRegistry::Operate op(weakToken.lock());
+        actReg_->preGlobalEarlyTerminationSignal_(*globalContext, TerminationOrigin::ExceptionFromThisContext);
+      }
+    } catch (...) {
+    }
+  }
+
 }  // namespace edm
