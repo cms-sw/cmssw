@@ -2,3 +2,29 @@
 </test>
 <test name="test-runTheMatrix-interactive" command="test-runTheMatrix_interactive.sh">
 </test>
+
+<!-- Tests for MC production for 2022 and 2023 -->
+<!-- 
+    The conditions used here for 2022 and 2023 will be changed 
+    to use the proper GT from ALCA including the BS smearing 
+    record from GT. For the moment we use the automatic ones.
+    By default these tests won't fail if a failure happens at
+    HLT step. If you want to catch those errors please set the
+    environment variable CMSSW_MC_SETUP_TEST_CATCH_HLT.
+-->
+
+<!-- In CMSSW_13_0_18 the auto:phase1_2023_realistic (pre BPix) is 130X_mcRun3_2023_realistic_postBPix_v1 -->
+<test name="test_MC_23_setup" command="test_mc_setup/test_MC_setup.sh auto:phase1_2023_realistic Run3_2023 2023v12 CMSSW_13_0_18 130X_mcRun3_2023_realistic_v13 Realistic25ns13p6TeVEarly2023Collision" />
+
+<!-- In CMSSW_12_4_20 the auto:phase1_2022_realistic (pre EE) is 124X_mcRun3_2022_realistic_v12 -->
+<test name="test_MC_22_setup" command="test_mc_setup/test_MC_setup.sh auto:phase1_2022_realistic Run3 2022v14 CMSSW_12_4_20 124X_mcRun3_2022_realistic_v12 Realistic25ns13p6TeVEarly2022Collision" />
+
+<!-- 
+    The setups below are "standard", with everything run 
+    in the same release (the current) with the same GT.
+    This is done to crosscheck that, in normal conditions, 
+    everything works and ther's no bug or artifact in the 
+    chain itself.  
+-->
+<test name="test_MC_23_crosscheck" command="CMSSW_MC_SETUP_TEST_CATCH_HLT=0 ${CMSSW_BASE}/src/Configuration/PyReleaseValidation/test/test_mc_setup/test_MC_setup.sh auto:phase1_2023_realistic Run3_2023 @relval2023 ${CMSSW_VERSION} auto:phase1_2023_realistic DBrealistic" />
+<test name="test_MC_22_crosscheck" command="CMSSW_MC_SETUP_TEST_CATCH_HLT=0 ${CMSSW_BASE}/src/Configuration/PyReleaseValidation/test/test_mc_setup/test_MC_setup.sh auto:phase1_2022_realistic Run3 @relval2022 ${CMSSW_VERSION} auto:phase1_2022_realistic DBrealistic" />
