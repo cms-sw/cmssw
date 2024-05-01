@@ -3,8 +3,8 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 #include "DataFormats/Math/interface/GeantUnits.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include <CLHEP/Units/SystemOfUnits.h>
+#include <CLHEP/Units/SystemOfUnits.h>
 
 #include "cppunit/TestAssert.h"
 #include "cppunit/TestFixture.h"

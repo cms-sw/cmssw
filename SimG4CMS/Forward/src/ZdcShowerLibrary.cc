@@ -14,7 +14,7 @@
 #include "G4Step.hh"
 #include "G4Track.hh"
 #include "Randomize.hh"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include <CLHEP/Units/SystemOfUnits.h>
 
 ZdcShowerLibrary::ZdcShowerLibrary(const std::string& name, edm::ParameterSet const& p) {
   edm::ParameterSet m_HS = p.getParameter<edm::ParameterSet>("ZdcShowerLibrary");
@@ -66,7 +66,7 @@ std::vector<ZdcShowerLibrary::Hit>& ZdcShowerLibrary::getHits(const G4Step* aSte
 
   G4ThreeVector pos;
   G4ThreeVector posLocal;
-  double tSlice = (postStepPoint->GetGlobalTime()) / nanosecond;
+  double tSlice = (postStepPoint->GetGlobalTime()) / CLHEP::nanosecond;
 
   int nHit = 0;
   HcalZDCDetId::Section section;
@@ -154,7 +154,7 @@ int ZdcShowerLibrary::getEnergyFromLibrary(const G4ThreeVector& hitPoint,
                                            int channel) {
   int nphotons = -1;
 
-  energy = energy / GeV;
+  energy = energy / CLHEP::GeV;
 
   edm::LogVerbatim("ZdcShower") << "\n ZdcShowerLibrary::getEnergyFromLibrary input/output variables:"
                                 << " phi: " << momDir.phi() / CLHEP::deg << " theta: " << momDir.theta() / CLHEP::deg
@@ -209,8 +209,8 @@ int ZdcShowerLibrary::getEnergyFromLibrary(const G4ThreeVector& hitPoint,
   }
 
   //change to cm for parametrization
-  yin = yin / cm;
-  xin = xin / cm;
+  yin = yin / CLHEP::cm;
+  xin = xin / CLHEP::cm;
 
   if (iparCode == 0) {
     eav = ((((((-0.0002 * xin - 2.0e-13) * xin + 0.0022) * xin + 1.0e-11) * xin - 0.0217) * xin - 3.0e-10) * xin +

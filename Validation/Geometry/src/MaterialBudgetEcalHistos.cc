@@ -1,7 +1,7 @@
 #include "Validation/Geometry/interface/MaterialBudgetEcalHistos.h"
 #include "Validation/Geometry/interface/MaterialBudgetData.h"
 
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include <CLHEP/Units/SystemOfUnits.h>
 
 MaterialBudgetEcalHistos::MaterialBudgetEcalHistos(std::shared_ptr<MaterialBudgetData> data,
                                                    std::shared_ptr<TestHistoMgr> mgr,
@@ -113,9 +113,9 @@ void MaterialBudgetEcalHistos::fillEndTrack() {
 
   // ECAL specific
   if (fabs(theData->getEta()) <= 1.479) {
-    static const double twenty(20. * degree);
+    static const double twenty(20. * CLHEP::degree);
     const double phi(theData->getPhi() + M_PI);
-    const double phiModTwenty((phi - floor(phi / twenty) * twenty) / degree);
+    const double phiModTwenty((phi - floor(phi / twenty) * twenty) / CLHEP::degree);
     hmgr->getHistoProf1(1001)->Fill(theData->getEta(), theData->getTotalMB());
     hmgr->getHistoProf1(1002)->Fill(theData->getPhi(), theData->getTotalMB());
     hmgr->getHistoProf1(1003)->Fill(phiModTwenty, theData->getTotalMB());

@@ -1,7 +1,7 @@
 #include <cmath>
 #include "SimG4Core/CustomPhysics/interface/Decay3Body.h"
 
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include <CLHEP/Units/SystemOfUnits.h>
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
@@ -12,6 +12,8 @@
 #include <cmath>
 
 #include "Randomize.hh"
+
+using CLHEP::GeV;
 
 Decay3Body::Decay3Body() {}
 

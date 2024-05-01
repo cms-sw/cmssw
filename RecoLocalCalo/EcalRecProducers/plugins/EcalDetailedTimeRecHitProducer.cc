@@ -39,7 +39,7 @@
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include <CLHEP/Units/SystemOfUnits.h>
 
 #include <cmath>
 #include <iostream>
@@ -249,7 +249,7 @@ double EcalDetailedTimeRecHitProducer::deltaTimeOfFlight(GlobalPoint& vertex, co
   GlobalPoint layerPos =
       cellGeometry->getPosition(double(layer) + 0.5);  //depth in mm in the middle of the layer position
   GlobalVector tofVector = layerPos - vertex;
-  return (layerPos.mag() * cm - tofVector.mag() * cm) / (float)c_light;
+  return (layerPos.mag() * CLHEP::cm - tofVector.mag() * CLHEP::cm) / (float)c_light;
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

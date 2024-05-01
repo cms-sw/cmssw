@@ -9,12 +9,16 @@
 #include "CLHEP/Geometry/Transform3D.h"
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandGaussQ.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include <CLHEP/Units/SystemOfUnits.h>
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "HepMC/SimpleVector.h"
 
 #include <fstream>
 #include <string>
+
+using CLHEP::cm;
+using CLHEP::deg;
+using CLHEP::ns;
 
 BeamProfileVtxGenerator::BeamProfileVtxGenerator(const edm::ParameterSet& p) : BaseEvtVtxGenerator(p) {
   meanX(p.getParameter<double>("BeamMeanX") * cm);

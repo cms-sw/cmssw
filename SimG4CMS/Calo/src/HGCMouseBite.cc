@@ -1,7 +1,7 @@
 #include "SimG4CMS/Calo/interface/HGCMouseBite.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include <CLHEP/Units/SystemOfUnits.h>
 #include <iostream>
 
 //#define EDM_ML_DEBUG

@@ -29,7 +29,7 @@
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include <CLHEP/Units/SystemOfUnits.h>
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 
 class HGCalSimHitValidation : public DQMEDAnalyzer {

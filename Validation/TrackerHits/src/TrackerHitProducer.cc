@@ -24,7 +24,7 @@
 #include "SimDataFormats/ValidationFormats/interface/PValidationFormats.h"
 
 // helper files
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include <CLHEP/Units/SystemOfUnits.h>
 #include <CLHEP/Vector/LorentzVector.h>
 
 #include "TString.h"
@@ -250,11 +250,11 @@ void TrackerHitProducer::fillG4MC(edm::Event &iEvent) {
 
     const CLHEP::HepLorentzVector &G4Vtx = CLHEP::HepLorentzVector(
         itVtx->position().x(), itVtx->position().y(), itVtx->position().z(), itVtx->position().e());
-    G4VtxX.push_back(G4Vtx[0] / micrometer);  // cm from code -> micrometer
-                                              // *10000
-    G4VtxY.push_back(G4Vtx[1] / micrometer);  // cm from code -> micrometer
-                                              // *10000
-    G4VtxZ.push_back(G4Vtx[2] / millimeter);  // cm from code -> millimeter *10
+    G4VtxX.push_back(G4Vtx[0] / CLHEP::micrometer);  // cm from code -> micrometer
+                                                     // *10000
+    G4VtxY.push_back(G4Vtx[1] / CLHEP::micrometer);  // cm from code -> micrometer
+                                                     // *10000
+    G4VtxZ.push_back(G4Vtx[2] / CLHEP::millimeter);  // cm from code -> millimeter *10
   }
 
   if (verbosity > 1) {

@@ -2,7 +2,7 @@
 #include "SimG4Core/MagneticField/interface/CMSFieldManager.h"
 #include "SimG4Core/MagneticField/interface/Field.h"
 
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include <CLHEP/Units/SystemOfUnits.h>
 #include "G4ChordFinder.hh"
 #include "G4MagIntegratorStepper.hh"
 #include "G4PropagatorInField.hh"

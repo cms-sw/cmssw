@@ -27,7 +27,7 @@
 #include "SimDataFormats/Vertex/interface/SimVertex.h"
 
 // helper files
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include <CLHEP/Units/SystemOfUnits.h>
 #include <CLHEP/Vector/LorentzVector.h>
 
 #include <cstdlib>

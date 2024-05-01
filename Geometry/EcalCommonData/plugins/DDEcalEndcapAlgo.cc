@@ -11,7 +11,7 @@
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include <CLHEP/Units/SystemOfUnits.h>
 
 #include <CLHEP/Geometry/Transform3D.h>
 
@@ -30,6 +30,8 @@
 #include "Geometry/CaloGeometry/interface/EcalTrapezoidParameters.h"
 #include "CLHEP/Geometry/Transform3D.h"
 
+using CLHEP::deg;
+using CLHEP::mm;
 //#define EDM_ML_DEBUG
 
 class DDEcalEndcapAlgo : public DDAlgorithm {

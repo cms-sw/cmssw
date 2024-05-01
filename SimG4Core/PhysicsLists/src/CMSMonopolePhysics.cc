@@ -11,7 +11,7 @@
 #include "G4mplIonisation.hh"
 #include "G4mplIonisationWithDeltaModel.hh"
 
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include <CLHEP/Units/SystemOfUnits.h>
 
 CMSMonopolePhysics::CMSMonopolePhysics(const HepPDT::ParticleDataTable* pdt, const edm::ParameterSet& p)
     : G4VPhysicsConstructor("Monopole Physics") {

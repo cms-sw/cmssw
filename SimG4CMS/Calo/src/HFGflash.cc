@@ -5,8 +5,8 @@
 #include "G4Track.hh"
 #include "G4Navigator.hh"
 #include "G4NavigationHistory.hh"
-#include "CLHEP/Units/PhysicalConstants.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include <CLHEP/Units/PhysicalConstants.h>
+#include <CLHEP/Units/SystemOfUnits.h>
 
 #include "Randomize.hh"
 #include "G4TransportationManager.hh"
@@ -27,10 +27,13 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
-
 #include <cmath>
+
+using CLHEP::cm;
+using CLHEP::degree;
+using CLHEP::GeV;
+using CLHEP::nanosecond;
+using CLHEP::twopi;
 
 //#define EDM_ML_DEBUG
 

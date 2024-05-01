@@ -21,7 +21,7 @@
 #include "G4Cerenkov.hh"
 #include "G4LogicalVolumeStore.hh"
 
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include <CLHEP/Units/SystemOfUnits.h>
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "Randomize.hh"
 #include "G4Poisson.hh"

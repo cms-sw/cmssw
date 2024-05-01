@@ -43,8 +43,11 @@
 #include "Math/GenVector/RotationX.h"
 #include "Math/GenVector/RotationZ.h"
 
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include <CLHEP/Units/SystemOfUnits.h>
 #include <cmath>
+
+using CLHEP::cm;
+using CLHEP::deg;
 
 class TGeoMgrFromDdd : public edm::ESProducer {
 public:
@@ -619,13 +622,17 @@ TGeoMaterial* TGeoMgrFromDdd::createMaterial(const DDMaterial& iMaterial) {
 
   if (mat == nullptr) {
     if (iMaterial.noOfConstituents() > 0) {
-      TGeoMixture* mix = new TGeoMixture(mat_name.c_str(), iMaterial.noOfConstituents(), iMaterial.density() * cm3 / g);
+      TGeoMixture* mix =
+          new TGeoMixture(mat_name.c_str(), iMaterial.noOfConstituents(), iMaterial.density() * CLHEP::cm3 / CLHEP::g);
       for (int i = 0; i < iMaterial.noOfConstituents(); ++i) {
         mix->AddElement(createMaterial(iMaterial.constituent(i).first), iMaterial.constituent(i).second);
       }
       mat = mix;
     } else {
-      mat = new TGeoMaterial(mat_name.c_str(), iMaterial.a() * mole / g, iMaterial.z(), iMaterial.density() * cm3 / g);
+      mat = new TGeoMaterial(mat_name.c_str(),
+                             iMaterial.a() * CLHEP::mole / CLHEP::g,
+                             iMaterial.z(),
+                             iMaterial.density() * CLHEP::cm3 / CLHEP::g);
     }
     nameToMaterial_[mat_name] = mat;
   }

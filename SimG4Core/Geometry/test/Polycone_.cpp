@@ -1,4 +1,4 @@
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include <CLHEP/Units/SystemOfUnits.h>
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDSolidShapes.h"
 #include "DetectorDescription/Core/interface/Polycone.h"
@@ -22,8 +22,8 @@ public:
 };
 
 void testPolycone::matched_g4_and_dd(void) {
-  double phiStart = 45. * deg;
-  double phiTotal = 325. * deg;
+  double phiStart = 45. * CLHEP::deg;
+  double phiTotal = 325. * CLHEP::deg;
   double inner[] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
   vector<double> rInner(inner, inner + sizeof(inner) / sizeof(double));
   double outer[] = {0, 10, 10, 5, 5, 10, 10, 2, 2};
@@ -39,9 +39,9 @@ void testPolycone::matched_g4_and_dd(void) {
   dd.stream(cout);
   cout << endl;
 
-  double g4v = g4.GetCubicVolume() / cm3;
-  double ddv = dd.volume() / cm3;
-  double ddsv = dds.volume() / cm3;
+  double g4v = g4.GetCubicVolume() / CLHEP::cm3;
+  double ddv = dd.volume() / CLHEP::cm3;
+  double ddsv = dds.volume() / CLHEP::cm3;
 
   cout << "\tg4 volume = " << g4v << " cm3" << endl;
   cout << "\tdd volume = " << ddv << " cm3" << endl;

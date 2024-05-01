@@ -27,7 +27,7 @@
 #include <vector>
 #include <iostream>
 
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include <CLHEP/Units/SystemOfUnits.h>
 
 Bcm1fSD::Bcm1fSD(const std::string& name,
                  const SensitiveDetectorCatalog& clg,
@@ -35,9 +35,10 @@ Bcm1fSD::Bcm1fSD(const std::string& name,
                  const SimTrackManager* manager)
     : TimingSD(name, clg, manager) {
   edm::ParameterSet m_TrackerSD = p.getParameter<edm::ParameterSet>("Bcm1fSD");
-  energyCut = m_TrackerSD.getParameter<double>("EnergyThresholdForPersistencyInGeV") * GeV;  //default must be 0.5 (?)
+  energyCut =
+      m_TrackerSD.getParameter<double>("EnergyThresholdForPersistencyInGeV") * CLHEP::GeV;  //default must be 0.5 (?)
   energyHistoryCut =
-      m_TrackerSD.getParameter<double>("EnergyThresholdForHistoryInGeV") * GeV;  //default must be 0.05 (?)
+      m_TrackerSD.getParameter<double>("EnergyThresholdForHistoryInGeV") * CLHEP::GeV;  //default must be 0.05 (?)
 
   setCuts(energyCut, energyHistoryCut);
 }

@@ -13,7 +13,7 @@
 #include <DetectorDescription/Core/interface/Trap.h>
 #include <DetectorDescription/Core/interface/Tubs.h>
 
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include <CLHEP/Units/SystemOfUnits.h>
 #include <DataFormats/GeometryVector/interface/Pi.h>
 #include <G4Box.hh>
 #include <G4Cons.hh>
@@ -32,6 +32,9 @@
 #include <G4Tubs.hh>
 #include <string>
 
+using CLHEP::cm;
+using CLHEP::cm3;
+using CLHEP::deg;
 //
 // See Geant4 documentation for more details:
 //

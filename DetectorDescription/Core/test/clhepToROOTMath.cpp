@@ -2,8 +2,8 @@
 #include <iomanip>
 #include <iostream>
 
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include <CLHEP/Units/SystemOfUnits.h>
+#include <CLHEP/Units/SystemOfUnits.h>
 #include "CLHEP/Vector/Rotation.h"
 #include "CLHEP/Vector/RotationInterfaces.h"
 #include "CLHEP/Vector/ThreeVector.h"
@@ -15,6 +15,7 @@
 
 typedef CLHEP::Hep3Vector H3V;
 typedef CLHEP::HepRotation HRM;
+using CLHEP::deg;
 
 using namespace std;
 

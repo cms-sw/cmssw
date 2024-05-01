@@ -31,7 +31,7 @@
 #include "G4NavigationHistory.hh"
 #include "G4TouchableHistory.hh"
 
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include <CLHEP/Units/SystemOfUnits.h>
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 
 #include <cmath>

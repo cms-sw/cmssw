@@ -13,7 +13,7 @@
 #include "G4Step.hh"
 #include "G4Track.hh"
 #include "G4Material.hh"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include <CLHEP/Units/SystemOfUnits.h>
 
 //#define EDM_ML_DEBUG
 
@@ -65,8 +65,8 @@ uint32_t HcalTB06BeamSD::setDetUnitId(const G4Step* aStep) {
     det = 2;
     lay = (touch->GetReplicaNumber(1));
     G4ThreeVector localPoint = setToLocal(preStepPoint->GetPosition(), touch);
-    x = (int)(localPoint.x() / (0.2 * mm));
-    y = (int)(localPoint.y() / (0.2 * mm));
+    x = (int)(localPoint.x() / (0.2 * CLHEP::mm));
+    y = (int)(localPoint.y() / (0.2 * CLHEP::mm));
   }
 
   return HcalTestBeamNumbering::packIndex(det, lay, x, y);
