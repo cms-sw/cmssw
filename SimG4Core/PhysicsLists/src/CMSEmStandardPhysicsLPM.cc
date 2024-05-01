@@ -55,7 +55,7 @@
 #include "G4GammaGeneralProcess.hh"
 #include "G4EmBuilder.hh"
 
-#include "G4SystemOfUnits.hh"
+#include <CLHEP/Units/SystemOfUnits.h>
 
 CMSEmStandardPhysicsLPM::CMSEmStandardPhysicsLPM(G4int ver, const edm::ParameterSet& p)
     : G4VPhysicsConstructor("CMSEmStandard_emm") {
@@ -114,7 +114,7 @@ void CMSEmStandardPhysicsLPM::ConstructProcess() {
   G4CoulombScattering* kss = nullptr;
 
   // high energy limit for e+- scattering models and bremsstrahlung
-  G4double highEnergyLimit = 100 * MeV;
+  G4double highEnergyLimit = 100 * CLHEP::MeV;
 
   G4Region* aRegion = G4RegionStore::GetInstance()->GetRegion("HcalRegion", false);
   G4Region* bRegion = G4RegionStore::GetInstance()->GetRegion("HGCalRegion", false);

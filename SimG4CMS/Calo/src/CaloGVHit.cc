@@ -1,7 +1,7 @@
 #include "SimG4CMS/Calo/interface/CaloGVHit.h"
 #include <iostream>
 
-#include "G4SystemOfUnits.hh"
+#include <CLHEP/Units/SystemOfUnits.h>
 
 CaloGVHit::CaloGVHit() {
   eventID_ = 0;

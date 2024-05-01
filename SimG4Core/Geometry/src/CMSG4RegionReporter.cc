@@ -5,7 +5,7 @@
 #include "G4RegionStore.hh"
 #include "G4LogicalVolume.hh"
 #include "G4ProductionCuts.hh"
-#include "G4SystemOfUnits.hh"
+#include <CLHEP/Units/SystemOfUnits.h>
 
 #include <iostream>
 #include <iomanip>

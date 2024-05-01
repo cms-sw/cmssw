@@ -65,7 +65,7 @@
 #include "G4IonTable.hh"
 #include "G4ProcessManager.hh"
 #include "G4PhysicsLogVector.hh"
-#include "G4SystemOfUnits.hh"
+#include <CLHEP/Units/SystemOfUnits.h>
 
 static std::once_flag initializeOnce;
 CMS_THREAD_GUARD(initializeOnce) const G4ParticleDefinition* NuclearInteractionFTFSimulator::theG4Hadron[] = {nullptr};
@@ -279,7 +279,7 @@ NuclearInteractionFTFSimulator::NuclearInteractionFTFSimulator(unsigned int dist
   });
 
   // local objects
-  vect = new G4PhysicsLogVector(npoints - 1, 100 * MeV, TeV);
+  vect = new G4PhysicsLogVector(npoints - 1, 100 * CLHEP::MeV, CLHEP::TeV);
   intLengthElastic = intLengthInelastic = 0.0;
   currIdx = 0;
   index = 0;

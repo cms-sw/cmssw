@@ -6,7 +6,7 @@
 #include "G4MuonMinus.hh"
 #include "G4MuonPlus.hh"
 #include "G4ProcessManager.hh"
-#include "G4SystemOfUnits.hh"
+#include <CLHEP/Units/SystemOfUnits.h>
 
 APrimePhysics::APrimePhysics(double APMass, const G4String& scalefile, const G4double cxBias, const G4String& name)
     : G4VPhysicsConstructor(name), aprimeDef_(nullptr) {

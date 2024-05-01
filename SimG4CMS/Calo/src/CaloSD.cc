@@ -21,8 +21,9 @@
 #include "G4VProcess.hh"
 #include "G4GFlashSpot.hh"
 #include "G4ParticleTable.hh"
-#include "G4SystemOfUnits.hh"
 #include "G4PhysicalConstants.hh"
+
+#include <CLHEP/Units/SystemOfUnits.h>
 
 #include <fstream>
 #include <memory>
@@ -236,7 +237,7 @@ G4bool CaloSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
   auto const theTrack = aStep->GetTrack();
   uint16_t depth = getDepth(aStep);
 
-  double time = theTrack->GetGlobalTime() / nanosecond;
+  double time = theTrack->GetGlobalTime() / CLHEP::nanosecond;
   int primaryID = getTrackID(theTrack);
   if (unitID > 0) {
     currentID[0].setID(unitID, time, primaryID, depth);
@@ -326,7 +327,7 @@ bool CaloSD::ProcessHits(G4GFlashSpot* aSpot, G4TouchableHistory*) {
 
   if (unitID > 0) {
     // time of initial track
-    double time = track->GetGlobalTime() / nanosecond;
+    double time = track->GetGlobalTime() / CLHEP::nanosecond;
     int primaryID = getTrackID(track);
     uint16_t depth = getDepth(&fFakeStep);
     currentID[0].setID(unitID, time, primaryID, depth);

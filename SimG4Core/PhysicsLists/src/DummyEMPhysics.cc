@@ -21,7 +21,7 @@
 #include "G4PhysicsListHelper.hh"
 #include "G4BuilderType.hh"
 
-#include "G4SystemOfUnits.hh"
+#include <CLHEP/Units/SystemOfUnits.h>
 
 DummyEMPhysics::DummyEMPhysics(G4int ver) : G4VPhysicsConstructor("CMSEmGeantV"), verbose(ver) {
   G4EmParameters* param = G4EmParameters::Instance();

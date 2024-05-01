@@ -20,7 +20,9 @@
 #include "G4FastSimulationManager.hh"
 #include "G4TouchableHandle.hh"
 #include "G4VSensitiveDetector.hh"
-#include "G4SystemOfUnits.hh"
+#include <CLHEP/Units/SystemOfUnits.h>
+using CLHEP::cm;
+using CLHEP::GeV;
 
 GFlashEMShowerModel::GFlashEMShowerModel(const G4String& modelName,
                                          G4Envelope* envelope,
