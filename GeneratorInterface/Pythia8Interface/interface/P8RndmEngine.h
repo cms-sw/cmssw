@@ -38,5 +38,6 @@ namespace gen {
 
     CLHEP::HepRandomEngine* randomEngine_;
   };
+  typedef std::shared_ptr<P8RndmEngine> P8RndmEnginePtr;
 }  // namespace gen
 #endif
