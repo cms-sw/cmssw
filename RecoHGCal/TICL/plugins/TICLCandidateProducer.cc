@@ -339,6 +339,8 @@ void TICLCandidateProducer::produce(edm::Event &evt, const edm::EventSetup &es) 
   auto resultCandidates = std::make_unique<std::vector<TICLCandidate>>();
   std::vector<int> trackstersInTrackIndices(tracks.size(), -1);
 
+  energyRegressionAndID(layerClusters, tfSession_, *resultTracksters);
+
   //TODO
   //egammaInterpretationAlg_->makecandidates(inputGSF, inputTiming, *resultTrackstersMerged, trackstersInGSFTrackIndices)
   // mask generalTracks associated to GSFTrack linked in egammaInterpretationAlgo_
@@ -347,8 +349,6 @@ void TICLCandidateProducer::produce(edm::Event &evt, const edm::EventSetup &es) 
 
   assignPCAtoTracksters(
       *resultTracksters, layerClusters, layerClustersTimes, rhtools_.getPositionLayer(rhtools_.lastLayerEE()).z(), true);
-
-  energyRegressionAndID(layerClusters, tfSession_, *resultTracksters);
 
   std::vector<bool> maskTracksters(resultTracksters->size(), true);
   edm::OrphanHandle<std::vector<Trackster>> resultTracksters_h = evt.put(std::move(resultTracksters));
