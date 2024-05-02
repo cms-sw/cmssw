@@ -145,6 +145,15 @@ void moveNode(std::vector<Node<T>> &communityFrom, std::vector<Node<T>> &communi
 }
 
 template <class T>
+auto queueCommunity(std::vector<Node<T>> &community, std::queue const &queue) {
+  std::random_shuffle(community.begin(), community.end());  //elements are added to the queue in random order
+  for (auto const &node : community) {
+    queue.push(node);
+  }
+  return queue;
+}
+
+template <class T>
 auto moveNodesFast(TICLGraph const &graph, Partition &partition, double gamma) {
   auto communities{partition.getPartition()};
   std::random_shuffle(communities.begin(), communities.end());
@@ -179,14 +188,5 @@ auto moveNodesFast(TICLGraph const &graph, Partition &partition, double gamma) {
     }
   }
 
-    return partition;
-}
-
-template <class T>
-auto queueCommunity(std::vector<Node<T>> &community, std::queue const &queue) {
-  std::random_shuffle(community.begin(), community.end());  //elements are added to the queue in random order
-  for (auto const &node : community) {
-    queue.push(node);
-  }
-  return queue;
+  return partition;
 }

@@ -47,6 +47,10 @@ public:
   }*/
 };
 
+bool operator==(ElementaryNode const& eN1, ElementaryNode const& eN2) {
+  return (eN1.getId() == eN2.getId()) && (eN1.getNeighbours() == eN2.getNeighbours());
+}
+
 // a node can contain one or more elementary nodes (needed to implement the aggregate graph)
 template <class T>
 class Node {
@@ -63,7 +67,15 @@ public:
     assert(internalStructure_.size() != 0);
     return (internalStructure_[0].size() == 0) ? true : false;
   }
+
+  //*****************NEED TO IMPLEMENT EQUALITY OPERATOR********************
 };
+
+//tested this implementation on godbolt it should work
+template <class T>
+bool operator==(Node<T> const& n1, Node<T> const& n2) {
+  return ((n1.getInternalStructure()) == (n2.getInternalStructure()));
+}
 
 template <class T>
 class TICLGraph {
