@@ -1009,7 +1009,7 @@ void CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTower& 
     case 0: {  // Simple 4-momentum assignment
       GlobalPoint p = theTowerGeometry->getGeometry(id)->getPosition();
       towerP4 = p.basicVector().unit();
-      towerP4[3] = 1.f;  // energy
+      towerP4.mathVector()[3] = 1.f;  // energy
       towerP4 *= E;
 
       // double pf=1.0/cosh(p.eta());
@@ -1026,7 +1026,7 @@ void CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTower& 
         if (E_em > 0) {
           emPoint = emShwrPos(metaContains, momEmDepth, E_em);
           emP4 = emPoint.basicVector().unit();
-          emP4[3] = 1.f;  // energy
+          emP4.mathVector()[3] = 1.f;  // energy
           towerP4 = emP4 * E_em;
 
           // double emPf = 1.0/cosh(emPoint.eta());
@@ -1036,7 +1036,7 @@ void CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTower& 
           massless = (E_em <= 0);
           hadPoint = hadShwrPos(id, momHadDepth);
           auto lP4 = hadPoint.basicVector().unit();
-          lP4[3] = 1.f;  // energy
+          lP4.mathVector()[3] = 1.f;  // energy
           if (!massless) {
             auto diff = lP4 - emP4;
             mass2 = std::sqrt(E_em * E_had_tot * diff.mag2());
@@ -1057,7 +1057,7 @@ void CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTower& 
       } else {  // forward detector: use the CaloTower position
         GlobalPoint p = theTowerGeometry->getGeometry(id)->getPosition();
         towerP4 = p.basicVector().unit();
-        towerP4[3] = 1.f;  // energy
+        towerP4.mathVector()[3] = 1.f;  // energy
         towerP4 *= E;
         // double pf=1.0/cosh(p.eta());
         // if (E>0) towerP4 = CaloTower::PolarLorentzVector(E*pf, p.eta(), p.phi(), 0);  // simple momentum assignment, same position
@@ -1074,7 +1074,7 @@ void CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTower& 
         else
           emPoint = theTowerGeometry->getGeometry(id)->getPosition();
         towerP4 = emPoint.basicVector().unit();
-        towerP4[3] = 1.f;  // energy
+        towerP4.mathVector()[3] = 1.f;  // energy
         towerP4 *= E;
 
         // double sumPf = 1.0/cosh(emPoint.eta());
@@ -1084,7 +1084,7 @@ void CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTower& 
       } else {  // forward detector: use the CaloTower position
         GlobalPoint p = theTowerGeometry->getGeometry(id)->getPosition();
         towerP4 = p.basicVector().unit();
-        towerP4[3] = 1.f;  // energy
+        towerP4.mathVector()[3] = 1.f;  // energy
         towerP4 *= E;
 
         // double pf=1.0/cosh(p.eta());
