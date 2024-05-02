@@ -164,7 +164,7 @@ namespace edm {
         edm::make_waiting_task([id, successTask, iPrincipal, this, weakToken, &group](std::exception_ptr const*) {
           ServiceRegistry::Operate guard(weakToken.lock());
           try {
-            convertException::wrap([&]() {
+            bool selected = convertException::wrap([&]() {
               if (not implDoPrePrefetchSelection(id, *iPrincipal, &moduleCallingContext_)) {
                 timesRun_.fetch_add(1, std::memory_order_relaxed);
                 setPassed<true>();
@@ -173,9 +173,13 @@ namespace edm {
                 if (0 == successTask->decrement_ref_count()) {
                   TaskSentry s(successTask);
                 }
-                return;
+                return false;
               }
+              return true;
             });
+            if (not selected) {
+              return;
+            }
 
           } catch (cms::Exception& e) {
             e.addContext("Calling OutputModule prePrefetchSelection()");
@@ -187,7 +191,13 @@ namespace edm {
               exceptionContext(ost, *streamContext);
               e.addContext(ost.str());
             }
+            setException<true>(std::current_exception());
             waitingTasks_.doneWaiting(std::current_exception());
+            //TBB requires that destroyed tasks have count 0
+            if (0 == successTask->decrement_ref_count()) {
+              TaskSentry s(successTask);
+            }
+            return;
           }
           if (0 == successTask->decrement_ref_count()) {
             group.run([successTask]() {
