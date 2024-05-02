@@ -184,7 +184,20 @@ auto moveNodesFast(TICLGraph const &graph, Partition &partition, double gamma) {
     }
     if (bestDeltaCPM > 0.) {
       moveNode(currentCommunity, communities[indexBestCommunity], currentNode);
-      //**********NEEDS IMPLEMENTATION**********
+      std::vector<Node<T>> currentNeighbours{};
+      for (auto const &community : communities) {
+        if (!(community == communities[indexBestCommunity])) {
+          for (auto const &node : community) {
+            if (areNeighbours(currentNode, node)) {
+              currentNeighbours.push_back(node);
+            }
+          }
+        }
+      }
+      // making sure all nbrs of currentNode who are not in bestCommunity will be visited
+      for (auto const &neighbour : currentNeighbours) {
+        queue.push(neighbour);
+      }
     }
   }
 
