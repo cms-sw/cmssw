@@ -35,7 +35,7 @@ namespace edm {
                         typename T::TransitionInfoType const&,
                         ServiceToken const&,
                         StreamID,
-                        typename T::Context const*) noexcept;
+                        typename T::Context const*);
 
     bool checkResultsOfRunWorker(bool wasEvent);
 
@@ -111,7 +111,7 @@ namespace edm {
                                     typename T::TransitionInfoType const& info,
                                     ServiceToken const& token,
                                     StreamID streamID,
-                                    typename T::Context const* context) noexcept {
+                                    typename T::Context const* context) {
     if constexpr (T::isEvent_) {
       ++timesVisited_;
     }
