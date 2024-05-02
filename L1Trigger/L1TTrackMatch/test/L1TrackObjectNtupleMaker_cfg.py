@@ -128,7 +128,6 @@ if runVtxNN:
     AssociationName = "l1tTrackVertexNNAssociationProducer"
 else:
     process.l1tVertexFinderEmulator = process.l1tVertexProducer.clone()
-    process.l1tVertexFinderEmulator.VertexReconstruction.Algorithm = "FHEmulation"
     VertexAssociator = process.l1tTrackVertexAssociationProducer
     AssociationName = "l1tTrackVertexAssociationProducer"
     
