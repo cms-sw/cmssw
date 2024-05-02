@@ -203,3 +203,18 @@ auto moveNodesFast(TICLGraph const &graph, Partition &partition, double gamma) {
 
   return partition;
 }
+
+//fills an empty partition with a singleton partition
+template <class T>
+Partition &singletonPartition(TICLGraph const &graph, Partition &singlePartition) {
+  assert((singlePartition.getPartition()).empty());
+  auto const &nodes{graph.getNodes()};
+  auto &communities{singlePartition.setPartition()};
+  for (auto const &node : nodes) {
+    std::vector<Node<T>> singletonCommunity{node};
+    communities.push_back(singletonCommunity);
+  }
+  assert(!((singlePartition.getPartition()).empty()));
+
+  return singlePartition;
+}

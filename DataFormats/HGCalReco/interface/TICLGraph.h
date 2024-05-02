@@ -19,7 +19,7 @@ class ElementaryNode {
 
 public:
   ElementaryNode() = default;
-  ElementaryNode(unsigned index, bool isTrackster = true) : index_(index), isTrackster_(isTrackster){};
+  ElementaryNode(unsigned index, bool isTrackster = true) : index_(index), isTrackster_(isTrackster) {}
 
   //can i remove default dctor so i dont have to apply rule of 5???
   ElementaryNode(ElementaryNode const&) = default;
@@ -84,8 +84,8 @@ public:
   // can i remove default constructor ?? edm::Wrapper problem
   // without default constructor i could initialize connectedComponents when building the Graph
   TICLGraph() = default;
-  TICLGraph(std::vector<Node<T>> const& nodes) : nodes_{nodes} {};
-  TICLGraph(std::vector<Node<T>> const& nodes, std::vector<int> isRootNode) : nodes_{nodes}, isRootNode_{isRootNode} {};
+  TICLGraph(std::vector<Node<T>> const& nodes) : nodes_{nodes} {}
+  TICLGraph(std::vector<Node<T>> const& nodes, std::vector<int> isRootNode) : nodes_{nodes}, isRootNode_{isRootNode} {}
   std::vector<Node<T>> const& getNodes() const { return nodes_; }
   Node<T> const& getNode(int i) const { return nodes_[i]; }
 
@@ -164,6 +164,7 @@ class Partition {
   std::vector<std::vector<Node<T>>> communities_{};
 
 public:
+  Partition(std::vector<std::vector<Node<T>>> communities) : communities_{communities} {}
   const std::vector<std::vector<Node<T>>>& getPartition() const { return communities_; }
   std::vector<std::vector<Node<T>>>& setPartition() { return communities_; }
   auto flatPartition(std::vector<std::vector<ElementaryNode>> const& flattenedPartition) {
