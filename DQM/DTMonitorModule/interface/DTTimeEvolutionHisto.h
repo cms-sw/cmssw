@@ -73,6 +73,7 @@ private:
   int nBookedBins;
   int theMode;
   MonitorElement* histo;
+  int binLabelCounter;
 };
 #endif
 
