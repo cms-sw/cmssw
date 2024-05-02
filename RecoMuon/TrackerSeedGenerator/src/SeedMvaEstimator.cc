@@ -11,7 +11,10 @@ SeedMvaEstimator::SeedMvaEstimator(const edm::FileInPath& weightsfile,
                                    const std::vector<double>& scale_std,
                                    const bool isFromL1,
                                    const int minL1Qual)
-    : scale_mean_(scale_mean), scale_std_(scale_std), isFromL1_(isFromL1), minL1Qual_(minL1Qual) {
+    : scale_mean_(scale_mean.begin(), scale_mean.end()), isFromL1_(isFromL1), minL1Qual_(minL1Qual) {
+  scale_istd_.reserve(scale_std.size());
+  for (auto v : scale_std)
+    scale_istd_.push_back(1. / v);
   gbrForest_ = createGBRForest(weightsfile);
 }
 
@@ -39,19 +42,18 @@ void SeedMvaEstimator::getL1MuonVariables(const GlobalVector& global_p,
                                           const l1t::MuonBxCollection& l1Muons,
                                           float& dR2dRL1SeedP,
                                           float& dPhidRL1SeedP) const {
-  for (int ibx = l1Muons.getFirstBX(); ibx <= l1Muons.getLastBX(); ++ibx) {
-    if (ibx != 0)
-      continue;  // -- only take when ibx == 0 -- //
+  int ibx = 0;  // -- only take when ibx == 0 -- //
 
-    for (auto it = l1Muons.begin(ibx); it != l1Muons.end(ibx); it++) {
-      if (it->hwQual() < minL1Qual_)
-        continue;
+  auto eta = global_p.eta();
+  auto phi = global_p.barePhi();
+  for (auto it = l1Muons.begin(ibx); it != l1Muons.end(ibx); it++) {
+    if (it->hwQual() < minL1Qual_)
+      continue;
 
-      float dR2tmp = reco::deltaR2(it->etaAtVtx(), it->phiAtVtx(), global_p.eta(), global_p.phi());
-      if (dR2tmp < dR2dRL1SeedP) {
-        dR2dRL1SeedP = dR2tmp;
-        dPhidRL1SeedP = reco::deltaPhi(it->phiAtVtx(), global_p.phi());
-      }
+    float dR2tmp = reco::deltaR2(it->etaAtVtx(), it->phiAtVtx(), eta, phi);
+    if (dR2tmp < dR2dRL1SeedP) {
+      dR2dRL1SeedP = dR2tmp;
+      dPhidRL1SeedP = reco::deltaPhi(it->phiAtVtx(), phi);
     }
   }
 }
@@ -60,11 +62,13 @@ void SeedMvaEstimator::getL2MuonVariables(const GlobalVector& global_p,
                                           const reco::RecoChargedCandidateCollection& l2Muons,
                                           float& dR2dRL2SeedP,
                                           float& dPhidRL2SeedP) const {
+  auto eta = global_p.eta();
+  auto phi = global_p.barePhi();
   for (auto it = l2Muons.begin(); it != l2Muons.end(); it++) {
-    float dR2tmp = reco::deltaR2(*it, global_p);
+    float dR2tmp = reco::deltaR2(it->eta(), it->phi(), eta, phi);
     if (dR2tmp < dR2dRL2SeedP) {
       dR2dRL2SeedP = dR2tmp;
-      dPhidRL2SeedP = reco::deltaPhi(it->phi(), global_p.phi());
+      dPhidRL2SeedP = reco::deltaPhi(it->phi(), phi);
     }
   }
 }
@@ -101,7 +105,7 @@ double SeedMvaEstimator::computeMva(const TrajectorySeed& seed,
   }
 
   for (int iv = 0; iv < kLast; ++iv) {
-    var[iv] = (var[iv] - scale_mean_.at(iv)) / scale_std_.at(iv);
+    var[iv] = (var[iv] - scale_mean_[iv]) * scale_istd_[iv];
   }
 
   return gbrForest_->GetResponse(var);
