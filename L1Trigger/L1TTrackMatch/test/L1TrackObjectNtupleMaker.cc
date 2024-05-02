@@ -1678,14 +1678,14 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
       m_trkjetemExt_ntracks->clear();
       m_trkjetemExt_nxtracks->clear();
     }
-
-    m_pv_L1reco->clear();
-    m_pv_L1reco_sum->clear();
-    m_pv_L1reco_emu->clear();
-    m_pv_L1reco_sum_emu->clear();
-    m_pv_MC->clear();
-    m_MC_lep->clear();
   }
+
+  m_pv_L1reco->clear();
+  m_pv_L1reco_sum->clear();
+  m_pv_L1reco_emu->clear();
+  m_pv_L1reco_sum_emu->clear();
+  m_pv_MC->clear();
+  m_MC_lep->clear();
 
   // -----------------------------------------------------------------------------------------------
   // retrieve various containers
