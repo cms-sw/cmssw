@@ -155,12 +155,12 @@ auto queueCommunity(std::vector<Node<T>> &community, std::queue const &queue) {
 
 template <class T>
 auto moveNodesFast(TICLGraph const &graph, Partition &partition, double gamma) {
-  auto communities{partition.getPartition()};
-  std::random_shuffle(communities.begin(), communities.end());
+  auto shuffledCommunities{partition.getPartition()};
+  std::random_shuffle(shuffledCommunities.begin(), shuffledCommunities.end());
   std::queue<Node<T>> queue{};
-  std::vector<Node<T>> empty_community{};
+  //std::vector<Node<T>> empty_community{};
 
-  for (auto &community : communities) {  //all nodes are added to queue in random order
+  for (auto &community : shuffledCommunities) {  //all nodes are added to queue in random order
     queueCommunity(community, queue);
   }
 

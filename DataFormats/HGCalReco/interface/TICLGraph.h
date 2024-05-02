@@ -63,12 +63,10 @@ public:
   const std::vector<T>& getInternalStructure() const { return internalStructure_; }
   //THIS implies that NO node can be a vector of size zero. Therefore, before creating the aggregate graph, one should remove empty communities.
   //a node is of degree zero if it consists in a vector of ElementaryNodes
-  bool isNodeDegreeZero() {
+  bool isNodeDegreeZero() const {
     assert(internalStructure_.size() != 0);
     return (internalStructure_[0].size() == 0) ? true : false;
   }
-
-  //*****************NEED TO IMPLEMENT EQUALITY OPERATOR********************
 };
 
 //tested this implementation on godbolt it should work
@@ -150,13 +148,13 @@ public:
 
 //takes a community and return the vector of all the Elementary Nodes in the community
 template <class T>
-auto flatCommunity(std::vector<Node<T>> const& community, std::vector<ElementaryNode> const& flattenedCommunity) {
+auto flatCommunity(std::vector<Node<T>> const& community, std::vector<ElementaryNode>& flattenedCommunity) {
   for (auto const& node : community) {
     if (node.isNodeDegreeZero()) {
-      for (auto const& elementaryNode : node.getInternalSturcture())
+      for (auto const& elementaryNode : node.getInternalStructure())
         flattenedCommunity.push_back(elementaryNode);
     } else
-      flattenedCommunity(node, flattenedCommunity);
+      flatCommunity(node, flattenedCommunity);
   }
   return flattenedCommunity;
 }
@@ -193,8 +191,8 @@ template <class T>
 int numberOfEdges(std::vector<Node<T>> const& communityA, std::vector<Node<T>> const& communityB) {
   int numberOfEdges{};
 
-  std::vector<ElementaryNode> const flattenedCommunityA{};
-  std::vector<ElementaryNode> const flattenedCommunityB{};
+  std::vector<ElementaryNode> flattenedCommunityA{};
+  std::vector<ElementaryNode> flattenedCommunityB{};
   flatCommunity(communityA, flattenedCommunityA);
   flatCommunity(communityB, flattenedCommunityB);
 
@@ -223,6 +221,31 @@ int communitySize(std::vector<Node<T>> const& community) {
       communitySize(node);
   }
   return size;
+}
+
+template <class T>
+bool areNeighbours(Node<T> const& nodeA, Node<T> const& nodeB) {
+  std::vector<Node<T>> A{nodeA};
+  std::vector<Node<T>> B{nodeB};
+  std::vector<ElementaryNode> flattenedCommunityA{};
+  std::vector<ElementaryNode> flattenedCommunityB{};
+  flatCommunity(A, flattenedCommunityA);
+  flatCommunity(B, flattenedCommunityB);
+  bool result{false};
+  for (auto const& elementaryNodeA : flattenedCommunityA) {
+    std::vector<unsigned int> const& neighboursA{elementaryNodeA.getNeighbours()};
+    for (auto const& Id : neighboursA) {
+      auto it{std::find_if(flattenedCommunityB.begin(),
+                           flattenedCommunityB.end(),
+                           [&Id](ElementaryNode const& elNodeB) { return (elNodeB.getId()) == Id; })};
+      //for two nodes to be neighbours i simply need two of their elementary nodes being neighbours
+      if (it != flattenedCommunityB.end()) {
+        result = true;
+        break;
+      }
+    }
+  }
+  return result;
 }
 
 //std::optional (std::vector) .hasvalue()//
