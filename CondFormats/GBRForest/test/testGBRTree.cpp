@@ -21,7 +21,7 @@ namespace {
         // the code below is equivalent to the original
         // index = (vector[fCutIndices[index]] > fCutVals[index]) ? r : l;
         // gnenerates non branching code  and it's at least 30% faster
-        // see https://godbolt.org/z/czK436hea
+        // see https://godbolt.org/z/xT5dY9Th1   (yes in gcc13 is changed... but in the trunk is back as it was in gcc12)
         unsigned int x = vector[fCutIndices[index]] > fCutVals[index] ? ~0 : 0;
         index = (x & r) | ((~x) & l);
       } while (index > 0);
