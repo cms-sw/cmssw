@@ -27,15 +27,22 @@ protected:
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
 private:
-  MonitorElement *xyview;
-  MonitorElement *rzview;
+  // RZ and XY views
+  MonitorElement *hRZ_;
+
+  MonitorElement *hXY_Barrel_;
+  std::map<int, MonitorElement *> hXY_Endcap_;
+
+  // Strip profile
+  MonitorElement *hStripProf;
+  MonitorElement *hStripProf_RB12_, *hStripProf_RB34_;
+  MonitorElement *hStripProf_Endcap_, *hStripProf_IRPC_;
+
+  // Bunch crossing distributions
   MonitorElement *BxDist;
-  MonitorElement *StripProf;
 
   MonitorElement *BxDisc_4Plus;
   MonitorElement *BxDisc_4Min;
-  MonitorElement *xyvDplu4;
-  MonitorElement *xyvDmin4;
 
   // Timing information
   MonitorElement *hDigiTimeAll, *hDigiTime, *hDigiTimeIRPC, *hDigiTimeNoIRPC;
