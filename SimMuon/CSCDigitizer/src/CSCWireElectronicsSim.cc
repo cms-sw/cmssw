@@ -6,8 +6,8 @@
 #include "SimMuon/CSCDigitizer/src/CSCAnalogSignal.h"
 #include "SimMuon/CSCDigitizer/src/CSCWireElectronicsSim.h"
 
-#include "CLHEP/Random/RandGaussQ.h"
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
+#include <CLHEP/Random/RandGaussQ.h>
+#include <CLHEP/Units/GlobalPhysicalConstants.h>
 #include <CLHEP/Units/SystemOfUnits.h>
 
 #include <iostream>

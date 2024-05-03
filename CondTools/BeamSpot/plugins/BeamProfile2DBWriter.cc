@@ -31,7 +31,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include <CLHEP/Units/SystemOfUnits.h>
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
+#include <CLHEP/Units/GlobalPhysicalConstants.h>
 
 //
 // class declaration

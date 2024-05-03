@@ -12,7 +12,7 @@
 // =======================================================================
 //
 
-#include "CLHEP/Units/PhysicalConstants.h"
+#include <CLHEP/Units/PhysicalConstants.h>
 #include <CLHEP/Units/SystemOfUnits.h>
 #include "SimG4Core/MagneticField/interface/MonopoleEquation.h"
 #include "globals.hh"

@@ -12,8 +12,8 @@
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVSimParameterMap.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 
-#include "CLHEP/Random/RandPoissonQ.h"
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
+#include <CLHEP/Random/RandPoissonQ.h>
+#include <CLHEP/Units/GlobalPhysicalConstants.h>
 #include <CLHEP/Units/SystemOfUnits.h>
 
 #include <iostream>

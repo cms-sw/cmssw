@@ -13,7 +13,7 @@
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
 #include "DetectorDescription/Core/interface/DDVector.h"
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
+#include <CLHEP/Units/GlobalPhysicalConstants.h>
 #include <CLHEP/Units/SystemOfUnits.h>
 
 using namespace CLHEP;

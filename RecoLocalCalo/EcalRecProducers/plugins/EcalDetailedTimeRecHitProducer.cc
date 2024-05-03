@@ -38,7 +38,7 @@
 #include "SimDataFormats/Vertex/interface/SimVertex.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
+#include <CLHEP/Units/GlobalPhysicalConstants.h>
 #include <CLHEP/Units/SystemOfUnits.h>
 
 #include <cmath>

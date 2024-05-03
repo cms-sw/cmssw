@@ -53,7 +53,7 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 #include <CLHEP/Units/SystemOfUnits.h>
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
+#include <CLHEP/Units/GlobalPhysicalConstants.h>
 
 #include <TH1.h>
 #include <TH2.h>

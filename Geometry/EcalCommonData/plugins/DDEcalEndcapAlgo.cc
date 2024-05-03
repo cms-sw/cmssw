@@ -28,7 +28,7 @@
 #include "DetectorDescription/Core/interface/DDSplit.h"
 #include "DetectorDescription/Core/interface/DDTransform.h"
 #include "Geometry/CaloGeometry/interface/EcalTrapezoidParameters.h"
-#include "CLHEP/Geometry/Transform3D.h"
+#include <CLHEP/Geometry/Transform3D.h>
 
 using CLHEP::deg;
 using CLHEP::mm;

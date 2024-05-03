@@ -14,10 +14,10 @@
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "CLHEP/Random/RandFlat.h"
+#include <CLHEP/Random/RandFlat.h>
 #include <CLHEP/Units/SystemOfUnits.h>
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
-#include "CLHEP/Random/RandFlat.h"
+#include <CLHEP/Units/GlobalPhysicalConstants.h>
+#include <CLHEP/Random/RandFlat.h>
 
 using namespace edm;
 using namespace std;

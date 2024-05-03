@@ -13,7 +13,7 @@
 #include "G4Run.hh"
 #include "G4Track.hh"
 
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
+#include <CLHEP/Units/GlobalPhysicalConstants.h>
 #include <CLHEP/Units/SystemOfUnits.h>
 
 MonopoleSteppingAction::MonopoleSteppingAction(edm::ParameterSet const &p) : actOnTrack(false), bZ(0) {

@@ -11,7 +11,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
-#include "CLHEP/Random/RandFlat.h"
+#include <CLHEP/Random/RandFlat.h>
 #include <CLHEP/Units/SystemOfUnits.h>
 using namespace edm;
 

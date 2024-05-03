@@ -15,7 +15,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
+#include <CLHEP/Units/GlobalPhysicalConstants.h>
 #include <CLHEP/Units/SystemOfUnits.h>
 
 #include <iostream>

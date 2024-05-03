@@ -10,8 +10,8 @@
 #include "SimMuon/CSCDigitizer/src/CSCStripConditions.h"
 #include "SimMuon/CSCDigitizer/src/CSCStripElectronicsSim.h"
 
-#include "CLHEP/Random/RandGaussQ.h"
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
+#include <CLHEP/Random/RandGaussQ.h>
+#include <CLHEP/Units/GlobalPhysicalConstants.h>
 #include <CLHEP/Units/SystemOfUnits.h>
 
 #include <boost/bind/bind.hpp>

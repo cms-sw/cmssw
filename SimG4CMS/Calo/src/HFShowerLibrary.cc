@@ -16,7 +16,7 @@
 #include "G4ParticleTable.hh"
 #include "Randomize.hh"
 #include <CLHEP/Units/SystemOfUnits.h>
-#include "CLHEP/Units/PhysicalConstants.h"
+#include <CLHEP/Units/PhysicalConstants.h>
 
 //#define EDM_ML_DEBUG
 namespace {

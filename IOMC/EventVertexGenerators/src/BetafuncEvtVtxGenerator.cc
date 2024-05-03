@@ -21,9 +21,9 @@ ________________________________________________________________________
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
-#include "CLHEP/Random/RandGaussQ.h"
+#include <CLHEP/Random/RandGaussQ.h>
 #include <CLHEP/Units/SystemOfUnits.h>
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
+#include <CLHEP/Units/GlobalPhysicalConstants.h>
 #include "HepMC/SimpleVector.h"
 
 using CLHEP::cm;

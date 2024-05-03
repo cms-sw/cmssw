@@ -24,7 +24,7 @@
 #include "G4ParticleTable.hh"
 #include "G4PhysicalConstants.hh"
 #include <CLHEP/Units/SystemOfUnits.h>
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
+#include <CLHEP/Units/GlobalPhysicalConstants.h>
 #include "Randomize.hh"
 #include "G4Poisson.hh"
 #include "G4TwoVector.hh"

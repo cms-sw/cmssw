@@ -30,7 +30,7 @@
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 
 #include <CLHEP/Units/SystemOfUnits.h>
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
+#include <CLHEP/Units/GlobalPhysicalConstants.h>
 
 #include "TH1D.h"
 #include "TH2D.h"

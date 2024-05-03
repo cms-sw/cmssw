@@ -12,7 +12,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
-#include "CLHEP/Random/RandGaussQ.h"
+#include <CLHEP/Random/RandGaussQ.h>
 #include <CLHEP/Units/SystemOfUnits.h>
 #include "G4ParticleDefinition.hh"
 #include "G4ParticleGun.hh"

@@ -31,8 +31,8 @@
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "SimDataFormats/EcalTestBeam/interface/HodoscopeDetId.h"
 
-#include "CLHEP/Vector/ThreeVector.h"
-#include "CLHEP/Vector/Rotation.h"
+#include <CLHEP/Vector/ThreeVector.h>
+#include <CLHEP/Vector/Rotation.h>
 #include <CLHEP/Units/SystemOfUnits.h>
 
 using CLHEP::deg;

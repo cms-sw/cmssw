@@ -2,7 +2,7 @@
 #include "SimG4Core/CustomPhysics/interface/Decay3Body.h"
 
 #include <CLHEP/Units/SystemOfUnits.h>
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
+#include <CLHEP/Units/GlobalPhysicalConstants.h>
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "Math/GenVector/Rotation3D.h"

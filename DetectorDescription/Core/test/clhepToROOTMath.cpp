@@ -3,10 +3,9 @@
 #include <iostream>
 
 #include <CLHEP/Units/SystemOfUnits.h>
-#include <CLHEP/Units/SystemOfUnits.h>
-#include "CLHEP/Vector/Rotation.h"
-#include "CLHEP/Vector/RotationInterfaces.h"
-#include "CLHEP/Vector/ThreeVector.h"
+#include <CLHEP/Vector/Rotation.h>
+#include <CLHEP/Vector/RotationInterfaces.h>
+#include <CLHEP/Vector/ThreeVector.h>
 #include "DetectorDescription/Core/interface/DDRotationMatrix.h"
 #include "DetectorDescription/Core/interface/DDTranslation.h"
 #include "Math/GenVector/Cartesian3D.h"

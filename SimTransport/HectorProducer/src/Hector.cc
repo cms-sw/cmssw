@@ -5,7 +5,7 @@
 
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include <CLHEP/Units/SystemOfUnits.h>
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
+#include <CLHEP/Units/GlobalPhysicalConstants.h>
 #include "HepMC/SimpleVector.h"
 
 #include "TRandom3.h"

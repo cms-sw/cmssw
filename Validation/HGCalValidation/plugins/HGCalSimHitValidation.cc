@@ -30,7 +30,7 @@
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include <CLHEP/Units/SystemOfUnits.h>
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
+#include <CLHEP/Units/GlobalPhysicalConstants.h>
 
 class HGCalSimHitValidation : public DQMEDAnalyzer {
 public:

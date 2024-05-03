@@ -10,7 +10,7 @@
 #include "G4ThreeVector.hh"
 
 #include <CLHEP/Units/SystemOfUnits.h>
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
+#include <CLHEP/Units/GlobalPhysicalConstants.h>
 
 #include <iostream>
 

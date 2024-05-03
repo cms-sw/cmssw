@@ -13,7 +13,7 @@
 #include "CLHEP/Random/RandPoissonQ.h"
 #include "FWCore/Utilities/interface/isFinite.h"
 
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
+#include <CLHEP/Units/GlobalPhysicalConstants.h>
 #include <CLHEP/Units/SystemOfUnits.h>
 #include <iostream>
 

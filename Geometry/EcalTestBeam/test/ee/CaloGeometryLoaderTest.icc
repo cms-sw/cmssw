@@ -8,7 +8,7 @@
 #include "DetectorDescription/Core/interface/DDSpecifics.h"
 
 #include <CLHEP/Units/SystemOfUnits.h>
-#include "CLHEP/Geometry/Plane3D.h"
+#include <CLHEP/Geometry/Plane3D.h>
 
 #include <vector>
 #include <fstream>
