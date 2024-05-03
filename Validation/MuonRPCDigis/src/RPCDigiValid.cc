@@ -134,7 +134,7 @@ void RPCDigiValid::bookHistograms(DQMStore::IBooker &booker, edm::Run const &run
   // Strip profile
   hStripProf_ = booker.book1D("Strip_Profile", "Strip_Profile", 100, 0, 100);
   hStripProf_RB12_ = booker.book1D("Strip_Profile_RB12", "Strip Profile RB1 and RB2", 100, 0, 100);
-  hStripProf_RB34_ = booker.book1D("Strip_Profile_RB12", "Strip Profile RB1 and RB2", 50, 0, 50);
+  hStripProf_RB34_ = booker.book1D("Strip_Profile_RB34", "Strip Profile RB3 and RB4", 50, 0, 50);
   hStripProf_Endcap_ = booker.book1D("Strip_Profile_Endcap", "Strip Profile Endcap", 40, 0, 40);
   hStripProf_IRPC_ = booker.book1D("Strip_Profile_IRPC", "Strip Profile IRPC", 100, 0, 100);
 
