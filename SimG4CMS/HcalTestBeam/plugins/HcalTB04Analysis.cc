@@ -1151,7 +1151,7 @@ double HcalTB04Analysis::timeOfFlight(int det, int layer, double eta) {
   double tmp = dist / c_light / ns;
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HcalTBSim") << "HcalTB04Analysis::timeOfFlight " << tmp << " for det/lay " << det << " " << layer
-                                << " eta/theta " << eta << " " << theta / deg << " dist " << dist;
+                                << " eta/theta " << eta << " " << theta / CLHEP::deg << " dist " << dist;
 #endif
   return tmp;
 }

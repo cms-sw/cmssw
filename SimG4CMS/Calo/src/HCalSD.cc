@@ -233,7 +233,7 @@ HCalSD::HCalSD(const std::string& name,
 #ifdef EDM_ML_DEBUG
   std::stringstream ss2;
   for (unsigned int ig = 0; ig < gpar.size(); ig++) {
-    ss2 << "\n         gpar[" << ig << "] = " << gpar[ig] / cm << " cm";
+    ss2 << "\n         gpar[" << ig << "] = " << gpar[ig] / CLHEP::cm << " cm";
   }
   edm::LogVerbatim("HcalSim") << "Maximum depth for HF " << hcalConstants_->getMaxDepth(2) << gpar.size()
                               << " gpar (cm)" << ss2.str();
@@ -882,7 +882,7 @@ void HCalSD::getHitPMT(const G4Step* aStep) {
     if (hitPoint.z() < 0)
       etaR = -etaR;
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HcalSim") << "HCalSD::Hit for Detector " << det << " etaR " << etaR << " phi " << phi / deg
+    edm::LogVerbatim("HcalSim") << "HCalSD::Hit for Detector " << det << " etaR " << etaR << " phi " << phi / CLHEP::deg
                                 << " depth " << depth;
 #endif
     double time = (aStep->GetPostStepPoint()->GetGlobalTime());
@@ -941,7 +941,7 @@ void HCalSD::getHitFibreBundle(const G4Step* aStep, bool type) {
     if (hitPoint.z() < 0.)
       etaR = -etaR;
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HcalSim") << "HCalSD::Hit for Detector " << det << " etaR " << etaR << " phi " << phi / deg
+    edm::LogVerbatim("HcalSim") << "HCalSD::Hit for Detector " << det << " etaR " << etaR << " phi " << phi / CLHEP::deg
                                 << " depth " << depth;
 #endif
     double time = (aStep->GetPostStepPoint()->GetGlobalTime());

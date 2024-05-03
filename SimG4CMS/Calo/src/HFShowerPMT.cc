@@ -47,7 +47,7 @@ HFShowerPMT::HFShowerPMT(const std::string& name,
     if (ig / 10 * 10 == ig) {
       sss << "\n";
     }
-    sss << "  " << rTable[ig] / cm;
+    sss << "  " << rTable[ig] / CLHEP::cm;
   }
   edm::LogVerbatim("HFShowerPMT") << "HFShowerPMT: " << rTable.size() << " rTable(cm):" << sss.str();
 #endif
@@ -73,7 +73,7 @@ double HFShowerPMT::getHits(const G4Step* aStep) {
 #ifdef EDM_ML_DEBUG
   double edep = aStep->GetTotalEnergyDeposit();
   edm::LogVerbatim("HFShower") << "HFShowerPMT: Box " << boxNo << " PMT " << pmtNo << " Mapped Indices " << indexR
-                               << ", " << indexF << " Edeposit " << edep / MeV << " MeV; PE " << edep * pePerGeV / GeV;
+                               << ", " << indexF << " Edeposit " << edep / CLHEP::MeV << " MeV; PE " << edep * pePerGeV / CLHEP::GeV;
 #endif
 
   double photons = 0;

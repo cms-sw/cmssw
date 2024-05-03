@@ -78,7 +78,7 @@ double HFShowerFibreBundle::getHits(const G4Step* aStep, bool type) {
 #ifdef EDM_ML_DEBUG
   double edep = aStep->GetTotalEnergyDeposit();
   edm::LogVerbatim("HFShower") << "HFShowerFibreBundle: Box " << boxNo << " PMT " << pmtNo << " Mapped Indices "
-                               << indexR << ", " << indexF << " Edeposit " << edep / MeV << " MeV";
+                               << indexR << ", " << indexF << " Edeposit " << edep / CLHEP::MeV << " MeV";
 #endif
 
   double photons = 0;
