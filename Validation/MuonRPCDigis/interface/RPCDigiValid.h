@@ -34,18 +34,17 @@ private:
   std::map<int, MonitorElement *> hXY_Endcap_;
 
   // Strip profile
-  MonitorElement *hStripProf;
+  MonitorElement *hStripProf_;
   MonitorElement *hStripProf_RB12_, *hStripProf_RB34_;
   MonitorElement *hStripProf_Endcap_, *hStripProf_IRPC_;
 
   // Bunch crossing distributions
-  MonitorElement *BxDist;
-
-  MonitorElement *BxDisc_4Plus;
-  MonitorElement *BxDisc_4Min;
+  MonitorElement *hBxDist_;
+  MonitorElement *hBxDisc_4Plus_;
+  MonitorElement *hBxDisc_4Min_;
 
   // Timing information
-  MonitorElement *hDigiTimeAll, *hDigiTime, *hDigiTimeIRPC, *hDigiTimeNoIRPC;
+  MonitorElement *hDigiTimeAll_, *hDigiTime_, *hDigiTimeIRPC_, *hDigiTimeNoIRPC_;
 
   // Tokens for accessing run data. Used for passing to edm::Event. - stanislav
   edm::EDGetTokenT<edm::PSimHitContainer> simHitToken_;
