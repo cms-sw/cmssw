@@ -32,23 +32,16 @@ namespace deepvertex {
 namespace parT {
 
   enum InputFeatures {
-    kChargedCandidates=0,
+    kBegin=0,
+    kChargedCandidates=kBegin,
     kNeutralCandidates=1,
     kVertices=2,
     kChargedCandidates4Vec=3,
     kNeutralCandidates4Vec=4,
-    kVertices4Vec=5
+    kVertices4Vec=5,
+    kEnd=6
   };
-  
-  const std::map<unsigned int, InputFeatures> InputIndexes{
-    {0, kChargedCandidates},
-    {1, kNeutralCandidates},
-    {2, kVertices},
-    {3, kChargedCandidates4Vec},
-    {4, kNeutralCandidates4Vec},
-    {5, kVertices4Vec}
-  };
-
+ 
   constexpr unsigned n_cpf_accept = 25;
   constexpr unsigned n_npf_accept = 25;
   constexpr unsigned n_sv_accept = 5; 

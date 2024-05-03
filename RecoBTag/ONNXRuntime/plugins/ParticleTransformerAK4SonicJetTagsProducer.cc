@@ -108,12 +108,12 @@ void ParticleTransformerAK4SonicJetTagsProducer::acquire(edm::Event const &iEven
     {parT::kNeutralCandidates4Vec, target_n_npf},
     {parT::kVertices4Vec,          target_n_vtx}
   };
-  
-  for (unsigned igroup = 0; igroup < input_names_.size(); ++igroup) {
-    const auto &group_name = input_names_[igroup];
+ 
+  // loop through all groups of features
+  for (parT::InputFeatures ifeature = parT::kBegin; ifeature != parT::kEnd; ifeature = static_cast<parT::InputFeatures>(ifeature+1)) {
+    const auto &group_name = input_names_[ifeature];
     auto &input = iInput.at(group_name);
-   
-    const parT::InputFeatures ifeature = parT::InputIndexes.at(igroup);
+
     input.setShape(0, target_n.at(ifeature));
     auto tdata = input.allocate<float>(true);
 
@@ -129,7 +129,7 @@ void ParticleTransformerAK4SonicJetTagsProducer::acquire(edm::Event const &iEven
         parT_tensor_filler(vdata, ifeature, features.sv_features, target_n_vtx);
     }
     input.toServer(tdata);
-  } 
+  }
 }
 
 void ParticleTransformerAK4SonicJetTagsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup, Output const &iOutput) {
