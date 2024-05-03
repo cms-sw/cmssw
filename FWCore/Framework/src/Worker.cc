@@ -182,15 +182,7 @@ namespace edm {
             }
 
           } catch (cms::Exception& e) {
-            e.addContext("Calling OutputModule prePrefetchSelection()");
-            if (moduleCallingContext_.type() == ModuleCallingContext::Type::kPlaceInPath) {
-              auto pathContext = moduleCallingContext_.placeInPathContext()->pathContext();
-              e.addContext("Running path '" + pathContext->pathName() + "'");
-              auto streamContext = moduleCallingContext_.getStreamContext();
-              std::ostringstream ost;
-              exceptionContext(ost, *streamContext);
-              e.addContext(ost.str());
-            }
+            edm::exceptionContext(e, moduleCallingContext_);
             setException<true>(std::current_exception());
             waitingTasks_.doneWaiting(std::current_exception());
             //TBB requires that destroyed tasks have count 0
