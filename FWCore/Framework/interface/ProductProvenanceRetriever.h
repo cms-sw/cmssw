@@ -31,7 +31,7 @@ namespace edm {
     virtual void readProvenanceAsync(WaitingTaskHolder task,
                                      ModuleCallingContext const* moduleCallingContext,
                                      unsigned int transitionIndex,
-                                     std::atomic<const std::set<ProductProvenance>*>& writeTo) const = 0;
+                                     std::atomic<const std::set<ProductProvenance>*>& writeTo) const noexcept = 0;
   };
 
   class ProductProvenanceRetriever : public ProductProvenanceLookup {
@@ -50,7 +50,7 @@ namespace edm {
 
     void reset();
 
-    void readProvenanceAsync(WaitingTaskHolder task, ModuleCallingContext const* moduleCallingContext) const;
+    void readProvenanceAsync(WaitingTaskHolder task, ModuleCallingContext const* moduleCallingContext) const noexcept;
 
   private:
     std::unique_ptr<const std::set<ProductProvenance>> readProvenance() const final;

@@ -186,14 +186,14 @@ namespace edm {
                                    ServiceToken const& token,
                                    Transition iTrans,
                                    Principal const& iPrincipal,
-                                   EventSetupImpl const& iImpl) const {
+                                   EventSetupImpl const& iImpl) const noexcept {
     esPrefetchAsync(iTask, iImpl, iTrans, token);
     edPrefetchAsync(std::move(iTask), token, iPrincipal);
   }
 
   void EDLooperBase::edPrefetchAsync(WaitingTaskHolder iTask,
                                      ServiceToken const& token,
-                                     Principal const& iPrincipal) const {
+                                     Principal const& iPrincipal) const noexcept {
     //Based on Worker edPrefetchAsync
 
     // Prefetch products the module declares it consumes
@@ -211,7 +211,7 @@ namespace edm {
   void EDLooperBase::esPrefetchAsync(WaitingTaskHolder iTask,
                                      EventSetupImpl const& iImpl,
                                      Transition iTrans,
-                                     ServiceToken const& iToken) const {
+                                     ServiceToken const& iToken) const noexcept {
     //Based on Worker::esPrefetchAsync
     if (iTrans >= edm::Transition::NumberOfEventSetupTransitions) {
       return;

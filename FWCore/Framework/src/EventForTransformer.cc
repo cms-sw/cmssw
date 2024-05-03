@@ -11,7 +11,7 @@
 
 namespace edm {
 
-  EventForTransformer::EventForTransformer(EventPrincipal const& ep, ModuleCallingContext moduleCallingContext)
+  EventForTransformer::EventForTransformer(EventPrincipal const& ep, ModuleCallingContext moduleCallingContext) noexcept
       : eventPrincipal_{ep}, mcc_{moduleCallingContext} {}
 
   BasicHandle EventForTransformer::get(edm::TypeID const& iTypeID, ProductResolverIndex iIndex) const {

@@ -46,12 +46,12 @@ namespace edm {
     Types moduleType() const override;
     ConcurrencyTypes moduleConcurrencyType() const override;
 
-    bool wantsProcessBlocks() const final;
-    bool wantsInputProcessBlocks() const final;
-    bool wantsGlobalRuns() const final;
-    bool wantsGlobalLuminosityBlocks() const final;
-    bool wantsStreamRuns() const final;
-    bool wantsStreamLuminosityBlocks() const final;
+    bool wantsProcessBlocks() const noexcept final;
+    bool wantsInputProcessBlocks() const noexcept final;
+    bool wantsGlobalRuns() const noexcept final;
+    bool wantsGlobalLuminosityBlocks() const noexcept final;
+    bool wantsStreamRuns() const noexcept final;
+    bool wantsStreamLuminosityBlocks() const noexcept final;
 
     SerialTaskQueue* globalRunsQueue() final;
     SerialTaskQueue* globalLuminosityBlocksQueue() final;
@@ -88,17 +88,17 @@ namespace edm {
     bool implDo(EventTransitionInfo const&, ModuleCallingContext const*) override;
 
     void itemsToGetForSelection(std::vector<ProductResolverIndexAndSkipBit>&) const final;
-    bool implNeedToRunSelection() const final;
+    bool implNeedToRunSelection() const noexcept final;
 
     void implDoAcquire(EventTransitionInfo const&, ModuleCallingContext const*, WaitingTaskWithArenaHolder&) final;
 
-    size_t transformIndex(edm::BranchDescription const&) const final;
+    size_t transformIndex(edm::BranchDescription const&) const noexcept final;
     void implDoTransformAsync(WaitingTaskHolder,
                               size_t iTransformIndex,
                               EventPrincipal const&,
                               ParentContext const&,
-                              ServiceWeakToken const&) final;
-    ProductResolverIndex itemToGetForTransform(size_t iTransformIndex) const final;
+                              ServiceWeakToken const&) noexcept final;
+    ProductResolverIndex itemToGetForTransform(size_t iTransformIndex) const noexcept final;
 
     bool implDoPrePrefetchSelection(StreamID, EventPrincipal const&, ModuleCallingContext const*) override;
     bool implDoBeginProcessBlock(ProcessBlockPrincipal const&, ModuleCallingContext const*) override;
@@ -159,13 +159,13 @@ namespace edm {
 
     void preActionBeforeRunEventAsync(WaitingTaskHolder iTask,
                                       ModuleCallingContext const& iModuleCallingContext,
-                                      Principal const& iPrincipal) const override {
+                                      Principal const& iPrincipal) const noexcept override {
       module_->preActionBeforeRunEventAsync(iTask, iModuleCallingContext, iPrincipal);
     }
 
-    bool hasAcquire() const override { return module_->hasAcquire(); }
+    bool hasAcquire() const noexcept override { return module_->hasAcquire(); }
 
-    bool hasAccumulator() const override { return module_->hasAccumulator(); }
+    bool hasAccumulator() const noexcept override { return module_->hasAccumulator(); }
 
     edm::propagate_const<std::shared_ptr<T>> module_;
   };

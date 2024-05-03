@@ -71,7 +71,7 @@ namespace edm {
                        bool skipCurrentProcess,
                        ServiceToken const& token,
                        SharedResourcesAcquirer* sra,
-                       ModuleCallingContext const* mcc) const {
+                       ModuleCallingContext const* mcc) const noexcept {
       return prefetchAsync_(waitTask, principal, skipCurrentProcess, token, sra, mcc);
     }
 
@@ -172,7 +172,7 @@ namespace edm {
                                 bool skipCurrentProcess,
                                 ServiceToken const& token,
                                 SharedResourcesAcquirer* sra,
-                                ModuleCallingContext const* mcc) const = 0;
+                                ModuleCallingContext const* mcc) const noexcept = 0;
 
     virtual void retrieveAndMerge_(Principal const& principal,
                                    MergeableRunProductMetadata const* mergeableRunProductMetadata) const;

@@ -217,8 +217,8 @@ namespace edm {
 
       void registerProductsAndCallbacks(OutputModuleCore const*, ProductRegistry*);
 
-      bool needToRunSelection() const;
-      std::vector<ProductResolverIndexAndSkipBit> productsUsedBySelection() const;
+      bool needToRunSelection() const noexcept;
+      std::vector<ProductResolverIndexAndSkipBit> productsUsedBySelection() const noexcept;
       bool prePrefetchSelection(StreamID id, EventPrincipal const&, ModuleCallingContext const*);
 
       // Do the end-of-file tasks; this is only called internally, after
@@ -247,7 +247,7 @@ namespace edm {
 
       virtual void setProcessesWithSelectedMergeableRunProducts(std::set<std::string> const&) {}
 
-      bool hasAccumulator() const { return false; }
+      bool hasAccumulator() const noexcept { return false; }
 
       void keepThisBranch(BranchDescription const& desc,
                           std::map<BranchID, BranchDescription const*>& trueBranchIDToKeptBranchDesc,

@@ -42,7 +42,7 @@ namespace edm {
                              eventsetup::DataKey const&,
                              EventSetupImpl const*,
                              ServiceToken const&,
-                             ESParentContext const&) final {
+                             ESParentContext const&) noexcept final {
         return;
       }
 

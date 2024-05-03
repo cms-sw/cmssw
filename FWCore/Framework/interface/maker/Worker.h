@@ -125,21 +125,24 @@ namespace edm {
       doClearModule();
     }
 
-    virtual bool wantsProcessBlocks() const = 0;
-    virtual bool wantsInputProcessBlocks() const = 0;
-    virtual bool wantsGlobalRuns() const = 0;
-    virtual bool wantsGlobalLuminosityBlocks() const = 0;
-    virtual bool wantsStreamRuns() const = 0;
-    virtual bool wantsStreamLuminosityBlocks() const = 0;
+    virtual bool wantsProcessBlocks() const noexcept = 0;
+    virtual bool wantsInputProcessBlocks() const noexcept = 0;
+    virtual bool wantsGlobalRuns() const noexcept = 0;
+    virtual bool wantsGlobalLuminosityBlocks() const noexcept = 0;
+    virtual bool wantsStreamRuns() const noexcept = 0;
+    virtual bool wantsStreamLuminosityBlocks() const noexcept = 0;
 
     virtual SerialTaskQueue* globalRunsQueue() = 0;
     virtual SerialTaskQueue* globalLuminosityBlocksQueue() = 0;
 
-    void prePrefetchSelectionAsync(
-        oneapi::tbb::task_group&, WaitingTask* task, ServiceToken const&, StreamID stream, EventPrincipal const*);
+    void prePrefetchSelectionAsync(oneapi::tbb::task_group&,
+                                   WaitingTask* task,
+                                   ServiceToken const&,
+                                   StreamID stream,
+                                   EventPrincipal const*) noexcept;
 
     void prePrefetchSelectionAsync(
-        oneapi::tbb::task_group&, WaitingTask* task, ServiceToken const&, StreamID stream, void const*) {
+        oneapi::tbb::task_group&, WaitingTask* task, ServiceToken const&, StreamID stream, void const*) noexcept {
       assert(false);
     }
 
@@ -149,7 +152,7 @@ namespace edm {
                      ServiceToken const&,
                      StreamID,
                      ParentContext const&,
-                     typename T::Context const*);
+                     typename T::Context const*) noexcept;
 
     template <typename T>
     void doWorkNoPrefetchingAsync(WaitingTaskHolder,
@@ -157,22 +160,22 @@ namespace edm {
                                   ServiceToken const&,
                                   StreamID,
                                   ParentContext const&,
-                                  typename T::Context const*);
+                                  typename T::Context const*) noexcept;
 
     template <typename T>
     std::exception_ptr runModuleDirectly(typename T::TransitionInfoType const&,
                                          StreamID,
                                          ParentContext const&,
-                                         typename T::Context const*);
+                                         typename T::Context const*) noexcept;
 
-    virtual size_t transformIndex(edm::BranchDescription const&) const = 0;
+    virtual size_t transformIndex(edm::BranchDescription const&) const noexcept = 0;
     void doTransformAsync(WaitingTaskHolder,
                           size_t iTransformIndex,
                           EventPrincipal const&,
                           ServiceToken const&,
                           StreamID,
                           ModuleCallingContext const&,
-                          StreamContext const*);
+                          StreamContext const*) noexcept;
 
     void callWhenDoneAsync(WaitingTaskHolder task) { waitingTasks_.add(std::move(task)); }
     void skipOnPath(EventPrincipal const& iEvent);
@@ -195,7 +198,7 @@ namespace edm {
 
     void postDoEvent(EventPrincipal const&);
 
-    ModuleDescription const* description() const {
+    ModuleDescription const* description() const noexcept {
       if (moduleValid_) {
         return moduleCallingContext_.moduleDescription();
       }
@@ -229,7 +232,7 @@ namespace edm {
     virtual Types moduleType() const = 0;
     virtual ConcurrencyTypes moduleConcurrencyType() const = 0;
 
-    void clearCounters() {
+    void clearCounters() noexcept {
       timesRun_.store(0, std::memory_order_release);
       timesVisited_.store(0, std::memory_order_release);
       timesPassed_.store(0, std::memory_order_release);
@@ -237,21 +240,21 @@ namespace edm {
       timesExcept_.store(0, std::memory_order_release);
     }
 
-    void addedToPath() { ++numberOfPathsOn_; }
+    void addedToPath() noexcept { ++numberOfPathsOn_; }
     //NOTE: calling state() is done to force synchronization across threads
-    int timesRun() const { return timesRun_.load(std::memory_order_acquire); }
-    int timesVisited() const { return timesVisited_.load(std::memory_order_acquire); }
-    int timesPassed() const { return timesPassed_.load(std::memory_order_acquire); }
-    int timesFailed() const { return timesFailed_.load(std::memory_order_acquire); }
-    int timesExcept() const { return timesExcept_.load(std::memory_order_acquire); }
-    State state() const { return state_; }
+    int timesRun() const noexcept { return timesRun_.load(std::memory_order_acquire); }
+    int timesVisited() const noexcept { return timesVisited_.load(std::memory_order_acquire); }
+    int timesPassed() const noexcept { return timesPassed_.load(std::memory_order_acquire); }
+    int timesFailed() const noexcept { return timesFailed_.load(std::memory_order_acquire); }
+    int timesExcept() const noexcept { return timesExcept_.load(std::memory_order_acquire); }
+    State state() const noexcept { return state_; }
 
-    int timesPass() const { return timesPassed(); }  // for backward compatibility only - to be removed soon
+    int timesPass() const noexcept { return timesPassed(); }  // for backward compatibility only - to be removed soon
 
-    virtual bool hasAccumulator() const = 0;
+    virtual bool hasAccumulator() const noexcept = 0;
 
     // Used in PuttableProductResolver
-    edm::WaitingTaskList& waitingTaskList() { return waitingTasks_; }
+    edm::WaitingTaskList& waitingTaskList() noexcept { return waitingTasks_; }
 
   protected:
     template <typename O>
@@ -263,7 +266,7 @@ namespace edm {
     virtual bool implDo(EventTransitionInfo const&, ModuleCallingContext const*) = 0;
 
     virtual void itemsToGetForSelection(std::vector<ProductResolverIndexAndSkipBit>&) const = 0;
-    virtual bool implNeedToRunSelection() const = 0;
+    virtual bool implNeedToRunSelection() const noexcept = 0;
 
     virtual void implDoAcquire(EventTransitionInfo const&,
                                ModuleCallingContext const*,
@@ -273,8 +276,8 @@ namespace edm {
                                       size_t iTransformIndex,
                                       EventPrincipal const&,
                                       ParentContext const&,
-                                      ServiceWeakToken const&) = 0;
-    virtual ProductResolverIndex itemToGetForTransform(size_t iTransformIndex) const = 0;
+                                      ServiceWeakToken const&) noexcept = 0;
+    virtual ProductResolverIndex itemToGetForTransform(size_t iTransformIndex) const noexcept = 0;
 
     virtual bool implDoPrePrefetchSelection(StreamID, EventPrincipal const&, ModuleCallingContext const*) = 0;
     virtual bool implDoBeginProcessBlock(ProcessBlockPrincipal const&, ModuleCallingContext const*) = 0;
@@ -311,7 +314,7 @@ namespace edm {
 
     virtual void preActionBeforeRunEventAsync(WaitingTaskHolder iTask,
                                               ModuleCallingContext const& moduleCallingContext,
-                                              Principal const& iPrincipal) const = 0;
+                                              Principal const& iPrincipal) const noexcept = 0;
 
     virtual void implRespondToOpenInputFile(FileBlock const& fb) = 0;
     virtual void implRespondToCloseInputFile(FileBlock const& fb) = 0;
@@ -324,7 +327,7 @@ namespace edm {
     bool shouldRethrowException(std::exception_ptr iPtr,
                                 ParentContext const& parentContext,
                                 bool isEvent,
-                                bool isTryToContinue) const;
+                                bool isTryToContinue) const noexcept;
     void checkForShouldTryToContinue(ModuleDescription const&);
 
     template <bool IS_EVENT>
@@ -360,10 +363,10 @@ namespace edm {
                        ServiceToken const&,
                        ParentContext const&,
                        typename T::TransitionInfoType const&,
-                       Transition);
+                       Transition) noexcept;
 
-    void esPrefetchAsync(WaitingTaskHolder, EventSetupImpl const&, Transition, ServiceToken const&);
-    void edPrefetchAsync(WaitingTaskHolder, ServiceToken const&, Principal const&) const;
+    void esPrefetchAsync(WaitingTaskHolder, EventSetupImpl const&, Transition, ServiceToken const&) noexcept;
+    void edPrefetchAsync(WaitingTaskHolder, ServiceToken const&, Principal const&) const noexcept;
 
     bool needsESPrefetching(Transition iTrans) const noexcept {
       return iTrans < edm::Transition::NumberOfEventSetupTransitions ? not esItemsToGetFrom(iTrans).empty() : false;
@@ -383,23 +386,24 @@ namespace edm {
                                                        moduleCallingContext_);
     }
 
-    virtual bool hasAcquire() const = 0;
+    virtual bool hasAcquire() const noexcept = 0;
 
     template <typename T>
     std::exception_ptr runModuleAfterAsyncPrefetch(std::exception_ptr,
                                                    typename T::TransitionInfoType const&,
                                                    StreamID,
                                                    ParentContext const&,
-                                                   typename T::Context const*);
+                                                   typename T::Context const*) noexcept;
 
     void runAcquire(EventTransitionInfo const&, ParentContext const&, WaitingTaskWithArenaHolder&);
 
     void runAcquireAfterAsyncPrefetch(std::exception_ptr,
                                       EventTransitionInfo const&,
                                       ParentContext const&,
-                                      WaitingTaskWithArenaHolder);
+                                      WaitingTaskWithArenaHolder) noexcept;
 
-    std::exception_ptr handleExternalWorkException(std::exception_ptr iEPtr, ParentContext const& parentContext);
+    std::exception_ptr handleExternalWorkException(std::exception_ptr iEPtr,
+                                                   ParentContext const& parentContext) noexcept;
 
     template <typename T>
     class RunModuleTask : public WaitingTask {
@@ -410,7 +414,7 @@ namespace edm {
                     StreamID streamID,
                     ParentContext const& parentContext,
                     typename T::Context const* context,
-                    oneapi::tbb::task_group* iGroup)
+                    oneapi::tbb::task_group* iGroup) noexcept
           : m_worker(worker),
             m_transitionInfo(transitionInfo),
             m_streamID(streamID),
@@ -516,7 +520,7 @@ namespace edm {
                   typename T::TransitionInfoType const&,
                   ServiceToken const&,
                   ParentContext const&,
-                  WaitingTaskWithArenaHolder) {}
+                  WaitingTaskWithArenaHolder) noexcept {}
       void execute() final {}
     };
 
@@ -527,7 +531,7 @@ namespace edm {
                   EventTransitionInfo const& eventTransitionInfo,
                   ServiceToken const& token,
                   ParentContext const& parentContext,
-                  WaitingTaskWithArenaHolder holder)
+                  WaitingTaskWithArenaHolder holder) noexcept
           : m_worker(worker),
             m_eventTransitionInfo(eventTransitionInfo),
             m_parentContext(parentContext),
@@ -590,7 +594,7 @@ namespace edm {
       HandleExternalWorkExceptionTask(Worker* worker,
                                       oneapi::tbb::task_group* group,
                                       WaitingTask* runModuleTask,
-                                      ParentContext const& parentContext);
+                                      ParentContext const& parentContext) noexcept;
 
       void execute() final;
 
@@ -699,14 +703,14 @@ namespace edm {
                                   WaitingTaskHolder waitingTask,
                                   ServiceToken const& token,
                                   EventTransitionInfo const& info,
-                                  Transition transition) {
+                                  Transition transition) noexcept {
         worker->esPrefetchAsync(waitingTask, info.eventSetupImpl(), transition, token);
       }
-      static bool wantsTransition(Worker const* iWorker) { return true; }
-      static bool needToRunSelection(Worker const* iWorker) { return iWorker->implNeedToRunSelection(); }
+      static bool wantsTransition(Worker const* iWorker) noexcept { return true; }
+      static bool needToRunSelection(Worker const* iWorker) noexcept { return iWorker->implNeedToRunSelection(); }
 
-      static SerialTaskQueue* pauseGlobalQueue(Worker*) { return nullptr; }
-      static SerialTaskQueue* enableGlobalQueue(Worker*) { return nullptr; }
+      static SerialTaskQueue* pauseGlobalQueue(Worker*) noexcept { return nullptr; }
+      static SerialTaskQueue* enableGlobalQueue(Worker*) noexcept { return nullptr; }
     };
 
     template <>
@@ -734,13 +738,13 @@ namespace edm {
                                   WaitingTaskHolder waitingTask,
                                   ServiceToken const& token,
                                   RunTransitionInfo const& info,
-                                  Transition transition) {
+                                  Transition transition) noexcept {
         worker->esPrefetchAsync(waitingTask, info.eventSetupImpl(), transition, token);
       }
-      static bool wantsTransition(Worker const* iWorker) { return iWorker->wantsGlobalRuns(); }
-      static bool needToRunSelection(Worker const* iWorker) { return false; }
-      static SerialTaskQueue* pauseGlobalQueue(Worker* iWorker) { return iWorker->globalRunsQueue(); }
-      static SerialTaskQueue* enableGlobalQueue(Worker*) { return nullptr; }
+      static bool wantsTransition(Worker const* iWorker) noexcept { return iWorker->wantsGlobalRuns(); }
+      static bool needToRunSelection(Worker const* iWorker) noexcept { return false; }
+      static SerialTaskQueue* pauseGlobalQueue(Worker* iWorker) noexcept { return iWorker->globalRunsQueue(); }
+      static SerialTaskQueue* enableGlobalQueue(Worker*) noexcept { return nullptr; }
     };
     template <>
     class CallImpl<OccurrenceTraits<RunPrincipal, BranchActionStreamBegin>> {
@@ -762,13 +766,13 @@ namespace edm {
                                   WaitingTaskHolder waitingTask,
                                   ServiceToken const& token,
                                   RunTransitionInfo const& info,
-                                  Transition transition) {
+                                  Transition transition) noexcept {
         worker->esPrefetchAsync(waitingTask, info.eventSetupImpl(), transition, token);
       }
-      static bool wantsTransition(Worker const* iWorker) { return iWorker->wantsStreamRuns(); }
-      static bool needToRunSelection(Worker const* iWorker) { return false; }
-      static SerialTaskQueue* pauseGlobalQueue(Worker* iWorker) { return nullptr; }
-      static SerialTaskQueue* enableGlobalQueue(Worker*) { return nullptr; }
+      static bool wantsTransition(Worker const* iWorker) noexcept { return iWorker->wantsStreamRuns(); }
+      static bool needToRunSelection(Worker const* iWorker) noexcept { return false; }
+      static SerialTaskQueue* pauseGlobalQueue(Worker* iWorker) noexcept { return nullptr; }
+      static SerialTaskQueue* enableGlobalQueue(Worker*) noexcept { return nullptr; }
     };
     template <>
     class CallImpl<OccurrenceTraits<RunPrincipal, BranchActionGlobalEnd>> {
@@ -790,13 +794,13 @@ namespace edm {
                                   WaitingTaskHolder waitingTask,
                                   ServiceToken const& token,
                                   RunTransitionInfo const& info,
-                                  Transition transition) {
+                                  Transition transition) noexcept {
         worker->esPrefetchAsync(waitingTask, info.eventSetupImpl(), transition, token);
       }
-      static bool wantsTransition(Worker const* iWorker) { return iWorker->wantsGlobalRuns(); }
-      static bool needToRunSelection(Worker const* iWorker) { return false; }
-      static SerialTaskQueue* pauseGlobalQueue(Worker* iWorker) { return nullptr; }
-      static SerialTaskQueue* enableGlobalQueue(Worker* iWorker) { return iWorker->globalRunsQueue(); }
+      static bool wantsTransition(Worker const* iWorker) noexcept { return iWorker->wantsGlobalRuns(); }
+      static bool needToRunSelection(Worker const* iWorker) noexcept { return false; }
+      static SerialTaskQueue* pauseGlobalQueue(Worker* iWorker) noexcept { return nullptr; }
+      static SerialTaskQueue* enableGlobalQueue(Worker* iWorker) noexcept { return iWorker->globalRunsQueue(); }
     };
     template <>
     class CallImpl<OccurrenceTraits<RunPrincipal, BranchActionStreamEnd>> {
@@ -818,13 +822,13 @@ namespace edm {
                                   WaitingTaskHolder waitingTask,
                                   ServiceToken const& token,
                                   RunTransitionInfo const& info,
-                                  Transition transition) {
+                                  Transition transition) noexcept {
         worker->esPrefetchAsync(waitingTask, info.eventSetupImpl(), transition, token);
       }
-      static bool wantsTransition(Worker const* iWorker) { return iWorker->wantsStreamRuns(); }
-      static bool needToRunSelection(Worker const* iWorker) { return false; }
-      static SerialTaskQueue* pauseGlobalQueue(Worker* iWorker) { return nullptr; }
-      static SerialTaskQueue* enableGlobalQueue(Worker*) { return nullptr; }
+      static bool wantsTransition(Worker const* iWorker) noexcept { return iWorker->wantsStreamRuns(); }
+      static bool needToRunSelection(Worker const* iWorker) noexcept { return false; }
+      static SerialTaskQueue* pauseGlobalQueue(Worker* iWorker) noexcept { return nullptr; }
+      static SerialTaskQueue* enableGlobalQueue(Worker*) noexcept { return nullptr; }
     };
 
     template <>
@@ -848,13 +852,15 @@ namespace edm {
                                   WaitingTaskHolder waitingTask,
                                   ServiceToken const& token,
                                   LumiTransitionInfo const& info,
-                                  Transition transition) {
+                                  Transition transition) noexcept {
         worker->esPrefetchAsync(waitingTask, info.eventSetupImpl(), transition, token);
       }
-      static bool wantsTransition(Worker const* iWorker) { return iWorker->wantsGlobalLuminosityBlocks(); }
-      static bool needToRunSelection(Worker const* iWorker) { return false; }
-      static SerialTaskQueue* pauseGlobalQueue(Worker* iWorker) { return iWorker->globalLuminosityBlocksQueue(); }
-      static SerialTaskQueue* enableGlobalQueue(Worker*) { return nullptr; }
+      static bool wantsTransition(Worker const* iWorker) noexcept { return iWorker->wantsGlobalLuminosityBlocks(); }
+      static bool needToRunSelection(Worker const* iWorker) noexcept { return false; }
+      static SerialTaskQueue* pauseGlobalQueue(Worker* iWorker) noexcept {
+        return iWorker->globalLuminosityBlocksQueue();
+      }
+      static SerialTaskQueue* enableGlobalQueue(Worker*) noexcept { return nullptr; }
     };
     template <>
     class CallImpl<OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamBegin>> {
@@ -877,13 +883,13 @@ namespace edm {
                                   WaitingTaskHolder waitingTask,
                                   ServiceToken const& token,
                                   LumiTransitionInfo const& info,
-                                  Transition transition) {
+                                  Transition transition) noexcept {
         worker->esPrefetchAsync(waitingTask, info.eventSetupImpl(), transition, token);
       }
-      static bool wantsTransition(Worker const* iWorker) { return iWorker->wantsStreamLuminosityBlocks(); }
-      static bool needToRunSelection(Worker const* iWorker) { return false; }
-      static SerialTaskQueue* pauseGlobalQueue(Worker* iWorker) { return nullptr; }
-      static SerialTaskQueue* enableGlobalQueue(Worker*) { return nullptr; }
+      static bool wantsTransition(Worker const* iWorker) noexcept { return iWorker->wantsStreamLuminosityBlocks(); }
+      static bool needToRunSelection(Worker const* iWorker) noexcept { return false; }
+      static SerialTaskQueue* pauseGlobalQueue(Worker* iWorker) noexcept { return nullptr; }
+      static SerialTaskQueue* enableGlobalQueue(Worker*) noexcept { return nullptr; }
     };
 
     template <>
@@ -911,13 +917,15 @@ namespace edm {
                                   WaitingTaskHolder waitingTask,
                                   ServiceToken const& token,
                                   LumiTransitionInfo const& info,
-                                  Transition transition) {
+                                  Transition transition) noexcept {
         worker->esPrefetchAsync(waitingTask, info.eventSetupImpl(), transition, token);
       }
-      static bool wantsTransition(Worker const* iWorker) { return iWorker->wantsGlobalLuminosityBlocks(); }
-      static bool needToRunSelection(Worker const* iWorker) { return false; }
-      static SerialTaskQueue* pauseGlobalQueue(Worker* iWorker) { return nullptr; }
-      static SerialTaskQueue* enableGlobalQueue(Worker* iWorker) { return iWorker->globalLuminosityBlocksQueue(); }
+      static bool wantsTransition(Worker const* iWorker) noexcept { return iWorker->wantsGlobalLuminosityBlocks(); }
+      static bool needToRunSelection(Worker const* iWorker) noexcept { return false; }
+      static SerialTaskQueue* pauseGlobalQueue(Worker* iWorker) noexcept { return nullptr; }
+      static SerialTaskQueue* enableGlobalQueue(Worker* iWorker) noexcept {
+        return iWorker->globalLuminosityBlocksQueue();
+      }
     };
     template <>
     class CallImpl<OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamEnd>> {
@@ -944,13 +952,13 @@ namespace edm {
                                   WaitingTaskHolder waitingTask,
                                   ServiceToken const& token,
                                   LumiTransitionInfo const& info,
-                                  Transition transition) {
+                                  Transition transition) noexcept {
         worker->esPrefetchAsync(waitingTask, info.eventSetupImpl(), transition, token);
       }
-      static bool wantsTransition(Worker const* iWorker) { return iWorker->wantsStreamLuminosityBlocks(); }
-      static bool needToRunSelection(Worker const* iWorker) { return false; }
-      static SerialTaskQueue* pauseGlobalQueue(Worker* iWorker) { return nullptr; }
-      static SerialTaskQueue* enableGlobalQueue(Worker*) { return nullptr; }
+      static bool wantsTransition(Worker const* iWorker) noexcept { return iWorker->wantsStreamLuminosityBlocks(); }
+      static bool needToRunSelection(Worker const* iWorker) noexcept { return false; }
+      static SerialTaskQueue* pauseGlobalQueue(Worker* iWorker) noexcept { return nullptr; }
+      static SerialTaskQueue* enableGlobalQueue(Worker*) noexcept { return nullptr; }
     };
     template <>
     class CallImpl<OccurrenceTraits<ProcessBlockPrincipal, BranchActionGlobalBegin>> {
@@ -969,11 +977,11 @@ namespace edm {
         return returnValue;
       }
       static void esPrefetchAsync(
-          Worker*, WaitingTaskHolder, ServiceToken const&, ProcessBlockTransitionInfo const&, Transition) {}
-      static bool wantsTransition(Worker const* iWorker) { return iWorker->wantsProcessBlocks(); }
-      static bool needToRunSelection(Worker const* iWorker) { return false; }
-      static SerialTaskQueue* pauseGlobalQueue(Worker* iWorker) { return nullptr; }
-      static SerialTaskQueue* enableGlobalQueue(Worker*) { return nullptr; }
+          Worker*, WaitingTaskHolder, ServiceToken const&, ProcessBlockTransitionInfo const&, Transition) noexcept {}
+      static bool wantsTransition(Worker const* iWorker) noexcept { return iWorker->wantsProcessBlocks(); }
+      static bool needToRunSelection(Worker const* iWorker) noexcept { return false; }
+      static SerialTaskQueue* pauseGlobalQueue(Worker* iWorker) noexcept { return nullptr; }
+      static SerialTaskQueue* enableGlobalQueue(Worker*) noexcept { return nullptr; }
     };
     template <>
     class CallImpl<OccurrenceTraits<ProcessBlockPrincipal, BranchActionProcessBlockInput>> {
@@ -992,11 +1000,11 @@ namespace edm {
         return returnValue;
       }
       static void esPrefetchAsync(
-          Worker*, WaitingTaskHolder, ServiceToken const&, ProcessBlockTransitionInfo const&, Transition) {}
-      static bool wantsTransition(Worker const* iWorker) { return iWorker->wantsInputProcessBlocks(); }
-      static bool needToRunSelection(Worker const* iWorker) { return false; }
-      static SerialTaskQueue* pauseGlobalQueue(Worker* iWorker) { return nullptr; }
-      static SerialTaskQueue* enableGlobalQueue(Worker*) { return nullptr; }
+          Worker*, WaitingTaskHolder, ServiceToken const&, ProcessBlockTransitionInfo const&, Transition) noexcept {}
+      static bool wantsTransition(Worker const* iWorker) noexcept { return iWorker->wantsInputProcessBlocks(); }
+      static bool needToRunSelection(Worker const* iWorker) noexcept { return false; }
+      static SerialTaskQueue* pauseGlobalQueue(Worker* iWorker) noexcept { return nullptr; }
+      static SerialTaskQueue* enableGlobalQueue(Worker*) noexcept { return nullptr; }
     };
     template <>
     class CallImpl<OccurrenceTraits<ProcessBlockPrincipal, BranchActionGlobalEnd>> {
@@ -1015,11 +1023,11 @@ namespace edm {
         return returnValue;
       }
       static void esPrefetchAsync(
-          Worker*, WaitingTaskHolder, ServiceToken const&, ProcessBlockTransitionInfo const&, Transition) {}
-      static bool wantsTransition(Worker const* iWorker) { return iWorker->wantsProcessBlocks(); }
-      static bool needToRunSelection(Worker const* iWorker) { return false; }
-      static SerialTaskQueue* pauseGlobalQueue(Worker* iWorker) { return nullptr; }
-      static SerialTaskQueue* enableGlobalQueue(Worker*) { return nullptr; }
+          Worker*, WaitingTaskHolder, ServiceToken const&, ProcessBlockTransitionInfo const&, Transition) noexcept {}
+      static bool wantsTransition(Worker const* iWorker) noexcept { return iWorker->wantsProcessBlocks(); }
+      static bool needToRunSelection(Worker const* iWorker) noexcept { return false; }
+      static SerialTaskQueue* pauseGlobalQueue(Worker* iWorker) noexcept { return nullptr; }
+      static SerialTaskQueue* enableGlobalQueue(Worker*) noexcept { return nullptr; }
     };
   }  // namespace workerhelper
 
@@ -1028,7 +1036,7 @@ namespace edm {
                              ServiceToken const& token,
                              ParentContext const& parentContext,
                              typename T::TransitionInfoType const& transitionInfo,
-                             Transition iTransition) {
+                             Transition iTransition) noexcept {
     Principal const& principal = transitionInfo.principal();
 
     moduleCallingContext_.setContext(ModuleCallingContext::State::kPrefetching, parentContext, nullptr);
@@ -1055,7 +1063,7 @@ namespace edm {
                            ServiceToken const& token,
                            StreamID streamID,
                            ParentContext const& parentContext,
-                           typename T::Context const* context) {
+                           typename T::Context const* context) noexcept {
     if (not workerhelper::CallImpl<T>::wantsTransition(this)) {
       return;
     }
@@ -1081,16 +1089,16 @@ namespace edm {
 
         //make sure the task is either run or destroyed
         struct DestroyTask {
-          DestroyTask(edm::WaitingTask* iTask) : m_task(iTask) {}
+          DestroyTask(edm::WaitingTask* iTask) noexcept : m_task(iTask) {}
 
-          ~DestroyTask() {
+          ~DestroyTask() noexcept {
             auto p = m_task.exchange(nullptr);
             if (p) {
               TaskSentry s{p};
             }
           }
 
-          edm::WaitingTask* release() { return m_task.exchange(nullptr); }
+          edm::WaitingTask* release() noexcept { return m_task.exchange(nullptr); }
 
         private:
           std::atomic<edm::WaitingTask*> m_task;
@@ -1144,7 +1152,7 @@ namespace edm {
                                                          typename T::TransitionInfoType const& transitionInfo,
                                                          StreamID streamID,
                                                          ParentContext const& parentContext,
-                                                         typename T::Context const* context) {
+                                                         typename T::Context const* context) noexcept {
     std::exception_ptr exceptionPtr;
     bool shouldRun = true;
     if (iEPtr) {
@@ -1177,7 +1185,7 @@ namespace edm {
                                         ServiceToken const& serviceToken,
                                         StreamID streamID,
                                         ParentContext const& parentContext,
-                                        typename T::Context const* context) {
+                                        typename T::Context const* context) noexcept {
     if (not workerhelper::CallImpl<T>::wantsTransition(this)) {
       return;
     }
@@ -1275,7 +1283,7 @@ namespace edm {
   std::exception_ptr Worker::runModuleDirectly(typename T::TransitionInfoType const& transitionInfo,
                                                StreamID streamID,
                                                ParentContext const& parentContext,
-                                               typename T::Context const* context) {
+                                               typename T::Context const* context) noexcept {
     timesVisited_.fetch_add(1, std::memory_order_relaxed);
     std::exception_ptr prefetchingException;  // null because there was no prefetching to do
     return runModuleAfterAsyncPrefetch<T>(prefetchingException, transitionInfo, streamID, parentContext, context);
