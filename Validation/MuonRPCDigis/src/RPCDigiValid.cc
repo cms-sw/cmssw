@@ -76,39 +76,39 @@ void RPCDigiValid::analyze(const Event &event, const EventSetup &eventSetup) {
       hStripProf->Fill(strip);
 
       if (region == 0) {
-        // Barrel
         const int station = rsid.station();
         if (station == 1 or station == 2)
           hStripProf_RB12_->Fill(strip);
         else if (station == 3 or station == 4)
           hStripProf_RB34_->Fill(strip);
       } else {
-        const int ring = rsid.ring();
-        if (ring == 1)
+        if (roll->isIRPC())
           hStripProf_IRPC_->Fill(strip);
         else
           hStripProf_Endcap_->Fill(strip);
       }
 
-      BxDist->Fill(digiIt->bx());
+      // Bunch crossing
+      const int bx = digiIt->bx();
+      hBxDist_->Fill(bx);
       // bx for 4 endcaps
-      if (rsid.region() == (+1)) {
-        if (rsid.station() == 4)
-          BxDisc_4Plus->Fill(digiIt->bx());
-      } else if (rsid.region() == (-1)) {
-        if (rsid.station() == 4)
-          BxDisc_4Min->Fill(digiIt->bx());
+      if (rsid.station() == 4) {
+        if (region == 1) {
+          hBxDisc_4Plus_->Fill(bx);
+        } else if (region == -1) {
+          hBxDisc_4Min_->Fill(bx);
+        }
       }
 
       // Fill timing information
       const double digiTime = digiIt->hasTime() ? digiIt->time() : digiIt->bx() * 25;
-      hDigiTimeAll->Fill(digiTime);
+      hDigiTimeAll_->Fill(digiTime);
       if (digiIt->hasTime()) {
-        hDigiTime->Fill(digiTime);
+        hDigiTime_->Fill(digiTime);
         if (roll->isIRPC())
-          hDigiTimeIRPC->Fill(digiTime);
+          hDigiTimeIRPC_->Fill(digiTime);
         else
-          hDigiTimeNoIRPC->Fill(digiTime);
+          hDigiTimeNoIRPC_->Fill(digiTime);
       }
     }
   }
@@ -139,14 +139,14 @@ void RPCDigiValid::bookHistograms(DQMStore::IBooker &booker, edm::Run const &run
   hStripProf_IRPC_ = booker.book1D("Strip_Profile_IRPC", "Strip Profile IRPC", 100, 0, 100);
 
   // Bunch crossing
-  BxDist = booker.book1D("Bunch_Crossing", "Bunch_Crossing", 20, -10., 10.);
-  BxDisc_4Plus = booker.book1D("BxDisc_4Plus", "BxDisc_4Plus", 20, -10., 10.);
-  BxDisc_4Min = booker.book1D("BxDisc_4Min", "BxDisc_4Min", 20, -10., 10.);
+  hBxDist_ = booker.book1D("Bunch_Crossing", "Bunch_Crossing", 20, -10., 10.);
+  hBxDisc_4Plus_ = booker.book1D("BxDisc_4Plus", "BxDisc_4Plus", 20, -10., 10.);
+  hBxDisc_4Min_ = booker.book1D("BxDisc_4Min", "BxDisc_4Min", 20, -10., 10.);
 
   // Timing informations
-  hDigiTimeAll =
+  hDigiTimeAll_ =
       booker.book1D("DigiTimeAll", "Digi time including present electronics;Digi time (ns)", 100, -12.5, 12.5);
-  hDigiTime = booker.book1D("DigiTime", "Digi time only with timing information;Digi time (ns)", 100, -12.5, 12.5);
-  hDigiTimeIRPC = booker.book1D("DigiTimeIRPC", "IRPC Digi time;Digi time (ns)", 100, -12.5, 12.5);
-  hDigiTimeNoIRPC = booker.book1D("DigiTimeNoIRPC", "non-IRPC Digi time;Digi time (ns)", 100, -12.5, 12.5);
+  hDigiTime_ = booker.book1D("DigiTime", "Digi time only with timing information;Digi time (ns)", 100, -12.5, 12.5);
+  hDigiTimeIRPC_ = booker.book1D("DigiTimeIRPC", "IRPC Digi time;Digi time (ns)", 100, -12.5, 12.5);
+  hDigiTimeNoIRPC_ = booker.book1D("DigiTimeNoIRPC", "non-IRPC Digi time;Digi time (ns)", 100, -12.5, 12.5);
 }
