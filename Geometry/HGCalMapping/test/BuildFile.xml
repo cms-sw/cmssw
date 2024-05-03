@@ -1,0 +1,16 @@
+<bin file="testHGCalMapFileParser.cc">
+  <flags TEST_RUNNER_ARGS=" Geometry/HGCalMapping/data/ModuleMaps/modulelocator_CEminus_V15p5.txt"/>
+  <use name="Geometry/HGCalMapping"/>
+  <use name="FWCore/ParameterSet"/>
+</bin>
+
+<library file="HGCalMappingESSourceTester.cc">
+  <use name="CondFormats/DataRecord"/>
+  <use name="CondFormats/HGCalObjects"/>
+  <use name="Geometry/HGCalMapping"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/MessageLogger"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/Utilities"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
