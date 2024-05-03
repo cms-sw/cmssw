@@ -73,7 +73,7 @@ void RPCDigiValid::analyze(const Event &event, const EventSetup &eventSetup) {
     for (auto digiIt = range.first; digiIt != range.second; ++digiIt) {
       // Strip profile
       const int strip = digiIt->strip();
-      hStripProf->Fill(strip);
+      hStripProf_->Fill(strip);
 
       if (region == 0) {
         const int station = rsid.station();
@@ -132,7 +132,7 @@ void RPCDigiValid::bookHistograms(DQMStore::IBooker &booker, edm::Run const &run
   }
 
   // Strip profile
-  hStripProf = booker.book1D("Strip_Profile", "Strip_Profile", 100, 0, 100);
+  hStripProf_ = booker.book1D("Strip_Profile", "Strip_Profile", 100, 0, 100);
   hStripProf_RB12_ = booker.book1D("Strip_Profile_RB12", "Strip Profile RB1 and RB2", 100, 0, 100);
   hStripProf_RB34_ = booker.book1D("Strip_Profile_RB12", "Strip Profile RB1 and RB2", 50, 0, 50);
   hStripProf_Endcap_ = booker.book1D("Strip_Profile_Endcap", "Strip Profile Endcap", 40, 0, 40);
