@@ -10,6 +10,7 @@
 #include "Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h"
 
 #include <cmath>
+#include <fmt/format.h>
 
 using namespace std;
 using namespace edm;
@@ -39,43 +40,63 @@ void RPCDigiValid::analyze(const Event &event, const EventSetup &eventSetup) {
 
   // loop over Simhit
   for (auto simIt = simHitHandle->begin(); simIt != simHitHandle->end(); ++simIt) {
-    const RPCDetId Rsid = simIt->detUnitId();
-    const RPCRoll *roll = dynamic_cast<const RPCRoll *>(rpcGeom->roll(Rsid));
+    const RPCDetId rsid = simIt->detUnitId();
+    const RPCRoll *roll = dynamic_cast<const RPCRoll *>(rpcGeom->roll(rsid));
     if (!roll)
       continue;
+    const int region = rsid.region();
+    const GlobalPoint gp = roll->toGlobal(simIt->localPosition());
 
-    const GlobalPoint p = roll->toGlobal(simIt->localPosition());
-    xyview->Fill(p.x(), p.y());
+    hRZ_->Fill(gp.z(), gp.perp());
 
-    if (Rsid.region() == (+1)) {
-      if (Rsid.station() == 4) {
-        xyvDplu4->Fill(p.x(), p.y());
-      }
-    } else if (Rsid.region() == (-1)) {
-      if (Rsid.station() == 4) {
-        xyvDmin4->Fill(p.x(), p.y());
-      }
+    if (region == 0) {
+      // Barrel
+      hXY_Barrel_->Fill(gp.x(), gp.y());
+    } else {
+      // Endcap
+      const int disk = region * rsid.station();
+      auto match = hXY_Endcap_.find(disk);
+      if (match != hXY_Endcap_.end())
+        match->second->Fill(gp.x(), gp.y());
     }
-    rzview->Fill(p.z(), p.perp());
   }
   // loop over Digis
   for (auto detUnitIt = rpcDigisHandle->begin(); detUnitIt != rpcDigisHandle->end(); ++detUnitIt) {
-    const RPCDetId Rsid = (*detUnitIt).first;
-    const RPCRoll *roll = dynamic_cast<const RPCRoll *>(rpcGeom->roll(Rsid));
+    const RPCDetId rsid = (*detUnitIt).first;
+    const RPCRoll *roll = dynamic_cast<const RPCRoll *>(rpcGeom->roll(rsid));
     if (!roll)
       continue;
+    const int region = rsid.region();
 
     const RPCDigiCollection::Range &range = (*detUnitIt).second;
 
     for (auto digiIt = range.first; digiIt != range.second; ++digiIt) {
-      StripProf->Fill(digiIt->strip());
+      // Strip profile
+      const int strip = digiIt->strip();
+      hStripProf->Fill(strip);
+
+      if (region == 0) {
+        // Barrel
+        const int station = rsid.station();
+        if (station == 1 or station == 2)
+          hStripProf_RB12_->Fill(strip);
+        else if (station == 3 or station == 4)
+          hStripProf_RB34_->Fill(strip);
+      } else {
+        const int ring = rsid.ring();
+        if (ring == 1)
+          hStripProf_IRPC_->Fill(strip);
+        else
+          hStripProf_Endcap_->Fill(strip);
+      }
+
       BxDist->Fill(digiIt->bx());
       // bx for 4 endcaps
-      if (Rsid.region() == (+1)) {
-        if (Rsid.station() == 4)
+      if (rsid.region() == (+1)) {
+        if (rsid.station() == 4)
           BxDisc_4Plus->Fill(digiIt->bx());
-      } else if (Rsid.region() == (-1)) {
-        if (Rsid.station() == 4)
+      } else if (rsid.region() == (-1)) {
+        if (rsid.station() == 4)
           BxDisc_4Min->Fill(digiIt->bx());
       }
 
@@ -96,16 +117,29 @@ void RPCDigiValid::analyze(const Event &event, const EventSetup &eventSetup) {
 void RPCDigiValid::bookHistograms(DQMStore::IBooker &booker, edm::Run const &run, edm::EventSetup const &eSetup) {
   booker.setCurrentFolder("RPCDigisV/RPCDigis");
 
-  xyview = booker.book2D("X_Vs_Y_View", "X_Vs_Y_View", 155, -775., 775., 155, -775., 775.);
+  // RZ plot
+  hRZ_ = booker.book2D("RZ", "RZ", 220, -1100., 1100., 60, 0., 780.);
 
-  xyvDplu4 = booker.book2D("Dplu4_XvsY", "Dplu4_XvsY", 155, -775., 775., 155, -775., 775.);
-  xyvDmin4 = booker.book2D("Dmin4_XvsY", "Dmin4_XvsY", 155, -775., 775., 155, -775., 775.);
+  // XY plots
+  const int nbinsXY = 155;
+  const double xmaxXY = 775;
+  hXY_Barrel_ = booker.book2D("XY_Barrel", "XY_Barrel", nbinsXY, -xmaxXY, xmaxXY, nbinsXY, -xmaxXY, xmaxXY);
+  for (int disk = 1; disk <= 4; ++disk) {
+    const std::string meNameP = fmt::format("XY_EndcapP{:1d}", disk);
+    const std::string meNameN = fmt::format("XY_EndcapN{:1d}", disk);
+    hXY_Endcap_[disk] = booker.book2D(meNameP, meNameP, nbinsXY, -xmaxXY, xmaxXY, nbinsXY, -xmaxXY, xmaxXY);
+    hXY_Endcap_[-disk] = booker.book2D(meNameN, meNameN, nbinsXY, -xmaxXY, xmaxXY, nbinsXY, -xmaxXY, xmaxXY);
+  }
 
-  rzview = booker.book2D("R_Vs_Z_View", "R_Vs_Z_View", 216, -1080., 1080., 52, 260., 780.);
+  // Strip profile
+  hStripProf = booker.book1D("Strip_Profile", "Strip_Profile", 100, 0, 100);
+  hStripProf_RB12_ = booker.book1D("Strip_Profile_RB12", "Strip Profile RB1 and RB2", 100, 0, 100);
+  hStripProf_RB34_ = booker.book1D("Strip_Profile_RB12", "Strip Profile RB1 and RB2", 50, 0, 50);
+  hStripProf_Endcap_ = booker.book1D("Strip_Profile_Endcap", "Strip Profile Endcap", 40, 0, 40);
+  hStripProf_IRPC_ = booker.book1D("Strip_Profile_IRPC", "Strip Profile IRPC", 100, 0, 100);
 
+  // Bunch crossing
   BxDist = booker.book1D("Bunch_Crossing", "Bunch_Crossing", 20, -10., 10.);
-  StripProf = booker.book1D("Strip_Profile", "Strip_Profile", 100, 0, 100);
-
   BxDisc_4Plus = booker.book1D("BxDisc_4Plus", "BxDisc_4Plus", 20, -10., 10.);
   BxDisc_4Min = booker.book1D("BxDisc_4Min", "BxDisc_4Min", 20, -10., 10.);
 
