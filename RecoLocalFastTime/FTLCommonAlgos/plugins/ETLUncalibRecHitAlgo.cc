@@ -52,11 +52,10 @@ FTLUncalibratedRecHit ETLUncalibRecHitAlgo::makeRecHit(const ETLDataFrame& dataF
   unsigned char flag = 0;
 
   LogDebug("ETLUncalibRecHit") << "ADC+: set the charge to: " << time_over_threshold << ' ' << sample.tot() << ' '
-                               << toaLSBToNS_ << ' ' << std::endl;
+                               << toaLSBToNS_;
 
   if (time_over_threshold == 0) {
-    LogDebug("ETLUncalibRecHit") << "ADC+: set the time to: " << time << ' ' << sample.toa() << ' ' << toaLSBToNS_
-                                 << ' ' << std::endl;
+    LogDebug("ETLUncalibRecHit") << "ADC+: set the time to: " << time << ' ' << sample.toa() << ' ' << toaLSBToNS_;
 
   } else {
     // Time-walk correction for toa
@@ -67,10 +66,10 @@ FTLUncalibratedRecHit ETLUncalibRecHitAlgo::makeRecHit(const ETLDataFrame& dataF
     time -= timeWalkCorr;
 
     LogDebug("ETLUncalibRecHit") << "ADC+: set the time to: " << time << ' ' << sample.toa() << ' ' << toaLSBToNS_
-                                 << " .Timewalk correction: " << timeWalkCorr << std::endl;
+                                 << " .Timewalk correction: " << timeWalkCorr;
   }
 
-  LogDebug("ETLUncalibRecHit") << "Final uncalibrated time_over_threshold: " << time_over_threshold << std::endl;
+  LogDebug("ETLUncalibRecHit") << "Final uncalibrated time_over_threshold: " << time_over_threshold;
 
   const std::array<double, 1> emptyV = {{0.}};
 

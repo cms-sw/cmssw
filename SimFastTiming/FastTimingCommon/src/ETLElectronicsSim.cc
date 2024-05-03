@@ -132,15 +132,15 @@ void ETLElectronicsSim::runTrivialShaper(ETLDataFrame& dataFrame,
                                          const uint8_t row,
                                          const uint8_t col) const {
 #ifdef EDM_ML_DEBUG
-  bool debug(false);
+  bool dumpInfo(false);
   for (int it = 0; it < (int)(chargeColl.size()); it++) {
     if (chargeColl[it] > adcThreshold_MIP_) {
-      debug = true;
+      dumpInfo = true;
       break;
     }
   }
-  if (debug) {
-    LogTrace("ETLElectronicsSim") << "[runTrivialShaper]" << std::endl;
+  if (dumpInfo) {
+    LogTrace("ETLElectronicsSim") << "[runTrivialShaper]";
   }
 #endif
 
@@ -162,17 +162,17 @@ void ETLElectronicsSim::runTrivialShaper(ETLDataFrame& dataFrame,
     dataFrame.setSample(it, newSample);
 
 #ifdef EDM_ML_DEBUG
-    if (debug) {
+    if (dumpInfo) {
       LogTrace("ETLElectronicsSim") << adc << " (" << chargeColl[it] << "/" << adcLSB_MIP_ << ") ";
     }
 #endif
   }
 
 #ifdef EDM_ML_DEBUG
-  if (debug) {
+  if (dumpInfo) {
     std::ostringstream msg;
     dataFrame.print(msg);
-    LogTrace("ETLElectronicsSim") << msg.str() << std::endl;
+    LogTrace("ETLElectronicsSim") << msg.str();
   }
 #endif
 }
