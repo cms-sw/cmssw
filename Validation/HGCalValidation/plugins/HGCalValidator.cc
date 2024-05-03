@@ -75,14 +75,14 @@ HGCalValidator::HGCalValidator(const edm::ParameterSet& pset)
         consumes<hgcal::SimToRecoCollectionSimTracksters>(
             pset.getParameter<edm::InputTag>("mergeRecoToSimAssociatorPU"));
 
-    candidateVal = TICLCandidateValidator(TICLCandidatesToken,
-                                          simTICLCandidatesToken,
-                                          recoTracksToken,
-                                          trackstersToken,
-                                          associatorMapRtSToken,
-                                          associatorMapStRToken,
-                                          associatorMapRtSPUToken,
-                                          isTICLv5_);
+    candidateVal_ = std::make_unique<TICLCandidateValidator>(TICLCandidatesToken,
+                                                             simTICLCandidatesToken,
+                                                             recoTracksToken,
+                                                             trackstersToken,
+                                                             associatorMapRtSToken,
+                                                             associatorMapStRToken,
+                                                             associatorMapRtSPUToken,
+                                                             isTICLv5_);
   }
 
   for (auto& itag : label_tst) {
@@ -254,7 +254,7 @@ void HGCalValidator::bookHistograms(DQMStore::IBooker& ibook,
   if (doCandidatesPlots_) {
     ibook.cd();
     ibook.setCurrentFolder(dirName_ + label_candidates_);
-    candidateVal.bookCandidatesHistos(ibook, dirName_ + label_candidates_);
+    candidateVal_->bookCandidatesHistos(ibook, histograms.histoTICLCandidates, dirName_ + label_candidates_);
   }
 }
 
@@ -472,6 +472,6 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
 
   // tracksters histograms
   if (doCandidatesPlots_) {
-    candidateVal.fillCandidateHistos(event, simTracksterFromCPHandle);
+    candidateVal_->fillCandidateHistos(event, histograms.histoTICLCandidates, simTracksterFromCPHandle);
   }
 }

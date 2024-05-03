@@ -34,6 +34,7 @@ class PileupSummaryInfo;
 
 struct HGCalValidatorHistograms {
   HGVHistoProducerAlgoHistograms histoProducerAlgo;
+  TICLCandidateValidatorHistograms histoTICLCandidates;
   std::vector<dqm::reco::MonitorElement*> h_layerclusters_coll;
 };
 
@@ -98,9 +99,9 @@ protected:
   edm::EDGetTokenT<hgcal::SimToRecoCollectionWithSimClusters> associatorMapSimtR;
   edm::EDGetTokenT<hgcal::RecoToSimCollectionWithSimClusters> associatorMapRtSim;
   std::unique_ptr<HGVHistoProducerAlgo> histoProducerAlgo_;
+  std::unique_ptr<TICLCandidateValidator> candidateVal_;
 
 private:
-  mutable TICLCandidateValidator candidateVal;
   CaloParticleSelector cpSelector;
   std::shared_ptr<hgcal::RecHitTools> tools_;
   std::map<double, double> cummatbudg;

@@ -20,27 +20,7 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
-class TICLCandidateValidator {
-public:
-  typedef dqm::legacy::DQMStore DQMStore;
-  typedef dqm::legacy::MonitorElement MonitorElement;
-
-  TICLCandidateValidator(){};
-  TICLCandidateValidator(edm::EDGetTokenT<std::vector<TICLCandidate>> TICLCandidates,
-                         edm::EDGetTokenT<std::vector<TICLCandidate>> simTICLCandidatesToken,
-                         edm::EDGetTokenT<std::vector<reco::Track>> recoTracksToken,
-                         edm::EDGetTokenT<std::vector<ticl::Trackster>> trackstersToken,
-                         edm::EDGetTokenT<hgcal::RecoToSimCollectionSimTracksters> associatorMapRtSToken,
-                         edm::EDGetTokenT<hgcal::SimToRecoCollectionSimTracksters> associatorMapStRToken,
-                         edm::EDGetTokenT<hgcal::RecoToSimCollectionSimTracksters> associatorMapRtSPUToken,
-                         bool isTICLv5);
-  ~TICLCandidateValidator();
-
-  void bookCandidatesHistos(DQMStore::IBooker& ibook, std::string baseDir);
-
-  void fillCandidateHistos(const edm::Event& event, edm::Handle<ticl::TracksterCollection> simTrackstersCP_h);
-
-private:
+struct TICLCandidateValidatorHistograms {
   dqm::reco::MonitorElement* h_tracksters_in_candidate;
   dqm::reco::MonitorElement* h_candidate_raw_energy;
   dqm::reco::MonitorElement* h_candidate_regressed_energy;
@@ -120,7 +100,33 @@ private:
   std::vector<dqm::reco::MonitorElement*> h_neut_candidate_charge;
   std::vector<dqm::reco::MonitorElement*> h_neut_candidate_pdgId;
   std::vector<dqm::reco::MonitorElement*> h_neut_candidate_partType;
+};
 
+class TICLCandidateValidator {
+public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
+  TICLCandidateValidator(){};
+  TICLCandidateValidator(edm::EDGetTokenT<std::vector<TICLCandidate>> TICLCandidates,
+                         edm::EDGetTokenT<std::vector<TICLCandidate>> simTICLCandidatesToken,
+                         edm::EDGetTokenT<std::vector<reco::Track>> recoTracksToken,
+                         edm::EDGetTokenT<std::vector<ticl::Trackster>> trackstersToken,
+                         edm::EDGetTokenT<hgcal::RecoToSimCollectionSimTracksters> associatorMapRtSToken,
+                         edm::EDGetTokenT<hgcal::SimToRecoCollectionSimTracksters> associatorMapStRToken,
+                         edm::EDGetTokenT<hgcal::RecoToSimCollectionSimTracksters> associatorMapRtSPUToken,
+                         bool isTICLv5);
+  ~TICLCandidateValidator();
+
+  using Histograms = TICLCandidateValidatorHistograms;
+
+  void bookCandidatesHistos(DQMStore::IBooker& ibook, Histograms& histograms, std::string baseDir);
+
+  void fillCandidateHistos(const edm::Event& event,
+                           const Histograms& histograms,
+                           edm::Handle<ticl::TracksterCollection> simTrackstersCP_h);
+
+private:
   edm::EDGetTokenT<std::vector<TICLCandidate>> TICLCandidatesToken_;
   edm::EDGetTokenT<std::vector<TICLCandidate>> simTICLCandidatesToken_;
   edm::EDGetTokenT<std::vector<reco::Track>> recoTracksToken_;
