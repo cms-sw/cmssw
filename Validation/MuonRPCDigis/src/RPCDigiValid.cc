@@ -38,38 +38,22 @@ void RPCDigiValid::analyze(const Event &event, const EventSetup &eventSetup) {
   event.getByToken(rpcDigiToken_, rpcDigisHandle);
 
   // loop over Simhit
-  std::map<RPCDetId, std::vector<double>> allsims;
-
   for (auto simIt = simHitHandle->begin(); simIt != simHitHandle->end(); ++simIt) {
-    RPCDetId Rsid = simIt->detUnitId();
-    const RPCRoll *soll = dynamic_cast<const RPCRoll *>(rpcGeom->roll(Rsid));
-    if (!soll) continue;
-    const int ptype = simIt->particleType();
+    const RPCDetId Rsid = simIt->detUnitId();
+    const RPCRoll *roll = dynamic_cast<const RPCRoll *>(rpcGeom->roll(Rsid));
+    if (!roll)
+      continue;
 
-    if (ptype == 13 || ptype == -13) {
-      std::vector<double> buff;
-      if (allsims.find(Rsid) != allsims.end()) {
-        buff = allsims[Rsid];
-      }
-
-      buff.push_back(simIt->localPosition().x());
-
-      allsims[Rsid] = buff;
-    }
-    const GlobalPoint p = soll->toGlobal(simIt->localPosition());
-
-    const double sim_x = p.x();
-    const double sim_y = p.y();
-
-    xyview->Fill(sim_x, sim_y);
+    const GlobalPoint p = roll->toGlobal(simIt->localPosition());
+    xyview->Fill(p.x(), p.y());
 
     if (Rsid.region() == (+1)) {
       if (Rsid.station() == 4) {
-        xyvDplu4->Fill(sim_x, sim_y);
+        xyvDplu4->Fill(p.x(), p.y());
       }
     } else if (Rsid.region() == (-1)) {
       if (Rsid.station() == 4) {
-        xyvDmin4->Fill(sim_x, sim_y);
+        xyvDmin4->Fill(p.x(), p.y());
       }
     }
     rzview->Fill(p.z(), p.perp());
@@ -78,12 +62,10 @@ void RPCDigiValid::analyze(const Event &event, const EventSetup &eventSetup) {
   for (auto detUnitIt = rpcDigisHandle->begin(); detUnitIt != rpcDigisHandle->end(); ++detUnitIt) {
     const RPCDetId Rsid = (*detUnitIt).first;
     const RPCRoll *roll = dynamic_cast<const RPCRoll *>(rpcGeom->roll(Rsid));
+    if (!roll)
+      continue;
 
     const RPCDigiCollection::Range &range = (*detUnitIt).second;
-    std::vector<double> sims;
-    if (allsims.find(Rsid) != allsims.end()) {
-      sims = allsims[Rsid];
-    }
 
     for (auto digiIt = range.first; digiIt != range.second; ++digiIt) {
       StripProf->Fill(digiIt->strip());
