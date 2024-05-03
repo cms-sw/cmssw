@@ -11,7 +11,7 @@
 #include "DetectorDescription/Core/interface/DDAlgorithm.h"
 #include "DetectorDescription/Core/interface/DDAlgorithmFactory.h"
 #include "DetectorDescription/Core/interface/DDTransform.h"
-#include "CLHEP/Vector/ThreeVector.h"
+#include <CLHEP/Vector/ThreeVector.h>
 #include <CLHEP/Vector/Rotation.h>
 #include <CLHEP/Vector/RotationInterfaces.h>
 #include <CLHEP/Units/GlobalPhysicalConstants.h>

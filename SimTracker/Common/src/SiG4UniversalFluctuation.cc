@@ -2,7 +2,7 @@
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-#include "CLHEP/Random/RandFlat.h"
+#include <CLHEP/Random/RandFlat.h>
 #include <CLHEP/Random/RandGaussQ.h>
 #include <CLHEP/Random/RandPoissonQ.h>
 #include <CLHEP/Units/GlobalPhysicalConstants.h>
