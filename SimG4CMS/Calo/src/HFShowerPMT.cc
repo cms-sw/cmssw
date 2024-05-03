@@ -73,7 +73,8 @@ double HFShowerPMT::getHits(const G4Step* aStep) {
 #ifdef EDM_ML_DEBUG
   double edep = aStep->GetTotalEnergyDeposit();
   edm::LogVerbatim("HFShower") << "HFShowerPMT: Box " << boxNo << " PMT " << pmtNo << " Mapped Indices " << indexR
-                               << ", " << indexF << " Edeposit " << edep / CLHEP::MeV << " MeV; PE " << edep * pePerGeV / CLHEP::GeV;
+                               << ", " << indexF << " Edeposit " << edep / CLHEP::MeV << " MeV; PE "
+                               << edep * pePerGeV / CLHEP::GeV;
 #endif
 
   double photons = 0;
