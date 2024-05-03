@@ -13,7 +13,7 @@ L1TRK_INST ="MyL1TrackJets" ### if not in input DIGRAW then we make them in the 
 process = cms.Process(L1TRK_INST)
 
 #L1TRKALGO = 'HYBRID'  #baseline, 4par fit
-# L1TRKALGO = 'HYBRID_DISPLACED'  #extended, 5par fit
+#L1TRKALGO = 'HYBRID_DISPLACED'  #extended, 5par fit
 L1TRKALGO = 'HYBRID_PROMPTANDDISP'
 
 DISPLACED = ''
@@ -150,6 +150,7 @@ if (L1TRKALGO == 'HYBRID'):
     process.pTkMETEmu = cms.Path(process.l1tTrackerEmuEtMiss)
     process.pTkMHT = cms.Path(process.l1tTrackerHTMiss)
     process.pTkMHTEmulator = cms.Path(process.l1tTrackerEmuHTMiss)
+    process.pL1TrackTripletEmulator = cms.Path(process.l1tTrackTripletEmulation)
     DISPLACED = 'Prompt'
 
 # HYBRID: extended tracking
