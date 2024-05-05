@@ -7,3 +7,4 @@
 #include "DataFormats/HGCalDigi/interface/HGCalRawDataEmulatorInfo.h"
 #include "DataFormats/HGCalDigi/interface/HGCalDigiHost.h"
 #include "DataFormats/HGCalDigi/interface/HGCalDigiSoA.h"
+#include "DataFormats/HGCalDigi/interface/HGCalFlaggedECONDInfo.h"

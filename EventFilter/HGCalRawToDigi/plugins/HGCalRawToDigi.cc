@@ -99,7 +99,6 @@ void HGCalRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
 
   // TODO @hqucms
   // CM and error flags output
-  hgcaldigi::HGCalDigiHost common_modes(cellIndexer_.maxDenseIndex(), cms::alpakatools::host());
   std::vector<HGCalFlaggedECONDInfo> errors;
 
   // retrieve the FED raw data
@@ -109,7 +108,7 @@ void HGCalRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
     const auto& fed_data = raw_data.FEDData(fedId);
     if (fed_data.size() == 0)
       continue;
-    unpacker_.parseFEDData(fedId, fed_data, digis, errors);
+    unpacker_.parseFEDData(fedId, fed_data, moduleIndexer_, digis, errors, /*headerOnlyMode*/ false);
   }
 
   // TODO @hqucms
@@ -181,18 +180,6 @@ void HGCalRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
   //         << "Too many flagged ECON-Ds: " << flagged_econds.size() << " > " << flaggedECONDMax_ << ".";
   //   }
   // }
-
-  // TODO @hqucms
-  // fill dummy outputs
-  for (unsigned int i = 0; i < cellIndexer_.maxDenseIndex(); i++) {
-    digis.view()[i].tctp() = 0;
-    digis.view()[i].adcm1() = 0;
-    digis.view()[i].adc() = 0;
-    digis.view()[i].tot() = 0;
-    digis.view()[i].toa() = 0;
-    digis.view()[i].cm() = 0;
-    digis.view()[i].flags() = 0;
-  }
 
   // put information to the event
   iEvent.emplace(digisToken_, std::move(digis));

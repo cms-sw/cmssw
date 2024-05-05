@@ -52,4 +52,8 @@
   <!-- Recursive templates implementing the association of indices and layouts, and containing the data -->
   <class name="portablecollection::CollectionLeaf<0, hgcaldigi::HGCalDigiSoALayout<128, false>>"/>
 
+  <class name="HGCalFlaggedECONDInfo"/>
+  <class name="HGCalFlaggedECONDInfoCollection"/>
+  <class name="edm::Wrapper<HGCalFlaggedECONDInfoCollection>"/>
+
 </lcgdict>

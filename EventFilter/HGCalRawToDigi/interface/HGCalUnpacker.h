@@ -13,9 +13,8 @@
 
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/HGCalDigi/interface/HGCalDigiHost.h"
-#include "DataFormats/HGCalDigi/interface/HGCalRawDataDefinitions.h"
+#include "DataFormats/HGCalDigi/interface/HGCalFlaggedECONDInfo.h"
 #include "CondFormats/HGCalObjects/interface/HGCalMappingModuleIndexer.h"
-#include "CondFormats/HGCalObjects/interface/HGCalMappingCellIndexer.h"
 
 #include <cstdint>
 #include <functional>
@@ -31,53 +30,106 @@ public:
 
   void parseFEDData(unsigned fedId,
                     const FEDRawData& fed_data,
-                    const HGCalMappingModuleIndexer& moduleIndexer, 
+                    const HGCalMappingModuleIndexer& moduleIndexer,
                     hgcaldigi::HGCalDigiHost& digis,
-                    bool headerOnlyMode=false);
+                    std::vector<HGCalFlaggedECONDInfo>& errors,
+                    bool headerOnlyMode = false);
 
 private:
-  const uint8_t tctp_[16] = {0b00, 0b00, 0b01, 0b00,
-                             0b00, 0b00, 0b00, 0b00, 
-                             0b10, 0b10, 0b10, 0b10,
-                             0b11, 0b11, 0b11, 0b11};
+  constexpr static uint8_t tctp_[16] = {
+      0b00, 0b00, 0b01, 0b00, 0b00, 0b00, 0b00, 0b00, 0b10, 0b10, 0b10, 0b10, 0b11, 0b11, 0b11, 0b11};
 
-  const uint32_t adcm1Mask_[16] = {0b1111111111, 0b0000000000, 0b1111111111, 0b0000000000,
-                                   0b1111111111, 0b1111111111, 0b1111111111, 0b1111111111,
-                                   0b1111111111, 0b1111111111, 0b1111111111, 0b1111111111,
-                                   0b1111111111, 0b1111111111, 0b1111111111, 0b1111111111};
-  const uint32_t adcm1Shift_[16] = {18, 28, 18 , 0,
-                                    20, 20, 20, 20,
-                                    20, 20, 20, 20,
-                                    20, 20, 20, 20,};
+  constexpr static uint32_t adcm1Mask_[16] = {0b1111111111,
+                                              0b0000000000,
+                                              0b1111111111,
+                                              0b0000000000,
+                                              0b1111111111,
+                                              0b1111111111,
+                                              0b1111111111,
+                                              0b1111111111,
+                                              0b1111111111,
+                                              0b1111111111,
+                                              0b1111111111,
+                                              0b1111111111,
+                                              0b1111111111,
+                                              0b1111111111,
+                                              0b1111111111,
+                                              0b1111111111};
+  constexpr static uint32_t adcm1Shift_[16] = {
+      18,
+      28,
+      18,
+      0,
+      20,
+      20,
+      20,
+      20,
+      20,
+      20,
+      20,
+      20,
+      20,
+      20,
+      20,
+      20,
+  };
 
-  const uint32_t adcShift_[16] = {8, 18, 8, 18,
-                                  10, 10, 10, 10,
-                                  10, 10, 10, 10,
-                                  0, 0, 0, 0};
-  const uint32_t adcMask_[16] = {0b1111111111, 0b1111111111, 0b1111111111, 0b1111111111,
-                                 0b1111111111, 0b1111111111, 0b1111111111, 0b1111111111,
-                                 0b1111111111, 0b1111111111, 0b1111111111, 0b1111111111,
-                                 0b0000000000, 0b0000000000, 0b0000000000, 0b0000000000};
-                                
-  const uint32_t totShift_[16] = {0, 0, 0, 0,
-                                  0, 0, 0, 0,
-                                  0, 0, 0, 0,
-                                  10, 10, 10, 10};
-  const uint32_t totMask_[16] = {0b0000000000, 0b0000000000, 0b0000000000, 0b0000000000,
-                                 0b0000000000, 0b0000000000, 0b0000000000, 0b0000000000,
-                                 0b0000000000, 0b0000000000, 0b0000000000, 0b0000000000,
-                                 0b1111111111, 0b1111111111, 0b1111111111, 0b1111111111};
+  constexpr static uint32_t adcShift_[16] = {8, 18, 8, 18, 10, 10, 10, 10, 10, 10, 10, 10, 0, 0, 0, 0};
+  constexpr static uint32_t adcMask_[16] = {0b1111111111,
+                                            0b1111111111,
+                                            0b1111111111,
+                                            0b1111111111,
+                                            0b1111111111,
+                                            0b1111111111,
+                                            0b1111111111,
+                                            0b1111111111,
+                                            0b1111111111,
+                                            0b1111111111,
+                                            0b1111111111,
+                                            0b1111111111,
+                                            0b0000000000,
+                                            0b0000000000,
+                                            0b0000000000,
+                                            0b0000000000};
 
-  const uint32_t toaShift_[16] = {0, 0, 0, 8,
-                                  0, 0, 0, 0,
-                                  0, 0, 0, 0,
-                                  0, 0, 0, 0};
-  const uint32_t toaMask_[16] = {0b0000000000, 0b0000000000, 0b0000000000, 0b1111111111,
-                                 0b1111111111, 0b1111111111, 0b1111111111, 0b1111111111,
-                                 0b1111111111, 0b1111111111, 0b1111111111, 0b1111111111,
-                                 0b1111111111, 0b1111111111, 0b1111111111, 0b1111111111};
+  constexpr static uint32_t totShift_[16] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 10, 10, 10};
+  constexpr static uint32_t totMask_[16] = {0b0000000000,
+                                            0b0000000000,
+                                            0b0000000000,
+                                            0b0000000000,
+                                            0b0000000000,
+                                            0b0000000000,
+                                            0b0000000000,
+                                            0b0000000000,
+                                            0b0000000000,
+                                            0b0000000000,
+                                            0b0000000000,
+                                            0b0000000000,
+                                            0b1111111111,
+                                            0b1111111111,
+                                            0b1111111111,
+                                            0b1111111111};
 
-  const uint32_t erxBodyBits_[16] = {24, 16, 24, 24, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32};
+  constexpr static uint32_t toaShift_[16] = {0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+  constexpr static uint32_t toaMask_[16] = {0b0000000000,
+                                            0b0000000000,
+                                            0b0000000000,
+                                            0b1111111111,
+                                            0b1111111111,
+                                            0b1111111111,
+                                            0b1111111111,
+                                            0b1111111111,
+                                            0b1111111111,
+                                            0b1111111111,
+                                            0b1111111111,
+                                            0b1111111111,
+                                            0b1111111111,
+                                            0b1111111111,
+                                            0b1111111111,
+                                            0b1111111111};
+
+  constexpr static uint32_t erxBodyBits_[16] = {24, 16, 24, 24, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32};
+
   // HGCalUnpackerConfig config_;
   // size_t channelDataSize_{0};                                             ///< Size of unpacked channels
   // size_t commonModeDataSize_{0};                                          ///< Size of unpacked common modes
