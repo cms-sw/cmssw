@@ -13,6 +13,7 @@ int main() {
   PSIZE(TransientTrackingRecHit);
   PSIZE(Trajectory);
   PSIZE(TempTrajectory);
+  PSIZE(TempTrajectory::Payload);
 
   return 0;
 }
