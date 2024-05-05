@@ -46,7 +46,7 @@ public:
    * copy vector<Trajectory> in the edm::Event
    */
 
-  Trajectory() {}
+  Trajectory() = default;
 
   /** Constructor of an empty trajectory with undefined direction.
    *  The direction will be defined at the moment of the push of a second
@@ -83,29 +83,29 @@ public:
       : theSeed(std::move(rh.theSeed)),
         seedRef_(std::move(rh.seedRef_)),
         theData(std::move(rh.theData)),
+        theDPhiCache(rh.theDPhiCache),
+        theCCCThreshold_(rh.theCCCThreshold_),
         theChiSquared(rh.theChiSquared),
         theChiSquaredBad(rh.theChiSquaredBad),
+        theDirection(rh.theDirection),
+        theDirectionValidity(rh.theDirectionValidity),
+        theValid(rh.theValid),
         theNumberOfFoundHits(rh.theNumberOfFoundHits),
         theNumberOfFoundPixelHits(rh.theNumberOfFoundPixelHits),
         theNumberOfLostHits(rh.theNumberOfLostHits),
         theNumberOfTrailingFoundHits(rh.theNumberOfTrailingFoundHits),
         theNumberOfCCCBadHits_(rh.theNumberOfCCCBadHits_),
-        theDirection(rh.theDirection),
-        theDirectionValidity(rh.theDirectionValidity),
-        theValid(rh.theValid),
-        theDPhiCache(rh.theDPhiCache),
-        theCCCThreshold_(rh.theCCCThreshold_),
         theNLoops(rh.theNLoops),
         stopReason_(rh.stopReason_) {}
 
   Trajectory& operator=(Trajectory&& rh) {
     using std::swap;
     swap(theData, rh.theData);
+    theDPhiCache = rh.theDPhiCache;
+    theCCCThreshold_ = rh.theCCCThreshold_;
     theChiSquared = rh.theChiSquared;
     theChiSquaredBad = rh.theChiSquaredBad;
     theValid = rh.theValid;
-    theDPhiCache = rh.theDPhiCache;
-    theCCCThreshold_ = rh.theCCCThreshold_;
     theNLoops = rh.theNLoops;
     theNumberOfFoundHits = rh.theNumberOfFoundHits;
     theNumberOfFoundPixelHits = rh.theNumberOfFoundPixelHits;
@@ -326,9 +326,9 @@ public:
   void setDPhiCacheForLoopersReconstruction(float dphi) { theDPhiCache = dphi; }
 
   bool isLooper() const { return (theNLoops > 0); }
-  signed char nLoops() const { return theNLoops; }
+  int8_t nLoops() const { return theNLoops; }
 
-  void setNLoops(signed char value) { theNLoops = value; }
+  void setNLoops(int8_t value) { theNLoops = value; }
   void incrementLoops() { theNLoops++; }
 
   void setStopReason(StopReason s) { stopReason_ = s; }
@@ -345,22 +345,23 @@ private:
   edm::RefToBase<TrajectorySeed> seedRef_;
 
   DataContainer theData;
+
+  float theDPhiCache = 0;
+  float theCCCThreshold_ = std::numeric_limits<float>::max();
+
   float theChiSquared = 0;
   float theChiSquaredBad = 0;
-
-  signed short theNumberOfFoundHits = 0;
-  signed short theNumberOfFoundPixelHits = 0;
-  signed short theNumberOfLostHits = 0;
-  signed short theNumberOfTrailingFoundHits = 0;
-  signed short theNumberOfCCCBadHits_ = 0;
 
   PropagationDirection theDirection = anyDirection;
   bool theDirectionValidity = false;
   bool theValid = false;
 
-  float theDPhiCache = 0;
-  float theCCCThreshold_ = std::numeric_limits<float>::max();
-  signed char theNLoops = 0;
+  uint8_t theNumberOfFoundHits = 0;
+  uint8_t theNumberOfFoundPixelHits = 0;
+  uint8_t theNumberOfLostHits = 0;
+  uint8_t theNumberOfTrailingFoundHits = 0;
+  uint8_t theNumberOfCCCBadHits_ = 0;
+  int8_t theNLoops = 0;
   StopReason stopReason_ = StopReason::UNINITIALIZED;
 
   void check() const;
