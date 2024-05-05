@@ -218,3 +218,28 @@ Partition &singletonPartition(TICLGraph const &graph, Partition &singlePartition
 
   return singlePartition;
 }
+
+template <class T>
+bool isNodeWellConnected(Node<T> const &node, std::vector<Node<T>> &subset, double gamma) {
+  std::vector<Node<T>> const singletonCommunity{node};
+  int edges{numberOfEdges(singletonCommunity, subset)};
+  assert(numberOfEdges >= 0);
+  int nodeSize{communitySize(singletonCommunity)};
+  int subsetSize{communitySize(subset)};
+  return (edges >= (gamma * nodeSize * (subsetSize - nodeSize)));
+}
+
+template <class T>
+Partition &mergeNodesSubset(TICLGraph const &graph, Partition &partition, std::vector<Node<T>> &subset, double gamma) {
+  for (auto const &node : subset) {
+    if (isNodeWellConnected(node, subset, gamma)) {
+      auto const &nodeCommunity{findCommunity(node)};
+      assert((communitySize(nodeCommunity)) != 0);
+      if (communitySize(nodeCommunity) == 1) {
+        //*************NEEDS IMPLEMENTATION***************
+        //needs auxiliary function in TICLGraph.h isContained
+        //needs auxiliary function above this one isCommunityWellConnected
+      }
+    }
+  }
+}

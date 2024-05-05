@@ -63,8 +63,15 @@ namespace ticl {
 
     double gamma{1};  //resolution parameter of the algortihm. The higher the gamma, the more communities are yielded
   };
-}  
+}  // namespace ticl
 // namespace ticl
 
+template <class T>
 auto moveNodesFast(TICLGraph const &graph, Partition const &partition);
+
+template <class T>
+Partition &singletonPartition(TICLGraph const &graph, Partition &singlePartition);
+
+template <class T>
+Partition &mergeNodesSubset(TICLGraph const &graph, Partition &partition, std::vector<Node<T>> &subset, double gamma);
 #endif
