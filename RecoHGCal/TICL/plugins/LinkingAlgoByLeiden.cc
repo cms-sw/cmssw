@@ -65,7 +65,7 @@ void LinkingAlgoByLeiden::linkTracksters(const edm::Handle<std::vector<reco::Tra
                                          const edm::Handle<edm::ValueMap<float>> tkTimeQual_h,
                                          const std::vector<reco::Muon> &muons,
                                          const edm::Handle<std::vector<Trackster>> tsH,
-                                         const edm::Handle<TICLGraph> &tgH,
+                                         const edm::Handle<TICLGraph<ElementaryNode>> &tgH,
                                          const bool useMTDTiming,
                                          std::vector<TICLCandidate> &resultLinked,
                                          std::vector<TICLCandidate> &chargedHadronsFromTk) {
@@ -86,15 +86,15 @@ int binomialCoefficient(int n, int k) {
   assert(k >= 0);
   if (n < k)
     return 0;
-  else if (n = k)
+  else if (n==k)
     return 1;
   else
-    return facorial(n) / (factorial(k) * factorial(n - k));
+    return factorial(n) / (factorial(k) * factorial(n - k));
 }
 
 //quality function, Constant Potts Model
 template <class T>
-double CPM(Partition const &partition, double gamma) {
+double CPM(Partition<T> const &partition, double gamma) {
   double CPMResult{};
   for (auto const &community : partition) {
     CPMResult += (numberOfEdges(community, community) - gamma * binomialCoefficient(communitySize(community), 2));
@@ -111,7 +111,7 @@ double CPM_contribution_from_new_community(Node<T> const &node, double gamma) {
 }
 
 template <class T>
-double CPM_after_move(Partition const &partition,
+double CPM_after_move(Partition<T> const &partition,
                       double gamma,
                       std::vector<Node<T>> const &communityFrom,
                       std::vector<Node<T>> const &communityTo,
@@ -154,7 +154,7 @@ auto queueCommunity(std::vector<Node<T>> &community, std::queue const &queue) {
 }
 
 template <class T>
-auto moveNodesFast(TICLGraph const &graph, Partition &partition, double gamma) {
+auto moveNodesFast(TICLGraph<T> const &graph, Partition<T> &partition, double gamma) {
   auto shuffledCommunities{partition.getPartition()};
   std::random_shuffle(shuffledCommunities.begin(), shuffledCommunities.end());
   std::queue<Node<T>> queue{};
@@ -206,7 +206,7 @@ auto moveNodesFast(TICLGraph const &graph, Partition &partition, double gamma) {
 
 //fills an empty partition with a singleton partition
 template <class T>
-Partition &singletonPartition(TICLGraph const &graph, Partition &singlePartition) {
+Partition<T> &singletonPartition(TICLGraph<T> const &graph, Partition<T> &singlePartition) {
   assert((singlePartition.getPartition()).empty());
   auto const &nodes{graph.getNodes()};
   auto &communities{singlePartition.setPartition()};
@@ -223,14 +223,14 @@ template <class T>
 bool isNodeWellConnected(Node<T> const &node, std::vector<Node<T>> &subset, double gamma) {
   std::vector<Node<T>> const singletonCommunity{node};
   int edges{numberOfEdges(singletonCommunity, subset)};
-  assert(numberOfEdges >= 0);
+  assert(edges >= 0);
   int nodeSize{communitySize(singletonCommunity)};
   int subsetSize{communitySize(subset)};
   return (edges >= (gamma * nodeSize * (subsetSize - nodeSize)));
 }
 
 template <class T>
-Partition &mergeNodesSubset(TICLGraph const &graph, Partition &partition, std::vector<Node<T>> &subset, double gamma) {
+Partition<T> &mergeNodesSubset(TICLGraph<T> const &graph, Partition<T> &partition, std::vector<Node<T>> &subset, double gamma) {
   for (auto const &node : subset) {
     if (isNodeWellConnected(node, subset, gamma)) {
       auto const &nodeCommunity{findCommunity(node)};

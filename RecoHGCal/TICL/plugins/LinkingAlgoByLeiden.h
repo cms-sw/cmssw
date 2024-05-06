@@ -39,7 +39,7 @@ namespace ticl {
                         const edm::Handle<edm::ValueMap<float>>,
                         const std::vector<reco::Muon> &,
                         const edm::Handle<std::vector<Trackster>>,
-                        const edm::Handle<TICLGraph> &,
+                        const edm::Handle<TICLGraph<ElementaryNode>> &,
                         const bool useMTDTiming,
                         std::vector<TICLCandidate> &,
                         std::vector<TICLCandidate> &) override;
@@ -67,11 +67,11 @@ namespace ticl {
 // namespace ticl
 
 template <class T>
-auto moveNodesFast(TICLGraph const &graph, Partition const &partition);
+auto moveNodesFast(TICLGraph<T> const &graph, Partition<T> const &partition);
 
 template <class T>
-Partition &singletonPartition(TICLGraph const &graph, Partition &singlePartition);
+Partition<T> &singletonPartition(TICLGraph<T> const &graph, Partition<T> &singlePartition);
 
 template <class T>
-Partition &mergeNodesSubset(TICLGraph const &graph, Partition &partition, std::vector<Node<T>> &subset, double gamma);
+Partition<T> &mergeNodesSubset(TICLGraph<T> const &graph, Partition<T> &partition, std::vector<Node<T>> &subset, double gamma);
 #endif

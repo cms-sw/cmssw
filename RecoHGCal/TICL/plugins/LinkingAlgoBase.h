@@ -39,7 +39,7 @@ namespace ticl {
                                 const edm::Handle<edm::ValueMap<float>> tkTimeQual_h,
                                 const std::vector<reco::Muon>& muons,
                                 const edm::Handle<std::vector<Trackster>> tsH,
-                                const edm::Handle<TICLGraph>& tgH,
+                                const edm::Handle<TICLGraph<ElementaryNode>>& tgH,
                                 const bool useMTDTiming,
                                 std::vector<TICLCandidate>& resultTracksters,
                                 std::vector<TICLCandidate>& resultFromTracks) = 0;

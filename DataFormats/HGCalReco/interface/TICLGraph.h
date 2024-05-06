@@ -57,6 +57,7 @@ class Node {
   std::vector<T> internalStructure_{};
 
 public:
+  Node() = default;
   Node(std::vector<T> const& internalStructure) : internalStructure_{internalStructure} {
     assert(internalStructure.size() != 0);
   };

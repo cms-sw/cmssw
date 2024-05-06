@@ -87,8 +87,8 @@ TICLGraphProducer::TICLGraphProducer(const edm::ParameterSet &ps)
       angle_first_cone_(ps.getParameter<double>("angle1")),
       angle_second_cone_(ps.getParameter<double>("angle2")),
       max_height_cone_(ps.getParameter<double>("maxConeHeight")) {
-  produces<TICLGraph>();
-  produces<TICLGraph>("cone");
+  produces<TICLGraph<ElementaryNode>>();
+  produces<TICLGraph<ElementaryNode>>("cone");
   //  std::string detectorName_ = (detector_ == "HFNose") ? "HGCalHFNoseSensitive" : "HGCalEESensitive";
   //  hdc_token_ =
   //      esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag("", detectorName_));
@@ -141,6 +141,7 @@ bool TICLGraphProducer::isPointInCone(const ticl::Trackster::Vector &coneOrigin,
   //  return perpDist <= coneRadius;
 }
 
+template <class T>
 void TICLGraphProducer::produce(edm::Event &evt, const edm::EventSetup &es) {
   edm::Handle<std::vector<Trackster>> trackstersclue3d_h;
   evt.getByToken(tracksters_clue3d_token_, trackstersclue3d_h);
@@ -327,17 +328,17 @@ void TICLGraphProducer::produce(edm::Event &evt, const edm::EventSetup &es) {
       }
     }
   }
-  std::vector<Node> finalNodes;
+  std::vector<Node<ElementaryNodes>> finalNodes;
   for (auto const &elementaryNode : allElemNodes) {
-    finalNodes.push_back(Node{elementaryNode});
+    finalNodes.push_back(Node<ElementaryNode>{elementaryNode});
   }
 
-  std::vector<Node> finalNodes2;
+  std::vector<Node<ElementaryNode>> finalNodes2;
   for (auto const &elementaryNode2 : allElemNodes2) {
-    finalNodes2.push_back(Node{elementaryNode2});
+    finalNodes2.push_back(Node<ElementaryNode>{elementaryNode2});
   }
-  auto resultGraph = std::make_unique<TICLGraph>(finalNodes, isRootNodes);
-  auto resultGraphCone = std::make_unique<TICLGraph>(finalNodes2, isRootNodes);
+  auto resultGraph = std::make_unique<TICLGraph<ElementaryNode>>(finalNodes, isRootNodes);
+  auto resultGraphCone = std::make_unique<TICLGraph<ElementaryNode>>(finalNodes2, isRootNodes);
 
   evt.put(std::move(resultGraph));
   evt.put(std::move(resultGraphCone), "cone");
