@@ -117,24 +117,32 @@ TritonService::TritonService(const edm::ParameterSet& pset, edm::ActivityRegistr
                                     << ", version = " << serverMetaResponse.version();
     }
 
+    //if this query fails, it indicates that the server is nonresponsive or saturated
+    //in which case it should just be skipped
     inference::RepositoryIndexResponse repoIndexResponse;
-    TRITON_THROW_IF_ERROR(client->ModelRepositoryIndex(&repoIndexResponse),
-                          "TritonService(): unable to get repository index for " + serverName + " (" + server.url + ")",
-                          false);
+    auto err = client->ModelRepositoryIndex(&repoIndexResponse);
 
     //servers keep track of models and vice versa
     if (verbose_)
       msg += serverName + ": ";
-    for (const auto& modelIndex : repoIndexResponse.models()) {
-      const auto& modelName = modelIndex.name();
-      auto mit = models_.find(modelName);
-      if (mit == models_.end())
-        mit = models_.emplace(modelName, "").first;
-      auto& modelInfo(mit->second);
-      modelInfo.servers.insert(serverName);
-      server.models.insert(modelName);
+    if (err.IsOk()) {
+      for (const auto& modelIndex : repoIndexResponse.models()) {
+        const auto& modelName = modelIndex.name();
+        auto mit = models_.find(modelName);
+        if (mit == models_.end())
+          mit = models_.emplace(modelName, "").first;
+        auto& modelInfo(mit->second);
+        modelInfo.servers.insert(serverName);
+        server.models.insert(modelName);
+        if (verbose_)
+          msg += modelName + ", ";
+      }
+    } else {
       if (verbose_)
-        msg += modelName + ", ";
+        msg += "unable to get repository index";
+      else
+        edm::LogWarning("TritonFailure") << "TritonService(): unable to get repository index for " + serverName + " (" +
+                                                server.url + ")";
     }
     if (verbose_)
       msg += "\n";
