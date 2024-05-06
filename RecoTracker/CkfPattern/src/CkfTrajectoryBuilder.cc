@@ -157,10 +157,10 @@ void CkfTrajectoryBuilder::trajectories(const TrajectorySeed& seed,
   buildTrajectories(seed, result, tmp, nullptr);
 }
 
-TempTrajectory CkfTrajectoryBuilder::buildTrajectories(const TrajectorySeed& seed,
-                                                       TrajectoryContainer& result,
-                                                       unsigned int& nCandPerSeed,
-                                                       const TrajectoryFilter*) const {
+void CkfTrajectoryBuilder::buildTrajectories(const TrajectorySeed& seed,
+                                             TrajectoryContainer& result,
+                                             unsigned int& nCandPerSeed,
+                                             const TrajectoryFilter*) const {
   if (theMeasurementTracker == nullptr) {
     throw cms::Exception("LogicError")
         << "Asking to create trajectories to an un-initialized CkfTrajectoryBuilder.\nYou have to call clone(const "
@@ -172,8 +172,6 @@ TempTrajectory CkfTrajectoryBuilder::buildTrajectories(const TrajectorySeed& see
   /// limitedCandidates( startingTraj, regionalCondition, result);
   /// FIXME: restore regionalCondition
   nCandPerSeed = limitedCandidates(seed, startingTraj, result);
-
-  return startingTraj;
 
   /*
   //and remember what you just did

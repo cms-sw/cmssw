@@ -45,11 +45,10 @@ public:
   void trajectories(const TrajectorySeed&, TrajectoryContainer& ret, const TrackingRegion&) const;
 
   /// common part of both public trajectory building methods
-  // also new interface returning the start Trajectory...
-  TempTrajectory buildTrajectories(const TrajectorySeed& seed,
-                                   TrajectoryContainer& ret,
-                                   unsigned int& nCandPerSeed,
-                                   const TrajectoryFilter*) const override;
+  void buildTrajectories(const TrajectorySeed& seed,
+                         TrajectoryContainer& ret,
+                         unsigned int& nCandPerSeed,
+                         const TrajectoryFilter*) const override;
 
   /** trajectories re-building in the seeding region.
       It looks for additional measurements in the seeding region of the 
@@ -58,11 +57,8 @@ public:
       collection.
   **/
   void rebuildSeedingRegion(const TrajectorySeed&, TrajectoryContainer& result) const override;
-
-  // same as above using the precomputed startingTraj..
-  void rebuildTrajectories(TempTrajectory const& startingTraj,
-                           const TrajectorySeed&,
-                           TrajectoryContainer& result) const override;
+  // same as above FIXME
+  void rebuildTrajectories(const TrajectorySeed&, TrajectoryContainer& result) const override;
 
   // Access to lower level components
   const TrajectoryStateUpdator& updator() const { return *theUpdator; }
@@ -122,12 +118,10 @@ private:
                                         TempTrajectoryContainer& result) const dso_internal;
 
   /// try to find additional hits in seeding region
-  void rebuildSeedingRegion(const TrajectorySeed& seed,
-                            TempTrajectory const& startingTraj,
-                            TempTrajectoryContainer& result) const dso_internal;
+  void rebuildSeedingRegion(const TrajectorySeed& seed, TempTrajectoryContainer& result) const dso_internal;
 
-  //** try to find additional hits in seeding region for a candidate
-  //* (returns number of trajectories added) *
+  // ** try to find additional hits in seeding region for a candidate
+  // * (returns number of trajectories added) *
   int rebuildSeedingRegion(const TrajectorySeed& seed,
                            const std::vector<const TrackingRecHit*>& seedHits,
                            TempTrajectory& candidate,

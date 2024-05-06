@@ -56,10 +56,8 @@ public:
 
     // PropagationDirection
     int8_t theDirection = anyDirection;
-    bool theValid = false;
 
     uint8_t theNHseed = 0;
-
     uint8_t theNLoops = 0;
     StopReason stopReason_ = StopReason::UNINITIALIZED;
   };
@@ -77,16 +75,15 @@ public:
    */
   TempTrajectory(PropagationDirection dir, unsigned char nhseed) : thePayload(std::make_unique<Payload>()) {
     thePayload->theDirection = dir;
-    thePayload->theValid = true;
     thePayload->theNHseed = nhseed;
   }
 
   TempTrajectory(TempTrajectory const& rh)
-      : theData(rh.theData), thePayload(std::make_unique<Payload>(*rh.thePayload)) {}
+      : theData(rh.theData), thePayload(rh.thePayload ? std::make_unique<Payload>(*rh.thePayload) : nullptr) {}
 
   TempTrajectory& operator=(TempTrajectory const& rh) {
     theData = rh.theData;
-    thePayload = std::make_unique<Payload>(*rh.thePayload);
+    thePayload = rh.thePayload ? std::make_unique<Payload>(*rh.thePayload) : nullptr;
     return *this;
   }
 
@@ -225,10 +222,10 @@ public:
   /** Returns true if the Trajectory is valid.
    *  Trajectories are invalidated e.g. during ambiguity resolution.
    */
-  bool isValid() const { return thePayload->theValid; }
+  bool isValid() const { return bool(thePayload); }
 
   /// Method to invalidate a trajectory. Useful during ambiguity resolution.
-  void invalidate() { thePayload->theValid = false; }
+  void invalidate() { thePayload.reset(); }
 
   /** Definition of inactive Det from the Trajectory point of view.
    */
