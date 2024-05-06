@@ -219,13 +219,10 @@ void GroupedCkfTrajectoryBuilder::trajectories(const TrajectorySeed& seed,
 }
 
 void GroupedCkfTrajectoryBuilder::rebuildSeedingRegion(const TrajectorySeed& seed, TrajectoryContainer& result) const {
-  TempTrajectory const& startingTraj = createStartingTrajectory(seed);
-  rebuildTrajectories(startingTraj, seed, result);
+  rebuildTrajectories(seed, result);
 }
 
-void GroupedCkfTrajectoryBuilder::rebuildTrajectories(TempTrajectory const& startingTraj,
-                                                      const TrajectorySeed& seed,
-                                                      TrajectoryContainer& result) const {
+void GroupedCkfTrajectoryBuilder::rebuildTrajectories(const TrajectorySeed& seed, TrajectoryContainer& result) const {
   TempTrajectoryContainer work;
 
   TrajectoryContainer final;
@@ -242,7 +239,7 @@ void GroupedCkfTrajectoryBuilder::rebuildTrajectories(TempTrajectory const& star
     if (traj.isValid())
       work.emplace_back(std::move(traj));
 
-  rebuildSeedingRegion(seed, startingTraj, work);
+  rebuildSeedingRegion(seed, work);
 
   // we clean here now
   FastTrajectoryCleaner cleaner(theFoundHitBonus, theLostHitPenalty, false);
@@ -259,10 +256,10 @@ void GroupedCkfTrajectoryBuilder::rebuildTrajectories(TempTrajectory const& star
   statCount.rebuilt(result.size());
 }
 
-TempTrajectory GroupedCkfTrajectoryBuilder::buildTrajectories(const TrajectorySeed& seed,
-                                                              GroupedCkfTrajectoryBuilder::TrajectoryContainer& result,
-                                                              unsigned int& nCandPerSeed,
-                                                              const TrajectoryFilter* regionalCondition) const {
+void GroupedCkfTrajectoryBuilder::buildTrajectories(const TrajectorySeed& seed,
+                                                    GroupedCkfTrajectoryBuilder::TrajectoryContainer& result,
+                                                    unsigned int& nCandPerSeed,
+                                                    const TrajectoryFilter* regionalCondition) const {
   if (theMeasurementTracker == nullptr) {
     throw cms::Exception("LogicError")
         << "Asking to create trajectories to an un-initialized GroupedCkfTrajectoryBuilder.\nYou have to call "
@@ -282,7 +279,7 @@ TempTrajectory GroupedCkfTrajectoryBuilder::buildTrajectories(const TrajectorySe
   const bool inOut = true;
   nCandPerSeed = groupedLimitedCandidates(seed, startingTraj, regionalCondition, forwardPropagator(seed), inOut, work_);
   if (work_.empty())
-    return startingTraj;
+    return;
 
   // cleaning now done here...
   FastTrajectoryCleaner cleaner(theFoundHitBonus, theLostHitPenalty);
@@ -340,8 +337,6 @@ TempTrajectory GroupedCkfTrajectoryBuilder::buildTrajectories(const TrajectorySe
     std::cout << std::endl;
   }
 #endif
-
-  return startingTraj;
 }
 
 unsigned int GroupedCkfTrajectoryBuilder::groupedLimitedCandidates(const TrajectorySeed& seed,
@@ -845,7 +840,6 @@ void GroupedCkfTrajectoryBuilder::groupedIntermediaryClean(TempTrajectoryContain
 }
 
 void GroupedCkfTrajectoryBuilder::rebuildSeedingRegion(const TrajectorySeed& seed,
-                                                       TempTrajectory const& startingTraj,
                                                        TempTrajectoryContainer& result) const {
   //
   // Rebuilding of trajectories. Candidates are taken from result,
@@ -870,7 +864,7 @@ void GroupedCkfTrajectoryBuilder::rebuildSeedingRegion(const TrajectorySeed& see
     // Refit - keep existing trajectory in case fit is not possible
     // or fails
     //
-
+    assert(it->isValid());
     auto&& reFitted = backwardFit(*it, nSeed, fitter, seedHits);
     if UNLIKELY (!reFitted.isValid()) {
       rebuiltTrajectories.push_back(std::move(*it));

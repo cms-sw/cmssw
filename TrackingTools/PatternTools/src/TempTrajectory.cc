@@ -24,8 +24,8 @@ namespace {
 }  // namespace
 
 TempTrajectory::TempTrajectory(Trajectory&& traj) : thePayload(std::make_unique<Payload>()) {
+  assert(traj.isValid());
   thePayload->theDirection = traj.direction();
-  thePayload->theValid = traj.isValid();
   thePayload->theNHseed = traj.seedNHits();
   thePayload->theNLoops = traj.nLoops();
   thePayload->theDPhiCache = traj.dPhiCacheForLoopersReconstruction();
@@ -170,6 +170,7 @@ int TempTrajectory::numberOfCCCBadHits(float ccc_threshold) {
 }
 
 Trajectory TempTrajectory::toTrajectory() const {
+  assert(isValid());
   PropagationDirection p = PropagationDirection(thePayload->theDirection);
   Trajectory traj(p);
   traj.setNLoops(thePayload->theNLoops);
