@@ -69,10 +69,10 @@ DDHGCalPassive::DDHGCalPassive() {
 }
 
 void DDHGCalPassive::initialize(const DDNumericArguments& nArgs,
-				const DDVectorArguments& vArgs,
-				const DDMapArguments&,
-				const DDStringArguments& sArgs,
-				const DDStringVectorArguments& vsArgs) {
+                                const DDVectorArguments& vArgs,
+                                const DDMapArguments&,
+                                const DDStringArguments& sArgs,
+                                const DDStringVectorArguments& vsArgs) {
   material_ = sArgs["ModuleMaterial"];
   thick_ = nArgs["Thickness"];
   zMinBlock_ = nArgs["zMinBlock"];
@@ -83,20 +83,23 @@ void DDHGCalPassive::initialize(const DDNumericArguments& nArgs,
   phi0_ = convertDegToRad(nArgs["PhiStart"]);
   dphi_ = (2._pi) / tagSector_.size();
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalPassive: " << tagLayer_.size() << " Modules with base name " << parent().name() << " made of " << material_ << " T " << thick_ << " Sectors " << tagSector_.size() << " Parts " << parts_ << " phi0 " << convertRadToDeg(phi0_);
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalPassive: " << tagLayer_.size() << " Modules with base name "
+                                << parent().name() << " made of " << material_ << " T " << thick_ << " Sectors "
+                                << tagSector_.size() << " Parts " << parts_ << " phi0 " << convertRadToDeg(phi0_);
   for (unsigned int i = 0; i < tagLayer_.size(); ++i)
     edm::LogVerbatim("HGCalGeom") << "Layer " << i << " Tag " << tagLayer_[i] << " T " << moduleThick_;
   for (unsigned int i = 0; i < tagSector_.size(); ++i)
     edm::LogVerbatim("HGCalGeom") << "Sector " << i << " Tag " << tagSector_[i] << " W " << convertRadToDeg(dphi_);
 #endif
-  
+
   layerNames_ = vsArgs["LayerNames"];
   materials_ = vsArgs["LayerMaterials"];
   layerThick_ = vArgs["LayerThickness"];
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalPassive: " << layerNames_.size() << " types of volumes";
   for (unsigned int i = 0; i < layerNames_.size(); ++i)
-    edm::LogVerbatim("HGCalGeom") << "Volume [" << i << "] " << layerNames_[i] << " of thickness " << layerThick_[i] << " filled with " << materials_[i];
+    edm::LogVerbatim("HGCalGeom") << "Volume [" << i << "] " << layerNames_[i] << " of thickness " << layerThick_[i]
+                                  << " filled with " << materials_[i];
 #endif
   layerType_ = dbl_to_int(vArgs["LayerType"]);
 #ifdef EDM_ML_DEBUG
@@ -137,7 +140,7 @@ void DDHGCalPassive::execute(DDCompactView& cpv) {
   // Loop over Layers
   double zim(zMinBlock_);
   //Loop over layers
-  for (unsigned int j = 0; j < tagLayer_.size();  ++j) {
+  for (unsigned int j = 0; j < tagLayer_.size(); ++j) {
     double routF = HGCalGeomTools::radius(zim, zFrontT_, rMaxFront_, slopeT_) - shiftTop_;
     double zo = zim + moduleThick_;
     double rinB = HGCalGeomTools::radius(zo, zFrontB_, rMinFront_, slopeB_) + shiftBot_;
@@ -150,11 +153,21 @@ void DDHGCalPassive::execute(DDCompactView& cpv) {
       // First the mother
       std::vector<double> xM, yM;
       if (parts_ == 1) {
-	xM = {rinB * cos(phi1), routF * cos(phi1), routF * cos(phi2), rinB * cos(phi2)};
-	yM = {rinB * sin(phi1), routF * sin(phi1), routF * sin(phi2), rinB * sin(phi2)};
+        xM = {rinB * cos(phi1), routF * cos(phi1), routF * cos(phi2), rinB * cos(phi2)};
+        yM = {rinB * sin(phi1), routF * sin(phi1), routF * sin(phi2), rinB * sin(phi2)};
       } else {
-	xM = {rinB * cos(phi1), routF * cos(phi1), routF * cos(phi0), routF * cos(phi2), rinB * cos(phi2), rinB * cos(phi0)};
-	yM = {rinB * sin(phi1), routF * sin(phi1), routF * sin(phi0), routF * sin(phi2), rinB * sin(phi2), rinB * sin(phi0)};
+        xM = {rinB * cos(phi1),
+              routF * cos(phi1),
+              routF * cos(phi0),
+              routF * cos(phi2),
+              rinB * cos(phi2),
+              rinB * cos(phi0)};
+        yM = {rinB * sin(phi1),
+              routF * sin(phi1),
+              routF * sin(phi0),
+              routF * sin(phi2),
+              rinB * sin(phi2),
+              rinB * sin(phi0)};
       }
       std::vector<double> zw = {-0.5 * thick_, 0.5 * thick_};
       std::vector<double> zx(2, 0), zy(2, 0), scale(2, 1.0);
@@ -163,9 +176,12 @@ void DDHGCalPassive::execute(DDCompactView& cpv) {
       DDMaterial matter(matName);
       DDLogicalPart glogM = DDLogicalPart(solid.ddname(), matter, solid);
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << "DDHGCalPassive: " << solid.name() << " extruded polygon made of " << matName << " z|x|y|s (0) " << zw[0] << ":" << zx[0] << ":" << zy[0] << ":" << scale[0] << " z|x|y|s (1) " << zw[1] << ":" << zx[1] << ":" << zy[1] << ":" << scale[1] << " and " << xM.size() << " edges";
+      edm::LogVerbatim("HGCalGeom") << "DDHGCalPassive: " << solid.name() << " extruded polygon made of " << matName
+                                    << " z|x|y|s (0) " << zw[0] << ":" << zx[0] << ":" << zy[0] << ":" << scale[0]
+                                    << " z|x|y|s (1) " << zw[1] << ":" << zx[1] << ":" << zy[1] << ":" << scale[1]
+                                    << " and " << xM.size() << " edges";
       for (unsigned int kk = 0; kk < xM.size(); ++kk)
-	edm::LogVerbatim("HGCalGeom") << "[" << kk << "] " << xM[kk] << ":" << yM[kk];
+        edm::LogVerbatim("HGCalGeom") << "[" << kk << "] " << xM[kk] << ":" << yM[kk];
 #endif
 
       // Then the layers
@@ -173,37 +189,43 @@ void DDHGCalPassive::execute(DDCompactView& cpv) {
       std::vector<int> copyNumber(materials_.size(), 1);
       double zi(-0.5 * thick_), thickTot(0.0);
       for (unsigned int l = 0; l < layerType_.size(); l++) {
-	unsigned int i = layerType_[l];
-	if (copyNumber[i] == 1) {
-	  zw[0] = -0.5 * layerThick_[i];
-	  zw[1] = 0.5 * layerThick_[i];
-	  std::string layerName = parentName + layerNames_[i];
-	  solid = DDSolidFactory::extrudedpolygon(layerName, xM, yM, zw, zx, zy, scale);
-	  DDName matN(DDSplit(materials_[i]).first, DDSplit(materials_[i]).second);
-	  DDMaterial matter(matN);
-	  glogs[i] = DDLogicalPart(solid.ddname(), matter, solid);
+        unsigned int i = layerType_[l];
+        if (copyNumber[i] == 1) {
+          zw[0] = -0.5 * layerThick_[i];
+          zw[1] = 0.5 * layerThick_[i];
+          std::string layerName = parentName + layerNames_[i];
+          solid = DDSolidFactory::extrudedpolygon(layerName, xM, yM, zw, zx, zy, scale);
+          DDName matN(DDSplit(materials_[i]).first, DDSplit(materials_[i]).second);
+          DDMaterial matter(matN);
+          glogs[i] = DDLogicalPart(solid.ddname(), matter, solid);
 #ifdef EDM_ML_DEBUG
-	  edm::LogVerbatim("HGCalGeom") << "DDHGCalPassive: Layer " << i << ":" << l << ":" << solid.name() << " extruded polygon made of " << matN << " z|x|y|s (0) " << zw[0] << ":" << zx[0] << ":" << zy[0] << ":" << scale[0] << " z|x|y|s (1) " << zw[1] << ":" << zx[1] << ":" << zy[1] << ":" << scale[1] << " and " << xM.size() << " edges";
-	  for (unsigned int kk = 0; kk < xM.size(); ++kk)
-	    edm::LogVerbatim("HGCalGeom") << "[" << kk << "] " << xM[kk] << ":" << yM[kk];
+          edm::LogVerbatim("HGCalGeom") << "DDHGCalPassive: Layer " << i << ":" << l << ":" << solid.name()
+                                        << " extruded polygon made of " << matN << " z|x|y|s (0) " << zw[0] << ":"
+                                        << zx[0] << ":" << zy[0] << ":" << scale[0] << " z|x|y|s (1) " << zw[1] << ":"
+                                        << zx[1] << ":" << zy[1] << ":" << scale[1] << " and " << xM.size() << " edges";
+          for (unsigned int kk = 0; kk < xM.size(); ++kk)
+            edm::LogVerbatim("HGCalGeom") << "[" << kk << "] " << xM[kk] << ":" << yM[kk];
 #endif
-	}
-	DDTranslation tran0(0, 0, (zi + 0.5 * layerThick_[i]));
-	DDRotation rot;
-	cpv.position(glogs[i], glogM, copyNumber[i], tran0, rot);
+        }
+        DDTranslation tran0(0, 0, (zi + 0.5 * layerThick_[i]));
+        DDRotation rot;
+        cpv.position(glogs[i], glogM, copyNumber[i], tran0, rot);
 #ifdef EDM_ML_DEBUG
-	edm::LogVerbatim("HGCalGeom") << "DDHGCalPassive: " << glogs[i].name() << " number " << copyNumber[i] << " positioned in " << glogM.name() << " at " << tran0 << " with no rotation";
+        edm::LogVerbatim("HGCalGeom") << "DDHGCalPassive: " << glogs[i].name() << " number " << copyNumber[i]
+                                      << " positioned in " << glogM.name() << " at " << tran0 << " with no rotation";
 #endif
-	++copyNumber[i];
-	zi += layerThick_[i];
-	thickTot += layerThick_[i];
+        ++copyNumber[i];
+        zi += layerThick_[i];
+        thickTot += layerThick_[i];
       }
       if ((std::abs(thickTot - thick_) >= tol) && (!layerType_.empty())) {
-	if (thickTot > thick_) {
-	  edm::LogError("HGCalGeom") << "Thickness of the partition " << thick_ << " is smaller than " << thickTot << ": thickness of all its components **** ERROR ****";
-	} else {
-	  edm::LogWarning("HGCalGeom") << "Thickness of the partition " << thick_ << " does not match with " << thickTot << " of the components";
-	}
+        if (thickTot > thick_) {
+          edm::LogError("HGCalGeom") << "Thickness of the partition " << thick_ << " is smaller than " << thickTot
+                                     << ": thickness of all its components **** ERROR ****";
+        } else {
+          edm::LogWarning("HGCalGeom") << "Thickness of the partition " << thick_ << " does not match with " << thickTot
+                                       << " of the components";
+        }
       }
     }
   }
