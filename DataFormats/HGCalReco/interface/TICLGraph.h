@@ -145,16 +145,7 @@ public:
 
 //takes a community and return the vector of all the Elementary Nodes in the community
 template <class T>
-auto flatCommunity(std::vector<Node<T>> const& community, std::vector<ElementaryNode>& flattenedCommunity) {
-  for (auto const& node : community) {
-    if (node.isNodeDegreeZero()) {
-      for (auto const& elementaryNode : node.getInternalStructure())
-        flattenedCommunity.push_back(elementaryNode);
-    } else
-      flatCommunity(node, flattenedCommunity);
-  }
-  return flattenedCommunity;
-}
+auto flatCommunity(std::vector<Node<T>> const& community, std::vector<ElementaryNode>& flattenedCommunity);
 
 template <class T>
 class Partition {
@@ -185,72 +176,19 @@ public:
 };
 
 template <class T>
-// the number of edges b/w 2 nodes is the number of edges between their elementary nodes
-int numberOfEdges(std::vector<Node<T>> const& communityA, std::vector<Node<T>> const& communityB) {
-  int numberOfEdges{};
-
-  std::vector<ElementaryNode> flattenedCommunityA{};
-  std::vector<ElementaryNode> flattenedCommunityB{};
-  flatCommunity(communityA, flattenedCommunityA);
-  flatCommunity(communityB, flattenedCommunityB);
-
-  for (auto const& elementaryNodeA : flattenedCommunityA) {
-    std::vector<unsigned int> const& neighboursA{elementaryNodeA.getNeighbours()};
-    for (auto const& Id : neighboursA) {
-      auto it{std::find_if(flattenedCommunityB.begin(),
-                           flattenedCommunityB.end(),
-                           [&Id](ElementaryNode const& elNodeB) { return (elNodeB.getId()) == Id; })};
-      if (it != flattenedCommunityB.end()) {
-        ++numberOfEdges;
-      }
-    }
-  }
-  return numberOfEdges;
-}
+int numberOfEdges(std::vector<Node<T>> const& communityA, std::vector<Node<T>> const& communityB);
 
 template <class T>
-//the size of a community is the number of elementary nodes in it
-int communitySize(std::vector<Node<T>> const& community) {
-  int size{};
-  for (auto const& node : community) {
-    if (node.isNodeDegreeZero()) {
-      size += node.size();
-    } else
-      communitySize(node);
-  }
-  return size;
-}
+int communitySize(std::vector<Node<T>> const& community);
 
 template <class T>
-bool areNeighbours(Node<T> const& nodeA, Node<T> const& nodeB) {
-  std::vector<Node<T>> A{nodeA};
-  std::vector<Node<T>> B{nodeB};
-  std::vector<ElementaryNode> flattenedCommunityA{};
-  std::vector<ElementaryNode> flattenedCommunityB{};
-  flatCommunity(A, flattenedCommunityA);
-  flatCommunity(B, flattenedCommunityB);
-  bool result{false};
-  for (auto const& elementaryNodeA : flattenedCommunityA) {
-    std::vector<unsigned int> const& neighboursA{elementaryNodeA.getNeighbours()};
-    for (auto const& Id : neighboursA) {
-      auto it{std::find_if(flattenedCommunityB.begin(),
-                           flattenedCommunityB.end(),
-                           [&Id](ElementaryNode const& elNodeB) { return (elNodeB.getId()) == Id; })};
-      //for two nodes to be neighbours i simply need two of their elementary nodes being neighbours
-      if (it != flattenedCommunityB.end()) {
-        result = true;
-        break;
-      }
-    }
-  }
-  return result;
-}
+bool areNeighbours(Node<T> const& nodeA, Node<T> const& nodeB);
 
 //tells me if community is contained within a certain subset
 /*bool isCommunityContained (std::vector<Node<T>> const& community, std::vector<Node<T>> const& subset){
 for (auto const& node : community) {
   std::find
 }
-}
-//std::optional (std::vector) .hasvalue()//*/
+}*/
+
 #endif
