@@ -23,13 +23,16 @@ ticlTrackstersCLUE3DHigh = _trackstersProducer.clone(
         criticalDensity = [0.6, 0.6, 0.6],
         criticalEtaPhiDistance = [0.025, 0.025, 0.025],
         kernelDensityFactor = [0.2, 0.2, 0.2],
-        algo_verbosity = 0
+        algo_verbosity = 0,
+        doPidCut = True,
+        cutHadProb = 999
     )
 
 )
 
 from Configuration.ProcessModifiers.ticl_v5_cff import ticl_v5
 ticl_v5.toModify(ticlTrackstersCLUE3DHigh.pluginPatternRecognitionByCLUE3D, computeLocalTime = cms.bool(True))
+ticl_v5.toModify(ticlTrackstersCLUE3DHigh.pluginPatternRecognitionByCLUE3D, doPidCut = cms.bool(False))
 
 ticlCLUE3DHighStepTask = cms.Task(ticlSeedingGlobal
     ,filteredLayerClustersCLUE3DHigh
