@@ -924,9 +924,9 @@ void CalibMonitor::Loop(Long64_t nmax, bool debug) {
       std::cout << "Entry " << jentry << " Run " << t_Run << " Event " << t_Event << std::endl;
     if (oddEven != 0) {
       if ((oddEven < 0) && (jentry % 2 == 0))
-	continue;
+        continue;
       else if ((oddEven > 0) && (jentry % 2 != 0))
-	continue;
+        continue;
     }
     double pmom = (useGen_ && (t_gentrackP > 0)) ? t_gentrackP : t_p;
     int kp(-1);
@@ -2026,9 +2026,9 @@ void GetEntries::Loop(Long64_t nmax) {
     nbytes += nb;
     if (oddEven != 0) {
       if ((oddEven < 0) && (jentry % 2 == 0))
-	continue;
+        continue;
       else if ((oddEven > 0) && (jentry % 2 != 0))
-	continue;
+        continue;
     }
     bool select = (std::find(entries_.begin(), entries_.end(), jentry) == entries_.end());
     if (!select) {

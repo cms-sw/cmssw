@@ -777,9 +777,9 @@ Double_t CalibTree::Loop(int loop,
       std::cout << "Entry " << jentry << " Run " << t_Run << " Event " << t_Event << std::endl;
     if (oddEven != 0) {
       if ((oddEven < 0) && (jentry % 2 == 0))
-	continue;
+        continue;
       else if ((oddEven > 0) && (jentry % 2 != 0))
-	continue;
+        continue;
     }
     bool select = ((cDuplicate_ != nullptr) && (duplicate_ == 0)) ? (cDuplicate_->isDuplicate(jentry)) : true;
     if (!select)
@@ -1077,10 +1077,10 @@ void CalibTree::getDetId(double fraction, int ietaTrack, bool debug, Long64_t nm
       if (jentry % 1000000 == 0)
         std::cout << "Entry " << jentry << " Run " << t_Run << " Event " << t_Event << std::endl;
       if (oddEven != 0) {
-	if ((oddEven < 0) && (jentry % 2 == 0))
-	  continue;
-	else if ((oddEven > 0) && (jentry % 2 != 0))
-	  continue;
+        if ((oddEven < 0) && (jentry % 2 == 0))
+          continue;
+        else if ((oddEven > 0) && (jentry % 2 != 0))
+          continue;
       }
       bool select = ((cDuplicate_ != nullptr) && (duplicate_ == 0)) ? (cDuplicate_->isDuplicate(jentry)) : true;
       if (!select)
@@ -1332,9 +1332,9 @@ void CalibTree::makeplots(
       break;
     if (oddEven != 0) {
       if ((oddEven < 0) && (jentry % 2 == 0))
-	continue;
+        continue;
       else if ((oddEven > 0) && (jentry % 2 != 0))
-	continue;
+        continue;
     }
     bool select = ((cDuplicate_ != nullptr) && (duplicate_ == 0)) ? (cDuplicate_->isDuplicate(jentry)) : true;
     if (!select)

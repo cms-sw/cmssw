@@ -1321,31 +1321,33 @@ void CalibCorrScale(const char* infile, const char* outfile, double scale) {
     if (std::string(infile) != "") {
       std::ifstream fInput(infile);
       if (!fInput.good()) {
-	std::cout << "Cannot open file " << infile << std::endl;
+        std::cout << "Cannot open file " << infile << std::endl;
       } else {
-	char buffer[1024];
-	unsigned int all(0), good(0), comment(0);
-	while (fInput.getline(buffer, 1024)) {
-	  ++all;
-	  if (buffer[0] == '#') {
-	    myfile << buffer << std::endl;
-	    ++comment;
-	    continue;  //ignore comment
-	  }
-	  std::vector<std::string> items = splitString(std::string(buffer));
-	  if (items.size() != 5) {
-	    std::cout << "Ignore  line: " << buffer << std::endl;
-	  } else {
-	    ++good;
-	    int ieta = std::atoi(items[1].c_str());
-	    int depth = std::atoi(items[2].c_str());
-	    float corrf = scale * std::atof(items[3].c_str());
-	    float dcorr = scale * std::atof(items[4].c_str());
-	    myfile << std::setw(10) << items[0] << std::setw(10) << std::dec << ieta << std::setw(10)  << depth << std::setw(10) << corrf << " " << std::setw(10) << dcorr << std::endl;
-	  }
-	}
-	fInput.close();
-	std::cout << "Reads total of " << all << ", " << comment << " and " << good << " good records from " << infile << " and copied to " << outfile << std::endl;
+        char buffer[1024];
+        unsigned int all(0), good(0), comment(0);
+        while (fInput.getline(buffer, 1024)) {
+          ++all;
+          if (buffer[0] == '#') {
+            myfile << buffer << std::endl;
+            ++comment;
+            continue;  //ignore comment
+          }
+          std::vector<std::string> items = splitString(std::string(buffer));
+          if (items.size() != 5) {
+            std::cout << "Ignore  line: " << buffer << std::endl;
+          } else {
+            ++good;
+            int ieta = std::atoi(items[1].c_str());
+            int depth = std::atoi(items[2].c_str());
+            float corrf = scale * std::atof(items[3].c_str());
+            float dcorr = scale * std::atof(items[4].c_str());
+            myfile << std::setw(10) << items[0] << std::setw(10) << std::dec << ieta << std::setw(10) << depth
+                   << std::setw(10) << corrf << " " << std::setw(10) << dcorr << std::endl;
+          }
+        }
+        fInput.close();
+        std::cout << "Reads total of " << all << ", " << comment << " and " << good << " good records from " << infile
+                  << " and copied to " << outfile << std::endl;
       }
     }
     myfile.close();
