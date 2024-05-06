@@ -47,9 +47,7 @@ public:
   }*/
 };
 
-bool operator==(ElementaryNode const& eN1, ElementaryNode const& eN2) {
-  return (eN1.getId() == eN2.getId()) && (eN1.getNeighbours() == eN2.getNeighbours());
-}
+bool operator==(ElementaryNode const& eN1, ElementaryNode const& eN2);
 
 // a node can contain one or more elementary nodes (needed to implement the aggregate graph)
 template <class T>
@@ -72,9 +70,7 @@ public:
 
 //tested this implementation on godbolt it should work
 template <class T>
-bool operator==(Node<T> const& n1, Node<T> const& n2) {
-  return ((n1.getInternalStructure()) == (n2.getInternalStructure()));
-}
+bool operator==(Node<T> const& n1, Node<T> const& n2);
 
 template <class T>
 class TICLGraph {
@@ -250,5 +246,11 @@ bool areNeighbours(Node<T> const& nodeA, Node<T> const& nodeB) {
   return result;
 }
 
-//std::optional (std::vector) .hasvalue()//
+//tells me if community is contained within a certain subset
+/*bool isCommunityContained (std::vector<Node<T>> const& community, std::vector<Node<T>> const& subset){
+for (auto const& node : community) {
+  std::find
+}
+}
+//std::optional (std::vector) .hasvalue()//*/
 #endif

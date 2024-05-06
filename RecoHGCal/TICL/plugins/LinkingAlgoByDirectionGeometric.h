@@ -14,7 +14,6 @@
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "DataFormats/GeometrySurface/interface/BoundDisk.h"
 #include "DataFormats/HGCalReco/interface/TICLLayerTile.h"
-#include "DataFormats/HGCalReco/interface/TICLGraph.h"
 
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 

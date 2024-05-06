@@ -20,7 +20,6 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/GeometrySurface/interface/BoundDisk.h"
 #include "DataFormats/HGCalReco/interface/TICLCandidate.h"
-#include "DataFormats/HGCalReco/interface/TICLGraph.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/Math/interface/Vector3D.h"
 
@@ -260,7 +259,7 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
   auto resultFromTracks = std::make_unique<std::vector<TICLCandidate>>();
   tfSession_ = es.getData(tfDnnToken_).getSession();
 
-  edm::Handle<TICLGraph> ticlGraph_h;
+  edm::Handle<TICLGraph<ElementaryNode>> ticlGraph_h;
   evt.getByToken(ticlGraph_token_, ticlGraph_h);
 
   edm::Handle<std::vector<Trackster>> trackstersclue3d_h;
