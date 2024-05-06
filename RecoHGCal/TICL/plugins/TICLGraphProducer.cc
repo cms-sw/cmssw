@@ -141,7 +141,6 @@ bool TICLGraphProducer::isPointInCone(const ticl::Trackster::Vector &coneOrigin,
   //  return perpDist <= coneRadius;
 }
 
-template <class T>
 void TICLGraphProducer::produce(edm::Event &evt, const edm::EventSetup &es) {
   edm::Handle<std::vector<Trackster>> trackstersclue3d_h;
   evt.getByToken(tracksters_clue3d_token_, trackstersclue3d_h);
@@ -328,14 +327,14 @@ void TICLGraphProducer::produce(edm::Event &evt, const edm::EventSetup &es) {
       }
     }
   }
-  std::vector<Node<ElementaryNodes>> finalNodes;
+  std::vector<Node<ElementaryNode>> finalNodes;
   for (auto const &elementaryNode : allElemNodes) {
-    finalNodes.push_back(Node<ElementaryNode>{elementaryNode});
+    finalNodes.push_back(Node<ElementaryNode>{std::vector<ElementaryNode>{elementaryNode}});
   }
 
   std::vector<Node<ElementaryNode>> finalNodes2;
   for (auto const &elementaryNode2 : allElemNodes2) {
-    finalNodes2.push_back(Node<ElementaryNode>{elementaryNode2});
+    finalNodes2.push_back(Node<ElementaryNode>{std::vector<ElementaryNode>{elementaryNode2}});
   }
   auto resultGraph = std::make_unique<TICLGraph<ElementaryNode>>(finalNodes, isRootNodes);
   auto resultGraphCone = std::make_unique<TICLGraph<ElementaryNode>>(finalNodes2, isRootNodes);

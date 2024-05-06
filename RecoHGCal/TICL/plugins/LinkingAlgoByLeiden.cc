@@ -145,7 +145,7 @@ void moveNode(std::vector<Node<T>> &communityFrom, std::vector<Node<T>> &communi
 }
 
 template <class T>
-auto queueCommunity(std::vector<Node<T>> &community, std::queue const &queue) {
+auto queueCommunity(std::vector<Node<T>> &community, std::queue<Node<T>> const &queue) {
   std::random_shuffle(community.begin(), community.end());  //elements are added to the queue in random order
   for (auto const &node : community) {
     queue.push(node);
