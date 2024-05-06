@@ -9,6 +9,7 @@
 #include "FWCore/ServiceRegistry/interface/SystemBounds.h"
 #include "FWCore/ServiceRegistry/interface/ProcessContext.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/GetEnvironmentVariable.h"
 
 #include "grpc_client.h"
 #include "grpc_service.pb.h"
@@ -25,6 +26,7 @@ namespace tc = triton::client;
 
 const std::string TritonService::Server::fallbackName{"fallback"};
 const std::string TritonService::Server::fallbackAddress{"0.0.0.0"};
+const std::string TritonService::Server::siteconfName{"SONIC_LOCAL_BALANCER"};
 
 namespace {
   std::pair<std::string, int> execSys(const std::string& cmd) {
@@ -89,10 +91,24 @@ TritonService::TritonService(const edm::ParameterSet& pset, edm::ActivityRegistr
                      std::forward_as_tuple(Server::fallbackName, Server::fallbackAddress, serverType));
   }
 
-  //loop over input servers: check which models they have
-  std::string msg;
-  if (verbose_)
-    msg = "List of models for each server:\n";
+  //check for server specified in SITECONF
+  std::string siteconf_address(edm::getEnvironmentVariable(Server::siteconfName + "_HOST"));
+  std::string siteconf_port(edm::getEnvironmentVariable(Server::siteconfName + "_PORT"));
+  if (!siteconf_address.empty() and !siteconf_port.empty()) {
+    servers_.emplace(
+        std::piecewise_construct,
+        std::forward_as_tuple(Server::siteconfName),
+        std::forward_as_tuple(Server::siteconfName, siteconf_address + ":" + siteconf_port, TritonServerType::Remote));
+    if (verbose_)
+      edm::LogInfo("TritonService") << "Obtained server from SITECONF: "
+                                    << servers_.find(Server::siteconfName)->second.url;
+  } else if (siteconf_address.empty() != siteconf_port.empty()) {  //xor
+    edm::LogWarning("TritonService") << "Incomplete server information from SITECONF: HOST = " << siteconf_address
+                                     << ", PORT = " << siteconf_port;
+  }
+  //if nothing provided, assume there's no SITECONF server
+
+  //finally, populate list of servers from config input
   for (const auto& serverPset : pset.getUntrackedParameterSetVector("servers")) {
     const std::string& serverName(serverPset.getUntrackedParameter<std::string>("name"));
     //ensure uniqueness
@@ -100,7 +116,16 @@ TritonService::TritonService(const edm::ParameterSet& pset, edm::ActivityRegistr
     if (!unique)
       throw cms::Exception("DuplicateServer")
           << "TritonService: Not allowed to specify more than one server with same name (" << serverName << ")";
-    auto& server(sit->second);
+  }
+
+  //loop over all servers: check which models they have
+  std::string msg;
+  if (verbose_)
+    msg = "List of models for each server:\n";
+  for (auto& [serverName, server] : servers_) {
+    //skip fallback server here (checked later)
+    if (serverName == Server::fallbackName)
+      continue;
 
     std::unique_ptr<tc::InferenceServerGrpcClient> client;
     TRITON_THROW_IF_ERROR(

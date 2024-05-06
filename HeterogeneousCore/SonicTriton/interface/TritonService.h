@@ -89,6 +89,7 @@ public:
     std::unordered_set<std::string> models;
     static const std::string fallbackName;
     static const std::string fallbackAddress;
+    static const std::string siteconfName;
   };
   struct Model {
     Model(const std::string& path_ = "") : path(path_) {}
