@@ -3,6 +3,7 @@
 #include <queue>
 #include <cassert>
 #include <cmath>
+#include <random>
 #include "RecoHGCal/TICL/plugins/LinkingAlgoByLeiden.h"
 
 #include "DataFormats/GeometrySurface/interface/BoundDisk.h"
@@ -86,7 +87,7 @@ int binomialCoefficient(int n, int k) {
   assert(k >= 0);
   if (n < k)
     return 0;
-  else if (n==k)
+  else if (n == k)
     return 1;
   else
     return factorial(n) / (factorial(k) * factorial(n - k));
@@ -230,16 +231,75 @@ bool isNodeWellConnected(Node<T> const &node, std::vector<Node<T>> &subset, doub
 }
 
 template <class T>
-Partition<T> &mergeNodesSubset(TICLGraph<T> const &graph, Partition<T> &partition, std::vector<Node<T>> &subset, double gamma) {
+bool isCommunityWellConnected(std::vector<Node<T>> &community, std::vector<Node<T>> &subset, double gamma) {
+  std::vector<Node<T>> subsetMinuscommunity{};
+  for (auto const &node : subset) {
+    auto it{std::find(community.begin(), community.end(), node)};
+    if (it == community.end()) {
+      subsetMinuscommunity.push_back(node);
+    }
+  }
+  int edges{numberOfEdges(community, subsetMinuscommunity)};
+  assert(edges >= 0);
+  int comSize{communitySize(community)};
+  int subsetSize{communitySize(subset)};
+  return (edges >= (gamma * comSize * (subsetSize - comSize)));
+}
+
+template <class T>
+std::vector<Node<T>> const &extractRandomCommunity(std::vector<std::vector<Node<T>>> const &communities,
+                                                   Partition<T> const &partition,
+                                                   Node<T> const &node,
+                                                   std::vector<Node<T>> nodeCommunity,
+                                                   double theta) {
+  auto currentCPM{CPM(partition, gamma)};
+  std::vector<double> deltaCPMs{};
+
+  //calculating delta_H for all communities
+  for (auto const &community : communities) {
+    if (isCommunityWellConnected(community)) {
+      double afterMoveCPM{CPM_after_move(partition, gamma, nodeCommunity, community, node)};
+      deltaCPMs.push_back((afterMoveCPM - currentCPM));
+    }
+  }
+
+  //creating the discrete probability function
+  std::vector<double> distribution{};
+  for (auto const &deltaCPM : deltaCPMs) {
+    if (deltaCPM < 0) {
+      distribution.push_back(0.);
+    } else {
+      assert(theta > 0);
+      distribution.push_back(std::exp(deltaCPM / theta));
+    }
+  }
+
+  //extracting a random community
+  std::random_device rd;
+  std::mt19937 gen(rd());
+  std::discrete_distribution<> d(distribution.begin(), distribution.end());
+  //extracts a random index
+  auto const &resultIndex = d(gen);
+
+  auto const &resultCommunity{communities[resultIndex]};
+}
+
+template <class T>
+Partition<T> &mergeNodesSubset(
+    TICLGraph<T> const &graph, Partition<T> &partition, std::vector<Node<T>> &subset, double gamma, double theta) {
+  auto const &communities{partition.getPartition()};
+
   for (auto const &node : subset) {
     if (isNodeWellConnected(node, subset, gamma)) {
-      auto const &nodeCommunity{findCommunity(node)};
+      auto &nodeCommunity{findCommunity(node)};
+
       assert((communitySize(nodeCommunity)) != 0);
       if (communitySize(nodeCommunity) == 1) {
-        //*************NEEDS IMPLEMENTATION***************
-        //needs auxiliary function in TICLGraph.h isContained
-        //needs auxiliary function above this one isCommunityWellConnected
+        auto &communityTo{extractRandomCommunity(communities, partition, node, nodeCommunity, theta)};
+        moveNode(nodeCommunity, communityTo, node);
       }
     }
   }
+
+  return partition;
 }

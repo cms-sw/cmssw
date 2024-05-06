@@ -21,7 +21,6 @@ public:
   ElementaryNode() = default;
   ElementaryNode(unsigned index, bool isTrackster = true) : index_(index), isTrackster_(isTrackster) {}
 
-  //can i remove default dctor so i dont have to apply rule of 5???
   ElementaryNode(ElementaryNode const&) = default;
   ElementaryNode& operator=(ElementaryNode const&) = default;
   ElementaryNode(ElementaryNode&&) = default;
@@ -162,7 +161,6 @@ public:
     }
     return flattenedPartition;
   }
-
   //implemented on the assumption that when I work with community of std::vector<Node<T>> my node will be Node<T> (nesting degree matches)
   //a node is always in a community from the beginning so it always returns something
   std::vector<Node<T>> const& findCommunity(Node<T> const& node) const {
@@ -184,11 +182,6 @@ int communitySize(std::vector<Node<T>> const& community);
 template <class T>
 bool areNeighbours(Node<T> const& nodeA, Node<T> const& nodeB);
 
-//tells me if community is contained within a certain subset
-/*bool isCommunityContained (std::vector<Node<T>> const& community, std::vector<Node<T>> const& subset){
-for (auto const& node : community) {
-  std::find
-}
-}*/
+bool isCommunityContained(std::vector<Node<T>> const& community, std::vector<Node<T>> const& subset);
 
 #endif
