@@ -57,3 +57,42 @@ int communitySize(std::vector<Node<T>> const& community) {
   }
   return size;
 }
+
+template <class T>
+bool areNeighbours(Node<T> const& nodeA, Node<T> const& nodeB) {
+  std::vector<Node<T>> A{nodeA};
+  std::vector<Node<T>> B{nodeB};
+  std::vector<ElementaryNode> flattenedCommunityA{};
+  std::vector<ElementaryNode> flattenedCommunityB{};
+  flatCommunity(A, flattenedCommunityA);
+  flatCommunity(B, flattenedCommunityB);
+  bool result{false};
+  for (auto const& elementaryNodeA : flattenedCommunityA) {
+    std::vector<unsigned int> const& neighboursA{elementaryNodeA.getNeighbours()};
+    for (auto const& Id : neighboursA) {
+      auto it{std::find_if(flattenedCommunityB.begin(),
+                           flattenedCommunityB.end(),
+                           [&Id](ElementaryNode const& elNodeB) { return (elNodeB.getId()) == Id; })};
+      //for two nodes to be neighbours i simply need two of their elementary nodes being neighbours
+      if (it != flattenedCommunityB.end()) {
+        result = true;
+        break;
+      }
+    }
+  }
+  return result;
+}
+
+template <class T>
+//tells me if community is contained within a certain subset
+bool isCommunityContained(std::vector<Node<T>> const& community, std::vector<Node<T>> const& subset) {
+  bool isContained{true};
+  for (auto const& node : community) {
+    auto it{std::find(subset.begin(), subset.end(), node)};
+    if (it == subset.end()) {
+      isContained = false;
+      break;
+    }
+  }
+  return isContained;
+}

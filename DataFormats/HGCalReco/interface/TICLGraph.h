@@ -182,6 +182,7 @@ int communitySize(std::vector<Node<T>> const& community);
 template <class T>
 bool areNeighbours(Node<T> const& nodeA, Node<T> const& nodeB);
 
+template <class T>
 bool isCommunityContained(std::vector<Node<T>> const& community, std::vector<Node<T>> const& subset);
 
 #endif
