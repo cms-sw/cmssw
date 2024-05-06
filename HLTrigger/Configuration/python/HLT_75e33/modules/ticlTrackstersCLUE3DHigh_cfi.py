@@ -106,6 +106,8 @@ ticlTrackstersCLUE3DHigh = cms.EDProducer("TrackstersProducer",
     eid_min_cluster_energy = cms.double(1),
     eid_n_layers = cms.int32(50),
     eid_n_clusters = cms.int32(10),
+    doPidCut = cms.bool(True),
+    cutHadProb = cms.double(999.),
     type = cms.string('CLUE3D')
   
     ),
