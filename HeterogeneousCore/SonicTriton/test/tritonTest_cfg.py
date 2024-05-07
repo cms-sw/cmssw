@@ -101,7 +101,13 @@ modules = {
     "Analyzer": cms.EDAnalyzer,
 }
 
-keepMsgs = ['TritonClient','TritonService','TritonDiscovery']
+keepMsgs = []
+if options.verbose or options.verboseDiscovery:
+    keepMsgs.append('TritonDiscovery')
+if options.verbose or options.verboseClient:
+    keepMsgs.append('TritonClient')
+if options.verbose or options.verboseService:
+    keepMsgs.append('TritonService')
 
 for im,module in enumerate(options.modules):
     model = options.models[im]
@@ -142,7 +148,8 @@ for im,module in enumerate(options.modules):
             processModule.edgeMax = cms.uint32(15000)
         processModule.brief = cms.bool(options.brief)
     process.p += processModule
-    keepMsgs.extend([module,module+':TritonClient'])
+    if options.verbose or options.verboseClient:
+        keepMsgs.extend([module,module+':TritonClient'])
     if options.testother:
         # clone modules to test both gRPC and shared memory
         _module2 = module+"GRPC" if processModule.Client.useSharedMemory else "SHM"
@@ -153,10 +160,9 @@ for im,module in enumerate(options.modules):
         )
         processModule2 = getattr(process, _module2)
         process.p += processModule2
-        keepMsgs.extend([_module2,_module2+':TritonClient'])
+        if options.verbose or options.verboseClient:
+            keepMsgs.extend([_module2,_module2+':TritonClient'])
 
-if options.verboseDiscovery:
-    keepMsgs = ['TritonDiscovery']
 process.load('FWCore/MessageService/MessageLogger_cfi')
 process.MessageLogger.cerr.FwkReport.reportEvery = 500
 for msg in keepMsgs:
