@@ -266,7 +266,19 @@ void MuonPathSLFitter::analyze(MuonPathPtr &inMPath,
       int pos = (int)(10 * (pos_sl_f - shiftinfo_[wireId.rawId()]) * INCREASED_RES_POS_POW);
       int slope = (int)(-slope_f * INCREASED_RES_SLOPE_POW);
 
-      auto global_coords = globalcoordsobtainer_->get_global_coordinates(ChId.rawId(), sl + 1, pos, slope);
+      /*
+      cout << "========================= SUPERLAYER PRIMITIVE =================================" << endl;
+      cout << "WHEEL = " << ChId.wheel() << endl;
+      cout << "SECTOR = " << ChId.sector() << endl;
+      cout << "STATION = " << ChId.station() << endl;
+      cout << "SUPERLAYER = " << sl << endl;
+      cout << "QUALITY = " << quality << endl;
+      cout << "POSITION = " << (double) fit_common_out.position << endl;
+      cout << "SLOPE = " << (double) fit_common_out.slope << endl;
+      */
+
+      auto global_coords = globalcoordsobtainer_->get_global_coordinates(
+          ChId.rawId(), sl + 1, fit_common_out.position, fit_common_out.slope);
       float phi = global_coords[0];
       float phiB = global_coords[1];
 

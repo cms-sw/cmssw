@@ -335,7 +335,19 @@ void MuonPathCorFitter::analyze(mp_group mp, std::vector<cmsdt::metaPrimitive>& 
     // obtention of global coordinates using luts
     int pos = (int)(10 * (pos_ch_f - shiftinfo_[wireId.rawId()]) * INCREASED_RES_POS_POW);
     int slope = (int)(-slope_f * INCREASED_RES_SLOPE_POW);
-    auto global_coords = globalcoordsobtainer_->get_global_coordinates(ChId.rawId(), 0, pos, slope);
+
+    /*
+    cout << "==================== CORRELATED PRIMITIVE =================================" << endl;
+    cout << "WHEEL = " << ChId.wheel() << endl;
+    cout << "SECTOR = " << ChId.sector() << endl;
+    cout << "STATION = " << ChId.station() << endl;
+    cout << "QUALITY = " << quality << endl;
+    cout << "POSITION = " << (double) fit_common_out.position << endl;
+    cout << "SLOPE = " << (double) fit_common_out.slope << endl;
+    */
+
+    auto global_coords =
+        globalcoordsobtainer_->get_global_coordinates(ChId.rawId(), 0, fit_common_out.position, fit_common_out.slope);
     float phi = global_coords[0];
     float phiB = global_coords[1];
 
