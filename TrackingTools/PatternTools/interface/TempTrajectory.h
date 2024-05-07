@@ -96,6 +96,12 @@ public:
     return *this;
   }
 
+  void swap(TempTrajectory& rh) noexcept {
+    using std::swap;
+    swap(theData, rh.theData);
+    swap(thePayload, rh.thePayload);
+  }
+
   /// construct TempTrajectory from standard Trajectory
   explicit TempTrajectory(Trajectory&& traj);
 
