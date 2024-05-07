@@ -29,6 +29,7 @@ ticlTracksterLinks = _tracksterLinksProducer.clone(
     tracksters_collections = cms.VInputTag(
         'ticlTrackstersCLUE3DHigh'
     ),
+    regressionAndPid = cms.bool(True)
 )
 ticlCandidate = _ticlCandidateProducer.clone()
 mtdSoA = _mtdSoAProducer.clone()
