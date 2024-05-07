@@ -197,7 +197,7 @@ unsigned int CkfTrajectoryBuilder::limitedCandidates(const std::shared_ptr<const
   unsigned int nCands = 0;  // ignore startingTraj
   unsigned int prevNewCandSize = 0;
   TempTrajectoryContainer newCand;  // = TrajectoryContainer();
-  newCand.reserve(2 * theMaxCand);
+  newCand.reserve(theMaxCand);
 
   auto trajCandLess = [&](TempTrajectory const& a, TempTrajectory const& b) {
     return (a.chiSquared() + a.lostHits() * theLostHitPenalty) < (b.chiSquared() + b.lostHits() * theLostHitPenalty);
@@ -205,6 +205,7 @@ unsigned int CkfTrajectoryBuilder::limitedCandidates(const std::shared_ptr<const
 
   while (!candidates.empty()) {
     newCand.clear();
+    bool full = 0;
     for (auto traj = candidates.begin(); traj != candidates.end(); traj++) {
       std::vector<TM> meas;
       findCompatibleMeasurements(*sharedSeed, *traj, meas);
@@ -233,8 +234,19 @@ unsigned int CkfTrajectoryBuilder::limitedCandidates(const std::shared_ptr<const
           updateTrajectory(newTraj, std::move(*itm));
 
           if (toBeContinued(newTraj)) {
-            newCand.push_back(std::move(newTraj));
-            std::push_heap(newCand.begin(), newCand.end(), trajCandLess);
+            if (full) {
+              bool better = trajCandLess(newTraj, newCand.front());
+              if (better) {
+                // replace worst
+                std::pop_heap(newCand.begin(), newCand.end(), trajCandLess);
+                newCand.back().swap(newTraj);
+                std::push_heap(newCand.begin(), newCand.end(), trajCandLess);
+              }  // else? no need to add it just to remove it later!
+            } else {
+              newCand.push_back(std::move(newTraj));
+              std::push_heap(newCand.begin(), newCand.end(), trajCandLess);
+              full = (int)newCand.size() == theMaxCand;
+            }
           } else {
             addToResult(sharedSeed, newTraj, result);
             //// don't know yet
@@ -248,55 +260,9 @@ unsigned int CkfTrajectoryBuilder::limitedCandidates(const std::shared_ptr<const
       nCands += newCand.size() - prevNewCandSize;
       prevNewCandSize = newCand.size();
 
-      /*
-      auto trajVal = [&](TempTrajectory const & a) {
-      	return  a.chiSquared() + a.lostHits()*theLostHitPenalty;
-      };
-
-      // safe (stable?) logig: always sort, kill exceeding only if worse than last to keep
-      // if ((int)newCand.size() > theMaxCand) std::cout << "TrajVal " << theMaxCand  << ' ' << newCand.size() << ' ' <<  trajVal(newCand.front());
-      int toCut = int(newCand.size()) - int(theMaxCand);
-      if (toCut>0) {
-        // move largest "toCut" to the end
-        for (int i=0; i<toCut; ++i)
-          std::pop_heap(newCand.begin(),newCand.end()-i,trajCandLess);
-        auto fval = trajVal(newCand.front());
-        // remove till equal to highest to keep
-        for (int i=0; i<toCut; ++i) {
-           if (fval==trajVal(newCand.back())) break;
-           newCand.pop_back();
-        }
-	//assert((int)newCand.size() >= theMaxCand);
-	//std::cout << "; " << newCand.size() << ' ' << trajVal(newCand.front())  << " " << trajVal(newCand.back());
-
-	// std::make_heap(newCand.begin(),newCand.end(),trajCandLess);
-        // push_heap again the one left
-        for (auto iter = newCand.begin()+theMaxCand+1; iter<=newCand.end(); ++iter  )
-	  std::push_heap(newCand.begin(),iter,trajCandLess);
-
-	// std::cout << "; " << newCand.size() << ' ' << trajVal(newCand.front())  << " " << trajVal(newCand.back()) << std::endl;
-      }
-
-      */
-
-      // intermedeate login: always sort,  kill all exceeding
-      while ((int)newCand.size() > theMaxCand) {
-        std::pop_heap(newCand.begin(), newCand.end(), trajCandLess);
-        // if ((int)newCand.size() == theMaxCand+1) std::cout << " " << trajVal(newCand.front())  << " " << trajVal(newCand.back()) << std::endl;
-        newCand.pop_back();
-      }
-
-      /*
-      //   original logic: sort only if > theMaxCand, kill all exceeding
-      if ((int)newCand.size() > theMaxCand) {
-	std::sort( newCand.begin(), newCand.end(), TrajCandLess<TempTrajectory>(theLostHitPenalty));
-	// std::partial_sort( newCand.begin(), newCand.begin()+theMaxCand, newCand.end(), TrajCandLess<TempTrajectory>(theLostHitPenalty));
-	std::cout << "TrajVal " << theMaxCand  << ' ' << newCand.size() << ' '
-	<< trajVal(newCand.back()) << ' ' << trajVal(newCand[theMaxCand-1]) << ' ' << trajVal(newCand[theMaxCand])  << std::endl;
-	newCand.resize(theMaxCand);
-      }
-      */
-
+      assert((int)newCand.size() <= theMaxCand);
+      if (full)
+        assert((int)newCand.size() == theMaxCand);
     }  // end loop on candidates
 
     std::sort_heap(newCand.begin(), newCand.end(), trajCandLess);
