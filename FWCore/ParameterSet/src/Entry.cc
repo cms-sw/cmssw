@@ -414,7 +414,7 @@ namespace edm {
       }
       default: {
         // We should never get here.
-        throw edm::Exception(edm::errors::Configuration) << "Unknown ParameterSet Entry type encoding: '" << type
+        throw edm::Exception(edm::errors::Configuration) << "Unknown ParameterSet Entry type encoding: '" << type_
                                                          << "'.\n This could be caused by reading a file which was "
                                                             "written using a newer incompatible software release.";
         break;
