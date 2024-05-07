@@ -527,6 +527,7 @@ void TrajectorySegmentBuilder::cleanCandidates(vector<TempTrajectory>& candidate
       if (allFound) {
         candidates[*i1].invalidate();
         statCount.invalid();
+        break;
       }
     }
   }
