@@ -102,8 +102,8 @@ process.testHGCalRecHitESProducers = cms.EDProducer(
   'TestHGCalRecHitESProducers@alpaka',
   #'alpaka_cuda_async::TestHGCalRecHitProducer', # GPU
   #'alpaka_serial_sync::TestHGCalRecHitProducer', # CPU
-  calibSource = cms.ESInputTag(''), #('hgcalCalibESProducer', ''),
   configSource = cms.ESInputTag(''), #('hgcalConfigESProducer', ''),
+  calibSource = cms.ESInputTag(''), #('hgcalCalibESProducer', ''),
 )
 process.t = cms.Task(process.testHGCalRecHitESProducers)
 process.p = cms.Path(process.t)

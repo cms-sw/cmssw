@@ -57,9 +57,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   TestHGCalRecHitESProducers::TestHGCalRecHitESProducers(const edm::ParameterSet& iConfig) {
     std::cout << "TestHGCalRecHitESProducers::TestHGCalRecHitESProducers" << std::endl;
+    moduleIndexerToken_ = esConsumes(iConfig.getParameter<edm::ESInputTag>("calibSource"));
     configToken_ = esConsumes(iConfig.getParameter<edm::ESInputTag>("configSource"));
     calibToken_ = esConsumes(iConfig.getParameter<edm::ESInputTag>("calibSource"));
-    moduleIndexerToken_ = esConsumes(iConfig.getParameter<edm::ESInputTag>("calibSource"));
   }
 
   void TestHGCalRecHitESProducers::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup){

@@ -39,6 +39,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         auto cc = setWhatProduced(this);
         //findingRecord<HGCalModuleConfigurationRcd>();
         //configToken_ = cc.consumes(iConfig.getParameter<edm::ESInputTag>("configSource"));
+        //configToken_ = esConsumes(iConfig.getParameter<edm::ESInputTag>("configSource"));
         moduleIndexerToken_ = cc.consumes(iConfig.getParameter<edm::ESInputTag>("moduleIndexerSource"));
       }
 
@@ -47,7 +48,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         desc.add<int>("charMode",0)->setComment("Manual override for characterization mode to unpack raw data");
         desc.add<int>("gain",2)->setComment("Manual override for gain (1: 80 fC, 2: 160 fC, 4: 320 fC)");
         desc.add<edm::ESInputTag>("moduleIndexerSource",edm::ESInputTag(""))->setComment("Label for module info to set SoA size");
-        //desc.add<edm::ESInputTag>("configSource",edm::ESInputTag(""))->setComment("Label for ROC configuration parameters");
+        desc.add<edm::ESInputTag>("configSource",edm::ESInputTag(""))->setComment("Label for ROC configuration parameters");
         descriptions.addWithDefaultLabel(desc);
       }
 
@@ -64,7 +65,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                   << ", moduleMap.getMaxERxSize()=" << nmod
                   << ", moduleMap.getMaxModuleSize()=" << moduleMap.getMaxModuleSize() << std::endl;
 
-        // NEW: fill SoA with default placeholders
+        // fill SoA with default placeholders
+        // TODO: retrieve values from custom JSON format (see HGCalCalibrationESProducer)
         for (uint32_t imod = 0; imod < nmod; imod++) {
           //uint32_t charMode = charMode_;
           uint8_t gain = gain_; // allow manual override
