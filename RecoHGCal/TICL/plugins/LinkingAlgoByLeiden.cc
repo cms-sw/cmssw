@@ -247,11 +247,11 @@ bool isCommunityWellConnected(std::vector<Node<T>> &community, std::vector<Node<
 }
 
 template <class T>
-std::vector<Node<T>> const &extractRandomCommunity(std::vector<std::vector<Node<T>>> const &communities,
-                                                   Partition<T> const &partition,
-                                                   Node<T> const &node,
-                                                   std::vector<Node<T>> nodeCommunity,
-                                                   double theta) {
+int extractRandomCommunityIndex(std::vector<std::vector<Node<T>>> const &communities,
+                                Partition<T> const &partition,
+                                Node<T> const &node,
+                                std::vector<Node<T>> nodeCommunity,
+                                double theta) {
   auto currentCPM{CPM(partition, gamma)};
   std::vector<double> deltaCPMs{};
 
@@ -279,27 +279,62 @@ std::vector<Node<T>> const &extractRandomCommunity(std::vector<std::vector<Node<
   std::mt19937 gen(rd());
   std::discrete_distribution<> d(distribution.begin(), distribution.end());
   //extracts a random index
-  auto const &resultIndex = d(gen);
+  int resultIndex = d(gen);
 
-  auto const &resultCommunity{communities[resultIndex]};
+  return resultIndex;
 }
 
 template <class T>
 Partition<T> &mergeNodesSubset(
     TICLGraph<T> const &graph, Partition<T> &partition, std::vector<Node<T>> &subset, double gamma, double theta) {
-  auto const &communities{partition.getPartition()};
+  auto &communities{partition.setPartition()};
 
   for (auto const &node : subset) {
     if (isNodeWellConnected(node, subset, gamma)) {
-      auto &nodeCommunity{findCommunity(node)};
+      int index{findCommunityIndex(node)};
+      auto &nodeCommunity{communities[index]};
 
       assert((communitySize(nodeCommunity)) != 0);
       if (communitySize(nodeCommunity) == 1) {
-        auto &communityTo{extractRandomCommunity(communities, partition, node, nodeCommunity, theta)};
+        int communityToIndex{extractRandomCommunityIndex(communities, partition, node, nodeCommunity, theta)};
+        auto &communityTo{communities[communityToIndex]};
         moveNode(nodeCommunity, communityTo, node);
       }
     }
   }
 
   return partition;
+}
+
+//necessary to do before calling refinePartition bc if I just use an empty vector no parameter template deduction is possible
+//std::vector<Node<T>> singleCommunities{partition.getPartition()};
+// singleCommunities.clear();
+// Partition<T> singlePartition{singleCommunities};
+template <class T>
+Partition<T> &refinePartition(TICLGraph<T> const &graph, Partition<T> &partition, Partition<T> &singlePartition) {
+  //fills an empty partition with a singleton partition
+  auto &refinedPartition{singletonPartition(graph, singlePartition)};
+  auto const &communities{partition.getPartition()};
+  for (auto const &community : communities) {
+    mergeNodesSubset(graph, refinedPartition, community);
+  }
+  return refinedPartition;
+}
+
+//***********PROBLEM HERE: I DONT LIKE RETURNING IT AS COPY but im not sure it can be done otherwise*****************
+template <class T>
+TICLGraph<Node<std::vector<Node<T>>>> aggregateGraph(Partition<T> const &partition) {
+  //communities become nodes in aggregate graph
+  std::vector<std::vector<Node<T>>> const &communities{partition.getPartition()};
+  Node<std::vector<Node<T>>> firstAggregateNode{communities[0]};
+  std::vector<Node<std::vector<Node<T>>>> aggregateNodes{firstAggregateNode};
+
+  std::for_each((communities.begin() + 1), communities.end(), [&aggregateNodes](std::vector<Node<T>> const &community) {
+    Node<std::vector<Node<T>>> aggregateNode{community};
+    aggregateNodes.push_back(aggregateNode);
+  });
+
+  assert(aggregateNodes.size() == communities.size());
+  TICLGraph<Node<std::vector<Node<T>>>> aggregateGraph{aggregateNodes};
+  return aggregateGraph;
 }

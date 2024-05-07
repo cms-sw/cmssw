@@ -171,6 +171,17 @@ public:
       }
     }
   }
+
+  std::vector<Node<T>> const& findCommunityIndex(Node<T> const& node) const {
+    int communityIndex{-1};
+    for (auto const& community : communities_) {
+      ++communityIndex;
+      auto it{std::find(community.begin(), community.end(), node)};
+      if (it != community.end()) {
+        return communityIndex;
+      }
+    }
+  }
 };
 
 template <class T>
