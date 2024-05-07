@@ -2446,7 +2446,7 @@ steps['ALCASPLITSIPIXELCAL']={'-s':'ALCAOUTPUT:SiPixelCalZeroBias,ALCA:PromptCal
                         '--datatier':'ALCARECO',
                         '--eventcontent':'ALCARECO',
                         '--conditions':'auto:run2_data',
-                        '--triggerResultsProcess':'RECO',
+                        '--triggerResultsProcess':'ALCARECO',
                         #'--filein':'file:step2.root'
                         }
 
@@ -2457,7 +2457,7 @@ steps['ALCASPLITPPSCAL']={'-s':'ALCAOUTPUT:PPSCalTrackBasedSel,ALCA:PromptCalibP
                         '--datatier':'ALCARECO',
                         '--eventcontent':'ALCARECO',
                         '--conditions':'auto:run2_data',
-                        '--triggerResultsProcess':'RECO',
+                        '--triggerResultsProcess':'ALCARECO',
                         }
                         
 steps['ALCASPLITPPSCALRUN3']={'-s':'ALCAOUTPUT:PPSCalMaxTracks,ALCA:PromptCalibProdPPSTimingCalib',
@@ -2490,7 +2490,7 @@ steps['ALCASPLITPPSALIG']={'-s':'ALCAOUTPUT:PPSCalTrackBasedSel,ALCA:PromptCalib
                            '--datatier':'ALCARECO',
                            '--eventcontent':'ALCARECO',
                            '--conditions':'auto:run3_data_express',
-                           '--triggerResultsProcess':'RECO',
+                           '--triggerResultsProcess':'ALCARECO',
                            }
                            
 steps['ALCASPLITPPSALIGRUN3']={'-s':'ALCAOUTPUT:PPSCalMaxTracks,ALCA:PromptCalibProdPPSAlignment',
