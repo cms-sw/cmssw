@@ -42,13 +42,6 @@ CkfTrajectoryBuilder::CkfTrajectoryBuilder(const edm::ParameterSet& conf,
   theLostHitPenalty = conf.getParameter<double>("lostHitPenalty");
   theIntermediateCleaning = conf.getParameter<bool>("intermediateCleaning");
   theAlwaysUseInvalidHits = conf.getParameter<bool>("alwaysUseInvalidHits");
-  /*
-    theSharedSeedCheck = conf.getParameter<bool>("SharedSeedCheck");
-    std::stringstream ss;
-    ss<<"CkfTrajectoryBuilder_"<<conf.getParameter<std::string>("ComponentName")<<"_"<<this;
-    theUniqueName = ss.str();
-    LogDebug("CkfPattern")<<"my unique name is: "<<theUniqueName;
-  */
 }
 
 void CkfTrajectoryBuilder::fillPSetDescription(edm::ParameterSetDescription& iDesc) {
@@ -63,13 +56,6 @@ void CkfTrajectoryBuilder::fillPSetDescription(edm::ParameterSetDescription& iDe
   iDesc.add<edm::ParameterSetDescription>("trajectoryFilter", psdTF);
 }
 
-/*
-  void CkfTrajectoryBuilder::setEvent(const edm::Event& event) const
-  {
-  theMeasurementTracker->update(event);
-  }
-*/
-
 void CkfTrajectoryBuilder::setEvent_(const edm::Event& event, const edm::EventSetup& iSetup) {}
 
 CkfTrajectoryBuilder::TrajectoryContainer CkfTrajectoryBuilder::trajectories(const TrajectorySeed& seed) const {
@@ -79,80 +65,8 @@ CkfTrajectoryBuilder::TrajectoryContainer CkfTrajectoryBuilder::trajectories(con
   return result;
 }
 
-/*
-  void CkfTrajectoryBuilder::rememberSeedAndTrajectories(const TrajectorySeed& seed,
-  CkfTrajectoryBuilder::TrajectoryContainer &result) const
-  {
-  
-  //result ----> theCachedTrajectories
-  //every first iteration on event. forget about everything that happened before
-  if (edm::Service<UpdaterService>()->checkOnce(theUniqueName)) 
-  theCachedTrajectories.clear();
-  
-  if (seed.nHits()==0) return;
-  
-  //then remember those trajectories
-  for (TrajectoryContainer::iterator traj=result.begin();
-  traj!=result.end(); ++traj) {
-  theCachedTrajectories.insert(std::make_pair(seed.recHits().first->geographicalId(),*traj));
-  }  
-  }
-  
-  bool CkfTrajectoryBuilder::sharedSeed(const TrajectorySeed& s1,const TrajectorySeed& s2) const{
-  //quit right away on nH=0
-  if (s1.nHits()==0 || s2.nHits()==0) return false;
-  //quit right away if not the same number of hits
-  if (s1.nHits()!=s2.nHits()) return false;
-  TrajectorySeed::range r1=s1.recHits();
-  TrajectorySeed::range r2=s2.recHits();
-  TrajectorySeed::const_iterator i1,i2;
-  TrajectorySeed::const_iterator & i1_e=r1.second,&i2_e=r2.second;
-  TrajectorySeed::const_iterator & i1_b=r1.first,&i2_b=r2.first;
-  //quit right away if first detId does not match. front exist because of ==0 ->quit test
-  if(i1_b->geographicalId() != i2_b->geographicalId()) return false;
-  //then check hit by hit if they are the same
-  for (i1=i1_b,i2=i2_b;i1!=i1_e,i2!=i2_e;++i1,++i2){
-  if (!i1->sharesInput(&(*i2),TrackingRecHit::all)) return false;
-  }
-  return true;
-  }
-  bool CkfTrajectoryBuilder::seedAlreadyUsed(const TrajectorySeed& seed,
-  CkfTrajectoryBuilder::TempTrajectoryContainer &candidates) const
-  {
-  //theCachedTrajectories ---> candidates
-  if (seed.nHits()==0) return false;
-  bool answer=false;
-  pair<SharedTrajectory::const_iterator, SharedTrajectory::const_iterator> range = 
-  theCachedTrajectories.equal_range(seed.recHits().first->geographicalId());
-  SharedTrajectory::const_iterator trajP;
-  for (trajP = range.first; trajP!=range.second;++trajP){
-  //check whether seeds are identical     
-  if (sharedSeed(trajP->second.seed(),seed)){
-  candidates.push_back(trajP->second);
-  answer=true;
-  }//already existing trajectory shares the seed.   
-  }//loop already made trajectories      
-  
-  return answer;
-  }
-*/
-
 void CkfTrajectoryBuilder::trajectories(const TrajectorySeed& seed,
                                         CkfTrajectoryBuilder::TrajectoryContainer& result) const {
-  // analyseSeed( seed);
-  /*
-    if (theSharedSeedCheck){
-    TempTrajectoryContainer candidates;
-    if (seedAlreadyUsed(seed,candidates))
-    {
-    //start with those candidates already made before
-    limitedCandidates(candidates,result);
-    //and quit
-    return;
-    }
-    }
-  */
-
   unsigned int tmp;
   buildTrajectories(seed, result, tmp, nullptr);
 }
@@ -169,16 +83,7 @@ void CkfTrajectoryBuilder::buildTrajectories(const TrajectorySeed& seed,
 
   TempTrajectory startingTraj = createStartingTrajectory(seed);
 
-  /// limitedCandidates( startingTraj, regionalCondition, result);
-  /// FIXME: restore regionalCondition
   nCandPerSeed = limitedCandidates(seed, startingTraj, result);
-
-  /*
-  //and remember what you just did
-  if (theSharedSeedCheck)  rememberSeedAndTrajectories(seed,result);
-  */
-
-  // analyseResult(result);
 }
 
 unsigned int CkfTrajectoryBuilder::limitedCandidates(const TrajectorySeed& seed,
@@ -358,6 +263,4 @@ void CkfTrajectoryBuilder::findCompatibleMeasurements(const TrajectorySeed& seed
     }
   }
 #endif
-
-  //analyseMeasurements( result, traj);
 }
