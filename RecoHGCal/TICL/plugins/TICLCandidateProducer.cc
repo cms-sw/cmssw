@@ -354,25 +354,27 @@ void TICLCandidateProducer::produce(edm::Event &evt, const edm::EventSetup &es) 
   edm::OrphanHandle<std::vector<Trackster>> resultTracksters_h = evt.put(std::move(resultTracksters));
   //create ChargedCandidates
   for (size_t iTrack = 0; iTrack < tracks.size(); iTrack++) {
-    auto const tracksterId = trackstersInTrackIndices[iTrack];
-    auto trackPtr = edm::Ptr<reco::Track>(tracks_h, iTrack);
-    if (tracksterId != -1 and !maskTracksters.empty()) {
-      auto tracksterPtr = edm::Ptr<Trackster>(resultTracksters_h, tracksterId);
-      TICLCandidate chargedCandidate(trackPtr, tracksterPtr);
-      resultCandidates->push_back(chargedCandidate);
-      maskTracksters[tracksterId] = false;
-    } else {
-      //charged candidates track only
-      edm::Ptr<Trackster> tracksterPtr;
-      TICLCandidate chargedCandidate(trackPtr, tracksterPtr);
-      auto trackRef = edm::Ref<reco::TrackCollection>(tracks_h, iTrack);
-      const int muId = PFMuonAlgo::muAssocToTrack(trackRef, *muons_h);
-      const reco::MuonRef muonRef = reco::MuonRef(muons_h, muId);
-      if (muonRef.isNonnull() and muonRef->isGlobalMuon()) {
-        // create muon candidate
-        chargedCandidate.setPdgId(13 * trackPtr.get()->charge());
+    if (maskTracks[iTrack]) {
+      auto const tracksterId = trackstersInTrackIndices[iTrack];
+      auto trackPtr = edm::Ptr<reco::Track>(tracks_h, iTrack);
+      if (tracksterId != -1 and !maskTracksters.empty()) {
+        auto tracksterPtr = edm::Ptr<Trackster>(resultTracksters_h, tracksterId);
+        TICLCandidate chargedCandidate(trackPtr, tracksterPtr);
+        resultCandidates->push_back(chargedCandidate);
+        maskTracksters[tracksterId] = false;
+      } else {
+        //charged candidates track only
+        edm::Ptr<Trackster> tracksterPtr;
+        TICLCandidate chargedCandidate(trackPtr, tracksterPtr);
+        auto trackRef = edm::Ref<reco::TrackCollection>(tracks_h, iTrack);
+        const int muId = PFMuonAlgo::muAssocToTrack(trackRef, *muons_h);
+        const reco::MuonRef muonRef = reco::MuonRef(muons_h, muId);
+        if (muonRef.isNonnull() and muonRef->isGlobalMuon()) {
+          // create muon candidate
+          chargedCandidate.setPdgId(13 * trackPtr.get()->charge());
+        }
+        resultCandidates->push_back(chargedCandidate);
       }
-      resultCandidates->push_back(chargedCandidate);
     }
   }
 
