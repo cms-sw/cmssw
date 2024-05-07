@@ -100,13 +100,14 @@ TritonService::TritonService(const edm::ParameterSet& pset, edm::ActivityRegistr
         std::forward_as_tuple(Server::siteconfName),
         std::forward_as_tuple(Server::siteconfName, siteconf_address + ":" + siteconf_port, TritonServerType::Remote));
     if (verbose_)
-      edm::LogInfo("TritonService") << "Obtained server from SITECONF: "
-                                    << servers_.find(Server::siteconfName)->second.url;
+      edm::LogInfo("TritonDiscovery") << "Obtained server from SITECONF: "
+                                      << servers_.find(Server::siteconfName)->second.url;
   } else if (siteconf_address.empty() != siteconf_port.empty()) {  //xor
-    edm::LogWarning("TritonService") << "Incomplete server information from SITECONF: HOST = " << siteconf_address
+    edm::LogWarning("TritonDiscovery") << "Incomplete server information from SITECONF: HOST = " << siteconf_address
                                      << ", PORT = " << siteconf_port;
   }
-  //if nothing provided, assume there's no SITECONF server
+  else
+    edm::LogWarning("TritonDiscovery") << "No server information from SITECONF";
 
   //finally, populate list of servers from config input
   for (const auto& serverPset : pset.getUntrackedParameterSetVector("servers")) {
@@ -173,7 +174,7 @@ TritonService::TritonService(const edm::ParameterSet& pset, edm::ActivityRegistr
       msg += "\n";
   }
   if (verbose_)
-    edm::LogInfo("TritonService") << msg;
+    edm::LogInfo("TritonDiscovery") << msg;
 }
 
 void TritonService::preallocate(edm::service::SystemBounds const& bounds) {
@@ -263,7 +264,7 @@ void TritonService::preBeginJob(edm::PathsAndConsumesOfModulesBase const&, edm::
       msg += modelName + ", ";
   }
   if (verbose_)
-    edm::LogInfo("TritonService") << msg;
+    edm::LogInfo("TritonDiscovery") << msg;
 
   //assemble server start command
   fallbackOpts_.command = "cmsTriton -P -1 -p " + pid_;

@@ -33,6 +33,7 @@ parser.add_argument("--verbose", default=False, action="store_true", help="enabl
 parser.add_argument("--verboseClient", default=False, action="store_true", help="enable verbose output for clients")
 parser.add_argument("--verboseServer", default=False, action="store_true", help="enable verbose output for server")
 parser.add_argument("--verboseService", default=False, action="store_true", help="enable verbose output for TritonService")
+parser.add_argument("--verboseDiscovery", default=False, action="store_true", help="enable verbose output just for server discovery in TritonService")
 parser.add_argument("--brief", default=False, action="store_true", help="briefer output for graph modules")
 parser.add_argument("--fallbackName", default="", type=str, help="name for fallback server")
 parser.add_argument("--unittest", default=False, action="store_true", help="unit test mode: reduce input sizes")
@@ -71,7 +72,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxE
 
 process.source = cms.Source("EmptySource")
 
-process.TritonService.verbose = options.verbose or options.verboseService
+process.TritonService.verbose = options.verbose or options.verboseService or options.verboseDiscovery
 process.TritonService.fallback.verbose = options.verbose or options.verboseServer
 process.TritonService.fallback.useDocker = options.docker
 if len(options.fallbackName)>0:
@@ -100,7 +101,7 @@ modules = {
     "Analyzer": cms.EDAnalyzer,
 }
 
-keepMsgs = ['TritonClient','TritonService']
+keepMsgs = ['TritonClient','TritonService','TritonDiscovery']
 
 for im,module in enumerate(options.modules):
     model = options.models[im]
@@ -154,6 +155,8 @@ for im,module in enumerate(options.modules):
         process.p += processModule2
         keepMsgs.extend([_module2,_module2+':TritonClient'])
 
+if options.verboseDiscovery:
+    keepMsgs = ['TritonDiscovery']
 process.load('FWCore/MessageService/MessageLogger_cfi')
 process.MessageLogger.cerr.FwkReport.reportEvery = 500
 for msg in keepMsgs:
