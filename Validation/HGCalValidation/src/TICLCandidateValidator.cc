@@ -27,7 +27,7 @@ TICLCandidateValidator::~TICLCandidateValidator() {}
 
 void TICLCandidateValidator::bookCandidatesHistos(DQMStore::IBooker& ibook,
                                                   Histograms& histograms,
-                                                  std::string baseDir) {
+                                                  std::string baseDir) const {
   // book CAND histos
   histograms.h_tracksters_in_candidate =
       ibook.book1D("N of tracksters in candidate", "N of tracksters in candidate", 100, 0, 99);
@@ -281,7 +281,7 @@ void TICLCandidateValidator::bookCandidatesHistos(DQMStore::IBooker& ibook,
 
 void TICLCandidateValidator::fillCandidateHistos(const edm::Event& event,
                                                  const Histograms& histograms,
-                                                 edm::Handle<ticl::TracksterCollection> simTrackstersCP_h) {
+                                                 edm::Handle<ticl::TracksterCollection> simTrackstersCP_h) const {
   auto TICLCandidates = event.get(TICLCandidatesToken_);
 
   edm::Handle<std::vector<TICLCandidate>> simTICLCandidates_h;
@@ -406,7 +406,10 @@ void TICLCandidateValidator::fillCandidateHistos(const edm::Event& event,
         else
           return false;
       });
-      recoCand = *cand_it;
+      if (cand_it != TICLCandidates.end())
+        recoCand = *cand_it;
+      else
+        continue;
     }
 
     if (recoCand.trackPtr().get() != nullptr) {
@@ -495,7 +498,10 @@ void TICLCandidateValidator::fillCandidateHistos(const edm::Event& event,
         else
           return false;
       });
-      recoCand = *cand_it;
+      if (cand_it != TICLCandidates.end())
+        recoCand = *cand_it;
+      else
+        continue;
     }
 
     if (recoCand.trackPtr().get() != nullptr)

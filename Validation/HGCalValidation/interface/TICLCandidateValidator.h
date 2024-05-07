@@ -120,11 +120,11 @@ public:
 
   using Histograms = TICLCandidateValidatorHistograms;
 
-  void bookCandidatesHistos(DQMStore::IBooker& ibook, Histograms& histograms, std::string baseDir);
+  void bookCandidatesHistos(DQMStore::IBooker& ibook, Histograms& histograms, std::string baseDir) const;
 
   void fillCandidateHistos(const edm::Event& event,
                            const Histograms& histograms,
-                           edm::Handle<ticl::TracksterCollection> simTrackstersCP_h);
+                           edm::Handle<ticl::TracksterCollection> simTrackstersCP_h) const;
 
 private:
   edm::EDGetTokenT<std::vector<TICLCandidate>> TICLCandidatesToken_;
