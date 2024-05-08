@@ -154,7 +154,7 @@ public:
   Partition(std::vector<std::vector<Node<T>>> communities) : communities_{communities} {}
   const std::vector<std::vector<Node<T>>>& getPartition() const { return communities_; }
   std::vector<std::vector<Node<T>>>& setPartition() { return communities_; }
-  auto flatPartition(std::vector<std::vector<ElementaryNode>> const& flattenedPartition) {
+  auto& flatPartition(std::vector<std::vector<ElementaryNode>>& flattenedPartition) {
     for (auto& community : communities_) {
       std::vector<ElementaryNode> flattenedCommunity{};
       flattenedPartition.push_back(flatCommunity(community, flattenedCommunity));

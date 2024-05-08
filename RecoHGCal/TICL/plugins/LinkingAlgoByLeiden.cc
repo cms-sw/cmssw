@@ -80,6 +80,46 @@ void LinkingAlgoByLeiden::fillPSetDescription(edm::ParameterSetDescription &desc
   LinkingAlgoBase::fillPSetDescription(desc);
 }
 
+template <class T>
+void LinkingAlgoByLeiden::leidenAlgorithm(TICLGraph<T> &graph,
+                                          Partition<T> &partition,
+                                          Partition<ElementaryNode> &flatFinalPartition) {
+  moveNodesFast(graph, partition, gamma_);
+
+  if (!(isAlgorithmDone(graph, partition))) {
+    Partition<T> refinedPartition{partition};
+    (refinedPartition.setPartition()).clear();
+    assert((refinedPartition.getPartition()).empty());
+
+    refinePartition(graph, partition, refinedPartition);
+    TICLGraph<std::vector<Node<T>>> aggregatedGraph{aggregateGraph(refinedPartition)};
+    auto const &communities{partition.getPartition()};
+    std::vector<std::vector<Node<std::vector<Node<T>>>>> aggregatedCommunities{};
+
+    for (auto const &community : communities) {
+      std::vector<Node<std::vector<Node<T>>>> aggregatedCommunity{};
+      for (auto const &aggregateNode : (aggregatedGraph.getNodes())) {
+        if (isCommunityContained(aggregateNode, community)) {
+          aggregatedCommunity.push_back(aggregateNode);
+        }
+      }
+      aggregatedCommunities.push_back(aggregatedCommunity);
+    }
+
+    Partition<std::vector<Node<T>>> aggregatedPartition{aggregatedCommunities};
+    leidenAlgorithm(aggregatedGraph, aggregatedPartition, flatFinalPartition);
+  }
+
+  else {
+    partition.flatPartition(flatFinalPartition.setPartition());
+  }
+}
+
+template <class T>
+bool isAlgorithmDone(TICLGraph<T> const &graph, Partition<T> const &partition) {
+  return ((partition.getPartition()).size() == (graph.getNodes()).size());
+}
+
 int factorial(int n) { return (n == 1 || n == 0) ? 1 : n * factorial(n - 1); }
 
 int binomialCoefficient(int n, int k) {
@@ -155,7 +195,7 @@ auto queueCommunity(std::vector<Node<T>> &community, std::queue<Node<T>> const &
 }
 
 template <class T>
-auto moveNodesFast(TICLGraph<T> const &graph, Partition<T> &partition, double gamma) {
+Partition<T> &moveNodesFast(TICLGraph<T> const &graph, Partition<T> &partition, double gamma) {
   auto shuffledCommunities{partition.getPartition()};
   std::random_shuffle(shuffledCommunities.begin(), shuffledCommunities.end());
   std::queue<Node<T>> queue{};
@@ -323,7 +363,7 @@ Partition<T> &refinePartition(TICLGraph<T> const &graph, Partition<T> &partition
 
 //***********PROBLEM HERE: I DONT LIKE RETURNING IT AS COPY but im not sure it can be done otherwise*****************
 template <class T>
-TICLGraph<Node<std::vector<Node<T>>>> aggregateGraph(Partition<T> const &partition) {
+TICLGraph<std::vector<Node<T>>> aggregateGraph(Partition<T> const &partition) {
   //communities become nodes in aggregate graph
   std::vector<std::vector<Node<T>>> const &communities{partition.getPartition()};
   Node<std::vector<Node<T>>> firstAggregateNode{communities[0]};
@@ -335,6 +375,6 @@ TICLGraph<Node<std::vector<Node<T>>>> aggregateGraph(Partition<T> const &partiti
   });
 
   assert(aggregateNodes.size() == communities.size());
-  TICLGraph<Node<std::vector<Node<T>>>> aggregateGraph{aggregateNodes};
+  TICLGraph<std::vector<Node<T>>> aggregateGraph{aggregateNodes};
   return aggregateGraph;
 }

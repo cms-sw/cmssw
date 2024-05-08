@@ -61,10 +61,18 @@ namespace ticl {
     edm::ESHandle<MagneticField> bfield_;
     edm::ESHandle<Propagator> propagator_;
 
-    double gamma{1};  //resolution parameter of the algortihm. The higher the gamma, the more communities are yielded
+    double gamma_{1};  //resolution parameter of the algortihm. The higher the gamma, the more communities are yielded
+
+    template <class T>
+    void leidenAlgorithm(TICLGraph<T> &graph,
+                                          Partition<T> &partition,
+                                          Partition<ElementaryNode> &flatFinalPartition);
   };
 }  // namespace ticl
 // namespace ticl
+
+template <class T>
+bool isAlgorithmDone (TICLGraph<T> const& graph, Partition<T> const& partition);
 
 template <class T>
 auto moveNodesFast(TICLGraph<T> const &graph, Partition<T> const &partition);
