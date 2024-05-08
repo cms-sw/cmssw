@@ -8,7 +8,7 @@
 #include "DataFormats/SoATemplate/interface/SoALayout.h"
 #include "DataFormats/SoATemplate/interface/SoAView.h"
 
-#include "CondFormats/HGCalObjects/interface/HGCalMappingModuleIndexer.h"
+//#include "CondFormats/HGCalObjects/interface/HGCalMappingModuleIndexer.h"
 
 namespace hgcalrechit {
 
@@ -20,6 +20,7 @@ namespace hgcalrechit {
   GENERATE_SOA_LAYOUT(HGCalCalibParamSoALayout,
                       //SOA_SCALAR(HGCalMappingModuleIndexer, map), // dense idx map: now redundant & NOT thread safe !?
                       SOA_COLUMN(float, ADC_ped),     // ADC pedestals, O(91)
+                      SOA_COLUMN(float, Noise),       // noise, O(3)
                       SOA_COLUMN(float, CM_slope),    // common mode slope, O(0.25)
                       SOA_COLUMN(float, CM_ped),      // common mode pedestal (offset), O(92)
                       SOA_COLUMN(float, BXm1_slope),  // leakage correction from previous bunch, O(0.0)
