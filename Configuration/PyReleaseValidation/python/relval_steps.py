@@ -2376,7 +2376,7 @@ steps['TIER0EXPHPBS']={'-s':'RAW2DIGI,L1Reco,RECO:reconstruction_trackingOnly,AL
                           }
 
 steps['TIER0RAWSIPIXELCAL']={'-s':'RAW2DIGI,L1Reco,RECO,ALCAPRODUCER:SiPixelCalZeroBias,DQM:@express,ENDJOB',
-                          '--process':'RECO',
+                          '--process':'ALCARECO',
                           '--scenario': 'pp',
                           '--era':'Run2_2017',
                           '--conditions':'auto:run2_data',
