@@ -1,6 +1,6 @@
 
 #include "Alignment/CocoaModel/interface/ALIUnitsTable.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include <CLHEP/Units/SystemOfUnits.h>
 
 #include <iomanip>
 #include <cstdlib>
@@ -114,6 +114,7 @@ void ALIUnitDefinition::PrintDefinition() {
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
 void ALIUnitDefinition::BuildUnitsTable() {
+  using namespace CLHEP;
   //Length
   std::make_shared<ALIUnitDefinition>("kilometer", "km", "Length", kilometer);
   std::make_shared<ALIUnitDefinition>("meter", "m", "Length", meter);

@@ -29,8 +29,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include <CLHEP/Units/GlobalPhysicalConstants.h>
+#include <CLHEP/Units/SystemOfUnits.h>
 
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/Math/interface/LorentzVectorFwd.h"
@@ -100,8 +100,9 @@ void EmbeddingVertexCorrector::produce(edm::Event &iEvent, const edm::EventSetup
   // Retrieving vertex position from input and creating vertex shift
   Handle<math::XYZTLorentzVectorD> vertex_position;
   iEvent.getByLabel(vertexPositionLabel, vertex_position);
-  HepMC::FourVector vertex_shift(
-      vertex_position.product()->x() * cm, vertex_position.product()->y() * cm, vertex_position.product()->z() * cm);
+  HepMC::FourVector vertex_shift(vertex_position.product()->x() * CLHEP::cm,
+                                 vertex_position.product()->y() * CLHEP::cm,
+                                 vertex_position.product()->z() * CLHEP::cm);
 
   // Apply vertex shift to all production vertices of the event
   CorrectedGenEvent->applyVtxGen(&vertex_shift);

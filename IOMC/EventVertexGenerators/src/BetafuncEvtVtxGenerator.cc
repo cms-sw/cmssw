@@ -21,10 +21,14 @@ ________________________________________________________________________
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
-#include "CLHEP/Random/RandGaussQ.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
+#include <CLHEP/Random/RandGaussQ.h>
+#include <CLHEP/Units/SystemOfUnits.h>
+#include <CLHEP/Units/GlobalPhysicalConstants.h>
 #include "HepMC/SimpleVector.h"
+
+using CLHEP::cm;
+using CLHEP::ns;
+using CLHEP::radian;
 
 BetafuncEvtVtxGenerator::BetafuncEvtVtxGenerator(const edm::ParameterSet& p) : BaseEvtVtxGenerator(p), boost_(4, 4) {
   readDB_ = p.getParameter<bool>("readDB");

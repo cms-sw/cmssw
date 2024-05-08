@@ -1,6 +1,9 @@
 #include "catch.hpp"
 #include "SimG4CMS/Calo/interface/HFFibre.h"
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
+#include <CLHEP/Units/GlobalPhysicalConstants.h>
+#include <CLHEP/Units/SystemOfUnits.h>
+
+using CLHEP::cm;
 
 namespace test_hffibre {
   HFFibre::Params defaultParams() {

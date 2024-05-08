@@ -24,7 +24,7 @@
 #include "G4SafetyHelper.hh"
 #include "G4FieldManagerStore.hh"
 #include "G4TransportationProcessType.hh"
-#include "G4SystemOfUnits.hh"
+#include <CLHEP/Units/SystemOfUnits.h>
 
 class G4VSensitiveDetector;
 
@@ -39,8 +39,8 @@ MonopoleTransportation::MonopoleTransportation(const Monopole* mpl, G4int verb)
       fParticleIsLooping(false),
       fPreviousSftOrigin(0., 0., 0.),
       fPreviousSafety(0.0),
-      fThreshold_Warning_Energy(100 * MeV),
-      fThreshold_Important_Energy(250 * MeV),
+      fThreshold_Warning_Energy(100 * CLHEP::MeV),
+      fThreshold_Important_Energy(250 * CLHEP::MeV),
       fThresholdTrials(10),
       fNoLooperTrials(0),
       fSumEnergyKilled(0.0),
@@ -397,7 +397,7 @@ G4VParticleChange* MonopoleTransportation::AlongStepDoIt(const G4Track& track, c
 #ifdef G4VERBOSE
       if ((verboseLevel > 1) || (endEnergy > fThreshold_Warning_Energy)) {
         G4cout << " MonopoleTransportation is killing track that is looping or stuck " << G4endl << "   This track has "
-               << track.GetKineticEnergy() / MeV << " MeV energy." << G4endl;
+               << track.GetKineticEnergy() / CLHEP::MeV << " MeV energy." << G4endl;
         G4cout << "   Number of trials = " << fNoLooperTrials << G4endl;
       }
 #endif

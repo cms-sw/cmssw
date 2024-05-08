@@ -8,7 +8,7 @@
 #include "G4RToEConvForElectron.hh"
 #include "G4RToEConvForPositron.hh"
 #include "G4RToEConvForProton.hh"
-#include "G4SystemOfUnits.hh"
+#include <CLHEP/Units/SystemOfUnits.h>
 
 CMSGDMLWriteStructure::CMSGDMLWriteStructure() {
   converter[0] = new G4RToEConvForGamma();

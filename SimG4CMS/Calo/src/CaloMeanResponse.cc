@@ -1,7 +1,8 @@
 #include "SimG4CMS/Calo/interface/CaloMeanResponse.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include <CLHEP/Units/SystemOfUnits.h>
+using CLHEP::GeV;
 
 #include <iostream>
 #include <fstream>

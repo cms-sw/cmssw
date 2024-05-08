@@ -21,7 +21,7 @@
 #include "G4ParticleTypes.hh"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
 #include "G4PhysicalConstants.hh"
-#include "G4SystemOfUnits.hh"
+#include <CLHEP/Units/SystemOfUnits.h>
 #include <iostream>
 #include <vector>
 #include <string>
@@ -97,7 +97,7 @@ void PPSDiamondSD::printHitInfo() {
 bool PPSDiamondSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
   eloss_ = aStep->GetTotalEnergyDeposit();
   if (eloss_ > 0.0) {
-    eloss_ /= GeV;
+    eloss_ /= CLHEP::GeV;
     stepInfo(aStep);
     if (theTrack_->GetDefinition()->GetPDGEncoding() == 2212) {
       LogDebug("PPSSimDiamond") << "PPSSimDiamond : eloss=" << eloss_;
@@ -117,9 +117,9 @@ void PPSDiamondSD::stepInfo(const G4Step* aStep) {
   currentPV_ = preStepPoint_->GetPhysicalVolume();
   theLocalEntryPoint_ = setToLocal(hitPoint_);
   theLocalExitPoint_ = setToLocal(exitPoint_);
-  tof_ = preStepPoint_->GetGlobalTime() / nanosecond;
-  incidentEnergy_ = preStepPoint_->GetTotalEnergy() / eV;
-  tSlice_ = postStepPoint_->GetGlobalTime() / nanosecond;
+  tof_ = preStepPoint_->GetGlobalTime() / CLHEP::nanosecond;
+  incidentEnergy_ = preStepPoint_->GetTotalEnergy() / CLHEP::eV;
+  tSlice_ = postStepPoint_->GetGlobalTime() / CLHEP::nanosecond;
   tSliceID_ = (int)tSlice_;
   unitID_ = setDetUnitId(aStep);
 
@@ -129,12 +129,12 @@ void PPSDiamondSD::stepInfo(const G4Step* aStep) {
   primaryID_ = theTrack_->GetTrackID();
   parentID_ = theTrack_->GetParentID();
 
-  incidentEnergy_ = theTrack_->GetTotalEnergy() / GeV;
+  incidentEnergy_ = theTrack_->GetTotalEnergy() / CLHEP::GeV;
 
-  pabs_ = preStepPoint_->GetMomentum().mag() / GeV;
-  thePx_ = preStepPoint_->GetMomentum().x() / GeV;
-  thePy_ = preStepPoint_->GetMomentum().y() / GeV;
-  thePz_ = preStepPoint_->GetMomentum().z() / GeV;
+  pabs_ = preStepPoint_->GetMomentum().mag() / CLHEP::GeV;
+  thePx_ = preStepPoint_->GetMomentum().x() / CLHEP::GeV;
+  thePy_ = preStepPoint_->GetMomentum().y() / CLHEP::GeV;
+  thePz_ = preStepPoint_->GetMomentum().z() / CLHEP::GeV;
   particleType_ = theTrack_->GetDefinition()->GetPDGEncoding();
 
   //corrected phi and theta treatment
@@ -146,9 +146,9 @@ void PPSDiamondSD::stepInfo(const G4Step* aStep) {
   thetaAtEntry_ = lnmd.theta();
   phiAtEntry_ = lnmd.phi();
 
-  vx_ = theTrack_->GetVertexPosition().x() / mm;
-  vy_ = theTrack_->GetVertexPosition().y() / mm;
-  vz_ = theTrack_->GetVertexPosition().z() / mm;
+  vx_ = theTrack_->GetVertexPosition().x() / CLHEP::mm;
+  vy_ = theTrack_->GetVertexPosition().y() / CLHEP::mm;
+  vz_ = theTrack_->GetVertexPosition().z() / CLHEP::mm;
 }
 
 uint32_t PPSDiamondSD::setDetUnitId(const G4Step* aStep) {

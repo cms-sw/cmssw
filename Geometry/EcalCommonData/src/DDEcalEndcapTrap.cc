@@ -1,11 +1,11 @@
 #include "Geometry/EcalCommonData/interface/DDEcalEndcapTrap.h"
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
-#include "CLHEP/Geometry/Point3D.h"
-#include "CLHEP/Geometry/Plane3D.h"
-#include "CLHEP/Geometry/Vector3D.h"
-#include "CLHEP/Geometry/Transform3D.h"
-#include "CLHEP/Vector/EulerAngles.h"
+#include <CLHEP/Units/GlobalPhysicalConstants.h>
+#include <CLHEP/Units/SystemOfUnits.h>
+#include <CLHEP/Geometry/Point3D.h>
+#include <CLHEP/Geometry/Plane3D.h>
+#include <CLHEP/Geometry/Vector3D.h>
+#include <CLHEP/Geometry/Transform3D.h>
+#include <CLHEP/Vector/EulerAngles.h>
 
 //#define EDM_ML_DEBUG
 

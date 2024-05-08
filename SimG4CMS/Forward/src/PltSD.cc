@@ -9,8 +9,8 @@
 #include "G4Track.hh"
 #include "G4ThreeVector.hh"
 
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
+#include <CLHEP/Units/SystemOfUnits.h>
+#include <CLHEP/Units/GlobalPhysicalConstants.h>
 
 #include <iostream>
 

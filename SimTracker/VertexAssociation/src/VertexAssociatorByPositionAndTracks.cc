@@ -1,4 +1,4 @@
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include <CLHEP/Units/SystemOfUnits.h>
 #include "SimTracker/VertexAssociation/interface/VertexAssociatorByPositionAndTracks.h"
 #include "SimTracker/VertexAssociation/interface/calculateVertexSharedTracks.h"
 

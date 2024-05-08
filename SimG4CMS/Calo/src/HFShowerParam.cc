@@ -17,8 +17,8 @@
 #include "G4NavigationHistory.hh"
 #include "Randomize.hh"
 
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include <CLHEP/Units/PhysicalConstants.h>
+#include <CLHEP/Units/SystemOfUnits.h>
 
 #include <iostream>
 
@@ -148,7 +148,7 @@ std::vector<HFShowerParam::Hit> HFShowerParam::getHits(const G4Step* aStep, doub
       edep = pin;
       isKilled = true;
     } else if ((track->GetDefinition()->GetPDGCharge() != 0) && (pBeta > (1 / ref_index_)) && (dirz > aperture_)) {
-      edep = (aStep->GetTotalEnergyDeposit()) / GeV;
+      edep = (aStep->GetTotalEnergyDeposit()) / CLHEP::GeV;
     }
     std::string path = "ShowerLibrary";
 #ifdef EDM_ML_DEBUG

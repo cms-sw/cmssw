@@ -5,13 +5,16 @@
 #include "DetectorDescription/Core/interface/DDTypes.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include <CLHEP/Units/SystemOfUnits.h>
 #include <vector>
 #include <string>
 
 #include "DetectorDescription/Core/interface/DDAlgorithm.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 
+using CLHEP::cm;
+using CLHEP::deg;
+using CLHEP::mm;
 //#define EDM_ML_DEBUG
 
 class DDEcalPreshowerAlgo : public DDAlgorithm {
@@ -165,7 +168,7 @@ void DDEcalPreshowerAlgo::doLayers(DDCompactView& cpv) {
     zHalf = thickLayers_[i] / 2.;
 
     // create a logical part representing a single layer in the preshower
-    DDSolid solid = DDSolidFactory::tubs(ddname, zHalf, rIn, rOut, 0., 360. * deg);
+    DDSolid solid = DDSolidFactory::tubs(ddname, zHalf, rIn, rOut, 0., 360. * CLHEP::deg);
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("SFGeomX") << ddname << " Tubs " << zHalf << ":" << rIn << ":" << rOut << ":0:360";
 #endif

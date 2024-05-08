@@ -6,7 +6,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "G4ios.hh"
-#include "G4SystemOfUnits.hh"
+#include <CLHEP/Units/SystemOfUnits.h>
 
 //#define EDM_ML_DEBUG
 
@@ -332,7 +332,7 @@ G4VSolid *DDG4SolidConverter::intersection(const DDSolid &solid) {
 G4VSolid *DDG4SolidConverter::pseudotrap(const DDSolid &solid) {
   if (nullptr == rot) {
     rot = new G4RotationMatrix;
-    rot->rotateX(90. * deg);
+    rot->rotateX(90. * CLHEP::deg);
   }
 
   edm::LogVerbatim("SimG4CoreGeometry") << "DDG4SolidConverter: pseudoTrap = " << solid;
@@ -363,19 +363,19 @@ G4VSolid *DDG4SolidConverter::pseudotrap(const DDSolid &solid) {
     h += h / 20.;                               // enlarge a bit - for subtraction solid
     if (atMinusZ) {
       displacement = -pt.halfZ() - delta;
-      startPhi = 270. * deg - openingAngle / 2.;
+      startPhi = 270. * CLHEP::deg - openingAngle / 2.;
     } else {
       displacement = pt.halfZ() + delta;
-      startPhi = 90. * deg - openingAngle / 2.;
+      startPhi = 90. * CLHEP::deg - openingAngle / 2.;
     }
   } else if (r > 0 && std::abs(r) >= x) {
     if (atMinusZ) {
       displacement = -pt.halfZ() + delta;
-      startPhi = 90. * deg - openingAngle / 2.;
+      startPhi = 90. * CLHEP::deg - openingAngle / 2.;
       h = pt.y1();
     } else {
       displacement = pt.halfZ() - delta;
-      startPhi = 270. * deg - openingAngle / 2.;
+      startPhi = 270. * CLHEP::deg - openingAngle / 2.;
       h = pt.y2();
     }
   } else {
@@ -384,7 +384,7 @@ G4VSolid *DDG4SolidConverter::pseudotrap(const DDSolid &solid) {
   G4ThreeVector displ(0., 0.,
                       displacement);  // displacement of the tubs w.r.t. trap
   edm::LogVerbatim("SimG4CoreGeometry") << "DDSolidConverter::pseudotrap(): displacement=" << displacement
-                                        << " openingAngle=" << openingAngle / deg << " x=" << x << " h=" << h;
+                                        << " openingAngle=" << openingAngle / CLHEP::deg << " x=" << x << " h=" << h;
 
   // Now create two solids (trd & tubs), and a boolean solid out of them
   std::string name = pt.name().name();

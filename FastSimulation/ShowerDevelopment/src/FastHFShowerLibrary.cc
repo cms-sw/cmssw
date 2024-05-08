@@ -19,8 +19,8 @@
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 
 #include "Randomize.hh"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
+#include <CLHEP/Units/SystemOfUnits.h>
+#include <CLHEP/Units/PhysicalConstants.h>
 
 // Geant4 headers
 #include "G4ParticleDefinition.hh"

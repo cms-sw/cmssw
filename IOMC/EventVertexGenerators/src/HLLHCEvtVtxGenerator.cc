@@ -8,9 +8,9 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "CLHEP/Random/RandFlat.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
+#include <CLHEP/Random/RandFlat.h>
+#include <CLHEP/Units/SystemOfUnits.h>
+#include <CLHEP/Units/GlobalPhysicalConstants.h>
 #include "HepMC/SimpleVector.h"
 
 using namespace std;
@@ -50,10 +50,10 @@ void HLLHCEvtVtxGenerator::fillDescriptions(edm::ConfigurationDescriptions& desc
 
 HLLHCEvtVtxGenerator::HLLHCEvtVtxGenerator(const edm::ParameterSet& p)
     : BaseEvtVtxGenerator(p),
-      fMeanX(p.getParameter<double>("MeanXIncm") * cm),
-      fMeanY(p.getParameter<double>("MeanYIncm") * cm),
-      fMeanZ(p.getParameter<double>("MeanZIncm") * cm),
-      fTimeOffset(p.getParameter<double>("TimeOffsetInns") * ns * c_light),
+      fMeanX(p.getParameter<double>("MeanXIncm") * CLHEP::cm),
+      fMeanY(p.getParameter<double>("MeanYIncm") * CLHEP::cm),
+      fMeanZ(p.getParameter<double>("MeanZIncm") * CLHEP::cm),
+      fTimeOffset(p.getParameter<double>("TimeOffsetInns") * CLHEP::ns * c_light),
       momeV(p.getParameter<double>("EprotonInGeV") * 1e9),
       gamma(momeV / pmass + 1.0),
       beta(std::sqrt((1.0 - 1.0 / gamma) * ((1.0 + 1.0 / gamma)))),
@@ -197,8 +197,8 @@ double HLLHCEvtVtxGenerator::integrandCC(double x, double z, double ct) const {
         std::exp(-ct * ct * ct * ct / sigs4 - z * z * z * z * cos2 * cos2 / sigs4 - 6 * ct * ct * z * z * cos2 / sigs4 -
                  sin2 / (4 * k2 * sigmax2) *
                      (2 + 4 * k2 * z * z - std::cos(2 * k * (z - ct)) - std::cos(2 * k * (z + ct)) -
-                      8 * k * s * std::cos(k * ct) * std::sin(k * z) - 4 * cosks * cosks * sinct * sinct)) /
-        std::sqrt(1 + z * z / (betx * betx)) / std::sqrt(1 + z * z / (bets * bets));
+                      8 * k * CLHEP::s * std::cos(k * ct) * std::sin(k * z) - 4 * cosks * cosks * sinct * sinct)) /
+        std::sqrt((1 + z * z / (betx * betx)) / (1 + z * z / (bets * bets)));
   }
 
   return result;

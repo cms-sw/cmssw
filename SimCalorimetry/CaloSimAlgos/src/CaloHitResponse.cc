@@ -12,9 +12,9 @@
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVSimParameterMap.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 
-#include "CLHEP/Random/RandPoissonQ.h"
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include <CLHEP/Random/RandPoissonQ.h>
+#include <CLHEP/Units/GlobalPhysicalConstants.h>
+#include <CLHEP/Units/SystemOfUnits.h>
 
 #include <iostream>
 
@@ -229,7 +229,7 @@ double CaloHitResponse::timeOfFlight(const DetId &detId) const {
                                          << " so no time-of-flight subtraction will be done";
     } else {
       double distance = cellGeometry->getPosition().mag();
-      result = distance * cm / c_light;  // Units of c_light: mm/ns
+      result = distance * CLHEP::cm / c_light;  // Units of c_light: mm/ns
     }
   }
   return result;

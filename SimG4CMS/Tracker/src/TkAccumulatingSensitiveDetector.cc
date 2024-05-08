@@ -22,7 +22,7 @@
 #include "G4StepPoint.hh"
 #include "G4VProcess.hh"
 
-#include "G4SystemOfUnits.hh"
+#include <CLHEP/Units/SystemOfUnits.h>
 
 #include <memory>
 
@@ -223,9 +223,9 @@ void TkAccumulatingSensitiveDetector::createHit(const G4Step* aStep) {
   //	This allows to send he skipEvent if it is outside!
   //
   const G4StepPoint* preStepPoint = aStep->GetPreStepPoint();
-  float thePabs = preStepPoint->GetMomentum().mag() / GeV;
-  float theTof = preStepPoint->GetGlobalTime() / nanosecond;
-  float theEnergyLoss = aStep->GetTotalEnergyDeposit() / GeV;
+  float thePabs = preStepPoint->GetMomentum().mag() / CLHEP::GeV;
+  float theTof = preStepPoint->GetGlobalTime() / CLHEP::nanosecond;
+  float theEnergyLoss = aStep->GetTotalEnergyDeposit() / CLHEP::GeV;
   int theParticleType = G4TrackToParticleID::particleID(theTrack);
   uint32_t theDetUnitId = setDetUnitId(aStep);
   int theTrackID = theTrack->GetTrackID();
@@ -298,7 +298,7 @@ void TkAccumulatingSensitiveDetector::updateHit(const G4Step* aStep) {
   //     this is not needed, because call to senstive detector happens
   //     only inside the volume
   Local3DPoint theExitPoint = theRotation.get()->transformPoint(LocalPostStepPosition(aStep));
-  float theEnergyLoss = aStep->GetTotalEnergyDeposit() / GeV;
+  float theEnergyLoss = aStep->GetTotalEnergyDeposit() / CLHEP::GeV;
   mySimHit->setExitPoint(theExitPoint);
   mySimHit->addEnergyLoss(theEnergyLoss);
   if (printHits) {

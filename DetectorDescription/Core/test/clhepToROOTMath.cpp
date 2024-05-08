@@ -2,11 +2,10 @@
 #include <iomanip>
 #include <iostream>
 
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
-#include "CLHEP/Units/SystemOfUnits.h"
-#include "CLHEP/Vector/Rotation.h"
-#include "CLHEP/Vector/RotationInterfaces.h"
-#include "CLHEP/Vector/ThreeVector.h"
+#include <CLHEP/Units/SystemOfUnits.h>
+#include <CLHEP/Vector/Rotation.h>
+#include <CLHEP/Vector/RotationInterfaces.h>
+#include <CLHEP/Vector/ThreeVector.h>
 #include "DetectorDescription/Core/interface/DDRotationMatrix.h"
 #include "DetectorDescription/Core/interface/DDTranslation.h"
 #include "Math/GenVector/Cartesian3D.h"
@@ -15,6 +14,7 @@
 
 typedef CLHEP::Hep3Vector H3V;
 typedef CLHEP::HepRotation HRM;
+using CLHEP::deg;
 
 using namespace std;
 

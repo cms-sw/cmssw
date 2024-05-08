@@ -17,7 +17,7 @@
 #include "G4Track.hh"
 #include "G4VProcess.hh"
 
-#include "G4SystemOfUnits.hh"
+#include <CLHEP/Units/SystemOfUnits.h>
 
 EcalTBH4BeamSD::EcalTBH4BeamSD(const std::string &name,
                                const SensitiveDetectorCatalog &clg,
@@ -26,7 +26,7 @@ EcalTBH4BeamSD::EcalTBH4BeamSD(const std::string &name,
     : CaloSD(name, clg, p, manager), numberingScheme(nullptr) {
   edm::ParameterSet m_EcalTBH4BeamSD = p.getParameter<edm::ParameterSet>("EcalTBH4BeamSD");
   useBirk = m_EcalTBH4BeamSD.getParameter<bool>("UseBirkLaw");
-  birk1 = m_EcalTBH4BeamSD.getParameter<double>("BirkC1") * (g / (MeV * cm2));
+  birk1 = m_EcalTBH4BeamSD.getParameter<double>("BirkC1") * (CLHEP::g / (CLHEP::MeV * CLHEP::cm2));
   birk2 = m_EcalTBH4BeamSD.getParameter<double>("BirkC2");
   birk3 = m_EcalTBH4BeamSD.getParameter<double>("BirkC3");
 
@@ -57,7 +57,7 @@ double EcalTBH4BeamSD::getEnergyDeposit(const G4Step *aStep) {
     weight *= getAttenuation(aStep, birk1, birk2, birk3);
   double edep = aStep->GetTotalEnergyDeposit() * weight;
   LogDebug("EcalTBSim") << "EcalTBH4BeamSD:: " << aStep->GetPreStepPoint()->GetPhysicalVolume()->GetName()
-                        << " Light Collection Efficiency " << weight << " Weighted Energy Deposit " << edep / MeV
+                        << " Light Collection Efficiency " << weight << " Weighted Energy Deposit " << edep / CLHEP::MeV
                         << " MeV";
   return edep;
 }

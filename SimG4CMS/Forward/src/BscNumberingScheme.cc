@@ -8,7 +8,7 @@
 #include "SimG4CMS/Forward/interface/ForwardName.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 //
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include <CLHEP/Units/SystemOfUnits.h>
 #include "globals.hh"
 
 namespace {

@@ -3,8 +3,8 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include <CLHEP/Units/GlobalPhysicalConstants.h>
+#include <CLHEP/Units/SystemOfUnits.h>
 #include "G4HCofThisEvent.hh"
 #include "G4Step.hh"
 #include "G4Track.hh"
@@ -13,6 +13,9 @@
 #include <cmath>
 #include <iomanip>
 #include <iostream>
+
+using CLHEP::GeV;
+using CLHEP::MeV;
 
 TreatSecondary::TreatSecondary(const edm::ParameterSet &p) : typeEnumerator(nullptr) {
   verbosity = p.getUntrackedParameter<int>("Verbosity", 0);

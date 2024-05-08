@@ -15,8 +15,8 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include <CLHEP/Units/GlobalPhysicalConstants.h>
+#include <CLHEP/Units/SystemOfUnits.h>
 
 #include <iostream>
 
@@ -266,7 +266,7 @@ double EcalTimeMapDigitizer::timeOfFlight(const DetId& detId, int layer) const {
   assert(nullptr != cellGeometry);
   GlobalPoint layerPos = (cellGeometry)->getPosition();
   //(cellGeometry)->getPosition(double(layer) + 0.5);  //depth in mm in the middle of the layer position // JCH : I am not sure this is doing what it's supposed to, probably unimplemented since CaloCellGeometry returns the same value regardless of this double
-  return layerPos.mag() * cm / c_light;
+  return layerPos.mag() * CLHEP::cm / c_light;
 }
 
 unsigned int EcalTimeMapDigitizer::samplesSize() const { return m_vSam.size(); }

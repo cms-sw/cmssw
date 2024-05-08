@@ -13,7 +13,7 @@
 #include "G4Track.hh"
 #include "G4Run.hh"
 #include "G4Event.hh"
-#include "G4SystemOfUnits.hh"
+#include <CLHEP/Units/SystemOfUnits.h>
 #include "G4ParticleTable.hh"
 #include "G4ParticleDefinition.hh"
 
@@ -61,7 +61,7 @@ void RHStopTracer::update(const BeginOfTrack* fTrack) {
   if (matched || track->GetKineticEnergy() > mTraceEnergy) {
     LogDebug("SimG4CoreCustomPhysics") << "RHStopTracer::update-> new track: ID/Name/pdgId/mass/charge/Parent: "
                                        << track->GetTrackID() << '/' << part->GetParticleName() << '/'
-                                       << part->GetPDGEncoding() << '/' << part->GetPDGMass() / GeV << " GeV/"
+                                       << part->GetPDGEncoding() << '/' << part->GetPDGMass() / CLHEP::GeV << " GeV/"
                                        << part->GetPDGCharge() << '/' << track->GetParentID()
                                        << " Position: " << track->GetPosition() << ' '
                                        << " R/phi: " << track->GetPosition().perp() << '/' << track->GetPosition().phi()
@@ -82,7 +82,7 @@ void RHStopTracer::update(const EndOfTrack* fTrack) {
   if (matched || track->GetKineticEnergy() > mTraceEnergy) {
     LogDebug("SimG4CoreCustomPhysics") << "RHStopTracer::update-> stop track: ID/Name/pdgId/mass/charge/Parent: "
                                        << track->GetTrackID() << '/' << part->GetParticleName() << '/'
-                                       << part->GetPDGEncoding() << '/' << part->GetPDGMass() / GeV << " GeV/"
+                                       << part->GetPDGEncoding() << '/' << part->GetPDGMass() / CLHEP::GeV << " GeV/"
                                        << part->GetPDGCharge() << '/' << track->GetParentID()
                                        << " Position: " << track->GetPosition() << ' '
                                        << " R/phi: " << track->GetPosition().perp() << '/' << track->GetPosition().phi()
@@ -95,7 +95,7 @@ void RHStopTracer::update(const EndOfTrack* fTrack) {
                                       track->GetPosition().z(),
                                       track->GetGlobalTime(),
                                       track->GetDefinition()->GetPDGEncoding(),
-                                      track->GetDefinition()->GetPDGMass() / GeV,
+                                      track->GetDefinition()->GetPDGMass() / CLHEP::GeV,
                                       track->GetDefinition()->GetPDGCharge()));
     }
   }
