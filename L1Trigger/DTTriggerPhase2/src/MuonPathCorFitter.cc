@@ -334,14 +334,13 @@ void MuonPathCorFitter::analyze(mp_group mp, std::vector<cmsdt::metaPrimitive>& 
 
     // obtention of global coordinates using luts
 
-    
     LogDebug("MuonPathCorFitter") << "==================== CORRELATED PRIMITIVE =================================";
     LogDebug("MuonPathCorFitter") << "WHEEL = " << ChId.wheel();
     LogDebug("MuonPathCorFitter") << "SECTOR = " << ChId.sector();
     LogDebug("MuonPathCorFitter") << "STATION = " << ChId.station();
-    LogDebug("MuonPathCorFitter") << "QUALITY = " << quality ;
-    LogDebug("MuonPathCorFitter") << "POSITION = " << (double) fit_common_out.position ;
-    LogDebug("MuonPathCorFitter") << "SLOPE = " << (double) fit_common_out.slope ;
+    LogDebug("MuonPathCorFitter") << "QUALITY = " << quality;
+    LogDebug("MuonPathCorFitter") << "POSITION = " << (double)fit_common_out.position;
+    LogDebug("MuonPathCorFitter") << "SLOPE = " << (double)fit_common_out.slope;
 
     auto global_coords =
         globalcoordsobtainer_->get_global_coordinates(ChId.rawId(), 0, fit_common_out.position, fit_common_out.slope);
