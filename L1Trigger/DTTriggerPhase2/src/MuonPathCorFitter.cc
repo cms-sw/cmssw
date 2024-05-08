@@ -170,7 +170,7 @@ void MuonPathCorFitter::finish() {
 };
 
 //------------------------------------------------------------------
-//--- Metodos privados
+//--- Private Methods
 //------------------------------------------------------------------
 
 void MuonPathCorFitter::analyze(mp_group mp, std::vector<cmsdt::metaPrimitive>& metaPrimitives) {
@@ -333,18 +333,15 @@ void MuonPathCorFitter::analyze(mp_group mp, std::vector<cmsdt::metaPrimitive>& 
     float chi2_f = fit_common_out.chi2 * std::pow(((float)CELL_SEMILENGTH / (float)max_drift_tdc), 2) / 100;
 
     // obtention of global coordinates using luts
-    int pos = (int)(10 * (pos_ch_f - shiftinfo_[wireId.rawId()]) * INCREASED_RES_POS_POW);
-    int slope = (int)(-slope_f * INCREASED_RES_SLOPE_POW);
 
-    /*
-    cout << "==================== CORRELATED PRIMITIVE =================================" << endl;
-    cout << "WHEEL = " << ChId.wheel() << endl;
-    cout << "SECTOR = " << ChId.sector() << endl;
-    cout << "STATION = " << ChId.station() << endl;
-    cout << "QUALITY = " << quality << endl;
-    cout << "POSITION = " << (double) fit_common_out.position << endl;
-    cout << "SLOPE = " << (double) fit_common_out.slope << endl;
-    */
+    
+    LogDebug("MuonPathCorFitter") << "==================== CORRELATED PRIMITIVE =================================";
+    LogDebug("MuonPathCorFitter") << "WHEEL = " << ChId.wheel();
+    LogDebug("MuonPathCorFitter") << "SECTOR = " << ChId.sector();
+    LogDebug("MuonPathCorFitter") << "STATION = " << ChId.station();
+    LogDebug("MuonPathCorFitter") << "QUALITY = " << quality ;
+    LogDebug("MuonPathCorFitter") << "POSITION = " << (double) fit_common_out.position ;
+    LogDebug("MuonPathCorFitter") << "SLOPE = " << (double) fit_common_out.slope ;
 
     auto global_coords =
         globalcoordsobtainer_->get_global_coordinates(ChId.rawId(), 0, fit_common_out.position, fit_common_out.slope);

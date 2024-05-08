@@ -264,18 +264,15 @@ void MuonPathSLFitter::analyze(MuonPathPtr &inMPath,
 
       // obtention of global coordinates using luts
       int pos = (int)(10 * (pos_sl_f - shiftinfo_[wireId.rawId()]) * INCREASED_RES_POS_POW);
-      int slope = (int)(-slope_f * INCREASED_RES_SLOPE_POW);
 
-      /*
-      cout << "========================= SUPERLAYER PRIMITIVE =================================" << endl;
-      cout << "WHEEL = " << ChId.wheel() << endl;
-      cout << "SECTOR = " << ChId.sector() << endl;
-      cout << "STATION = " << ChId.station() << endl;
-      cout << "SUPERLAYER = " << sl << endl;
-      cout << "QUALITY = " << quality << endl;
-      cout << "POSITION = " << (double) fit_common_out.position << endl;
-      cout << "SLOPE = " << (double) fit_common_out.slope << endl;
-      */
+      LogDebug("MuonPathSLFitter") << "========================= SUPERLAYER PRIMITIVE =================================";
+      LogDebug("MuonPathSLFitter") << "WHEEL = " << ChId.wheel();
+      LogDebug("MuonPathSLFitter") << "SECTOR = " << ChId.sector();
+      LogDebug("MuonPathSLFitter") << "STATION = " << ChId.station();
+      LogDebug("MuonPathSLFitter") << "SUPERLAYER = " << sl;
+      LogDebug("MuonPathSLFitter") << "QUALITY = " << quality;
+      LogDebug("MuonPathSLFitter") << "POSITION = " << (double) fit_common_out.position;
+      LogDebug("MuonPathSLFitter") << "SLOPE = " << (double) fit_common_out.slope;
 
       auto global_coords = globalcoordsobtainer_->get_global_coordinates(
           ChId.rawId(), sl + 1, fit_common_out.position, fit_common_out.slope);
