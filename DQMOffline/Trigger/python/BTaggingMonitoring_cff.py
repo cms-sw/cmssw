@@ -283,6 +283,10 @@ btagMonitorHLT = cms.Sequence(
   + BTagMu_AK8Jet300_Mu5
 )
 
+# in the case of PbPb remove the following paths as that requires pfMassDecorrelatedParticleNetDiscriminatorsJetTags
+from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
+pp_on_PbPb_run3.toReplaceWith(btagMonitorHLT,btagMonitorHLT.copyAndExclude([BTagMu_AK8DiJet170_Mu5,BTagMu_AK8Jet300_Mu5,BTagMu_AK8Jet170_DoubleMu5,BTagMonitor_AK8PFJet40]))
+
 btvHLTDQMSourceExtra = cms.Sequence(
     BTagMonitor_PFJet40
   + BTagMonitor_PFJet40_DeepJet
