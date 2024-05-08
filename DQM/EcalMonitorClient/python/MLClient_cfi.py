@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from DQM.EcalMonitorTasks.OccupancyTask_cfi import ecalOccupancyTask
 
 #parameters derived from training
-EBThreshold = 0.1761
+EBThreshold = 0.00017
 EEpThreshold =  0.0003009
 EEmThreshold =  0.0004360
 
