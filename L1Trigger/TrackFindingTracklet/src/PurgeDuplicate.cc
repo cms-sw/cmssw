@@ -190,19 +190,11 @@ void PurgeDuplicate::execute(std::vector<Track>& outputtracks, unsigned int iSec
           }
         }
 
-        // Initialize all-false 2D array of tracks being duplicates to other tracks
-        bool dupMap[numStublists][numStublists];  // Ends up symmetric
-        for (unsigned int itrk = 0; itrk < numStublists; itrk++) {
-          for (unsigned int jtrk = 0; jtrk < numStublists; jtrk++) {
-            dupMap[itrk][jtrk] = false;
-          }
-        }
+        // Initialize all-false 2D vector of tracks being duplicates to other tracks
+        vector<vector<bool>> dupMap(numStublists, vector<bool>(numStublists, false));
 
         // Used to check if a track is in two bins, is not a duplicate in either bin, so is sent out twice
-        bool noMerge[numStublists];
-        for (unsigned int itrk = 0; itrk < numStublists; itrk++) {
-          noMerge[itrk] = false;
-        }
+        vector<bool> noMerge(numStublists, false);
 
         // Find duplicates; Fill dupMap by looping over all pairs of "tracks"
         // numStublists-1 since last track has no other to compare to
@@ -292,8 +284,8 @@ void PurgeDuplicate::execute(std::vector<Track>& outputtracks, unsigned int iSec
 
             // Fill duplicate map
             if (nShareLay >= settings_.minIndStubs()) {  // For number of shared stub merge condition
-              dupMap[itrk][jtrk] = true;
-              dupMap[jtrk][itrk] = true;
+              dupMap.at(itrk).at(jtrk) = true;
+              dupMap.at(jtrk).at(itrk) = true;
             }
           }
         }
@@ -301,15 +293,15 @@ void PurgeDuplicate::execute(std::vector<Track>& outputtracks, unsigned int iSec
         // Check to see if the track is a duplicate
         for (unsigned int itrk = 0; itrk < numStublists; itrk++) {
           for (unsigned int jtrk = 0; jtrk < numStublists; jtrk++) {
-            if (dupMap[itrk][jtrk]) {
-              noMerge[itrk] = true;
+            if (dupMap.at(itrk).at(jtrk)) {
+              noMerge.at(itrk) = true;
             }
           }
         }
 
         // If the track isn't a duplicate, and if it's in more than one bin, and it is not in the proper rinv or phi bin, then mark it so it won't be sent to output
         for (unsigned int itrk = 0; itrk < numStublists; itrk++) {
-          if (noMerge[itrk] == false) {
+          if (!noMerge.at(itrk)) {
             if (((findOverlapRinvBins(inputtracklets_[itrk]).size() > 1) &&
                  (findRinvBin(inputtracklets_[itrk]) != bin)) ||
                 ((findOverlapPhiBins(inputtracklets_[itrk]).size() > 1) &&
@@ -322,7 +314,7 @@ void PurgeDuplicate::execute(std::vector<Track>& outputtracks, unsigned int iSec
         for (unsigned int itrk = 0; itrk < numStublists - 1; itrk++) {
           for (unsigned int jtrk = itrk + 1; jtrk < numStublists; jtrk++) {
             // Merge a track with its first duplicate found.
-            if (dupMap[itrk][jtrk]) {
+            if (dupMap.at(itrk).at(jtrk)) {
               // Set preferred track based on seed rank
               int preftrk;
               int rejetrk;
