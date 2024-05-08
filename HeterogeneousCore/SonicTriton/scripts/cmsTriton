@@ -265,7 +265,9 @@ start_apptainer(){
 
 	# start instance
 	# need to bind /cvmfs for above symlinks to work inside container
+	# --underlay: workaround for https://github.com/apptainer/apptainer/issues/2167
 	$DRYRUN $APPTAINER instance start \
+		--underlay \
 		-B ${SHM}:/run/shm -B ${LIB}:/opt/tritonserver/lib -B ${SANDBOX} $MOUNTARGS $EXTRA \
 		${SANDBOX} ${SERVER}
 
