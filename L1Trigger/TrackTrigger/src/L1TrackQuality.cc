@@ -77,7 +77,7 @@ std::vector<float> L1TrackQuality::featureTransform(TTTrack<Ref_Phase2TrackerDig
   float tmp_trk_z0_scaled = tmp_trk_z0 / abs(aTrack.minZ0);
   float tmp_trk_phi = aTrack.phi();
   float tmp_trk_eta = aTrack.eta();
-  float tmp_trk_tanl = aTrack.tanL();
+  float tmp_trk_d0 = aTrack.d0();
 
   // -------- fill the feature map ---------
 
@@ -90,7 +90,7 @@ std::vector<float> L1TrackQuality::featureTransform(TTTrack<Ref_Phase2TrackerDig
   feature_map["bendchi2_bin"] = tmp_trk_bendchi2_bin;
   feature_map["chi2rphi_bin"] = tmp_trk_chi2rphi_bin;
   feature_map["chi2rz_bin"] = tmp_trk_chi2rz_bin;
-  feature_map["tanl"] = tmp_trk_tanl;
+  feature_map["d0"] = tmp_trk_d0;
 
   // fill tensor with track params
   transformedFeatures.reserve(featureNames.size());
@@ -159,7 +159,9 @@ void L1TrackQuality::setL1TrackQuality(TTTrack<Ref_Phase2TrackerDigi_>& aTrack) 
     }
 
     else if (this->qualityAlgorithm_ == QualityAlgorithm::GBDT) {
-      aTrack.settrkMVA1(ortoutputs[1][1]);
+      if (this->featureNames_.back() == "d0"){ // temp fix, need better way to fill disp MVA
+	aTrack.settrkMVA2(ortoutputs[1][1]);} // set second MVA variable with disp bdt
+      else aTrack.settrkMVA1(ortoutputs[1][1]);
     }
     // Slight differences in the ONNX models of the GBDTs and NNs mean different
     // indices of the ortoutput need to be accessed
