@@ -135,8 +135,8 @@ The script has three operations (`start`, `stop`, `check`) and the following opt
 * `-d`: use Docker instead of Apptainer
 * `-E [path]`: include extra path(s) for executables (default: /cvmfs/oasis.opensciencegrid.org/mis/apptainer/current/bin)
 * `-f`: force reuse of (possibly) existing container instance
-* `-g`: use GPU instead of CPU
-* `-i` [name]`: server image name (default: fastml/triton-torchgeo:22.07-py3-geometric)
+* `-g [device]`: device choice: auto (try to detect GPU), CPU, GPU (default: auto)
+* `-i [name]`: server image name (default: fastml/triton-torchgeo:22.07-py3-geometric)
 * `-I [num]`: number of model instances (default: 0 -> means no local editing of config files)
 * `-M [dir]`: model repository (can be given more than once)
 * `-m [dir]`: specific model directory (can be given more than one)

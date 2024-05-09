@@ -3,6 +3,7 @@
 
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/allowedValues.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
@@ -14,6 +15,8 @@
 #include "grpc_client.h"
 #include "grpc_service.pb.h"
 
+#include <algorithm>
+#include <cctype>
 #include <cstdio>
 #include <cstdlib>
 #include <filesystem>
@@ -55,6 +58,18 @@ namespace {
     int rv = pclose(pipe);
     return std::make_pair(result, rv);
   }
+
+  //extract specific info from log
+  std::string extractFromLog(const std::string& output, const std::string& indicator) {
+    //find last instance in log (in case of multiple)
+    auto pos = output.rfind(indicator);
+    if (pos != std::string::npos) {
+      auto pos2 = pos + indicator.size();
+      auto pos3 = output.find('\n', pos2);
+      return output.substr(pos2, pos3 - pos2);
+    } else
+      return "";
+  }
 }  // namespace
 
 TritonService::TritonService(const edm::ParameterSet& pset, edm::ActivityRegistry& areg)
@@ -76,21 +91,6 @@ TritonService::TritonService(const edm::ParameterSet& pset, edm::ActivityRegistr
   areg.watchPreBeginJob(this, &TritonService::preBeginJob);
   areg.watchPostEndJob(this, &TritonService::postEndJob);
 
-  //include fallback server in set if enabled
-  if (fallbackOpts_.enable) {
-    auto serverType = TritonServerType::Remote;
-    if (!fallbackOpts_.useGPU)
-      serverType = TritonServerType::LocalCPU;
-#ifdef TRITON_ENABLE_GPU
-    else
-      serverType = TritonServerType::LocalGPU;
-#endif
-
-    servers_.emplace(std::piecewise_construct,
-                     std::forward_as_tuple(Server::fallbackName),
-                     std::forward_as_tuple(Server::fallbackName, Server::fallbackAddress, serverType));
-  }
-
   //check for server specified in SITECONF
   std::string siteconf_address(edm::getEnvironmentVariable(Server::siteconfName + "_HOST"));
   std::string siteconf_port(edm::getEnvironmentVariable(Server::siteconfName + "_PORT"));
@@ -104,9 +104,8 @@ TritonService::TritonService(const edm::ParameterSet& pset, edm::ActivityRegistr
                                       << servers_.find(Server::siteconfName)->second.url;
   } else if (siteconf_address.empty() != siteconf_port.empty()) {  //xor
     edm::LogWarning("TritonDiscovery") << "Incomplete server information from SITECONF: HOST = " << siteconf_address
-                                     << ", PORT = " << siteconf_port;
-  }
-  else
+                                       << ", PORT = " << siteconf_port;
+  } else
     edm::LogWarning("TritonDiscovery") << "No server information from SITECONF";
 
   //finally, populate list of servers from config input
@@ -124,10 +123,6 @@ TritonService::TritonService(const edm::ParameterSet& pset, edm::ActivityRegistr
   if (verbose_)
     msg = "List of models for each server:\n";
   for (auto& [serverName, server] : servers_) {
-    //skip fallback server here (checked later)
-    if (serverName == Server::fallbackName)
-      continue;
-
     std::unique_ptr<tc::InferenceServerGrpcClient> client;
     TRITON_THROW_IF_ERROR(
         tc::InferenceServerGrpcClient::Create(&client, server.url, false, server.useSsl, server.sslOptions),
@@ -251,6 +246,14 @@ void TritonService::preBeginJob(edm::PathsAndConsumesOfModulesBase const&, edm::
   if (!fallbackOpts_.enable or unservedModels_.empty())
     return;
 
+  //include fallback server in set
+  auto serverType = TritonServerType::LocalCPU;
+  if (fallbackOpts_.device == "gpu")
+    serverType = TritonServerType::LocalGPU;
+  servers_.emplace(std::piecewise_construct,
+                   std::forward_as_tuple(Server::fallbackName),
+                   std::forward_as_tuple(Server::fallbackName, Server::fallbackAddress, serverType));
+
   std::string msg;
   if (verbose_)
     msg = "List of models for fallback server: ";
@@ -268,14 +271,13 @@ void TritonService::preBeginJob(edm::PathsAndConsumesOfModulesBase const&, edm::
 
   //assemble server start command
   fallbackOpts_.command = "cmsTriton -P -1 -p " + pid_;
+  fallbackOpts_.command += " -g " + fallbackOpts_.device;
   if (fallbackOpts_.debug)
     fallbackOpts_.command += " -c";
   if (fallbackOpts_.verbose)
     fallbackOpts_.command += " -v";
   if (fallbackOpts_.useDocker)
     fallbackOpts_.command += " -d";
-  if (fallbackOpts_.useGPU)
-    fallbackOpts_.command += " -g";
   if (!fallbackOpts_.instanceName.empty())
     fallbackOpts_.command += " -n " + fallbackOpts_.instanceName;
   if (fallbackOpts_.retries >= 0)
@@ -320,16 +322,35 @@ void TritonService::preBeginJob(edm::PathsAndConsumesOfModulesBase const&, edm::
         << "TritonService: Starting the fallback server failed with exit code " << rv;
   } else if (verbose_)
     edm::LogInfo("TritonService") << output;
+
+  //get the chosen device
+  std::string chosenDevice(fallbackOpts_.device);
+  if (chosenDevice == "auto") {
+    chosenDevice = extractFromLog(output, "CMS_TRITON_CHOSEN_DEVICE: ");
+    if (!chosenDevice.empty()) {
+      if (chosenDevice == "cpu")
+        server.type = TritonServerType::LocalCPU;
+      else if (chosenDevice == "gpu")
+        server.type = TritonServerType::LocalGPU;
+      else
+        throw cms::Exception("FallbackFailed")
+            << "TritonService: unsupported device choice " << chosenDevice << " for fallback server, log follows:\n"
+            << output;
+    } else
+      throw cms::Exception("FallbackFailed")
+          << "TritonService: unknown device choice for fallback server, log follows:\n"
+          << output;
+  }
+  //print server info
+  std::transform(chosenDevice.begin(), chosenDevice.end(), chosenDevice.begin(), toupper);
+  if (verbose_)
+    edm::LogInfo("TritonDiscovery") << "Fallback server started: " << chosenDevice;
+
   //get the port
-  const std::string& portIndicator("CMS_TRITON_GRPC_PORT: ");
-  //find last instance in log in case multiple ports were tried
-  auto pos = output.rfind(portIndicator);
-  if (pos != std::string::npos) {
-    auto pos2 = pos + portIndicator.size();
-    auto pos3 = output.find('\n', pos2);
-    const auto& portNum = output.substr(pos2, pos3 - pos2);
+  const auto& portNum = extractFromLog(output, "CMS_TRITON_GRPC_PORT: ");
+  if (!portNum.empty())
     server.url += ":" + portNum;
-  } else
+  else
     throw cms::Exception("FallbackFailed") << "TritonService: Unknown port for fallback server, log follows:\n"
                                            << output;
 }
@@ -413,7 +434,8 @@ void TritonService::fillDescriptions(edm::ConfigurationDescriptions& description
   fallbackDesc.addUntracked<bool>("debug", false);
   fallbackDesc.addUntracked<bool>("verbose", false);
   fallbackDesc.addUntracked<bool>("useDocker", false);
-  fallbackDesc.addUntracked<bool>("useGPU", false);
+  fallbackDesc.ifValue(edm::ParameterDescription<std::string>("device", "auto", false),
+                       edm::allowedValues<std::string>("auto", "cpu", "gpu"));
   fallbackDesc.addUntracked<int>("retries", -1);
   fallbackDesc.addUntracked<int>("wait", -1);
   fallbackDesc.addUntracked<std::string>("instanceBaseName", "triton_server_instance");

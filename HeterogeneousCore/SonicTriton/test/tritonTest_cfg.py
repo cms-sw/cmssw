@@ -75,10 +75,9 @@ process.source = cms.Source("EmptySource")
 process.TritonService.verbose = options.verbose or options.verboseService or options.verboseDiscovery
 process.TritonService.fallback.verbose = options.verbose or options.verboseServer
 process.TritonService.fallback.useDocker = options.docker
+process.TritonService.fallback.device = options.device
 if len(options.fallbackName)>0:
     process.TritonService.fallback.instanceBaseName = options.fallbackName
-if options.device != "auto":
-    process.TritonService.fallback.useGPU = options.device=="gpu"
 if len(options.address)>0:
     process.TritonService.servers.append(
         cms.PSet(

@@ -37,7 +37,7 @@ public:
           debug(pset.getUntrackedParameter<bool>("debug")),
           verbose(pset.getUntrackedParameter<bool>("verbose")),
           useDocker(pset.getUntrackedParameter<bool>("useDocker")),
-          useGPU(pset.getUntrackedParameter<bool>("useGPU")),
+          device(pset.getUntrackedParameter<std::string>("device")),
           retries(pset.getUntrackedParameter<int>("retries")),
           wait(pset.getUntrackedParameter<int>("wait")),
           instanceName(pset.getUntrackedParameter<std::string>("instanceName")),
@@ -55,7 +55,7 @@ public:
     bool debug;
     bool verbose;
     bool useDocker;
-    bool useGPU;
+    std::string device;
     int retries;
     int wait;
     std::string instanceName;
