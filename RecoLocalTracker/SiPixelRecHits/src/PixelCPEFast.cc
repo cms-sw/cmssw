@@ -445,13 +445,6 @@ void PixelCPEFast<TrackerTraits>::errorFromTemplates(DetParam const& theDetParam
   theClusterParam.sy2 = theClusterParam.sy2 * micronsToCm;
 }
 
-template <>
-void PixelCPEFast<pixelTopology::Phase2>::errorFromTemplates(DetParam const& theDetParam,
-                                                             ClusterParamGeneric& theClusterParam,
-                                                             float qclus) const {
-  theClusterParam.qBin_ = 0.0f;
-}
-
 //-----------------------------------------------------------------------------
 //! Hit position in the local frame (in cm).  Unlike other CPE's, this
 //! one converts everything from the measurement frame (in channel numbers)
