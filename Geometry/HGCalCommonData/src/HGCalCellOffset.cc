@@ -680,39 +680,6 @@ HGCalCellOffset::HGCalCellOffset(
         }
       } else if (j == (HGCalCell::HDPartial1021Cell)) {
         if (k == 0) {
-          double totalArea = 11 * sqrt3_ * std::pow(cellY_[k], 2) / 6;
-          double cutArea1 = (5 * cellY_[k] * guardRingOffset_) / (2 * sqrt3_);
-          double cutArea2 =
-              (5 * cellY_[k] * guardRingOffset_) / (2 * sqrt3_) - std::pow(guardRingOffset_, 2) / (2 * sqrt3_);
-
-          double x1 = -cellY_[k] / (4 * sqrt3_);
-          double y1 = cellY_[k] - 0.5 * guardRingOffset_;
-          double x2_0 = ((1.041 * cellY_[k] * cellY_[k]) - (cellY_[k] * 0.416 * guardRingOffset_) +
-                         (std::pow(guardRingOffset_, 2) / 18.0)) /
-                        ((5.0 * cellY_[k] / (2.0 * sqrt3_)) - (guardRingOffset_ / (2.0 * sqrt3_)));
-          double y2_0 =
-              ((5.0 * cellY_[k] * guardRingOffset_ / (4.0 * sqrt3_)) - std::pow(guardRingOffset_, 2) / (6 * sqrt3_)) /
-              ((5.0 * cellY_[k] / (2.0 * sqrt3_)) - (guardRingOffset_ / (2.0 * sqrt3_)));
-
-          double x2 = -(0.5 * x2_0) + (sqrt3By2_ * y2_0) + (cellY_[k] * 1.5 * sqrt3By2_);
-          double y2 = -(0.5 * y2_0) + (sqrt3By2_ * x2_0) - cellY_[k];
-          double cellArea = totalArea - cutArea1 - cutArea2;
-          double xMag =
-              ((47.0 * cellY_[k] / (528.0 * sqrt3_)) * totalArea - (cutArea1 * x1) - (cutArea2 * x2)) / (cellArea);
-          double yMag = ((47.0 * cellY_[k] / 528.0) * totalArea - (cutArea1 * y1) - (cutArea2 * y2)) / (cellArea);
-
-          std::array<double, 6> tempOffsetX = {{(-sqrt3By2_ * xMag - 0.5 * yMag),
-                                                (-sqrt3By2_ * xMag + 0.5 * yMag),
-                                                yMag,
-                                                (sqrt3By2_ * xMag + 0.5 * yMag),
-                                                (sqrt3By2_ * xMag - 0.5 * yMag),
-                                                -yMag}};
-          std::array<double, 6> tempOffsetY = {{(0.5 * xMag - sqrt3By2_ * yMag),
-                                                (-sqrt3By2_ * yMag - 0.5 * xMag),
-                                                -xMag,
-                                                (-0.5 * xMag + sqrt3By2_ * yMag),
-                                                (0.5 * xMag + sqrt3By2_ * yMag),
-                                                xMag}};
           for (int i = 0; i < 6; ++i) {
             offsetPartialX[k][j - HGCalCell::partiaclWaferCellsOffset][i] = 0.0;
             offsetPartialY[k][j - HGCalCell::partiaclWaferCellsOffset][i] = 0.0;
