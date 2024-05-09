@@ -210,6 +210,7 @@ _offlineHLTSource4HLTMonitorPDPh2 = cms.Sequence(
     dqmInfoHLTMon *
     HLTtrackerphase2DQMSource *           # phase-2 IT and OT clusters
     trackingMonitorHLT *                  # tracking
+    egmTrackingMonitorHLT *               # EGM tracking
     hltToOfflineTrackValidatorSequence *  # Relative Online to Offline performace
     vertexingMonitorHLT                   # vertexing
 )
