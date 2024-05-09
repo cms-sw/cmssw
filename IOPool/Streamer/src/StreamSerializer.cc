@@ -42,14 +42,14 @@ namespace edm::streamer {
    * Serializes the product registry (that was specified to the constructor)
    * into the specified InitMessage.
    */
-  int StreamSerializer::serializeRegistry(SerializeDataBuffer &data_buffer) {
+  int StreamSerializer::serializeRegistry(SerializeDataBuffer &data_buffer) const {
     SendJobHeader::ParameterSetMap psetMap;
     pset::Registry::instance()->fillMap(psetMap);
     return serializeRegistry(data_buffer, psetMap);
   }
 
   int StreamSerializer::serializeRegistry(SerializeDataBuffer &data_buffer,
-                                          SendJobHeader::ParameterSetMap const &psetMap) {
+                                          SendJobHeader::ParameterSetMap const &psetMap) const {
     FDEBUG(6) << "StreamSerializer::serializeRegistry" << std::endl;
     SendJobHeader sd;
 
