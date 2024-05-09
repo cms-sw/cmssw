@@ -60,15 +60,15 @@ public:
     assert(internalStructure.size() != 0);
   };
   std::vector<T> const& getInternalStructure() const { return internalStructure_; }
-  //THIS implies that NO node can be a vector of size zero. Therefore, before creating the aggregate graph, one should remove empty communities.
-  //a node is of degree zero if it consists in a vector of ElementaryNodes
+
+  //a node is of degree zero if it consists in a vector of ElementaryNodes. In order for this method to work, NO node can be a vector of size zero.
   bool isNodeDegreeZero() const {
     assert(internalStructure_.size() != 0);
-    return (internalStructure_[0].size() == 0) ? true : false;
+    return ((internalStructure_[0]).size() == 0) ? true : false;
   }
 };
 
-//tested this implementation on godbolt it should work
+//tested this implementation on godbolt
 template <class T>
 bool operator==(Node<T> const& n1, Node<T> const& n2);
 
@@ -145,16 +145,18 @@ public:
 
 //takes a community and return the vector of all the Elementary Nodes in the community
 template <class T>
-auto flatCommunity(std::vector<Node<T>> const& community, std::vector<ElementaryNode>& flattenedCommunity);
+std::vector<ElementaryNode>& flatCommunity(std::vector<Node<T>> const& community,
+                                           std::vector<ElementaryNode>& flattenedCommunity);
 
 template <class T>
 class Partition {
   std::vector<std::vector<Node<T>>> communities_{};
 
 public:
-  Partition(std::vector<std::vector<Node<T>>> communities) : communities_{communities} {}
-  const std::vector<std::vector<Node<T>>>& getPartition() const { return communities_; }
+  Partition(std::vector<std::vector<Node<T>>> const& communities) : communities_{communities} {}
+  std::vector<std::vector<Node<T>>> const& getPartition() const { return communities_; }
   std::vector<std::vector<Node<T>>>& setPartition() { return communities_; }
+
   auto& flatPartition(std::vector<std::vector<ElementaryNode>>& flattenedPartition) {
     for (auto& community : communities_) {
       std::vector<ElementaryNode> flattenedCommunity{};
@@ -173,7 +175,8 @@ public:
     }
   }
 
-  std::vector<Node<T>> const& findCommunityIndex(Node<T> const& node) const {
+  //a node is always in a community from the beginning so it always returns something
+  int findCommunityIndex(Node<T> const& node) const {
     int communityIndex{-1};
     for (auto const& community : communities_) {
       ++communityIndex;
