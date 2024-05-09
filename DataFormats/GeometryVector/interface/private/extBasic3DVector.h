@@ -7,6 +7,7 @@
 #include "DataFormats/GeometryVector/interface/PreciseFloatType.h"
 #include "DataFormats/GeometryVector/interface/CoordinateSets.h"
 #include "DataFormats/Math/interface/ExtVec.h"
+#include "FWCore/Utilities/interface/Likely.h"
 #include <iosfwd>
 #include <cmath>
 
@@ -152,7 +153,7 @@ public:
    */
   Basic3DVector unit() const {
     T my_mag = mag2();
-    return (0 != my_mag) ? (*this) * (T(1) / std::sqrt(my_mag)) : *this;
+    return LIKELY(0 != my_mag) ? (*this) * (T(1) / std::sqrt(my_mag)) : *this;
   }
 
   /** Operator += with a Basic3DVector of possibly different precision.
