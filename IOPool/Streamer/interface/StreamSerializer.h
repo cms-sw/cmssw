@@ -75,9 +75,9 @@ namespace edm::streamer {
   public:
     StreamSerializer(SelectedProducts const *selections);
 
-    int serializeRegistry(SerializeDataBuffer &data_buffer);
+    int serializeRegistry(SerializeDataBuffer &data_buffer) const;
 
-    int serializeRegistry(SerializeDataBuffer &data_buffer, SendJobHeader::ParameterSetMap const &psetMap);
+    int serializeRegistry(SerializeDataBuffer &data_buffer, SendJobHeader::ParameterSetMap const &psetMap) const;
 
     int serializeEvent(SerializeDataBuffer &data_buffer,
                        EventForOutput const &event,

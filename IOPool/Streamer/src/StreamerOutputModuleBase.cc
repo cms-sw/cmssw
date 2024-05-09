@@ -29,8 +29,7 @@ namespace edm::streamer {
     auto psetMapHandle = iRun.getHandle(psetToken_);
 
     std::unique_ptr<InitMsgBuilder> init_message =
-        serializeRegistry(*getSerializerBuffer(),
-                          OutputModule::processName(),
+        serializeRegistry(OutputModule::processName(),
                           description().moduleLabel(),
                           moduleDescription().mainParameterSetID(),
                           psetMapHandle.isValid() ? psetMapHandle.product() : nullptr);
@@ -38,7 +37,7 @@ namespace edm::streamer {
     doOutputHeader(*init_message);
     lastCallWasBeginRun_ = true;
 
-    serializerBuffer_->clearHeaderBuffer();
+    clearHeaderBuffer();
   }
 
   void StreamerOutputModuleBase::endRun(RunForOutput const&) { stop(); }
@@ -55,11 +54,11 @@ namespace edm::streamer {
     Handle<TriggerResults> const& triggerResults = getTriggerResults(trToken_, e);
 
     if (lastCallWasBeginRun_) {
-      auto msg = serializeEventMetaData(*getSerializerBuffer(), *branchIDLists(), *thinnedAssociationsHelper());
+      auto msg = serializeEventMetaData(*branchIDLists(), *thinnedAssociationsHelper());
       doOutputEvent(*msg);
       lastCallWasBeginRun_ = false;
     }
-    auto msg = serializeEvent(*getSerializerBuffer(), e, triggerResults, selectorConfig());
+    auto msg = serializeEvent(e, triggerResults, selectorConfig());
 
     doOutputEvent(*msg);  // You can't use msg in StreamerOutputModuleBase after this point
   }

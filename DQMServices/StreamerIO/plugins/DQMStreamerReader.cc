@@ -309,7 +309,7 @@ namespace dqmservices {
             } else {
               //skipping
               eview = getEventMsg();
-              assert( (eview==nullptr) or (not eview->isEventMetaData()));
+              assert((eview == nullptr) or (not eview->isEventMetaData()));
               if (eview == nullptr) {
                 closeFileImp_("eof");
                 continue;
