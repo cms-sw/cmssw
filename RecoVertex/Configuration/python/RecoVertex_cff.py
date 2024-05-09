@@ -84,6 +84,10 @@ phase2_timing_layer.toReplaceWith(offlinePrimaryVertices4D, offlinePrimaryVertic
 phase2_timing_layer.toReplaceWith(offlinePrimaryVertices4DWithBS, offlinePrimaryVertices4DwithPIDWithBS.clone())
 phase2_timing_layer.toModify(offlinePrimaryVertices4D, vertices = "unsortedOfflinePrimaryVertices4D", particles = "trackRefsForJetsBeforeSorting4D")
 phase2_timing_layer.toModify(offlinePrimaryVertices4DWithBS, vertices = "unsortedOfflinePrimaryVertices4D:WithBS", particles = "trackRefsForJetsBeforeSorting4D")
+phase2_timing_layer.toModify(unsortedOfflinePrimaryVertices,
+    vertexCollections = {0: dict(vertexTimeParameters = cms.PSet( algorithm = cms.string('fromTracksPID'))),
+                         1: dict(vertexTimeParameters = cms.PSet( algorithm = cms.string('fromTracksPID')))}
+)
 
 from Configuration.ProcessModifiers.vertex4DTrackSelMVA_cff import vertex4DTrackSelMVA
 vertex4DTrackSelMVA.toModify(unsortedOfflinePrimaryVertices4D, useMVACut = True)
