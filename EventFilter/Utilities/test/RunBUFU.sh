@@ -50,7 +50,7 @@ cat data/run${runnumber}/run${runnumber}_ls0001_streamDQM_pid*.dat >> dqmdisk/ru
 find dqmdisk
 echo '{"data": [12950, 1620, 0, "run'${runnumber}'_ls0001_streamDQM_test.dat", 40823782, 1999348078, 135, 13150, 0, "Failsafe"]}' > dqmdisk/run${runnumber}/run${runnumber}_ls0001_streamDQM_test.jsn
 
-CMDLINE_STARTDQM="cmsRun test_dqmstream.py runInputDir=./dqmdisk runNumber=100101"
+CMDLINE_STARTDQM="cmsRun test_dqmstream.py runInputDir=./dqmdisk runNumber=100101 maxLS=1 eventsPerLS=35"
 ${CMDLINE_STARTDQM} > out_2_dqm.log 2>&1 || diedqm "${CMDLINE_STARTDQM}" $? $OUTDIR
 
 rm -rf $OUTDIR/{ramdisk,data,*.log}
