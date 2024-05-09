@@ -13,9 +13,12 @@ def expandNanoMapping(seqList, mapping, key):
                 # NOTE: mising key of key=None is interpreted differently than empty string:
                 #  - An empty string recalls the default for the given key
                 #  - None is interpreted as "ignore this"
+                insertAt=seqList.index(specifiedCommand)
                 seqList.remove(specifiedCommand)
                 if key in mappedTo and mappedTo[key] is not None:
-                    seqList.extend(mappedTo[key].split('+'))
+                    allToInsert=mappedTo[key].split('+')
+                    for offset,toInsert in enumerate(allToInsert):
+                        seqList.insert(insertAt+offset,toInsert)
                 break;
         if level==maxLevel:
             raise Exception("Could not fully expand "+repr(seqList)+" from "+repr(mapping))
