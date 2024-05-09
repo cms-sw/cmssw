@@ -75,6 +75,9 @@ template <class T>
 bool isAlgorithmDone (TICLGraph<T> const& graph, Partition<T> const& partition);
 
 template <class T>
+void removeEmptyCommunities (Partition<T> &partition);
+
+template <class T>
 auto moveNodesFast(TICLGraph<T> const &graph, Partition<T> const &partition);
 
 template <class T>

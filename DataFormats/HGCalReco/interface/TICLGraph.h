@@ -3,11 +3,11 @@
 
 #include "DataFormats/HGCalReco/interface/Trackster.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include <unordered_set>
 #include <cassert>
 #include <algorithm>
+//#include <unordered_set>
 
-//NB NODE NEEDS AN ADDNEIGHBOUR METHOD BC TICLGRAPHPRODUCER NEEDS IT
+//Defines class ElementaryNode and template classes Node, TICLGraph, and Partition. Declares free auxiary functions
 
 // an elementary node is a single trackster
 class ElementaryNode {
@@ -48,17 +48,18 @@ public:
 
 bool operator==(ElementaryNode const& eN1, ElementaryNode const& eN2);
 
-// a node can contain one or more elementary nodes (needed to implement the aggregate graph)
+// a node can consist of one or more elementary nodes (needed to implement the aggregate graph)
 template <class T>
 class Node {
   std::vector<T> internalStructure_{};
 
 public:
+  //necessary to declare default ctor otherwise compilation errors are produced
   Node() = default;
   Node(std::vector<T> const& internalStructure) : internalStructure_{internalStructure} {
     assert(internalStructure.size() != 0);
   };
-  const std::vector<T>& getInternalStructure() const { return internalStructure_; }
+  std::vector<T> const& getInternalStructure() const { return internalStructure_; }
   //THIS implies that NO node can be a vector of size zero. Therefore, before creating the aggregate graph, one should remove empty communities.
   //a node is of degree zero if it consists in a vector of ElementaryNodes
   bool isNodeDegreeZero() const {

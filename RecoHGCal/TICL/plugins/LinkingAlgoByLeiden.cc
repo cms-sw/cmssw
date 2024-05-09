@@ -1,9 +1,10 @@
 #include <cmath>
-#include <string>
 #include <queue>
 #include <cassert>
 #include <cmath>
 #include <random>
+//#include <string>
+
 #include "RecoHGCal/TICL/plugins/LinkingAlgoByLeiden.h"
 
 #include "DataFormats/GeometrySurface/interface/BoundDisk.h"
@@ -70,7 +71,7 @@ void LinkingAlgoByLeiden::linkTracksters(const edm::Handle<std::vector<reco::Tra
                                          const bool useMTDTiming,
                                          std::vector<TICLCandidate> &resultLinked,
                                          std::vector<TICLCandidate> &chargedHadronsFromTk) {
-  std::cout << "Il mio bellissimo algoritmo" << '\n';
+  //std::cout << "Il mio bellissimo algoritmo" << '\n';
 }
 
 void LinkingAlgoByLeiden::fillPSetDescription(edm::ParameterSetDescription &desc) {
@@ -195,6 +196,22 @@ auto queueCommunity(std::vector<Node<T>> &community, std::queue<Node<T>> const &
 }
 
 template <class T>
+Partition<T> &removeEmptyCommunities(Partition<T> &partition) {
+  auto &communities{partition.setPartition()};
+  communities.erase(std::remove_if(communities.begin(),
+                                   communities.end(),
+                                   [](std::vector<Node<T>> const &community) { return ((community.size()) == 0); }),
+                    communities.end());
+
+  auto const &communitiesAfterRemoval{partition.getPartition()};
+  for (auto const &communityAfterRemoval : communitiesAfterRemoval) {
+    assert(communityAfterRemoval.size() != 0);
+  }
+
+  return partition;
+}
+
+template <class T>
 Partition<T> &moveNodesFast(TICLGraph<T> const &graph, Partition<T> &partition, double gamma) {
   auto shuffledCommunities{partition.getPartition()};
   std::random_shuffle(shuffledCommunities.begin(), shuffledCommunities.end());
@@ -209,7 +226,7 @@ Partition<T> &moveNodesFast(TICLGraph<T> const &graph, Partition<T> &partition, 
     Node<T> const &currentNode{queue.front()};
     auto currentCPM{CPM(partition, gamma) + CPM_contribution_from_new_community(currentNode, gamma)};
     auto &currentCommunity{partition.findCommunity(currentNode)};
-    auto &communities{partition.getPartition()};
+    auto &communities{partition.setPartition()};
 
     int indexBestCommunity{};
     int iterationIndex{-1};
@@ -242,7 +259,8 @@ Partition<T> &moveNodesFast(TICLGraph<T> const &graph, Partition<T> &partition, 
     }
   }
 
-  return partition;
+  //remove communities that, after node moving, are empty and then returns the result
+  return removeEmptyCommunities(partition);
 }
 
 //fills an empty partition with a singleton partition
