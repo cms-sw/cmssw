@@ -3,3 +3,12 @@
   <use name="DataFormats/SoATemplate"/>
   <use name="catch2"/>
 </bin>
+
+<bin name="TestDataFormatsPortableCollection" file="alpaka/test_catch2_*.cc">
+  <use name="DataFormats/Portable"/>
+  <use name="DataFormats/SoATemplate"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <use name="alpaka"/>
+  <use name="catch2"/>
+  <flags ALPAKA_BACKENDS="1"/>
+</bin>

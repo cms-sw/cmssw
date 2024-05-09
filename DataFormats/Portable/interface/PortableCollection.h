@@ -71,6 +71,7 @@ namespace cms::alpakatools {
     template <typename TQueue>
     static auto copyAsync(TQueue& queue, PortableHostCollection<TLayout> const& srcData) {
       using TDevice = typename alpaka::trait::DevType<TQueue>::type;
+      assert(srcData.isValid());
       PortableDeviceCollection<TLayout, TDevice> dstData(srcData->metadata().size(), queue);
       alpaka::memcpy(queue, dstData.buffer(), srcData.buffer());
       return dstData;

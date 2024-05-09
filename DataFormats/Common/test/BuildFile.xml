@@ -58,3 +58,7 @@
 <bin file="StdArray_t.cpp">
   <use name="catch2"/>
 </bin>
+
+<bin file="DeviceProduct_t.cpp">
+  <use name="catch2"/>
+</bin>

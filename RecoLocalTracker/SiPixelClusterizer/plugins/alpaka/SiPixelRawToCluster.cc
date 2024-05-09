@@ -272,7 +272,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       iEvent.emplace(digiPutToken_, nDigis_, iEvent.queue());
       iEvent.emplace(clusterPutToken_, pixelTopology::Phase1::numberOfModules, iEvent.queue());
       if (includeErrors_) {
-        iEvent.emplace(digiErrorPutToken_);
+        iEvent.emplace(digiErrorPutToken_, 0, iEvent.queue());
         iEvent.emplace(fmtErrorToken_);
       }
       return;
