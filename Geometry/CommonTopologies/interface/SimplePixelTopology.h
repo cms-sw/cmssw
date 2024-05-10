@@ -380,8 +380,13 @@ namespace pixelTopology {
 
     static constexpr uint16_t numberOfModules = 3892;
 
-    // 1024 bins, 10 bits
-    static constexpr uint16_t clusterBinning = 1024;
+    // 1000 bins < 1024 bins (10 bits) must be:
+    // - < 32*32 (warpSize*warpSize for block prefix scan for CUDA)
+    // - > number of columns (y) in any module. This is due to the fact
+    //     that in pixel clustering we give for granted that in each
+    //     bin we only have the pixel belonging to the same column.
+    //     See RecoLocalTracker/SiPixelClusterizer/plugins/alpaka/PixelClustering.h#L325-L347
+    static constexpr uint16_t clusterBinning = 1000;
     static constexpr uint16_t clusterBits = 10;
 
     static constexpr uint16_t numberOfModulesInBarrel = 756;

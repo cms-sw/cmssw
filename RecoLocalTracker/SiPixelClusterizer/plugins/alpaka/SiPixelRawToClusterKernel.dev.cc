@@ -432,7 +432,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     struct FillHitsModuleStart {
       template <typename TAcc>
       ALPAKA_FN_ACC void operator()(const TAcc &acc, SiPixelClustersSoAView clus_view) const {
-        ALPAKA_ASSERT_ACC(TrackerTraits::numberOfModules < 2048);  // easy to extend at least till 32*1024
+        constexpr bool isPhase2 = std::is_base_of<pixelTopology::Phase2, TrackerTraits>::value;
+
+        // For Phase1 there are 1856 pixel modules
+        // For Phase2 there are 3872 pixel modules
+        // For whichever setup with more modules it would be
+        // easy to extend at least till  32*1024
+
+        constexpr uint16_t prefixScanUpperLimit = isPhase2 ? 4096 : 2048;
+        ALPAKA_ASSERT_ACC(TrackerTraits::numberOfModules < prefixScanUpperLimit);
 
         constexpr int numberOfModules = TrackerTraits::numberOfModules;
         constexpr uint32_t maxHitsInModule = TrackerTraits::maxHitsInModule;
@@ -449,7 +457,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           clus_view[i + 1].clusModuleStart() = std::min(maxHitsInModule, clus_view[i].clusInModule());
         }
 
-        constexpr bool isPhase2 = std::is_base_of<pixelTopology::Phase2, TrackerTraits>::value;
         constexpr auto leftModules = isPhase2 ? 1024 : numberOfModules - 1024;
 
         auto &&ws = alpaka::declareSharedVar<uint32_t[32], __COUNTER__>(acc);
