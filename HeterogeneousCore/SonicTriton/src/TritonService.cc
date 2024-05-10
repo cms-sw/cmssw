@@ -131,11 +131,12 @@ TritonService::TritonService(const edm::ParameterSet& pset, edm::ActivityRegistr
 
     if (verbose_) {
       inference::ServerMetadataResponse serverMetaResponse;
-      TRITON_THROW_IF_ERROR(client->ServerMetadata(&serverMetaResponse),
-                            "TritonService(): unable to get metadata for " + serverName + " (" + server.url + ")",
-                            false);
-      edm::LogInfo("TritonService") << "Server " << serverName << ": url = " << server.url
-                                    << ", version = " << serverMetaResponse.version();
+      auto err = client->ServerMetadata(&serverMetaResponse);
+      if (err.IsOk())
+        edm::LogInfo("TritonService") << "Server " << serverName << ": url = " << server.url
+                                      << ", version = " << serverMetaResponse.version();
+      else
+        edm::LogInfo("TritonService") << "unable to get metadata for " + serverName + " (" + server.url + ")";
     }
 
     //if this query fails, it indicates that the server is nonresponsive or saturated
