@@ -172,7 +172,7 @@ pp_on_PbPb_run3.toModify(doubletRecoveryHPTracksMonitoringHLT,
 # Iter1HP: hltIter1MergedForElectrons
 # Iter2HP: hltIter2MergedForElectrons
 egmTrackingMonHLT = trackingMonHLT.clone(
-    primaryVertex = "hltElectronsVertex",
+    primaryVertex = "hltPixelVertices",
     doEffFromHitPatternVsPU   = False,
     doEffFromHitPatternVsBX   = False,
     doEffFromHitPatternVsLUMI = False 
@@ -182,6 +182,13 @@ gsfTracksMonitoringHLT = egmTrackingMonHLT.clone(
     TrackProducer    = 'hltEgammaGsfTracks',
     allTrackProducer = 'hltEgammaGsfTracks'
 )
+
+from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+phase2_common.toModify(gsfTracksMonitoringHLT,
+                       primaryVertex    = 'hltPhase2PixelVertices',
+                       TrackProducer    = 'hltEgammaGsfTracksL1Seeded',
+                       allTrackProducer = 'hltEgammaGsfTracksL1Seeded')
+
 pixelTracksForElectronsTracksMonitoringHLT = egmTrackingMonHLT.clone(
     FolderName       = 'HLT/EGM/Tracking/pixelTracks',
     TrackProducer    = 'hltPixelTracksElectrons',
