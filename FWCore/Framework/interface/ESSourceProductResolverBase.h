@@ -53,7 +53,7 @@ namespace edm::eventsetup {
                                    edm::WaitingTaskHolder iTask,
                                    edm::eventsetup::EventSetupRecordImpl const& iRecord,
                                    edm::eventsetup::DataKey const& iKey,
-                                   edm::ESParentContext const& iContext) {
+                                   edm::ESParentContext const& iContext) noexcept {
       auto group = iTask.group();
       if (needToPrefetch(std::move(iTask))) {
         iAsync(*group, [this, iGuardFactory, &iRecord, iKey, iContext]() {
@@ -77,7 +77,7 @@ namespace edm::eventsetup {
       doPrefetchAndSignals(iES, iKey, iContext);
     }
 
-    bool needToPrefetch(edm::WaitingTaskHolder iTask);
+    bool needToPrefetch(edm::WaitingTaskHolder iTask) noexcept;
 
     void doPrefetchAndSignals(edm::eventsetup::EventSetupRecordImpl const&,
                               edm::eventsetup::DataKey const& iKey,
