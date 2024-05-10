@@ -350,6 +350,7 @@ unsigned int GroupedCkfTrajectoryBuilder::groupedLimitedCandidates(const Traject
   unsigned int prevNewCandSize = 0;
   TempTrajectoryContainer candidates;
   TempTrajectoryContainer newCand;
+  newCand.reserve(theMaxCand);
   candidates.push_back(startingTraj);
 
   while (!candidates.empty()) {
@@ -367,28 +368,11 @@ unsigned int GroupedCkfTrajectoryBuilder::groupedLimitedCandidates(const Traject
       nCands += newCand.size() - prevNewCandSize;
       prevNewCandSize = newCand.size();
 
-      if ((int)newCand.size() > theMaxCand) {
-        //ShowCand()(newCand);
-
-        std::nth_element(newCand.begin(),
-                         newCand.begin() + theMaxCand,
-                         newCand.end(),
-                         GroupedTrajCandLess(theLostHitPenalty, theFoundHitBonus));
-        newCand.erase(newCand.begin() + theMaxCand, newCand.end());
-      }
-      LogDebug("CkfPattern") << "newCand(2): after removing extra candidates.\n"
-                             << PrintoutHelper::dumpCandidates(newCand);
+      assert((int)newCand.size() <= theMaxCand);
     }
 
     LogDebug("CkfPattern") << "newCand.size() at end = " << newCand.size();
-    /*
-    if (theIntermediateCleaning) {
-      candidates.clear();
-      candidates = groupedIntermediaryClean(newCand);
-    } else {
-      candidates.swap(newCand);
-    }
-*/
+
     if (theIntermediateCleaning) {
 #ifdef STANDARD_INTERMEDIARYCLEAN
       IntermediateTrajectoryCleaner::clean(newCand);
@@ -477,6 +461,9 @@ bool GroupedCkfTrajectoryBuilder::advanceOneLayer(const TrajectorySeed& seed,
                                                   TempTrajectoryContainer& newCand,
                                                   TempTrajectoryContainer& result) const {
   std::pair<TSOS, std::vector<const DetLayer*> >&& stateAndLayers = findStateAndLayers(seed, traj);
+
+  bool full = (int)newCand.size() == theMaxCand;
+  auto lessTraj = GroupedTrajCandLess(theLostHitPenalty, theFoundHitBonus);
 
   if (maxPt2ForLooperReconstruction > 0) {
     if (
@@ -655,8 +642,22 @@ bool GroupedCkfTrajectoryBuilder::advanceOneLayer(const TrajectorySeed& seed,
                                << " hits=" << newTraj.foundHits();
 
         newTraj.setStopReason(StopReason::NOT_STOPPED);
-        newCand.push_back(std::move(newTraj));
-        foundNewCandidates = true;
+        if (full) {
+          bool better = lessTraj(newTraj, newCand.front());
+          if (better) {
+            // replace worst
+            foundNewCandidates = true;
+            std::pop_heap(newCand.begin(), newCand.end(), lessTraj);
+            newCand.back().swap(newTraj);
+            std::push_heap(newCand.begin(), newCand.end(), lessTraj);
+          }  // else? no need to add it just to remove it later!
+        } else {
+          newCand.push_back(std::move(newTraj));
+          foundNewCandidates = true;
+          full = (int)newCand.size() == theMaxCand;
+          if (full)
+            std::make_heap(newCand.begin(), newCand.end(), lessTraj);
+        }
       } else {
         // Have finished building this track. Check if it passes cuts.
 
