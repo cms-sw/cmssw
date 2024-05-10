@@ -135,6 +135,8 @@ private:
   double IdWp95_CE;
   double IdWp99_CE;
 
+  bool DEBUG;
+
   // hardoced dimensions of the tower clusters
   const int seedIdx = 22;
   const int IEta_dim = 5;
@@ -262,7 +264,9 @@ L1NNCaloTauProducer::L1NNCaloTauProducer(const edm::ParameterSet& iConfig, const
 
       IdWp90_CE(iConfig.getParameter<double>("IdWp90_CE")),
       IdWp95_CE(iConfig.getParameter<double>("IdWp95_CE")),
-      IdWp99_CE(iConfig.getParameter<double>("IdWp99_CE")) {
+      IdWp99_CE(iConfig.getParameter<double>("IdWp99_CE")),
+
+      DEBUG(iConfig.getParameter<bool>("DEBUG")) {
   // Initialize HGCAL BDTs
   if (!VsPuId.method().empty()) {
     VsPuId.prepareTMVA();
@@ -307,7 +311,7 @@ void L1NNCaloTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& eSe
 
     l1CaloTowers.push_back(l1Hit);
   }
-  if (warnings != 0) {
+  if (warnings != 0 && DEBUG) {
     edm::LogWarning("BrokenTowers") << " ** WARNING : FOUND " << warnings
                                     << " TOWERS WITH towerIeta=-1016 AND towerIphi=-962" << std::endl;
   }
