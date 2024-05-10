@@ -67,5 +67,7 @@ private:
   Bdu getBdu(std::string) const;
   Edu getEdu(std::string) const;
   Range readRange(const std::string &) const;
+
+  using PixelToFEDAssociate::operator();
 };
 #endif

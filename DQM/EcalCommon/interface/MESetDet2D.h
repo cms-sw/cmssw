@@ -66,6 +66,9 @@ namespace ecaldqm {
     void fill_(unsigned, int, double) override;
     void fill_(unsigned, int, double, double) override;
     void fill_(unsigned, double, double, double) override;
+
+  private:
+    using ecaldqm::MESetEcal::operator=;
   };
 }  // namespace ecaldqm
 

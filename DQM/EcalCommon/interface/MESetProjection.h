@@ -42,6 +42,9 @@ namespace ecaldqm {
 
     using MESetEcal::getBinEntries;
     double getBinEntries(EcalDQMSetupObjects const, DetId const &, int = 0) const override;
+
+  private:
+    using ecaldqm::MESetEcal::operator=;
   };
 }  // namespace ecaldqm
 
