@@ -57,9 +57,11 @@ void RPCDigiValid::analyze(const Event &event, const EventSetup &eventSetup) {
       const int layer = rsid.layer();
       const int stla = (station <= 2) ? (2 * (station - 1) + layer) : (station + 2);
 
-      auto match = hRPhi_.find(stla);
-      if (match != hRPhi_.end())
-        match->second->Fill(gp.z(), gp.phi());
+      auto match = hZPhi_.find(stla);
+      if (match != hZPhi_.end()) {
+        const double phiInDeg = gp.phi() / TMath::Pi() * 180;
+        match->second->Fill(gp.z(), phiInDeg);
+      }
     } else {
       // Endcap
       const int disk = region * rsid.station();
@@ -131,36 +133,41 @@ void RPCDigiValid::bookHistograms(DQMStore::IBooker &booker, edm::Run const &run
   const double maxXY = 800;
   const int nbinsXY = 160;  // bin width: 10cm
   const double minR = 100, maxR = 800;
-  const int nbinsR = 70;     // bin width: 10cm
-  const int nbinsPhi = 180;  // bin width: 2 degree
+  const int nbinsR = 70;    // bin width: 10cm
+  const int nbinsPhi = 90;  // bin width: 4 degree
+  const double maxBarrelZ = 700;
+  const int nbinsBarrelZ = 140;  // bin width: 10cm
 
   // RZ plot
-  hRZ_ = booker.book2D("RZ", "RZ", nbinsZ, -maxZ, maxZ, nbinsR, minR, maxR);
+  hRZ_ = booker.book2D("RZ", "RZ;Z (cm);R (cm)", nbinsZ, -maxZ, maxZ, nbinsR, minR, maxR);
 
   // XY plots
   hXY_Barrel_ = booker.book2D("XY_Barrel", "XY_Barrel", nbinsXY, -maxXY, maxXY, nbinsXY, -maxXY, maxXY);
   for (int disk = 1; disk <= 4; ++disk) {
     const std::string meNameP = fmt::format("XY_EndcapP{:1d}", disk);
     const std::string meNameN = fmt::format("XY_EndcapN{:1d}", disk);
-    hXY_Endcap_[disk] = booker.book2D(meNameP, meNameP, nbinsXY, -maxXY, maxXY, nbinsXY, -maxXY, maxXY);
-    hXY_Endcap_[-disk] = booker.book2D(meNameN, meNameN, nbinsXY, -maxXY, maxXY, nbinsXY, -maxXY, maxXY);
+    const std::string meTitleP = fmt::format("XY view of Endcap{:+1d};X (cm);Y (cm)", disk);
+    const std::string meTitleN = fmt::format("XY view of Endcap{:+1d};X (cm);Y (cm)", -disk);
+    hXY_Endcap_[disk] = booker.book2D(meNameP, meTitleP, nbinsXY, -maxXY, maxXY, nbinsXY, -maxXY, maxXY);
+    hXY_Endcap_[-disk] = booker.book2D(meNameN, meTitleN, nbinsXY, -maxXY, maxXY, nbinsXY, -maxXY, maxXY);
   }
 
   // Z-phi plots
   for (int layer = 1; layer <= 6; ++layer) {
-    const std::string meName = fmt::format("RPhi_Layer{:1d}", layer);
-    hRPhi_[layer] = booker.book2D(meName, meName, nbinsZ, -maxZ, maxZ, nbinsPhi, 0, TMath::TwoPi());
+    const std::string meName = fmt::format("ZPhi_Layer{:1d}", layer);
+    const std::string meTitle = fmt::format("Z-#phi view of Layer{:1d};Z (cm);#phi (degree)", layer);
+    hZPhi_[layer] = booker.book2D(meName, meName, nbinsBarrelZ, -maxBarrelZ, maxBarrelZ, nbinsPhi, -180, 180);
   }
 
   // Strip profile
-  hStripProf_ = booker.book1D("Strip_Profile", "Strip_Profile", 100, 0, 100);
-  hStripProf_RB12_ = booker.book1D("Strip_Profile_RB12", "Strip Profile RB1 and RB2", 92, 0, 92);
-  hStripProf_RB34_ = booker.book1D("Strip_Profile_RB34", "Strip Profile RB3 and RB4", 62, 0, 62);
-  hStripProf_Endcap_ = booker.book1D("Strip_Profile_Endcap", "Strip Profile Endcap", 40, 0, 40);
-  hStripProf_IRPC_ = booker.book1D("Strip_Profile_IRPC", "Strip Profile IRPC", 100, 0, 100);
+  hStripProf_ = booker.book1D("Strip_Profile", "Strip_Profile;Strip Number", 100, 0, 100);
+  hStripProf_RB12_ = booker.book1D("Strip_Profile_RB12", "Strip Profile RB1 and RB2;Strip Number", 92, 0, 92);
+  hStripProf_RB34_ = booker.book1D("Strip_Profile_RB34", "Strip Profile RB3 and RB4;Strip Number", 62, 0, 62);
+  hStripProf_Endcap_ = booker.book1D("Strip_Profile_Endcap", "Strip Profile Endcap;Strip Number", 40, 0, 40);
+  hStripProf_IRPC_ = booker.book1D("Strip_Profile_IRPC", "Strip Profile IRPC;Strip Number", 100, 0, 100);
 
   // Bunch crossing
-  hBxDist_ = booker.book1D("Bunch_Crossing", "Bunch_Crossing", 20, -10., 10.);
+  hBxDist_ = booker.book1D("Bunch_Crossing", "Bunch Crossing;Bunch crossing", 20, -10., 10.);
   hBxDisc_4Plus_ = booker.book1D("BxDisc_4Plus", "BxDisc_4Plus", 20, -10., 10.);
   hBxDisc_4Min_ = booker.book1D("BxDisc_4Min", "BxDisc_4Min", 20, -10., 10.);
 
