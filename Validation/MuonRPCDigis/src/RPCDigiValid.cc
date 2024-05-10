@@ -139,15 +139,15 @@ void RPCDigiValid::bookHistograms(DQMStore::IBooker &booker, edm::Run const &run
   const int nbinsBarrelZ = 140;  // bin width: 10cm
 
   // RZ plot
-  hRZ_ = booker.book2D("RZ", "RZ;Z (cm);R (cm)", nbinsZ, -maxZ, maxZ, nbinsR, minR, maxR);
+  hRZ_ = booker.book2D("RZ", "R-Z view;Z (cm);R (cm)", nbinsZ, -maxZ, maxZ, nbinsR, minR, maxR);
 
   // XY plots
-  hXY_Barrel_ = booker.book2D("XY_Barrel", "XY_Barrel", nbinsXY, -maxXY, maxXY, nbinsXY, -maxXY, maxXY);
+  hXY_Barrel_ = booker.book2D("XY_Barrel", "X-Y view of Barrel", nbinsXY, -maxXY, maxXY, nbinsXY, -maxXY, maxXY);
   for (int disk = 1; disk <= 4; ++disk) {
     const std::string meNameP = fmt::format("XY_EndcapP{:1d}", disk);
     const std::string meNameN = fmt::format("XY_EndcapN{:1d}", disk);
-    const std::string meTitleP = fmt::format("XY view of Endcap{:+1d};X (cm);Y (cm)", disk);
-    const std::string meTitleN = fmt::format("XY view of Endcap{:+1d};X (cm);Y (cm)", -disk);
+    const std::string meTitleP = fmt::format("X-Y view of Endcap{:+1d};X (cm);Y (cm)", disk);
+    const std::string meTitleN = fmt::format("X-Y view of Endcap{:+1d};X (cm);Y (cm)", -disk);
     hXY_Endcap_[disk] = booker.book2D(meNameP, meTitleP, nbinsXY, -maxXY, maxXY, nbinsXY, -maxXY, maxXY);
     hXY_Endcap_[-disk] = booker.book2D(meNameN, meTitleN, nbinsXY, -maxXY, maxXY, nbinsXY, -maxXY, maxXY);
   }
@@ -156,7 +156,7 @@ void RPCDigiValid::bookHistograms(DQMStore::IBooker &booker, edm::Run const &run
   for (int layer = 1; layer <= 6; ++layer) {
     const std::string meName = fmt::format("ZPhi_Layer{:1d}", layer);
     const std::string meTitle = fmt::format("Z-#phi view of Layer{:1d};Z (cm);#phi (degree)", layer);
-    hZPhi_[layer] = booker.book2D(meName, meName, nbinsBarrelZ, -maxBarrelZ, maxBarrelZ, nbinsPhi, -180, 180);
+    hZPhi_[layer] = booker.book2D(meName, meTitle, nbinsBarrelZ, -maxBarrelZ, maxBarrelZ, nbinsPhi, -180, 180);
   }
 
   // Strip profile
