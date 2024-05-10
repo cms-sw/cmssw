@@ -12,7 +12,7 @@ declare -A TABLES=(
   ["Fake"]="/dev/CMSSW_14_0_0/Fake"
   ["Fake1"]="/dev/CMSSW_14_0_0/Fake1"
   ["Fake2"]="/dev/CMSSW_14_0_0/Fake2"
-  ["2024v11"]="/frozen/2024/2e34/v1.1/HLT"
+  ["2024v12"]="/frozen/2024/2e34/v1.2/HLT"
 )
 
 # command-line arguments
