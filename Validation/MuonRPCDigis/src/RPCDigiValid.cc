@@ -52,6 +52,14 @@ void RPCDigiValid::analyze(const Event &event, const EventSetup &eventSetup) {
     if (region == 0) {
       // Barrel
       hXY_Barrel_->Fill(gp.x(), gp.y());
+
+      const int station = rsid.station();
+      const int layer = rsid.layer();
+      const int stla = (station <= 2) ? (2 * (station - 1) + layer) : (station + 2);
+
+      auto match = hRPhi_.find(stla);
+      if (match != hRPhi_.end())
+        match->second->Fill(gp.z(), gp.phi());
     } else {
       // Endcap
       const int disk = region * rsid.station();
@@ -117,24 +125,37 @@ void RPCDigiValid::analyze(const Event &event, const EventSetup &eventSetup) {
 void RPCDigiValid::bookHistograms(DQMStore::IBooker &booker, edm::Run const &run, edm::EventSetup const &eSetup) {
   booker.setCurrentFolder("RPCDigisV/RPCDigis");
 
+  // Define binnings of 2D-histograms
+  const double maxZ = 1100;
+  const int nbinsZ = 220;  // bin width: 10cm
+  const double maxXY = 800;
+  const int nbinsXY = 160;  // bin width: 10cm
+  const double minR = 100, maxR = 800;
+  const int nbinsR = 70;     // bin width: 10cm
+  const int nbinsPhi = 180;  // bin width: 2 degree
+
   // RZ plot
-  hRZ_ = booker.book2D("RZ", "RZ", 220, -1100., 1100., 60, 0., 780.);
+  hRZ_ = booker.book2D("RZ", "RZ", nbinsZ, -maxZ, maxZ, nbinsR, minR, maxR);
 
   // XY plots
-  const int nbinsXY = 155;
-  const double xmaxXY = 775;
-  hXY_Barrel_ = booker.book2D("XY_Barrel", "XY_Barrel", nbinsXY, -xmaxXY, xmaxXY, nbinsXY, -xmaxXY, xmaxXY);
+  hXY_Barrel_ = booker.book2D("XY_Barrel", "XY_Barrel", nbinsXY, -maxXY, maxXY, nbinsXY, -maxXY, maxXY);
   for (int disk = 1; disk <= 4; ++disk) {
     const std::string meNameP = fmt::format("XY_EndcapP{:1d}", disk);
     const std::string meNameN = fmt::format("XY_EndcapN{:1d}", disk);
-    hXY_Endcap_[disk] = booker.book2D(meNameP, meNameP, nbinsXY, -xmaxXY, xmaxXY, nbinsXY, -xmaxXY, xmaxXY);
-    hXY_Endcap_[-disk] = booker.book2D(meNameN, meNameN, nbinsXY, -xmaxXY, xmaxXY, nbinsXY, -xmaxXY, xmaxXY);
+    hXY_Endcap_[disk] = booker.book2D(meNameP, meNameP, nbinsXY, -maxXY, maxXY, nbinsXY, -maxXY, maxXY);
+    hXY_Endcap_[-disk] = booker.book2D(meNameN, meNameN, nbinsXY, -maxXY, maxXY, nbinsXY, -maxXY, maxXY);
+  }
+
+  // Z-phi plots
+  for (int layer = 1; layer <= 6; ++layer) {
+    const std::string meName = fmt::format("RPhi_Layer{:1d}", layer);
+    hRPhi_[layer] = booker.book2D(meName, meName, nbinsZ, -maxZ, maxZ, nbinsPhi, 0, TMath::TwoPi());
   }
 
   // Strip profile
   hStripProf_ = booker.book1D("Strip_Profile", "Strip_Profile", 100, 0, 100);
-  hStripProf_RB12_ = booker.book1D("Strip_Profile_RB12", "Strip Profile RB1 and RB2", 100, 0, 100);
-  hStripProf_RB34_ = booker.book1D("Strip_Profile_RB34", "Strip Profile RB3 and RB4", 50, 0, 50);
+  hStripProf_RB12_ = booker.book1D("Strip_Profile_RB12", "Strip Profile RB1 and RB2", 92, 0, 92);
+  hStripProf_RB34_ = booker.book1D("Strip_Profile_RB34", "Strip Profile RB3 and RB4", 62, 0, 62);
   hStripProf_Endcap_ = booker.book1D("Strip_Profile_Endcap", "Strip Profile Endcap", 40, 0, 40);
   hStripProf_IRPC_ = booker.book1D("Strip_Profile_IRPC", "Strip Profile IRPC", 100, 0, 100);
 

@@ -31,7 +31,8 @@ private:
   MonitorElement *hRZ_;
 
   MonitorElement *hXY_Barrel_;
-  std::map<int, MonitorElement *> hXY_Endcap_;
+  std::map<int, MonitorElement *> hXY_Endcap_;  // X-Y plots for Endcap, by station
+  std::map<int, MonitorElement *> hRPhi_;       // R-phi plots for Barrel, by layers
 
   // Strip profile
   MonitorElement *hStripProf_;
