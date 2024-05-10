@@ -149,8 +149,9 @@ unsigned int CkfTrajectoryBuilder::limitedCandidates(const std::shared_ptr<const
               }  // else? no need to add it just to remove it later!
             } else {
               newCand.push_back(std::move(newTraj));
-              std::push_heap(newCand.begin(), newCand.end(), trajCandLess);
               full = (int)newCand.size() == theMaxCand;
+              if (full)
+                std::make_heap(newCand.begin(), newCand.end(), trajCandLess);
             }
           } else {
             addToResult(sharedSeed, newTraj, result);
@@ -170,7 +171,7 @@ unsigned int CkfTrajectoryBuilder::limitedCandidates(const std::shared_ptr<const
         assert((int)newCand.size() == theMaxCand);
     }  // end loop on candidates
 
-    std::sort_heap(newCand.begin(), newCand.end(), trajCandLess);
+    // no reason to sort  (no sorting in Grouped version!)
     if (theIntermediateCleaning)
       IntermediateTrajectoryCleaner::clean(newCand);
 
