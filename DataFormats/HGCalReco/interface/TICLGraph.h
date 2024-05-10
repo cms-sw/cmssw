@@ -192,7 +192,7 @@ template <class T>
 int numberOfEdges(std::vector<Node<T>> const& communityA, std::vector<Node<T>> const& communityB);
 
 template <class T>
-int communitySize(std::vector<Node<T>> const& community);
+int communitySize(std::vector<Node<T>> const& community, int size = 0);
 
 template <class T>
 bool areNeighbours(Node<T> const& nodeA, Node<T> const& nodeB);

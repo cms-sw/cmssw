@@ -5,24 +5,27 @@ bool operator==(ElementaryNode const& eN1, ElementaryNode const& eN2) {
 }
 
 template <class T>
-inline bool operator==(Node<T> const& n1, Node<T> const& n2) {
+bool operator==(Node<T> const& n1, Node<T> const& n2) {
   return ((n1.getInternalStructure()) == (n2.getInternalStructure()));
 }
 
+//fills an empty vector with the result of flattening operation of a community
 template <class T>
-auto flatCommunity(std::vector<Node<T>> const& community, std::vector<ElementaryNode>& flattenedCommunity) {
+std::vector<ElementaryNode>& flatCommunity(std::vector<Node<T>> const& community,
+                                           std::vector<ElementaryNode>& flattenedCommunity) {
+  assert(flattenedCommunity.empty());
   for (auto const& node : community) {
     if (node.isNodeDegreeZero()) {
       for (auto const& elementaryNode : node.getInternalStructure())
         flattenedCommunity.push_back(elementaryNode);
     } else
-      flatCommunity(node, flattenedCommunity);
+      flatCommunity(node.getInternalStructure(), flattenedCommunity);
   }
   return flattenedCommunity;
 }
 
-template <class T>
 // the number of edges b/w 2 nodes is the number of edges between their elementary nodes
+template <class T>
 int numberOfEdges(std::vector<Node<T>> const& communityA, std::vector<Node<T>> const& communityB) {
   int numberOfEdges{};
 
@@ -36,24 +39,24 @@ int numberOfEdges(std::vector<Node<T>> const& communityA, std::vector<Node<T>> c
     for (auto const& Id : neighboursA) {
       auto it{std::find_if(flattenedCommunityB.begin(),
                            flattenedCommunityB.end(),
-                           [&Id](ElementaryNode const& elNodeB) { return (elNodeB.getId()) == Id; })};
+                           [=](ElementaryNode const& elNodeB) { return (elNodeB.getId()) == Id; })};
       if (it != flattenedCommunityB.end()) {
         ++numberOfEdges;
       }
     }
   }
+  assert(numberOfEdges >= 0);
   return numberOfEdges;
 }
 
-template <class T>
 //the size of a community is the number of elementary nodes in it
-int communitySize(std::vector<Node<T>> const& community) {
-  int size{};
+template <class T>
+int communitySize(std::vector<Node<T>> const& community, int size = 0) {
   for (auto const& node : community) {
     if (node.isNodeDegreeZero()) {
       size += node.size();
     } else
-      communitySize(node);
+      size = communitySize(node.getInternalStructure(), size);
   }
   return size;
 }
