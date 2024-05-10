@@ -59,7 +59,7 @@ void RPCDigiValid::analyze(const Event &event, const EventSetup &eventSetup) {
 
       auto match = hZPhi_.find(stla);
       if (match != hZPhi_.end()) {
-        const double phiInDeg = gp.phi() / TMath::Pi() * 180;
+        const double phiInDeg = 180. * gp.barePhi() / TMath::Pi();
         match->second->Fill(gp.z(), phiInDeg);
       }
     } else {
