@@ -1011,8 +1011,8 @@ void DTTrigPhase2Prod::produce(Event& iEvent, const EventSetup& iEventSetup) {
                                     tp_t0,                                                  // ut0   (m_t0Segment)
                                     (int)round(metaPrimitiveIt.chi2 * CHI2RES_CONV),        // uchi2 (m_chi2Segment)
                                     (int)round(metaPrimitiveIt.x * 1000),                   // ux    (m_yLocal)
-                                    (int)round(metaPrimitiveIt.phi_cmssw * PHIRES_CONV),    // uphi  (m_zCMSSW)
-                                    (int)round(metaPrimitiveIt.phiB_cmssw * PHIBRES_CONV),  // uphib (m_kCMSSW)
+                                    (int)round(metaPrimitiveIt.phi_cmssw * ZRES_CONV),    // uphi  (m_zCMSSW)
+                                    (int)round(metaPrimitiveIt.phiB_cmssw * KRES_CONV),  // uphib (m_kCMSSW)
                                     metaPrimitiveIt.rpcFlag,                                // urpc  (m_rpcFlag)
                                     pathWireId,
                                     pathTDC,
@@ -1314,7 +1314,6 @@ void DTTrigPhase2Prod::fillDescriptions(edm::ConfigurationDescriptions& descript
                             edm::FileInPath("L1Trigger/DTTriggerPhase2/data/global_coord_perp_x_phi0.txt"));
   desc.add<edm::FileInPath>("laterality_filename",
                             edm::FileInPath("L1Trigger/DTTriggerPhase2/data/lat_predictions.dat"));
-
   desc.add<int>("algo", 0);
   desc.add<int>("minHits4Fit", 3);
   desc.add<bool>("splitPathPerSL", true);
