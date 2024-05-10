@@ -33,8 +33,8 @@ namespace edm {
     return temp;
   }
 
-  void ProductProvenanceRetriever::readProvenanceAsync(WaitingTaskHolder task,
-                                                       ModuleCallingContext const* moduleCallingContext) const {
+  void ProductProvenanceRetriever::readProvenanceAsync(
+      WaitingTaskHolder task, ModuleCallingContext const* moduleCallingContext) const noexcept {
     if (provenanceReader_ and nullptr == readEntryInfoSet_.load()) {
       provenanceReader_->readProvenanceAsync(task, moduleCallingContext, transitionIndex_, readEntryInfoSet_);
     }

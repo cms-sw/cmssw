@@ -123,32 +123,32 @@ namespace edm {
   WorkerT<T>::~WorkerT() {}
 
   template <typename T>
-  bool WorkerT<T>::wantsProcessBlocks() const {
+  bool WorkerT<T>::wantsProcessBlocks() const noexcept {
     return module_->wantsProcessBlocks();
   }
 
   template <typename T>
-  bool WorkerT<T>::wantsInputProcessBlocks() const {
+  bool WorkerT<T>::wantsInputProcessBlocks() const noexcept {
     return module_->wantsInputProcessBlocks();
   }
 
   template <typename T>
-  bool WorkerT<T>::wantsGlobalRuns() const {
+  bool WorkerT<T>::wantsGlobalRuns() const noexcept {
     return module_->wantsGlobalRuns();
   }
 
   template <typename T>
-  bool WorkerT<T>::wantsGlobalLuminosityBlocks() const {
+  bool WorkerT<T>::wantsGlobalLuminosityBlocks() const noexcept {
     return module_->wantsGlobalLuminosityBlocks();
   }
 
   template <typename T>
-  bool WorkerT<T>::wantsStreamRuns() const {
+  bool WorkerT<T>::wantsStreamRuns() const noexcept {
     return module_->wantsStreamRuns();
   }
 
   template <typename T>
-  bool WorkerT<T>::wantsStreamLuminosityBlocks() const {
+  bool WorkerT<T>::wantsStreamLuminosityBlocks() const noexcept {
     return module_->wantsStreamLuminosityBlocks();
   }
 
@@ -247,7 +247,7 @@ namespace edm {
                                                size_t iTransformIndex,
                                                EventPrincipal const& iEvent,
                                                ParentContext const& iParent,
-                                               ServiceWeakToken const& weakToken) {
+                                               ServiceWeakToken const& weakToken) noexcept {
     CMS_SA_ALLOW try {
       ServiceRegistry::Operate guard(weakToken.lock());
 
@@ -266,113 +266,120 @@ namespace edm {
                                                                     size_t iTransformIndex,
                                                                     EventPrincipal const& iEvent,
                                                                     ParentContext const& iParent,
-                                                                    ServiceWeakToken const& weakToken) {}
+                                                                    ServiceWeakToken const& weakToken) noexcept {}
   template <>
   inline void WorkerT<global::OutputModuleBase>::implDoTransformAsync(WaitingTaskHolder task,
                                                                       size_t iTransformIndex,
                                                                       EventPrincipal const& iEvent,
                                                                       ParentContext const& iParent,
-                                                                      ServiceWeakToken const& weakToken) {}
+                                                                      ServiceWeakToken const& weakToken) noexcept {}
   template <>
   inline void WorkerT<limited::EDAnalyzerBase>::implDoTransformAsync(WaitingTaskHolder task,
                                                                      size_t iTransformIndex,
                                                                      EventPrincipal const& iEvent,
                                                                      ParentContext const& iParent,
-                                                                     ServiceWeakToken const& weakToken) {}
+                                                                     ServiceWeakToken const& weakToken) noexcept {}
   template <>
   inline void WorkerT<limited::OutputModuleBase>::implDoTransformAsync(WaitingTaskHolder task,
                                                                        size_t iTransformIndex,
                                                                        EventPrincipal const& iEvent,
                                                                        ParentContext const& iParent,
-                                                                       ServiceWeakToken const& weakToken) {}
+                                                                       ServiceWeakToken const& weakToken) noexcept {}
   template <>
   inline void WorkerT<one::EDAnalyzerBase>::implDoTransformAsync(WaitingTaskHolder task,
                                                                  size_t iTransformIndex,
                                                                  EventPrincipal const& iEvent,
                                                                  ParentContext const& iParent,
-                                                                 ServiceWeakToken const& weakToken) {}
+                                                                 ServiceWeakToken const& weakToken) noexcept {}
   template <>
   inline void WorkerT<one::OutputModuleBase>::implDoTransformAsync(WaitingTaskHolder task,
                                                                    size_t iTransformIndex,
                                                                    EventPrincipal const& iEvent,
                                                                    ParentContext const& iParent,
-                                                                   ServiceWeakToken const& weakToken) {}
+                                                                   ServiceWeakToken const& weakToken) noexcept {}
   template <>
   inline void WorkerT<stream::EDAnalyzerAdaptorBase>::implDoTransformAsync(WaitingTaskHolder task,
                                                                            size_t iTransformIndex,
                                                                            EventPrincipal const& iEvent,
                                                                            ParentContext const& iParent,
-                                                                           ServiceWeakToken const& weakToken) {}
-
-  template <typename T>
-  inline size_t WorkerT<T>::transformIndex(edm::BranchDescription const&) const {
-    return -1;
-  }
-  template <>
-  inline size_t WorkerT<global::EDFilterBase>::transformIndex(edm::BranchDescription const& iBranch) const {
-    return module_->transformIndex_(iBranch);
-  }
-  template <>
-  inline size_t WorkerT<global::EDProducerBase>::transformIndex(edm::BranchDescription const& iBranch) const {
-    return module_->transformIndex_(iBranch);
-  }
-  template <>
-  inline size_t WorkerT<stream::EDProducerAdaptorBase>::transformIndex(edm::BranchDescription const& iBranch) const {
-    return module_->transformIndex_(iBranch);
-  }
-  template <>
-  inline size_t WorkerT<limited::EDFilterBase>::transformIndex(edm::BranchDescription const& iBranch) const {
-    return module_->transformIndex_(iBranch);
-  }
-  template <>
-  inline size_t WorkerT<limited::EDProducerBase>::transformIndex(edm::BranchDescription const& iBranch) const {
-    return module_->transformIndex_(iBranch);
-  }
-  template <>
-  inline size_t WorkerT<one::EDFilterBase>::transformIndex(edm::BranchDescription const& iBranch) const {
-    return module_->transformIndex_(iBranch);
-  }
-  template <>
-  inline size_t WorkerT<one::EDProducerBase>::transformIndex(edm::BranchDescription const& iBranch) const {
-    return module_->transformIndex_(iBranch);
+                                                                           ServiceWeakToken const& weakToken) noexcept {
   }
 
   template <typename T>
-  inline ProductResolverIndex WorkerT<T>::itemToGetForTransform(size_t iTransformIndex) const {
+  inline size_t WorkerT<T>::transformIndex(edm::BranchDescription const&) const noexcept {
     return -1;
   }
   template <>
-  inline ProductResolverIndex WorkerT<global::EDFilterBase>::itemToGetForTransform(size_t iTransformIndex) const {
+  inline size_t WorkerT<global::EDFilterBase>::transformIndex(edm::BranchDescription const& iBranch) const noexcept {
+    return module_->transformIndex_(iBranch);
+  }
+  template <>
+  inline size_t WorkerT<global::EDProducerBase>::transformIndex(edm::BranchDescription const& iBranch) const noexcept {
+    return module_->transformIndex_(iBranch);
+  }
+  template <>
+  inline size_t WorkerT<stream::EDProducerAdaptorBase>::transformIndex(
+      edm::BranchDescription const& iBranch) const noexcept {
+    return module_->transformIndex_(iBranch);
+  }
+  template <>
+  inline size_t WorkerT<limited::EDFilterBase>::transformIndex(edm::BranchDescription const& iBranch) const noexcept {
+    return module_->transformIndex_(iBranch);
+  }
+  template <>
+  inline size_t WorkerT<limited::EDProducerBase>::transformIndex(edm::BranchDescription const& iBranch) const noexcept {
+    return module_->transformIndex_(iBranch);
+  }
+  template <>
+  inline size_t WorkerT<one::EDFilterBase>::transformIndex(edm::BranchDescription const& iBranch) const noexcept {
+    return module_->transformIndex_(iBranch);
+  }
+  template <>
+  inline size_t WorkerT<one::EDProducerBase>::transformIndex(edm::BranchDescription const& iBranch) const noexcept {
+    return module_->transformIndex_(iBranch);
+  }
+
+  template <typename T>
+  inline ProductResolverIndex WorkerT<T>::itemToGetForTransform(size_t iTransformIndex) const noexcept {
+    return -1;
+  }
+  template <>
+  inline ProductResolverIndex WorkerT<global::EDFilterBase>::itemToGetForTransform(
+      size_t iTransformIndex) const noexcept {
     return module_->transformPrefetch_(iTransformIndex);
   }
   template <>
-  inline ProductResolverIndex WorkerT<global::EDProducerBase>::itemToGetForTransform(size_t iTransformIndex) const {
+  inline ProductResolverIndex WorkerT<global::EDProducerBase>::itemToGetForTransform(
+      size_t iTransformIndex) const noexcept {
     return module_->transformPrefetch_(iTransformIndex);
   }
   template <>
   inline ProductResolverIndex WorkerT<stream::EDProducerAdaptorBase>::itemToGetForTransform(
-      size_t iTransformIndex) const {
+      size_t iTransformIndex) const noexcept {
     return module_->transformPrefetch_(iTransformIndex);
   }
   template <>
-  inline ProductResolverIndex WorkerT<limited::EDFilterBase>::itemToGetForTransform(size_t iTransformIndex) const {
+  inline ProductResolverIndex WorkerT<limited::EDFilterBase>::itemToGetForTransform(
+      size_t iTransformIndex) const noexcept {
     return module_->transformPrefetch_(iTransformIndex);
   }
   template <>
-  inline ProductResolverIndex WorkerT<limited::EDProducerBase>::itemToGetForTransform(size_t iTransformIndex) const {
+  inline ProductResolverIndex WorkerT<limited::EDProducerBase>::itemToGetForTransform(
+      size_t iTransformIndex) const noexcept {
     return module_->transformPrefetch_(iTransformIndex);
   }
   template <>
-  inline ProductResolverIndex WorkerT<one::EDFilterBase>::itemToGetForTransform(size_t iTransformIndex) const {
+  inline ProductResolverIndex WorkerT<one::EDFilterBase>::itemToGetForTransform(size_t iTransformIndex) const noexcept {
     return module_->transformPrefetch_(iTransformIndex);
   }
   template <>
-  inline ProductResolverIndex WorkerT<one::EDProducerBase>::itemToGetForTransform(size_t iTransformIndex) const {
+  inline ProductResolverIndex WorkerT<one::EDProducerBase>::itemToGetForTransform(
+      size_t iTransformIndex) const noexcept {
     return module_->transformPrefetch_(iTransformIndex);
   }
 
   template <typename T>
-  inline bool WorkerT<T>::implNeedToRunSelection() const {
+  inline bool WorkerT<T>::implNeedToRunSelection() const noexcept {
     return false;
   }
 
@@ -386,7 +393,7 @@ namespace edm {
   inline void WorkerT<T>::itemsToGetForSelection(std::vector<ProductResolverIndexAndSkipBit>&) const {}
 
   template <>
-  inline bool WorkerT<edm::one::OutputModuleBase>::implNeedToRunSelection() const {
+  inline bool WorkerT<edm::one::OutputModuleBase>::implNeedToRunSelection() const noexcept {
     return true;
   }
 
@@ -403,7 +410,7 @@ namespace edm {
   }
 
   template <>
-  inline bool WorkerT<edm::global::OutputModuleBase>::implNeedToRunSelection() const {
+  inline bool WorkerT<edm::global::OutputModuleBase>::implNeedToRunSelection() const noexcept {
     return true;
   }
   template <>
@@ -419,7 +426,7 @@ namespace edm {
   }
 
   template <>
-  inline bool WorkerT<edm::limited::OutputModuleBase>::implNeedToRunSelection() const {
+  inline bool WorkerT<edm::limited::OutputModuleBase>::implNeedToRunSelection() const noexcept {
     return true;
   }
   template <>

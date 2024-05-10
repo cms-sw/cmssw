@@ -62,12 +62,12 @@ namespace edm {
       // Warning: the returned moduleDescription will be invalid during construction
       ModuleDescription const& moduleDescription() const { return moduleDescription_; }
 
-      virtual bool wantsProcessBlocks() const = 0;
-      virtual bool wantsInputProcessBlocks() const = 0;
-      virtual bool wantsGlobalRuns() const = 0;
-      virtual bool wantsGlobalLuminosityBlocks() const = 0;
-      bool wantsStreamRuns() const { return false; }
-      bool wantsStreamLuminosityBlocks() const { return false; };
+      virtual bool wantsProcessBlocks() const noexcept = 0;
+      virtual bool wantsInputProcessBlocks() const noexcept = 0;
+      virtual bool wantsGlobalRuns() const noexcept = 0;
+      virtual bool wantsGlobalLuminosityBlocks() const noexcept = 0;
+      bool wantsStreamRuns() const noexcept { return false; }
+      bool wantsStreamLuminosityBlocks() const noexcept { return false; };
 
       virtual SerialTaskQueue* globalRunsQueue();
       virtual SerialTaskQueue* globalLuminosityBlocksQueue();
@@ -78,7 +78,7 @@ namespace edm {
       //For now this is a placeholder
       /*virtual*/ void preActionBeforeRunEventAsync(WaitingTaskHolder,
                                                     ModuleCallingContext const&,
-                                                    Principal const&) const {}
+                                                    Principal const&) const noexcept {}
 
       void doPreallocate(PreallocationConfiguration const&);
       virtual void preallocRuns(unsigned int);
@@ -118,8 +118,8 @@ namespace edm {
 
       virtual void clearInputProcessBlockCaches();
 
-      bool hasAcquire() const { return false; }
-      bool hasAccumulator() const { return false; }
+      bool hasAcquire() const noexcept { return false; }
+      bool hasAccumulator() const noexcept { return false; }
 
       virtual SharedResourcesAcquirer createAcquirer();
 

@@ -57,18 +57,18 @@ namespace edm {
     virtual void writeProcessBlockAsync(WaitingTaskHolder iTask,
                                         ProcessBlockPrincipal const&,
                                         ProcessContext const*,
-                                        ActivityRegistry*) = 0;
+                                        ActivityRegistry*) noexcept = 0;
 
     virtual void writeRunAsync(WaitingTaskHolder iTask,
                                RunPrincipal const&,
                                ProcessContext const*,
                                ActivityRegistry*,
-                               MergeableRunProductMetadata const*) = 0;
+                               MergeableRunProductMetadata const*) noexcept = 0;
 
     virtual void writeLumiAsync(WaitingTaskHolder iTask,
                                 LuminosityBlockPrincipal const&,
                                 ProcessContext const*,
-                                ActivityRegistry*) = 0;
+                                ActivityRegistry*) noexcept = 0;
 
     ///\return true if OutputModule has reached its limit on maximum number of events it wants to see
     virtual bool limitReached() const = 0;

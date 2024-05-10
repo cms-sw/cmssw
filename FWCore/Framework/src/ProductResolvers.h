@@ -138,7 +138,7 @@ namespace edm {
                         bool skipCurrentProcess,
                         ServiceToken const& token,
                         SharedResourcesAcquirer* sra,
-                        ModuleCallingContext const* mcc) const override;
+                        ModuleCallingContext const* mcc) const noexcept override;
 
     void retrieveAndMerge_(Principal const& principal,
                            MergeableRunProductMetadata const* mergeableRunProductMetadata) const override;
@@ -177,7 +177,7 @@ namespace edm {
                         bool skipCurrentProcess,
                         ServiceToken const& token,
                         SharedResourcesAcquirer* sra,
-                        ModuleCallingContext const* mcc) const final;
+                        ModuleCallingContext const* mcc) const noexcept final;
     bool unscheduledWasNotRun_() const final { return false; }
 
   private:
@@ -215,7 +215,7 @@ namespace edm {
                         bool skipCurrentProcess,
                         ServiceToken const& token,
                         SharedResourcesAcquirer* sra,
-                        ModuleCallingContext const* mcc) const override;
+                        ModuleCallingContext const* mcc) const noexcept override;
     bool unscheduledWasNotRun_() const override { return false; }
 
     // The WaitingTaskList below is the one from the worker, if one
@@ -243,7 +243,7 @@ namespace edm {
                         bool skipCurrentProcess,
                         ServiceToken const& token,
                         SharedResourcesAcquirer* sra,
-                        ModuleCallingContext const* mcc) const override;
+                        ModuleCallingContext const* mcc) const noexcept override;
     bool unscheduledWasNotRun_() const override { return status() == ProductStatus::ResolveNotRun; }
 
     void resetProductData_(bool deleteEarly) override;
@@ -272,7 +272,7 @@ namespace edm {
                         bool skipCurrentProcess,
                         ServiceToken const& token,
                         SharedResourcesAcquirer* sra,
-                        ModuleCallingContext const* mcc) const override;
+                        ModuleCallingContext const* mcc) const noexcept override;
     bool unscheduledWasNotRun_() const override { return status() == ProductStatus::ResolveNotRun; }
 
     void resetProductData_(bool deleteEarly) override;
@@ -308,7 +308,7 @@ namespace edm {
                         bool skipCurrentProcess,
                         ServiceToken const& token,
                         SharedResourcesAcquirer* sra,
-                        ModuleCallingContext const* mcc) const override {
+                        ModuleCallingContext const* mcc) const noexcept override {
       realProduct_.prefetchAsync(waitTask, principal, skipCurrentProcess, token, sra, mcc);
     }
     bool unscheduledWasNotRun_() const override { return realProduct_.unscheduledWasNotRun(); }
@@ -402,7 +402,7 @@ namespace edm {
                         bool skipCurrentProcess,
                         ServiceToken const& token,
                         SharedResourcesAcquirer* sra,
-                        ModuleCallingContext const* mcc) const final;
+                        ModuleCallingContext const* mcc) const noexcept final;
     void putProduct(std::unique_ptr<WrapperBase> edp) const final;
     bool unscheduledWasNotRun_() const final { return false; }
     bool productUnavailable_() const final;
@@ -433,7 +433,7 @@ namespace edm {
                         bool skipCurrentProcess,
                         ServiceToken const& token,
                         SharedResourcesAcquirer* sra,
-                        ModuleCallingContext const* mcc) const final;
+                        ModuleCallingContext const* mcc) const noexcept final;
     bool unscheduledWasNotRun_() const final { return realProduct().unscheduledWasNotRun(); }
     bool productUnavailable_() const final { return realProduct().productUnavailable(); }
   };
@@ -468,7 +468,7 @@ namespace edm {
                         bool skipCurrentProcess,
                         ServiceToken const& token,
                         SharedResourcesAcquirer* sra,
-                        ModuleCallingContext const* mcc) const override {
+                        ModuleCallingContext const* mcc) const noexcept override {
       if (principal.branchType() == InProcess &&
           (mcc->parent().globalContext()->transition() == GlobalContext::Transition::kBeginProcessBlock ||
            mcc->parent().globalContext()->transition() == GlobalContext::Transition::kEndProcessBlock)) {
@@ -524,7 +524,7 @@ namespace edm {
                                   SharedResourcesAcquirer* sra,
                                   ModuleCallingContext const* mcc,
                                   ServiceToken token,
-                                  oneapi::tbb::task_group*) const;
+                                  oneapi::tbb::task_group*) const noexcept;
 
     bool dataValidFromResolver(unsigned int iProcessingIndex,
                                Principal const& principal,
@@ -546,7 +546,7 @@ namespace edm {
                         bool skipCurrentProcess,
                         ServiceToken const& token,
                         SharedResourcesAcquirer* sra,
-                        ModuleCallingContext const* mcc) const override;
+                        ModuleCallingContext const* mcc) const noexcept override;
     bool unscheduledWasNotRun_() const override;
     bool productUnavailable_() const override;
     bool productWasDeleted_() const override;
@@ -601,7 +601,7 @@ namespace edm {
                         bool skipCurrentProcess,
                         ServiceToken const& token,
                         SharedResourcesAcquirer* sra,
-                        ModuleCallingContext const* mcc) const override;
+                        ModuleCallingContext const* mcc) const noexcept override;
     bool unscheduledWasNotRun_() const override;
     bool productUnavailable_() const override;
     bool productWasDeleted_() const override;

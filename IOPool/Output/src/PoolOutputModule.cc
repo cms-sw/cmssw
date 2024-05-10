@@ -424,7 +424,7 @@ namespace edm {
 
   void PoolOutputModule::preActionBeforeRunEventAsync(WaitingTaskHolder iTask,
                                                       ModuleCallingContext const& iModuleCallingContext,
-                                                      Principal const& iPrincipal) const {
+                                                      Principal const& iPrincipal) const noexcept {
     if (DropAll != dropMetaData_) {
       auto const* ep = dynamic_cast<EventPrincipal const*>(&iPrincipal);
       if (ep) {

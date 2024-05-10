@@ -59,7 +59,7 @@ namespace edm::eventsetup {
                            const DataKey&,
                            EventSetupImpl const* iEventSetupImpl,
                            ServiceToken const& iToken,
-                           edm::ESParentContext const& iParent) final {
+                           edm::ESParentContext const& iParent) noexcept final {
       assert(iRecord.key() == RecordT::keyForClass());
       callback_->prefetchAsync(iWaitTask, &iRecord, iEventSetupImpl, iToken, iParent);
     }

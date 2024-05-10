@@ -33,13 +33,13 @@ namespace edm {
     friend class TaskSentry;
 
     ///Constructor
-    TaskBase() : m_refCount{0} {}
-    virtual ~TaskBase() = default;
+    TaskBase() noexcept : m_refCount{0} {}
+    virtual ~TaskBase() noexcept = default;
 
     virtual void execute() = 0;
 
-    void increment_ref_count() { ++m_refCount; }
-    unsigned int decrement_ref_count() { return --m_refCount; }
+    void increment_ref_count() noexcept { ++m_refCount; }
+    unsigned int decrement_ref_count() noexcept { return --m_refCount; }
 
   private:
     virtual void recycle() { delete this; }
@@ -49,7 +49,7 @@ namespace edm {
 
   class TaskSentry {
   public:
-    TaskSentry(TaskBase* iTask) : m_task{iTask} {}
+    TaskSentry(TaskBase* iTask) noexcept : m_task{iTask} {}
     ~TaskSentry() { m_task->recycle(); }
     TaskSentry() = delete;
     TaskSentry(TaskSentry const&) = delete;

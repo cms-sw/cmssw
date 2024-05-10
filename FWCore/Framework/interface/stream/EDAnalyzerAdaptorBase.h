@@ -82,12 +82,12 @@ namespace edm {
       // ---------- member functions ---------------------------
       const ModuleDescription& moduleDescription() const { return moduleDescription_; }
 
-      virtual bool wantsProcessBlocks() const = 0;
-      virtual bool wantsInputProcessBlocks() const = 0;
-      virtual bool wantsGlobalRuns() const = 0;
-      virtual bool wantsGlobalLuminosityBlocks() const = 0;
-      virtual bool wantsStreamRuns() const = 0;
-      virtual bool wantsStreamLuminosityBlocks() const = 0;
+      virtual bool wantsProcessBlocks() const noexcept = 0;
+      virtual bool wantsInputProcessBlocks() const noexcept = 0;
+      virtual bool wantsGlobalRuns() const noexcept = 0;
+      virtual bool wantsGlobalLuminosityBlocks() const noexcept = 0;
+      virtual bool wantsStreamRuns() const noexcept = 0;
+      virtual bool wantsStreamLuminosityBlocks() const noexcept = 0;
 
       std::string workerType() const { return "WorkerT<EDAnalyzerAdaptorBase>"; }
       void registerProductsAndCallbacks(EDAnalyzerAdaptorBase const*, ProductRegistry* reg);
@@ -138,7 +138,7 @@ namespace edm {
       //For now this is a placeholder
       /*virtual*/ void preActionBeforeRunEventAsync(WaitingTaskHolder,
                                                     ModuleCallingContext const&,
-                                                    Principal const&) const {}
+                                                    Principal const&) const noexcept {}
 
       virtual void setupStreamModules() = 0;
       virtual void doBeginJob() = 0;
@@ -171,8 +171,8 @@ namespace edm {
       virtual void doRespondToCloseOutputFile() = 0;
       void doRegisterThinnedAssociations(ProductRegistry const&, ThinnedAssociationsHelper&) {}
 
-      bool hasAcquire() const { return false; }
-      bool hasAccumulator() const { return false; }
+      bool hasAcquire() const noexcept { return false; }
+      bool hasAccumulator() const noexcept { return false; }
 
       // ---------- member data --------------------------------
       void setModuleDescriptionPtr(EDAnalyzerBase* m);

@@ -40,15 +40,15 @@ namespace edm {
     friend class WaitingTaskWithArenaHolder;
 
     ///Constructor
-    WaitingTask() : m_ptr{} {}
-    ~WaitingTask() override{};
+    WaitingTask() noexcept : m_ptr{} {}
+    ~WaitingTask() noexcept override{};
 
     // ---------- const member functions ---------------------------
 
     ///Returns exception thrown by dependent task
     /** If the value evalutes to true then the dependent task failed.
     */
-    std::exception_ptr exceptionPtr() const {
+    std::exception_ptr exceptionPtr() const noexcept {
       if (m_ptrSet == static_cast<unsigned char>(State::kSet)) {
         return m_ptr;
       }
@@ -56,7 +56,7 @@ namespace edm {
     }
 
   protected:
-    std::exception_ptr const& uncheckedExceptionPtr() const { return m_ptr; }
+    std::exception_ptr const& uncheckedExceptionPtr() const noexcept { return m_ptr; }
 
   private:
     enum class State : unsigned char { kUnset = 0, kSetting = 1, kSet = 2 };
@@ -65,7 +65,7 @@ namespace edm {
      * moved to another thread.
      * This method should only be called by WaitingTaskList
      */
-    void dependentTaskFailed(std::exception_ptr iPtr) {
+    void dependentTaskFailed(std::exception_ptr iPtr) noexcept {
       unsigned char isSet = static_cast<unsigned char>(State::kUnset);
       if (iPtr and m_ptrSet.compare_exchange_strong(isSet, static_cast<unsigned char>(State::kSetting))) {
         m_ptr = iPtr;

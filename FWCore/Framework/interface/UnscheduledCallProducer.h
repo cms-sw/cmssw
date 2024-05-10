@@ -73,7 +73,7 @@ namespace edm {
                      ServiceToken const& token,
                      StreamID streamID,
                      typename T::Context const* topContext,
-                     U const* context) const {
+                     U const* context) const noexcept {
       //do nothing for event since we will run when requested
       if (!T::isEvent_) {
         for (auto worker : unscheduledWorkers_) {
@@ -95,7 +95,7 @@ namespace edm {
                               ServiceToken const& token,
                               StreamID streamID,
                               ParentContext const& parentContext,
-                              typename T::Context const* context) {
+                              typename T::Context const* context) noexcept {
       for (auto worker : accumulatorWorkers_) {
         worker->doWorkAsync<T>(task, info, token, streamID, parentContext, context);
       }
