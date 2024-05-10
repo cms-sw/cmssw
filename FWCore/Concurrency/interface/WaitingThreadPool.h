@@ -1,8 +1,8 @@
 #ifndef FWCore_Concurrency_WaitingThreadPool_h
 #define FWCore_Concurrency_WaitingThreadPool_h
 
+#include "FWCore/Utilities/interface/ConvertException.h"
 #include "FWCore/Utilities/interface/ReusableObjectHolder.h"
-#include "FWCore/Utilities/interface/thread_safety_macros.h"
 #include "FWCore/Concurrency/interface/WaitingTaskWithArenaHolder.h"
 
 #include <condition_variable>
@@ -21,11 +21,19 @@ namespace edm {
       WaitingThread(WaitingThread&&) = delete;
       WaitingThread& operator=(WaitingThread const&) = delete;
 
-      template <typename F>
-      void run(WaitingTaskWithArenaHolder holder, F&& func, std::shared_ptr<WaitingThread> thisPtr) {
+      template <typename F, typename G>
+      void run(WaitingTaskWithArenaHolder holder,
+               F&& func,
+               G&& errorContextFunc,
+               std::shared_ptr<WaitingThread> thisPtr) {
         std::unique_lock lk(mutex_);
-        func_ = [holder = std::move(holder), func = std::forward<F>(func)]() mutable {
-          CMS_SA_ALLOW try { func(); } catch (...) {
+        func_ = [holder = std::move(holder),
+                 func = std::forward<F>(func),
+                 errorContext = std::forward<G>(errorContextFunc)]() mutable {
+          try {
+            convertException::wrap([&func]() { func(); });
+          } catch (cms::Exception& e) {
+            e.addContext(errorContext());
             holder.doneWaiting(std::current_exception());
           }
         };
@@ -65,6 +73,9 @@ namespace edm {
   // std::async(), but instead of dealing with std::futures, takes an
   // edm::WaitingTaskWithArenaHolder object, that is signaled upon the
   // func() returning or throwing an exception.
+  //
+  // The caller is responsible for keeping the WaitingThreadPool
+  // object alive at least as long as all asynchronous calls finish.
   class WaitingThreadPool {
   public:
     WaitingThreadPool() = default;
@@ -73,10 +84,18 @@ namespace edm {
     WaitingThreadPool(WaitingThreadPool&&) = delete;
     WaitingThreadPool& operator=(WaitingThreadPool&&) = delete;
 
-    template <typename F>
-    void runAsync(WaitingTaskWithArenaHolder holder, F&& func) {
+    /**
+     * \param holder           WaitingTaskWithArenaHolder object to signal the completion of 'func'
+     * \param func             Function to run in a separate thread
+     * \param errorContextFunc Function returning a string-like object
+     *                         that is added to the context of
+     *                         cms::Exception in case 'func' throws an
+     *                         exception
+     */
+    template <typename F, typename G>
+    void runAsync(WaitingTaskWithArenaHolder holder, F&& func, G&& errorContextFunc) {
       auto thread = pool_.makeOrGet([]() { return std::make_unique<impl::WaitingThread>(); });
-      thread->run(std::move(holder), std::forward<F>(func), std::move(thread));
+      thread->run(std::move(holder), std::forward<F>(func), std::forward<G>(errorContextFunc), std::move(thread));
     }
 
   private:
