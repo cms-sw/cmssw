@@ -273,12 +273,11 @@ void TritonService::preBeginJob(edm::PathsAndConsumesOfModulesBase const&, edm::
   //assemble server start command
   fallbackOpts_.command = "cmsTriton -P -1 -p " + pid_;
   fallbackOpts_.command += " -g " + fallbackOpts_.device;
+  fallbackOpts_.command += " -d " + fallbackOpts_.container;
   if (fallbackOpts_.debug)
     fallbackOpts_.command += " -c";
   if (fallbackOpts_.verbose)
     fallbackOpts_.command += " -v";
-  if (fallbackOpts_.useDocker)
-    fallbackOpts_.command += " -d";
   if (!fallbackOpts_.instanceName.empty())
     fallbackOpts_.command += " -n " + fallbackOpts_.instanceName;
   if (fallbackOpts_.retries >= 0)
@@ -434,7 +433,8 @@ void TritonService::fillDescriptions(edm::ConfigurationDescriptions& description
   fallbackDesc.addUntracked<bool>("enable", false);
   fallbackDesc.addUntracked<bool>("debug", false);
   fallbackDesc.addUntracked<bool>("verbose", false);
-  fallbackDesc.addUntracked<bool>("useDocker", false);
+  fallbackDesc.ifValue(edm::ParameterDescription<std::string>("container", "apptainer", false),
+                       edm::allowedValues<std::string>("apptainer", "docker", "podman"));
   fallbackDesc.ifValue(edm::ParameterDescription<std::string>("device", "auto", false),
                        edm::allowedValues<std::string>("auto", "cpu", "gpu"));
   fallbackDesc.addUntracked<int>("retries", -1);

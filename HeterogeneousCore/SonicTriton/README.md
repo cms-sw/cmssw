@@ -132,7 +132,7 @@ The script has three operations (`start`, `stop`, `check`) and the following opt
 * `-c`: don't cleanup temporary dir (for debugging)
 * `-C [dir]`: directory containing Nvidia compatibility drivers (checks CMSSW_BASE by default if available)
 * `-D`: dry run: print container commands rather than executing them
-* `-d`: use Docker instead of Apptainer
+* `-d [exe]`: container choice: Apptainer, Docker, Podman (default: apptainer)
 * `-E [path]`: include extra path(s) for executables (default: /cvmfs/oasis.opensciencegrid.org/mis/apptainer/current/bin)
 * `-f`: force reuse of (possibly) existing container instance
 * `-g [device]`: device choice: auto (try to detect GPU), CPU, GPU (default: auto)
@@ -200,8 +200,8 @@ The fallback server has a separate set of options, mostly related to the invocat
 * `enable`: enable the fallback server
 * `debug`: enable debugging (equivalent to `-c` in `cmsTriton`)
 * `verbose`: enable verbose output in logs (equivalent to `-v` in `cmsTriton`)
-* `useDocker`: use Docker instead of Apptainer (equivalent to `-d` in `cmsTriton`)
-* `useGPU`: run on local GPU (equivalent to `-g` in `cmsTriton`)
+* `container`: container choice (equivalent to `-d` in `cmsTriton`)
+* `device`: device choice (equivalent to `-g` in `cmsTriton`)
 * `retries`: number of retries when starting container (passed to `-r [num]` in `cmsTriton` if >= 0; default: -1)
 * `wait`: maximum time to wait for server to start (passed to `-w time` in `cmsTriton` if >= 0; default: -1)
 * `instanceBaseName`: base name for server instance if random names are enabled (default: triton_server_instance)

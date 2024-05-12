@@ -36,7 +36,7 @@ public:
         : enable(pset.getUntrackedParameter<bool>("enable")),
           debug(pset.getUntrackedParameter<bool>("debug")),
           verbose(pset.getUntrackedParameter<bool>("verbose")),
-          useDocker(pset.getUntrackedParameter<bool>("useDocker")),
+          container(pset.getUntrackedParameter<std::string>("container")),
           device(pset.getUntrackedParameter<std::string>("device")),
           retries(pset.getUntrackedParameter<int>("retries")),
           wait(pset.getUntrackedParameter<int>("wait")),
@@ -54,7 +54,7 @@ public:
     bool enable;
     bool debug;
     bool verbose;
-    bool useDocker;
+    std::string container;
     std::string device;
     int retries;
     int wait;

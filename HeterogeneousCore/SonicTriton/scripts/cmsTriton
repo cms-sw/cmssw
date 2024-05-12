@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # defaults
-USEDOCKER=""
+CONTAINER=apptainer
 VERBOSE=""
 VERBOSE_ARGS="--log-verbose=1 --log-error=1 --log-warning=1 --log-info=1"
 WTIME=600
@@ -42,7 +42,7 @@ usage() {
 	$ECHO "-c          \t don't cleanup temporary dir (for debugging)"
 	$ECHO "-C [dir]    \t directory containing Nvidia compatibility drivers (checks CMSSW_BASE by default if available)"
 	$ECHO "-D          \t dry run: print container commands rather than executing them"
-	$ECHO "-d          \t use Docker instead of Apptainer"
+	$ECHO "-d [exe]    \t container choice: Apptainer, Docker, Podman (default: ${CONTAINER})"
 	$ECHO "-E [path]   \t include extra path(s) for executables (default: ${EXTRAPATH})"
 	$ECHO "-f          \t force reuse of (possibly) existing container instance"
 	$ECHO "-g [device] \t device choice: auto (try to detect GPU), CPU, GPU (default: ${DEVICE})"
@@ -73,7 +73,7 @@ if [ -e /run/shm ]; then
 	SHM=/run/shm
 fi
 
-while getopts "cC:Ddfg:i:I:M:m:n:P:p:r:s:t:vw:h" opt; do
+while getopts "cC:Dd:fg:i:I:M:m:n:P:p:r:s:t:vw:h" opt; do
 	case "$opt" in
 		c) CLEANUP=""
 		;;
@@ -81,7 +81,7 @@ while getopts "cC:Ddfg:i:I:M:m:n:P:p:r:s:t:vw:h" opt; do
 		;;
 		D) DRYRUN=echo
 		;;
-		d) USEDOCKER=true
+		d) CONTAINER="$OPTARG"
 		;;
 		f) FORCE=true
 		;;
@@ -130,6 +130,13 @@ if [[ ! " auto cpu gpu " =~ " $DEVICE " ]]; then
 	exit 1
 fi
 
+# check acceptable values for container choice
+CONTAINER="${CONTAINER,,}"
+if [[ ! " apptainer docker podman " =~ " $CONTAINER " ]]; then
+	echo "Unsupported container value: $CONTAINER"
+	exit 1
+fi
+
 if [ "$RETRIES" -le 0 ]; then
 	RETRIES=1
 fi
@@ -147,9 +154,13 @@ if [ -n "$EXTRAPATH" ]; then
 fi
 
 # find executables
-if [ -n "$USEDOCKER" ]; then
+if [ "$CONTAINER" == "docker" ]; then
 	if [ -z "$DOCKER" ]; then
-		DOCKER="sudo docker"
+		DOCKER="docker"
+	fi
+elif [ "$CONTAINER" == "podman" ]; then
+	if [ -z "$PODMAN" ]; then
+		PODMAN="podman"
 	fi
 else
 	if [ -z "$APPTAINER" ]; then
@@ -246,6 +257,29 @@ start_docker(){
 		${IMAGE} tritonserver $PORTARGS $REPOARGS $VERBOSE
 }
 
+start_podman(){
+	# mount all model repositories
+	MOUNTARGS=""
+	REPOARGS=""
+	for REPO in ${REPOS[@]}; do
+		MOUNTARGS="$MOUNTARGS --volume $REPO:$REPO"
+		REPOARGS="$REPOARGS --model-repository=${REPO}"
+	done
+
+	# compatibility driver environment
+	if [ -n "$COMPAT" ]; then
+		MOUNTARGS="$MOUNTARGS --volume $COMPAT"
+		if [ -n "$COMPAT_SCRIPT_MOUNT" ]; then
+			MOUNTARGS="$MOUNTARGS --volume $COMPAT_SCRIPT_MOUNT"
+		fi
+	fi
+
+	$DRYRUN $PODMAN run -d --name ${SERVER} \
+		--shm-size=1g --ulimit memlock=-1 --ulimit stack=67108864 \
+		-p${HTTPPORT}:${HTTPPORT} -p${GRPCPORT}:${GRPCPORT} -p${METRPORT}:${METRPORT} $EXTRA $MOUNTARGS \
+		${IMAGE} tritonserver $PORTARGS $REPOARGS $VERBOSE
+}
+
 start_apptainer(){
 	# triton server image may need to modify contents of opt/tritonserver/lib/
 	# but cvmfs is read-only
@@ -305,6 +339,16 @@ stop_docker(){
 	$DRYRUN $DOCKER rm ${SERVER}
 }
 
+stop_podman(){
+	# keep log
+	if [ -z "$DRYRUN" ]; then
+		if [ -n "$VERBOSE" ]; then $PODMAN logs ${SERVER} >& "$LOG"; fi
+	fi
+
+	$DRYRUN $PODMAN stop ${SERVER}
+	$DRYRUN $PODMAN rm ${SERVER}
+}
+
 stop_apptainer(){
 	$DRYRUN $APPTAINER instance stop ${SERVER}
 }
@@ -312,6 +356,11 @@ stop_apptainer(){
 test_docker(){
 	# docker logs print to stderr
 	${DOCKER} logs ${SERVER} |& grep "$1"
+}
+
+test_podman(){
+	# podman logs print to stdout
+	${PODMAN} logs ${SERVER} | grep "$1"
 }
 
 test_apptainer(){
@@ -462,6 +511,10 @@ driver_docker(){
 	$DOCKER run --rm --entrypoint env ${IMAGE} | grep "CUDA_DRIVER_VERSION="
 }
 
+driver_podman(){
+	$PODMAN run --rm --entrypoint env ${IMAGE} | grep "CUDA_DRIVER_VERSION="
+}
+
 driver_apptainer(){
 	D2S=${SANDBOX}/.singularity.d/env/10-docker2singularity.sh
 	if [ -f "$D2S" ]; then
@@ -536,13 +589,18 @@ extra_docker(){
 		EXTRA="--gpus all"
 	fi
 }
+extra_podman(){
+	if [ "$DEVICE" == gpu ]; then
+		EXTRA="--device nvidia.com/gpu=all"
+	fi
+}
 extra_apptainer(){
 	if [ "$DEVICE" == gpu ]; then
 		EXTRA="--nv"
 	fi
 }
 
-if [ -n "$USEDOCKER" ]; then
+if [ "$CONTAINER" == "docker" ]; then
 	START_FN=start_docker
 	EXTRA_FN=extra_docker
 	TEST_FN=test_docker
@@ -550,6 +608,14 @@ if [ -n "$USEDOCKER" ]; then
 	DRIVER_FN=driver_docker
 	COMPAT_FN=compat_docker
 	PROG_NAME=Docker
+elif [ "$CONTAINER" == "podman" ]; then
+	START_FN=start_podman
+	EXTRA_FN=extra_podman
+	TEST_FN=test_podman
+	STOP_FN=stop_podman
+	DRIVER_FN=driver_podman
+	COMPAT_FN=compat_podman
+	PROG_NAME=Podman
 else
 	START_FN=start_apptainer
 	EXTRA_FN=extra_apptainer

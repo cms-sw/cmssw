@@ -15,6 +15,7 @@ models = {
 allowed_modes = ["Async","PseudoAsync","Sync"]
 allowed_compression = ["none","deflate","gzip"]
 allowed_devices = ["auto","cpu","gpu"]
+allowed_containers = ["apptainer","docker","podman"]
 
 parser = ArgumentParser(formatter_class=ArgumentDefaultsHelpFormatter)
 parser.add_argument("--maxEvents", default=-1, type=int, help="Number of events to process (-1 for all)")
@@ -42,7 +43,7 @@ parser.add_argument("--noShm", default=False, action="store_true", help="disable
 parser.add_argument("--compression", default="", type=str, choices=allowed_compression, help="enable I/O compression")
 parser.add_argument("--ssl", default=False, action="store_true", help="enable SSL authentication for server communication")
 parser.add_argument("--device", default="auto", type=str.lower, choices=allowed_devices, help="specify device for fallback server")
-parser.add_argument("--docker", default=False, action="store_true", help="use Docker for fallback server")
+parser.add_argument("--container", default="apptainer", type=str.lower, choices=allowed_containers, help="specify container for fallback server")
 parser.add_argument("--tries", default=0, type=int, help="number of retries for failed request")
 options = parser.parse_args()
 
@@ -74,7 +75,7 @@ process.source = cms.Source("EmptySource")
 
 process.TritonService.verbose = options.verbose or options.verboseService or options.verboseDiscovery
 process.TritonService.fallback.verbose = options.verbose or options.verboseServer
-process.TritonService.fallback.useDocker = options.docker
+process.TritonService.fallback.container = options.container
 process.TritonService.fallback.device = options.device
 if len(options.fallbackName)>0:
     process.TritonService.fallback.instanceBaseName = options.fallbackName
