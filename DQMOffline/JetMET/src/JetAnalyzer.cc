@@ -82,6 +82,7 @@ JetAnalyzer::JetAnalyzer(const edm::ParameterSet& pSet)
   isPUPPIJet_ = (std::string("puppi") == jetType_);
   isMiniAODJet_ = (std::string("miniaod") == jetType_);
   jetCorrectorTag_ = pSet.getParameter<edm::InputTag>("JetCorrections");
+
   if (!isMiniAODJet_) {  //in MiniAOD jet is already corrected
     jetCorrectorToken_ = consumes<reco::JetCorrector>(jetCorrectorTag_);
   }
@@ -2571,9 +2572,8 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     collSize = pfJets->size();
   if (isMiniAODJet_)
     collSize = patJets->size();
-  if (isPUPPIJet_) {
+  if (isPUPPIJet_)
     collSize = puppiJets->size();
-  }
 
   double scale = -1;
   //now start changes for jets
@@ -2612,6 +2612,9 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     if (jetCorr.isValid()) {
       pass_correction_flag = true;
     }
+    else {
+      LogWarning("JetAnalyzer") << "Jet corrector service not found!";
+    }
   }
   if (isMiniAODJet_) {
     pass_correction_flag = true;
@@ -2649,6 +2652,9 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       }
       if (isPFJet_) {
         scale = jetCorr->correction((*pfJets)[ijet]);
+      }
+      if (isPUPPIJet_) {
+        scale = jetCorr->correction((*puppiJets)[ijet]);
       }
       correctedJet.scaleEnergy(scale);
     }
@@ -3818,6 +3824,20 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
         if (mJetEnergyCorrVSPt && mJetEnergyCorrVSPt->getRootObject())
           mJetEnergyCorrVSPt->Fill(correctedJet.pt(), correctedJet.pt() / (*pfJets)[ijet].pt());
       }
+      if (isPUPPIJet_) {
+        jetME = map_of_MEs[DirName + "/" + "jetReco"];
+        if (jetME && jetME->getRootObject())
+          jetME->Fill(3);
+        mJetEnergyCorr = map_of_MEs[DirName + "/" + "JetEnergyCorr"];
+        if (mJetEnergyCorr && mJetEnergyCorr->getRootObject())
+          mJetEnergyCorr->Fill(correctedJet.pt() / (*puppiJets)[ijet].pt());
+        mJetEnergyCorrVSEta = map_of_MEs[DirName + "/" + "JetEnergyCorrVSEta"];
+        if (mJetEnergyCorrVSEta && mJetEnergyCorrVSEta->getRootObject())
+          mJetEnergyCorrVSEta->Fill(correctedJet.eta(), correctedJet.pt() / (*puppiJets)[ijet].pt());
+        mJetEnergyCorrVSPt = map_of_MEs[DirName + "/" + "JetEnergyCorrVSPt"];
+        if (mJetEnergyCorrVSPt && mJetEnergyCorrVSPt->getRootObject())
+          mJetEnergyCorrVSPt->Fill(correctedJet.pt(), correctedJet.pt() / (*puppiJets)[ijet].pt());
+      }
       if (isMiniAODJet_) {
         jetME = map_of_MEs[DirName + "/" + "jetReco"];
         if (jetME && jetME->getRootObject())
@@ -4915,6 +4935,9 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
         if (isPFJet_) {
           scale = jetCorr->correction((*pfJets)[ind1_mu_vetoed]);
         }
+        if (isPUPPIJet_) {
+          scale = jetCorr->correction((*puppiJets)[ind1_mu_vetoed]);
+        }
         recoJet1.scaleEnergy(scale);
       }
       double dphi = fabs(recoJet1.phi() - zCand.Phi());
@@ -4931,6 +4954,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
         //get now MET collections for MPF studies
         edm::Handle<reco::CaloMETCollection> calometcoll;
         edm::Handle<reco::PFMETCollection> pfmetcoll;
+        edm::Handle<reco::PFMETCollection> puppimetcoll;
         //edm::Handle<pat::METCollection> patmetcoll;
         const MET* met = nullptr;
         if (isCaloJet_) {
@@ -4941,6 +4965,12 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
         }
         if (isPFJet_) {
           iEvent.getByToken(pfMetToken_, pfmetcoll);
+          if (!pfmetcoll.isValid())
+            return;
+          met = &(pfmetcoll->front());
+        }
+        if (isPUPPIJet_) {
+          iEvent.getByToken(puppiMetToken_, puppimetcoll);
           if (!pfmetcoll.isValid())
             return;
           met = &(pfmetcoll->front());
