@@ -83,6 +83,7 @@ private:
   const edm::EDGetTokenT<trigger::TriggerEvent> trigEventToken_;
 
   bool initalised_;
+  bool booked_;
   
   // config strings/Psets
   std::string objType_;
@@ -132,7 +133,7 @@ HLTGenValSource::HLTGenValSource(const edm::ParameterSet& iConfig)
           iConfig.getParameterSet("inputCollections").getParameter<edm::InputTag>("ak8GenJets"))),
       trigEventToken_(consumes<trigger::TriggerEvent>(
 	  iConfig.getParameterSet("inputCollections").getParameter<edm::InputTag>("TrigEvent"))),
-      initalised_(false)
+      initalised_(false),booked_(false)
 
 {
   // getting the histogram configurations
@@ -179,7 +180,7 @@ void HLTGenValSource::initCfgs(const edm::Run& iRun, const edm::EventSetup& iSet
   infoString_ += std::string("\"global tag\":\"") + hltConfig_.globalTag() + "\",";
 
   // confDB table name
-  infoString_ += std::string("\"HLT ConfDB table\":\"") + hltConfig_.tableName() + "\",";
+  infoString_ += std::string("\"HLT ConfDB table\":\"") + hltConfig_.tableName() + "\"}";
 
   // Get the set of trigger paths we want to make plots for
   std::vector<std::string> notFoundPaths;
@@ -258,7 +259,7 @@ void HLTGenValSource::initCfgs(const edm::Run& iRun, const edm::EventSetup& iSet
   initalised_ = true;
 }
 
-void HLTGenValSource::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
+void HLTGenValSource::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {    
   if(!initalised_) initCfgs(iRun,iSetup);
 }
 
@@ -281,12 +282,15 @@ void HLTGenValSource::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
 // ------------ method called once each job just before starting event loop  ------------
 void HLTGenValSource::bookHistograms(DQMStore::IBooker& iBooker, const edm::Run& run, const edm::EventSetup& setup) {
+    
+  if(booked_) return;
+  
   iBooker.setCurrentFolder(dirName_);
-
-  if (infoString_.back() == ',')
-    infoString_.pop_back();
-  infoString_ += "}";  // adding the closing bracked to the JSON string
   iBooker.bookString("HLTGenValInfo", infoString_);
+  if(infoString_=="{}" || infoString_==""){
+    std::cout <<"infostr" <<infoString_<<std::endl;
+  }
+
 
   // booking all histograms
   for (long unsigned int i = 0; i < collectionPath_.size(); i++) {
@@ -299,6 +303,7 @@ void HLTGenValSource::bookHistograms(DQMStore::IBooker& iBooker, const edm::Run&
 
     collectionPath_.at(i).bookHists(iBooker, histConfigs, histConfigs2D_);
   }
+  booked_ = true;
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------

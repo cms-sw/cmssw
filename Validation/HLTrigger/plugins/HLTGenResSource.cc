@@ -77,7 +77,7 @@ private:
   const edm::EDGetTokenT<trigger::TriggerEvent> trigEventToken_;
 
   bool initalised_;
-  
+  bool booked_;
   // config strings/Psets
   std::string objType_;
   std::string dirName_;
@@ -103,7 +103,7 @@ HLTGenResSource::HLTGenResSource(const edm::ParameterSet& iConfig)
     
       trigEventToken_(consumes<trigger::TriggerEvent>(
 	  iConfig.getParameter<edm::InputTag>("trigEvent"))),
-      initalised_(false)
+      initalised_(false),booked_(false)
 
 {
   // getting all other configurations
@@ -143,7 +143,7 @@ void HLTGenResSource::initCfgs(const edm::Run& iRun, const edm::EventSetup& iSet
   infoString_ += std::string("\"global tag\":\"") + hltConfig_.globalTag() + "\",";
 
   // confDB table name
-  infoString_ += std::string("\"HLT ConfDB table\":\"") + hltConfig_.tableName() + "\",";
+  infoString_ += std::string("\"HLT ConfDB table\":\"") + hltConfig_.tableName() + "\"}";
 
   initalised_ = true;
 }
@@ -171,16 +171,15 @@ void HLTGenResSource::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
 // ------------ method called once each job just before starting event loop  ------------
 void HLTGenResSource::bookHistograms(DQMStore::IBooker& iBooker, const edm::Run& run, const edm::EventSetup& setup) {
+  if(booked_) return;
   iBooker.setCurrentFolder(dirName_);
 
-  if (infoString_.back() == ',')
-    infoString_.pop_back();
-  infoString_ += "}";  // adding the closing bracked to the JSON string
-  iBooker.bookString("HLTGenValInfo", infoString_);
+  iBooker.bookString("HLTGenResInfo", infoString_);
 
   for (long unsigned int collNr = 0; collNr < collections_.size(); collNr++) {    
     collections_[collNr].bookHists(iBooker);
   }
+  booked_=true;
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------

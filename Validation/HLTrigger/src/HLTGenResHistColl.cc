@@ -199,13 +199,14 @@ void HLTGenResHistColl::book1D(DQMStore::IBooker& iBooker, const edm::ParameterS
   std::vector<float> resBinLowEdges = convertVec<double,float>(resBinLowEdgesDouble);
   
   std::string histNameInc = collectionName_ + separator_ +objType_ + separator_ + resVar;
-  std::string histTitleInc = objType_ + " " + " GEN vs " + vsVar;
+  std::string histTitleInc = collectionName_ + "to " + objType_ + " " + resVar;
   if (!tag.empty()) {
       histNameInc += separator_ + tag;
       histTitleInc += " " + tag;
   }
-  std::string histName2D = collectionName_ + separator_ +objType_ + separator_ + resVar + separator_ + vsVar;
-  std::string histTitle2D = objType_ + " " + " GEN vs " + vsVar;
+  std::string histName2D = collectionName_ + separator_ +objType_ + separator_ + resVar + separator_ + "vs" + separator_ + vsVar;
+  
+  std::string histTitle2D = collectionName_ + "to " + objType_ + " " + resVar + " vs " + vsVar;
   if (!tag.empty()) {
       histName2D += separator_ + tag;
       histTitle2D += " " + tag;
