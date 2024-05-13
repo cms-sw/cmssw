@@ -144,7 +144,7 @@ namespace edm {
   private:
     void preActionBeforeRunEventAsync(WaitingTaskHolder iTask,
                                       ModuleCallingContext const& iModuleCallingContext,
-                                      Principal const& iPrincipal) const override;
+                                      Principal const& iPrincipal) const noexcept override;
 
     void openFile(FileBlock const& fb) override;
     void respondToOpenInputFile(FileBlock const& fb) override;

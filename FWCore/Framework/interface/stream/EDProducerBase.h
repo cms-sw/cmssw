@@ -75,13 +75,13 @@ namespace edm {
       virtual void registerThinnedAssociations(ProductRegistry const&, ThinnedAssociationsHelper&) {}
 
       virtual void doAcquire_(Event const&, EventSetup const&, WaitingTaskWithArenaHolder&) = 0;
-      virtual size_t transformIndex_(edm::BranchDescription const& iBranch) const;
-      virtual ProductResolverIndex transformPrefetch_(std::size_t iIndex) const;
+      virtual size_t transformIndex_(edm::BranchDescription const& iBranch) const noexcept;
+      virtual ProductResolverIndex transformPrefetch_(std::size_t iIndex) const noexcept;
       virtual void transformAsync_(WaitingTaskHolder iTask,
                                    std::size_t iIndex,
                                    edm::EventForTransformer& iEvent,
                                    edm::ActivityRegistry* iAct,
-                                   ServiceWeakToken const& iToken) const;
+                                   ServiceWeakToken const& iToken) const noexcept;
 
       void setModuleDescriptionPtr(ModuleDescription const* iDesc) { moduleDescriptionPtr_ = iDesc; }
       // ---------- member data --------------------------------

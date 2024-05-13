@@ -9,3 +9,4 @@
 <library file="*.cc" name="RecoTrackerDebugToolsPlugins">
   <flags EDM_PLUGIN="1"/>
 </library>
+<flags CXXFLAGS="-Wno-error=array-bounds" />

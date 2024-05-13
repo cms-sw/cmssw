@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.NanoAOD.common_cff import *
-from PhysicsTools.NanoAOD.simpleCandidateFlatTableProducer_cfi import simpleCandidateFlatTableProducer
+from PhysicsTools.NanoAOD.simplePATIsolatedTrackFlatTableProducer_cfi import simplePATIsolatedTrackFlatTableProducer
 
 finalIsolatedTracks = cms.EDProducer("IsolatedTrackCleaner",
     tracks = cms.InputTag("isolatedTracks"),
@@ -23,7 +23,7 @@ isFromLostTrackForIsoTk = cms.EDProducer("IsFromLostTrackMapProducer",
     lostTracks = cms.InputTag("lostTracks"),
 )
 
-isoTrackTable = simpleCandidateFlatTableProducer.clone(
+isoTrackTable = simplePATIsolatedTrackFlatTableProducer.clone(
     src = cms.InputTag("finalIsolatedTracks"),
     name = cms.string("IsoTrack"),
     doc  = cms.string("isolated tracks after basic selection (" + finalIsolatedTracks.cut.value() + ") and lepton veto"),

@@ -47,9 +47,9 @@ class FuncVariable : public Variable<ObjType> {
 public:
   FuncVariable(const std::string &aname, const edm::ParameterSet &cfg)
       : Variable<ObjType>(aname, cfg),
-        func_(cfg.getParameter<std::string>("expr"), true),
+        func_(cfg.getParameter<std::string>("expr"), cfg.getUntrackedParameter<bool>("lazyEval")),
         precisionFunc_(cfg.existsAs<std::string>("precision") ? cfg.getParameter<std::string>("precision") : "23",
-                       true) {}
+                       cfg.getUntrackedParameter<bool>("lazyEval")) {}
   ~FuncVariable() override {}
 
   void fill(std::vector<const ObjType *> &selobjs, nanoaod::FlatTable &out) const override {
@@ -212,6 +212,8 @@ public:
     edm::ParameterSetDescription variable;
     variable.add<std::string>("expr")->setComment("a function to define the content of the branch in the flat table");
     variable.add<std::string>("doc")->setComment("few words description of the branch content");
+    variable.addUntracked<bool>("lazyEval", false)
+        ->setComment("if true, can use methods of inheriting classes in `expr`. Can cause problems with threading.");
     variable.ifValue(
         edm::ParameterDescription<std::string>(
             "type", "int", true, edm::Comment("the c++ type of the branch in the flat table")),
@@ -271,7 +273,8 @@ public:
         singleton_(params.getParameter<bool>("singleton")),
         maxLen_(params.existsAs<unsigned int>("maxLen") ? params.getParameter<unsigned int>("maxLen")
                                                         : std::numeric_limits<unsigned int>::max()),
-        cut_(!singleton_ ? params.getParameter<std::string>("cut") : "", true) {
+        cut_(!singleton_ ? params.getParameter<std::string>("cut") : "",
+             !singleton_ ? params.getUntrackedParameter<bool>("lazyEval") : false) {
     if (params.existsAs<edm::ParameterSet>("externalVariables")) {
       edm::ParameterSet const &extvarsPSet = params.getParameter<edm::ParameterSet>("externalVariables");
       for (const std::string &vname : extvarsPSet.getParameterNamesForType<edm::ParameterSet>()) {
@@ -312,11 +315,17 @@ public:
   static edm::ParameterSetDescription baseDescriptions() {
     edm::ParameterSetDescription desc = SimpleFlatTableProducerBase<T, edm::View<T>>::baseDescriptions();
 
-    desc.ifValue(edm::ParameterDescription<bool>(
-                     "singleton", false, true, edm::Comment("whether or not the input collection is single-element")),
-                 false >> edm::ParameterDescription<std::string>(
-                              "cut", "", true, edm::Comment("selection on the main input collection")) or
-                     true >> edm::EmptyGroupDescription());
+    desc.ifValue(
+        edm::ParameterDescription<bool>(
+            "singleton", false, true, edm::Comment("whether or not the input collection is single-element")),
+        false >> (edm::ParameterDescription<std::string>(
+                      "cut", "", true, edm::Comment("selection on the main input collection")) and
+                  edm::ParameterDescription<bool>("lazyEval",
+                                                  false,
+                                                  false,
+                                                  edm::Comment("if true, can use methods of inheriting classes. Can "
+                                                               "cause problems when multi-threading."))) or
+            true >> edm::EmptyGroupDescription());
     desc.addOptional<unsigned int>("maxLen")->setComment(
         "define the maximum length of the input collection to put in the branch");
 
@@ -442,6 +451,8 @@ public:
     extvariable.add<std::string>("expr")->setComment(
         "a function to define the content of the branch in the flat table");
     extvariable.add<std::string>("doc")->setComment("few words description of the branch content");
+    extvariable.addUntracked<bool>("lazyEval", false)
+        ->setComment("if true, can use methods of inheriting classes in `expr`. Can cause problems with threading.");
     extvariable.ifValue(
         edm::ParameterDescription<std::string>(
             "type", "int", true, edm::Comment("the c++ type of the branch in the flat table")),
@@ -482,7 +493,7 @@ public:
       : SimpleFlatTableProducerBase<T, BXVector<T>>(params),
         maxLen_(params.existsAs<unsigned int>("maxLen") ? params.getParameter<unsigned int>("maxLen")
                                                         : std::numeric_limits<unsigned int>::max()),
-        cut_(params.getParameter<std::string>("cut"), true),
+        cut_(params.getParameter<std::string>("cut"), false),
         minBX_(params.getParameter<int>("minBX")),
         maxBX_(params.getParameter<int>("maxBX")),
         alwaysWriteBXValue_(params.getParameter<bool>("alwaysWriteBXValue")),

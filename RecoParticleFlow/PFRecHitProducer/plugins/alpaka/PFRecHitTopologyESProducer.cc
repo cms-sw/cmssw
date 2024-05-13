@@ -4,9 +4,9 @@
 #include <utility>
 #include <variant>
 
-#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "CondFormats/DataRecord/interface/HcalPFCutsRcd.h"
 #include "CondTools/Hcal/interface/HcalPFCutsHandler.h"
+#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -18,6 +18,9 @@
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/ESProducer.h"
+#include "RecoParticleFlow/PFRecHitProducer/interface/PFRecHitParamsRecord.h"
+#include "RecoParticleFlow/PFRecHitProducer/interface/PFRecHitTopologyRecord.h"
+
 #include "CalorimeterDefinitions.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
@@ -104,6 +107,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           for (auto const detId : geom.getValidDetIds(CAL::kDetectorId, subdet)) {
             const uint32_t denseId = CAL::detId2denseId(detId);
             for (uint32_t n = 0; n < 8; n++) {
+              if (view.neighbours(denseId)[n] == 0xffffffff)
+                continue;
               const ::reco::PFRecHitsTopologyNeighbours& neighboursOfNeighbour =
                   view.neighbours(view.neighbours(denseId)[n]);
               if (std::find(neighboursOfNeighbour.begin(), neighboursOfNeighbour.end(), denseId) ==

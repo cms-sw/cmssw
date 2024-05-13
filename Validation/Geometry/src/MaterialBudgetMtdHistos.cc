@@ -1,7 +1,7 @@
 #include "Validation/Geometry/interface/MaterialBudgetMtdHistos.h"
 #include "Validation/Geometry/interface/MaterialBudgetData.h"
 
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include <CLHEP/Units/SystemOfUnits.h>
 
 MaterialBudgetMtdHistos::MaterialBudgetMtdHistos(std::shared_ptr<MaterialBudgetData> data,
                                                  std::shared_ptr<TestHistoMgr> mgr,

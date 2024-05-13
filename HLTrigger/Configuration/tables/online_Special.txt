@@ -95,8 +95,6 @@ HLT_ZeroBias_Gated_v*		    #       CMSHLT-2860
 HLT_SpecialHLTPhysics_v*	    #       CMSHLT-2860
 HLT_SpecialZeroBias_v*		    #       CMSHLT-2860
 
-HLT_L1SingleEG10er2p5_v*	    # CMSHLT-2860
-HLT_L1SingleEG15er2p5_v*	    # CMSHLT-2860
 HLT_L2Mu10_NoVertex_NoBPTX3BX_v*    # CMSHLT-2197
 HLT_L2Mu10_NoVertex_NoBPTX_v*	    # CMSHLT-2197
 HLT_L2Mu45_NoVertex_3Sta_NoBPTX3BX_v* # CMSHLT-2197

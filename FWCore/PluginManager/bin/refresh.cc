@@ -272,9 +272,13 @@ int main(int argc, char** argv) try {
         // Throw if any of the child died with non 0 status.
         int status = 0;
         waitpid(worker, &status, 0);
-        if (WIFEXITED(status) == true && status != 0) {
-          std::cerr << "Error while processing." << std::endl;
-          exit(status);
+        if (WIFEXITED(status) != 0 and WEXITSTATUS(status) != 0) {
+          std::cerr << "Error in child process while processing: " << WEXITSTATUS(status) << std::endl;
+          exit(WEXITSTATUS(status));
+        }
+        if (WIFSIGNALED(status) != 0) {
+          std::cerr << "Child process got signal while processing: " << WTERMSIG(status) << std::endl;
+          exit(128 + WTERMSIG(status));
         }
       }
     }

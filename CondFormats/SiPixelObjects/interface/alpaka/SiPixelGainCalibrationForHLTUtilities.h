@@ -2,7 +2,9 @@
 #define CondFormats_SiPixelObjects_interface_alpaka_SiPixelGainCalibrationForHLTUtilities_h
 
 #include <cstdint>
+
 #include <alpaka/alpaka.hpp>
+
 #include "CondFormats/SiPixelObjects/interface/SiPixelGainCalibrationForHLTLayout.h"
 
 struct SiPixelGainUtilities {
@@ -22,9 +24,9 @@ struct SiPixelGainUtilities {
     unsigned int numberOfDataBlocksToSkip = row / view.numberOfRowsAveragedOver();
 
     auto offset = start + col * lengthOfColumnData + lengthOfAveragedDataInEachColumn * numberOfDataBlocksToSkip;
-    assert(offset < end);
-    assert(offset < 3088384);
-    assert(0 == offset % 2);
+    ALPAKA_ASSERT_ACC(offset < end);
+    ALPAKA_ASSERT_ACC(offset < 3088384);
+    ALPAKA_ASSERT_ACC(0 == offset % 2);
 
     auto lp = view.v_pedestals();
     auto s = lp[offset / 2];
@@ -38,4 +40,4 @@ struct SiPixelGainUtilities {
   };
 };
 
-#endif  //CondFormats_SiPixelObjects_interface_alpaka_SiPixelGainCalibrationForHLTUtilities_h
+#endif  // CondFormats_SiPixelObjects_interface_alpaka_SiPixelGainCalibrationForHLTUtilities_h

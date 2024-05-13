@@ -53,10 +53,10 @@ for filePath in options.inputFiles:
         filePath = filePath.replace("/", ".")
         inputFilesImport = getattr(__import__(filePath.strip(".py"),fromlist=["readFiles"]),"readFiles")
         inputFiles.extend( inputFilesImport )
-        if options.vertices:
+        if options.vertices in ['load', 'overwrite']:
             inputBuffersImport = getattr(__import__(filePath.strip(".py"),fromlist=["correlator_source"]),"correlator_source").fileNames
             inputBuffers.extend( inputBuffersImport )
-        if options.tracks:
+        if options.tracks in ['load', 'overwrite']:
             inputTrackBuffersImport = getattr(__import__(filePath.strip(".py"),fromlist=["track_source"]),"track_source").fileNames
             inputTrackBuffers.extend( inputTrackBuffersImport )
     else:

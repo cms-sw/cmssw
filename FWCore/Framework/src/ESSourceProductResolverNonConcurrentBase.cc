@@ -25,7 +25,7 @@ void edm::eventsetup::ESSourceProductResolverNonConcurrentBase::prefetchAsyncImp
     edm::eventsetup::DataKey const& iKey,
     edm::EventSetupImpl const*,
     edm::ServiceToken const&,
-    edm::ESParentContext const& iParent) {
+    edm::ESParentContext const& iParent) noexcept {
   prefetchAsyncImplTemplate([this](auto& iGroup, auto iActivity) { m_queue->push(iGroup, std::move(iActivity)); },
                             [mutex = m_mutex]() { return std::lock_guard<std::mutex>(*mutex); },
                             std::move(iTask),

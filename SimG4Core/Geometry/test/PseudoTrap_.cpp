@@ -1,4 +1,4 @@
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include <CLHEP/Units/SystemOfUnits.h>
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDSolidShapes.h"
 #include "DetectorDescription/Core/interface/PseudoTrap.h"
@@ -23,6 +23,7 @@ public:
 };
 
 void testPseudoTrap::matched_g4_and_dd(void) {
+  using CLHEP::m;
   double pDx1 = 0.293734 * m;  /**< Half-length along x at the surface positioned at -dz */
   double pDx2 = 1.86356 * m;   /**<  Half-length along x at the surface positioned at +dz */
   double pDy1 = 0.3000 * m;    /**<  Half-length along y at the surface positioned at -dz */
@@ -40,9 +41,9 @@ void testPseudoTrap::matched_g4_and_dd(void) {
   dd.stream(cout);
   cout << endl;
 
-  double g4v = g4->GetCubicVolume() / cm3;
-  double ddv = dd.volume() / cm3;
-  double ddsv = dds.volume() / cm3;
+  double g4v = g4->GetCubicVolume() / CLHEP::cm3;
+  double ddv = dd.volume() / CLHEP::cm3;
+  double ddsv = dds.volume() / CLHEP::cm3;
 
   cout << "\tg4 volume = " << g4v << " cm3" << endl;
   cout << "\tdd volume = " << ddv << " cm3" << endl;

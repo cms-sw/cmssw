@@ -64,7 +64,7 @@ SiPixelAliMillePedeFileConverterHG = cms.EDProducer("MillePedeFileConverter",
                                                     fileBlobLabel = cms.string(''))
 
 seqALCARECOPromptCalibProdSiPixelAliHG = cms.Sequence(ALCARECOTkAlMinBiasFilterForSiPixelAliHG*
-                                                      lsNumberFilter*
+                                                      LSNumberFilter*
                                                       offlineBeamSpot*
                                                       SiPixelAliHighPuritySelectorHG*
                                                       SiPixelAliTrackRefitterHG0*

@@ -26,6 +26,7 @@ namespace l1gt {
   typedef ap_fixed<14, 14, AP_RND_CONV, AP_SAT> eta_t;
   // While bitwise identical to the l1ct::z0_t value, we store z0 in mm to profit of ap_fixed goodies
   typedef ap_fixed<10, 9, AP_RND_CONV, AP_SAT> z0_t;  // NOTE: mm instead of cm!!!
+  typedef ap_ufixed<10, 1, AP_RND, AP_SAT> b_tag_score_t;
   typedef ap_uint<1> valid_t;
 
   // E/gamma fields
@@ -34,7 +35,7 @@ namespace l1gt {
 
   // tau fields
   typedef ap_ufixed<10, 8> tauseed_pt_t;
-  typedef ap_uint<10> tau_rawid_t;
+  typedef ap_uint<10> tau_quality_t;
   typedef std::array<uint64_t, 2> PackedTau;
 
   namespace Scales {
@@ -86,6 +87,7 @@ namespace l1gt {
     valid_t valid;
     ThreeVector v3;
     z0_t z0;
+    b_tag_score_t hwBtagScore;
 
     inline bool operator==(const Jet &other) const { return valid == other.valid && z0 == other.z0 && v3 == other.v3; }
 
@@ -96,6 +98,7 @@ namespace l1gt {
       pack_into_bits(ret, start, valid);
       pack_into_bits(ret, start, v3.pack());
       pack_into_bits(ret, start, z0);
+      pack_into_bits(ret, start, hwBtagScore);
       return ret;
     }
 
@@ -120,6 +123,7 @@ namespace l1gt {
       unpack_from_bits(src, start, v3.phi);
       unpack_from_bits(src, start, v3.eta);
       unpack_from_bits(src, start, z0);
+      unpack_from_bits(src, start, hwBtagScore);
     }
 
     inline static Jet unpack(const std::array<uint64_t, 2> &src) {
@@ -195,7 +199,7 @@ namespace l1gt {
     z0_t seed_z0;
     ap_uint<1> charge;
     ap_uint<2> type;
-    tau_rawid_t isolation;
+    tau_quality_t quality;
     ap_uint<2> id0;
     ap_uint<2> id1;
 
@@ -209,7 +213,7 @@ namespace l1gt {
       pack_into_bits(ret, start, seed_z0);
       pack_into_bits(ret, start, charge);
       pack_into_bits(ret, start, type);
-      pack_into_bits(ret, start, isolation);
+      pack_into_bits(ret, start, quality);
       pack_into_bits(ret, start, id0);
       pack_into_bits(ret, start, id1);
       return ret;
@@ -247,7 +251,7 @@ namespace l1gt {
       unpack_from_bits(src, start, seed_z0);
       unpack_from_bits(src, start, charge);
       unpack_from_bits(src, start, type);
-      unpack_from_bits(src, start, isolation);
+      unpack_from_bits(src, start, quality);
       unpack_from_bits(src, start, id0);
       unpack_from_bits(src, start, id1);
     }

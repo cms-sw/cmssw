@@ -53,7 +53,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::multifit {
       auto* s_sumA = s_sum1 + elemsPerBlock;
       auto* s_sumAA = s_sumA + elemsPerBlock;
 
-      for (auto txforward : cms::alpakatools::elements_with_stride(acc, nchannels * nsamples)) {
+      for (auto txforward : cms::alpakatools::uniform_elements(acc, nchannels * nsamples)) {
         // go backwards through the loop to have valid values for shared variables when reading from higher element indices in serial execution
         auto tx = nchannels * nsamples - 1 - txforward;
         auto const ch = tx / nsamples;
@@ -149,7 +149,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::multifit {
       auto const totalElements = nthreads_per_channel * nchannels;
 
       auto const elemsPerBlock = alpaka::getWorkDiv<alpaka::Block, alpaka::Elems>(acc)[0u];
-      assert(nthreads_per_channel * nchannels_per_block == elemsPerBlock);
+      ALPAKA_ASSERT_ACC(nthreads_per_channel * nchannels_per_block == elemsPerBlock);
 
       auto* shr_chi2s = alpaka::getDynSharedMem<ScalarType>(acc);
       auto* shr_time_wgt = shr_chi2s + elemsPerBlock;
@@ -163,8 +163,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::multifit {
       auto* shr_internalCondForSkipping1 = shr_condForUselessSamples + elemsPerBlock;
       auto* shr_internalCondForSkipping2 = shr_internalCondForSkipping1 + elemsPerBlock;
 
-      for (auto block : cms::alpakatools::blocks_with_stride(acc, totalElements)) {
-        for (auto idx : cms::alpakatools::elements_in_block(acc, block, totalElements)) {
+      for (auto block : cms::alpakatools::uniform_groups(acc, totalElements)) {
+        for (auto idx : cms::alpakatools::uniform_group_elements(acc, block, totalElements)) {
           auto const ch = idx.global / nthreads_per_channel;
           auto const ltx = idx.global % nthreads_per_channel;
 
@@ -213,8 +213,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::multifit {
           } else if (ltx <= 44) {
             sample_i = 8;
             sample_j = 9;
-          } else
-            assert(false);
+          } else {
+            // FIXME this needs a more portable solution, that wraps abort() / __trap() / throw depending on the back-end
+            ALPAKA_ASSERT_ACC(false);
+          }
 
           auto const tx_i = ch_start + sample_i;
           auto const tx_j = ch_start + sample_j;
@@ -396,7 +398,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::multifit {
         bool oddElements = nthreads_per_channel % 2;
         CMS_UNROLL_LOOP
         while (iter >= 1) {
-          for (auto idx : cms::alpakatools::elements_in_block(acc, block, totalElements)) {
+          for (auto idx : cms::alpakatools::uniform_group_elements(acc, block, totalElements)) {
             auto const ltx = idx.global % nthreads_per_channel;
 
             if (ltx < iter && !(oddElements && (ltx == iter - 1 && ltx > 0))) {
@@ -411,7 +413,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::multifit {
           iter = iter == 1 ? iter / 2 : iter / 2 + iter % 2;
         }
 
-        for (auto idx : cms::alpakatools::elements_in_block(acc, block, totalElements)) {
+        for (auto idx : cms::alpakatools::uniform_group_elements(acc, block, totalElements)) {
           auto const ltx = idx.global % nthreads_per_channel;
 
           // get precomputedflags for this element from shared memory
@@ -459,7 +461,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::multifit {
         oddElements = nthreads_per_channel % 2;
         CMS_UNROLL_LOOP
         while (iter >= 1) {
-          for (auto idx : cms::alpakatools::elements_in_block(acc, block, totalElements)) {
+          for (auto idx : cms::alpakatools::uniform_group_elements(acc, block, totalElements)) {
             auto const ltx = idx.global % nthreads_per_channel;
 
             if (ltx < iter && !(oddElements && (ltx == iter - 1 && ltx > 0))) {
@@ -475,7 +477,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::multifit {
           iter = iter == 1 ? iter / 2 : iter / 2 + iter % 2;
         }
 
-        for (auto idx : cms::alpakatools::elements_in_block(acc, block, totalElements)) {
+        for (auto idx : cms::alpakatools::uniform_group_elements(acc, block, totalElements)) {
           auto const ltx = idx.global % nthreads_per_channel;
 
           // load from shared memory the 0th guy (will contain accumulated values)
@@ -559,7 +561,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::multifit {
       auto* shr_sumAf = alpaka::getDynSharedMem<ScalarType>(acc);
       auto* shr_sumff = shr_sumAf + elemsPerBlock;
 
-      for (auto gtxforward : cms::alpakatools::elements_with_stride(acc, nchannels * nsamples)) {
+      for (auto gtxforward : cms::alpakatools::uniform_elements(acc, nchannels * nsamples)) {
         // go backwards through the loop to have valid values for shared variables when reading from higher element indices in serial execution
         auto gtx = nchannels * nsamples - 1 - gtxforward;
         auto const ch = gtx / nsamples;
@@ -744,7 +746,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::multifit {
 
       auto const elemsPerBlock = alpaka::getWorkDiv<alpaka::Block, alpaka::Elems>(acc)[0u];
 
-      for (auto gtx : cms::alpakatools::elements_with_stride(acc, nchannelsEB * nsamples)) {
+      for (auto gtx : cms::alpakatools::uniform_elements(acc, nchannelsEB * nsamples)) {
         auto const elemIdx = gtx % elemsPerBlock;
         auto const sample = elemIdx % nsamples;
         auto const ch = gtx / nsamples;
@@ -800,7 +802,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::multifit {
       auto* shrSampleValues = alpaka::getDynSharedMem<ScalarType>(acc);
       auto* shrSampleValueErrors = shrSampleValues + elemsPerBlock;
 
-      for (auto txforward : cms::alpakatools::elements_with_stride(acc, nchannels * nsamples)) {
+      for (auto txforward : cms::alpakatools::uniform_elements(acc, nchannels * nsamples)) {
         // go backwards through the loop to have valid values for shared variables when reading from higher element indices in serial execution
         auto tx = nchannels * nsamples - 1 - txforward;
         auto const ch = tx / nsamples;
@@ -988,7 +990,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::multifit {
       auto const offsetForInputs = nchannelsEB;
       auto const offsetForHashes = conditionsDev.offsetEE();
 
-      for (auto gtx : cms::alpakatools::elements_with_stride(acc, nchannels)) {
+      for (auto gtx : cms::alpakatools::uniform_elements(acc, nchannels)) {
         const int inputGtx = gtx >= offsetForInputs ? gtx - offsetForInputs : gtx;
         auto const* dids = gtx >= offsetForInputs ? digisDevEE.id() : digisDevEB.id();
         auto const* digis = gtx >= offsetForInputs ? digisDevEE.data()->data() : digisDevEB.data()->data();

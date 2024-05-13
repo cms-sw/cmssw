@@ -33,6 +33,8 @@
 #include "Validation/HcalHits/interface/SimG4HcalHitCluster.h"
 #include "Validation/HcalHits/interface/SimG4HcalHitJetFinder.h"
 
+#include <CLHEP/Units/SystemOfUnits.h>
+
 #include "G4HCofThisEvent.hh"
 #include "G4SDManager.hh"
 #include "G4Step.hh"
@@ -45,6 +47,8 @@
 #include <vector>
 
 using namespace geant_units::operators;
+using CLHEP::GeV;
+using CLHEP::MeV;
 
 class SimG4HcalValidation : public SimProducer,
                             public Observer<const BeginOfRun *>,
@@ -733,7 +737,7 @@ void SimG4HcalValidation::fetchHits(PHcalValidInfoLayer &product) {
     int subdet = (unitID >> 20) & 15;
     int zside = (unitID >> 14) & 1;
     int ieta = (unitID >> 7) & 127;
-    int iphi = (unitID)&127;
+    int iphi = (unitID) & 127;
 
     // All hits in cache
     product.fillHits(nHits, lay, subdet, eta, phi, ehit, t);

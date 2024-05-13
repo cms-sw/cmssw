@@ -1,7 +1,7 @@
 
 #include "SimG4Core/CustomPhysics/interface/CMSSIMP.h"
 #include "G4PhysicalConstants.hh"
-#include "G4SystemOfUnits.hh"
+#include <CLHEP/Units/SystemOfUnits.h>
 #include "G4ParticleTable.hh"
 
 #include "G4PhaseSpaceDecayChannel.hh"
@@ -37,5 +37,5 @@ CMSSIMP* CMSSIMP::Definition(double mass) {
 CMSSIMP* CMSSIMP::SIMPDefinition(double mass) { return Definition(mass); }
 
 CMSSIMP* CMSSIMP::SIMP() {
-  return Definition(1 * GeV);  // will use correct mass if instance exists
+  return Definition(1 * CLHEP::GeV);  // will use correct mass if instance exists
 }

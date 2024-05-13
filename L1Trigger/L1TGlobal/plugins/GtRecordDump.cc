@@ -37,6 +37,7 @@
 
 #include "DataFormats/L1Trigger/interface/EGamma.h"
 #include "DataFormats/L1Trigger/interface/Muon.h"
+#include "DataFormats/L1Trigger/interface/MuonShower.h"
 #include "DataFormats/L1Trigger/interface/Tau.h"
 #include "DataFormats/L1Trigger/interface/Jet.h"
 #include "DataFormats/L1Trigger/interface/EtSum.h"
@@ -72,6 +73,7 @@ namespace l1t {
     InputTag uGtExtInputTag;
     EDGetToken egToken;
     EDGetToken muToken;
+    EDGetToken muShowerToken;
     EDGetToken tauToken;
     EDGetToken jetToken;
     EDGetToken etsumToken;
@@ -82,6 +84,7 @@ namespace l1t {
     void dumpTestVectors(int bx,
                          std::ofstream& myCout,
                          Handle<BXVector<l1t::Muon>> muons,
+                         Handle<BXVector<l1t::MuonShower>> muonShowers,
                          Handle<BXVector<l1t::EGamma>> egammas,
                          Handle<BXVector<l1t::Tau>> taus,
                          Handle<BXVector<l1t::Jet>> jets,
@@ -89,7 +92,8 @@ namespace l1t {
                          Handle<BXVector<GlobalAlgBlk>> uGtAlg,
                          Handle<BXVector<GlobalExtBlk>> uGtExt);
 
-    cms_uint64_t formatMuon(std::vector<l1t::Muon>::const_iterator mu);
+    cms_uint64_t formatMuon(std::vector<l1t::Muon>::const_iterator mu, int muShowerBit);
+    cms_uint64_t formatNonExistantMuon(int muShowerBit);
     unsigned int formatEG(std::vector<l1t::EGamma>::const_iterator eg);
     unsigned int formatTau(std::vector<l1t::Tau>::const_iterator tau);
     unsigned int formatJet(std::vector<l1t::Jet>::const_iterator jet);
@@ -126,6 +130,7 @@ namespace l1t {
     uGtExtInputTag = iConfig.getParameter<InputTag>("uGtExtInputTag");
     egToken = consumes<BXVector<l1t::EGamma>>(iConfig.getParameter<InputTag>("egInputTag"));
     muToken = consumes<BXVector<l1t::Muon>>(iConfig.getParameter<InputTag>("muInputTag"));
+    muShowerToken = consumes<BXVector<l1t::MuonShower>>(iConfig.getParameter<InputTag>("muShowerInputTag"));
     tauToken = consumes<BXVector<l1t::Tau>>(iConfig.getParameter<InputTag>("tauInputTag"));
     jetToken = consumes<BXVector<l1t::Jet>>(iConfig.getParameter<InputTag>("jetInputTag"));
     etsumToken = consumes<BXVector<l1t::EtSum>>(iConfig.getParameter<InputTag>("etsumInputTag"));
@@ -168,6 +173,9 @@ namespace l1t {
 
     Handle<BXVector<l1t::Muon>> muons;
     iEvent.getByToken(muToken, muons);
+
+    Handle<BXVector<l1t::MuonShower>> muonShowers;
+    iEvent.getByToken(muShowerToken, muonShowers);
 
     Handle<BXVector<l1t::Tau>> taus;
     iEvent.getByToken(tauToken, taus);
@@ -396,6 +404,32 @@ namespace l1t {
           cout << "No Muon Data in this event " << endl;
         }
 
+        //Loop over Muon Showers
+        nObj = 0;
+        cout << " ------ Muons Showers --------" << endl;
+        if (muonShowers.isValid()) {
+          std::cout << "========= MuonShower BX index = " << i << "; min BX = " << m_minBx << "; max BX = " << m_maxBx
+                    << std::endl;
+          if (i >= muonShowers->getFirstBX() && i <= muonShowers->getLastBX()) {
+            for (std::vector<l1t::MuonShower>::const_iterator muShower = muonShowers->begin(i);
+                 muShower != muonShowers->end(i);
+                 ++muShower) {
+              cout << "  " << std::dec << std::setw(2) << std::setfill(' ') << nObj << std::setfill('0') << ")";
+              cout << "   MUS0 " << std::dec << std::setw(1) << muShower->isOneNominalInTime();
+              cout << ";  MUS1 " << std::dec << std::setw(1) << muShower->isOneTightInTime();
+              cout << ";  MUS2 " << std::dec << std::setw(1) << muShower->isTwoLooseDiffSectorsInTime();
+              cout << ";  MUSOOT0 " << std::dec << std::setw(1) << muShower->musOutOfTime0();
+              cout << ";  MUSOOT1 " << std::dec << std::setw(1) << muShower->musOutOfTime1();
+              cout << endl;
+              nObj++;
+            }
+          } else {
+            cout << "No MuonShowers stored for this bx " << i << endl;
+          }
+        } else {
+          cout << "No MuonShower Data in this event " << endl;
+        }
+
         //Loop over Taus
         nObj = 0;
         cout << " ------ Taus ----------" << endl;
@@ -566,7 +600,7 @@ namespace l1t {
         //	      (i>=etsums->getFirstBX()  && i<=etsums->getLastBX()) &&
         //	      (i>=uGtAlg->getFirstBX()  && i<=uGtAlg->getLastBX()) &&
         //	      (i>=uGtAlg->getFirstBX()  && i<=uGtAlg->getLastBX()) ) {
-        dumpTestVectors(i, m_testVectorFile, muons, egammas, taus, jets, etsums, uGtAlg, uGtExt);
+        dumpTestVectors(i, m_testVectorFile, muons, muonShowers, egammas, taus, jets, etsums, uGtAlg, uGtExt);
         //	 } else {
         //	      edm::LogWarning("GtRecordDump") << "WARNING: Not enough information to dump test vectors for this bx=" << i << endl;
         //	 }
@@ -600,6 +634,7 @@ namespace l1t {
   void GtRecordDump::dumpTestVectors(int bx,
                                      std::ofstream& myOutFile,
                                      Handle<BXVector<l1t::Muon>> muons,
+                                     Handle<BXVector<l1t::MuonShower>> muonShowers,
                                      Handle<BXVector<l1t::EGamma>> egammas,
                                      Handle<BXVector<l1t::Tau>> taus,
                                      Handle<BXVector<l1t::Jet>> jets,
@@ -611,20 +646,73 @@ namespace l1t {
     // Dump Bx (4 digits)
     myOutFile << std::dec << std::setw(4) << std::setfill('0') << m_absBx;
 
-    // Dump 8 Muons (16 digits + space)
+    // Dump 8 Muons (16 digits + space) + Muon Showers
     int nDumped = 0;
-    if (muons.isValid()) {
+
+    int muNumber = 0;  //keeps track of which muons get which muon shower information
+    if (muons.isValid() && muonShowers.isValid()) {
       for (std::vector<l1t::Muon>::const_iterator mu = muons->begin(bx); mu != muons->end(bx); ++mu) {
-        cms_uint64_t packedWd = formatMuon(mu);
+        // loop over valid muons in this bx (muon 0 up to max possible of muon 7)
+        int muShowerBit = 0;  // default value for muon shower bit
+        if (bx >= muonShowers->getFirstBX() && bx <= muonShowers->getLastBX()) {
+          if (muonShowers->size(bx) > 0) {
+            std::vector<l1t::MuonShower>::const_iterator muShower = muonShowers->begin(bx);
+            if (muNumber == 0)
+              muShowerBit = muShower->isOneNominalInTime();
+            if (muNumber == 2)
+              muShowerBit = muShower->isOneTightInTime();
+            if (muNumber == 3)
+              muShowerBit = muShower->isTwoLooseDiffSectorsInTime();
+            if (muNumber == 4)
+              muShowerBit = muShower->musOutOfTime0();
+            if (muNumber == 6)
+              muShowerBit = muShower->musOutOfTime1();
+          }
+        }
+        cms_uint64_t packedWd = formatMuon(mu, muShowerBit);
         if (nDumped < 8) {
           myOutFile << " " << std::hex << std::setw(16) << std::setfill('0') << packedWd;
           nDumped++;
         }
-      }
+        ++muNumber;  //keeps track of how many muons have been processed
+      }              // end loop over Muons in this bx
+
+      // Muon Shower information can exist, even if a muon object does not exist.  Hence,
+      // now loop over non-existant muons from muNumber up to max of 7 and add the muon shower info
+      int start = muNumber;
+      for (int nonExistantMuon = start; nonExistantMuon < 8; nonExistantMuon++) {
+        int muShowerBit = 0;  // default value for muon shower bit
+        if (bx >= muonShowers->getFirstBX() && bx <= muonShowers->getLastBX()) {
+          if (muonShowers->size(bx) > 0) {
+            std::vector<l1t::MuonShower>::const_iterator muShower = muonShowers->begin(bx);
+            if (muNumber == 0)
+              muShowerBit = muShower->isOneNominalInTime();
+            if (muNumber == 2)
+              muShowerBit = muShower->isOneTightInTime();
+            if (muNumber == 3)
+              muShowerBit = muShower->isTwoLooseDiffSectorsInTime();
+            if (muNumber == 4)
+              muShowerBit = muShower->musOutOfTime0();
+            if (muNumber == 6)
+              muShowerBit = muShower->musOutOfTime1();
+          }
+        }
+        cms_uint64_t packedWd = formatNonExistantMuon(muShowerBit);
+        if (nDumped < 8) {
+          myOutFile << " " << std::hex << std::setw(16) << std::setfill('0') << packedWd;
+          nDumped++;
+        }
+        ++muNumber;  // keep track of the number of muons processed
+      }              // end loop over non-existant muons
     }
     for (int i = nDumped; i < 8; i++) {
       myOutFile << " " << std::hex << std::setw(16) << std::setfill('0') << empty;
     }
+    if (!muons.isValid())
+      std::cout << "========= WARNING:  ALL MUONS INVALID ==========" << std::endl;
+    if (!muonShowers.isValid())
+      std::cout << "========= WARNING:  ALL MUON SHOWERS INVALID ==========" << std::endl;
+    //===========================================
 
     // Dump 12 EG (8 digits + space)
     nDumped = 0;
@@ -846,7 +934,7 @@ namespace l1t {
     m_absBx++;
   }
 
-  cms_uint64_t GtRecordDump::formatMuon(std::vector<l1t::Muon>::const_iterator mu) {
+  cms_uint64_t GtRecordDump::formatMuon(std::vector<l1t::Muon>::const_iterator mu, int muShowerBit) {
     cms_uint64_t packedVal = 0;
 
     // Pack Bits
@@ -855,6 +943,7 @@ namespace l1t {
     // packedVal |= ((cms_uint64_t)(mu->hwEta() & 0x1ff) << 53);         // removed
     packedVal |= ((cms_uint64_t)(mu->hwPtUnconstrained() & 0xff) << 53);  // added
     packedVal |= ((cms_uint64_t)(mu->hwDXY() & 0x3) << 62);               // added
+    packedVal |= ((cms_uint64_t)(muShowerBit & 0x1) << 61);               // added
     packedVal |= ((cms_uint64_t)(mu->hwEtaAtVtx() & 0x1ff) << 23);        // & 0x1ff) <<9);
     packedVal |= ((cms_uint64_t)(mu->hwPt() & 0x1ff) << 10);              // & 0x1ff) <<0);
     packedVal |= ((cms_uint64_t)(mu->hwChargeValid() & 0x1) << 35);       // & 0x1)   <<28);
@@ -883,12 +972,34 @@ namespace l1t {
     //                << ((cms_uint64_t)(mu->hwPhi() & 0x3ff) << 43) << std::endl;
     //      std::cout << "<< 53; mu->hwPtUnconstrained() = " << std::hex << std::setw(16) << std::setfill('0')
     //                << ((cms_uint64_t)(mu->hwPtUnconstrained() & 0xff) << 53) << std::endl;
+    //      std::cout << "<< 61; muShowerBit             = " << std::hex << std::setw(16) << std::setfill('0')
+    //                << ((cms_uint64_t)(muShowerBit & 0x1) << 61) << std::endl;
     //      std::cout << "<< 62; mu->hwDXY()             = " << std::hex << std::setw(16) << std::setfill('0')
     //                << ((cms_uint64_t)(mu->hwDXY() & 0x3) << 62) << std::endl;
     //      std::cout << "packedWord                     = " << std::hex << std::setw(16) << std::setfill('0') << packedVal
     //                << std::endl;
     //      std::cout << "----------------------" << std::endl;
     //    }
+
+    return packedVal;
+  }
+
+  cms_uint64_t GtRecordDump::formatNonExistantMuon(int muShowerBit) {
+    cms_uint64_t packedVal = 0;
+
+    // Pack Bits
+    packedVal |= ((cms_uint64_t)(0 & 0x3ff) << 43);
+    packedVal |= ((cms_uint64_t)(0 & 0x3ff) << 0);  // & 0x3ff) <<18);
+    // packedVal |= ((cms_uint64_t)(mu->hwEta() & 0x1ff) << 53);         // removed
+    packedVal |= ((cms_uint64_t)(0 & 0xff) << 53);           // added
+    packedVal |= ((cms_uint64_t)(0 & 0x3) << 62);            // added
+    packedVal |= ((cms_uint64_t)(muShowerBit & 0x1) << 61);  // added
+    packedVal |= ((cms_uint64_t)(0 & 0x1ff) << 23);          // & 0x1ff) <<9);
+    packedVal |= ((cms_uint64_t)(0 & 0x1ff) << 10);          // & 0x1ff) <<0);
+    packedVal |= ((cms_uint64_t)(0 & 0x1) << 35);            // & 0x1)   <<28);
+    packedVal |= ((cms_uint64_t)(0 & 0x1) << 34);            // & 0x1)   <<29);
+    packedVal |= ((cms_uint64_t)(0 & 0xf) << 19);            // & 0xf)   <<30);
+    packedVal |= ((cms_uint64_t)(0 & 0x3) << 32);            // & 0x3)   <<34);
 
     return packedVal;
   }

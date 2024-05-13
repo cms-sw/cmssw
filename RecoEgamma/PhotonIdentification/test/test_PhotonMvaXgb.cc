@@ -11,6 +11,9 @@
 #define NTREE_LIMIT_B_V1 168
 #define NTREE_LIMIT_E_V1 158
 
+#define NTREE_LIMIT_B_V2 144
+#define NTREE_LIMIT_E_V2 99
+
 float const vars_in[INPUT_LEN][9] = {
     {134.303, 0.945981, 0.0264346, 0.012448, 0.0208734, 113.405, 1.7446, 0.00437808, 0.303464},
     {95.8896, 0.988677, 0.0217735, 0.0137696, 0.0441448, 90.7534, 1.85852, 0.0176929, 0},
@@ -26,13 +29,16 @@ float const vars_in[INPUT_LEN][9] = {
 const float mva_score_v1[INPUT_LEN] = {
     0.98634, 0.97501, 0.00179, 0.70818, 0.98374, 0.00153, 0.97103, 0.00009, 0.00626, 0.95222};
 
-TEST_CASE("RecoEgamma/PhotonIdentification testXGBPhoton", "[TestPhotonMvaXgb]") {
-  auto mvaEstimatorB = std::make_unique<PhotonXGBoostEstimator>(
-      edm::FileInPath("RecoEgamma/PhotonIdentification/data/XGBoost/Photon_NTL_168_Barrel_v1.bin"), NTREE_LIMIT_B_V1);
-  auto mvaEstimatorE = std::make_unique<PhotonXGBoostEstimator>(
-      edm::FileInPath("RecoEgamma/PhotonIdentification/data/XGBoost/Photon_NTL_158_Endcap_v1.bin"), NTREE_LIMIT_E_V1);
+const float mva_score_v2[INPUT_LEN] = {
+    0.98382, 0.94038, 0.59126, 0.91911, 0.98032, 0.18934, 0.99078, 0.60751, 0.00389, 0.96929};
 
-  SECTION("Test mva_compute") {
+TEST_CASE("RecoEgamma/PhotonIdentification testXGBPhoton", "[TestPhotonMvaXgb]") {
+  SECTION("Test mva_compute v1") {
+    auto mvaEstimatorB = std::make_unique<PhotonXGBoostEstimator>(
+        edm::FileInPath("RecoEgamma/PhotonIdentification/data/XGBoost/Photon_NTL_168_Barrel_v1.bin"), NTREE_LIMIT_B_V1);
+    auto mvaEstimatorE = std::make_unique<PhotonXGBoostEstimator>(
+        edm::FileInPath("RecoEgamma/PhotonIdentification/data/XGBoost/Photon_NTL_158_Endcap_v1.bin"), NTREE_LIMIT_E_V1);
+
     for (unsigned int i = 0; i < INPUT_LEN; i++) {
       float xgbScore;
       const float *v = vars_in[i];
@@ -42,6 +48,24 @@ TEST_CASE("RecoEgamma/PhotonIdentification testXGBPhoton", "[TestPhotonMvaXgb]")
       else
         xgbScore = mvaEstimatorE->computeMva(v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8]);
       CHECK_THAT(xgbScore, Catch::Matchers::WithinAbs(mva_score_v1[i], 0.0001));
+    }
+  }
+
+  SECTION("Test mva_compute v2") {
+    auto mvaEstimatorB = std::make_unique<PhotonXGBoostEstimator>(
+        edm::FileInPath("RecoEgamma/PhotonIdentification/data/XGBoost/Photon_NTL_144_Barrel_v2.bin"), NTREE_LIMIT_B_V2);
+    auto mvaEstimatorE = std::make_unique<PhotonXGBoostEstimator>(
+        edm::FileInPath("RecoEgamma/PhotonIdentification/data/XGBoost/Photon_NTL_99_Endcap_v2.bin"), NTREE_LIMIT_E_V2);
+
+    for (unsigned int i = 0; i < INPUT_LEN; i++) {
+      float xgbScore;
+      const float *v = vars_in[i];
+      float etaSC = v[6];
+      if (std::abs(etaSC) < 1.5)
+        xgbScore = mvaEstimatorB->computeMva(v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8]);
+      else
+        xgbScore = mvaEstimatorE->computeMva(v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8]);
+      CHECK_THAT(xgbScore, Catch::Matchers::WithinAbs(mva_score_v2[i], 0.0001));
     }
   }
 }

@@ -4,7 +4,6 @@
 #include "DataFormats/SiPixelClusterSoA/interface/SiPixelClustersHost.h"
 #include "DataFormats/SiPixelClusterSoA/interface/alpaka/SiPixelClustersSoACollection.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
-#include "HeterogeneousCore/AlpakaInterface/interface/traits.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
 
 #include "Clusters_test.h"
@@ -31,10 +30,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::testClusterSoA {
     template <typename TAcc, typename = std::enable_if_t<isAccelerator<TAcc>>>
     ALPAKA_FN_ACC void operator()(TAcc const& acc, SiPixelClustersSoAConstView clust_view) const {
       for (uint32_t j : cms::alpakatools::uniform_elements(acc, clust_view.metadata().size())) {
-        assert(clust_view[j].moduleStart() == j);
-        assert(clust_view[j].clusInModule() == j * 2);
-        assert(clust_view[j].moduleId() == j * 3);
-        assert(clust_view[j].clusModuleStart() == j * 4);
+        ALPAKA_ASSERT_ACC(clust_view[j].moduleStart() == j);
+        ALPAKA_ASSERT_ACC(clust_view[j].clusInModule() == j * 2);
+        ALPAKA_ASSERT_ACC(clust_view[j].moduleId() == j * 3);
+        ALPAKA_ASSERT_ACC(clust_view[j].clusModuleStart() == j * 4);
       }
     }
   };

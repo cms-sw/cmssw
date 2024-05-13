@@ -12,8 +12,8 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
-#include "CLHEP/Random/RandGaussQ.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include <CLHEP/Random/RandGaussQ.h>
+#include <CLHEP/Units/SystemOfUnits.h>
 #include "G4ParticleDefinition.hh"
 #include "G4ParticleGun.hh"
 #include "globals.hh"  // Global Constants and typedefs
@@ -21,7 +21,7 @@
 LaserBeamsTEC2::LaserBeamsTEC2() : theParticleGun(nullptr), theDRand48Engine(nullptr) {
   G4int nPhotonsGun = 1;
   G4int nPhotonsBeam = 1;
-  G4double Energy = 1.15 * eV;
+  G4double Energy = 1.15 * CLHEP::eV;
   // call constructor with options
   LaserBeamsTEC2(nPhotonsGun, nPhotonsBeam, Energy);
 }
@@ -52,10 +52,10 @@ LaserBeamsTEC2::LaserBeamsTEC2(G4int nPhotonsInGun, G4int nPhotonsInBeam, G4doub
   G4ParticleDefinition *theOpticalPhoton = theParticleTable->FindParticle("opticalphoton");
 
   theParticleGun->SetParticleDefinition(theOpticalPhoton);
-  theParticleGun->SetParticleTime(0.0 * ns);
-  theParticleGun->SetParticlePosition(G4ThreeVector(-500.0 * cm, 0.0 * cm, 0.0 * cm));
+  theParticleGun->SetParticleTime(0.0 * CLHEP::ns);
+  theParticleGun->SetParticlePosition(G4ThreeVector(-500.0 * CLHEP::cm, 0.0 * CLHEP::cm, 0.0 * CLHEP::cm));
   theParticleGun->SetParticleMomentumDirection(G4ThreeVector(5.0, 3.0, 0.0));
-  theParticleGun->SetParticleEnergy(10.0 * keV);
+  theParticleGun->SetParticleEnergy(10.0 * CLHEP::keV);
   setOptPhotonPolar(90.0);
 
   // initialize the random number engine
@@ -88,6 +88,7 @@ void LaserBeamsTEC2::GeneratePrimaries(G4Event *myEvent) {
 
   // z position of the sixth Tracker Endcap Disc, where the Laserdiodes are
   // positioned
+  using CLHEP::mm;
   G4double LaserPositionZ = -2057.5 * mm;
 
   // Radius of the inner and outer Laser ring
@@ -128,7 +129,7 @@ void LaserBeamsTEC2::GeneratePrimaries(G4Event *myEvent) {
 
         // set the properties of the newly created particle
         theParticleGun->SetParticleDefinition(theOpticalPhoton);
-        theParticleGun->SetParticleTime(0.0 * ns);
+        theParticleGun->SetParticleTime(0.0 * CLHEP::ns);
         theParticleGun->SetParticlePosition(G4ThreeVector(theXPosition, theYPosition, theZPosition));
         theParticleGun->SetParticleEnergy(thePhotonEnergy);
 

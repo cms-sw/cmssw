@@ -161,6 +161,11 @@ namespace {
     return mkfit::sortByScoreTrackCand(cand1, cand2);
   }
 
+#ifdef RNT_DUMP_MkF_SelHitIdcs
+  constexpr bool alwaysUseHitSelectionV2 = true;
+#else
+  constexpr bool alwaysUseHitSelectionV2 = false;
+#endif
 }  // end unnamed namespace
 
 //------------------------------------------------------------------------------
@@ -862,7 +867,11 @@ namespace mkfit {
             dcall(post_prop_print(curr_layer, mkfndr.get()));
 
             dprint("now get hit range");
-            mkfndr->selectHitIndices(layer_of_hits, end - itrack);
+
+            if (alwaysUseHitSelectionV2 || iter_params.useHitSelectionV2)
+              mkfndr->selectHitIndicesV2(layer_of_hits, end - itrack);
+            else
+              mkfndr->selectHitIndices(layer_of_hits, end - itrack);
 
             find_tracks_handle_missed_layers(
                 mkfndr.get(), layer_info, tmp_cands, seed_cand_idx, region, start_seed, itrack, end);
@@ -1095,7 +1104,7 @@ namespace mkfit {
 
         dprint("now get hit range");
 
-        if (iter_params.useHitSelectionV2)
+        if (alwaysUseHitSelectionV2 || iter_params.useHitSelectionV2)
           mkfndr->selectHitIndicesV2(layer_of_hits, end - itrack);
         else
           mkfndr->selectHitIndices(layer_of_hits, end - itrack);

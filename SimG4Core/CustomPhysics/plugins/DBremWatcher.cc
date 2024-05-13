@@ -23,7 +23,7 @@
 #include "G4MuonMinus.hh"
 #include "G4Track.hh"
 #include "G4PhysicalConstants.hh"
-#include "G4SystemOfUnits.hh"
+#include <CLHEP/Units/SystemOfUnits.h>
 #include "G4VProcess.hh"
 
 #include "G4ThreeVector.hh"
@@ -111,7 +111,7 @@ void DBremWatcher::update(const BeginOfTrack* trk) {
       aPrimeTraj = theTrack->GetMomentum();
       LogDebug("DBremWatcher") << "Save SimTrack the Track " << theTrack->GetTrackID() << " Type "
                                << theTrack->GetDefinition()->GetParticleName() << " Momentum "
-                               << theTrack->GetMomentum() / MeV << " MeV/c";
+                               << theTrack->GetMomentum() / CLHEP::MeV << " MeV/c";
     }
   }
 }
@@ -152,7 +152,7 @@ void DBremWatcher::produce(edm::Event& fEvent, const edm::EventSetup&) {
     fEvent.put(std::move(vtxposx), "DBremLocationX");
     fEvent.put(std::move(vtxposy), "DBremLocationY");
     fEvent.put(std::move(vtxposz), "DBremLocationZ");
-    std::unique_ptr<float> finalE = std::make_unique<float>(f_energy / GeV);
+    std::unique_ptr<float> finalE = std::make_unique<float>(f_energy / CLHEP::GeV);
     fEvent.put(std::move(finalE), "DBremFinalEnergy");
     float deflectionAngle = -1;
     float initialEnergy = sqrt(pow(finaltraj.x() + aPrimeTraj.x(), 2) + pow(finaltraj.y() + aPrimeTraj.y(), 2) +

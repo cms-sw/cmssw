@@ -1,9 +1,16 @@
 #ifndef DataFormat_Math_SIMDVec_H
 #define DataFormat_Math_SIMDVec_H
-
+//
+//  For sustenaibility prefer the use of hte implementation based on the extended vector syntax
+//  supported by gcc and clang on all architectures
+//
+//
 #if (defined(__CLING__) || defined(__MIC__) || defined(__NVCC__)) || (__BIGGEST_ALIGNMENT__ < 16)
-#elif defined(__GNUC__) || defined(__clang__) || defined(__INTEL_COMPILER)
-#if defined(__x86_64__) && defined(__SSE__)
+#elif defined(__INTEL_COMPILER)
+// intel compiler does not support the extended vector syntax
+#define USE_SSEVECT
+#elif defined(__GNUC__) || defined(__clang__)
+#if defined(__x86_64__) && defined(__SSE__) && defined(CMS_PREFER_SSEVECT)
 #define USE_SSEVECT
 #else
 #define USE_EXTVECT
@@ -54,6 +61,9 @@ namespace mathSSE {
 #if defined(USE_EXTVECT)
 #include "DataFormats/Math/interface/ExtVec.h"
 #elif defined(USE_SSEVECT)
+#if !defined(CMS_PREFER_SSEVECT) || !defined(__INTEL_COMPILER)
+#warning "using SSEVECT even if not requirested?????"
+#endif
 #include "DataFormats/Math/interface/SSEVec.h"
 #include "DataFormats/Math/interface/SSERot.h"
 #endif

@@ -1,6 +1,7 @@
 #ifndef DataFormats_SiStripDigi_SiStripRawDigi_H
 #define DataFormats_SiStripDigi_SiStripRawDigi_H
 
+#include <cstdint>
 #include "DataFormats/Common/interface/traits.h"
 
 /** 

@@ -83,6 +83,12 @@ upgradeKeys[2026] = [
     '2026D109PU',
     '2026D110',
     '2026D110PU',
+    '2026D111',
+    '2026D111PU',
+    '2026D112',
+    '2026D112PU',
+    '2026D113',
+    '2026D113PU',
 ]
 
 # pre-generation of WF numbers
@@ -445,6 +451,28 @@ upgradeWFs['trackingMkFit'].step2 = {
 }
 upgradeWFs['trackingMkFit'].step3 = {
     '--procModifiers': 'trackingMkFitDevel'
+}
+
+# mkFit for phase-2 initialStep tracking
+class UpgradeWorkflow_trackingMkFitPhase2(UpgradeWorkflowTracking):
+    def setup__(self, step, stepName, stepDict, k, properties):
+        if 'Reco' in step: stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
+    def condition_(self, fragment, stepList, key, hasHarvest):
+        return ('2026' in key)
+upgradeWFs['trackingMkFitPhase2'] = UpgradeWorkflow_trackingMkFitPhase2(
+    steps = [
+        'Reco',
+        'RecoFakeHLT',
+        'RecoGlobal',
+        'RecoNano',
+        'RecoNanoFakeHLT',
+    ],
+    PU = [],
+    suffix = '_trackingMkFitPhase2',
+    offset = 0.702,
+)
+upgradeWFs['trackingMkFitPhase2'].step3 = {
+    '--procModifiers': 'trackingMkFitCommon,trackingMkFitInitialStep'
 }
 
 #DeepCore seeding for JetCore iteration workflow
@@ -3055,6 +3083,27 @@ upgradeProperties[2026] = {
         'HLTmenu': '@relval2026',
         'GT' : 'auto:phase2_realistic_T33',
         'Era' : 'Phase2C17I13M9',
+        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal', 'ALCAPhase2'],
+    },
+   '2026D111' : {
+        'Geom' : 'Extended2026D111',
+        'HLTmenu': '@relval2026',
+        'GT' : 'auto:phase2_realistic_T36',
+        'Era' : 'Phase2C22I13M9',
+        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal', 'ALCAPhase2'],
+    },
+    '2026D112' : {
+        'Geom' : 'Extended2026D112',
+        'HLTmenu': '@relval2026',
+        'GT' : 'auto:phase2_realistic_T37',
+        'Era' : 'Phase2C22I13M9',
+        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal', 'ALCAPhase2'],
+    },
+    '2026D113' : {
+        'Geom' : 'Extended2026D113',
+        'HLTmenu': '@relval2026',
+        'GT' : 'auto:phase2_realistic_T38',
+        'Era' : 'Phase2C22I13M9',
         'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal', 'ALCAPhase2'],
     },
 }

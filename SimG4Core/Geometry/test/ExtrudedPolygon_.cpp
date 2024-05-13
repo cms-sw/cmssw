@@ -1,4 +1,4 @@
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include <CLHEP/Units/SystemOfUnits.h>
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDSolidShapes.h"
 #include "DetectorDescription/Core/interface/ExtrudedPolygon.h"
@@ -42,8 +42,8 @@ void testExtrudedPgon::matched_g4_and_dd(void) {
 
   dd.stream(cout);
   cout << endl;
-  cout << "\tg4 volume = " << g4.GetCubicVolume() / cm3 << " cm3" << endl;
-  cout << "\tdd volume = " << dd.volume() / cm3 << " cm3" << endl;
+  cout << "\tg4 volume = " << g4.GetCubicVolume() / CLHEP::cm3 << " cm3" << endl;
+  cout << "\tdd volume = " << dd.volume() / CLHEP::cm3 << " cm3" << endl;
   cout << "\tDD Information: " << dds << " vol= " << dds.volume() << endl;
 
   // FIXME: dd voulme is not implemented yet!

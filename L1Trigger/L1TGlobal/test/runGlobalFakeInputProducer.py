@@ -3,13 +3,17 @@ from __future__ import print_function
 import sys
 
 """
-The parameters can be changed by adding commandline arguments of the form
-::
-
-    runGlobalFakeInputProducer.py nevents=-1
-
-The latter can be used to change parameters in crab.
-"""
+IMPORTANT NOTE: currently not working for MC-based validation after the updates of the GtRecordDump!
+                Fix needed.
+ 
+Description: script used for offline validation of the Global Trigger firmware and emulator agreement                                 
+(Contacts: Richard Cavanaugh, Elisa Fontanesi)                                                                                
+-----------------------------------------------------------------------------------------------------                      
+The parameters can be changed by adding command line arguments of the form:                                               
+    runGlobalFakeInputProducer.py nevents=-1                                                                                      
+The latter can be used to change parameters in crab.                                                     
+Running on 3564 events (=one orbit) is recommended for test vector production for GT firmware validation.    
+"""  
 
 job = 0 #job number
 njob = 1 #number of jobs
@@ -18,9 +22,9 @@ rootout = False #whether to produce root file
 dump = False #dump python
 newXML = False #whether running with the new Grammar
 
-# Argument parsing
-# vvv
-
+# ----------------                                                              
+# Argument parsing                                                                           
+# ----------------
 if len(sys.argv) == 2 and ':' in sys.argv[1]:
     argv = sys.argv[1].split(':')
 else:
@@ -49,39 +53,44 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process('L1TEMULATION')
 
 process.load('Configuration.StandardSequences.Services_cff')
-process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 
-
-# Select the Message Logger output you would like to see:
-#
+# ------------------------------------------------------                                                                                                        
+# Message Logger output:                                                                   
+# Select the Message Logger output you would like to see
+# ------------------------------------------------------
 process.load('FWCore.MessageService.MessageLogger_cfi')
-#process.load('L1Trigger/L1TYellow/l1t_debug_messages_cfi')
-#process.load('L1Trigger/L1TYellow/l1t_info_messages_cfi')
+#process.load('L1Trigger/L1TGlobal/debug_messages_cfi')
 
-process.load('L1Trigger/L1TGlobal/debug_messages_cfi')
-process.MessageLogger.l1t_debug.l1t.limit = cms.untracked.int32(100000)
+# DEBUG                                                                                                                         
+process.MessageLogger.debugModules = ["simGtStage2Digis"]                                                                        
+process.MessageLogger.debugModules = ["l1t|Global"]                                                             
+process.MessageLogger.cerr = cms.untracked.PSet(                                                                       
+    threshold = cms.untracked.string('DEBUG')                                                                                     
+    )
 
-process.MessageLogger.categories.append('l1t|Global')
-# DEBUG
-#process.MessageLogger.debugModules = cms.untracked.vstring('simGtStage2Digis') 
-#process.MessageLogger.cerr.threshold = cms.untracked.string('DEBUG') 
+# DEBUG                                                                                
+process.MessageLogger.l1t_debug = cms.untracked.PSet()                                                                           
+process.MessageLogger.l1t = cms.untracked.PSet(                                                                               
+    limit = cms.untracked.int32(100000),                                                          
+)
 
-# set the number of events
+# ------------                                                          
+# Input source                                                               
+# ------------
+# Set the number of events
 process.maxEvents = cms.untracked.PSet(
-    #input = cms.untracked.int32(10)
     input = cms.untracked.int32(neventsPerJob)
     )
 
-# Input source
 process.source = cms.Source("PoolSource",
     secondaryFileNames = cms.untracked.vstring(),
     fileNames = cms.untracked.vstring(
-        # TTbar CMSSW_13X samples
-        "/store/relval/CMSSW_13_0_0/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/130X_mcRun3_2022_realistic_v2-v1/00000/03acba5e-3c92-48ac-8a9f-f1a64e366586.root",
-        "/store/relval/CMSSW_13_0_0/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/130X_mcRun3_2022_realistic_v2-v1/00000/0d7ef730-93b6-4802-940c-6e671e273ed9.root",
-        "/store/relval/CMSSW_13_0_0/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/130X_mcRun3_2022_realistic_v2-v1/00000/1c2f6a11-ab8f-4aaf-89f2-745435227846.root",
-        "/store/relval/CMSSW_13_0_0/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/130X_mcRun3_2022_realistic_v2-v1/00000/2bd89da6-765e-42dd-bbdc-5a2d343d3086.root"
+        # TTbar CMSSW_14X samples
+        "/store/relval/CMSSW_14_0_1/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/140X_mcRun3_2024_realistic_v4_PU_AlpakaVal_AlpakaDeviceVSHost-v14/50000/34ae12a4-2d90-4d5d-b243-e949af0952ae.root",
+        "/store/relval/CMSSW_14_0_1/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/140X_mcRun3_2024_realistic_v4_PU_AlpakaVal_AlpakaDeviceVSHost-v14/50000/5c08de0e-0571-4792-aa37-1b7d1915dbda.root",
+        "/store/relval/CMSSW_14_0_1/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/140X_mcRun3_2024_realistic_v4_PU_AlpakaVal_AlpakaDeviceVSHost-v14/50000/1aed742b-2f48-4cc3-8758-24153c38c79b.root",
+        "/store/relval/CMSSW_14_0_1/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/140X_mcRun3_2024_realistic_v4_PU_AlpakaVal_AlpakaDeviceVSHost-v14/50000/096ba83b-620d-449d-a408-ebb209b54d76.root"
 	),
     skipEvents = cms.untracked.uint32(skip)
     )
@@ -95,30 +104,30 @@ process.options = cms.untracked.PSet(
     wantSummary = cms.bool(True)
 )
 
-
-# Additional output definition
-# TTree output file
+# -----------------------------------------------
+# Additional output definition: TTree output file
+# -----------------------------------------------
 process.load("CommonTools.UtilAlgos.TFileService_cfi")
 process.TFileService.fileName = cms.string('l1t_histos.root')
 
-# Other statements
+# ----------
+# Global Tag
+# ----------
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, '123X_mcRun3_2021_realistic_v13', '')
 
-## ## needed until prescales go into GlobalTag ########################
-## from CondCore.DBCommon.CondDBSetup_cfi import CondDBSetup
-## process.l1conddb = cms.ESSource("PoolDBESSource",
-##        CondDBSetup,
-##        connect = cms.string('frontier://FrontierPrep/CMS_CONDITIONS'),
-##        toGet   = cms.VPSet(
-##             cms.PSet(
-##                  record = cms.string('L1TGlobalPrescalesVetosRcd'),
-##                  tag = cms.string("L1TGlobalPrescalesVetos_passThrough_mc")
-##             )
-##        )
-## )
-## process.es_prefer_l1conddb = cms.ESPrefer( "PoolDBESSource","l1conddb")
-## # done ##############################################################
+# ----------------                                                                                     
+# Load the L1 menu                                                                   
+# ----------------
+process.load('L1Trigger.L1TGlobal.GlobalParameters_cff')
+process.load("L1Trigger.L1TGlobal.TriggerMenu_cff")
+xmlMenu="L1Menu_Collisions2024_v1_1_0.xml"
+process.TriggerMenu.L1TriggerMenuFile = cms.string(xmlMenu)
+process.ESPreferL1TXML = cms.ESPrefer("L1TUtmTriggerMenuESProducer","TriggerMenu")
+
+# DEBUG: Information about names and types of algos parsed by the emulator from the menu
+#process.menuDumper = cms.EDAnalyzer("L1TUtmTriggerMenuDumper") 
+process.dumpMenu = cms.EDAnalyzer("L1MenuViewer")
 
 # Flag to switch between using MC particles and injecting individual particles
 useMCtoGT = True
@@ -126,6 +135,7 @@ useMCtoGT = True
 process.dumpGT = cms.EDAnalyzer("l1t::GtInputDump",
                 egInputTag    = cms.InputTag("gtInput"),
 		muInputTag    = cms.InputTag("gtInput"),
+		muShowerInputTag = cms.InputTag("gtInput"),
 		tauInputTag   = cms.InputTag("gtInput"),
 		jetInputTag   = cms.InputTag("gtInput"),
 		etsumInputTag = cms.InputTag("gtInput"),
@@ -139,6 +149,7 @@ process.mcL1GTinput = cms.EDProducer("l1t::GenToInputProducer",
                                      bxFirst = cms.int32(-2),
                                      bxLast = cms.int32(2),
 				     maxMuCand = cms.int32(8),
+				     maxMuShowerCand = cms.int32(8),
 				     maxJetCand = cms.int32(12),
 				     maxEGCand  = cms.int32(12),
 				     maxTauCand = cms.int32(8),
@@ -151,11 +162,14 @@ process.mcL1GTinput = cms.EDProducer("l1t::GenToInputProducer",
                                      )
 
 process.mcL1GTinput.maxMuCand = cms.int32(8)
+process.mcL1GTinput.maxMuShowerCand = cms.int32(8)
 process.mcL1GTinput.maxJetCand = cms.int32(12)
 process.mcL1GTinput.maxEGCand  = cms.int32(12)
 process.mcL1GTinput.maxTauCand = cms.int32(8)
 
+# --------------
 # Fake the input
+# --------------
 process.fakeL1GTinput = cms.EDProducer("l1t::FakeInputProducer",
 
 # Note: There is no error checking on these parameters...you are responsible.
@@ -197,20 +211,9 @@ process.fakeL1GTinput = cms.EDProducer("l1t::FakeInputProducer",
 		       )
                     )
 
-## Load our L1 menu
-process.load('L1Trigger.L1TGlobal.GlobalParameters_cff')
-
-process.load("L1Trigger.L1TGlobal.TriggerMenu_cff")
-
-xmlMenu="L1Menu_Collisions2023_v1_0_1.xml"
-process.TriggerMenu.L1TriggerMenuFile = cms.string(xmlMenu)
-process.ESPreferL1TXML = cms.ESPrefer("L1TUtmTriggerMenuESProducer","TriggerMenu")
-
-process.dumpMenu = cms.EDAnalyzer("L1MenuViewer")
-# DEBUG: Information about names and types of algos parsed by the emulator from the menu
-#process.menuDumper = cms.EDAnalyzer("L1TUtmTriggerMenuDumper") 
-
-## Fill External conditions
+# ------------------------
+# Fill External conditions
+# ------------------------
 process.load('L1Trigger.L1TGlobal.simGtExtFakeProd_cfi')
 process.simGtExtFakeProd.bxFirst = cms.int32(-2)
 process.simGtExtFakeProd.bxLast = cms.int32(2)
@@ -219,13 +222,14 @@ process.simGtExtFakeProd.setBptxPlus  = cms.bool(True)
 process.simGtExtFakeProd.setBptxMinus = cms.bool(True)
 process.simGtExtFakeProd.setBptxOR    = cms.bool(True)
 
-
-## Run the Stage 2 uGT emulator
+# ----------------------------
+# Run the Stage 2 uGT emulator
+# ----------------------------
 process.load('L1Trigger.L1TGlobal.simGtStage2Digis_cfi')
 process.simGtStage2Digis.PrescaleSet = cms.uint32(1)
 process.simGtStage2Digis.ExtInputTag = cms.InputTag("simGtExtFakeProd")
 process.simGtStage2Digis.MuonInputTag = cms.InputTag("gtInput")
-process.simGtStage2Digis.MuonShowerInputTag = cms.InputTag("gtStage2Digis", "MuonShower")
+process.simGtStage2Digis.MuonShowerInputTag  = cms.InputTag("gtInput")
 process.simGtStage2Digis.EGammaInputTag = cms.InputTag("gtInput")
 process.simGtStage2Digis.TauInputTag = cms.InputTag("gtInput")
 process.simGtStage2Digis.JetInputTag = cms.InputTag("gtInput")
@@ -238,6 +242,7 @@ process.simGtStage2Digis.EmulateBxInEvent = cms.int32(1)
 process.dumpGTRecord = cms.EDAnalyzer("l1t::GtRecordDump",
                 egInputTag    = cms.InputTag("gtInput"),
 		muInputTag    = cms.InputTag("gtInput"),
+		muShowerInputTag = cms.InputTag("gtInput"),
 		tauInputTag   = cms.InputTag("gtInput"),
 		jetInputTag   = cms.InputTag("gtInput"),
 		etsumInputTag = cms.InputTag("gtInput"),
@@ -253,7 +258,7 @@ process.dumpGTRecord = cms.EDAnalyzer("l1t::GtRecordDump",
 		dumpGTObjectMap= cms.bool(False),
                 dumpTrigResults= cms.bool(False),
 		dumpVectors    = cms.bool(True),
-		tvFileName     = cms.string( ("TestVector_%03d.txt") % job ),
+		tvFileName     = cms.string( ("TestVector_ttBar_%03d.txt") % job ),
 		tvVersion      = cms.int32(3),
                 ReadPrescalesFromFile = cms.bool(True),
                 psFileName     = cms.string( "prescale_L1TGlobal.csv" ),
@@ -267,14 +272,16 @@ process.l1GtTrigReport.L1GtRecordInputTag = "simGtStage2Digis"
 process.l1GtTrigReport.PrintVerbosity = 2
 process.report = cms.Path(process.l1GtTrigReport)
 
-process.MessageLogger.categories.append("MuConditon")
+process.MessageLogger.debugModules = ["MuCondition"]                                                             
 
 if useMCtoGT:
     process.gtInput = process.mcL1GTinput.clone()
 else:
     process.gtInput = process.fakeL1GTinput.clone()
 
+# -------------------------
 # Setup Digi to Raw to Digi
+# -------------------------
 process.load('EventFilter.L1TRawToDigi.gtStage2Raw_cfi')
 process.gtStage2Raw.GtInputTag = cms.InputTag("simGtStage2Digis")
 process.gtStage2Raw.ExtInputTag = cms.InputTag("simGtExtFakeProd")
@@ -301,7 +308,7 @@ process.dumpRaw = cms.EDAnalyzer(
 process.newDumpGTRecord = cms.EDAnalyzer("l1t::GtRecordDump",
                 egInputTag    = cms.InputTag("newGtStage2Digis","EGamma"),
                 muInputTag    = cms.InputTag("newGtStage2Digis","Muon"),
-                muShowerInputTag    = cms.InputTag("newGtStage2Digis","MuonShower"),
+                muShowerInputTag = cms.InputTag("newGtStage2Digis", "MuonShower"),
 		tauInputTag   = cms.InputTag("newGtStage2Digis","Tau"),
 		jetInputTag   = cms.InputTag("newGtStage2Digis","Jet"),
 		etsumInputTag = cms.InputTag("newGtStage2Digis","EtSum"),
@@ -323,7 +330,9 @@ process.newDumpGTRecord = cms.EDAnalyzer("l1t::GtRecordDump",
                 psColumn       = cms.int32(1)
 		 )
 
-# gt analyzer
+# -----------
+# GT analyzer
+# -----------
 process.l1tGlobalAnalyzer = cms.EDAnalyzer('L1TGlobalAnalyzer',
     doText = cms.untracked.bool(False),
     gmuToken = cms.InputTag("None"),
@@ -342,7 +351,9 @@ process.l1tGlobalAnalyzer = cms.EDAnalyzer('L1TGlobalAnalyzer',
 )
 
 
-
+# ------------------                                                                                                    
+# Process definition                                                               
+# ------------------ 
 process.p1 = cms.Path(
 
 ## Generate input, emulate, dump results
@@ -367,6 +378,9 @@ process.p1 = cms.Path(
 #    *process.dumpES
     )
 
+# -------------------                                                                  
+# Schedule definition                                                                                                     
+# -------------------
 process.schedule = cms.Schedule(
     process.p1
     )
@@ -375,7 +389,7 @@ if rootout:
     process.outpath = cms.EndPath(process.output)
     process.schedule.append(process.outpath)
 
-# Spit out filter efficiency at the end.
+# Final summary of the efficiency
 process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))
 
 # Options for multithreading

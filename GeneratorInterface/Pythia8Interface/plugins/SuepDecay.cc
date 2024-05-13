@@ -9,7 +9,7 @@ bool SuepDecay::initAfterBeams() {
   mDark_ = particleDataPtr->m0(idDark_);
   bool medDecay = particleDataPtr->mayDecay(idMediator_);
   if (!medDecay) {
-    infoPtr->errorMsg("Error in SuepDecay::initAfterBeams: mediator decay should be enabled");
+    loggerPtr->errorMsg("SuepDecay::initAfterBeams", "mediator decay should be enabled");
     return false;
   }
 

@@ -71,6 +71,7 @@ from RecoMuon.MuonIsolationProducers.muIsolation_cff import *
 muIsoDepositTk.inputTags = ['muons:tracker']
 muIsoDepositJets.inputTags = ['muons:jets']
 muIsoDepositCalByAssociatorTowers.inputTags = ['muons:ecal', 'muons:hcal', 'muons:ho']
+muIsoDepositCalByAssociatorHits.inputTags = ['muons:ecal', 'muons:hcal', 'muons:ho']
 
 # TeV refinement
 from RecoMuon.GlobalMuonProducer.tevMuons_cfi import *

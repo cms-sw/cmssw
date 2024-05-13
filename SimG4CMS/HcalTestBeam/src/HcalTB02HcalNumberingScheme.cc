@@ -16,7 +16,10 @@
 #include "SimG4CMS/HcalTestBeam/interface/HcalTB02HcalNumberingScheme.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "G4SystemOfUnits.hh"
+#include <CLHEP/Units/SystemOfUnits.h>
+using CLHEP::degree;
+using CLHEP::m;
+
 //#define EDM_ML_DEBUG
 //
 // constructors and destructor

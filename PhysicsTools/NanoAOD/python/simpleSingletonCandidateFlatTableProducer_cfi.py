@@ -4,5 +4,7 @@ from PhysicsTools.NanoAOD.simpleCandidateFlatTableProducer_cfi import simpleCand
 
 simpleSingletonCandidateFlatTableProducer = default.clone(
   singleton = cms.bool(True),
+  cut = None,
+  lazyEval = None
 )
-del simpleSingletonCandidateFlatTableProducer.cut
+

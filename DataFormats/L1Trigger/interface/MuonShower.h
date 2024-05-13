@@ -79,10 +79,12 @@ namespace l1t {
     bool isTwoLooseOutOfTime() const { return false; }
     bool isOneTightOutOfTime() const { return false; }
 
-    virtual bool operator==(const l1t::MuonShower& rhs) const;
-    virtual inline bool operator!=(const l1t::MuonShower& rhs) const { return !(operator==(rhs)); };
+    bool operator==(const l1t::MuonShower& rhs) const;
+    inline bool operator!=(const l1t::MuonShower& rhs) const { return !(operator==(rhs)); };
 
   private:
+    using L1Candidate::operator==;
+    using L1Candidate::operator!=;
     // Run-3 definitions as provided in DN-20-033
     // in time and out-of-time qualities. only 2 bits each.
     bool oneNominalInTime_;

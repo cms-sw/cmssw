@@ -353,8 +353,8 @@ namespace cms::alpakatools {
             typename T,
             int NS = sizeof(T),  // number of significant bytes to use in sorting
             typename std::enable_if<requires_single_thread_per_block_v<TAcc>, T>::type* = nullptr>
-  ALPAKA_FN_ACC ALPAKA_FN_INLINE void radixSort(
-      const TAcc& acc, T const* a, uint16_t* ind, uint16_t* ind2, uint32_t size) {
+  /* not ALPAKA_FN_ACC to avoid trying to compile it for the CUDA or ROCm back-ends */
+  ALPAKA_FN_INLINE void radixSort(const TAcc& acc, T const* a, uint16_t* ind, uint16_t* ind2, uint32_t size) {
     static_assert(requires_single_thread_per_block_v<TAcc>, "CPU sort (not a radixSort) called wtth wrong accelerator");
     // Initialize the index array
     std::iota(ind, ind + size, 0);

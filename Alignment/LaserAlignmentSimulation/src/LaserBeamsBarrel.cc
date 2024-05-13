@@ -12,16 +12,16 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
-#include "CLHEP/Random/RandGaussQ.h"
+#include <CLHEP/Random/RandGaussQ.h>
 #include "G4ParticleDefinition.hh"
 #include "G4ParticleGun.hh"
-#include "G4SystemOfUnits.hh"
+#include <CLHEP/Units/SystemOfUnits.h>
 #include "globals.hh"  // Global Constants and typedefs
 
 LaserBeamsBarrel::LaserBeamsBarrel() : theParticleGun(nullptr), theDRand48Engine(nullptr) {
   G4int nPhotonsGun = 1;
   G4int nPhotonsBeam = 1;
-  G4double Energy = 1.15 * eV;
+  G4double Energy = 1.15 * CLHEP::eV;
   // call constructor with options
   LaserBeamsBarrel(nPhotonsGun, nPhotonsBeam, Energy);
 }
@@ -52,10 +52,10 @@ LaserBeamsBarrel::LaserBeamsBarrel(G4int nPhotonsInGun, G4int nPhotonsInBeam, G4
   G4ParticleDefinition *theOpticalPhoton = theParticleTable->FindParticle("opticalphoton");
 
   theParticleGun->SetParticleDefinition(theOpticalPhoton);
-  theParticleGun->SetParticleTime(0.0 * ns);
-  theParticleGun->SetParticlePosition(G4ThreeVector(-500.0 * cm, 0.0 * cm, 0.0 * cm));
+  theParticleGun->SetParticleTime(0.0 * CLHEP::ns);
+  theParticleGun->SetParticlePosition(G4ThreeVector(-500.0 * CLHEP::cm, 0.0 * CLHEP::cm, 0.0 * CLHEP::cm));
   theParticleGun->SetParticleMomentumDirection(G4ThreeVector(5.0, 3.0, 0.0));
-  theParticleGun->SetParticleEnergy(10.0 * keV);
+  theParticleGun->SetParticleEnergy(10.0 * CLHEP::keV);
   setOptPhotonPolar(90.0);
 
   // initialize the random number engine
@@ -86,10 +86,10 @@ void LaserBeamsBarrel::GeneratePrimaries(G4Event *myEvent) {
   const G4int nLaserBeams = 8;
 
   // z position of the Laserdiodes (value from design drawings)
-  G4double LaserPositionZ = 1137.0 * mm;
+  G4double LaserPositionZ = 1137.0 * CLHEP::mm;
 
   // Radius of the Laser ring
-  G4double LaserRingRadius = 564.0 * mm;
+  G4double LaserRingRadius = 564.0 * CLHEP::mm;
 
   // phi positions of the Laserdiodes (from CMS Note 2001/053 or from
   // http://abbaneo.home.cern.ch/abbaneo/cms/layout)
@@ -103,8 +103,8 @@ void LaserBeamsBarrel::GeneratePrimaries(G4Event *myEvent) {
                                     G4double(103.0 / 112.0) * G4double(2.0 * M_PI)};
 
   // width of the LaserBeams
-  G4double LaserBeamSigmaX = 0.5 * mm;
-  G4double LaserBeamSigmaY = 0.5 * mm;
+  G4double LaserBeamSigmaX = 0.5 * CLHEP::mm;
+  G4double LaserBeamSigmaY = 0.5 * CLHEP::mm;
 
   // get the definition of the optical photon
   G4ParticleTable *theParticleTable = G4ParticleTable::GetParticleTable();
@@ -129,7 +129,7 @@ void LaserBeamsBarrel::GeneratePrimaries(G4Event *myEvent) {
 
       // set the properties of the newly created particle
       theParticleGun->SetParticleDefinition(theOpticalPhoton);
-      theParticleGun->SetParticleTime(0.0 * ns);
+      theParticleGun->SetParticleTime(0.0 * CLHEP::ns);
       theParticleGun->SetParticlePosition(G4ThreeVector(theXPosition, theYPosition, theZPosition));
       theParticleGun->SetParticleEnergy(thePhotonEnergy);
 

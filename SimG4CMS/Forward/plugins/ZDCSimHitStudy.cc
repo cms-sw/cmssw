@@ -17,7 +17,7 @@
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 
 #include <CLHEP/Units/GlobalPhysicalConstants.h>
-#include <CLHEP/Units/GlobalSystemOfUnits.h>
+#include <CLHEP/Units/SystemOfUnits.h>
 
 #include <TH1F.h>
 

@@ -9,7 +9,7 @@
 #include "G4SteppingVerbose.hh"
 #include "G4ParticleDefinition.hh"
 #include "G4VProcess.hh"
-#include "G4SystemOfUnits.hh"
+#include <CLHEP/Units/SystemOfUnits.h>
 
 CMSSteppingVerbose::CMSSteppingVerbose(
     G4int verb, G4double ekin, std::vector<G4int>& evtNum, std::vector<G4int>& primV, std::vector<G4int>& trNum)

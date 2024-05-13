@@ -78,7 +78,7 @@ namespace edm {
       //For now this is a placeholder
       /*virtual*/ void preActionBeforeRunEventAsync(WaitingTaskHolder,
                                                     ModuleCallingContext const&,
-                                                    Principal const&) const {}
+                                                    Principal const&) const noexcept {}
     };
   }  // namespace stream
 }  // namespace edm

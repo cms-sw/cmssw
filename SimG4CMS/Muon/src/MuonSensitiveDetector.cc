@@ -25,7 +25,7 @@
 
 #include "G4VProcess.hh"
 #include "G4EventManager.hh"
-#include "G4SystemOfUnits.hh"
+#include <CLHEP/Units/SystemOfUnits.h>
 #include "G4Step.hh"
 #include "G4StepPoint.hh"
 #include "G4Track.hh"

@@ -13,9 +13,12 @@ def expandNanoMapping(seqList, mapping, key):
                 # NOTE: mising key of key=None is interpreted differently than empty string:
                 #  - An empty string recalls the default for the given key
                 #  - None is interpreted as "ignore this"
+                insertAt=seqList.index(specifiedCommand)
                 seqList.remove(specifiedCommand)
                 if key in mappedTo and mappedTo[key] is not None:
-                    seqList.extend(mappedTo[key].split('+'))
+                    allToInsert=mappedTo[key].split('+')
+                    for offset,toInsert in enumerate(allToInsert):
+                        seqList.insert(insertAt+offset,toInsert)
                 break;
         if level==maxLevel:
             raise Exception("Could not fully expand "+repr(seqList)+" from "+repr(mapping))
@@ -32,6 +35,9 @@ autoNANO = {
     'Scout' : {'sequence': 'PhysicsTools/NanoAOD/custom_run3scouting_cff'},
     'JME' : { 'sequence': '@PHYS',
               'customize': '@PHYS+PhysicsTools/NanoAOD/custom_jme_cff.PrepJMECustomNanoAOD'},
+    # L1 DPG (standalone with full calo TP info, L1T reemulation customization)
+    'L1DPG' : {'sequence': 'DPGAnalysis/L1TNanoAOD/l1tNano_cff.l1tNanoSequence',
+               'customize': 'PhysicsTools/NanoAOD/l1trig_cff.nanoL1TrigObjCustomizeFull,DPGAnalysis/L1TNanoAOD/l1tNano_cff.addCaloFull,L1Trigger/Configuration/customiseReEmul.L1TReEmulFromRAW'},
     # Muon POG flavours : add tables through customize, supposed to be combined with PHYS
     'MUPOG' : {'sequence': '@PHYS',
                'customize' : '@PHYS+PhysicsTools/NanoAOD/custom_muon_cff.PrepMuonCustomNanoAOD'},
@@ -50,7 +56,10 @@ autoNANO = {
     # PromptReco config: PHYS+L1
     'Prompt' : {'sequence': '@PHYS',
                 'customize': '@PHYS+@L1'},
-    # Add lepton time-life info tables through customize combined with PHYS
-    'LepTimeLife' : {'sequence': '@PHYS',
-                     'customize': '@PHYS+PhysicsTools/NanoAOD/leptonTimeLifeInfo_common_cff.addTimeLifeInfo'},
+    # Add lepton track parameters through customize combined with PHYS
+    'LepTrackInfo' : {'sequence': '@PHYS',
+                      'customize': '@PHYS+PhysicsTools/NanoAOD/leptonTimeLifeInfo_common_cff.addTrackVarsToTimeLifeInfo'},
+    # Custom BTV Nano for SF measurements or tagger training
+    'BTV' : {'sequence': '@PHYS',
+             'customize':'@PHYS+PhysicsTools/NanoAOD/custom_btv_cff.BTVCustomNanoAOD'}
 }

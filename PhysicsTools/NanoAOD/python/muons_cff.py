@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from PhysicsTools.NanoAOD.nano_eras_cff import *
 from PhysicsTools.NanoAOD.common_cff import *
-from PhysicsTools.NanoAOD.simpleCandidateFlatTableProducer_cfi import simpleCandidateFlatTableProducer
+from PhysicsTools.NanoAOD.simplePATMuonFlatTableProducer_cfi import simplePATMuonFlatTableProducer
 
 import PhysicsTools.PatAlgos.producersLayer1.muonProducer_cfi
 
@@ -150,7 +150,7 @@ muonBSConstrain = cms.EDProducer("MuonBeamspotConstraintValueMapProducer",
     src = cms.InputTag("linkedObjects","muons"),
 )
 
-muonTable = simpleCandidateFlatTableProducer.clone(
+muonTable = simplePATMuonFlatTableProducer.clone(
     src = cms.InputTag("linkedObjects","muons"),
     name = cms.string("Muon"),
     doc  = cms.string("slimmedMuons after basic selection (" + finalMuons.cut.value()+")"),

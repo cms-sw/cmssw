@@ -97,11 +97,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
             int nClusInIter = alpaka::math::min(acc, maxHitsInIter, endClus - startClus);
             int lastClus = startClus + nClusInIter;
-            assert(nClusInIter <= nclus);
-            assert(nClusInIter > 0);
-            assert(lastClus <= nclus);
-
-            assert(nclus > maxHitsInIter || (0 == startClus && nClusInIter == nclus && lastClus == nclus));
+            ALPAKA_ASSERT_ACC(nClusInIter <= nclus);
+            ALPAKA_ASSERT_ACC(nClusInIter > 0);
+            ALPAKA_ASSERT_ACC(lastClus <= nclus);
+            ALPAKA_ASSERT_ACC(nclus > maxHitsInIter || (0 == startClus && nClusInIter == nclus && lastClus == nclus));
 
             // init
             for (uint32_t ic : cms::alpakatools::independent_group_elements(acc, nClusInIter)) {

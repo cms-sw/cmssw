@@ -1,8 +1,9 @@
 #######################################################9########################
 # Way to use this:
-#   cmsRun runMaterialBudgetInfo_cfg.py type=DDD detector=Tracker
+#   cmsRun runMaterialBudgetInfo_cfg.py type=DDD detector=Tracker geometry=2023
 #
 #   Options for type DDD, DD4hep
+#           for geometry 2021, 2023, 2024
 #
 ################################################################################
 import FWCore.ParameterSet.Config as cms
@@ -17,6 +18,11 @@ options.register('type',
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
                   "type of operations: DDD, DD4hep")
+options.register('geometry',
+                 "2024",
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.string,
+                  "geometry of operations: 2021, 2023, 2024")
 options.register('detector',
                  "Tracker",
                   VarParsing.VarParsing.multiplicity.singleton,
@@ -33,11 +39,11 @@ print(options)
 if (options.type == "DDD"):
     from Configuration.Eras.Era_Run3_DDD_cff import Run3_DDD
     process = cms.Process("PrintMaterialBudget",Run3_DDD)
-    geomFile = "Configuration.Geometry.GeometryExtended2021Reco_cff"
+    geomFile = "Configuration.Geometry.GeometryExtended" + options.geometry + "Reco_cff"
 else:
     from Configuration.Eras.Era_Run3_dd4hep_cff import Run3_dd4hep
     process = cms.Process("PrintMaterialBudget",Run3_dd4hep)
-    geomFile = "Configuration.Geometry.GeometryDD4hepExtended2021Reco_cff"
+    geomFile = "Configuration.Geometry.GeometryDD4hepExtended" + options.geometry + "Reco_cff"
 
 print("Geometry file Name: ", geomFile)
 print("Detector          : ", options.detector)

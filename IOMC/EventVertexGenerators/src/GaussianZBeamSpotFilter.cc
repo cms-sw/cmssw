@@ -7,8 +7,8 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "HepMC/GenRanges.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
-#include "CLHEP/Random/RandomEngine.h"
+#include <CLHEP/Units/SystemOfUnits.h>
+#include <CLHEP/Random/RandomEngine.h>
 
 GaussianZBeamSpotFilter::GaussianZBeamSpotFilter(const edm::ParameterSet& iPSet)
     : src_(iPSet.getParameter<edm::InputTag>("src")),

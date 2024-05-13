@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.NanoAOD.nano_eras_cff import *
 from PhysicsTools.NanoAOD.common_cff import *
-from PhysicsTools.NanoAOD.simpleCandidateFlatTableProducer_cfi import simpleCandidateFlatTableProducer
+from PhysicsTools.NanoAOD.simplePATPhotonFlatTableProducer_cfi import simplePATPhotonFlatTableProducer
 from math import ceil,log
 
 
@@ -184,7 +184,7 @@ finalPhotons = cms.EDFilter("PATPhotonRefSelector",
     cut = cms.string("pt > 5 ")
 )
 
-photonTable = simpleCandidateFlatTableProducer.clone(
+photonTable = simplePATPhotonFlatTableProducer.clone(
     src = cms.InputTag("linkedObjects","photons"),
     name= cms.string("Photon"),
     doc = cms.string("slimmedPhotons after basic selection (" + finalPhotons.cut.value()+")"),
@@ -228,6 +228,7 @@ photonTable = simpleCandidateFlatTableProducer.clone(
         pfRelIso03_chg_quadratic = Var("userFloat('PFIsoChgQuadratic')/pt",float,doc="PF relative isolation dR=0.3, charged hadron component (with quadraticEA*rho*rho + linearEA*rho Winter22V1 corrections)"),
         pfRelIso03_all_quadratic = Var("userFloat('PFIsoAllQuadratic')/pt",float,doc="PF relative isolation dR=0.3, total (with quadraticEA*rho*rho + linearEA*rho Winter22V1 corrections)"),
         hoe = Var("hadronicOverEm()",float,doc="H over E",precision=8),
+        hoe_Tower = Var("hadTowOverEm()",float,doc="H over E Tower based calculation",precision=8),
         hoe_PUcorr = Var("userFloat('HoverEQuadratic')",float,doc="PU corrected H/E (cone-based with quadraticEA*rho*rho + linearEA*rho Winter22V1 corrections)",precision=8),
         isScEtaEB = Var("abs(superCluster().eta()) < 1.4442",bool,doc="is supercluster eta within barrel acceptance"),
         isScEtaEE = Var("abs(superCluster().eta()) > 1.566 && abs(superCluster().eta()) < 2.5",bool,doc="is supercluster eta within endcap acceptance"),
@@ -283,7 +284,6 @@ run2_egamma.toModify(
     pt = Var("pt*userFloat('ecalEnergyPostCorrNew')/userFloat('ecalEnergyPreCorrNew')", float, precision=-1, doc="p_{T}"),
     energyErr = Var("userFloat('ecalEnergyErrPostCorrNew')",float,doc="energy error of the cluster from regression",precision=6),
     eCorr = Var("userFloat('ecalEnergyPostCorrNew')/userFloat('ecalEnergyPreCorrNew')",float,doc="ratio of the calibrated energy/miniaod energy"),
-    hoe = Var("hadTowOverEm()",float,doc="H over E (Run2)",precision=8),
     cutBased = Var(
             "userInt('cutBasedID_Fall17V2_loose')+userInt('cutBasedID_Fall17V2_medium')+userInt('cutBasedID_Fall17V2_tight')",
             "uint8",

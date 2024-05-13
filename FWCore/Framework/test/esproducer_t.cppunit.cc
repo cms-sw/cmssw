@@ -690,7 +690,7 @@ namespace {
                              DataKey const&,
                              edm::EventSetupImpl const*,
                              edm::ServiceToken const&,
-                             edm::ESParentContext const&) override {}
+                             edm::ESParentContext const&) noexcept override {}
       void invalidateCache() override {}
       void const* getAfterPrefetchImpl() const override { return nullptr; }
     };

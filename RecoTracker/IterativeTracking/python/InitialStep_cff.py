@@ -234,12 +234,14 @@ from Configuration.ProcessModifiers.trackingMkFitInitialStep_cff import tracking
 from RecoTracker.MkFit.mkFitGeometryESProducer_cfi import mkFitGeometryESProducer
 import RecoTracker.MkFit.mkFitSiPixelHitConverter_cfi as mkFitSiPixelHitConverter_cfi
 import RecoTracker.MkFit.mkFitSiStripHitConverter_cfi as mkFitSiStripHitConverter_cfi
+import RecoTracker.MkFit.mkFitPhase2HitConverter_cfi as mkFitPhase2HitConverter_cfi
 import RecoTracker.MkFit.mkFitEventOfHitsProducer_cfi as mkFitEventOfHitsProducer_cfi
 import RecoTracker.MkFit.mkFitSeedConverter_cfi as mkFitSeedConverter_cfi
 import RecoTracker.MkFit.mkFitIterationConfigESProducer_cfi as mkFitIterationConfigESProducer_cfi
 import RecoTracker.MkFit.mkFitProducer_cfi as mkFitProducer_cfi
 import RecoTracker.MkFit.mkFitOutputConverter_cfi as mkFitOutputConverter_cfi
 mkFitSiPixelHits = mkFitSiPixelHitConverter_cfi.mkFitSiPixelHitConverter.clone() # TODO: figure out better place for this module?
+mkFitSiPhase2Hits = mkFitPhase2HitConverter_cfi.mkFitPhase2HitConverter.clone()
 mkFitEventOfHits = mkFitEventOfHitsProducer_cfi.mkFitEventOfHitsProducer.clone() # TODO: figure out better place for this module?
 initialStepTrackCandidatesMkFitSeeds = mkFitSeedConverter_cfi.mkFitSeedConverter.clone(
     seeds = 'initialStepSeeds',
@@ -444,10 +446,14 @@ InitialStepTask = cms.Task(initialStepSeedLayers,
                            initialStep,caloJetsForTrkTask)
 InitialStep = cms.Sequence(InitialStepTask)
 
+from RecoLocalTracker.Phase2TrackerRecHits.Phase2TrackerRecHits_cfi import siPhase2RecHits
 from Configuration.ProcessModifiers.trackingMkFitCommon_cff import trackingMkFitCommon
 _InitialStepTask_trackingMkFitCommon = InitialStepTask.copy()
+_InitialStepTask_trackingMkFitCommon_Phase2 = InitialStepTask.copy()
 _InitialStepTask_trackingMkFitCommon.add(mkFitSiPixelHits, mkFitEventOfHits, mkFitGeometryESProducer)
-trackingMkFitCommon.toReplaceWith(InitialStepTask, _InitialStepTask_trackingMkFitCommon)
+_InitialStepTask_trackingMkFitCommon_Phase2.add(siPhase2RecHits, mkFitSiPixelHits, mkFitSiPhase2Hits, mkFitEventOfHits, mkFitGeometryESProducer)
+(trackingMkFitCommon & (~trackingPhase2PU140)).toReplaceWith(InitialStepTask, _InitialStepTask_trackingMkFitCommon)
+(trackingMkFitCommon & trackingPhase2PU140).toReplaceWith(InitialStepTask, _InitialStepTask_trackingMkFitCommon_Phase2)
 
 _InitialStepTask_trackingMkFit = InitialStepTask.copy()
 _InitialStepTask_trackingMkFit.add(initialStepTrackCandidatesMkFitSeeds, initialStepTrackCandidatesMkFit, initialStepTrackCandidatesMkFitConfig)
@@ -465,6 +471,10 @@ _InitialStepTask_trackingPhase2 = InitialStepTask.copyAndExclude([initialStepCla
 _InitialStepTask_trackingPhase2.replace(initialStepHitTriplets, initialStepHitQuadruplets)
 _InitialStepTask_trackingPhase2.replace(initialStep, initialStepSelector)
 trackingPhase2PU140.toReplaceWith(InitialStepTask, _InitialStepTask_trackingPhase2)
+(trackingMkFitCommon & trackingPhase2PU140).toModify(mkFitEventOfHits, stripHits=cms.InputTag('mkFitSiPhase2Hits'), useStripStripQualityDB=cms.bool(False))
+(trackingMkFitInitialStep & trackingPhase2PU140).toModify(initialStepTrackCandidatesMkFit, stripHits=cms.InputTag('mkFitSiPhase2Hits'))
+(trackingMkFitInitialStep & trackingPhase2PU140).toModify(initialStepTrackCandidates, mkFitStripHits=cms.InputTag('mkFitSiPhase2Hits'))
+(trackingMkFitInitialStep & trackingPhase2PU140).toModify(initialStepTrackCandidatesMkFitConfig, config='RecoTracker/MkFit/data/mkfit-phase2-initialStep.json')
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 _InitialStepTask_fastSim = cms.Task(initialStepTrackingRegions

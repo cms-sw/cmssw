@@ -116,6 +116,11 @@ hltTauOfflineMonitor_PFTaus = DQMEDAnalyzer('HLTTauDQMOfflineSource',
     ),
 )
 
+hltTauOfflineMonitor_PNetTaus = hltTauOfflineMonitor_PFTaus.clone(
+    DQMBaseFolder = cms.untracked.string("HLT/TAU/PNetTaus"),
+    Paths = cms.untracked.string("PNetTauh")
+)
+
 hltTauOfflineMonitor_Inclusive = hltTauOfflineMonitor_PFTaus.clone(
     DQMBaseFolder = "HLT/TAU/Inclusive",
     Matching = cms.PSet(

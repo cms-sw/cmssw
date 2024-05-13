@@ -2,6 +2,14 @@
 <use name="DataFormats/NanoAOD"/>
 <use name="Utilities/General"/>
 <use name="boost"/>
+<use name="FWCore/Utilities"/>
+<use name="FWCore/Common"/>
+<use name="DataFormats/StdDictionaries"/>
+<use name="DataFormats/Candidate"/>
+<use name="DataFormats/PatCandidates"/>
+<use name="CommonTools/Utils"/>
+<use name="CommonTools/UtilAlgos"/>
+<use name="CommonTools/CandAlgos"/>
 <export>
   <lib name="1"/>
 </export>

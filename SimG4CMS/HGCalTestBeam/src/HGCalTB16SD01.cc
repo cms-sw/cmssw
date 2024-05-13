@@ -1,7 +1,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "SimG4CMS/HGCalTestBeam/interface/HGCalTB16SD01.h"
 
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include <CLHEP/Units/SystemOfUnits.h>
 #include "G4LogicalVolumeStore.hh"
 #include "G4Track.hh"
 
@@ -18,7 +18,7 @@ HGCalTB16SD01::HGCalTB16SD01(const std::string& name,
   edm::ParameterSet m_HC = p.getParameter<edm::ParameterSet>("HGCalTestBeamSD");
   matName_ = m_HC.getParameter<std::string>("Material");
   useBirk_ = m_HC.getParameter<bool>("UseBirkLaw");
-  birk1_ = m_HC.getParameter<double>("BirkC1") * (g / (MeV * cm2));
+  birk1_ = m_HC.getParameter<double>("BirkC1") * (CLHEP::g / (CLHEP::MeV * CLHEP::cm2));
   birk2_ = m_HC.getParameter<double>("BirkC2");
   birk3_ = m_HC.getParameter<double>("BirkC3");
   matScin_ = nullptr;
@@ -85,7 +85,7 @@ void HGCalTB16SD01::unpackIndex(const uint32_t& idx, int& det, int& lay, int& x,
   y = (idx >> 10) & 511;
   if (((idx >> 19) & 1) == 1)
     y = -y;
-  x = (idx)&511;
+  x = (idx) & 511;
   if (((idx >> 9) & 1) == 1)
     x = -x;
 }

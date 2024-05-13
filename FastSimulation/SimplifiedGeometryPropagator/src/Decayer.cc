@@ -10,7 +10,7 @@
 fastsim::Decayer::~Decayer() { ; }
 
 fastsim::Decayer::Decayer() : pythia_(new Pythia8::Pythia()), pythiaRandomEngine_(new gen::P8RndmEngine()) {
-  pythia_->setRndmEnginePtr(pythiaRandomEngine_.get());
+  pythia_->setRndmEnginePtr(pythiaRandomEngine_);
   pythia_->settings.flag("ProcessLevel:all", false);
   pythia_->settings.flag("PartonLevel:FSRinResonances", false);
   pythia_->settings.flag("ProcessLevel:resonanceDecays", false);

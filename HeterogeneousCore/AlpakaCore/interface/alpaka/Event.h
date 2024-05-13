@@ -137,6 +137,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::device {
       }
     }
 
+    // implementation details
+    bool wasQueueUsed() const { return queueUsed_; }
+
   private:
     // Having both const and non-const here in order to serve the
     // clients with one device::Event class
@@ -144,6 +147,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::device {
     edm::Event* event_ = nullptr;
 
     std::shared_ptr<EDMetadata> metadata_;
+
     // device::Event is not supposed to be const-thread-safe, so no
     // additional protection is needed.
     mutable bool queueUsed_ = false;

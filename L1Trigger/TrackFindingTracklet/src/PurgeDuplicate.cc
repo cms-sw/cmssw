@@ -13,9 +13,11 @@
 #include "L1Trigger/TrackFindingTracklet/interface/HybridFit.h"
 #endif
 
+#include "DataFormats/Math/interface/deltaPhi.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
+#include "TString.h"
 #include <unordered_set>
 #include <algorithm>
 
@@ -156,12 +158,16 @@ void PurgeDuplicate::execute(std::vector<Track>& outputtracks, unsigned int iSec
               // Best Guess:          L1L2 > L1D1 > L2L3 > L2D1 > D1D2 > L3L4 > L5L6 > D3D4
               // Best Rank:           L1L2 > L3L4 > D3D4 > D1D2 > L2L3 > L2D1 > L5L6 > L1D1
               // Rank-Informed Guess: L1L2 > L3L4 > L1D1 > L2L3 > L2D1 > D1D2 > L5L6 > D3D4
-              unsigned int curSeed = aTrack->seedIndex();
-              std::vector<int> ranks{1, 5, 2, 7, 4, 3, 8, 6};
-              if (settings_.extended())
-                seedRank.push_back(9);
-              else
+              const unsigned int curSeed = aTrack->seedIndex();
+              static const std::vector<int> ranks{1, 5, 2, 7, 4, 3, 8, 6};
+              if (curSeed < ranks.size()) {
                 seedRank.push_back(ranks[curSeed]);
+              } else if (settings_.extended()) {
+                seedRank.push_back(9);
+              } else {
+                throw cms::Exception("LogError") << __FILE__ << " " << __LINE__ << " Seed type " << curSeed
+                                                 << " not found in list, and settings->extended() not set.";
+              }
 
               if (stublist.size() != stubidslist.size())
                 throw cms::Exception("LogicError")
@@ -184,19 +190,11 @@ void PurgeDuplicate::execute(std::vector<Track>& outputtracks, unsigned int iSec
           }
         }
 
-        // Initialize all-false 2D array of tracks being duplicates to other tracks
-        bool dupMap[numStublists][numStublists];  // Ends up symmetric
-        for (unsigned int itrk = 0; itrk < numStublists; itrk++) {
-          for (unsigned int jtrk = 0; jtrk < numStublists; jtrk++) {
-            dupMap[itrk][jtrk] = false;
-          }
-        }
+        // Initialize all-false 2D vector of tracks being duplicates to other tracks
+        vector<vector<bool>> dupMap(numStublists, vector<bool>(numStublists, false));
 
         // Used to check if a track is in two bins, is not a duplicate in either bin, so is sent out twice
-        bool noMerge[numStublists];
-        for (unsigned int itrk = 0; itrk < numStublists; itrk++) {
-          noMerge[itrk] = false;
-        }
+        vector<bool> noMerge(numStublists, false);
 
         // Find duplicates; Fill dupMap by looping over all pairs of "tracks"
         // numStublists-1 since last track has no other to compare to
@@ -286,8 +284,8 @@ void PurgeDuplicate::execute(std::vector<Track>& outputtracks, unsigned int iSec
 
             // Fill duplicate map
             if (nShareLay >= settings_.minIndStubs()) {  // For number of shared stub merge condition
-              dupMap[itrk][jtrk] = true;
-              dupMap[jtrk][itrk] = true;
+              dupMap.at(itrk).at(jtrk) = true;
+              dupMap.at(jtrk).at(itrk) = true;
             }
           }
         }
@@ -295,15 +293,15 @@ void PurgeDuplicate::execute(std::vector<Track>& outputtracks, unsigned int iSec
         // Check to see if the track is a duplicate
         for (unsigned int itrk = 0; itrk < numStublists; itrk++) {
           for (unsigned int jtrk = 0; jtrk < numStublists; jtrk++) {
-            if (dupMap[itrk][jtrk]) {
-              noMerge[itrk] = true;
+            if (dupMap.at(itrk).at(jtrk)) {
+              noMerge.at(itrk) = true;
             }
           }
         }
 
         // If the track isn't a duplicate, and if it's in more than one bin, and it is not in the proper rinv or phi bin, then mark it so it won't be sent to output
         for (unsigned int itrk = 0; itrk < numStublists; itrk++) {
-          if (noMerge[itrk] == false) {
+          if (!noMerge.at(itrk)) {
             if (((findOverlapRinvBins(inputtracklets_[itrk]).size() > 1) &&
                  (findRinvBin(inputtracklets_[itrk]) != bin)) ||
                 ((findOverlapPhiBins(inputtracklets_[itrk]).size() > 1) &&
@@ -316,7 +314,7 @@ void PurgeDuplicate::execute(std::vector<Track>& outputtracks, unsigned int iSec
         for (unsigned int itrk = 0; itrk < numStublists - 1; itrk++) {
           for (unsigned int jtrk = itrk + 1; jtrk < numStublists; jtrk++) {
             // Merge a track with its first duplicate found.
-            if (dupMap[itrk][jtrk]) {
+            if (dupMap.at(itrk).at(jtrk)) {
               // Set preferred track based on seed rank
               int preftrk;
               int rejetrk;
@@ -614,6 +612,7 @@ std::pair<int, int> PurgeDuplicate::findLayerDisk(const Stub* st) const {
 }
 
 std::string PurgeDuplicate::l1tinfo(const L1TStub* l1stub, std::string str = "") const {
+  // Uses ROOT::TString
   std::string thestr = Form("\t %s stub info:  r/z/phi:\t%f\t%f\t%f\t%d\t%f\t%d",
                             str.c_str(),
                             l1stub->r(),
@@ -658,64 +657,65 @@ std::vector<double> PurgeDuplicate::getInventedCoords(unsigned int iSector,
 std::vector<double> PurgeDuplicate::getInventedCoordsExtended(unsigned int iSector,
                                                               const Stub* st,
                                                               const Tracklet* tracklet) const {
-  int stubLayer = (findLayerDisk(st)).first;
-  int stubDisk = (findLayerDisk(st)).second;
+  const int stubLayer = (findLayerDisk(st)).first;
+  const int stubDisk = (findLayerDisk(st)).second;
 
   double stub_phi = -99;
   double stub_z = -99;
   double stub_r = -99;
 
-  double rho = 1 / tracklet->rinv();
-  double rho_minus_d0 = rho + tracklet->d0();  // should be -, but otherwise does not work
+  const double rho = 1 / tracklet->rinv();
+  const double rho_minus_d0 = rho + tracklet->d0();  // should be -, but otherwise does not work
 
-  // exact helix
-  if (st->isBarrel()) {
-    stub_r = settings_.rmean(stubLayer - 1);
-
-    // The expanded version of this expression is more stable for very low-pT
-    // (high-rho) tracks. But we also explicitly restrict sin_val to the domain
-    // of asin.
-    double sin_val =
-        0.5 * (stub_r / rho_minus_d0) + 0.5 * (rho_minus_d0 / stub_r) - 0.5 * ((rho * rho) / (rho_minus_d0 * stub_r));
-    sin_val = std::max(std::min(sin_val, 1.0), -1.0);
-    stub_phi = tracklet->phi0() - std::asin(sin_val);
-    stub_phi = stub_phi + iSector * settings_.dphisector() - 0.5 * settings_.dphisectorHG();
-    stub_phi = reco::reduceRange(stub_phi);
-
-    // The expanded version of this expression is more stable for very low-pT
-    // (high-rho) tracks. But we also explicitly restrict cos_val to the domain
-    // of acos.
-    double cos_val =
-        0.5 * (rho / rho_minus_d0) + 0.5 * (rho_minus_d0 / rho) - 0.5 * ((stub_r * stub_r) / (rho * rho_minus_d0));
-    cos_val = std::max(std::min(cos_val, 1.0), -1.0);
-    double beta = std::acos(cos_val);
-    stub_z = tracklet->z0() + tracklet->t() * std::abs(rho * beta);
-  } else {
-    stub_z = settings_.zmean(stubDisk - 1) * tracklet->disk() / abs(tracklet->disk());
-
-    double beta = (stub_z - tracklet->z0()) / (tracklet->t() * std::abs(rho));  // maybe rho should be abs value
-    double r_square = -2 * rho * rho_minus_d0 * std::cos(beta) + rho * rho + rho_minus_d0 * rho_minus_d0;
-    stub_r = sqrt(r_square);
-
-    // The expanded version of this expression is more stable for very low-pT
-    // (high-rho) tracks. But we also explicitly restrict sin_val to the domain
-    // of asin.
-    double sin_val =
-        0.5 * (stub_r / rho_minus_d0) + 0.5 * (rho_minus_d0 / stub_r) - 0.5 * ((rho * rho) / (rho_minus_d0 * stub_r));
-    sin_val = std::max(std::min(sin_val, 1.0), -1.0);
-    stub_phi = tracklet->phi0() - std::asin(sin_val);
-    stub_phi = stub_phi + iSector * settings_.dphisector() - 0.5 * settings_.dphisectorHG();
-    stub_phi = reco::reduceRange(stub_phi);
-  }
+  const int seed = tracklet->seedIndex();
 
   // TMP: for displaced tracking, exclude one of the 3 seeding stubs
   // to be discussed
-  int seed = tracklet->seedIndex();
-  if ((seed == 8 && stubLayer == 4) || (seed == 9 && stubLayer == 5) || (seed == 10 && stubLayer == 3) ||
-      (seed == 11 && abs(stubDisk) == 1)) {
+  if ((seed == L2L3L4 && stubLayer == 4) || (seed == L4L5L6 && stubLayer == 5) ||
+      (seed == L2L3D1 && abs(stubDisk) == 1) || (seed == D1D2L2 && abs(stubDisk) == 1)) {
     stub_phi = st->l1tstub()->phi();
     stub_z = st->l1tstub()->z();
     stub_r = st->l1tstub()->r();
+  } else {
+    // exact helix
+    if (st->isBarrel()) {
+      stub_r = settings_.rmean(stubLayer - 1);
+
+      // The expanded version of this expression is more stable for extremely
+      // high-pT (high-rho) tracks. But we also explicitly restrict sin_val to
+      // the domain of asin.
+      double sin_val =
+          0.5 * (stub_r / rho_minus_d0) + 0.5 * (rho_minus_d0 / stub_r) - 0.5 * ((rho * rho) / (rho_minus_d0 * stub_r));
+      sin_val = std::max(std::min(sin_val, 1.0), -1.0);
+      stub_phi = tracklet->phi0() - std::asin(sin_val);
+      stub_phi = stub_phi + iSector * settings_.dphisector() - 0.5 * settings_.dphisectorHG();
+      stub_phi = reco::reduceRange(stub_phi);
+
+      // The expanded version of this expression is more stable for extremely
+      // high-pT (high-rho) tracks. But we also explicitly restrict cos_val to
+      // the domain of acos.
+      double cos_val =
+          0.5 * (rho / rho_minus_d0) + 0.5 * (rho_minus_d0 / rho) - 0.5 * ((stub_r * stub_r) / (rho * rho_minus_d0));
+      cos_val = std::max(std::min(cos_val, 1.0), -1.0);
+      double beta = std::acos(cos_val);
+      stub_z = tracklet->z0() + tracklet->t() * std::abs(rho * beta);
+    } else {
+      stub_z = settings_.zmean(stubDisk - 1) * tracklet->disk() / abs(tracklet->disk());
+
+      double beta = (stub_z - tracklet->z0()) / (tracklet->t() * std::abs(rho));  // maybe rho should be abs value
+      double r_square = -2 * rho * rho_minus_d0 * std::cos(beta) + rho * rho + rho_minus_d0 * rho_minus_d0;
+      stub_r = sqrt(r_square);
+
+      // The expanded version of this expression is more stable for extremely
+      // high-pT (high-rho) tracks. But we also explicitly restrict sin_val to
+      // the domain of asin.
+      double sin_val =
+          0.5 * (stub_r / rho_minus_d0) + 0.5 * (rho_minus_d0 / stub_r) - 0.5 * ((rho * rho) / (rho_minus_d0 * stub_r));
+      sin_val = std::max(std::min(sin_val, 1.0), -1.0);
+      stub_phi = tracklet->phi0() - std::asin(sin_val);
+      stub_phi = stub_phi + iSector * settings_.dphisector() - 0.5 * settings_.dphisectorHG();
+      stub_phi = reco::reduceRange(stub_phi);
+    }
   }
 
   std::vector<double> invented_coords{stub_r, stub_z, stub_phi};

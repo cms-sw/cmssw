@@ -115,10 +115,10 @@ namespace l1ct {
 
       t.seed_pt = hwSeedPt;
       t.seed_z0(l1ct::z0_t::width - 1, 0) = hwSeedZ0(l1ct::z0_t::width - 1, 0);
-      t.charge = hwCharge;
+      t.charge = !hwCharge;
 
       t.type = hwType;
-      t.isolation = hwRawId;
+      t.quality = hwRawId;
       return t;
     }
   };

@@ -45,13 +45,15 @@ namespace edm {
     void registerTransformAsyncImp(
         ProducerBase&, EDPutToken, const TypeID& id, std::string instanceName, PreTransformFunction, TransformFunction);
 
-    std::size_t findMatchingIndex(ProducerBase const& iBase, edm::BranchDescription const&) const;
-    ProductResolverIndex prefetchImp(std::size_t iIndex) const { return transformInfo_.get<kResolverIndex>(iIndex); }
+    std::size_t findMatchingIndex(ProducerBase const& iBase, edm::BranchDescription const&) const noexcept;
+    ProductResolverIndex prefetchImp(std::size_t iIndex) const noexcept {
+      return transformInfo_.get<kResolverIndex>(iIndex);
+    }
     void transformImpAsync(WaitingTaskHolder iTask,
                            std::size_t iIndex,
                            edm::ActivityRegistry* iAct,
                            ProducerBase const& iBase,
-                           edm::EventForTransformer&) const;
+                           edm::EventForTransformer&) const noexcept;
 
     void extendUpdateLookup(ProducerBase const&,
                             ModuleDescription const& iModuleDesc,

@@ -2,10 +2,11 @@ import FWCore.ParameterSet.Config as cms
 
 from PhysicsTools.NanoAOD.common_cff import *
 from PhysicsTools.NanoAOD.simpleCandidateFlatTableProducer_cfi import simpleCandidateFlatTableProducer
+from PhysicsTools.NanoAOD.simplePATJetFlatTableProducer_cfi import simplePATJetFlatTableProducer
 from PhysicsTools.NanoAOD.jetsAK8_cff import fatJetTable as _fatJetTable
 from PhysicsTools.NanoAOD.jetsAK8_cff import subJetTable as _subJetTable
 
-jetMCTable = simpleCandidateFlatTableProducer.clone(
+jetMCTable = simplePATJetFlatTableProducer.clone(
     src = cms.InputTag("linkedObjects","jets"),
     name = cms.string("Jet"),
     extension = cms.bool(True), # this is an extension  table for the jets
@@ -82,7 +83,7 @@ genJetAK8FlavourTable = cms.EDProducer("GenJetFlavourTableProducer",
     deltaR = cms.double(0.1),
     jetFlavourInfos = cms.InputTag("genJetAK8FlavourAssociation"),
 )
-fatJetMCTable = simpleCandidateFlatTableProducer.clone(
+fatJetMCTable = simplePATJetFlatTableProducer.clone(
     src = _fatJetTable.src,
     cut = _fatJetTable.cut,
     name = _fatJetTable.name,
@@ -102,7 +103,7 @@ genSubJetAK8Table = simpleCandidateFlatTableProducer.clone(
 	#anything else?
     )
 )
-subjetMCTable = simpleCandidateFlatTableProducer.clone(
+subjetMCTable = simplePATJetFlatTableProducer.clone(
     src = _subJetTable.src,
     cut = _subJetTable.cut,
     name = _subJetTable.name,

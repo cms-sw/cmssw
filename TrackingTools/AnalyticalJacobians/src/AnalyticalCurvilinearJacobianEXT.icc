@@ -33,30 +33,34 @@ void AnalyticalCurvilinearJacobian::computeFullJacobian(const GlobalTrajectoryPa
   double sint, cost;
   vdt::fast_sincos(theta, sint, cost);
 
-  Vec3D t1;
-  Vec3D t2;
+  Vec3D t1 = convert<Vec3D>(p1.basicVector().v);
+  Vec3D t2 = convert<Vec3D>(p2.basicVector().v);
 
-  Vec3D hn;
-  Vec3D dx;
-
-  for (int i = 0; i != 4; ++i) {
-    t1[i] = p1.basicVector().v[i];
-    t2[i] = p2.basicVector().v[i];
-    hn[i] = hnf.basicVector().v[i];
-    dx[i] = dxf.basicVector().v[i];
-  }
+  Vec3D hn = convert<Vec3D>(hnf.basicVector().v);
+  Vec3D dx = convert<Vec3D>(dxf.basicVector().v);
 
   double gamma = dot(hn, t2);
   Vec3D an = cross3(hn, t2);
 
+#ifdef __clang__
+  Vec4D t = __builtin_shufflevector(t1, t2, 1, 0, 5, 4);
+#else
   typedef unsigned long long v4sl __attribute__((vector_size(32)));
   v4sl mask{1, 0, 5, 4};
   Vec4D t = __builtin_shuffle(t1, t2, mask);
+#endif
   Vec4D tt = t * t;
 
+  Vec4D au{tt[1], tt[0], tt[3], tt[2]};
+  au += tt;
+  Vec4D neg{-1., 1., -1., 1.};
+  for (int i = 0; i < 4; ++i)
+    au[i] = neg[i] * std::sqrt(au[i]);
+  /* above equivalent to this 
   double au1 = std::sqrt(tt[0] + tt[1]);
   double au2 = std::sqrt(tt[2] + tt[3]);
   Vec4D au{-au1, au1, -au2, au2};
+  */
   Vec4D uu = t / au;
 
   Vec2D u1{uu[0], uu[1]};

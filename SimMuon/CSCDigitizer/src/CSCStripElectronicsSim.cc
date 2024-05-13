@@ -10,9 +10,9 @@
 #include "SimMuon/CSCDigitizer/src/CSCStripConditions.h"
 #include "SimMuon/CSCDigitizer/src/CSCStripElectronicsSim.h"
 
-#include "CLHEP/Random/RandGaussQ.h"
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include <CLHEP/Random/RandGaussQ.h>
+#include <CLHEP/Units/GlobalPhysicalConstants.h>
+#include <CLHEP/Units/SystemOfUnits.h>
 
 #include <boost/bind/bind.hpp>
 #include <cassert>
@@ -65,7 +65,7 @@ void CSCStripElectronicsSim::initParameters() {
 
   // calculate the offset to the peak
   float averageDistance = theLayer->surface().position().mag();
-  theAverageTimeOfFlight = averageDistance * cm / c_light;  // Units of c_light: mm/ns
+  theAverageTimeOfFlight = averageDistance * CLHEP::cm / c_light;  // Units of c_light: mm/ns
   int chamberType = theSpecs->chamberType();
   theTimingOffset = theShapingTime + theAverageTimeOfFlight + theBunchTimingOffsets[chamberType];
   // TODO make sure config gets overridden

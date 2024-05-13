@@ -36,8 +36,8 @@ public:
 
 private:
   std::unique_ptr<const GBRForest> gbrForest_;
-  const std::vector<double> scale_mean_;
-  const std::vector<double> scale_std_;
+  const std::vector<float> scale_mean_;
+  std::vector<float> scale_istd_;
   const bool isFromL1_;
   const int minL1Qual_;
 

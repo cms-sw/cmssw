@@ -21,6 +21,8 @@ namespace mkfit {
       return 10;
     }
     TkLayout getEra() const { return lo_; }
+    bool isPhase1() const { return lo_ == TkLayout::phase1; }
+    bool isPhase2() const { return lo_ == TkLayout::phase2; }
     int convertLayerNumber(int det, int lay, bool useMatched, int isStereo, bool posZ) const {
       if (lo_ == TkLayout::phase2) {
         if (det == 1)

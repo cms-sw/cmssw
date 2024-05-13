@@ -1,4 +1,3 @@
-#include <list>
 #include <vector>
 #include <limits>
 #include <string>
@@ -46,6 +45,7 @@ private:
   const double nearThreshold_;
   const double farThreshold_;
   const double discriminatorCut_;
+  const unsigned int maxPseudoROIs_;
   const vector<string> input_names_;
   const vector<string> output_names_;
 
@@ -63,6 +63,7 @@ DisplacedRegionSeedingVertexProducer::DisplacedRegionSeedingVertexProducer(const
       nearThreshold_(cfg.getParameter<double>("nearThreshold")),
       farThreshold_(cfg.getParameter<double>("farThreshold")),
       discriminatorCut_(cfg.getParameter<double>("discriminatorCut")),
+      maxPseudoROIs_(cfg.getParameter<unsigned int>("maxPseudoROIs")),
       input_names_(cfg.getParameter<vector<string> >("input_names")),
       output_names_(cfg.getParameter<vector<string> >("output_names")),
       beamSpotToken_(consumes<reco::BeamSpot>(cfg.getParameter<edm::InputTag>("beamSpot"))),
@@ -93,16 +94,24 @@ void DisplacedRegionSeedingVertexProducer::produce(edm::StreamID streamID,
   const auto &trackClusters = event.get(trackClustersToken_);
 
   // Initialize distances.
-  list<DisplacedVertexCluster> pseudoROIs;
-  list<Distance> distances;
+  vector<DisplacedVertexCluster> pseudoROIs;
+  pseudoROIs.reserve(std::min(maxPseudoROIs_, trackClusters.size()));
+  vector<Distance> distances;
   const double minTrackClusterRadius = minRadius_ - rParam_;
   for (unsigned i = 0; i < trackClusters.size(); i++) {
     const reco::VertexCompositeCandidate &trackCluster = trackClusters[i];
     const math::XYZVector x(trackCluster.vertex());
     if (minRadius_ < 0.0 || minTrackClusterRadius < 0.0 || (x - bs).rho() > minTrackClusterRadius)
       pseudoROIs.emplace_back(&trackClusters.at(i), rParam_);
+    if (pseudoROIs.size() == maxPseudoROIs_) {
+      edm::LogWarning("DisplacedRegionSeedingVertexProducer")
+          << "Truncated list of pseudoROIs at " << maxPseudoROIs_ << " out of " << trackClusters.size()
+          << " possible track clusters.";
+      break;
+    }
   }
   if (pseudoROIs.size() > 1) {
+    distances.reserve(pseudoROIs.size() * std::max(1.0, pseudoROIs.size() * 0.05));
     DisplacedVertexClusterItr secondToLast = pseudoROIs.end();
     secondToLast--;
     for (DisplacedVertexClusterItr i = pseudoROIs.begin(); i != secondToLast; i++) {
@@ -119,11 +128,25 @@ void DisplacedRegionSeedingVertexProducer::produce(edm::StreamID streamID,
     }
   }
 
+  auto itBegin = distances.begin();
+  auto itLast = distances.end();
+
   // Do clustering.
-  while (!distances.empty()) {
-    const auto comp = [](const Distance &a, const Distance &b) { return a.distance2() <= b.distance2(); };
-    distances.sort(comp);
-    DistanceItr dBest = distances.begin();
+  while (itBegin != itLast) {
+    //find the lowest distance. Lots of repeatitive calculations done here
+    //as from loop iteration to loop iteration only sqrt(distances.size()) distances
+    //need to be recomputed (those involving best_i
+    //but this is much better than sorting distances..
+    DistanceItr dBest = itBegin;
+    double distanceBest = dBest->distance2();
+
+    for (auto i = itBegin; i != itLast; i++) {
+      if (distanceBest > i->distance2()) {
+        dBest = i;
+        distanceBest = i->distance2();
+      }
+    }
+
     if (dBest->distance2() > rParam_ * rParam_)
       break;
 
@@ -133,10 +156,11 @@ void DisplacedRegionSeedingVertexProducer::produce(edm::StreamID streamID,
     const auto distancePred = [](const Distance &a) {
       return (!a.entities().first->valid() || !a.entities().second->valid());
     };
-    const auto pseudoROIPred = [](const DisplacedVertexCluster &a) { return !a.valid(); };
-    distances.remove_if(distancePred);
-    pseudoROIs.remove_if(pseudoROIPred);
+    itLast = std::remove_if(itBegin, itLast, distancePred);
   }
+
+  const auto pseudoROIPred = [](const DisplacedVertexCluster &a) { return !a.valid(); };
+  auto remove_invalid = std::remove_if(pseudoROIs.begin(), pseudoROIs.end(), pseudoROIPred);
 
   // Remove invalid ROIs.
   const auto roiPred = [&](const DisplacedVertexCluster &roi) {
@@ -150,7 +174,7 @@ void DisplacedRegionSeedingVertexProducer::produce(edm::StreamID streamID,
       return true;
     return false;
   };
-  pseudoROIs.remove_if(roiPred);
+  auto remove_pred = std::remove_if(pseudoROIs.begin(), remove_invalid, roiPred);
 
   auto nearRegionsOfInterest = make_unique<vector<reco::Vertex> >();
   auto farRegionsOfInterest = make_unique<vector<reco::Vertex> >();
@@ -158,7 +182,8 @@ void DisplacedRegionSeedingVertexProducer::produce(edm::StreamID streamID,
   constexpr std::array<double, 6> errorA{{1.0, 0.0, 1.0, 0.0, 0.0, 1.0}};
   static const reco::Vertex::Error errorRegion(errorA.begin(), errorA.end(), true, true);
 
-  for (const auto &roi : pseudoROIs) {
+  for (auto it = pseudoROIs.begin(); it != remove_pred; ++it) {
+    auto const &roi = *it;
     const auto &x(roi.centerOfMass());
     if ((x - bs).rho() < nearThreshold_)
       nearRegionsOfInterest->emplace_back(reco::Vertex::Point(roi.centerOfMass()), errorRegion);
@@ -180,6 +205,7 @@ void DisplacedRegionSeedingVertexProducer::fillDescriptions(edm::ConfigurationDe
   desc.add<double>("discriminatorCut", -1.0);
   desc.add<vector<string> >("input_names", {"phi_0", "phi_1"});
   desc.add<vector<string> >("output_names", {"model_5/activation_10/Softmax"});
+  desc.add<unsigned int>("maxPseudoROIs", 10000);
   desc.addUntracked<unsigned>("nThreads", 1);
   desc.add<edm::FileInPath>(
       "graph_path",

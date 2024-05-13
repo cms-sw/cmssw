@@ -34,7 +34,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                   uint32_t const* __restrict__ hitsModuleStart,
                                   pixelCPEforDevice::ParamsOnDeviceT<TrackerTraits> const* __restrict__ cpeParams,
                                   uint32_t* __restrict__ hitsLayerStart) const {
-      assert(0 == hitsModuleStart[0]);
+      ALPAKA_ASSERT_ACC(0 == hitsModuleStart[0]);
 
       for (int32_t i : cms::alpakatools::uniform_elements(acc, TrackerTraits::numberOfLayers + 1)) {
         hitsLayerStart[i] = hitsModuleStart[cpeParams->layerGeometry().layerStart[i]];
@@ -113,15 +113,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           hrv_d.contentSize = nHits;
           hrv_d.contentStorage = hits_d.view().phiBinnerStorage();
 
-          // fillManyFromVector<Acc1D>(h_d.data(), nParts, v_d.data(), offsets_d.data(), offsets[10], 256, queue);
-          /*          cms::alpakatools::fillManyFromVector<Acc1D>(&(hits_d.view().phiBinner()),
-                                                      nLayers,
-                                                      hits_d.view().iphi(),
-                                                      hits_d.view().hitsLayerStart().data(),
-                                                      nHits,
-                                                      (uint32_t)256,
-                                                      queue);
-*/
           cms::alpakatools::fillManyFromVector<Acc1D>(&(hits_d.view().phiBinner()),
                                                       hrv_d,
                                                       nLayers,

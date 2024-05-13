@@ -1,6 +1,9 @@
 HLTriggerFirstPath
 HLT_Random_HighRate_v*
 
+Status_OnCPU # CMSHLT-3186
+Status_OnGPU # CMSHLT-3186
+
 HLTriggerFinalPath
 
 ## EndPaths / FinalPaths ##

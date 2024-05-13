@@ -266,9 +266,9 @@ namespace edm {
       }
     }
 
-    bool OutputModuleCore::needToRunSelection() const { return !wantAllEvents_; }
+    bool OutputModuleCore::needToRunSelection() const noexcept { return !wantAllEvents_; }
 
-    std::vector<ProductResolverIndexAndSkipBit> OutputModuleCore::productsUsedBySelection() const {
+    std::vector<ProductResolverIndexAndSkipBit> OutputModuleCore::productsUsedBySelection() const noexcept {
       std::vector<ProductResolverIndexAndSkipBit> returnValue;
       auto const& s = selectors_[0];
       auto const n = s.numberOfTokens();

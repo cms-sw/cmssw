@@ -295,8 +295,8 @@ void DependencyGraph::preBeginJob(PathsAndConsumesOfModulesBase const &pathsAndC
     auto &graph = m_graph.create_subgraph();
 
     // set the subgraph name property to the EndPath name
-    boost::get_property(graph, boost::graph_name) = paths[i];
-    boost::get_property(graph, boost::graph_graph_attribute)["label"] = "EndPath " + paths[i];
+    boost::get_property(graph, boost::graph_name) = endps[i];
+    boost::get_property(graph, boost::graph_graph_attribute)["label"] = "EndPath " + endps[i];
     boost::get_property(graph, boost::graph_graph_attribute)["labelloc"] = "bottom";
 
     // add to the subgraph the node corresponding to the scheduled modules on the EndPath

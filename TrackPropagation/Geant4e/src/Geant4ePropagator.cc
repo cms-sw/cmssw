@@ -35,7 +35,7 @@
 #include "G4StateManager.hh"
 
 // CLHEP
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include <CLHEP/Units/SystemOfUnits.h>
 
 /** Constructor.
  */
@@ -117,7 +117,7 @@ Geant4ePropagator::ErrorTargetPair Geant4ePropagator::transformToG4SurfaceTarget
   // Get Cylinder parameters.
   // CMS uses cm and GeV while Geant4 uses mm and MeV.
   // - Radius
-  G4float radCyl = pDest.radius() * cm;
+  G4float radCyl = pDest.radius() * CLHEP::cm;
   // - Position: PositionType & GlobalPoint are Basic3DPoint<float,GlobalTag>
   G4ThreeVector posCyl = TrackPropagation::globalPointToHep3Vector(pDest.position());
   // - Rotation: Type in CMSSW is RotationType == TkRotation<T>, T=float
@@ -259,7 +259,7 @@ std::pair<TrajectoryStateOnSurface, double> Geant4ePropagator::propagateGeneric(
     cmsInitMom = -cmsInitMom;
 
   CLHEP::Hep3Vector g4InitPos = TrackPropagation::globalPointToHep3Vector(cmsInitPos);
-  CLHEP::Hep3Vector g4InitMom = TrackPropagation::globalVectorToHep3Vector(cmsInitMom * GeV);
+  CLHEP::Hep3Vector g4InitMom = TrackPropagation::globalVectorToHep3Vector(cmsInitMom * CLHEP::GeV);
 
   debugReportTrackState("intitial", cmsInitPos, g4InitPos, cmsInitMom, g4InitMom, pDest);
 
@@ -377,7 +377,7 @@ std::pair<TrajectoryStateOnSurface, double> Geant4ePropagator::propagateGeneric(
   // use the hit on the the RECO plane as the final position to be d'accor with
   // the RecHit measurements
   const GlobalPoint posEndGV = TrackPropagation::hepPoint3DToGlobalPoint(finalRecoPos);
-  GlobalVector momEndGV = TrackPropagation::hep3VectorToGlobalVector(momEnd) / GeV;
+  GlobalVector momEndGV = TrackPropagation::hep3VectorToGlobalVector(momEnd) / CLHEP::GeV;
 
   debugReportTrackState("final", posEndGV, finalRecoPos, momEndGV, momEnd, pDest);
 

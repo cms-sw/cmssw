@@ -23,7 +23,7 @@
 #include "G4Track.hh"
 #include "G4VProcess.hh"
 
-#include "G4SystemOfUnits.hh"
+#include <CLHEP/Units/SystemOfUnits.h>
 
 //#define EDM_ML_DEBUG
 

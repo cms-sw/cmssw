@@ -2,7 +2,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "Utilities/PPS/interface/PPSUnitConversion.h"
 #include <CLHEP/Random/RandGauss.h>
-#include <CLHEP/Units/GlobalSystemOfUnits.h>
+#include <CLHEP/Units/SystemOfUnits.h>
 
 BaseProtonTransport::BaseProtonTransport(const edm::ParameterSet& iConfig)
     : verbosity_(iConfig.getParameter<bool>("Verbosity")),
@@ -73,7 +73,7 @@ void BaseProtonTransport::addPartToHepMC(const HepMC::GenEvent* in_evt, HepMC::G
     // Totem uses negative Z for sector 56 while Hector uses always positive distance
     double ddd = (direction > 0) ? fPPSRegionStart_45_ : fabs(fPPSRegionStart_56_);
 
-    double time = (ddd * meter - gpart->production_vertex()->position().z() * mm);  // mm
+    double time = (ddd * CLHEP::meter - gpart->production_vertex()->position().z() * CLHEP::mm);  // mm
 
     //
     // ATTENTION: at this point, the vertex at PPS is already in mm

@@ -10,8 +10,8 @@
 #include "G4ios.hh"
 #include "G4Cerenkov.hh"
 #include "G4ParticleTable.hh"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
+#include <CLHEP/Units/SystemOfUnits.h>
+#include <CLHEP/Units/GlobalPhysicalConstants.h>
 #include "Randomize.hh"
 #include "G4Poisson.hh"
 

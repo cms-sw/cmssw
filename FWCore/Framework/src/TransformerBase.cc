@@ -71,7 +71,7 @@ namespace edm {
   }
 
   std::size_t TransformerBase::findMatchingIndex(ProducerBase const& iBase,
-                                                 edm::BranchDescription const& iBranch) const {
+                                                 edm::BranchDescription const& iBranch) const noexcept {
     auto const& list = iBase.typeLabelList();
 
     std::size_t index = 0;
@@ -110,7 +110,7 @@ namespace edm {
                                           std::size_t iIndex,
                                           edm::ActivityRegistry* iAct,
                                           ProducerBase const& iBase,
-                                          edm::EventForTransformer& iEvent) const {
+                                          edm::EventForTransformer& iEvent) const noexcept {
     auto const& mcc = iEvent.moduleCallingContext();
     if (transformInfo_.get<kPreTransform>(iIndex)) {
       std::optional<decltype(iEvent.get(transformInfo_.get<kType>(iIndex), transformInfo_.get<kResolverIndex>(iIndex)))>

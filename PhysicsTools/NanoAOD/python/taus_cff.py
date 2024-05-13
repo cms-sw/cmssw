@@ -2,15 +2,13 @@ import FWCore.ParameterSet.Config as cms
 from PhysicsTools.NanoAOD.common_cff import *
 from PhysicsTools.NanoAOD.nano_eras_cff import run3_nanoAOD_124
 from PhysicsTools.NanoAOD.simpleCandidateFlatTableProducer_cfi import simpleCandidateFlatTableProducer
+from PhysicsTools.NanoAOD.simpleGenParticleFlatTableProducer_cfi import simpleGenParticleFlatTableProducer
+from PhysicsTools.NanoAOD.simplePATTauFlatTableProducer_cfi import simplePATTauFlatTableProducer
 
 from PhysicsTools.JetMCAlgos.TauGenJets_cfi import tauGenJets
 from PhysicsTools.JetMCAlgos.TauGenJetsDecayModeSelectorAllHadrons_cfi import tauGenJetsSelectorAllHadrons
 
 from PhysicsTools.PatAlgos.patTauSignalCandidatesProducer_cfi import patTauSignalCandidatesProducer
-
-##################### Updated tau collection with MVA-based tau-Ids rerun #######
-# Used only in some eras
-from PhysicsTools.NanoAOD.taus_updatedMVAIds_cff import *
 
 ##################### User floats producers, selectors ##########################
 
@@ -20,12 +18,12 @@ from RecoTauTag.RecoTau.tauIdWPsDefs import WORKING_POINTS_v2p5
 
 finalTaus = cms.EDFilter("PATTauRefSelector",
     src = cms.InputTag("slimmedTaus"),
-    cut = cms.string("pt > 18 && ((tauID('decayModeFindingNewDMs') > 0.5 && (tauID('byLooseCombinedIsolationDeltaBetaCorr3Hits') || (tauID('chargedIsoPtSumdR03')+max(0.,tauID('neutralIsoPtSumdR03')-0.072*tauID('puCorrPtSum'))<2.5) || tauID('byVVVLooseDeepTau2017v2p1VSjet') || tauID('byVVVLooseDeepTau2018v2p5VSjet'))) || (?isTauIDAvailable('byPNetVSjetraw')?tauID('byPNetVSjetraw'):-1) > {})".format(0.05))
+    cut = cms.string("pt > 18 && ((tauID('decayModeFindingNewDMs') > 0.5 && (tauID('byLooseCombinedIsolationDeltaBetaCorr3Hits') || (tauID('chargedIsoPtSumdR03')+max(0.,tauID('neutralIsoPtSumdR03')-0.072*tauID('puCorrPtSum'))<2.5) || tauID('byVVVLooseDeepTau2017v2p1VSjet') || tauID('byVVVLooseDeepTau2018v2p5VSjet'))) || (?isTauIDAvailable('byUTagCHSVSjetraw')?tauID('byUTagCHSVSjetraw'):-1) > {} || (?isTauIDAvailable('byUTagPUPPIVSjetraw')?tauID('byUTagPUPPIVSjetraw'):-1) > {})".format(0.05, 0.05))
 )
 
 run3_nanoAOD_124.toModify(
     finalTaus,
-    cut = cms.string("pt > 18 && ((tauID('decayModeFindingNewDMs') > 0.5 && (tauID('byLooseCombinedIsolationDeltaBetaCorr3Hits') || (tauID('chargedIsoPtSumdR03')+max(0.,tauID('neutralIsoPtSumdR03')-0.072*tauID('puCorrPtSum'))<2.5) || tauID('byVVVLooseDeepTau2017v2p1VSjet') || (tauID('byDeepTau2018v2p5VSjetraw') > {}))) || (?isTauIDAvailable('byPNetVSjetraw')?tauID('byPNetVSjetraw'):-1) > {})".format(WORKING_POINTS_v2p5["jet"]["VVVLoose"],0.05))
+    cut = cms.string("pt > 18 && ((tauID('decayModeFindingNewDMs') > 0.5 && (tauID('byLooseCombinedIsolationDeltaBetaCorr3Hits') || (tauID('chargedIsoPtSumdR03')+max(0.,tauID('neutralIsoPtSumdR03')-0.072*tauID('puCorrPtSum'))<2.5) || tauID('byVVVLooseDeepTau2017v2p1VSjet') || (tauID('byDeepTau2018v2p5VSjetraw') > {}))) || (?isTauIDAvailable('byUTagCHSVSjetraw')?tauID('byUTagCHSVSjetraw'):-1) > {} || (?isTauIDAvailable('byUTagPUPPIVSjetraw')?tauID('byUTagPUPPIVSjetraw'):-1) > {})".format(WORKING_POINTS_v2p5["jet"]["VVVLoose"], 0.05, 0.05))
 )
 
 ##################### Tables for final output and docs ##########################
@@ -49,7 +47,7 @@ def _tauIdWPMask(pattern, choices, doc="", from_raw=False, wp_thrs=None):
     return Var(var_definition, "uint8", doc=doc)
 
 
-tauTable = simpleCandidateFlatTableProducer.clone(
+tauTable = simplePATTauFlatTableProducer.clone(
     src = cms.InputTag("linkedObjects","taus"),
     name= cms.string("Tau"),
     doc = cms.string("slimmedTaus after basic selection (" + finalTaus.cut.value()+")")
@@ -70,8 +68,9 @@ _tauVarsBase = cms.PSet(P4Vars,
        leadTkDeltaEta = Var("?leadChargedHadrCand.isNonnull()?(leadChargedHadrCand.eta - eta):0",float, doc="eta of the leading track, minus tau eta",precision=8),
        leadTkDeltaPhi = Var("?leadChargedHadrCand.isNonnull()?deltaPhi(leadChargedHadrCand.phi, phi):0",float, doc="phi of the leading track, minus tau phi",precision=8),
 
-       dxy = Var("?leadChargedHadrCand.isNonnull()?leadChargedHadrCand().dxy():0",float, doc="d_{xy} of lead track with respect to PV, in cm (with sign)",precision=10),
-       dz = Var("?leadChargedHadrCand.isNonnull()?leadChargedHadrCand().dz():0",float, doc="d_{z} of lead track with respect to PV, in cm (with sign)",precision=14),
+       # lazyEval=True: leadChargedHadrCand() returns the base type `reco::CandidatePtr`, needs to be dynamically casted to PackedCandidate to call dxy() / dz()
+       dxy = Var("?leadChargedHadrCand.isNonnull()?leadChargedHadrCand().dxy():0",float, doc="d_{xy} of lead track with respect to PV, in cm (with sign)",precision=10, lazyEval=True),
+       dz = Var("?leadChargedHadrCand.isNonnull()?leadChargedHadrCand().dz():0",float, doc="d_{z} of lead track with respect to PV, in cm (with sign)",precision=14, lazyEval=True),
 
        # these are too many, we may have to suppress some
        rawIso = Var("?isTauIDAvailable('byCombinedIsolationDeltaBetaCorrRaw3Hits')?tauID('byCombinedIsolationDeltaBetaCorrRaw3Hits'):-1", float, doc = "combined isolation (deltaBeta corrections)", precision=10),
@@ -115,25 +114,40 @@ _deepTauVars2018v2p5 = cms.PSet(
                                             doc="byDeepTau2018v2p5VSjet ID working points (deepTau2018v2p5)"),
 )
 
-_pnet2023 = cms.PSet(
-    decayModePNet = Var("?isTauIDAvailable('byPNetDecayMode')?tauID('byPNetDecayMode'):-1", "int16",doc="decay mode of the highest tau score of ParticleNet"),
-    rawPNetVSe = Var("?isTauIDAvailable('byPNetVSeraw')?tauID('byPNetVSeraw'):-1", float, doc="raw output of ParticleNetVsE discriminator (PNet 2023)", precision=10),
-    rawPNetVSmu = Var("?isTauIDAvailable('byPNetVSmuraw')?tauID('byPNetVSmuraw'):-1", float, doc="raw output of ParticleNetVsMu discriminator (PNet 2023)", precision=10),
-    rawPNetVSjet = Var("?isTauIDAvailable('byPNetVSjetraw')?tauID('byPNetVSjetraw'):-1", float, doc="raw output of ParticleNetVsJet discriminator (PNet 2023)", precision=10),
-    ptCorrPNet = Var("?isTauIDAvailable('byPNetPtCorr')?tauID('byPNetPtCorr'):1", float, doc="pt correction (PNet 2023)", precision=10),
-    qConfPNet = Var("?isTauIDAvailable('byPNetQConf')?tauID('byPNetQConf'):0", float, doc="signed charge confidence (PNet 2023)", precision=10),
-    probDM0PNet = Var("?isTauIDAvailable('byPNetProb1h0pi0')?tauID('byPNetProb1h0pi0'):-1", float, doc="normalised probablity of decayMode 0, 1h+0pi0 (PNet 2023)", precision=10),
-    probDM1PNet = Var("?isTauIDAvailable('byPNetProb1h1pi0')?tauID('byPNetProb1h1pi0'):-1", float, doc="normalised probablity of decayMode 1, 1h+1pi0 (PNet 2023)", precision=10),
-    probDM2PNet = Var("?isTauIDAvailable('byPNetProb1h2pi0')?tauID('byPNetProb1h2pi0'):-1", float, doc="normalised probablity of decayMode 2, 1h+2pi0 (PNet 2023)", precision=10),
-    probDM10PNet = Var("?isTauIDAvailable('byPNetProb3h0pi0')?tauID('byPNetProb3h0pi0'):-1", float, doc="normalised probablity of decayMode 10, 3h+0pi0 (PNet 2023)", precision=10),
-    probDM11PNet = Var("?isTauIDAvailable('byPNetProb3h1pi0')?tauID('byPNetProb3h1pi0'):-1", float, doc="normalised probablity of decayMode 11, 3h+1pi0 (PNet 2023)", precision=10),
+_UTagCHS = cms.PSet(
+    decayModePNet = Var("?isTauIDAvailable('byUTagCHSDecayMode')?tauID('byUTagCHSDecayMode'):-1", "int16",doc="decay mode of the highest tau score of ParticleNet (CHS Jets)"),
+    rawPNetVSe = Var("?isTauIDAvailable('byUTagCHSVSeraw')?tauID('byUTagCHSVSeraw'):-1", float, doc="raw output of ParticleNetVsE discriminator (PNet 2023 - CHS Jets)", precision=10),
+    rawPNetVSmu = Var("?isTauIDAvailable('byUTagCHSVSmuraw')?tauID('byUTagCHSVSmuraw'):-1", float, doc="raw output of ParticleNetVsMu discriminator (PNet 2023 - CHS Jets)", precision=10),
+    rawPNetVSjet = Var("?isTauIDAvailable('byUTagCHSVSjetraw')?tauID('byUTagCHSVSjetraw'):-1", float, doc="raw output of ParticleNetVsJet discriminator (PNet 2023 - CHS Jets)", precision=10),
+    ptCorrPNet = Var("?isTauIDAvailable('byUTagCHSPtCorr')?tauID('byUTagCHSPtCorr'):1", float, doc="pt correction (PNet 2023 - CHS Jets)", precision=10),
+    qConfPNet = Var("?isTauIDAvailable('byUTagCHSQConf')?tauID('byUTagCHSQConf'):0", float, doc="signed charge confidence (PNet 2023 - CHS Jets)", precision=10),
+    probDM0PNet = Var("?isTauIDAvailable('byUTagCHSProb1h0pi0')?tauID('byUTagCHSProb1h0pi0'):-1", float, doc="normalised probablity of decayMode 0, 1h+0pi0 (PNet 2023 - CHS Jets)", precision=10),
+    probDM1PNet = Var("?isTauIDAvailable('byUTagCHSProb1h1pi0')?tauID('byUTagCHSProb1h1pi0'):-1", float, doc="normalised probablity of decayMode 1, 1h+1pi0 (PNet 2023 - CHS Jets)", precision=10),
+    probDM2PNet = Var("?isTauIDAvailable('byUTagCHSProb1h2pi0')?tauID('byUTagCHSProb1h2pi0'):-1", float, doc="normalised probablity of decayMode 2, 1h+2pi0 (PNet 2023 - CHS Jets)", precision=10),
+    probDM10PNet = Var("?isTauIDAvailable('byUTagCHSProb3h0pi0')?tauID('byUTagCHSProb3h0pi0'):-1", float, doc="normalised probablity of decayMode 10, 3h+0pi0 (PNet 2023 - CHS Jets)", precision=10),
+    probDM11PNet = Var("?isTauIDAvailable('byUTagCHSProb3h1pi0')?tauID('byUTagCHSProb3h1pi0'):-1", float, doc="normalised probablity of decayMode 11, 3h+1pi0 (PNet 2023 - CHS Jets)", precision=10),
+)
+
+_UTagPUPPI = cms.PSet(
+    decayModeUParT= Var("?isTauIDAvailable('byUTagPUPPIDecayMode')?tauID('byUTagPUPPIDecayMode'):-1", "int16",doc="decay mode of the highest tau score of Unified ParT 2024 (PUPPI Jets)"),
+    rawUParTVSe = Var("?isTauIDAvailable('byUTagPUPPIVSeraw')?tauID('byUTagPUPPIVSeraw'):-1", float, doc="raw output of UParTVsE discriminator (Unified ParT 2024 - PUPPI Jets)", precision=10),
+    rawUParTVSmu = Var("?isTauIDAvailable('byUTagPUPPIVSmuraw')?tauID('byUTagPUPPIVSmuraw'):-1", float, doc="raw output of UParTVsMu discriminator (Unified ParT 2024 - PUPPI Jets)", precision=10),
+    rawUParTVSjet = Var("?isTauIDAvailable('byUTagPUPPIVSjetraw')?tauID('byUTagPUPPIVSjetraw'):-1", float, doc="raw output of UParTVsJet discriminator (Unified ParT 2024 - PUPPI Jets)", precision=10),
+    ptCorrUParT= Var("?isTauIDAvailable('byUTagPUPPIPtCorr')?tauID('byUTagPUPPIPtCorr'):1", float, doc="pt correction (Unified ParT 2024 - PUPPI Jets)", precision=10),
+    qConfUParT= Var("?isTauIDAvailable('byUTagPUPPIQConf')?tauID('byUTagPUPPIQConf'):0", float, doc="signed charge confidence (Unified ParT 2024 - PUPPI Jets)", precision=10),
+    probDM0UParT= Var("?isTauIDAvailable('byUTagPUPPIProb1h0pi0')?tauID('byUTagPUPPIProb1h0pi0'):-1", float, doc="normalised probablity of decayMode 0, 1h+0pi0 (Unified ParT 2024 - PUPPI Jets)", precision=10),
+    probDM1UParT= Var("?isTauIDAvailable('byUTagPUPPIProb1h1pi0')?tauID('byUTagPUPPIProb1h1pi0'):-1", float, doc="normalised probablity of decayMode 1, 1h+1pi0 (Unified ParT 2024 - PUPPI Jets)", precision=10),
+    probDM2UParT= Var("?isTauIDAvailable('byUTagPUPPIProb1h2pi0')?tauID('byUTagPUPPIProb1h2pi0'):-1", float, doc="normalised probablity of decayMode 2, 1h+2pi0 (Unified ParT 2024 - PUPPI Jets)", precision=10),
+    probDM10UParT= Var("?isTauIDAvailable('byUTagPUPPIProb3h0pi0')?tauID('byUTagPUPPIProb3h0pi0'):-1", float, doc="normalised probablity of decayMode 10, 3h+0pi0 (Unified ParT 2024 - PUPPI Jets)", precision=10),
+    probDM11UParT= Var("?isTauIDAvailable('byUTagPUPPIProb3h1pi0')?tauID('byUTagPUPPIProb3h1pi0'):-1", float, doc="normalised probablity of decayMode 11, 3h+1pi0 (Unified ParT 2024 - PUPPI Jets)", precision=10),
 )
 
 _variablesMiniV2 = cms.PSet(
     _tauVarsBase,
     _deepTauVars2017v2p1,
     _deepTauVars2018v2p5,
-    _pnet2023
+    _UTagCHS,
+    _UTagPUPPI
 )
 
 tauTable.variables = _variablesMiniV2
@@ -186,7 +200,7 @@ genVisTaus = cms.EDProducer("GenVisTauProducer",
     srcGenParticles = cms.InputTag("finalGenParticles")
 )
 
-genVisTauTable = simpleCandidateFlatTableProducer.clone(
+genVisTauTable = simpleGenParticleFlatTableProducer.clone(
     src = cms.InputTag("genVisTaus"),
     cut = cms.string("pt > 10."),
     name = cms.string("GenVisTau"),

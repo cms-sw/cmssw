@@ -1,11 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
 from PhysicsTools.NanoAOD.nano_eras_cff import *
-from PhysicsTools.NanoAOD.simpleCandidateFlatTableProducer_cfi import simpleCandidateFlatTableProducer
 
-from PhysicsTools.NanoAOD.common_cff import Var, P3Vars, P4Vars
-from PhysicsTools.NanoAOD.muons_cff import muonTable, finalMuons
-from PhysicsTools.NanoAOD.triggerObjects_cff import triggerObjectTable, mksel
+from PhysicsTools.NanoAOD.common_cff import Var, P3Vars
+from PhysicsTools.NanoAOD.triggerObjects_cff import mksel
 
 def Custom_Muon_Task(process):
     process.nanoTableTaskCommon.remove(process.electronTablesTask)
@@ -257,10 +255,10 @@ def AddVariablesForMuon(proc):
     proc.muonTable.variables.innerTrackExtraIdx = Var('? innerTrack().isNonnull() ? innerTrack().extra().key() : -99', 'int', precision=-1, doc='Index of the innerTrack TrackExtra in the original collection')
 
     #Jet Related Variables
-    proc.muonTable.variables.jetPtRatio = Var("?userCand('jetForLepJetVar').isNonnull()?min(userFloat('ptRatio'),1.5):1.0/(1.0+(pfIsolationR04().sumChargedHadronPt + max(pfIsolationR04().sumNeutralHadronEt + pfIsolationR04().sumPhotonEt - pfIsolationR04().sumPUPt/2,0.0))/pt)", float, doc="ptRatio using the LepAware JEC approach, for muon MVA")
-    proc.muonTable.variables.jetDF = Var("?userCand('jetForLepJetVar').isNonnull()?max(userCand('jetForLepJetVar').bDiscriminator('pfDeepFlavourJetTags:probbb')+userCand('jetForLepJetVar').bDiscriminator('pfDeepFlavourJetTags:probb')+userCand('jetForLepJetVar').bDiscriminator('pfDeepFlavourJetTags:problepb'),0.0):0.0",float,doc="b-tagging discriminator of the jet matched to the lepton, for muon MVA")
-    proc.muonTable.variables.jetCSVv2 = Var("?userCand('jetForLepJetVar').isNonnull()?max(userCand('jetForLepJetVar').bDiscriminator('pfCombinedSecondaryVertexV2BJetTags'),0.0):0.0",float,doc="CSVv2 b-tagging discriminator of the jet matched to the lepton, for muon MVA")
-    
+    # lazyEval=True: userCand() returns the base type `reco::CandidatePtr`, needs to be dynamically casted to pat::Jet to call the userFloat() / bDiscriminator() methods
+    proc.muonTable.variables.jetPtRatio = Var("?userCand('jetForLepJetVar').isNonnull()?min(userFloat('ptRatio'),1.5):1.0/(1.0+(pfIsolationR04().sumChargedHadronPt + max(pfIsolationR04().sumNeutralHadronEt + pfIsolationR04().sumPhotonEt - pfIsolationR04().sumPUPt/2,0.0))/pt)", float, doc="ptRatio using the LepAware JEC approach, for muon MVA", lazyEval=True)
+    proc.muonTable.variables.jetDF = Var("?userCand('jetForLepJetVar').isNonnull()?max(userCand('jetForLepJetVar').bDiscriminator('pfDeepFlavourJetTags:probbb')+userCand('jetForLepJetVar').bDiscriminator('pfDeepFlavourJetTags:probb')+userCand('jetForLepJetVar').bDiscriminator('pfDeepFlavourJetTags:problepb'),0.0):0.0",float,doc="b-tagging discriminator of the jet matched to the lepton, for muon MVA", lazyEval=True)
+    proc.muonTable.variables.jetCSVv2 = Var("?userCand('jetForLepJetVar').isNonnull()?max(userCand('jetForLepJetVar').bDiscriminator('pfCombinedSecondaryVertexV2BJetTags'),0.0):0.0",float,doc="CSVv2 b-tagging discriminator of the jet matched to the lepton, for muon MVA", lazyEval=True)
 
     #nSegments
     proc.muonTable.variables.nsegments = Var("userInt('nsegments')", int, doc = "nsegments as of Spark-tool")

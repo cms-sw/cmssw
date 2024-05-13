@@ -40,7 +40,7 @@ namespace ecaldqm {
     float EEp_PUcorr_intercept_;
     float EEm_PUcorr_intercept_;
 
-    size_t nLS = 4;      //No.of lumisections to add the occupancy over
+    size_t nLS = 3;      //No.of lumisections to add the occupancy over
     size_t nLSloss = 6;  //No.of lumisections to multiply the loss over
     int nbadtowerEB;     //count the no.of bad towers flagged by the ML model.
     int nbadtowerEE;

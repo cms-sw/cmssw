@@ -1,3 +1,4 @@
+<flags CXXFLAGS="-Wno-error=array-bounds" />
 <use name="DataFormats/TrackerCommon"/>
 <use name="DQMServices/Core"/>
 <export>

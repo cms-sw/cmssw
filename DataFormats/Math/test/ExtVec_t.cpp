@@ -148,11 +148,15 @@ void go(bool dovec = true) {
   constexpr Vec x{2.0f, 4.0f, 5.0f};
   constexpr Vec y{-3.0f, 2.0f, -5.0f};
   Vec x0 = x[0] + zero;
+  Vec4<float> f = convert<Vec4<float>>(x);
+  Vec4<double> d = convert<Vec4<double>>(x);
   //constexpr Vec xx = T(3.3) + zero;  // clang 3.8 does not like it
   const Vec xx = T(3.3) + zero;
   std::cout << x << std::endl;
   std::cout << (Vec4<float>){float(x[0]), float(x[1]), float(x[2]), float(x[3])} << std::endl;
   std::cout << (Vec4<double>){x[0], x[1], x[2], x[3]} << std::endl;
+  std::cout << f << std::endl;
+  std::cout << d << std::endl;
   std::cout << -x << std::endl;
   std::cout << Vec{x[2]} << std::endl;
   //std::cout <<  Vec(x[2]) << std::endl;
@@ -166,6 +170,7 @@ void go(bool dovec = true) {
   std::cout << apply(x, [](T x) { return std::sqrt(x); }) << std::endl;
 
   std::cout << dot(x, y) << std::endl;
+  std::cout << dot3(x, y) << std::endl;
   std::cout << dotSimple(x, y) << std::endl;
 
   //  std::cout << "equal" << (x==x ? " " : " not ") << "ok" << std::endl;

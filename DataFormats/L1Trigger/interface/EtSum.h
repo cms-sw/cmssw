@@ -70,10 +70,12 @@ namespace l1t {
 
     EtSumType getType() const;
 
-    virtual bool operator==(const l1t::EtSum& rhs) const;
-    virtual inline bool operator!=(const l1t::EtSum& rhs) const { return !(operator==(rhs)); };
+    bool operator==(const l1t::EtSum& rhs) const;
+    inline bool operator!=(const l1t::EtSum& rhs) const { return !(operator==(rhs)); };
 
   private:
+    using L1Candidate::operator==;
+    using L1Candidate::operator!=;
     // type of EtSum
     EtSumType type_;
 

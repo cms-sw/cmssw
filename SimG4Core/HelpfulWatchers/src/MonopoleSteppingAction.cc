@@ -13,8 +13,8 @@
 #include "G4Run.hh"
 #include "G4Track.hh"
 
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include <CLHEP/Units/GlobalPhysicalConstants.h>
+#include <CLHEP/Units/SystemOfUnits.h>
 
 MonopoleSteppingAction::MonopoleSteppingAction(edm::ParameterSet const &p) : actOnTrack(false), bZ(0) {
   mode = p.getUntrackedParameter<bool>("ChangeFromFirstStep", true);
@@ -74,6 +74,7 @@ void MonopoleSteppingAction::update(const BeginOfTrack *trk) {
       dirxStart = aTrack->GetMomentumDirection().x();
       diryStart = aTrack->GetMomentumDirection().y();
       dirzStart = aTrack->GetMomentumDirection().z();
+      using CLHEP::GeV;
       LogDebug("SimG4CoreWatcher") << "MonopoleSeppingAction Track " << code << " Flag " << actOnTrack
                                    << " (px,py,pz,E) = (" << pxStart / GeV << ", " << pyStart / GeV << ", "
                                    << pzStart / GeV << ", " << eStart / GeV << ")";

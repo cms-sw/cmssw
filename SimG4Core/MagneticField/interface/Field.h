@@ -7,7 +7,7 @@
 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
-#include "CLHEP/Units/SystemOfUnits.h"
+#include <CLHEP/Units/SystemOfUnits.h>
 
 namespace sim {
   class Field final : public G4MagneticField {

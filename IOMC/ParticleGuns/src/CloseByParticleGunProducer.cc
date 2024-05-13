@@ -14,10 +14,10 @@
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "CLHEP/Random/RandFlat.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
-#include "CLHEP/Random/RandFlat.h"
+#include <CLHEP/Random/RandFlat.h>
+#include <CLHEP/Units/SystemOfUnits.h>
+#include <CLHEP/Units/GlobalPhysicalConstants.h>
+#include <CLHEP/Random/RandFlat.h>
 
 using namespace edm;
 using namespace std;
@@ -207,7 +207,7 @@ void CloseByParticleGunProducer::produce(Event& e, const EventSetup& es) {
 
     // compute correct path assuming uniform magnetic field in CMS
     double pathLength = 0.;
-    const double speed = p.pz() / p.e() * c_light / cm;
+    const double speed = p.pz() / p.e() * c_light / CLHEP::cm;
     if (PData->charge()) {
       // Radius [cm] = P[GeV/c] * 10^9 / (c[mm/ns] * 10^6 * q[C] * B[T]) * 100[cm/m]
       const double radius = std::sqrt(p.px() * p.px() + p.py() * p.py()) * std::pow(10, 5) /
@@ -220,9 +220,10 @@ void CloseByParticleGunProducer::produce(Event& e, const EventSetup& es) {
 
     // if not pointing time doesn't mean a lot, keep the old way
     const double pathTime = fPointing ? (pathLength / speed) : (std::sqrt(x * x + y * y + fZ * fZ) / speed);
-    double timeOffset = fOffsetFirst + (pathTime + ip * fT) * ns * c_light;
+    double timeOffset = fOffsetFirst + (pathTime + ip * fT) * CLHEP::ns * c_light;
 
-    HepMC::GenVertex* Vtx = new HepMC::GenVertex(HepMC::FourVector(x * cm, y * cm, fZ * cm, timeOffset));
+    HepMC::GenVertex* Vtx =
+        new HepMC::GenVertex(HepMC::FourVector(x * CLHEP::cm, y * CLHEP::cm, fZ * CLHEP::cm, timeOffset));
 
     HepMC::GenParticle* Part = new HepMC::GenParticle(p, PartID, 1);
     Part->suggest_barcode(barcode);

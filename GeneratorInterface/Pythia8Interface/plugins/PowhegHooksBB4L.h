@@ -184,9 +184,9 @@ namespace Pythia8 {
           iRes = e[iRes].mother1();
         }
         if (iRes == 0) {
-          infoPtr->errorMsg(
-              "Warning in PowhegHooksBB4L::doVetoFSREmission: emission in resonance not from the top quark or from the "
-              "W boson, not vetoing");
+          loggerPtr->errorMsg("PowhegHooksBB4L::doVetoFSREmission",
+                              "Emission in resonance not from the top quark or from the "
+                              "W boson, not vetoing");
           return doVetoFSR(false, 0);
         }
         int iResId = e[iRes].id();
@@ -241,7 +241,7 @@ namespace Pythia8 {
                  << scale << endl;
           return doVetoFSR(scale > wmresscale, scale);
         } else {
-          infoPtr->errorMsg("Error in PowhegHooksBB4L::doVetoFSREmission: unimplemented case");
+          loggerPtr->errorMsg("PowhegHooksBB4L::doVetoFSREmissio", "Unimplemented case");
           exit(-1);
         }
       }

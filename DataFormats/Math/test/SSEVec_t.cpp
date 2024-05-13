@@ -99,7 +99,10 @@ void go2d() {
   vec3.reserve(50234);
 
   Vec2d k(-2.0, 3.14);
+  Vec2d nk = -k;
   std::cout << k << std::endl;
+  std::cout << -k << std::endl;
+  std::cout << nk << std::endl;
   std::cout << k + k << std::endl;
   std::cout << k * k << std::endl;
   Vec3d x(2.0, 4.0, 5.0);
@@ -145,10 +148,12 @@ void go(bool dovect = true) {
 
   Vec x(2.0, 4.0, 5.0);
   Vec y(-3.0, 2.0, -5.0);
+  Vec nx = -x;
   std::cout << x << std::endl;
   std::cout << Vec4<float>(x) << std::endl;
   std::cout << Vec4<double>(x) << std::endl;
   std::cout << -x << std::endl;
+  std::cout << nx << std::endl;
   std::cout << x.template get1<2>() << std::endl;
   std::cout << y << std::endl;
   std::cout << T(3.) * x << std::endl;
@@ -157,6 +162,7 @@ void go(bool dovect = true) {
   std::cout << mathSSE::sqrt(x) << std::endl;
 
   std::cout << dot(x, y) << std::endl;
+  std::cout << dot3(x, y) << std::endl;
   std::cout << dotSimple(x, y) << std::endl;
 
   std::cout << "equal" << (x == x ? " " : " not ") << "ok" << std::endl;

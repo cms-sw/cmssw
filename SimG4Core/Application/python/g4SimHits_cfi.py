@@ -367,7 +367,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         EnergyThresholdForHistoryInGeV = cms.double(0.05)
     ),
     MuonSD = cms.PSet(
-        EnergyThresholdForPersistency = cms.double(1.0),
+        EnergyThresholdForPersistency = cms.double(1.0), # in GeV
         PrintHits = cms.bool(False),
         AllMuonsPersistent = cms.bool(True),
         UseDemoHitRPC = cms.bool(True),
@@ -423,6 +423,9 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
     HCalSD = cms.PSet(
         common_UseLuminosity,
         UseBirkLaw                = cms.bool(True),
+        # Values of Birks constants from NIM 80 (1970) 239-244:
+        # as implemented in Geant3 required correction due to
+        # biased computation of enery deposition
         BirkC3                    = cms.double(1.75),
         BirkC2                    = cms.double(0.142),
         BirkC1                    = cms.double(0.0060),
@@ -562,9 +565,12 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         Verbosity        = cms.untracked.int32(0),
         EminHit          = cms.double(0.0),
         UseBirkLaw       = cms.bool(True),
+        # Values of Birks constants from NIM 80 (1970) 239-244:
+        # as implemented in Geant3 required correction due to
+        # biased computation of enery deposition
         BirkC3           = cms.double(1.75),
         BirkC2           = cms.double(0.142),
-        BirkC1           = cms.double(0.0052),
+        BirkC1           = cms.double(0.0060),
         FiducialCut      = cms.bool(False),
         DistanceFromEdge = cms.double(1.0),
         StoreAllG4Hits   = cms.bool(False),

@@ -70,14 +70,16 @@ namespace edm {
       static void fillDescriptions(ConfigurationDescriptions& descriptions) { T::fillDescriptions(descriptions); }
       static void prevalidate(ConfigurationDescriptions& descriptions) { T::prevalidate(descriptions); }
 
-      bool wantsProcessBlocks() const final { return T::HasAbility::kWatchProcessBlock; }
-      bool wantsInputProcessBlocks() const final { return T::HasAbility::kInputProcessBlockCache; }
-      bool wantsGlobalRuns() const final { return T::HasAbility::kRunCache or T::HasAbility::kRunSummaryCache; }
-      bool wantsStreamRuns() const final { return T::HasAbility::kWatchRuns; }
-      bool wantsGlobalLuminosityBlocks() const final {
+      bool wantsProcessBlocks() const noexcept final { return T::HasAbility::kWatchProcessBlock; }
+      bool wantsInputProcessBlocks() const noexcept final { return T::HasAbility::kInputProcessBlockCache; }
+      bool wantsGlobalRuns() const noexcept final {
+        return T::HasAbility::kRunCache or T::HasAbility::kRunSummaryCache;
+      }
+      bool wantsStreamRuns() const noexcept final { return T::HasAbility::kWatchRuns; }
+      bool wantsGlobalLuminosityBlocks() const noexcept final {
         return T::HasAbility::kLuminosityBlockCache or T::HasAbility::kLuminosityBlockSummaryCache;
       }
-      bool wantsStreamLuminosityBlocks() const final { return T::HasAbility::kWatchLuminosityBlocks; }
+      bool wantsStreamLuminosityBlocks() const noexcept final { return T::HasAbility::kWatchLuminosityBlocks; }
 
     private:
       using MyGlobal = CallGlobal<T>;
