@@ -134,7 +134,7 @@ void RPCDigiValid::bookHistograms(DQMStore::IBooker &booker, edm::Run const &run
   const int nbinsXY = 160;  // bin width: 10cm
   const double minR = 100, maxR = 800;
   const int nbinsR = 70;    // bin width: 10cm
-  const int nbinsPhi = 90;  // bin width: 4 degree
+  const int nbinsPhi = 72;  // bin width: 5 degree
   const double maxBarrelZ = 700;
   const int nbinsBarrelZ = 140;  // bin width: 10cm
 
