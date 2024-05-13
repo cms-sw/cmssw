@@ -18,6 +18,7 @@ from ..sequences.HLTPhase2L3MuonsSequence_cfi import *
 from ..sequences.HLTL2MuonsFromL1TkSequence_cfi import *
 from ..sequences.HLTPFClusteringForEgammaUnseededSequence_cfi import *
 from ..sequences.HLTPhase2L3MuonGeneralTracksSequence_cfi import *
+from ..modules.hltDoubleTkMuon157L1TkMuonFilter_cfi import *
 from ..modules.hltPhase2PixelFitterByHelixProjections_cfi import *
 from ..modules.hltPhase2PixelTrackFilterByKinematics_cfi import *
 from ..modules.hltDiMuon178RelTrkIsoFiltered0p4_cfi import *
@@ -30,8 +31,7 @@ from ..modules.hltL3fL1DoubleMu155fPreFiltered8_cfi import *
 from ..modules.hltPhase2L3MuonsTrkIsoRegionalNewdR0p3dRVeto0p005dz0p25dr0p20ChisqInfPtMin0p0Cut0p4_cfi import *
 
 HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_FromL1TkMuon = cms.Path(HLTBeginSequence
-    +hltL1TkDoubleMuFiltered7
-    +hltL1TkSingleMuFiltered15
+    +hltDoubleTkMuon157L1TkMuonFilter
     +hltDoubleMuon7DZ1p0
     +RawToDigiSequence
     +itLocalRecoSequence

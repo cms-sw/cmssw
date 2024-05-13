@@ -36,7 +36,7 @@ done
 ALL_FILES="${ALL_FILES%?}"
 echo "Discovered files: $ALL_FILES"
 
-cmsDriver.py Phase2 -s HLT:75e33_timing --processName=HLTX \
+cmsDriver.py Phase2 -s L1P2GT,HLT:75e33_timing --processName=HLTX \
   --conditions auto:phase2_realistic_T25 --geometry Extended2026D98 \
   --era Phase2C17I13M9 \
   --customise SLHCUpgradeSimulations/Configuration/aging.customise_aging_1000 \
@@ -45,11 +45,11 @@ cmsDriver.py Phase2 -s HLT:75e33_timing --processName=HLTX \
   --mc --nThreads 4 --inputCommands='keep *, drop *_hlt*_*_HLT, drop triggerTriggerFilterObjectWithRefs_l1t*_*_HLT' \
   -n 1000 --no_exec --output={}
 
-if [ -e 'Phase2_HLT.py' ]; then
+if [ -e 'Phase2_L1P2GT_HLT.py' ]; then
   if [ ! -d 'patatrack-scripts' ]; then
     git clone https://github.com/cms-patatrack/patatrack-scripts --depth 1
   fi
-  patatrack-scripts/benchmark -j 4 -t 8 -s 8 -e 1000 --no-run-io-benchmark -k Phase2Timing_resources.json -- Phase2_HLT.py
+  patatrack-scripts/benchmark -j 4 -t 16 -s 16 -e 1000 --no-run-io-benchmark -k Phase2Timing_resources.json -- Phase2_L1P2GT_HLT.py
   if [ ! -d 'circles' ]; then
     git clone https://github.com/fwyzard/circles.git --depth 1
   fi
