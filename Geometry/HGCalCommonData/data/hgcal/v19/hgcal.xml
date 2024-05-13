@@ -134,6 +134,16 @@
   <Constant name="rMaxHGCalHEmix3"       value="[rMaxHGCal8]"/>
   <Constant name="rMaxHGCalHEmix4"       value="[rMaxHGCal10]"/>
   <Constant name="rMaxHGCalHEmix5"       value="[rMaxHGCal12]"/>
+  <Constant name="thickEEModule1"        value="28.37*mm"/>
+  <Constant name="thickEEModule2"        value="30.57*mm"/>
+  <Constant name="thickEEModule3"        value="33.82*mm"/>
+  <Constant name="thickEEAbsorber1"      value="3.67*mm"/>
+  <Constant name="thickEEAbsorber2"      value="5.87*mm"/>
+  <Constant name="thickEEAbsorber3"      value="9.12*mm"/>
+  <Constant name="thickEECooling"        value="6.05*mm"/>
+  <Constant name="nEEModule1"            value="1"/>
+  <Constant name="nEEModule2"            value="8"/>
+  <Constant name="nEEModule3"            value="4"/>
 </ConstantsSection>
 
 <RotationSection label="hgcal.xml">

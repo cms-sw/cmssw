@@ -2,7 +2,8 @@
 # Way to use this:
 #   cmsRun g4OverlapCheckLayer_cfg.py type=EEV17 tol=0.01
 #
-#   Options for type EEV16, EEV17, HEsilV16, HEsilV17, HEmixV16, HEmixV17
+#   Options for type EEV16, EEV17, HEsilV16, HEsilV17, HEmixV16, HEmixV17,
+#                    PassiveV18, PassiveV19
 #               tol 1.0, 0.1, 0.01, 0.0
 #
 ###############################################################################
@@ -17,7 +18,7 @@ options.register('type',
                  "EEV17",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "type of operations: EEV16, EEV17, HEsilV16, HEsilV17, HEmixV16, HEmixV17")
+                  "type of operations: EEV16, EEV17, HEsilV16, HEsilV17, HEmixV16, HEmixV17, PassiveV18, PassiveV19")
 options.register('tol',
                  0.01,
                  VarParsing.VarParsing.multiplicity.singleton,
