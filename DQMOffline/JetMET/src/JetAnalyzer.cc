@@ -2611,8 +2611,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     iEvent.getByToken(jetCorrectorToken_, jetCorr);
     if (jetCorr.isValid()) {
       pass_correction_flag = true;
-    }
-    else {
+    } else {
       LogWarning("JetAnalyzer") << "Jet corrector service not found!";
     }
   }
