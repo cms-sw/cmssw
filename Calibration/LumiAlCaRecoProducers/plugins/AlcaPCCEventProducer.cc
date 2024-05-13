@@ -9,6 +9,7 @@ ________________________________________________________________**/
 
 // C++ standard
 #include <string>
+
 // CMS
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/DetId/interface/DetId.h"
@@ -28,6 +29,7 @@ ________________________________________________________________**/
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "TMath.h"
+
 //The class
 class AlcaPCCEventProducer : public edm::stream::EDProducer<> {
 public:
@@ -83,11 +85,7 @@ void AlcaPCCEventProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
     }
     DetId detId = mod.id();
 
-    // Iterate over Clusters in module to fill per ROC
-    // histogram
-    //edmNew::DetSet<SiPixelCluster>::const_iterator  di;
-    //for (di = mod.begin(); di != mod.end(); ++di) {
-    
+    // Iterate over Clusters in module to fill per ROC histogram
     for (auto const& cluster : mod) {
       for (int i = 0; i < cluster.size(); ++i) {
         const auto pix = cluster.pixel(i);
@@ -100,8 +98,9 @@ void AlcaPCCEventProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
         8  9  10 11 12 13 14 15
         0  1  2  3  4  5  6  7 */
         int key = icol + irow * nROCcolumns;
+
         // TODO: add roc threshold to config if(di.adc > fRocThreshold_) {
-        if (pix.adc > 8) {
+        if (pix.adc > 1) {
             thePCCob->incrementRoc(((detId << 7) + key), 1);
         }
       }
