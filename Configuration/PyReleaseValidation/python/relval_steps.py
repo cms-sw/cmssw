@@ -2376,25 +2376,26 @@ steps['TIER0EXPHPBS']={'-s':'RAW2DIGI,L1Reco,RECO:reconstruction_trackingOnly,AL
                           }
 
 steps['TIER0RAWSIPIXELCAL']={'-s':'RAW2DIGI,L1Reco,RECO,ALCAPRODUCER:SiPixelCalZeroBias,DQM:@express,ENDJOB',
-                          '--process':'RECO',
-                          '--scenario': 'pp',
-                          '--era':'Run2_2017',
-                          '--conditions':'auto:run2_data',
-                          '--data': '',
-                          '--datatier':'ALCARECO,DQMIO',
-                          '--eventcontent':'ALCARECO,DQM',
-                          '--customise':'Configuration/DataProcessing/RecoTLR.customiseExpress',
-                          }
+                             '--process':'ALCARECO',
+                             '--scenario': 'pp',
+                             '--era':'Run2_2017',
+                             '--conditions':'auto:run2_data',
+                             '--data': '',
+                             '--datatier':'ALCARECO,DQMIO',
+                             '--eventcontent':'ALCARECO,DQM',
+                             '--customise':'Configuration/DataProcessing/RecoTLR.customiseExpress',
+                             '--customise_commands':'"process.siPixelStatusProducer.SiPixelStatusProducerParameters.pixelClusterLabel = cms.untracked.InputTag(\'siPixelClusters::ALCARECO\')"'
+                             }
 
 steps['TIER0EXPSIPIXELCAL']={'-s':'RAW2DIGI,L1Reco,ALCAPRODUCER:SiPixelCalZeroBias,ENDJOB',
-                          '--process':'ALCARECO',
-                          '--scenario': 'pp',
-                          '--era':'Run2_2017',
-                          '--conditions':'auto:run2_data',
-                          '--data': '',
-                          '--datatier':'ALCARECO',
-                          '--eventcontent':'ALCARECO',
-                          }
+                             '--process':'ALCARECO',
+                             '--scenario': 'pp',
+                             '--era':'Run2_2017',
+                             '--conditions':'auto:run2_data',
+                             '--data': '',
+                             '--datatier':'ALCARECO',
+                             '--eventcontent':'ALCARECO',
+                             }
 
 steps['TIER0EXPPPSCAL']={'-s':'RAW2DIGI,L1Reco,ALCAPRODUCER:PPSCalTrackBasedSel,ENDJOB',
                           '--process':'ALCARECO',
@@ -2440,15 +2441,14 @@ steps['ALCASPLITHPBS']={'-s':'ALCAOUTPUT:TkAlMinBias,ALCA:PromptCalibProdBeamSpo
                         }
 
 steps['ALCASPLITSIPIXELCAL']={'-s':'ALCAOUTPUT:SiPixelCalZeroBias,ALCA:PromptCalibProdSiPixel',
-                        '--scenario':'pp',
-                        '--data':'',
-                        '--era':'Run2_2017',
-                        '--datatier':'ALCARECO',
-                        '--eventcontent':'ALCARECO',
-                        '--conditions':'auto:run2_data',
-                        '--triggerResultsProcess':'RECO',
-                        #'--filein':'file:step2.root'
-                        }
+                              '--scenario':'pp',
+                              '--data':'',
+                              '--era':'Run2_2017',
+                              '--datatier':'ALCARECO',
+                              '--eventcontent':'ALCARECO',
+                              '--conditions':'auto:run2_data',
+                              '--triggerResultsProcess':'ALCARECO',
+                              }
 
 steps['ALCASPLITPPSCAL']={'-s':'ALCAOUTPUT:PPSCalTrackBasedSel,ALCA:PromptCalibProdPPSTimingCalib',
                         '--scenario':'pp',
@@ -2457,7 +2457,7 @@ steps['ALCASPLITPPSCAL']={'-s':'ALCAOUTPUT:PPSCalTrackBasedSel,ALCA:PromptCalibP
                         '--datatier':'ALCARECO',
                         '--eventcontent':'ALCARECO',
                         '--conditions':'auto:run2_data',
-                        '--triggerResultsProcess':'RECO',
+                        '--triggerResultsProcess':'ALCARECO',
                         }
                         
 steps['ALCASPLITPPSCALRUN3']={'-s':'ALCAOUTPUT:PPSCalMaxTracks,ALCA:PromptCalibProdPPSTimingCalib',
@@ -2490,7 +2490,7 @@ steps['ALCASPLITPPSALIG']={'-s':'ALCAOUTPUT:PPSCalTrackBasedSel,ALCA:PromptCalib
                            '--datatier':'ALCARECO',
                            '--eventcontent':'ALCARECO',
                            '--conditions':'auto:run3_data_express',
-                           '--triggerResultsProcess':'RECO',
+                           '--triggerResultsProcess':'ALCARECO',
                            }
                            
 steps['ALCASPLITPPSALIGRUN3']={'-s':'ALCAOUTPUT:PPSCalMaxTracks,ALCA:PromptCalibProdPPSAlignment',
@@ -3286,7 +3286,7 @@ steps['ALCAEXPRUN2']={'-s':'ALCAOUTPUT:SiStripCalZeroBias+TkAlMinBias+LumiPixels
                   '--datatier':'ALCARECO',
                   '--eventcontent':'ALCARECO',
                   '--triggerResultsProcess': 'RECO'}
-steps['ALCAEXPRUN3']={'-s':'ALCAOUTPUT:@allForPrompt+@allForExpress,ALCA:PromptCalibProd+PromptCalibProdSiStrip+PromptCalibProdSiStripGains+PromptCalibProdSiStripGainsAAG+PromptCalibProdSiStripHitEff+PromptCalibProdSiPixelAli+PromptCalibProdSiPixelAliHG+PromptCalibProdSiPixel+PromptCalibProdSiPixelLA+PromptCalibProdBeamSpotHP+PromptCalibProdBeamSpotHPLowPU',
+steps['ALCAEXPRUN3']={'-s':'ALCAOUTPUT:@allForExpress,ALCA:PromptCalibProd+PromptCalibProdSiStrip+PromptCalibProdSiStripGains+PromptCalibProdSiStripGainsAAG+PromptCalibProdSiStripHitEff+PromptCalibProdSiPixelAli+PromptCalibProdSiPixelAliHG+PromptCalibProdSiPixel+PromptCalibProdSiPixelLA+PromptCalibProdBeamSpotHP+PromptCalibProdBeamSpotHPLowPU',
                       '--customise': 'Alignment/CommonAlignmentProducer/customizeLSNumberFilterForRelVals.doNotFilterLS',
                       '--conditions':'auto:run3_data',
                       '--datatier':'ALCARECO',
