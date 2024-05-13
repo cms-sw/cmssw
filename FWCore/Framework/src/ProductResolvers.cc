@@ -1039,7 +1039,7 @@ namespace edm {
                                  ModuleCallingContext const* iMCC,
                                  bool iSkipCurrentProcess,
                                  ServiceToken iToken,
-                                 oneapi::tbb::task_group* iGroup)
+                                 oneapi::tbb::task_group* iGroup) noexcept
           : resolver_(iResolver),
             principal_(iPrincipal),
             sra_(iSRA),

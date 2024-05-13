@@ -563,7 +563,8 @@ namespace edm {
     return getProductResolverByIndex(index);
   }
 
-  Principal::ConstProductResolverPtr Principal::getProductResolverByIndex(ProductResolverIndex const& index) const {
+  Principal::ConstProductResolverPtr Principal::getProductResolverByIndex(
+      ProductResolverIndex const& index) const noexcept {
     ConstProductResolverPtr const phb = productResolvers_[index].get();
     return phb;
   }

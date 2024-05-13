@@ -188,9 +188,9 @@ namespace edm {
 
     void readAllFromSourceAndMergeImmediately(MergeableRunProductMetadata const* mergeableRunProductMetadata = nullptr);
 
-    std::vector<unsigned int> const& lookupProcessOrder() const { return lookupProcessOrder_; }
+    std::vector<unsigned int> const& lookupProcessOrder() const noexcept { return lookupProcessOrder_; }
 
-    ConstProductResolverPtr getProductResolverByIndex(ProductResolverIndex const& oid) const;
+    ConstProductResolverPtr getProductResolverByIndex(ProductResolverIndex const& oid) const noexcept;
 
     virtual unsigned int processBlockIndex(std::string const& processName) const;
 
