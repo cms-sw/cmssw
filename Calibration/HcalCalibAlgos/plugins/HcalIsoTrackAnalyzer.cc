@@ -384,6 +384,10 @@ void HcalIsoTrackAnalyzer::endRun(edm::Run const& iRun, edm::EventSetup const&) 
   edm::LogVerbatim("HcalIsoTrack") << "endRun[" << nRun_ << "] " << iRun.run() << " with " << nLow_
                                    << " events with p < " << pTrackLow_ << ", " << nHigh_ << " events with p > "
                                    << pTrackHigh_ << ", and " << nRange_ << " events in the right momentum range";
+  if (respCorrs_) {
+    delete respCorrs_;
+    respCorrs_ = nullptr;
+  }
 }
 
 void HcalIsoTrackAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
