@@ -115,7 +115,7 @@ private:
                               edm::Handle<CaloTowerCollection>& towerHandle,
                               edm::Handle<reco::GenParticleCollection>& genParticles,
                               const HcalRespCorrs* respCorrs,
-			      const HcalDbService* conditions,
+                              const HcalDbService* conditions,
                               const edm::Handle<reco::MuonCollection>& muonh);
   double dR(math::XYZTLorentzVector&, math::XYZTLorentzVector&);
   double trackP(const reco::Track*, const edm::Handle<reco::GenParticleCollection>&);
@@ -124,7 +124,7 @@ private:
   DetId newId(const DetId&);
   void storeEnergy(int indx,
                    const HcalRespCorrs* respCorrs,
-		   const HcalDbService* conditions,
+                   const HcalDbService* conditions,
                    const std::vector<DetId>& ids,
                    std::vector<double>& edet,
                    double& eHcal,
@@ -379,10 +379,10 @@ HcalIsoTrkAnalyzer::HcalIsoTrkAnalyzer(const edm::ParameterSet& iConfig)
       << "\t momentumHigh_ " << pTrackHigh_ << "\t prescaleHigh_ " << prescaleHigh_ << "\n\t useRaw_ " << useRaw_
       << "\t ignoreTrigger_ " << ignoreTrigger_ << "\n\t useL1Trigegr_ " << useL1Trigger_ << "\t dataType_      "
       << dataType_ << "\t mode_          " << mode_ << "\t unCorrect_     " << unCorrect_ << "\t collapseDepth_ "
-      << collapseDepth_ << "\t GetCharge " << getCharge_ <<"\t L1TrigName_    " << l1TrigName_ << "\nThreshold flag used " << usePFThresh_
-      << " value for EB " << hitEthrEB_ << " EE " << hitEthrEE0_ << ":" << hitEthrEE1_ << ":" << hitEthrEE2_ << ":"
-      << hitEthrEE3_ << ":" << hitEthrEELo_ << ":" << hitEthrEEHi_ << " and " << debEvents_.size()
-      << " events to be debugged";
+      << collapseDepth_ << "\t GetCharge " << getCharge_ << "\t L1TrigName_    " << l1TrigName_
+      << "\nThreshold flag used " << usePFThresh_ << " value for EB " << hitEthrEB_ << " EE " << hitEthrEE0_ << ":"
+      << hitEthrEE1_ << ":" << hitEthrEE2_ << ":" << hitEthrEE3_ << ":" << hitEthrEELo_ << ":" << hitEthrEEHi_
+      << " and " << debEvents_.size() << " events to be debugged";
   edm::LogVerbatim("HcalIsoTrack") << "Process " << processName_ << " L1Filter:" << l1Filter_
                                    << " L2Filter:" << l2Filter_ << " L3Filter:" << l3Filter_;
   for (unsigned int k = 0; k < trigNames_.size(); ++k) {
@@ -602,7 +602,7 @@ void HcalIsoTrkAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const
                          caloTower,
                          genParticles,
                          respCorrs,
-			 conditions,
+                         conditions,
                          muonh);
     t_TracksSaved = ntksave[0];
     t_TracksLoose = ntksave[1];
@@ -717,7 +717,7 @@ void HcalIsoTrkAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const
                                  caloTower,
                                  genParticles,
                                  respCorrs,
-				 conditions,
+                                 conditions,
                                  muonh);
               t_TracksSaved += ntksave[0];
               t_TracksLoose += ntksave[1];
@@ -964,7 +964,7 @@ std::array<int, 3> HcalIsoTrkAnalyzer::fillTree(std::vector<math::XYZTLorentzVec
                                                 edm::Handle<CaloTowerCollection>& tower,
                                                 edm::Handle<reco::GenParticleCollection>& genParticles,
                                                 const HcalRespCorrs* respCorrs,
-						const HcalDbService* conditions,
+                                                const HcalDbService* conditions,
                                                 const edm::Handle<reco::MuonCollection>& muonh) {
   int nSave(0), nLoose(0), nTight(0);
   //Loop over tracks
@@ -1417,7 +1417,7 @@ DetId HcalIsoTrkAnalyzer::newId(const DetId& id) {
 
 void HcalIsoTrkAnalyzer::storeEnergy(int indx,
                                      const HcalRespCorrs* respCorrs,
-				     const HcalDbService* conditions,
+                                     const HcalDbService* conditions,
                                      const std::vector<DetId>& ids,
                                      std::vector<double>& edet,
                                      double& eHcal,

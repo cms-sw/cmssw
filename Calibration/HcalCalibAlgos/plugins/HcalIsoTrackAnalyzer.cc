@@ -109,8 +109,8 @@ HcalIsoTrackAnalyzer::HcalIsoTrackAnalyzer(const edm::ParameterSet& iConfig)
 
   edm::LogVerbatim("HcalIsoTrack") << "Parameters read from config file \n\t momentumLow_ " << pTrackLow_
                                    << "\t momentumHigh_ " << pTrackHigh_ << "\t useRaw_ " << useRaw_
-                                   << "\t dataType_      " << dataType_ << "\t unCorrect " << unCorrect_
-				   << " and " << debEvents_.size() << " events to be debugged";
+                                   << "\t dataType_      " << dataType_ << "\t unCorrect " << unCorrect_ << " and "
+                                   << debEvents_.size() << " events to be debugged";
 }
 
 void HcalIsoTrackAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
@@ -225,27 +225,27 @@ void HcalIsoTrackAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup con
         t_HitEnergies = itr.hitEnergies_;
         t_HitEnergies1 = itr.hitEnergies1_;
         t_HitEnergies3 = itr.hitEnergies3_;
-	if (unCorrect_ > 0) {
-	  t_eHcal = t_eHcal10 = t_eHcal30 = 0;
-	  for (unsigned int k = 0; k < t_DetIds.size(); ++k) {
-	    double corr = (unCorrect_ == 2) ? gainFactor(conditions, HcalDetId(t_DetIds[k])) : respCorr(t_DetIds[k]);
-	    if (corr != 0) 
-	      t_HitEnergies[k] /= corr;
-	    t_eHcal += t_HitEnergies[k];
-	  }
-	  for (unsigned int k = 0; k < t_DetIds1.size(); ++k) {
-	    double corr = (unCorrect_ == 2) ? gainFactor(conditions, HcalDetId(t_DetIds1[k])) : respCorr(t_DetIds1[k]);
-	    if (corr != 0) 
-	      t_HitEnergies1[k] /= corr;
-	    t_eHcal10 += t_HitEnergies1[k];
-	  }
-	  for (unsigned int k = 0; k < t_DetIds3.size(); ++k) {
-	    double corr = (unCorrect_ == 2) ? gainFactor(conditions, HcalDetId(t_DetIds3[k])) : respCorr(t_DetIds3[k]);
-	    if (corr != 0) 
-	      t_HitEnergies3[k] /= corr;
-	    t_eHcal30 += t_HitEnergies3[k];
-	  }
-	}
+        if (unCorrect_ > 0) {
+          t_eHcal = t_eHcal10 = t_eHcal30 = 0;
+          for (unsigned int k = 0; k < t_DetIds.size(); ++k) {
+            double corr = (unCorrect_ == 2) ? gainFactor(conditions, HcalDetId(t_DetIds[k])) : respCorr(t_DetIds[k]);
+            if (corr != 0)
+              t_HitEnergies[k] /= corr;
+            t_eHcal += t_HitEnergies[k];
+          }
+          for (unsigned int k = 0; k < t_DetIds1.size(); ++k) {
+            double corr = (unCorrect_ == 2) ? gainFactor(conditions, HcalDetId(t_DetIds1[k])) : respCorr(t_DetIds1[k]);
+            if (corr != 0)
+              t_HitEnergies1[k] /= corr;
+            t_eHcal10 += t_HitEnergies1[k];
+          }
+          for (unsigned int k = 0; k < t_DetIds3.size(); ++k) {
+            double corr = (unCorrect_ == 2) ? gainFactor(conditions, HcalDetId(t_DetIds3[k])) : respCorr(t_DetIds3[k]);
+            if (corr != 0)
+              t_HitEnergies3[k] /= corr;
+            t_eHcal30 += t_HitEnergies3[k];
+          }
+        }
       }
 #ifdef EDM_ML_DEBUG
       if (debug)
