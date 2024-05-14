@@ -136,7 +136,7 @@ foreach gtag ( MC DATA )
   if ( $1 == "" ) then
     set tables = ( GRun )
   else if ( ($1 == all) || ($1 == ALL) ) then
-    set tables = ( GRun HIon PIon PRef Special 2024v11 Fake Fake1 Fake2 )
+    set tables = ( GRun HIon PIon PRef Special 2024v12 Fake Fake1 Fake2 )
   else if ( ($1 == ib) || ($1 == IB) ) then
     set tables = ( GRun HIon PIon PRef Special )
   else if ( ($1 == dev) || ($1 == DEV) ) then
@@ -146,7 +146,7 @@ foreach gtag ( MC DATA )
   else if ( ($1 == fake) || ($1 == FAKE) ) then
     set tables = ( Fake Fake1 Fake2 )
   else if ( ($1 == frozen) || ($1 == FROZEN) ) then
-    set tables = ( 2024v11 )
+    set tables = ( 2024v12 )
   else
     set tables = ( $1 )
   endif
@@ -220,11 +220,11 @@ foreach gtag ( MC DATA )
       set Custom = " "
       set L1REPACK = L1REPACK:Full
       set DIGI = DIGI:pdigi
-    else if ( $table == 2024v11 ) then
+    else if ( $table == 2024v12 ) then
       set XL1T = $XL1TPP3
-      set XHLT = HLT:2024v11
-      set GTAG = ${BASE3}_2024v11
-      set RTAG = ${RECO3}_2024v11
+      set XHLT = HLT:2024v12
+      set GTAG = ${BASE3}_2024v12
+      set RTAG = ${RECO3}_2024v12
       set NN   = $NNPP
       set SCEN = pp
       set InputGenSim = $InputGenSimGRun3

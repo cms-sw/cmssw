@@ -67,8 +67,14 @@ HLT_Mu9_Barrel_L1HP10_IP6_v*  # CMSHLT-3021
 HLT_Mu0_Barrel_L1HP11_v*      # CMSHLT-3021
 HLT_Mu0_Barrel_L1HP10_v*      # CMSHLT-3021
 HLT_Mu0_Barrel_v*             # CMSHLT-3021
+HLT_Mu0_Barrel_L1HP8_v*       # CMSHLT-3180
+HLT_Mu0_Barrel_L1HP9_v*       # CMSHLT-3180
+HLT_Mu7_Barrel_L1HP8_IP6_v*   # CMSHLT-3180
+HLT_Mu8_Barrel_L1HP9_IP6_v*   # CMSHLT-3180
 HLT_Diphoton30_22_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass90_v*	#	CMSHLT-1251
 HLT_Diphoton30_22_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass95_v*	#	CMSHLT-1251
+HLT_DiphotonMVA14p25_Mass90_v*					# CMSHLT-3169
+HLT_DiphotonMVA14p25_Tight_Mass90_v*				# CMSHLT-3169
 HLT_L2Mu10_NoVertex_NoBPTX_v*	#	CMSHLT-1252
 HLT_L2Mu10_NoVertex_NoBPTX3BX_v*	#	CMSHLT-1252
 HLT_L2Mu40_NoVertex_3Sta_NoBPTX3BX_v*	#	CMSHLT-1252
@@ -238,9 +244,13 @@ DST_PFScouting_DoubleMuon_v*     # CMSHLT-2120, CMSHLT-2231, CMSHLT-2696, CMSHLT
 DST_PFScouting_DoubleEG_v*       # CMSHLT-2120, CMSHLT-2231, CMSHLT-2696, CMSHLT-2746, CMSHLT-2836, CMSHLT-3066
 DST_PFScouting_JetHT_v*          # CMSHLT-2120, CMSHLT-2231, CMSHLT-2696, CMSHLT-2746, CMSHLT-3066
 DST_PFScouting_DatasetMuon_v*    # CMSHLT-2428, CMSHLT-2696, CMSHLT-3066
+DST_PFScouting_AXOVLoose_v*      # CMSHLT-3173 
+DST_PFScouting_AXOLoose_v*       # CMSHLT-3173
 DST_PFScouting_AXONominal_v*     # CMSHLT-3049
 DST_PFScouting_AXOTight_v*       # CMSHLT-3049
+DST_PFScouting_AXOVTight_v*      # CMSHLT-3173
 DST_PFScouting_SingleMuon_v*	 # CMSHLT-3075
+DST_PFScouting_ZeroBias_v*	 # CMSHLT-3175
 HLT_L1AXOVTight_v*               # CMSHLT-3049
 HLT_Ele12_CaloIdL_TrackIdL_IsoVL_PFJet30_v*	#	CMSHLT-1330
 HLT_Ele17_CaloIdM_TrackIdM_PFJet30_v*	#	CMSHLT-1330
@@ -399,8 +409,12 @@ HLT_Mu38NoFiltersNoVtxDisplaced_Photon38_CaloIdL_v*	#	CMSHLT-1786
 HLT_Mu43NoFiltersNoVtxDisplaced_Photon43_CaloIdL_v*	#	CMSHLT-1786
 HLT_Dimuon10_Upsilon_y1p4_v* # CMSHLT-2327
 HLT_Dimuon12_Upsilon_y1p4_v* # CMSHLT-1796
+HLT_Photon40EB_v*                   # CMSHLT-3182
+HLT_Photon45EB_v*                   # CMSHLT-3182
 HLT_Photon50EB_v*                   # CMSHLT-3034
 HLT_Photon30EB_TightID_TightIso_v*  # CMSHLT-2314, CMSHLT-3034
+HLT_Photon40EB_TightID_TightIso_v*  # CMSHLT-3182
+HLT_Photon45EB_TightID_TightIso_v*  # CMSHLT-3182
 HLT_Photon50EB_TightID_TightIso_v*  # CMSHLT-2701, CMSHLT-3034
 HLT_Photon50EB_TightID_TightIso_PFJet30_v*  # CMSHLT-3042
 HLT_Photon50EB_TightID_TightIso_CaloJet30_v*    # CMSHLT-3120
@@ -780,6 +794,10 @@ ParkingSingleMuon0Output # CMSHLT-3021
 ParkingSingleMuon1Output # CMSHLT-3021
 ParkingSingleMuon2Output # CMSHLT-3021
 ParkingSingleMuon3Output # CMSHLT-3021
+ParkingSingleMuon4Output # CMSHLT-3180
+ParkingSingleMuon5Output # CMSHLT-3180
+ParkingSingleMuon6Output # CMSHLT-3180
+ParkingSingleMuon7Output # CMSHLT-3180
 ParkingDoubleMuonLowMass0Output # CMSHLT-2261
 ParkingDoubleMuonLowMass1Output # CMSHLT-2261
 ParkingDoubleMuonLowMass2Output # CMSHLT-2261

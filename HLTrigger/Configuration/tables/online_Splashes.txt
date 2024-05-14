@@ -36,6 +36,9 @@ HLT_ZeroBias_v*
 HLT_Random_v*
 DST_Physics_v*
 
+Status_OnCPU # CMSHLT3186
+Status_OnGPU # CMSHLT3186
+
 HLTriggerFinalPath
 
 ## EndPaths / FinalPaths ##

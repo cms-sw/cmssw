@@ -85,8 +85,8 @@ streamPhysicsPPRefDoubleMuon0_datasetPPRefDoubleMuon0_selector.triggerConditions
     'HLT_PPRefL1DoubleMu0_v4',
     'HLT_PPRefL2DoubleMu0_Open_v4',
     'HLT_PPRefL2DoubleMu0_v4',
-    'HLT_PPRefL3DoubleMu0_Open_v4',
-    'HLT_PPRefL3DoubleMu0_v4'
+    'HLT_PPRefL3DoubleMu0_Open_v5',
+    'HLT_PPRefL3DoubleMu0_v5'
 )
 
 
@@ -101,8 +101,8 @@ streamPhysicsPPRefDoubleMuon1_datasetPPRefDoubleMuon1_selector.triggerConditions
     'HLT_PPRefL1DoubleMu0_v4',
     'HLT_PPRefL2DoubleMu0_Open_v4',
     'HLT_PPRefL2DoubleMu0_v4',
-    'HLT_PPRefL3DoubleMu0_Open_v4',
-    'HLT_PPRefL3DoubleMu0_v4'
+    'HLT_PPRefL3DoubleMu0_Open_v5',
+    'HLT_PPRefL3DoubleMu0_v5'
 )
 
 
@@ -117,8 +117,8 @@ streamPhysicsPPRefDoubleMuon2_datasetPPRefDoubleMuon2_selector.triggerConditions
     'HLT_PPRefL1DoubleMu0_v4',
     'HLT_PPRefL2DoubleMu0_Open_v4',
     'HLT_PPRefL2DoubleMu0_v4',
-    'HLT_PPRefL3DoubleMu0_Open_v4',
-    'HLT_PPRefL3DoubleMu0_v4'
+    'HLT_PPRefL3DoubleMu0_Open_v5',
+    'HLT_PPRefL3DoubleMu0_v5'
 )
 
 
@@ -133,8 +133,8 @@ streamPhysicsPPRefDoubleMuon3_datasetPPRefDoubleMuon3_selector.triggerConditions
     'HLT_PPRefL1DoubleMu0_v4',
     'HLT_PPRefL2DoubleMu0_Open_v4',
     'HLT_PPRefL2DoubleMu0_v4',
-    'HLT_PPRefL3DoubleMu0_Open_v4',
-    'HLT_PPRefL3DoubleMu0_v4'
+    'HLT_PPRefL3DoubleMu0_Open_v5',
+    'HLT_PPRefL3DoubleMu0_v5'
 )
 
 
@@ -170,16 +170,16 @@ streamPhysicsPPRefHardProbes0_datasetPPRefHardProbes0_selector.triggerConditions
     'HLT_AK4CaloJetFwd60_v4',
     'HLT_AK4CaloJetFwd70_v4',
     'HLT_AK4CaloJetFwd80_v4',
-    'HLT_AK4PFJet100_v4',
-    'HLT_AK4PFJet120_v4',
-    'HLT_AK4PFJet40_v4',
-    'HLT_AK4PFJet60_v4',
-    'HLT_AK4PFJet80_v4',
-    'HLT_AK4PFJetFwd100_v4',
-    'HLT_AK4PFJetFwd120_v4',
-    'HLT_AK4PFJetFwd40_v4',
-    'HLT_AK4PFJetFwd60_v4',
-    'HLT_AK4PFJetFwd80_v4',
+    'HLT_AK4PFJet100_v5',
+    'HLT_AK4PFJet120_v5',
+    'HLT_AK4PFJet40_v5',
+    'HLT_AK4PFJet60_v5',
+    'HLT_AK4PFJet80_v5',
+    'HLT_AK4PFJetFwd100_v5',
+    'HLT_AK4PFJetFwd120_v5',
+    'HLT_AK4PFJetFwd40_v5',
+    'HLT_AK4PFJetFwd60_v5',
+    'HLT_AK4PFJetFwd80_v5',
     'HLT_PPRefDoubleEle10GsfMass50_v4',
     'HLT_PPRefDoubleEle10Gsf_v4',
     'HLT_PPRefDoubleEle15GsfMass50_v4',
@@ -226,16 +226,16 @@ streamPhysicsPPRefHardProbes1_datasetPPRefHardProbes1_selector.triggerConditions
     'HLT_AK4CaloJetFwd60_v4',
     'HLT_AK4CaloJetFwd70_v4',
     'HLT_AK4CaloJetFwd80_v4',
-    'HLT_AK4PFJet100_v4',
-    'HLT_AK4PFJet120_v4',
-    'HLT_AK4PFJet40_v4',
-    'HLT_AK4PFJet60_v4',
-    'HLT_AK4PFJet80_v4',
-    'HLT_AK4PFJetFwd100_v4',
-    'HLT_AK4PFJetFwd120_v4',
-    'HLT_AK4PFJetFwd40_v4',
-    'HLT_AK4PFJetFwd60_v4',
-    'HLT_AK4PFJetFwd80_v4',
+    'HLT_AK4PFJet100_v5',
+    'HLT_AK4PFJet120_v5',
+    'HLT_AK4PFJet40_v5',
+    'HLT_AK4PFJet60_v5',
+    'HLT_AK4PFJet80_v5',
+    'HLT_AK4PFJetFwd100_v5',
+    'HLT_AK4PFJetFwd120_v5',
+    'HLT_AK4PFJetFwd40_v5',
+    'HLT_AK4PFJetFwd60_v5',
+    'HLT_AK4PFJetFwd80_v5',
     'HLT_PPRefDoubleEle10GsfMass50_v4',
     'HLT_PPRefDoubleEle10Gsf_v4',
     'HLT_PPRefDoubleEle15GsfMass50_v4',
@@ -282,16 +282,16 @@ streamPhysicsPPRefHardProbes2_datasetPPRefHardProbes2_selector.triggerConditions
     'HLT_AK4CaloJetFwd60_v4',
     'HLT_AK4CaloJetFwd70_v4',
     'HLT_AK4CaloJetFwd80_v4',
-    'HLT_AK4PFJet100_v4',
-    'HLT_AK4PFJet120_v4',
-    'HLT_AK4PFJet40_v4',
-    'HLT_AK4PFJet60_v4',
-    'HLT_AK4PFJet80_v4',
-    'HLT_AK4PFJetFwd100_v4',
-    'HLT_AK4PFJetFwd120_v4',
-    'HLT_AK4PFJetFwd40_v4',
-    'HLT_AK4PFJetFwd60_v4',
-    'HLT_AK4PFJetFwd80_v4',
+    'HLT_AK4PFJet100_v5',
+    'HLT_AK4PFJet120_v5',
+    'HLT_AK4PFJet40_v5',
+    'HLT_AK4PFJet60_v5',
+    'HLT_AK4PFJet80_v5',
+    'HLT_AK4PFJetFwd100_v5',
+    'HLT_AK4PFJetFwd120_v5',
+    'HLT_AK4PFJetFwd40_v5',
+    'HLT_AK4PFJetFwd60_v5',
+    'HLT_AK4PFJetFwd80_v5',
     'HLT_PPRefDoubleEle10GsfMass50_v4',
     'HLT_PPRefDoubleEle10Gsf_v4',
     'HLT_PPRefDoubleEle15GsfMass50_v4',
@@ -333,12 +333,12 @@ streamPhysicsPPRefSingleMuon0_datasetPPRefSingleMuon0_selector.triggerConditions
     'HLT_PPRefL2SingleMu15_v4',
     'HLT_PPRefL2SingleMu20_v4',
     'HLT_PPRefL2SingleMu7_v4',
-    'HLT_PPRefL3SingleMu12_v4',
-    'HLT_PPRefL3SingleMu15_v4',
-    'HLT_PPRefL3SingleMu20_v4',
-    'HLT_PPRefL3SingleMu3_v4',
-    'HLT_PPRefL3SingleMu5_v4',
-    'HLT_PPRefL3SingleMu7_v4'
+    'HLT_PPRefL3SingleMu12_v5',
+    'HLT_PPRefL3SingleMu15_v5',
+    'HLT_PPRefL3SingleMu20_v5',
+    'HLT_PPRefL3SingleMu3_v5',
+    'HLT_PPRefL3SingleMu5_v5',
+    'HLT_PPRefL3SingleMu7_v5'
 )
 
 
@@ -356,12 +356,12 @@ streamPhysicsPPRefSingleMuon1_datasetPPRefSingleMuon1_selector.triggerConditions
     'HLT_PPRefL2SingleMu15_v4',
     'HLT_PPRefL2SingleMu20_v4',
     'HLT_PPRefL2SingleMu7_v4',
-    'HLT_PPRefL3SingleMu12_v4',
-    'HLT_PPRefL3SingleMu15_v4',
-    'HLT_PPRefL3SingleMu20_v4',
-    'HLT_PPRefL3SingleMu3_v4',
-    'HLT_PPRefL3SingleMu5_v4',
-    'HLT_PPRefL3SingleMu7_v4'
+    'HLT_PPRefL3SingleMu12_v5',
+    'HLT_PPRefL3SingleMu15_v5',
+    'HLT_PPRefL3SingleMu20_v5',
+    'HLT_PPRefL3SingleMu3_v5',
+    'HLT_PPRefL3SingleMu5_v5',
+    'HLT_PPRefL3SingleMu7_v5'
 )
 
 
@@ -379,12 +379,12 @@ streamPhysicsPPRefSingleMuon2_datasetPPRefSingleMuon2_selector.triggerConditions
     'HLT_PPRefL2SingleMu15_v4',
     'HLT_PPRefL2SingleMu20_v4',
     'HLT_PPRefL2SingleMu7_v4',
-    'HLT_PPRefL3SingleMu12_v4',
-    'HLT_PPRefL3SingleMu15_v4',
-    'HLT_PPRefL3SingleMu20_v4',
-    'HLT_PPRefL3SingleMu3_v4',
-    'HLT_PPRefL3SingleMu5_v4',
-    'HLT_PPRefL3SingleMu7_v4'
+    'HLT_PPRefL3SingleMu12_v5',
+    'HLT_PPRefL3SingleMu15_v5',
+    'HLT_PPRefL3SingleMu20_v5',
+    'HLT_PPRefL3SingleMu3_v5',
+    'HLT_PPRefL3SingleMu5_v5',
+    'HLT_PPRefL3SingleMu7_v5'
 )
 
 
