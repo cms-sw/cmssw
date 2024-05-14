@@ -50,6 +50,7 @@ class Eras (object):
                  'Run3_2023_UPC',
                  'Run3_2024_ppRef',
                  'Run3_UPC',
+                 'Run3_post2023',
                  'Phase2',
                  'Phase2C9',
                  'Phase2C10',
