@@ -235,5 +235,17 @@ nanoDQMIO_perLSoutput = cms.PSet(
     "JetMET/Jet/Cleanedak4PFJetsCHS/Pt",
     "JetMET/MET/pfMETT1/Cleaned/METSig",
     "JetMET/vertices",     
+
+    "Muons/MuonRecoAnalyzer/GlbMuon_Glb_pt",
+    "Muons/MuonRecoAnalyzer/GlbMuon_Glb_eta",
+    "Muons/MuonRecoAnalyzer/GlbMuon_Glb_phi",
+    "Muons/MuonRecoAnalyzer/Res_TkGlb_qOverlap",
+    "Muons/diMuonHistograms/GlbGlbMuon_LM",
+    "Muons/diMuonHistograms/GlbGlbMuon_HM",
+    "Muons/Isolation/global/relPFIso_R03",
+    "Muons/globalMuons/GeneralProperties/NumberOfMeanRecHitsPerTrack_glb",
+    "Muons/standAloneMuonsUpdatedAtVtx/HitProperties/NumberOfValidRecHitsPerTrack_sta",
+    "Muons/MuonRecoOneHLT/GlbMuon_Glb_pt",
+    "Muons/MuonRecoOneHLT/GlbMuon_Glb_eta",
   ) )
 )
