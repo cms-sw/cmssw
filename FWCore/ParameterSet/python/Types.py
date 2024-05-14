@@ -583,9 +583,6 @@ class LuminosityBlockRange(_ParameterTypeBase):
             self.__startSub = value[1]
             self.__end      = value[2]
             self.__endSub   = value[3]
-
-
->>>>>>> 999d50d388e (Improvements to python configuration syntax)
     @staticmethod
     def _valueFromString(value:str):
         """only used for cfg-parsing"""
@@ -1194,7 +1191,6 @@ class VLuminosityBlockID(_ValidatingParameterListBase):
         elif isinstance(item, _Parameterizable):
             return item.dumpPython(options)
         return str(item)
->>>>>>> 999d50d388e (Improvements to python configuration syntax)
     @staticmethod
     def _valueFromString(value:str):
         return VLuminosityBlockID(*_ValidatingParameterListBase._itemsFromStrings(value,LuminosityBlockID._valueFromString))
