@@ -74,7 +74,7 @@ void DQMFileSaverPB::saveLumi(const FileParameters& fp) const {
   std::string openHistoFilePathName;
   std::string histoFilePathName;
 
-  evf::FastMonitoringService* fms = nullptr;
+  evf::FastMonitoringService * fms = nullptr;
   edm::Service<DQMStore> store;
 
   // create the files names
@@ -104,7 +104,7 @@ void DQMFileSaverPB::saveLumi(const FileParameters& fp) const {
         edm::Service<evf::EvFDaqDirector>()->getOpenProtocolBufferHistogramFilePath(fp.lumi_, streamLabel_);
     histoFilePathName = edm::Service<evf::EvFDaqDirector>()->getProtocolBufferHistogramFilePath(fp.lumi_, streamLabel_);
 
-    fms = (evf::FastMonitoringService*)(edm::Service<evf::MicroStateService>().operator->());
+    fms = edm::Service<evf::FastMonitoringService>().operator->();
   }
 
   bool abortFlag = false;

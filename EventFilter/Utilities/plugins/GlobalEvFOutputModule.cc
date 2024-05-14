@@ -326,7 +326,7 @@ namespace evf {
     //create JSD
     GlobalEvFOutputJSONDef(streamLabel_, true);
 
-    fms_ = (evf::FastMonitoringService*)(edm::Service<evf::MicroStateService>().operator->());
+    fms_ = (evf::FastMonitoringService*)(edm::Service<evf::FastMonitoringService>().operator->());
   }
 
   GlobalEvFOutputModule::~GlobalEvFOutputModule() {}
