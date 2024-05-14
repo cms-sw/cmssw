@@ -19,7 +19,7 @@
 // includes for size, calibration, and configuration parameters
 #include "FWCore/Framework/interface/ESWatcher.h"
 #include "CondFormats/HGCalObjects/interface/HGCalMappingModuleIndexer.h"
-#include "CondFormats/DataRecord/interface/HGCalMappingModuleIndexerRcd.h"
+#include "CondFormats/DataRecord/interface/HGCalElectronicsMappingRcd.h"
 #include "CondFormats/DataRecord/interface/HGCalModuleConfigurationRcd.h"
 #include "CondFormats/HGCalObjects/interface/HGCalCalibrationParameterHost.h"
 #include "CondFormats/HGCalObjects/interface/alpaka/HGCalCalibrationParameterDevice.h" // also for HGCalConfigParamDevice
@@ -49,10 +49,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     void produce(device::Event&, device::EventSetup const&) override;
     void beginRun(edm::Run const&, edm::EventSetup const&) override;
     edm::ESWatcher<HGCalModuleConfigurationRcd> configWatcher_;
-    edm::ESWatcher<HGCalMappingModuleIndexerRcd> calibWatcher_;
-    edm::ESGetToken<HGCalMappingModuleIndexer, HGCalMappingModuleIndexerRcd> moduleIndexerToken_;
+    edm::ESWatcher<HGCalElectronicsMappingRcd> calibWatcher_;
+    edm::ESGetToken<HGCalMappingModuleIndexer, HGCalElectronicsMappingRcd> moduleIndexerToken_;
     device::ESGetToken<hgcalrechit::HGCalConfigParamDevice, HGCalModuleConfigurationRcd> configToken_;
-    device::ESGetToken<hgcalrechit::HGCalCalibParamDevice, HGCalMappingModuleIndexerRcd> calibToken_;
+    device::ESGetToken<hgcalrechit::HGCalCalibParamDevice, HGCalElectronicsMappingRcd> calibToken_;
   };
 
   TestHGCalRecHitESProducers::TestHGCalRecHitESProducers(const edm::ParameterSet& iConfig) {

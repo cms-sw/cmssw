@@ -19,7 +19,7 @@
 #include "DataFormats/HGCalDigi/interface/HGCalElectronicsId.h"
 #include "CondFormats/HGCalObjects/interface/HGCalMappingModuleIndexer.h"
 //#include "CondFormats/DataRecord/interface/HGCalModuleConfigurationRcd.h"
-#include "CondFormats/DataRecord/interface/HGCalMappingModuleIndexerRcd.h"
+#include "CondFormats/DataRecord/interface/HGCalElectronicsMappingRcd.h"
 #include "CondFormats/HGCalObjects/interface/HGCalCalibrationParameterHost.h"
 #include "CondFormats/HGCalObjects/interface/alpaka/HGCalCalibrationParameterDevice.h"
 
@@ -72,7 +72,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         //return values;
       }
 
-      std::optional<hgcalrechit::HGCalCalibParamHost> produce(const HGCalMappingModuleIndexerRcd& iRecord) {
+      std::optional<hgcalrechit::HGCalCalibParamHost> produce(const HGCalElectronicsMappingRcd& iRecord) {
         auto const& moduleMap = iRecord.get(moduleIndexerToken_);
         //auto const& configParamDevice = iRecord.get(configToken_);
 
@@ -168,7 +168,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       }  // end of produce()
 
     private:
-      edm::ESGetToken<HGCalMappingModuleIndexer, HGCalMappingModuleIndexerRcd> moduleIndexerToken_;
+      edm::ESGetToken<HGCalMappingModuleIndexer, HGCalElectronicsMappingRcd> moduleIndexerToken_;
       //edm::ESGetToken<HGCalCondSerializableConfig, HGCalModuleConfigurationRcd> configToken_;
       //edm::ESGetToken<hgcalrechit::HGCalConfigParamDevice, HGCalModuleConfigurationRcd> configToken_;
       //device::ESGetToken<hgcalrechit::HGCalConfigParamDevice, HGCalModuleConfigurationRcd> configToken_;

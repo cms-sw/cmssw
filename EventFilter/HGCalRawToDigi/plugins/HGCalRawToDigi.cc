@@ -12,10 +12,7 @@
 #include "DataFormats/HGCalDigi/interface/HGCalElectronicsId.h"
 #include "DataFormats/HGCalDigi/interface/HGCalDigiHost.h"
 
-#include "CondFormats/DataRecord/interface/HGCalMappingModuleIndexerRcd.h"
-// #include "CondFormats/DataRecord/interface/HGCalMappingModuleRcd.h"
-#include "CondFormats/DataRecord/interface/HGCalMappingCellIndexerRcd.h"
-// #include "CondFormats/DataRecord/interface/HGCalMappingCellRcd.h"
+#include "CondFormats/DataRecord/interface/HGCalElectronicsMappingRcd.h"
 #include "CondFormats/HGCalObjects/interface/HGCalMappingModuleIndexer.h"
 #include "CondFormats/HGCalObjects/interface/HGCalMappingCellIndexer.h"
 // #include "CondFormats/HGCalObjects/interface/alpaka/HGCalMappingParameterDeviceCollection.h"
@@ -47,9 +44,9 @@ private:
   // const edm::EDPutTokenT<HGCalElecDigiCollection> elecCMsToken_;
 
   // config tokens and objects
-  edm::ESWatcher<HGCalMappingModuleIndexerRcd> mapWatcher_;
-  edm::ESGetToken<HGCalMappingCellIndexer, HGCalMappingCellIndexerRcd> cellIndexToken_;
-  edm::ESGetToken<HGCalMappingModuleIndexer, HGCalMappingModuleIndexerRcd> moduleIndexToken_;
+  edm::ESWatcher<HGCalElectronicsMappingRcd> mapWatcher_;
+  edm::ESGetToken<HGCalMappingCellIndexer, HGCalElectronicsMappingRcd> cellIndexToken_;
+  edm::ESGetToken<HGCalMappingModuleIndexer, HGCalElectronicsMappingRcd> moduleIndexToken_;
   HGCalMappingCellIndexer cellIndexer_;
   HGCalMappingModuleIndexer moduleIndexer_;
 

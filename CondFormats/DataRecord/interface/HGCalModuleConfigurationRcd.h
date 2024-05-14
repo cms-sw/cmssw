@@ -19,10 +19,10 @@
 
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
 #include "FWCore/Utilities/interface/mplVector.h"
-#include "CondFormats/DataRecord/interface/HGCalMappingModuleIndexerRcd.h"
+#include "CondFormats/DataRecord/interface/HGCalElectronicsMappingRcd.h"
 
 class HGCalModuleConfigurationRcd
   : public edm::eventsetup::DependentRecordImplementation<HGCalModuleConfigurationRcd,
-      edm::mpl::Vector<HGCalMappingModuleIndexerRcd> > {};
+      edm::mpl::Vector<HGCalElectronicsMappingRcd> > {};
 
 #endif

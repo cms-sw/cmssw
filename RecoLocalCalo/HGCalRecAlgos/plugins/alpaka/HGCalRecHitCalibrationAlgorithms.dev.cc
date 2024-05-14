@@ -19,7 +19,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       auto ADC_to_float = [&](uint32_t adc, uint32_t tot, uint8_t tctp) { return float(tctp>1 ? tot : adc); };
       
       // dummy digis -> rechits conversion (to be replaced by the actual formula)
-      for (auto idx : elements_with_stride(acc, digis.metadata().size())) {
+      for (auto idx : uniform_elements(acc, digis.metadata().size())) {
         //recHits[idx].detid() = static_cast<uint32_t>(digis[idx].electronicsId()); // redundant since common dense indexing
         recHits[idx].energy() = ADC_to_float(digis[idx].adc(),digis[idx].tot(),digis[idx].tctp());
         recHits[idx].time() = ToA_to_time(digis[idx].toa());
@@ -31,7 +31,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   struct HGCalRecHitCalibrationKernel_pedestalCorrection {
     template <typename TAcc>
     ALPAKA_FN_ACC void operator()(TAcc const& acc, HGCalDigiDevice::View digis, HGCalRecHitDevice::View recHits, HGCalCalibParamDevice::ConstView calib) const {
-      for (auto idx : elements_with_stride(acc, digis.metadata().size())) {
+      for (auto idx : uniform_elements(acc, digis.metadata().size())) {
         if ((digis[idx].tctp()==0) && (digis[idx].flags() >> kPedestalCorrection) & 1){
           recHits[idx].energy() = recHits[idx].energy() - calib[idx].ADC_ped();
         }
@@ -47,7 +47,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         //                TOT / 2^12 * 8000 fC = TOT * 1.953125 fC
         // ( ADC - pedestal ) / 2^10 *   80 fC = ( ADC - pedestal ) * 0.078125 fC
       };
-      for (auto idx : elements_with_stride(acc, digis.metadata().size())) {
+      for (auto idx : uniform_elements(acc, digis.metadata().size())) {
         recHits[idx].energy() = ADC_to_charge(recHits[idx].energy(),digis[idx].tctp(),config[idx].gain());
       }
     }
@@ -63,7 +63,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         //                TOT / 2^12 * 8000 fC = TOT * 1.953125 fC
         // ( ADC - pedestal ) / 2^10 *   80 fC = ( ADC - pedestal ) * 0.078125 fC
       };
-      for (auto idx : elements_with_stride(acc, digis.metadata().size())) {
+      for (auto idx : uniform_elements(acc, digis.metadata().size())) {
         recHits[idx].energy() = ADC_to_charge(recHits[idx].energy(),digis[idx].tctp(),config[idx].gain());
       }
     }
@@ -72,7 +72,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   struct HGCalRecHitCalibrationKernel_commonModeCorrection {
     template <typename TAcc>
     ALPAKA_FN_ACC void operator()(TAcc const& acc, HGCalDigiDevice::View digis, HGCalRecHitDevice::View recHits, HGCalCalibParamDevice::ConstView calib) const {
-      for (auto idx : elements_with_stride(acc, recHits.metadata().size())) {
+      for (auto idx : uniform_elements(acc, recHits.metadata().size())) {
         float commonModeValue = calib[idx].CM_slope() * ( digis[idx].cm() - calib[idx].CM_ped() );
         recHits[idx].energy() -= commonModeValue;
       }
@@ -82,7 +82,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   struct HGCalRecHitCalibrationKernel_ADCmCorrection {
     template <typename TAcc>
     ALPAKA_FN_ACC void operator()(TAcc const& acc, HGCalDigiDevice::View digis, HGCalRecHitDevice::View recHits, HGCalCalibParamDevice::ConstView calib) const {
-      for (auto idx : elements_with_stride(acc, recHits.metadata().size())) {
+      for (auto idx : uniform_elements(acc, recHits.metadata().size())) {
         float ADCmValue = calib[idx].BXm1_slope() * ( digis[idx].adcm1() - calib[idx].ADC_ped() ); // placeholder
         recHits[idx].adc() -= ADCmValue;
       }

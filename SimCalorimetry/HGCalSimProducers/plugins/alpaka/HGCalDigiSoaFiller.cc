@@ -17,10 +17,7 @@
 #include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
 #include "DataFormats/HGCalDigi/interface/HGCalDigiHost.h"
 #include "DataFormats/HGCalDigi/interface/alpaka/HGCalDigiDevice.h"
-#include "CondFormats/DataRecord/interface/HGCalMappingModuleIndexerRcd.h"
-#include "CondFormats/DataRecord/interface/HGCalMappingCellIndexerRcd.h"
-#include "CondFormats/DataRecord/interface/HGCalMappingModuleRcd.h"
-#include "CondFormats/DataRecord/interface/HGCalMappingCellRcd.h"
+#include "CondFormats/DataRecord/interface/HGCalElectronicsMappingRcd.h"
 #include "CondFormats/HGCalObjects/interface/HGCalMappingModuleIndexer.h"
 #include "CondFormats/HGCalObjects/interface/HGCalMappingCellIndexer.h"
 #include "CondFormats/HGCalObjects/interface/alpaka/HGCalMappingParameterDevice.h"
@@ -63,11 +60,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     edm::EDGetTokenT<edm::SortedCollection<HGCalDataFrame> > digisCEET_,digisCEHSiT_,digisCEHSiPMT_;
     device::EDPutToken<hgcaldigi::HGCalDigiDevice> digiProdT_;
 
-    edm::ESWatcher<HGCalMappingModuleIndexerRcd> cfgWatcher_;
-    edm::ESGetToken<CellIndexer, HGCalMappingCellIndexerRcd> cellIndexTkn_;
-    device::ESGetToken<CellInfo, HGCalMappingCellRcd> cellTkn_;
-    edm::ESGetToken<ModuleIndexer, HGCalMappingModuleIndexerRcd> moduleIndexTkn_;
-    device::ESGetToken<ModuleInfo, HGCalMappingModuleRcd> moduleTkn_;
+    edm::ESWatcher<HGCalElectronicsMappingRcd> cfgWatcher_;
+    edm::ESGetToken<CellIndexer, HGCalElectronicsMappingRcd> cellIndexTkn_;
+    device::ESGetToken<CellInfo, HGCalElectronicsMappingRcd> cellTkn_;
+    edm::ESGetToken<ModuleIndexer, HGCalElectronicsMappingRcd> moduleIndexTkn_;
+    device::ESGetToken<ModuleInfo, HGCalElectronicsMappingRcd> moduleTkn_;
   };
 
 

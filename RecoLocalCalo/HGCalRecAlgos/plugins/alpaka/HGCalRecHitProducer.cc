@@ -25,7 +25,7 @@
 #include "DataFormats/HGCalRecHit/interface/alpaka/HGCalRecHitDevice.h"
 
 // includes for size, calibration, and configuration parameters
-#include "CondFormats/DataRecord/interface/HGCalMappingModuleIndexerRcd.h"
+#include "CondFormats/DataRecord/interface/HGCalElectronicsMappingRcd.h"
 #include "CondFormats/DataRecord/interface/HGCalModuleConfigurationRcd.h"
 #include "CondFormats/HGCalObjects/interface/HGCalMappingModuleIndexer.h"
 #include "CondFormats/HGCalObjects/interface/HGCalCalibrationParameterHost.h"
@@ -55,10 +55,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   private:
     void produce(device::Event&, device::EventSetup const&) override;
     void beginRun(edm::Run const&, edm::EventSetup const&) override;
-    edm::ESWatcher<HGCalMappingModuleIndexerRcd> calibWatcher_;
+    edm::ESWatcher<HGCalElectronicsMappingRcd> calibWatcher_;
     edm::ESWatcher<HGCalModuleConfigurationRcd> configWatcher_;
     const edm::EDGetTokenT<hgcaldigi::HGCalDigiHost> digisToken_;
-    device::ESGetToken<hgcalrechit::HGCalCalibParamDevice, HGCalMappingModuleIndexerRcd> calibToken_;
+    device::ESGetToken<hgcalrechit::HGCalCalibParamDevice, HGCalElectronicsMappingRcd> calibToken_;
     device::ESGetToken<hgcalrechit::HGCalConfigParamDevice, HGCalModuleConfigurationRcd> configToken_;
     const device::EDPutToken<hgcalrechit::HGCalRecHitDevice> recHitsToken_;
     HGCalRecHitCalibrationAlgorithms calibrator_;  // cannot be "const" because the calibrate() method is not const
