@@ -87,8 +87,8 @@ TICLGraphProducer::TICLGraphProducer(const edm::ParameterSet &ps)
       angle_first_cone_(ps.getParameter<double>("angle1")),
       angle_second_cone_(ps.getParameter<double>("angle2")),
       max_height_cone_(ps.getParameter<double>("maxConeHeight")) {
-  produces<TICLGraph<ElementaryNode>>();
-  produces<TICLGraph<ElementaryNode>>("cone");
+  produces<TICLGraph>();
+  produces<TICLGraph>("cone");
   //  std::string detectorName_ = (detector_ == "HFNose") ? "HGCalHFNoseSensitive" : "HGCalEESensitive";
   //  hdc_token_ =
   //      esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag("", detectorName_));
@@ -232,8 +232,8 @@ void TICLGraphProducer::produce(edm::Event &evt, const edm::EventSetup &es) {
     return skeleton;
   };
 
-  std::vector<ElementaryNode> allElemNodes;
-  std::vector<ElementaryNode> allElemNodes2;
+  std::vector<Elementary> allElemNodes;
+  std::vector<Elementary> allElemNodes2;
   std::vector<int> isRootNodes(trackstersclue3d.size());
 
   for (size_t id_t = 0; id_t < trackstersclue3d.size(); ++id_t) {
@@ -327,17 +327,19 @@ void TICLGraphProducer::produce(edm::Event &evt, const edm::EventSetup &es) {
       }
     }
   }
-  std::vector<Node<ElementaryNode>> finalNodes;
+  std::vector<Node> finalNodes;
+  finalNodes.reserve(allElemNodes.size());
   for (auto const &elementaryNode : allElemNodes) {
-    finalNodes.push_back(Node<ElementaryNode>{std::vector<ElementaryNode>{elementaryNode}});
+    finalNodes.push_back(Node{elementaryNode});
   }
 
-  std::vector<Node<ElementaryNode>> finalNodes2;
+  std::vector<Node> finalNodes2;
+  finalNodes2.reserve(allElemNodes2.size());
   for (auto const &elementaryNode2 : allElemNodes2) {
-    finalNodes2.push_back(Node<ElementaryNode>{std::vector<ElementaryNode>{elementaryNode2}});
+    finalNodes2.push_back(Node{elementaryNode2});
   }
-  auto resultGraph = std::make_unique<TICLGraph<ElementaryNode>>(finalNodes, isRootNodes);
-  auto resultGraphCone = std::make_unique<TICLGraph<ElementaryNode>>(finalNodes2, isRootNodes);
+  auto resultGraph = std::make_unique<TICLGraph>(finalNodes, isRootNodes);
+  auto resultGraphCone = std::make_unique<TICLGraph>(finalNodes2, isRootNodes);
 
   evt.put(std::move(resultGraph));
   evt.put(std::move(resultGraphCone), "cone");

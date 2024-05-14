@@ -3,7 +3,7 @@
 #include <cassert>
 #include <cmath>
 #include <random>
-//#include <string>
+#include <string>
 
 #include "RecoHGCal/TICL/plugins/LinkingAlgoByLeiden.h"
 
@@ -67,11 +67,11 @@ void LinkingAlgoByLeiden::linkTracksters(const edm::Handle<std::vector<reco::Tra
                                          const edm::Handle<edm::ValueMap<float>> tkTimeQual_h,
                                          const std::vector<reco::Muon> &muons,
                                          const edm::Handle<std::vector<Trackster>> tsH,
-                                         const edm::Handle<TICLGraph<ElementaryNode>> &tgH,
+                                         const edm::Handle<TICLGraph> &tgH,
                                          const bool useMTDTiming,
                                          std::vector<TICLCandidate> &resultLinked,
                                          std::vector<TICLCandidate> &chargedHadronsFromTk) {
-  //std::cout << "Il mio bellissimo algoritmo" << '\n';
+  std::cout << "Il mio bellissimo algoritmo";
 }
 
 void LinkingAlgoByLeiden::fillPSetDescription(edm::ParameterSetDescription &desc) {
@@ -81,44 +81,40 @@ void LinkingAlgoByLeiden::fillPSetDescription(edm::ParameterSetDescription &desc
   LinkingAlgoBase::fillPSetDescription(desc);
 }
 
-template <class T>
-void LinkingAlgoByLeiden::leidenAlgorithm(TICLGraph<T> &graph,
-                                          Partition<T> &partition,
-                                          Partition<ElementaryNode> &flatFinalPartition) {
-  moveNodesFast(graph, partition, gamma_);
+void LinkingAlgoByLeiden::leidenAlgorithm(TICLGraph &graph,
+                                          Partition &partition,
+                                          std::vector<Flat> &flatFinalPartition) {
+  moveNodesFast(partition, gamma_);
 
   if (!(isAlgorithmDone(graph, partition))) {
-    Partition<T> refinedPartition{partition};
-    (refinedPartition.setPartition()).clear();
-    assert((refinedPartition.getPartition()).empty());
+    Partition refinedPartition = Partition{std::vector<Community>{}};
+    assert((refinedPartition.getCommunities()).empty());
 
-    refinePartition(graph, partition, refinedPartition);
-    TICLGraph<std::vector<Node<T>>> aggregatedGraph{aggregateGraph(refinedPartition)};
-    auto const &communities{partition.getPartition()};
-    std::vector<std::vector<Node<std::vector<Node<T>>>>> aggregatedCommunities{};
+    refinePartition(graph, partition, refinedPartition, gamma_, theta_);
+    aggregateGraph(graph, refinedPartition);
+    auto &communities = partition.getCommunities();
+    std::vector<Community> aggregatedCommunities{};
 
     for (auto const &community : communities) {
-      std::vector<Node<std::vector<Node<T>>>> aggregatedCommunity{};
-      for (auto const &aggregateNode : (aggregatedGraph.getNodes())) {
-        if (isCommunityContained(aggregateNode, community)) {
-          aggregatedCommunity.push_back(aggregateNode);
+      Community aggregatedCommunity{};
+      for (auto const &aggregateNode : graph.getNodes()) {
+        if (isCommunityContained(std::get<Community>(aggregateNode), community)) {
+          aggregatedCommunity.getNodes().push_back(aggregateNode);
         }
       }
       aggregatedCommunities.push_back(aggregatedCommunity);
     }
 
-    Partition<std::vector<Node<T>>> aggregatedPartition{aggregatedCommunities};
-    leidenAlgorithm(aggregatedGraph, aggregatedPartition, flatFinalPartition);
+    communities = aggregatedCommunities;
+    leidenAlgorithm(graph, partition, flatFinalPartition);
   }
 
   else {
-    partition.flatPartition(flatFinalPartition.setPartition());
+    partition.flattenPartition(flatFinalPartition);
   }
 }
-
-template <class T>
-bool isAlgorithmDone(TICLGraph<T> const &graph, Partition<T> const &partition) {
-  return ((partition.getPartition()).size() == (graph.getNodes()).size());
+bool isAlgorithmDone(TICLGraph const &graph, Partition const &partition) {
+  return (partition.getCommunities()).size() == (graph.getNodes()).size();
 }
 
 int factorial(int n) { return (n == 1 || n == 0) ? 1 : n * factorial(n - 1); }
@@ -135,41 +131,41 @@ int binomialCoefficient(int n, int k) {
 }
 
 //quality function, Constant Potts Model
-template <class T>
-double CPM(Partition<T> const &partition, double gamma) {
+double CPM(Partition const &partition, double gamma) {
   double CPMResult{};
-  for (auto const &community : partition) {
+  for (auto const &community : partition.getCommunities()) {
     CPMResult += (numberOfEdges(community, community) - gamma * binomialCoefficient(communitySize(community), 2));
   }
   return CPMResult;
 }
 
-template <class T>
-double CPM_contribution_from_new_community(Node<T> const &node, double gamma) {
-  std::vector<Node<T>> newCommunity{node};
+double CPM_contribution_from_new_community(Node const &node, double gamma) {
+  Community newCommunity{std::vector<Node>{node}, 1};
   double result{(-gamma * binomialCoefficient(communitySize(newCommunity), 2))};
   assert(result <= 0.);
   return result;
 }
 
-template <class T>
-double CPM_after_move(Partition<T> const &partition,
+double CPM_after_move(Partition const &partition,
                       double gamma,
-                      std::vector<Node<T>> const &communityFrom,
-                      std::vector<Node<T>> const &communityTo,
-                      Node<T> const &node) {
+                      Community const &communityFrom,
+                      Community const &communityTo,
+                      Node const &node) {
   double CPMResult{};
-  auto const &communities{partition.getPartition()};
+  auto const &communities = partition.getCommunities();
   for (auto const &community : communities) {
     if (community == communityFrom) {
-      std::vector<Node<T>> communityWithoutNode{community};
-      std::remove(communityWithoutNode.begin(), communityWithoutNode.end(), node);
-      communityWithoutNode.pop_back();
+      std::vector<Node> vectorWithoutNode{};
+      std::copy_if(communityFrom.getNodes().begin(),
+                   communityFrom.getNodes().end(),
+                   std::back_inserter(vectorWithoutNode),
+                   [&](Node const &n) { return !(n == node); });
+      Community communityWithoutNode{vectorWithoutNode, communityFrom.getDegree()};
       CPMResult += (numberOfEdges(communityWithoutNode, communityWithoutNode) -
                     gamma * binomialCoefficient(communitySize(communityWithoutNode), 2));
     } else if (community == communityTo) {
-      std::vector<Node<T>> communityWithNewNode{community};
-      communityWithNewNode.push_back(node);
+      Community communityWithNewNode{community};
+      communityWithNewNode.getNodes().push_back(node);
       CPMResult += (numberOfEdges(communityWithNewNode, communityWithNewNode) -
                     gamma * binomialCoefficient(communitySize(communityWithNewNode), 2));
     } else {
@@ -179,43 +175,43 @@ double CPM_after_move(Partition<T> const &partition,
   return CPMResult;
 }
 
-template <class T>
-void moveNode(std::vector<Node<T>> &communityFrom, std::vector<Node<T>> &communityTo, Node<T> const &node) {
-  std::remove(communityFrom.begin(), communityFrom.end(), node);
-  communityFrom.pop_back();
-  communityTo.push_back(node);
+void moveNode(Community &communityFrom, Community &communityTo, Node const &node) {
+  communityFrom.getNodes().erase(std::remove(communityFrom.getNodes().begin(), communityFrom.getNodes().end(), node));
+  communityTo.getNodes().push_back(node);
 }
 
-template <class T>
-auto queueCommunity(std::vector<Node<T>> &community, std::queue<Node<T>> const &queue) {
-  std::random_shuffle(community.begin(), community.end());  //elements are added to the queue in random order
-  for (auto const &node : community) {
+auto queueCommunity(Community &community, std::queue<Node> &queue) {
+  //elements are added to the queue in random order
+  std::random_device rd;
+  std::mt19937 g(rd());
+  std::shuffle(community.getNodes().begin(), community.getNodes().end(), g);
+
+  for (auto const &node : community.getNodes()) {
     queue.push(node);
   }
   return queue;
 }
 
-template <class T>
-Partition<T> &removeEmptyCommunities(Partition<T> &partition) {
-  auto &communities{partition.setPartition()};
-  communities.erase(std::remove_if(communities.begin(),
-                                   communities.end(),
-                                   [](std::vector<Node<T>> const &community) { return ((community.size()) == 0); }),
-                    communities.end());
+Partition &removeEmptyCommunities(Partition &partition) {
+  auto &communities = partition.getCommunities();
+  communities.erase(std::remove_if(communities.begin(), communities.end(), [](Community const &community) {
+    return community.getNodes().size() == 0;
+  }));
 
-  auto const &communitiesAfterRemoval{partition.getPartition()};
+  auto const &communitiesAfterRemoval = partition.getCommunities();
   for (auto const &communityAfterRemoval : communitiesAfterRemoval) {
-    assert(communityAfterRemoval.size() != 0);
+    assert(communityAfterRemoval.getNodes().size() != 0);
   }
 
   return partition;
 }
 
-template <class T>
-Partition<T> &moveNodesFast(TICLGraph<T> const &graph, Partition<T> &partition, double gamma) {
-  auto shuffledCommunities{partition.getPartition()};
-  std::random_shuffle(shuffledCommunities.begin(), shuffledCommunities.end());
-  std::queue<Node<T>> queue{};
+Partition &moveNodesFast(Partition &partition, double gamma) {
+  auto shuffledCommunities = partition.getCommunities();
+  std::random_device rd;
+  std::mt19937 g(rd());
+  std::shuffle(shuffledCommunities.begin(), shuffledCommunities.end(), g);
+  std::queue<Node> queue{};
   //std::vector<Node<T>> empty_community{};
 
   for (auto &community : shuffledCommunities) {  //all nodes are added to queue in random order
@@ -223,10 +219,10 @@ Partition<T> &moveNodesFast(TICLGraph<T> const &graph, Partition<T> &partition, 
   }
 
   while (!queue.empty()) {
-    Node<T> const &currentNode{queue.front()};
-    auto currentCPM{CPM(partition, gamma) + CPM_contribution_from_new_community(currentNode, gamma)};
-    auto &currentCommunity{partition.findCommunity(currentNode)};
-    auto &communities{partition.setPartition()};
+    Node const &currentNode{queue.front()};
+    auto currentCPM = CPM(partition, gamma) + CPM_contribution_from_new_community(currentNode, gamma);
+    auto &currentCommunity = partition.getCommunities()[partition.findCommunityIndex(currentNode)];
+    auto &communities = partition.getCommunities();
 
     int indexBestCommunity{};
     int iterationIndex{-1};
@@ -242,10 +238,10 @@ Partition<T> &moveNodesFast(TICLGraph<T> const &graph, Partition<T> &partition, 
     }
     if (bestDeltaCPM > 0.) {
       moveNode(currentCommunity, communities[indexBestCommunity], currentNode);
-      std::vector<Node<T>> currentNeighbours{};
+      std::vector<Node> currentNeighbours{};
       for (auto const &community : communities) {
         if (!(community == communities[indexBestCommunity])) {
-          for (auto const &node : community) {
+          for (auto const &node : community.getNodes()) {
             if (areNeighbours(currentNode, node)) {
               currentNeighbours.push_back(node);
             }
@@ -264,23 +260,21 @@ Partition<T> &moveNodesFast(TICLGraph<T> const &graph, Partition<T> &partition, 
 }
 
 //fills an empty partition with a singleton partition
-template <class T>
-Partition<T> &singletonPartition(TICLGraph<T> const &graph, Partition<T> &singlePartition) {
-  assert((singlePartition.getPartition()).empty());
-  auto const &nodes{graph.getNodes()};
-  auto &communities{singlePartition.setPartition()};
+Partition &singletonPartition(TICLGraph const &graph, Partition &singlePartition) {
+  assert(singlePartition.getCommunities().empty());
+  auto const &nodes = graph.getNodes();
+  auto &communities = singlePartition.getCommunities();
   for (auto const &node : nodes) {
-    std::vector<Node<T>> singletonCommunity{node};
+    Community singletonCommunity{std::vector{node}, degree(node) + 1};
     communities.push_back(singletonCommunity);
   }
-  assert(!((singlePartition.getPartition()).empty()));
+  assert(!(singlePartition.getCommunities().empty()));
 
   return singlePartition;
 }
 
-template <class T>
-bool isNodeWellConnected(Node<T> const &node, std::vector<Node<T>> &subset, double gamma) {
-  std::vector<Node<T>> const singletonCommunity{node};
+bool isNodeWellConnected(Node const &node, Community const &subset, double gamma) {
+  Community singletonCommunity{std::vector{node}, degree(node) + 1};
   int edges{numberOfEdges(singletonCommunity, subset)};
   assert(edges >= 0);
   int nodeSize{communitySize(singletonCommunity)};
@@ -288,13 +282,12 @@ bool isNodeWellConnected(Node<T> const &node, std::vector<Node<T>> &subset, doub
   return (edges >= (gamma * nodeSize * (subsetSize - nodeSize)));
 }
 
-template <class T>
-bool isCommunityWellConnected(std::vector<Node<T>> &community, std::vector<Node<T>> &subset, double gamma) {
-  std::vector<Node<T>> subsetMinuscommunity{};
-  for (auto const &node : subset) {
-    auto it{std::find(community.begin(), community.end(), node)};
-    if (it == community.end()) {
-      subsetMinuscommunity.push_back(node);
+bool isCommunityWellConnected(Community const &community, Community const &subset, double gamma) {
+  Community subsetMinuscommunity{};
+  for (auto const &node : subset.getNodes()) {
+    auto it = std::find(community.getNodes().begin(), community.getNodes().end(), node);
+    if (it == community.getNodes().end()) {
+      subsetMinuscommunity.getNodes().push_back(node);
     }
   }
   int edges{numberOfEdges(community, subsetMinuscommunity)};
@@ -304,18 +297,19 @@ bool isCommunityWellConnected(std::vector<Node<T>> &community, std::vector<Node<
   return (edges >= (gamma * comSize * (subsetSize - comSize)));
 }
 
-template <class T>
-int extractRandomCommunityIndex(std::vector<std::vector<Node<T>>> const &communities,
-                                Partition<T> const &partition,
-                                Node<T> const &node,
-                                std::vector<Node<T>> nodeCommunity,
+int extractRandomCommunityIndex(std::vector<Community> const &communities,
+                                Partition const &partition,
+                                Node const &node,
+                                Community const &nodeCommunity,
+                                Community const &subset,
+                                double gamma,
                                 double theta) {
-  auto currentCPM{CPM(partition, gamma)};
+  double currentCPM = CPM(partition, gamma);
   std::vector<double> deltaCPMs{};
 
   //calculating delta_H for all communities
   for (auto const &community : communities) {
-    if (isCommunityWellConnected(community)) {
+    if (isCommunityWellConnected(community, subset, gamma)) {
       double afterMoveCPM{CPM_after_move(partition, gamma, nodeCommunity, community, node)};
       deltaCPMs.push_back((afterMoveCPM - currentCPM));
     }
@@ -342,57 +336,51 @@ int extractRandomCommunityIndex(std::vector<std::vector<Node<T>>> const &communi
   return resultIndex;
 }
 
-template <class T>
-Partition<T> &mergeNodesSubset(
-    TICLGraph<T> const &graph, Partition<T> &partition, std::vector<Node<T>> &subset, double gamma, double theta) {
-  auto &communities{partition.setPartition()};
+//arrived here atm
 
-  for (auto const &node : subset) {
+Partition &mergeNodesSubset(Partition &partition, Community const &subset, double gamma, double theta) {
+  auto &communities = partition.getCommunities();
+
+  for (auto const &node : subset.getNodes()) {
     if (isNodeWellConnected(node, subset, gamma)) {
-      int index{findCommunityIndex(node)};
-      auto &nodeCommunity{communities[index]};
+      int index{static_cast<int>(partition.findCommunityIndex(node))};
+      auto &nodeCommunity = communities[index];
 
       assert((communitySize(nodeCommunity)) != 0);
       if (communitySize(nodeCommunity) == 1) {
-        int communityToIndex{extractRandomCommunityIndex(communities, partition, node, nodeCommunity, theta)};
-        auto &communityTo{communities[communityToIndex]};
+        int communityToIndex{
+            extractRandomCommunityIndex(communities, partition, node, nodeCommunity, subset, gamma, theta)};
+        auto &communityTo = communities[communityToIndex];
         moveNode(nodeCommunity, communityTo, node);
       }
     }
   }
-
   return partition;
 }
 
-//necessary to do before calling refinePartition bc if I just use an empty vector no parameter template deduction is possible
-//std::vector<Node<T>> singleCommunities{partition.getPartition()};
-// singleCommunities.clear();
-// Partition<T> singlePartition{singleCommunities};
-template <class T>
-Partition<T> &refinePartition(TICLGraph<T> const &graph, Partition<T> &partition, Partition<T> &singlePartition) {
+Partition &refinePartition(
+    TICLGraph const &graph, Partition &partition, Partition &singlePartition, double gamma, double theta) {
   //fills an empty partition with a singleton partition
-  auto &refinedPartition{singletonPartition(graph, singlePartition)};
-  auto const &communities{partition.getPartition()};
+  auto &refinedPartition = singletonPartition(graph, singlePartition);
+  auto const &communities = partition.getCommunities();
   for (auto const &community : communities) {
-    mergeNodesSubset(graph, refinedPartition, community);
+    mergeNodesSubset(refinedPartition, community, gamma, theta);
   }
   return refinedPartition;
 }
 
-//***********PROBLEM HERE: I DONT LIKE RETURNING IT AS COPY but im not sure it can be done otherwise*****************
-template <class T>
-TICLGraph<std::vector<Node<T>>> aggregateGraph(Partition<T> const &partition) {
+//is it ok to return this as a copy? or too expensive
+void aggregateGraph(TICLGraph &graph, Partition const &partition) {
   //communities become nodes in aggregate graph
-  std::vector<std::vector<Node<T>>> const &communities{partition.getPartition()};
-  Node<std::vector<Node<T>>> firstAggregateNode{communities[0]};
-  std::vector<Node<std::vector<Node<T>>>> aggregateNodes{firstAggregateNode};
+  std::vector<Community> const &communities{partition.getCommunities()};
+  std::vector<Node> aggregatedNodes{};
+  aggregatedNodes.reserve(communities.size());
 
-  std::for_each((communities.begin() + 1), communities.end(), [&aggregateNodes](std::vector<Node<T>> const &community) {
-    Node<std::vector<Node<T>>> aggregateNode{community};
-    aggregateNodes.push_back(aggregateNode);
+  std::for_each(communities.begin(), communities.end(), [&aggregatedNodes](auto const &community) {
+    aggregatedNodes.push_back(Node{community});
   });
 
-  assert(aggregateNodes.size() == communities.size());
-  TICLGraph<std::vector<Node<T>>> aggregateGraph{aggregateNodes};
-  return aggregateGraph;
+  assert(aggregatedNodes.size() == communities.size());
+  auto &oldNodes = graph.getNodes();
+  oldNodes = aggregatedNodes;
 }

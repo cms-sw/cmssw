@@ -39,7 +39,7 @@ namespace ticl {
                         const edm::Handle<edm::ValueMap<float>>,
                         const std::vector<reco::Muon> &,
                         const edm::Handle<std::vector<Trackster>>,
-                        const edm::Handle<TICLGraph<ElementaryNode>> &,
+                        const edm::Handle<TICLGraph> &,
                         const bool useMTDTiming,
                         std::vector<TICLCandidate> &,
                         std::vector<TICLCandidate> &) override;

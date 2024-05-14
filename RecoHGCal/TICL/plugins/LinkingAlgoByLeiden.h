@@ -39,7 +39,7 @@ namespace ticl {
                         const edm::Handle<edm::ValueMap<float>>,
                         const std::vector<reco::Muon> &,
                         const edm::Handle<std::vector<Trackster>>,
-                        const edm::Handle<TICLGraph<ElementaryNode>> &,
+                        const edm::Handle<TICLGraph> &,
                         const bool useMTDTiming,
                         std::vector<TICLCandidate> &,
                         std::vector<TICLCandidate> &) override;
@@ -62,27 +62,24 @@ namespace ticl {
     edm::ESHandle<Propagator> propagator_;
 
     double gamma_{1};  //resolution parameter of the algortihm. The higher the gamma, the more communities are yielded
+    double theta_{1};  //parameter of the refinement step
 
-    template <class T>
-    void leidenAlgorithm(TICLGraph<T> &graph,
-                                          Partition<T> &partition,
-                                          Partition<ElementaryNode> &flatFinalPartition);
+    void leidenAlgorithm(TICLGraph &graph, Partition &partition, std::vector<Flat> &flatFinalPartition);
   };
 }  // namespace ticl
-// namespace ticl
 
-template <class T>
-bool isAlgorithmDone (TICLGraph<T> const& graph, Partition<T> const& partition);
+bool isAlgorithmDone(TICLGraph const &graph, Partition const &partition);
 
-template <class T>
-void removeEmptyCommunities (Partition<T> &partition);
+Partition &removeEmptyCommunities(Partition &partition);
 
-template <class T>
-auto moveNodesFast(TICLGraph<T> const &graph, Partition<T> const &partition);
+Partition &refinePartition(
+    TICLGraph const &graph, Partition &partition, Partition &singlePartition, double gamma, double theta);
 
-template <class T>
-Partition<T> &singletonPartition(TICLGraph<T> const &graph, Partition<T> &singlePartition);
+Partition &moveNodesFast(Partition &partition, double gamma);
 
-template <class T>
-Partition<T> &mergeNodesSubset(TICLGraph<T> const &graph, Partition<T> &partition, std::vector<Node<T>> &subset, double gamma);
+Partition &singletonPartition(TICLGraph const &graph, Partition &singlePartition);
+
+Partition &mergeNodesSubset(Partition &partition, Community const &subset, double gamma);
+
+void aggregateGraph(TICLGraph &graph, Partition const &partition);
 #endif

@@ -5,286 +5,135 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include <cassert>
 #include <algorithm>
+#include <variant>
+#include <vector>
 //#include <unordered_set>
 
-//Defines class ElementaryNode and template classes Node, TICLGraph, and Partition. Declares free auxiary functions
+//Defines classes Elementary, Community and variant Node, defines classes TICLGraph and Partition.
 
 // an elementary node is a single trackster
-class ElementaryNode {
+class Elementary {
   unsigned index_;
   bool isTrackster_;
   std::vector<unsigned int> neighboursId_{};
   bool alreadyVisited_{false};
   //bool areCompatible(const std::vector<Node>& graph, const unsigned int& outerNode) { return true; };
+  int degree_{0};
 
 public:
-  ElementaryNode() = default;
-  ElementaryNode(unsigned index, bool isTrackster = true) : index_(index), isTrackster_(isTrackster) {}
+  Elementary() = default;
+  Elementary(unsigned index, bool isTrackster = true) : index_{index}, isTrackster_{isTrackster} {}
 
-  ElementaryNode(ElementaryNode const&) = default;
-  ElementaryNode& operator=(ElementaryNode const&) = default;
-  ElementaryNode(ElementaryNode&&) = default;
-  ElementaryNode& operator=(ElementaryNode&&) = default;
-  ~ElementaryNode() = default;
+  Elementary(Elementary const&) = default;
+  Elementary& operator=(Elementary const&) = default;
+  Elementary(Elementary&&) = default;
+  Elementary& operator=(Elementary&&) = default;
+  ~Elementary() = default;
 
   void addNeighbour(unsigned int trackster_id) { neighboursId_.push_back(trackster_id); }
-  const unsigned int getId() const { return index_; }
+  unsigned int getId() const { return index_; }
   std::vector<unsigned int> const& getNeighbours() const { return neighboursId_; }
-  int size() const { return 0; }
-  /* void findSubComponents(std::vector<Node>& graph, std::vector<unsigned int>& subComponent, std::string tabs) {
-    tabs += "\t";
-    if (!alreadyVisited_) {
-//  std::cout << tabs << " Visiting node " << index_ << std::endl;
-    alreadyVisited_ = true;
-    subComponent.push_back(index_);
-
-    for (auto const& neighbour : neighboursId_) {
-       //std::cout << tabs << " Trying to visit " << neighbour << std::endl;
-        graph[neighbour].findSubComponents(graph, subComponent, tabs);
-      }
-    }
-  }*/
+  int getDegree() const { return degree_; }
 };
 
-inline bool operator==(ElementaryNode const& eN1, ElementaryNode const& eN2) {
-  return (eN1.getId() == eN2.getId()) && (eN1.getNeighbours() == eN2.getNeighbours());
-}
+class Community;
 
-// a node can consist of one or more elementary nodes (needed to implement the aggregate graph)
-template <class T>
-class Node {
-  std::vector<T> internalStructure_{};
+// a node can consist of an elementary or of a community (needed to implement the aggregate graph)
+using Node = std::variant<Elementary, Community>;
+
+class Community {
+  std::vector<Node> nodes_;
+  int degree_;
+  //degree is 1 if all Nodes are Elementary
+  //degree is i+1 if all nodes are communities of degree i
 
 public:
-  //necessary to declare default ctor otherwise compilation errors are produced
-  Node() = default;
-  Node(std::vector<T> const& internalStructure) : internalStructure_{internalStructure} {
-    assert(internalStructure.size() != 0);
-  };
-  std::vector<T> const& getInternalStructure() const { return internalStructure_; }
+  Community(std::vector<Node> const& nodes, int degree) : nodes_{nodes}, degree_{degree} {}
+  Community() = default;
 
-  //a node is of degree zero if it consists in a vector of ElementaryNodes. In order for this method to work, NO node can be a vector of size zero.
-  bool isNodeDegreeZero() const {
-    assert(internalStructure_.size() != 0);
-    return ((internalStructure_[0]).size() == 0) ? true : false;
+  auto const& getNodes() const { return nodes_; }
+  auto& getNodes() { return nodes_; }
+  int getDegree() const { return degree_; }
+  void increaseDegree() { ++degree_; }
+};
+
+bool operator==(Node const& n1, Node const& n2);
+
+struct Degree {
+  template <class T>
+  int operator()(T const& e) const {
+    return e.getDegree();
   }
 };
 
-template <class T>
-bool operator==(Node<T> const& n1, Node<T> const& n2) {
-  return ((n1.getInternalStructure()) == (n2.getInternalStructure()));
-}
+inline auto degree(Node const& node) { return std::visit(Degree{}, node); }
 
-//tested this implementation on godbolt
-template <class T>
-bool operator==(Node<T> const& n1, Node<T> const& n2);
+int communitySize(Community const& community, int size = 0);
 
-template <class T>
+using Flat = std::vector<Elementary>;
+
+void flatten(Community const& community, Flat& flat);
+
+Flat flatten(Community const& community);
+
 class TICLGraph {
-  std::vector<Node<T>> nodes_{};
+  std::vector<Node> nodes_{};
   std::vector<int> isRootNode_{};
 
 public:
   // can i remove default constructor ?? edm::Wrapper problem
   // without default constructor i could initialize connectedComponents when building the Graph
   TICLGraph() = default;
-  TICLGraph(std::vector<Node<T>> const& nodes) : nodes_{nodes} {}
-  TICLGraph(std::vector<Node<T>> const& nodes, std::vector<int> isRootNode) : nodes_{nodes}, isRootNode_{isRootNode} {}
-  std::vector<Node<T>> const& getNodes() const { return nodes_; }
-  Node<T> const& getNode(int i) const { return nodes_[i]; }
-
-  //  void setRootNodes() {
-  //    for (auto const& node : nodes_) {
-  //      bool isRootNode = condition ? true : false;
-  //      rootNodeIds[node.getId()] = isRootNode;
-  //    }
-  //  }
-
-  /*std::vector<std::vector<unsigned int>> findSubComponents() {
-    std::vector<std::vector<unsigned int>> components;
-    for (auto const& node : nodes_) {
-      auto const id = node.getId();
-      if (isRootNode_[id]) {
-        //std::cout << "DFS Starting From " << id << std::endl;
-        std::string tabs = "\t";
-        std::vector<unsigned int> tmpSubComponents;
-        nodes_[id].findSubComponents(nodes_, tmpSubComponents, tabs);
-        components.push_back(tmpSubComponents);
-      }
-    }
-    return components;
-  }*/
+  TICLGraph(std::vector<Node> const& nodes) : nodes_{nodes} {}
+  TICLGraph(std::vector<Node> const& nodes, std::vector<int> isRootNode) : nodes_{nodes}, isRootNode_{isRootNode} {}
+  std::vector<Node> const& getNodes() const { return nodes_; }
+  std::vector<Node>& getNodes() { return nodes_; }
+  Node const& getNode(int i) const { return nodes_[i]; }
 
   TICLGraph(TICLGraph const&) = default;
   TICLGraph& operator=(TICLGraph const&) = default;
   TICLGraph(TICLGraph&&) = default;
   TICLGraph& operator=(TICLGraph&&) = default;
   ~TICLGraph() = default;
-
-  /*void dfsForCC(unsigned int nodeIndex,
-                std::unordered_set<unsigned int>& visited,
-                std::vector<unsigned int>& component) const {
-    visited.insert(nodeIndex);
-    component.push_back(nodeIndex);
-
-    for (auto const& neighbourIndex : nodes_[nodeIndex].getNeighbours()) {
-      if (visited.find(neighbourIndex) == visited.end()) {
-        dfsForCC(neighbourIndex, visited, component);
-      }
-    }
-  }*/
-
-  /*std::vector<std::vector<unsigned int>> getConnectedComponents() const {
-    std::unordered_set<unsigned int> visited;
-    std::vector<std::vector<unsigned int>> components;
-
-    for (unsigned int i = 0; i < nodes_.size(); ++i) {
-      if (visited.find(i) == visited.end()) {
-        std::vector<unsigned int> component;
-        dfsForCC(i, visited, component);
-        components.push_back(component);
-      }
-    }
-
-    return components;
-  }*/
 };
 
-//fills an empty vector with the result of flattening operation of a community
-template <class T>
-std::vector<ElementaryNode>& flatCommunity(std::vector<Node<T>> const& community,
-                                           std::vector<ElementaryNode>& flattenedCommunity) {
-  assert(flattenedCommunity.empty());
-  for (auto const& node : community) {
-    if (node.isNodeDegreeZero()) {
-      for (auto const& elementaryNode : node.getInternalStructure())
-        flattenedCommunity.push_back(elementaryNode);
-    } else
-      flatCommunity(node.getInternalStructure(), flattenedCommunity);
-  }
-  return flattenedCommunity;
-}
+int numberOfEdges(Community const& communityA, Community const& communityB);
 
-// the number of edges b/w 2 nodes is the number of edges between their elementary nodes
-template <class T>
-int numberOfEdges(std::vector<Node<T>> const& communityA, std::vector<Node<T>> const& communityB) {
-  int numberOfEdges{};
+bool areNeighbours(Node const& nodeA, Node const& nodeB);
 
-  std::vector<ElementaryNode> flattenedCommunityA{};
-  std::vector<ElementaryNode> flattenedCommunityB{};
-  flatCommunity(communityA, flattenedCommunityA);
-  flatCommunity(communityB, flattenedCommunityB);
+bool isCommunityContained(Community community, Community const& subset);
 
-  for (auto const& elementaryNodeA : flattenedCommunityA) {
-    std::vector<unsigned int> const& neighboursA{elementaryNodeA.getNeighbours()};
-    for (auto const& Id : neighboursA) {
-      auto it{std::find_if(flattenedCommunityB.begin(), flattenedCommunityB.end(), [=](ElementaryNode const& elNodeB) {
-        return (elNodeB.getId()) == Id;
-      })};
-      if (it != flattenedCommunityB.end()) {
-        ++numberOfEdges;
-      }
-    }
-  }
-  assert(numberOfEdges >= 0);
-  return numberOfEdges;
-}
-
-inline int communitySize(std::vector<ElementaryNode> const& community, int size) { return size; }
-
-//the size of a community is the number of elementary nodes in it
-template <class T>
-int communitySize(std::vector<Node<T>> const& community, int size = 0) {
-  for (auto const& node : community) {
-    if (node.isNodeDegreeZero()) {
-      size += (node.getInternalStructure()).size();
-    } else
-      size = communitySize(node.getInternalStructure(), size);
-  }
-  return size;
-}
-
-// two nodes are neighbours if at least two of their elementary nodes are
-template <class T>
-bool areNeighbours(Node<T> const& nodeA, Node<T> const& nodeB) {
-  std::vector<Node<T>> A{nodeA};
-  std::vector<Node<T>> B{nodeB};
-  std::vector<ElementaryNode> flattenedCommunityA{};
-  std::vector<ElementaryNode> flattenedCommunityB{};
-  flatCommunity(A, flattenedCommunityA);
-  flatCommunity(B, flattenedCommunityB);
-  bool result{false};
-  for (auto const& elementaryNodeA : flattenedCommunityA) {
-    std::vector<unsigned int> const& neighboursA{elementaryNodeA.getNeighbours()};
-    for (auto const& Id : neighboursA) {
-      auto it{std::find_if(flattenedCommunityB.begin(), flattenedCommunityB.end(), [=](ElementaryNode const& elNodeB) {
-        return (elNodeB.getId()) == Id;
-      })};
-      if (it != flattenedCommunityB.end()) {
-        result = true;
-        break;
-      }
-    }
-  }
-  return result;
-}
-
-//tells me if community is contained within a certain subset
-template <class T>
-bool isCommunityContained(std::vector<Node<T>> const& community, std::vector<Node<T>> const& subset) {
-  bool isContained{true};
-  for (auto const& node : community) {
-    auto it{std::find(subset.begin(), subset.end(), node)};
-    if (it == subset.end()) {
-      isContained = false;
-      break;
-    }
-  }
-  return isContained;
-}
-
-//takes a community and return the vector of all the Elementary Nodes in the community
-template <class T>
-std::vector<ElementaryNode>& flatCommunity(std::vector<Node<T>> const& community,
-                                           std::vector<ElementaryNode>& flattenedCommunity);
-
-template <class T>
 class Partition {
-  std::vector<std::vector<Node<T>>> communities_{};
+  std::vector<Community> communities_{};
+
+  //a node is always in a community from the beginning so it always returns something
+  auto findCommunityImpl(Node const& node) const {
+    auto it = std::find_if(communities_.begin(), communities_.end(), [&](auto const& community) {
+      return std::find(community.getNodes().begin(), community.getNodes().end(), node) != community.getNodes().end();
+    });
+    assert(it != communities_.end());
+    return it;
+  }
 
 public:
-  Partition(std::vector<std::vector<Node<T>>> const& communities) : communities_{communities} {}
-  std::vector<std::vector<Node<T>>> const& getPartition() const { return communities_; }
-  std::vector<std::vector<Node<T>>>& setPartition() { return communities_; }
+  Partition(std::vector<Community> const& communities) : communities_{communities} {}
+  std::vector<Community> const& getCommunities() const { return communities_; }
+  std::vector<Community>& getCommunities() { return communities_; }
 
-  auto& flatPartition(std::vector<std::vector<ElementaryNode>>& flattenedPartition) {
-    for (auto& community : communities_) {
-      std::vector<ElementaryNode> flattenedCommunity{};
-      flattenedPartition.push_back(flatCommunity(community, flattenedCommunity));
-    }
+  auto& flattenPartition(std::vector<Flat>& flattenedPartition) {
+    flattenedPartition.reserve(communities_.size());
+    std::transform(communities_.begin(),
+                   communities_.end(),
+                   std::back_inserter(flattenedPartition),
+                   [this](auto const& community) { return flatten(community); });
+
     return flattenedPartition;
   }
-  //implemented on the assumption that when I work with community of std::vector<Node<T>> my node will be Node<T> (nesting degree matches)
-  //a node is always in a community from the beginning so it always returns something
-  std::vector<Node<T>> const& findCommunity(Node<T> const& node) const {
-    for (auto const& community : communities_) {
-      auto it{std::find(community.begin(), community.end(), node)};
-      if (it != community.end()) {
-        return community;
-      }
-    }
-  }
 
-  //a node is always in a community from the beginning so it always returns something
-  int findCommunityIndex(Node<T> const& node) const {
-    int communityIndex{-1};
-    for (auto const& community : communities_) {
-      ++communityIndex;
-      auto it{std::find(community.begin(), community.end(), node)};
-      if (it != community.end()) {
-        return communityIndex;
-      }
-    }
+  Community const& findCommunity(Node const& node) const { return *findCommunityImpl(node); }
+
+  auto findCommunityIndex(Node const& node) const {
+    return std::distance(communities_.begin(), findCommunityImpl(node));
   }
 };
 
