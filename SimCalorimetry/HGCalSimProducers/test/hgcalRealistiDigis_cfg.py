@@ -42,18 +42,19 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxE
 
 #ESSources/Producers for the logical mapping
 #indexers
-process.load('Geometry.HGCalMapping.hgCalMappingIndexESSource_cfi')
-process.hgCalMappingIndexESSource.modules = cms.FileInPath(options.modules)
-process.hgCalMappingIndexESSource.si = cms.FileInPath(options.sicells)
-process.hgCalMappingIndexESSource.sipm = cms.FileInPath(options.sipmcells)
+process.load('Geometry.HGCalMapping.hgCalMappingESProducer_cfi')
+process.hgCalMappingESProducer.modules = cms.FileInPath(options.modules)
+process.hgCalMappingESProducer.si = cms.FileInPath(options.sicells)
+process.hgCalMappingESProducer.sipm = cms.FileInPath(options.sipmcells)
 
+#cells and modules info
 process.load('Configuration.StandardSequences.Accelerators_cff')
-process.hgCalMappingModuleESProducer = cms.ESProducer('hgcal::HGCalMappingModuleESProducer@alpaka',
-                                                      filename=cms.FileInPath(options.modules),
-                                                      moduleindexer=cms.ESInputTag('') )
 process.hgCalMappingCellESProducer = cms.ESProducer('hgcal::HGCalMappingCellESProducer@alpaka',
                                                       filelist=cms.vstring(options.sicells,options.sipmcells),
                                                       cellindexer=cms.ESInputTag('') )
+process.hgCalMappingModuleESProducer = cms.ESProducer('hgcal::HGCalMappingModuleESProducer@alpaka',
+                                                      filename=cms.FileInPath(options.modules),
+                                                      moduleindexer=cms.ESInputTag('') )
 
 #realistic digis producer
 process.hgCalDigiSoaFiller = cms.EDProducer('HGCalDigiSoaFiller@alpaka')
