@@ -1303,6 +1303,7 @@ void FedRawDataInputSource::readWorker(unsigned int tid) {
       init = false;
       startupCv_.notify_one();
     }
+    cvWakeup_.notify_all();
     cvReader_[tid]->wait(lk);
 
     if (thread_quit_signal[tid])
