@@ -176,6 +176,15 @@ private:
   std::string variables_name_[Variable::VarNumber] = {
       "CosThetaCS", "DeltaEta", "EtaMinus", "EtaPlus", "PhiCS", "PhiMinus", "PhiPlus", "Pt"};
 
+  std::string variables_title_[Variable::VarNumber] = {"Cos#theta_{CS}",
+                                                       "#Delta#eta(#mu^{-},#mu^{+})",
+                                                       "#mu^{-} #eta",
+                                                       "#mu^{+} #eta",
+                                                       "#phi_{CS} [rad]",
+                                                       "#mu^{-} #phi [rad]",
+                                                       "#mu^{+} #phi [rad]",
+                                                       "p_{T} [GeV]"};
+
   int variables_bins_number_[Variable::VarNumber];  // = {20, 20, 12, 12, 20, 16, 16, 100};
   double variables_min_[Variable::VarNumber];       // = {-1, -4.8, -2.4, -2.4, -M_PI / 2, -M_PI, -M_PI, 0};
   double variables_max_[Variable::VarNumber];       // = {+1, +4.8, +2.4, +2.4, +M_PI / 2, +M_PI, +M_PI, 100};
@@ -298,14 +307,15 @@ void DiMuonValidation::beginJob() {
 
   for (int i = 0; i < Variable::VarNumber; i++) {
     std::string th2d_name = fmt::sprintf("th2d_mass_%s", variables_name_[i].c_str());
-    th2d_mass_variables_[i] = fs->make<TH2D>(th2d_name.c_str(),
-                                             th2d_name.c_str(),
-                                             pair_mass_nbins_,
-                                             pair_mass_min_,
-                                             pair_mass_max_,
-                                             variables_bins_number_[i],
-                                             variables_min_[i],
-                                             variables_max_[i]);
+    th2d_mass_variables_[i] =
+        fs->make<TH2D>(th2d_name.c_str(),
+                       fmt::format("{};M_{{#mu^{{-}}#mu^{{+}}}};{}", th2d_name, variables_title_[i]).c_str(),
+                       pair_mass_nbins_,
+                       pair_mass_min_,
+                       pair_mass_max_,
+                       variables_bins_number_[i],
+                       variables_min_[i],
+                       variables_max_[i]);
   }
 
   // Z-> mm mass in eta bins
