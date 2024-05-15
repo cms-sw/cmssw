@@ -11,6 +11,7 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/HGCalDigi/interface/HGCalElectronicsId.h"
 #include "DataFormats/HGCalDigi/interface/HGCalDigiHost.h"
+#include "DataFormats/HGCalDigi/interface/HGCalECONDInfoHost.h"
 
 #include "CondFormats/DataRecord/interface/HGCalElectronicsMappingRcd.h"
 #include "CondFormats/HGCalObjects/interface/HGCalMappingModuleIndexer.h"
@@ -95,11 +96,10 @@ void HGCalRawToDigi::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetu
 
 void HGCalRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   hgcaldigi::HGCalDigiHost digis(cellIndexer_.maxDenseIndex(), cms::alpakatools::host());
+  hgcaldigi::HGCalECONDInfoHost econdInfo(moduleIndexer_.getMaxModuleSize(), cms::alpakatools::host());
   // std::cout << "Created DIGIs SOA with " << digis.view().metadata().size() << " entries" << std::endl;
 
   // TODO @hqucms
-  // CM and error flags output
-  std::vector<HGCalFlaggedECONDInfo> errors;
 
   // retrieve the FED raw data
   const auto& raw_data = iEvent.get(fedRawToken_);
@@ -108,7 +108,7 @@ void HGCalRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
     const auto& fed_data = raw_data.FEDData(fedId);
     if (fed_data.size() == 0)
       continue;
-    unpacker_.parseFEDData(fedId, fed_data, moduleIndexer_, digis, errors, /*headerOnlyMode*/ false);
+    unpacker_.parseFEDData(fedId, fed_data, moduleIndexer_, digis, econdInfo, /*headerOnlyMode*/ false);
   }
 
   // TODO @hqucms

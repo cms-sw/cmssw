@@ -1,6 +1,7 @@
 #include "EventFilter/HGCalRawToDigi/interface/HGCalUnpacker.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/HGCalDigi/interface/HGCalDigiHost.h"
+#include "DataFormats/HGCalDigi/interface/HGCalECONDInfoHost.h"
 #include "DataFormats/HGCalDigi/interface/HGCalRawDataDefinitions.h"
 #include "CondFormats/HGCalObjects/interface/HGCalMappingModuleIndexer.h"
 #include "CondFormats/HGCalObjects/interface/HGCalMappingCellIndexer.h"
@@ -15,7 +16,7 @@ void HGCalUnpacker::parseFEDData(unsigned fedId,
                                  const FEDRawData& fed_data,
                                  const HGCalMappingModuleIndexer& moduleIndexer,
                                  hgcaldigi::HGCalDigiHost& digis,
-                                 std::vector<HGCalFlaggedECONDInfo>& errors,
+                                 hgcaldigi::HGCalECONDInfoHost& econdInfo,
                                  bool headerOnlyMode) {
   // number of non-CM channels (= 37)
   constexpr uint16_t maxChPerErxNonCM = HGCalMappingCellIndexer::maxChPerErx_ - 2;
@@ -85,6 +86,11 @@ void HGCalUnpacker::parseFEDData(unsigned fedId,
         // always increment the global ECON-D index (unless inactive/unconnected)
         globalECONDIdx++;
       }
+
+      uint32_t ECONDdenseIdx = moduleIndexer.getIndexForModule(fedId, globalECONDIdx);
+      econdInfo.view()[ECONDdenseIdx].location() = (uint32_t)(ptr - header);
+      econdInfo.view()[ECONDdenseIdx].cbFlag() = (uint8_t)(econd_pkt_status);
+
       bool pkt_exists =
           (econd_pkt_status == backend::ECONDPacketStatus::Normal) ||
           (econd_pkt_status == backend::ECONDPacketStatus::PayloadCRCError) ||
@@ -103,6 +109,10 @@ void HGCalUnpacker::parseFEDData(unsigned fedId,
       // ECON-D payload length (num of 32b words)
       // NOTE: in the capture blocks, ECON-D packets do not have the trailing IDLE word
       const auto econd_payload_length = ((econd_headers[0] >> ECOND_FRAME::PAYLOAD_POS) & ECOND_FRAME::PAYLOAD_MASK);
+      const auto econdFlag = ((econd_headers[0] >> ECOND_FRAME::BITT_POS) & 0b1111111) +
+                             (((econd_headers[1] >> ECOND_FRAME::BITS_POS) & 0b1) << ECONDFlag::BITS_POS);
+      econdInfo.view()[ECONDdenseIdx].payloadLength() = (uint16_t)econd_payload_length;
+      econdInfo.view()[ECONDdenseIdx].econdFlag() = (uint8_t)econdFlag;
 
       // convert ECON-D packets into 32b words -- need to swap the order of the two 32b words in the 64b word
       auto econd_payload = to_econd_payload(ptr, econd_payload_length);
@@ -114,13 +124,11 @@ void HGCalUnpacker::parseFEDData(unsigned fedId,
                 << ", econd_headers = " << std::hex << std::setfill('0') << std::setw(8) << econd_headers[0] << " "
                 << econd_headers[1] << std::dec << ", econd_payload_length = " << econd_payload_length << std::endl;
 
-      if (headerOnlyMode) {
-        // TODO: implement header only parsing
-        continue;
-      }
-
-      if (econd_payload_length == 0) {
-        // e.g., truncated data format or missing event format
+      //quality check for ECON-D
+      if (econd_pkt_status != 0b000 || (((econd_headers[0] >> ECOND_FRAME::HT_POS) & ECOND_FRAME::HT_MASK) >= 0b10) ||
+          (((econd_headers[0] >> ECOND_FRAME::EBO_POS) & ECOND_FRAME::EBO_MASK) >= 0b10) ||
+          (((econd_headers[0] >> ECOND_FRAME::BITM_POS) & 0b1) == 0) ||
+          (((econd_headers[0] >> ECOND_FRAME::BITM_POS) & 0b1) == 0) || econd_payload_length == 0 || headerOnlyMode) {
         continue;
       }
 
@@ -152,7 +160,6 @@ void HGCalUnpacker::parseFEDData(unsigned fedId,
           uint16_t cmSum = ((econd_payload[iword] >> ECOND_FRAME::COMMONMODE0_POS) & ECOND_FRAME::COMMONMODE0_MASK) +
                            ((econd_payload[iword + 1] >> ECOND_FRAME::COMMONMODE1_POS) & ECOND_FRAME::COMMONMODE1_MASK);
           uint64_t erxHeader = ((uint64_t)econd_payload[iword] << 32) | ((uint64_t)econd_payload[iword + 1]);
-          uint32_t denseIdx = moduleIndexer.getIndexForModuleErx(fedId, globalECONDIdx, erxIdx);
           std::cout << ", erx_headers = 0x" << std::hex << std::setfill('0') << std::setw(16) << erxHeader
                     << ", cmSum = " << std::dec << cmSum << std::endl;
           iword += 2;
@@ -160,8 +167,7 @@ void HGCalUnpacker::parseFEDData(unsigned fedId,
           // parse erx body (channel data)
           uint32_t iBit = 0;
           for (uint32_t channelIdx = 0; channelIdx < maxChPerErxNonCM; channelIdx++) {
-            // always increment the denseIdx
-            ++denseIdx;
+            uint32_t denseIdx = moduleIndexer.getIndexForModuleData(fedId, globalECONDIdx, erxIdx, channelIdx);
 
             // check if the channel has data
             if (((erxHeader >> channelIdx) & 1) == 0) {
@@ -210,15 +216,13 @@ void HGCalUnpacker::parseFEDData(unsigned fedId,
           uint16_t cmSum = ((econd_payload[iword] >> ECOND_FRAME::COMMONMODE0_POS) & ECOND_FRAME::COMMONMODE0_MASK) +
                            ((econd_payload[iword + 1] >> ECOND_FRAME::COMMONMODE1_POS) & ECOND_FRAME::COMMONMODE1_MASK);
           uint64_t erxHeader = ((uint64_t)econd_payload[iword] << 32) | ((uint64_t)econd_payload[iword + 1]);
-          uint32_t denseIdx = moduleIndexer.getIndexForModuleErx(fedId, globalECONDIdx, erxIdx);
           std::cout << ", erx_headers = 0x" << std::hex << std::setfill('0') << std::setw(16) << erxHeader
                     << ", cmSum = " << std::dec << cmSum << std::endl;
           iword += 2;
 
           // parse erx body (channel data)
           for (uint32_t channelIdx = 0; channelIdx < maxChPerErxNonCM; channelIdx++) {
-            // always increment the denseIdx
-            ++denseIdx;
+            uint32_t denseIdx = moduleIndexer.getIndexForModuleData(fedId, globalECONDIdx, erxIdx, channelIdx);
 
             // check if the channel has data
             if (((erxHeader >> channelIdx) & 1) == 0) {

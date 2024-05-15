@@ -13,9 +13,8 @@
 
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/HGCalDigi/interface/HGCalDigiHost.h"
-#include "DataFormats/HGCalDigi/interface/HGCalFlaggedECONDInfo.h"
+#include "DataFormats/HGCalDigi/interface/HGCalECONDInfoHost.h"
 #include "CondFormats/HGCalObjects/interface/HGCalMappingModuleIndexer.h"
-
 #include <cstdint>
 #include <functional>
 #include <vector>
@@ -32,7 +31,7 @@ public:
                     const FEDRawData& fed_data,
                     const HGCalMappingModuleIndexer& moduleIndexer,
                     hgcaldigi::HGCalDigiHost& digis,
-                    std::vector<HGCalFlaggedECONDInfo>& errors,
+                    hgcaldigi::HGCalECONDInfoHost& econdInfo,
                     bool headerOnlyMode = false);
 
 private:

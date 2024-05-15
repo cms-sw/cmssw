@@ -11,4 +11,4 @@ namespace hgcaldigi {
 
 }  // namespace hgcaldigi
 
-#endif  
+#endif
