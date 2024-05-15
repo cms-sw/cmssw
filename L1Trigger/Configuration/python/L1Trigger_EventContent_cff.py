@@ -190,6 +190,7 @@ def _appendPhase2Digis(obj):
         'keep *_l1tTrackerEmuEtMiss_*_*',
         'keep *_l1tTrackerEmuHTMiss_*_*',
         'keep *_l1tTrackerEmuHTMissExtended_*_*',
+        'keep *_l1tTrackTripletEmulation_*_*',
         'keep *_l1tTowerCalibration_*_*',
         'keep *_l1tCaloJet_*_*',
         'keep *_l1tCaloJetHTT_*_*',

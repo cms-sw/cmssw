@@ -202,6 +202,10 @@ from L1Trigger.L1TTrackMatch.l1tTrackerEmuHTMiss_cfi import *
 _phase2_siml1emulator.add(l1tTrackerEmuHTMiss)
 _phase2_siml1emulator.add(l1tTrackerEmuHTMissExtended)
 
+from L1Trigger.L1TTrackMatch.l1tTrackTripletEmulation_cfi import *
+_phase2_siml1emulator.add(l1tTrackTripletEmulation)
+
+
 # PF Candidates
 # ########################################################################
 from L1Trigger.Phase2L1ParticleFlow.l1ctLayer1_cff import *
