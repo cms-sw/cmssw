@@ -80,7 +80,10 @@ void EventCapture::observeProcesorEmulation(unsigned int iProcessor,
                                             const AlgoMuons& gbCandidates,
                                             const std::vector<l1t::RegionalMuonCand>& candMuons) {
   unsigned int procIndx = omtfConfig->getProcIndx(iProcessor, mtfType);
-
+  edm::LogImportant("l1tOmtfEventPrint") << "EventCapture::observeProcesorEmulation : iProcessor" << iProcessor
+                                         << " mtfType " << mtfType << " procIndx " << procIndx << " OmtfName(procIndx) "
+                                         << OmtfName(procIndx, omtfConfig) << " OmtfName(iProcessor, mtfType) "
+                                         << OmtfName(iProcessor, mtfType, omtfConfig) << std::endl;
   inputInProcs[procIndx] = input;
 
   algoMuonsInProcs[procIndx] = algoCandidates;
@@ -282,12 +285,23 @@ void EventCapture::observeEventEnd(const edm::Event& iEvent,
                 continue;
 
               //printing GoldenPatternResult, uncomment if needed
-              /*auto& gpResult = gp->getResults()[iProc][algoMuon->getRefHitNumber()];
-            edm::LogVerbatim("l1tOmtfEventPrint") << " "<<gp->key() << "  "
-              //<< "  refLayer: " << gpResult.getRefLayer() << "\t"
-              << " Sum over layers: " << gpResult.getPdfSum() << "\t"
-              << " Number of hits: " << gpResult.getFiredLayerCnt() << "\t"
-              << std::endl;*/
+              auto& gpResult = gp->getResults()[iProc][algoMuon->getRefHitNumber()];
+              std::ostringstream ostr;
+              ostr << " " << gp->key()
+                   << "  "
+                   //<< "  refLayer: " << gpResult.getRefLayer() << "\t"
+                   << " Sum over layers: " << std::setw(5) << gpResult.getPdfSum()
+                   << " Number of hits: " << std::setw(2) << gpResult.getFiredLayerCnt();
+
+              for (unsigned int iLogicLayer = 0; iLogicLayer < gpResult.getStubResults().size(); ++iLogicLayer) {
+                ostr << " l: " << std::setw(2) << iLogicLayer << " p: ";
+                if (gpResult.getStubResults()[iLogicLayer].getMuonStub()) {
+                  ostr << std::setw(2) << gpResult.getStubResults()[iLogicLayer].getPdfVal();
+                } else {
+                  ostr << "  ";
+                }
+              }
+              edm::LogVerbatim("l1tOmtfEventPrint") << ostr.str() << std::endl;
             }
           edm::LogVerbatim("l1tOmtfEventPrint") << std::endl << std::endl;
         }
@@ -296,7 +310,8 @@ void EventCapture::observeEventEnd(const edm::Event& iEvent,
       edm::LogVerbatim("l1tOmtfEventPrint") << "gbCandidates " << std::endl;
       for (auto& gbCandidate : gbCandidatesInProcs[iProc])
         if (gbCandidate->isValid())
-          edm::LogVerbatim("l1tOmtfEventPrint") << board.name() << " " << *gbCandidate << std::endl;
+          edm::LogVerbatim("l1tOmtfEventPrint")
+              << board.name() << " iProc " << iProc << " " << *gbCandidate << std::endl;
 
       {
         edm::LogVerbatim("l1tOmtfEventPrint") << std::endl << std::endl << "\ngb_test " << board.name() << std::endl;

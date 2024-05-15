@@ -73,6 +73,9 @@ PatternOptimizerBase::PatternOptimizerBase(const edm::ParameterSet& edmCfg,
   simMuFoundByOmtfPt =
       new TH1I("simMuFoundByOmtfPt", "simMuFoundByOmtfPt", goldenPatterns.size(), -0.5, goldenPatterns.size() - 0.5);
 
+  simMuEta = new TH1I("simMuEta", "simMuEta;eta;#events", 100, -2.1, 2.1);
+  candEta = new TH1I("candEta", "candEta;eta;#events", 100, -2.1, 2.1);
+
   simMuPtSpectrum = new TH1F("simMuPtSpectrum", "simMuPtSpectrum", 800, 0, 400);
 
   simMuPtVsDispl = new TH2I("simMuPtVsDispl", "simMuPtVsDispl;pt [GeV];dxy [cm]", 100, 0, 400, 100, 0, 400);
@@ -138,6 +141,9 @@ void PatternOptimizerBase::savePatternsInRoot(std::string rootFileName) {
 
   outfile.cd();
   simMuFoundByOmtfPt->Write();
+
+  simMuEta->Write();
+  candEta->Write();
 
   simMuPtSpectrum->Write();
   simMuPtVsDispl->Write();
