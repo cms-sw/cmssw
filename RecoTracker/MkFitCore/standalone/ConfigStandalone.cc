@@ -110,6 +110,7 @@ namespace mkfit {
         void *h = dlopen(sopath.c_str(), RTLD_LAZY);
         if (!h) {
           perror("dlopen failed");
+          fprintf(stderr, "dlerror:\n%s\n", dlerror());
           exit(2);
         }
 
@@ -138,6 +139,10 @@ namespace mkfit {
 
     fprintf(stderr, "TrackerInfo plugin '%s' not found in search path.\n", soname.c_str());
     exit(2);
+  }
+
+  namespace internal {
+    std::vector<DeadVec> deadvectors;
   }
 
 }  // namespace mkfit
