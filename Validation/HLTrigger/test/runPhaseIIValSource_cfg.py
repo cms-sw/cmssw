@@ -29,7 +29,10 @@ process.load("DQMServices.Core.DQM_cfg")
 process.load("DQMServices.Core.DQMStore_cfg")
 process.load("DQMServices.Components.DQMEnvironment_cfi")
 process.load("DQMServices.Components.MEtoEDMConverter_cff")
-
+process.MessageLogger.cerr.FwkReport = cms.untracked.PSet(
+    reportEvery = cms.untracked.int32(1000),
+    limit = cms.untracked.int32(10000000)
+)
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1),
     output = cms.optional.untracked.allowed(cms.int32,cms.PSet)
