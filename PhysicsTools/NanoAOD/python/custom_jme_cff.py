@@ -1263,6 +1263,32 @@ def RemoveAllJetPtCuts(proc):
 
   return proc
 
+def RecomputePuppiWeights(proc):
+  """
+  Setup packedpuppi and packedpuppiNoLep to recompute puppi weights
+  """
+  if hasattr(proc,"packedpuppi"):
+    proc.packedpuppi.useExistingWeights = False
+  if hasattr(proc,"packedpuppiNoLep"):
+    proc.packedpuppiNoLep.useExistingWeights = False
+  return proc
+
+def RecomputePuppiMET(proc):
+  """
+  Recompute PuppiMET. This is useful when puppi weights are recomputed.
+  """
+  runOnMC=True
+  if hasattr(proc,"NANOEDMAODoutput") or hasattr(proc,"NANOAODoutput"):
+    runOnMC = False
+
+  from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
+  runMetCorAndUncFromMiniAOD(proc, isData=runOnMC,
+    jetCollUnskimmed='updatedJetsPuppi',metType='Puppi',postfix='Puppi',jetFlavor='AK4PFPuppi',
+    puppiProducerLabel='packedpuppi',puppiProducerForMETLabel='packedpuppiNoLep',
+    recoMetFromPFCs=True
+  )
+  return proc
+
 #===========================================================================
 #
 # CUSTOMIZATION function
@@ -1382,3 +1408,4 @@ def PrepJMECustomNanoAOD(process):
     process.genWeightsTable.keepAllPSWeights = True
 
   return process
+
