@@ -15,6 +15,7 @@ from array import array
 from copy import deepcopy
 from os import chdir,getcwd,listdir,makedirs,rmdir
 from os.path import exists,join
+import random
 
 import sys
 argv=sys.argv
@@ -180,6 +181,40 @@ class Directory(Weighted):
     
     return url
 
+  def get_piechart_js(self,w=400,link=None,title=None):
+    """
+    Build the HTML snippet to render a piechart with chart.js
+    """
+
+    name = random.getrandbits(64) # just a random has for the canvas
+    html = "" 
+    html += '<canvas id="%s" style="max-width:%d"></canvas>'%(name,w)
+    # piechart
+    html += '<script> new Chart("%s",'%(name) 
+    html += '{ type: "pie",'
+
+    # data
+    html += 'data: {'
+    html += 'labels: ["Success", "Null" , "Failure", "Skipped"],'
+    html += 'datasets: [{ backgroundColor: ["lime","yellow","red","grey"],'
+    html += 'data: [%.2f,%.2f,%.2f,%.2f]}] },'%(self.get_success_rate(),self.get_null_rate(),self.get_fail_rate(),self.get_skiped_rate())
+    
+    #display options
+    html += 'options: { '
+
+    if link is not None:
+      html += 'onClick : function(event) { window.open("%s", "_blank");},'%(link)
+    
+    if title is not None:
+      html += 'title: { display: true, text: "%s"},'%(title)
+
+    html +='legend: { display: false },'
+
+
+    html += '}}); </script>'
+
+    return html
+  
   def print_report(self,indent="",verbose=False):
     if len(indent)==0:
       self.calcStats(make_pie=False)

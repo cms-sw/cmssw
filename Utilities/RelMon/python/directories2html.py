@@ -100,6 +100,7 @@ def get_page_header(directory=None, standalone=False, additional_header=""):
   html='<html>'+\
        '<head>'+\
        '<title>RelMon Summary</title>'+\
+       '<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>' + \
        '<link rel="stylesheet" href="%s/style/blueprint/screen.css" type="text/css" media="screen, projection">'%style_location+\
        '<link rel="stylesheet" href="%s/style/blueprint/print.css" type="text/css" media="print">'%style_location+\
        '<link rel="stylesheet" href="%s/style/blueprint/plugins/fancy-type/screen.css" type="text/css" media="screen, projection">'%style_location+\
@@ -212,7 +213,7 @@ def get_subdirs_section(directory, hashing_flag):
     html+='</div>'
     
     html+='<div class="span-6 last">'
-    html+='<a href="%s"><img src="%s" class="top right"></a>'%(link,subdir.get_summary_chart_ajax(150,100))
+    html+= subdir.get_piechart_js(150,link)
     html+='</div>'
     
     html+='<hr>'
@@ -263,7 +264,7 @@ def get_summary_section(directory,matrix_page=True):
   html+='</div>'
         
   html+='<div class="span-7 colborder">'+\
-        '<img src="%s" class="top right">'%directory.get_summary_chart_ajax(200,200)+\
+        '%s'%(directory.get_piechart_js(200)) +\
         '</div>'+\
         '<div class="span-9 last">'
   if matrix_page:
@@ -847,16 +848,17 @@ def make_summary_table(indir,aggregation_rules,aggregation_rules_twiki, hashing_
   page_html+='<td  style="background-color:white;"><div class="span-1">'
   
   page_html+='<b>Summary</b></div></td>'
-  page_html+='<td style="background-color:white;" class = "colborder" ><div class="span-1"><img src="%s" alt="%s"></div></td>'%(global_dir.get_summary_chart_ajax(55,55),get_pie_tooltip(global_dir))
+  page_html+='<td style="background-color:white;" class = "colborder" ><div class="span-1"> %s </div></td>'%(global_dir.get_piechart_js(55))
   for sample in sorted_samples:
     col=dir_dict[sample]
     # check if the directory was a top one or not
     summary_page_name="RelMonSummary.html"
     if col.name!="":
       summary_page_name=hash_name(col.name, hashing_flag)+".html"
-    img_link=col.get_summary_chart_ajax(55,55)
+    title = get_pie_tooltip(col)
+    chart = col.get_piechart_js(55,sample+"/"+summary_page_name,title)
     page_html+='<td  style="background-color:white;"><div class="span-1">'
-    page_html+='<a href="%s/%s"><img src="%s" title="%s"></a></div></td>' %(sample,summary_page_name,img_link,get_pie_tooltip(col))
+    page_html+='%s </a></div></td>' %(chart)
   page_html+="</tr>"
 
   # Now the content
@@ -878,9 +880,10 @@ def make_summary_table(indir,aggregation_rules,aggregation_rules_twiki, hashing_
 
     # one first row for the summary!
     row_summary.calcStats()
-    img_link=row_summary.get_summary_chart_ajax(55,55)
+    title = get_pie_tooltip(col)
+    chart = row_summary.get_piechart_js(55,None,title)
     page_html+='<td  style="background-color:white;"><div class="span-1">'
-    page_html+='<img src="%s" title="%s"></div></td>' %(img_link,get_pie_tooltip(row_summary))
+    page_html+= chart + '</div></td>'
 
     for sample in sorted_samples:
       sample_counter+=1      
@@ -903,19 +906,17 @@ def make_summary_table(indir,aggregation_rules,aggregation_rules_twiki, hashing_
         summary_page=join(sample,"%s.html"%(hash_name(directory.name+subdir_name,hashing_flag)))
       dir_is_there=subdir_name in subdirs_dict
 
-      img_link="https://chart.googleapis.com/chart?cht=p3&chco=C0C0C0&chs=50x50&chd=t:1"
+      img_link="https://upload.wikimedia.org/wikipedia/commons/a/a8/Circle_Davys-Grey_Solid.svg"
       img_tooltip="N/A"
+      page_html+='<td  style="background-color:white;"><div class="span-1">'
+
       if dir_is_there:
         #row_summary.subdirs.append(subdirs_dict[subdir_name])
-        img_link=subdirs_dict[subdir_name].get_summary_chart_ajax(50,50)
         img_tooltip=get_pie_tooltip(subdirs_dict[subdir_name])
-
-      page_html+='<td  style="background-color:white;"><div class="span-1">'
-      if dir_is_there:
-        page_html+='<a href="%s">'%(summary_page)
-      page_html+='<img src="%s" title="%s" height=50 width=50>' %(img_link,img_tooltip)
-      if dir_is_there:
-        page_html+='</a>'
+        chart=subdirs_dict[subdir_name].get_piechart_js(50,summary_page,img_tooltip)
+        page_html+='%s'%chart
+      else:
+        page_html+='<img src="%s" title="%s" height=50 width=50>' %(img_link,img_tooltip)
       page_html+='</div></td>' 
 
     page_html+="          </tr>\n"        
