@@ -24,6 +24,11 @@ namespace mkfit {
 
 // Matriplex dimensions and typedefs
 
+// Provide fast_xyzz() Matriplex methods and operators using VDT.
+#define MPLEX_VDT
+// Define the following to have fast_xyzz() functions actually call std:: stuff.
+// #define MPLEX_VDT_USE_STD
+
 #include "Matriplex/MatriplexSym.h"
 
 #ifndef MPT_SIZE

@@ -1121,7 +1121,7 @@ namespace mkfit {
     errorProp.setVal(0.f);
     outFailFlag.setVal(0.f);
 
-    helixAtPlane_impl(inPar, inChg, plPnt, plNrm, pathL, outPar, errorProp, outFailFlag, 0, NN, N_proc, pflags);
+    helixAtPlane_impl(inPar, inChg, plPnt, plNrm, pathL, outPar, errorProp, outFailFlag, N_proc, pflags);
   }
 
   void propagateHelixToPlaneMPlex(const MPlexLS& inErr,
@@ -1145,7 +1145,8 @@ namespace mkfit {
 
     helixAtPlane(inPar, inChg, plPnt, plNrm, pathL, outPar, errorProp, outFailFlag, N_proc, pflags);
 
-    for (int n = 0; n < NN; ++n) {
+#ifdef DEBUG
+    for (int n = 0; n < N_proc; ++n) {
       dprint_np(
           n,
           "propagation to plane end, dump parameters\n"
@@ -1159,7 +1160,6 @@ namespace mkfit {
               << "\t\tpT=" << 1. / std::abs(outPar(n, 3, 0)) << std::endl);
     }
 
-#ifdef DEBUG
     if (debug && g_debug) {
       for (int kk = 0; kk < N_proc; ++kk) {
         dprintf("inPar %d\n", kk);
