@@ -283,8 +283,6 @@ void HLTGenValSource::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 // ------------ method called once each job just before starting event loop  ------------
 void HLTGenValSource::bookHistograms(DQMStore::IBooker& iBooker, const edm::Run& run, const edm::EventSetup& setup) {
     
-  if(booked_) return;
-  
   iBooker.setCurrentFolder(dirName_);
   iBooker.bookString("HLTGenValInfo", infoString_);
   if(infoString_=="{}" || infoString_==""){
