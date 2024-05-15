@@ -206,7 +206,7 @@
     "online?": true,
     "owners": [
       "EXO",
-      "Scouting"
+      "TSG (Scouting)"
     ]
   },
   "DST_PFScouting_AXONominal_v": {
@@ -227,14 +227,14 @@
     "online?": true,
     "owners": [
       "EXO",
-      "Scouting"
+      "TSG (Scouting)"
     ]
   },
   "DST_PFScouting_AXOVTight_v": {
     "online?": true,
     "owners": [
       "EXO",
-      "Scouting"
+      "TSG (Scouting)"
     ]
   },
   "DST_PFScouting_DatasetMuon_v": {
@@ -277,7 +277,7 @@
     "owners": [
       "BPH",
       "EXO",
-      "Scouting"
+      "TSG (Scouting)"
     ]
   },
   "DST_Physics_v": {
@@ -7157,7 +7157,7 @@
     ]
   },
   "MC_PFScouting_v": {
-    "online?": true,
+    "online?": false,
     "owners": [
       "BPH",
       "EXO",
