@@ -89,6 +89,7 @@ FedRawDataInputSource::FedRawDataInputSource(edm::ParameterSet const& pset, edm:
   long autoRunNumber = -1;
   if (fileListMode_) {
     autoRunNumber = initFileList();
+    edm::Service<evf::EvFDaqDirector>()->setFileListMode();
     if (!fileListLoopMode_) {
       if (autoRunNumber < 0)
         throw cms::Exception("FedRawDataInputSource::FedRawDataInputSource") << "Run number not found from filename";
@@ -114,7 +115,6 @@ FedRawDataInputSource::FedRawDataInputSource(edm::ParameterSet const& pset, edm:
         << "no reading enabled with numBuffers parameter 0";
 
   numConcurrentReads_ = numBuffers_ - 1;
-  singleBufferMode_ = !(numBuffers_ > 1);
   readingFilesCount_ = 0;
 
   if (!crc32c_hw_test())
@@ -426,11 +426,6 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent() {
           << "Fully processed " << currentFile_->nProcessed_ << " from the file " << currentFile_->fileName_
           << " but according to BU JSON there should be " << currentFile_->nEvents_ << " events";
     }
-    //try to wake up supervisor thread which might be sleeping waiting for the free chunk
-    if (singleBufferMode_) {
-      std::unique_lock<std::mutex> lkw(mWakeup_);
-      cvWakeup_.notify_one();
-    }
     bufferInputRead_ = 0;
     if (!daqDirector_->isSingleStreamThread() && !fileListMode_) {
       //put the file in pending delete list;
@@ -470,69 +465,7 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent() {
     throw cms::Exception("FedRawDataInputSource::getNextEvent")
         << "Premature end of input file while reading event header";
   }
-  if (singleBufferMode_) {
-    //should already be there
-    setMonState(inWaitChunk);
-    {
-      IdleSourceSentry ids(fms_);
-      while (!currentFile_->waitForChunk(currentFile_->currentChunk_)) {
-        usleep(10000);
-        if (currentFile_->parent_->exceptionState() || setExceptionState_)
-          currentFile_->parent_->threadError();
-      }
-    }
-    setMonState(inChunkReceived);
-
-    unsigned char* dataPosition = currentFile_->chunks_[0]->buf_ + currentFile_->chunkPosition_;
-
-    //conditions when read amount is not sufficient for the header to fit
-    if (!bufferInputRead_ || bufferInputRead_ < FRDHeaderVersionSize[detectedFRDversion_] ||
-        eventChunkSize_ - currentFile_->chunkPosition_ < FRDHeaderVersionSize[detectedFRDversion_]) {
-      readNextChunkIntoBuffer(currentFile_.get());
-
-      if (detectedFRDversion_ == 0) {
-        detectedFRDversion_ = *((uint16_t*)dataPosition);
-        if (detectedFRDversion_ > FRDHeaderMaxVersion)
-          throw cms::Exception("FedRawDataInputSource::getNextEvent")
-              << "Unknown FRD version -: " << detectedFRDversion_;
-        assert(detectedFRDversion_ >= 1);
-      }
-
-      //recalculate chunk position
-      dataPosition = currentFile_->chunks_[0]->buf_ + currentFile_->chunkPosition_;
-      if (bufferInputRead_ < FRDHeaderVersionSize[detectedFRDversion_]) {
-        throw cms::Exception("FedRawDataInputSource::getNextEvent")
-            << "Premature end of input file while reading event header";
-      }
-    }
-
-    event_ = std::make_unique<FRDEventMsgView>(dataPosition);
-    if (event_->size() > eventChunkSize_) {
-      throw cms::Exception("FedRawDataInputSource::getNextEvent")
-          << " event id:" << event_->event() << " lumi:" << event_->lumi() << " run:" << event_->run()
-          << " of size:" << event_->size() << " bytes does not fit into a chunk of size:" << eventChunkSize_
-          << " bytes";
-    }
-
-    const uint32_t msgSize = event_->size() - FRDHeaderVersionSize[detectedFRDversion_];
-
-    if (currentFile_->fileSize_ - currentFile_->bufferPosition_ < msgSize) {
-      throw cms::Exception("FedRawDataInputSource::getNextEvent")
-          << "Premature end of input file while reading event data";
-    }
-    if (eventChunkSize_ - currentFile_->chunkPosition_ < msgSize) {
-      readNextChunkIntoBuffer(currentFile_.get());
-      //recalculate chunk position
-      dataPosition = currentFile_->chunks_[0]->buf_ + currentFile_->chunkPosition_;
-      event_ = std::make_unique<FRDEventMsgView>(dataPosition);
-    }
-    currentFile_->bufferPosition_ += event_->size();
-    currentFile_->chunkPosition_ += event_->size();
-    //last chunk is released when this function is invoked next time
-
-  }
-  //multibuffer mode:
-  else {
+  {
     //wait for the current chunk to become added to the vector
     setMonState(inWaitChunk);
     {
@@ -797,7 +730,7 @@ void FedRawDataInputSource::readSupervisor() {
     //wait for at least one free thread and chunk
     int counter = 0;
 
-    while ((workerPool_.empty() && !singleBufferMode_) || freeChunks_.empty() ||
+    while (workerPool_.empty() || freeChunks_.empty() ||
            readingFilesCount_ >= maxBufferedFiles_) {
       //report state to monitoring
       if (fms_) {
@@ -831,7 +764,7 @@ void FedRawDataInputSource::readSupervisor() {
         }
         LogDebug("FedRawDataInputSource") << "No free chunks or threads...";
       } else {
-        assert(!(workerPool_.empty() && !singleBufferMode_) || freeChunks_.empty());
+        assert(!workerPool_.empty() || freeChunks_.empty());
       }
       if (quit_threads_.load(std::memory_order_relaxed) || edm::shutdown_flag.load(std::memory_order_relaxed)) {
         stop = true;
@@ -1079,7 +1012,7 @@ void FedRawDataInputSource::readSupervisor() {
       struct stat st;
       int stat_res = stat(rawFile.c_str(), &st);
       if (stat_res == -1) {
-        edm::LogError("FedRawDataInputSource") << "Can not stat file (" << errno << "):-" << rawFile << std::endl;
+        edm::LogError("FedRawDataInputSource") << "Can not stat file (" << errno << ") :- " << rawFile << std::endl;
         setExceptionState_ = true;
         break;
       }
@@ -1116,7 +1049,7 @@ void FedRawDataInputSource::readSupervisor() {
                (fileSize > rawHeaderSize));  //file without events must be empty or contain only header
       }
 
-      if (!singleBufferMode_) {
+      {
         //calculate number of needed chunks
         unsigned int neededChunks = fileSize / eventChunkSize_;
         if (fileSize % eventChunkSize_)
@@ -1200,71 +1133,6 @@ void FedRawDataInputSource::readSupervisor() {
           //wake up the worker thread
           cvReader_[newTid]->notify_one();
         }
-      } else {
-        if (!eventsInNewFile) {
-          if (rawFd) {
-            close(rawFd);
-            rawFd = -1;
-          }
-          //still queue file for lumi update
-          std::unique_lock<std::mutex> lkw(mWakeup_);
-          //TODO: also file with only file header fits in this edge case. Check if read correctly in single buffer mode
-          std::unique_ptr<InputFile> newInputFile(new InputFile(evf::EvFDaqDirector::FileStatus::newFile,
-                                                                ls,
-                                                                rawFile,
-                                                                !fileListMode_,
-                                                                rawFd,
-                                                                fileSize,
-                                                                rawHeaderSize,
-                                                                (rawHeaderSize > 0),
-                                                                0,
-                                                                this));
-          readingFilesCount_++;
-          fileQueue_.push(std::move(newInputFile));
-          cvWakeup_.notify_one();
-          break;
-        }
-        //in single-buffer mode put single chunk in the file and let the main thread read the file
-        InputChunk* newChunk = nullptr;
-        //should be available immediately
-        while (!freeChunks_.try_pop(newChunk)) {
-          usleep(100000);
-          if (quit_threads_.load(std::memory_order_relaxed)) {
-            stop = true;
-            break;
-          }
-        }
-
-        if (newChunk == nullptr) {
-          stop = true;
-        }
-
-        if (stop)
-          break;
-
-        std::unique_lock<std::mutex> lkw(mWakeup_);
-
-        unsigned int toRead = eventChunkSize_;
-        if (fileSize % eventChunkSize_)
-          toRead = fileSize % eventChunkSize_;
-        newChunk->reset(0, toRead, 0);
-        newChunk->readComplete_ = true;
-
-        //push file and wakeup main thread
-        std::unique_ptr<InputFile> newInputFile(new InputFile(evf::EvFDaqDirector::FileStatus::newFile,
-                                                              ls,
-                                                              rawFile,
-                                                              !fileListMode_,
-                                                              rawFd,
-                                                              fileSize,
-                                                              rawHeaderSize,
-                                                              1,
-                                                              eventsInNewFile,
-                                                              this));
-        newInputFile->chunks_[0] = newChunk;
-        readingFilesCount_++;
-        fileQueue_.push(std::move(newInputFile));
-        cvWakeup_.notify_one();
       }
     }
   }

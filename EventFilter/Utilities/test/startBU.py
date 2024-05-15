@@ -53,7 +53,7 @@ options.register ('fedMeanSize',
                   "Mean size of generated (fake) FED raw payload")
 
 options.register ('frdFileVersion',
-                  0,
+                  1,
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.int,          # string, int, or float
                   "Generate raw files with FRD file header with version 1 or separate JSON files with 0")

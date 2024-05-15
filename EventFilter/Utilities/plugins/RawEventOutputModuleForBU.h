@@ -82,7 +82,8 @@ void RawEventOutputModuleForBU<Consumer>::write(edm::EventForOutput const& e) {
     index_++;
     std::string filename = edm::Service<evf::EvFDaqDirector>()->getOpenRawFilePath(ls, index_);
     std::string destinationDir = edm::Service<evf::EvFDaqDirector>()->buBaseRunDir();
-    templateConsumer_->initialize(destinationDir, filename, ls);
+    int run = edm::Service<evf::EvFDaqDirector>()->getRunNumber();
+    templateConsumer_->initialize(destinationDir, filename, run, ls);
   }
   totevents++;
   // serialize the FEDRawDataCollection into the format that we expect for
@@ -180,8 +181,9 @@ void RawEventOutputModuleForBU<Consumer>::beginLuminosityBlock(edm::LuminosityBl
   index_ = 0;
   std::string filename = edm::Service<evf::EvFDaqDirector>()->getOpenRawFilePath(ls.id().luminosityBlock(), index_);
   std::string destinationDir = edm::Service<evf::EvFDaqDirector>()->buBaseRunDir();
+  int run = edm::Service<evf::EvFDaqDirector>()->getRunNumber();
   std::cout << " writing to destination dir " << destinationDir << " name: " << filename << std::endl;
-  templateConsumer_->initialize(destinationDir, filename, ls.id().luminosityBlock());
+  templateConsumer_->initialize(destinationDir, filename, run, ls.id().luminosityBlock());
   //edm::Service<evf::EvFDaqDirector>()->updateBuLock(ls.id().luminosityBlock()+1);
   if (!firstLumi_) {
     timeval now;

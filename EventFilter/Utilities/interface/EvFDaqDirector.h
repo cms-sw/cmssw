@@ -70,7 +70,8 @@ namespace evf {
     void preBeginRun(edm::GlobalContext const& globalContext);
     void postEndRun(edm::GlobalContext const& globalContext);
     void preGlobalEndLumi(edm::GlobalContext const& globalContext);
-    void overrideRunNumber(unsigned int run) { run_ = run; }
+    void updateRunParams();
+    void overrideRunNumber(unsigned int run) { run_ = run; updateRunParams(); }
     std::string const& runString() const { return run_string_; }
     std::string& baseRunDir() { return run_dir_; }
     std::string& buBaseRunDir() { return bu_run_dir_; }
@@ -193,6 +194,8 @@ namespace evf {
     bool lumisectionDiscarded(unsigned int ls);
     std::vector<std::string> const& getBUBaseDirs() const { return bu_base_dirs_all_; }
     std::vector<int> const& getBUBaseDirsNSources() const { return bu_base_dirs_nSources_; }
+    void setFileListMode() { fileListMode_ = true; }
+    bool fileListMode() const { return fileListMode_; }
 
   private:
     bool bumpFile(unsigned int& ls,
@@ -293,6 +296,7 @@ namespace evf {
 
     std::string input_throttled_file_;
     std::string discard_ls_filestem_;
+    bool fileListMode_ = false;
   };
 }  // namespace evf
 

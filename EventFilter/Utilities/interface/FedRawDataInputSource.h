@@ -174,8 +174,6 @@ private:
   std::mutex mWakeup_;
   std::condition_variable cvWakeup_;
 
-  //variables for the single buffered mode
-  bool singleBufferMode_;
   int fileDescriptor_ = -1;
   uint32_t bufferInputRead_ = 0;
 
