@@ -16,6 +16,8 @@
 
 /** \brief JSON (JavaScript Object Notation).
  */
+
+namespace jsoncollector {
 namespace Json {
 
   /** \brief Type of the value held by a Value object.
@@ -957,5 +959,5 @@ public: // overridden from ValueArrayAllocator
   };
 
 }  // namespace Json
-
+} // namespace jsoncollector
 #endif  // CPPTL_JSON_H_INCLUDED

@@ -19,6 +19,7 @@
   if (!(condition))                             \
     throw std::runtime_error(message);
 
+namespace jsoncollector {
 namespace Json {
 
   const Value Value::null;
@@ -104,10 +105,6 @@ namespace Json {
 // //////////////////////////////////////////////////////////////////
 // //////////////////////////////////////////////////////////////////
 // //////////////////////////////////////////////////////////////////
-#ifdef JSON_VALUE_USE_INTERNAL_MAP
-#include "json_internalarray.icc"
-#include "json_internalmap.icc"
-#endif  // JSON_VALUE_USE_INTERNAL_MAP
 
 #include "json_valueiterator.icc"
 
@@ -1293,3 +1290,4 @@ namespace Json {
   }
 
 }  // namespace Json
+} //namespace jsoncollector

@@ -8,6 +8,7 @@
 #include <string>
 #include <iostream>
 
+namespace jsoncollector {
 namespace Json {
 
   /** \brief Unserialize a <a HREF="http://www.json.org">JSON</a> document into a Value.
@@ -167,5 +168,5 @@ namespace Json {
   std::istream &operator>>(std::istream &, Value &);
 
 }  // namespace Json
-
+} // namespace jsoncollector
 #endif  // CPPTL_JSON_READER_H_INCLUDED

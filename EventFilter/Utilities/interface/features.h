@@ -3,6 +3,7 @@
 
 #include "forwards.h"
 
+namespace jsoncollector {
 namespace Json {
 
   /** \brief Configuration passed to reader and writer.
@@ -37,5 +38,6 @@ namespace Json {
   };
 
 }  // namespace Json
+} // namespace jsoncollector
 
 #endif  // CPPTL_JSON_FEATURES_H_INCLUDED

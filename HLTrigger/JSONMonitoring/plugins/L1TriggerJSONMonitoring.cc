@@ -31,6 +31,8 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Adler32Calculator.h"
 
+using namespace jsoncollector;
+
 struct L1TriggerJSONMonitoringData {
   // special values for prescale index checks
   static constexpr const int kPrescaleUndefined = -2;

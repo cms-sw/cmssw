@@ -3,6 +3,7 @@
 
 #include "config.h"
 
+namespace jsoncollector {
 namespace Json {
 
   // writer.h
@@ -34,5 +35,6 @@ namespace Json {
 #endif  // #ifdef JSON_VALUE_USE_INTERNAL_MAP
 
 }  // namespace Json
+} // namespace jsoncollector
 
 #endif  // JSON_FORWARDS_H_INCLUDED
