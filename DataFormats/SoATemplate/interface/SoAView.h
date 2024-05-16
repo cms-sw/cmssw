@@ -492,8 +492,8 @@ namespace cms::soa {
 #define _GENERATE_SOA_VIEW_PART_0(CONST_VIEW, VIEW, LAYOUTS_LIST, VALUE_LIST)                                          \
   template <CMS_SOA_BYTE_SIZE_TYPE VIEW_ALIGNMENT = cms::soa::CacheLineSize::defaultSize,                              \
             bool VIEW_ALIGNMENT_ENFORCEMENT = cms::soa::AlignmentEnforcement::relaxed,                                 \
-            bool RESTRICT_QUALIFY = cms::soa::RestrictQualify::enabled,                                                \
-            bool RANGE_CHECKING = cms::soa::RangeChecking::disabled>                                                   \
+            bool RESTRICT_QUALIFY = cms::soa::RestrictQualify::Default,                                                \
+            bool RANGE_CHECKING = cms::soa::RangeChecking::Default>                                                    \
   struct VIEW : public CONST_VIEW<VIEW_ALIGNMENT, VIEW_ALIGNMENT_ENFORCEMENT, RESTRICT_QUALIFY, RANGE_CHECKING> {      \
     /* Declare the parametrized layouts as the default */                                                              \
     /*BOOST_PP_SEQ_CAT(_ITERATE_ON_ALL(_DECLARE_VIEW_LAYOUT_PARAMETRIZED_TEMPLATE, ~, LAYOUTS_LIST))   */              \
@@ -671,8 +671,8 @@ namespace cms::soa {
 #define _GENERATE_SOA_CONST_VIEW_PART_0(CONST_VIEW, VIEW, LAYOUTS_LIST, VALUE_LIST)                                    \
   template <CMS_SOA_BYTE_SIZE_TYPE VIEW_ALIGNMENT = cms::soa::CacheLineSize::defaultSize,                              \
             bool VIEW_ALIGNMENT_ENFORCEMENT = cms::soa::AlignmentEnforcement::relaxed,                                 \
-            bool RESTRICT_QUALIFY = cms::soa::RestrictQualify::enabled,                                                \
-            bool RANGE_CHECKING = cms::soa::RangeChecking::disabled>                                                   \
+            bool RESTRICT_QUALIFY = cms::soa::RestrictQualify::Default,                                                \
+            bool RANGE_CHECKING = cms::soa::RangeChecking::Default>                                                    \
   struct CONST_VIEW {                                                                                                  \
     /* these could be moved to an external type trait to free up the symbol names */                                   \
     using self_type = CONST_VIEW;
