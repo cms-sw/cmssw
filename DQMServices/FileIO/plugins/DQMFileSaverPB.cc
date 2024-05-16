@@ -74,7 +74,7 @@ void DQMFileSaverPB::saveLumi(const FileParameters& fp) const {
   std::string openHistoFilePathName;
   std::string histoFilePathName;
 
-  evf::FastMonitoringService * fms = nullptr;
+  evf::FastMonitoringService* fms = nullptr;
   edm::Service<DQMStore> store;
 
   // create the files names
