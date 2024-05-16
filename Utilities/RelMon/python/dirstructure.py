@@ -168,19 +168,6 @@ class Directory(Weighted):
       subdirnames.append(subdir.name)
     return subdirnames
 
-  def get_summary_chart_ajax(self,w=400,h=300):
-    """Emit the ajax to build a pie chart using google apis...
-    """
-    url = "https://chart.googleapis.com/chart?"
-    url+= "cht=p3" # Select the 3d chart
-    #url+= "&chl=Success|Null|Fail" # give labels
-    url+= "&chco=00FF00|FFFF00|FF0000|7A7A7A" # give colours to labels
-    url+= "&chs=%sx%s" %(w,h)
-    #url+= "&chtt=%s" %self.name
-    url+= "&chd=t:%.2f,%.2f,%.2f,%.2f"%(self.get_success_rate(),self.get_null_rate(),self.get_fail_rate(),self.get_skiped_rate())
-    
-    return url
-
   def get_piechart_js(self,w=400,link=None,title=None):
     """
     Build the HTML snippet to render a piechart with chart.js
@@ -188,7 +175,7 @@ class Directory(Weighted):
 
     name = random.getrandbits(64) # just a random has for the canvas
     html = "" 
-    html += '<canvas id="%s" style="max-width:%d"></canvas>'%(name,w)
+    html += '<canvas id="%s" style="width:100%%;max-width:%d"></canvas>'%(name,w)
     # piechart
     html += '<script> new Chart("%s",'%(name) 
     html += '{ type: "pie",'

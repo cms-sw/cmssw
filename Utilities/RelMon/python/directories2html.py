@@ -24,6 +24,7 @@ sys.argv=theargv
 
 import os
 import hashlib
+import random
 
 if "RELMON_SA" in os.environ:
   from .dirstructure import Comparison,Directory
@@ -492,27 +493,44 @@ def directory2html(directory, hashing, standalone, depth=0):
 
   #chdir(old_cwd)
 
-#-------------------------------------------------------------------------------
+def to_rgba(t):
+    ''' Convert a RGBA tuple to string'''
+    return "rgba(%f,%f,%f,%f)"%(t)
 
-def build_gauge(total_success_rate,minrate=.80,small=False,escaped=False):
-  total_success_rate_scaled=(total_success_rate-minrate)
-  total_success_rate_scaled_repr=total_success_rate_scaled/(1-minrate)
-  if total_success_rate_scaled_repr<0:
-    total_success_rate_scaled_repr=0
-  size_s="200x100"
-  if small:
-    size_s="40x30"
-  #print "Total success rate %2.2f and scaled %2.2f "%(total_success_rate,total_success_rate_scaled)
-  gauge_link ="https://chart.googleapis.com/chart?chs=%s&cht=gom"%size_s
-  gauge_link+="&chd=t:%2.1f"%(total_success_rate_scaled_repr*100.)
-  if not small:
-    gauge_link+="&chxt=x,y&chxl=0:|%2.1f%%|1:|%i%%|%i%%|100%%"%(total_success_rate*100,minrate*100.,(1+minrate)*50)
-    gauge_link+="&chma=10,10,10,0"
-  img_tag= '<img src="%s">'%gauge_link
-  if escaped:
-    img_tag=html.escape(img_tag)    
-  return img_tag
+def build_gauge_js(rate,w=100,minrate=.80):
 
+  color = to_rgba(gauge_cmap(rate-minrate))
+  font_size = int(w/5)
+  text_offs = int(w/8)
+  gauge_max = 1. - rate
+
+  name = random.getrandbits(64) # just a random has for the canvas
+  html = "" 
+  html += '<div style="width:100%%;max-width:%d; position: relative;">'%(w)
+  html += '<div style="width: 100%%; position: absolute; top: 75%%; margin-top: -%dpx; text-align: center;">'%(text_offs)
+  html += '<span style="color: %s; font-family: courier; font-size: %dpx;">%.2f%%</span>'%(color,font_size,rate*100.)
+  html += '<canvas id="%s"></canvas>'%(name)
+
+  # "gauge" chart
+  html += '<script> new Chart("%s",'%(name) 
+  html += '{ type: "doughnut",'
+
+  # data
+  html += 'data: {'
+  html += 'datasets: [{ backgroundColor: ["%s", "rgba(0, 0, 0, 0.1)"],'%(color)
+  html += 'data: [%f,%f]}] },'%(rate,gauge_max)
+
+  #options
+  html += 'options: { responsive: true, rotation: -90, circumference: 180 },'
+
+  html += '}); </script> </div> </div>'
+
+  print("here")
+
+  img_link="https://upload.wikimedia.org/wikipedia/commons/a/a8/Circle_Davys-Grey_Solid.svg"
+  html='<img src="%s" title="%s" height=50 width=50>' %(img_link,"test")
+
+  return html
 #-------------------------------------------------------------------------------
 
 def get_aggr_pairs_info(dir_dict,the_aggr_pairs=[]):
@@ -615,7 +633,7 @@ def make_categories_summary(dir_dict,aggregation_rules):
     html+='</div>'
     
     html+='<div class="span-6 last">'
-    html+=build_gauge(average_success_rate)
+    html+=build_gauge_js(average_success_rate)
     html+='</div>'
     
     html+='<hr>'
@@ -649,7 +667,7 @@ def make_twiki_table(dir_dict,aggregation_rules):
 
   for cat_name,present_subdirs,total_weight,average_success_rate in aggr_pairs_info:
     #print cat_name,present_subdirs,total_weight,average_success_rate
-    html+=build_gauge(average_success_rate,small=True,escaped=True)
+    html+=build_gauge_js(average_success_rate,w=40)
     html+=" | "    
   
   html+='</div> <a href="#top">Top...</a>'
