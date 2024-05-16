@@ -130,12 +130,17 @@ pixelNtupletFit.toReplaceWith(siPixelRecHitsPreSplittingTask, cms.Task(
 ### Alpaka Pixel Hits Reco
 from RecoLocalTracker.SiPixelRecHits.siPixelRecHitAlpakaPhase1_cfi import siPixelRecHitAlpakaPhase1 as _siPixelRecHitAlpakaPhase1
 from RecoLocalTracker.SiPixelRecHits.siPixelRecHitAlpakaPhase2_cfi import siPixelRecHitAlpakaPhase2 as _siPixelRecHitAlpakaPhase2
+from RecoLocalTracker.SiPixelRecHits.siPixelRecHitAlpakaHIonPhase1_cfi import siPixelRecHitAlpakaHIonPhase1 as _siPixelRecHitAlpakaHIonPhase1
+
 
 # Hit SoA producer on the device
 siPixelRecHitsPreSplittingAlpaka = _siPixelRecHitAlpakaPhase1.clone(
     src = "siPixelClustersPreSplittingAlpaka"
 )
 phase2_tracker.toReplaceWith(siPixelRecHitsPreSplittingAlpaka,_siPixelRecHitAlpakaPhase2.clone(
+    src = "siPixelClustersPreSplittingAlpaka"
+))
+(pp_on_AA & ~phase2_tracker).toReplaceWith(siPixelRecHitsPreSplittingAlpaka,_siPixelRecHitAlpakaHIonPhase1.clone(
     src = "siPixelClustersPreSplittingAlpaka"
 ))
 
@@ -146,6 +151,7 @@ siPixelRecHitsPreSplittingAlpakaSerial = makeSerialClone(siPixelRecHitsPreSplitt
 
 from RecoLocalTracker.SiPixelRecHits.siPixelRecHitFromSoAAlpakaPhase1_cfi import siPixelRecHitFromSoAAlpakaPhase1 as _siPixelRecHitFromSoAAlpakaPhase1
 from RecoLocalTracker.SiPixelRecHits.siPixelRecHitFromSoAAlpakaPhase2_cfi import siPixelRecHitFromSoAAlpakaPhase2 as _siPixelRecHitFromSoAAlpakaPhase2
+from RecoLocalTracker.SiPixelRecHits.siPixelRecHitFromSoAAlpakaHIonPhase1_cfi import siPixelRecHitFromSoAAlpakaHIonPhase1 as _siPixelRecHitFromSoAAlpakaHIonPhase1
 
 (alpaka & ~phase2_tracker).toModify(siPixelRecHitsPreSplitting,
     cpu = _siPixelRecHitFromSoAAlpakaPhase1.clone(
@@ -155,6 +161,12 @@ from RecoLocalTracker.SiPixelRecHits.siPixelRecHitFromSoAAlpakaPhase2_cfi import
 
 (alpaka & phase2_tracker).toModify(siPixelRecHitsPreSplitting,
     cpu = _siPixelRecHitFromSoAAlpakaPhase2.clone(
+            pixelRecHitSrc = cms.InputTag('siPixelRecHitsPreSplittingAlpaka'),
+            src = cms.InputTag('siPixelClustersPreSplitting'))
+)
+
+(alpaka & pp_on_AA & ~phase2_tracker).toModify(siPixelRecHitsPreSplitting,
+    cpu = _siPixelRecHitFromSoAAlpakaHIonPhase1.clone(
             pixelRecHitSrc = cms.InputTag('siPixelRecHitsPreSplittingAlpaka'),
             src = cms.InputTag('siPixelClustersPreSplitting'))
 )

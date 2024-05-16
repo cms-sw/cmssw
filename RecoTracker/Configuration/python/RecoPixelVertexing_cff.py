@@ -104,8 +104,10 @@ from Configuration.ProcessModifiers.gpuValidationPixel_cff import gpuValidationP
 # pixel vertex SoA producer with alpaka on the device
 from RecoTracker.PixelVertexFinding.pixelVertexProducerAlpakaPhase1_cfi import pixelVertexProducerAlpakaPhase1 as _pixelVerticesAlpakaPhase1
 from RecoTracker.PixelVertexFinding.pixelVertexProducerAlpakaPhase2_cfi import pixelVertexProducerAlpakaPhase2 as _pixelVerticesAlpakaPhase2
+from RecoTracker.PixelVertexFinding.pixelVertexProducerAlpakaHIonPhase1_cfi import pixelVertexProducerAlpakaHIonPhase1 as _pixelVerticesAlpakaHIonPhase1
 pixelVerticesAlpaka = _pixelVerticesAlpakaPhase1.clone()
 phase2_tracker.toReplaceWith(pixelVerticesAlpaka,_pixelVerticesAlpakaPhase2.clone())
+(pp_on_AA & ~phase2_tracker).toReplaceWith(pixelVerticesAlpaka,_pixelVerticesAlpakaHIonPhase1.clone(doSplitting = False))
 
 from RecoTracker.PixelVertexFinding.pixelVertexFromSoAAlpaka_cfi import pixelVertexFromSoAAlpaka as _pixelVertexFromSoAAlpaka
 alpaka.toReplaceWith(pixelVertices, _pixelVertexFromSoAAlpaka.clone())
