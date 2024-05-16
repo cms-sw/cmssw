@@ -47,4 +47,20 @@
  <class name="edm::Wrapper< edm::DetSetVector<PixelSimHitExtraInfo> >" splitLevel="0" />
 
 
+<class name="PixelSimHitExtraInfoLite" ClassVersion="3">
+   <field name="index_"   transient="true" />
+   <field name="hitIndex"   transient="true" />
+   <field name="UncompressedEntryPoint_"   transient="true" />
+   <field name="UncompressedExitPoint_"   transient="true" />
+   <version ClassVersion="3" checksum="425674366"/>
+  </class>
+ <class name="edm::DetSet<PixelSimHitExtraInfoLite>"/>
+ <class name="std::vector<PixelSimHitExtraInfoLite>"/>
+ <class name="edm::DetSetVector<PixelSimHitExtraInfoLite>"/>
+ <class name="std::vector<edm::DetSet<PixelSimHitExtraInfoLite> >"/>
+ <class name="edm::Wrapper< edm::DetSet<PixelSimHitExtraInfoLite> >" splitLevel="0" />
+ <class name="edm::Wrapper< std::vector<edm::DetSet<PixelSimHitExtraInfoLite> > >" splitLevel="0" />
+ <class name="edm::Wrapper< edm::DetSetVector<PixelSimHitExtraInfoLite> >" splitLevel="0" />
+
+
 </lcgdict>
