@@ -46,7 +46,7 @@ namespace jsoncollector {
   namespace Json {
     class Value;
   }
-}
+}  // namespace jsoncollector
 
 namespace edm {
   class ConfigurationDescriptions;
