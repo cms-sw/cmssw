@@ -13,11 +13,7 @@ from RecoHGCal.TICL.CLUE3DHAD_cff import *
 from RecoHGCal.TICL.ticlLayerTileProducer_cfi import ticlLayerTileProducer
 from RecoHGCal.TICL.pfTICLProducer_cfi import pfTICLProducer as _pfTICLProducer
 from RecoHGCal.TICL.trackstersMergeProducer_cfi import trackstersMergeProducer as _trackstersMergeProducer
-<<<<<<< HEAD
-=======
-from RecoHGCal.TICL.trackstersMergeProducerV3_cfi import trackstersMergeProducerV3 as _trackstersMergeProducerV3
 from RecoHGCal.TICL.ticlGraphProducer_cfi import ticlGraphProducer as _ticlGraphProducer
->>>>>>> 29617f37a14 (first implementation of ticlgraph for ticlv5)
 from RecoHGCal.TICL.tracksterSelectionTf_cfi import *
 
 from RecoHGCal.TICL.tracksterLinksProducer_cfi import tracksterLinksProducer as _tracksterLinksProducer
@@ -40,7 +36,6 @@ ticlTracksterLinks = _tracksterLinksProducer.clone(
 ticlCandidate = _ticlCandidateProducer.clone()
 mtdSoA = _mtdSoAProducer.clone()
 
-ticlTrackstersMergeV3 = _trackstersMergeProducerV3.clone()
 ticlGraph = _ticlGraphProducer.clone(
         wind = 0.15594,
         angle1 = 0.43633,
@@ -75,14 +70,8 @@ ticlIterLabels = ["CLUE3DHigh"]
 '''
 
 ticlTracksterMergeTask = cms.Task(ticlTrackstersMerge)
-<<<<<<< HEAD
 ticlTracksterLinksTask = cms.Task(ticlTracksterLinks)
-=======
-ticlTracksterMergeTaskV3 = cms.Task(ticlTrackstersMergeV3)
-#GraphTask = cms.Task(ticlGraph)
 
-ticl_v3.toModify(pfTICL, ticlCandidateSrc = "ticlTrackstersMergeV3")
->>>>>>> 29617f37a14 (first implementation of ticlgraph for ticlv5)
 
 mergeTICLTask = cms.Task(ticlLayerTileTask
     ,ticlIterationsTask

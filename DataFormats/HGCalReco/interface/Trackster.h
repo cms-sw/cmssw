@@ -204,27 +204,6 @@ namespace ticl {
     int seedIndex_;
     int track_idx_ = -1;
 
-<<<<<<< HEAD
-=======
-    // We also need the pointer to the original seeding region ??
-    // something like:
-    // int seedingRegionIdx;
-
-    // -99, -1 if not available. ns units otherwise
-    float time_;
-    float timeError_;
-
-    // regressed energy
-    float regressed_energy_;
-    float raw_energy_;
-    float raw_em_energy_;
-    float raw_pt_;
-    float raw_em_pt_;
-
-    // PCA Variables
-    ticl::Trackster::Vector barycenter_;
-    std::array<float, 3> eigenvalues_;
->>>>>>> 29617f37a14 (first implementation of ticlgraph for ticlv5)
     std::array<Vector, 3> eigenvectors_;
     std::array<float, 3> eigenvalues_;
     std::array<float, 3> sigmas_;
