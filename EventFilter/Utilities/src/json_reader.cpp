@@ -11,6 +11,7 @@
 #pragma warning(disable : 4996)  // disable warning about strdup being deprecated.
 #endif
 
+namespace jsoncollector {
 namespace Json {
 
   // Implementation of class Features
@@ -677,3 +678,4 @@ namespace Json {
   }
 
 }  // namespace Json
+} // namespace jsoncollector

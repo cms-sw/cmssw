@@ -6,6 +6,7 @@
 
 #ifndef JSONCPP_DOC_EXCLUDE_IMPLEMENTATION
 
+namespace jsoncollector {
 namespace Json {
 
   /* Fast memory allocator.
@@ -106,6 +107,7 @@ namespace Json {
   };
 
 }  // namespace Json
+} //namespace jsoncollector
 
 #endif  // ifndef JSONCPP_DOC_INCLUDE_IMPLEMENTATION
 

@@ -11,6 +11,7 @@
 #pragma warning(disable : 4996)  // disable warning about strdup being deprecated.
 #endif
 
+namespace jsoncollector {
 namespace Json {
 
   static bool isControlCharacter(char ch) { return ch > 0 && ch <= 0x1F; }
@@ -640,3 +641,4 @@ namespace Json {
   }
 
 }  // namespace Json
+} // namespace jsoncollector

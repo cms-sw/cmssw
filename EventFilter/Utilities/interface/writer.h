@@ -6,6 +6,7 @@
 #include <string>
 #include <iostream>
 
+namespace jsoncollector {
 namespace Json {
 
   class Value;
@@ -164,5 +165,6 @@ namespace Json {
   std::ostream &operator<<(std::ostream &, const Value &root);
 
 }  // namespace Json
+} // namespace jsoncollector
 
 #endif  // JSON_WRITER_H_INCLUDED

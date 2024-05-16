@@ -39,6 +39,8 @@
 //the special paths which are affected
 //a standard path logic goes "trigger type -> l1 seed -> prescale -> other selection"
 
+using namespace jsoncollector;
+
 struct HLTriggerJSONMonitoringData {
   // variables accumulated event by event in each stream
   struct stream {
