@@ -1,0 +1,19 @@
+<use name="FWCore/Framework"/>
+<use name="FWCore/PluginManager"/>
+<use name="FWCore/ParameterSet"/>
+<use name="root"/>
+<use name="DataFormats/Common"/>
+<use name="DataFormats/CTPPSDetId"/>
+<use name="DataFormats/CTPPSDigi"/>
+<use name="DataFormats/CTPPSReco"/>
+<use name="HLTrigger/HLTcore"/>
+<use name="CondFormats/DataRecord"/>
+<use name="CondFormats/RunInfo"/>
+<use name="CondTools/RunInfo"/>
+<use name="Geometry/Records"/>
+<use name="Geometry/VeryForwardGeometryBuilder"/>
+<use name="RecoPPS/Local"/>
+<use name="DQMServices/Core"/>
+<library name="RecoPPSRPixEfficiencyToolsPlugins" file="*.cc">
+<flags EDM_PLUGIN="1"/>
+</library>
