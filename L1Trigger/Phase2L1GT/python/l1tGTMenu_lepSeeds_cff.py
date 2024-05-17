@@ -49,6 +49,7 @@ DoubleTkMuon157 = l1tGTDoubleObjectCond.clone(
         minQualityScore = cms.uint32(0)
     ),
     maxDz = cms.double(1),
+    minDR = cms.double(0),
 )
 pDoubleTkMuon15_7 = cms.Path(DoubleTkMuon157)
 algorithms.append(cms.PSet(expression = cms.string("pDoubleTkMuon15_7")))
@@ -76,11 +77,16 @@ TripleTkMuon533 = l1tGTTripleObjectCond.clone(
         minQualityScore = cms.uint32(0)
     ),
     correl12 = cms.PSet(
+        minDR = cms.double(0),
         maxDz = cms.double(1)
     ),
     correl13 = cms.PSet(
+        minDR = cms.double(0),
         maxDz = cms.double(1)
     ),
+    correl23 = cms.PSet(
+        minDR = cms.double(0),
+    )
 )
 pTripleTkMuon5_3_3 = cms.Path(TripleTkMuon533)
 algorithms.append(cms.PSet(expression = cms.string("pTripleTkMuon5_3_3")))

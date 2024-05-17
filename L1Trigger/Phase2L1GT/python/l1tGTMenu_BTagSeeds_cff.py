@@ -28,6 +28,7 @@ DoubleTkMuonOSEr1p5Dr1p4 = l1tGTDoubleObjectCond.clone(
         maxEta = cms.double(1.5),
         minQualityScore = cms.uint32(0)
     ),
+    minDR = cms.double(0),
     maxDR =cms.double(1.4),
     maxDz = cms.double(1),
     os = cms.bool(True),    
@@ -52,6 +53,7 @@ DoubleTkMuon44OSDr1p2 = l1tGTDoubleObjectCond.clone(
         regionsMinPt=cms.vdouble(4,4,4),
         minQualityScore = cms.uint32(0)
     ),
+    minDR = cms.double(0),
     maxDR =cms.double(1.2),
     maxDz = cms.double(1),
     os = cms.bool(True),    
@@ -76,6 +78,7 @@ DoubleTkMuon4p5OSEr2Mass7to18 = l1tGTDoubleObjectCond.clone(
         regionsMinPt=cms.vdouble(4,4,4),
         minQualityScore = cms.uint32(0)
     ),
+    minDR = cms.double(0),
     minInvMass = cms.double(7),
     maxInvMass = cms.double(18),
     maxDz = cms.double(1),
@@ -107,13 +110,18 @@ TripleTkMuon530OSMassMax9 = l1tGTTripleObjectCond.clone(
         minQualityScore = cms.uint32(0)
     ),
     correl12 = cms.PSet(
+        minDR = cms.double(0),
         maxDz = cms.double(1),
         os = cms.bool(True),
         maxInvMass = cms.double(9),
     ),
     correl13 = cms.PSet(
+        minDR = cms.double(0),
         maxDz = cms.double(1)
     ),
+    correl23 = cms.PSet(
+        minDR = cms.double(0),
+    )
 )
 TripleTkMuon_5_3_0_DoubleTkMuon_5_3_OS_MassTo9 = cms.Path(TripleTkMuon530OSMassMax9)
 algorithms.append(cms.PSet(expression = cms.string("TripleTkMuon_5_3_0_DoubleTkMuon_5_3_OS_MassTo9")))
@@ -141,14 +149,19 @@ TripleTkMuon53p52p5OSMass5to17 = l1tGTTripleObjectCond.clone(
         minQualityScore = cms.uint32(0)
     ),
     correl12 = cms.PSet(
+        minDR = cms.double(0),
         maxDz = cms.double(1),
     ),
     correl13 = cms.PSet(
+        minDR = cms.double(0),
         maxDz = cms.double(1),
         os = cms.bool(True),
         minInvMass = cms.double(5),
         maxInvMass = cms.double(17),
     ),
+    correl23 = cms.PSet(
+        minDR = cms.double(0),
+    )
 )
 TripleTkMuon_5_3p5_2p5_OS_Mass5to17 = cms.Path(TripleTkMuon53p52p5OSMass5to17)
 algorithms.append(cms.PSet(expression = cms.string("TripleTkMuon_5_3p5_2p5_OS_Mass5to17")))

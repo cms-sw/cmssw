@@ -141,7 +141,9 @@ DoubleTkMuPuppiJetPuppiMet = l1tGTQuadObjectCond.clone( #needs z0 between puppiv
         tag = cms.InputTag("l1tGTProducer", "CL2EtSum"),        
         minPt = cms.double(45)
     ),
-    
+    correl12 = cms.PSet(
+        minDR = cms.double(0),
+    )
 )
 pDoubleTkMuPuppiJetPuppiMet_3_3_60_130 = cms.Path(DoubleTkMuPuppiJetPuppiMet)
 
@@ -173,6 +175,9 @@ DoubleTkMuPuppiHT = l1tGTTripleObjectCond.clone( #needs z0 between puppivertex a
         tag = cms.InputTag("l1tGTProducer", "CL2HtSum"),
         minScalarSumPt = cms.double(232) 
     ),
+    correl12 = cms.PSet(
+        minDR = cms.double(0),
+    )
 )
 pDoubleTkMuPuppiHT_3_3_300 = cms.Path(DoubleTkMuPuppiHT)
 

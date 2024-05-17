@@ -141,6 +141,7 @@ DoubleTkMuonTkEle559 = l1tGTTripleObjectCond.clone(
         regionsQualityFlags=cms.vuint32(0b0010,0b0000),
     ),
     correl12 = cms.PSet(
+        minDR = cms.double(0),
         maxDz = cms.double(1)
     ),
     correl13 = cms.PSet(
