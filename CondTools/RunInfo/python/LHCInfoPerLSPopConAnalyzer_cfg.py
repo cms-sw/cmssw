@@ -60,6 +60,12 @@ options.register( 'endTime'
                      processes only fills starting before endTime;
                      default to empty string which sets no restriction"""
                   )
+options.register( 'debugLogic'
+                , False
+                , VarParsing.VarParsing.multiplicity.singleton
+                , VarParsing.VarParsing.varType.bool
+                , """Enables debug logic, meant to be used only for tests"""
+                  )
 options.parseArguments()
 if options.mode is None:
   raise ValueError("mode argument not provided. Supported modes are: duringFill endFill")
@@ -108,7 +114,8 @@ process.Test1 = cms.EDAnalyzer("LHCInfoPerLSPopConAnalyzer",
                                    connectionString = cms.untracked.string("oracle://cms_orcon_adg/CMS_RUNTIME_LOGGER"),
                                    omsBaseUrl = cms.untracked.string("http://vocms0184.cern.ch/agg/api/v1"),
                                    authenticationPath = cms.untracked.string(""),
-                                   debug=cms.untracked.bool(False)
+                                   debug=cms.untracked.bool(False), # Additional logs
+                                   debugLogic=cms.untracked.bool(options.debugLogic),
                                                  ),
                                loggingOn = cms.untracked.bool(True),
                                IsDestDbCheckedInQueryLog = cms.untracked.bool(False)

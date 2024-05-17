@@ -131,6 +131,7 @@ public:
         m_connectionString(pset.getUntrackedParameter<std::string>("connectionString", "")),
         m_authpath(pset.getUntrackedParameter<std::string>("authenticationPath", "")),
         m_omsBaseUrl(pset.getUntrackedParameter<std::string>("omsBaseUrl", "")),
+        m_debugLogic(pset.getUntrackedParameter<bool>("debugLogic", false)),
         m_fillPayload(),
         m_prevPayload(),
         m_tmpBuffer() {
@@ -163,13 +164,10 @@ public:
 
     cond::Time_t lastSince = tagInfo().lastInterval.since;
     if (tagInfo().isEmpty()) {
-      // for a new or empty tag, an empty payload should be added on top with since=1
+      // for a new or empty tag in endFill mode, an empty payload should be added on top with since=1
       if (m_endFillMode) {
         addEmptyPayload(1);
         lastSince = 1;
-      } else {
-        addEmptyPayload(cond::time::lumiTime(1, 1));
-        lastSince = cond::time::lumiTime(1, 1);
       }
     } else {
       edm::LogInfo(m_name) << "The last Iov in tag " << tagInfo().name << " valid since " << lastSince << "from "
@@ -251,6 +249,9 @@ public:
       oms.connect(m_omsBaseUrl);
       auto query = oms.query("fills");
 
+      if (m_debugLogic)
+        m_prevEndFillTime = 0ULL;
+
       if (!m_endFillMode and m_prevPayload->fillNumber() and m_prevEndFillTime == 0ULL) {
         // continue processing unfinished fill with some payloads already in the tag
         edm::LogInfo(m_name) << "Searching started fill #" << m_prevPayload->fillNumber();
@@ -262,7 +263,6 @@ public:
           edm::LogError(m_name) << "Could not find fill #" << m_prevPayload->fillNumber();
           break;
         }
-        startSampleTime = cond::time::to_boost(lastSince);
       } else {
         edm::LogInfo(m_name) << "Searching new fill after " << boost::posix_time::to_simple_string(nextFillSearchTime);
         query->filterNotNull("start_stable_beam").filterNotNull("fill_number");
@@ -282,8 +282,8 @@ public:
           edm::LogInfo(m_name) << "No fill found - END of job.";
           break;
         }
-        startSampleTime = cond::time::to_boost(m_startFillTime);
       }
+      startSampleTime = cond::time::to_boost(m_startFillTime);
 
       unsigned short lhcFill = m_fillPayload->fillNumber();
       bool ongoingFill = m_endFillTime == 0ULL;
@@ -313,15 +313,36 @@ public:
         }
       }
 
+      if(!m_endFillMode) {
+        if(m_tmpBuffer.size() > 1) {
+          throw cms::Exception("LHCInfoPerLSPopConSourceHandler")
+            << "More than 1 payload buffered for writing in duringFill mode.\
+           In this mode only up to 1 payload can be written";
+        } else if (m_tmpBuffer.size() == 1) {
+          if(theLHCInfoPerLSImpl::comparePayloads(*(m_tmpBuffer.begin()->second), *m_prevPayload)) {
+            m_tmpBuffer.clear();
+            edm::LogInfo(m_name) << "The buffered payload has the same data as the previous payload in the tag. It will not be written.";
+          }
+        } else if(m_tmpBuffer.empty()) {
+          addEmptyPayload(cond::lhcInfoHelper::getFillLastLumiIOV(oms, lhcFill)); //the IOV doesn't matter when using OnlinePopCon
+        }
+      }
+
       size_t niovs = theLHCInfoPerLSImpl::transferPayloads(
           m_tmpBuffer, m_iovs, m_prevPayload, m_lsIdMap, m_startStableBeamTime, m_endStableBeamTime);
       edm::LogInfo(m_name) << "Added " << niovs << " iovs within the Fill time";
+      m_tmpBuffer.clear();
+      m_lsIdMap.clear();
+      
+      if (!m_endFillMode) {
+        return;
+      }
+      
+      // endFill mode only:
       if (niovs) {
         m_prevEndFillTime = m_endFillTime;
         m_prevStartFillTime = m_startFillTime;
       }
-      m_tmpBuffer.clear();
-      m_lsIdMap.clear();
       if (m_prevPayload->fillNumber() and !ongoingFill) {
         if (m_endFillMode) {
           addEmptyPayload(m_endFillTime);
@@ -365,8 +386,12 @@ private:
       auto currentFill = row.get<unsigned short>("fill_number");
       m_startFillTime = cond::time::from_boost(row.get<boost::posix_time::ptime>("start_time"));
       std::string endTimeStr = row.get<std::string>("end_time");
-      m_endFillTime =
-          (endTimeStr == "null") ? 0 : cond::time::from_boost(row.get<boost::posix_time::ptime>("end_time"));
+      if (m_debugLogic) {
+        m_endFillTime = 0;
+      } else {
+        m_endFillTime =
+            (endTimeStr == "null") ? 0 : cond::time::from_boost(row.get<boost::posix_time::ptime>("end_time"));
+      }
       m_startStableBeamTime = cond::time::from_boost(row.get<boost::posix_time::ptime>("start_stable_beam"));
       m_endStableBeamTime = cond::time::from_boost(row.get<boost::posix_time::ptime>("end_stable_beam"));
       targetPayload = std::make_unique<LHCInfoPerLS>();
@@ -398,19 +423,6 @@ private:
     return queryResult.size();
   }
 
-  size_t bufferFirstStableBeamLS(const cond::OMSServiceResult& queryResult) {
-    for (auto r : queryResult) {
-      if (r.get<std::string>("beams_stable") == "true") {
-        addPayloadToBuffer(r);
-        edm::LogInfo(m_name) << "Buffered first lumisection of stable beam: LS: "
-                             << r.get<std::string>("lumisection_number")
-                             << " run: " << r.get<std::string>("run_number");
-        return 1;
-      }
-    }
-    return 0;
-  }
-
   size_t getLumiData(const cond::OMSService& oms,
                      unsigned short fillId,
                      const boost::posix_time::ptime& beginFillTime,
@@ -427,7 +439,7 @@ private:
         nlumi = bufferAllLS(queryResult);
       } else if (!queryResult.empty()) {
         auto newestPayload = queryResult.back();
-        if (newestPayload.get<std::string>("beams_stable") == "true") {
+        if (newestPayload.get<std::string>("beams_stable") == "true" || m_debugLogic) {
           addPayloadToBuffer(newestPayload);
           nlumi = 1;
           edm::LogInfo(m_name) << "Buffered most recent lumisection:"
@@ -573,6 +585,10 @@ private:
   std::string m_connectionString;
   std::string m_authpath;
   std::string m_omsBaseUrl;
+  //makes duringFill interpret finished fills as ongoing fills and writing their last LS
+  // (disabling the check if the last LS is in stable beams, although still only fills with stable beams are being processed)
+  // also, it doesn't write empty payload at the end of a finished fill (because it's interpreted as ongoing)
+  const bool m_debugLogic;
   std::unique_ptr<LHCInfoPerLS> m_fillPayload;
   std::shared_ptr<LHCInfoPerLS> m_prevPayload;
   cond::Time_t m_startFillTime;
