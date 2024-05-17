@@ -29,10 +29,10 @@
 #include <map>
 #include <fmt/core.h>
 
-// style
+// CMSSW classes / style
+#include "Alignment/OfflineValidation/interface/FitWithRooFit.h"
 #include "Alignment/OfflineValidation/macros/CMS_lumi.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
-#include "Alignment/OfflineValidation/interface/FitWithRooFit.h"
 
 bool debugMode_{false};
 Int_t def_markers[9] = {kFullSquare,
@@ -46,6 +46,90 @@ Int_t def_markers[9] = {kFullSquare,
                         kOpenTriangleDown};
 
 Int_t def_colors[9] = {kBlack, kRed, kBlue, kMagenta, kGreen, kCyan, kViolet, kOrange, kGreen + 2};
+
+namespace diMuonMassBias {
+
+  struct fitOutputs {
+  public:
+    fitOutputs(const Measurement1D& bias, const Measurement1D& width) : m_bias(bias), m_width(width) {}
+
+    // getters
+    const Measurement1D getBias() { return m_bias; }
+    const Measurement1D getWidth() { return m_width; }
+    bool isInvalid() const {
+      return (m_bias.value() == 0.f && m_bias.error() == 0.f && m_width.value() == 0.f && m_width.error() == 0.f);
+    }
+
+  private:
+    Measurement1D m_bias;
+    Measurement1D m_width;
+  };
+
+  static constexpr int minimumHits = 10;
+
+  using histoMap = std::map<std::string, TH1F*>;
+  using histo2DMap = std::map<std::string, TH2F*>;
+  using histo3DMap = std::map<std::string, TH3F*>;
+
+  using extrema = std::pair<Double_t, Double_t>;
+  using extremaMap = std::map<std::string, diMuonMassBias::extrema>;
+
+}  // namespace diMuonMassBias
+
+/*--------------------------------------------------------------------*/
+template <typename T>
+std::map<std::string, std::vector<T>> transformMaps(const std::vector<std::map<std::string, T>>& vecOfMaps)
+/*--------------------------------------------------------------------*/
+{
+  std::map<std::string, std::vector<T>> result;
+
+  // Lambda to insert each key-value pair into the result map
+  auto insert_into_result = [&result](const std::map<std::string, T>& map) {
+    for (const auto& pair : map) {
+      result[pair.first].push_back(pair.second);
+    }
+  };
+
+  // Apply the lambda to each map in the vector
+  std::for_each(vecOfMaps.begin(), vecOfMaps.end(), insert_into_result);
+
+  return result;
+}
+
+/*--------------------------------------------------------------------*/
+template <typename T>
+diMuonMassBias::extremaMap getExtrema(const T& inputColl, const float sigma)
+/*--------------------------------------------------------------------*/
+{
+  diMuonMassBias::extremaMap result;  // output
+
+  // first transform the map vector of maps with a map of vectors
+  const auto& mapOfVecs = transformMaps(inputColl);
+
+  for (const auto& [key, vec] : mapOfVecs) {
+    TObjArray* array = new TObjArray(vec.size());
+
+    for (const auto& histo : vec) {
+      array->Add(histo);
+    }
+
+    Double_t theMaximum = (static_cast<TH1*>(array->At(0)))->GetMaximum();
+    Double_t theMinimum = (static_cast<TH1*>(array->At(0)))->GetMinimum();
+    for (Int_t i = 0; i < array->GetSize(); i++) {
+      if ((static_cast<TH1*>(array->At(i)))->GetMaximum() > theMaximum) {
+        theMaximum = (static_cast<TH1*>(array->At(i)))->GetMaximum();
+      }
+      if ((static_cast<TH1*>(array->At(i)))->GetMinimum() < theMinimum) {
+        theMinimum = (static_cast<TH1*>(array->At(i)))->GetMinimum();
+      }
+    }
+    delete array;
+
+    const auto& delta = theMaximum - theMinimum;
+    result.insert({key, std::make_pair(theMinimum - (sigma * delta), theMaximum + (sigma * delta))});
+  }
+  return result;
+}
 
 /*--------------------------------------------------------------------*/
 std::pair<int, int> getClosestFactors(int input)
@@ -98,32 +182,6 @@ void MakeNicePlotStyle(T* hist)
   }
   hist->GetXaxis()->SetLabelSize(.05);
 }
-
-namespace diMuonMassBias {
-
-  struct fitOutputs {
-  public:
-    fitOutputs(const Measurement1D& bias, const Measurement1D& width) : m_bias(bias), m_width(width) {}
-
-    // getters
-    const Measurement1D getBias() { return m_bias; }
-    const Measurement1D getWidth() { return m_width; }
-    bool isInvalid() const {
-      return (m_bias.value() == 0.f && m_bias.error() == 0.f && m_width.value() == 0.f && m_width.error() == 0.f);
-    }
-
-  private:
-    Measurement1D m_bias;
-    Measurement1D m_width;
-  };
-
-  static constexpr int minimumHits = 10;
-
-  using histoMap = std::map<std::string, TH1F*>;
-  using histo2DMap = std::map<std::string, TH2F*>;
-  using histo3DMap = std::map<std::string, TH3F*>;
-
-}  // namespace diMuonMassBias
 
 //-----------------------------------------------------------------------------------
 diMuonMassBias::fitOutputs fitBWTimesCB(TH1* hist)
@@ -520,6 +578,7 @@ void producePlots(const std::vector<diMuonMassBias::histoMap>& inputMap,
                   const std::vector<std::string>& MEtoHarvest,
                   const std::vector<TString>& labels,
                   const TString& Rlabel,
+                  const bool useAutoLimits,
                   const bool isWidth)
 /************************************************/
 {
@@ -536,6 +595,9 @@ void producePlots(const std::vector<diMuonMassBias::histoMap>& inputMap,
   infoBox->SetShadowColor(0);  // 0 = transparent
   infoBox->SetFillColor(kWhite);
   infoBox->SetTextSize(0.035);
+
+  // get the extrema
+  diMuonMassBias::extremaMap extrema = getExtrema(inputMap, 3.f);
 
   for (const auto& var : MEtoHarvest) {
     TCanvas* c = new TCanvas(
@@ -574,12 +636,18 @@ void producePlots(const std::vector<diMuonMassBias::histoMap>& inputMap,
       histoMap.at(var)->SetMarkerColor(def_colors[count]);
       histoMap.at(var)->SetMarkerStyle(def_markers[count]);
       histoMap.at(var)->SetMarkerSize(1.5);
-      if (isWidth) {
-        // for width resolution between 0.5 and 2.8
-        histoMap.at(var)->GetYaxis()->SetRangeUser(0.5, 2.85);
+
+      // set the limits
+      if (!useAutoLimits) {
+        if (isWidth) {
+          // for width resolution between 0.5 and 2.8
+          histoMap.at(var)->GetYaxis()->SetRangeUser(0.5, 2.85);
+        } else {
+          // for mass between 90.5 and 91.5
+          histoMap.at(var)->GetYaxis()->SetRangeUser(90.5, 91.5);
+        }
       } else {
-        // for mass between 90.5 and 91.5
-        histoMap.at(var)->GetYaxis()->SetRangeUser(90.5, 91.5);
+        histoMap.at(var)->GetYaxis()->SetRangeUser(extrema.at(var).first, extrema.at(var).second);
       }
 
       MakeNicePlotStyle<TH1>(histoMap.at(var));
@@ -621,6 +689,7 @@ void produceMaps(const std::vector<diMuonMassBias::histo2DMap>& inputMap,
                  const std::vector<std::string>& MEtoHarvest,
                  const std::vector<TString>& labels,
                  const TString& Rlabel,
+                 const bool useAutoLimits,
                  const bool isWidth)
 /************************************************/
 {
@@ -643,6 +712,9 @@ void produceMaps(const std::vector<diMuonMassBias::histo2DMap>& inputMap,
   infoBox->SetShadowColor(0);  // 0 = transparent
   infoBox->SetFillColor(kWhite);
   infoBox->SetTextSize(0.035);
+
+  // get the extrema
+  diMuonMassBias::extremaMap extrema = getExtrema(inputMap, 0.f);
 
   for (const auto& var : MEtoHarvest) {
     TCanvas* c = new TCanvas(
@@ -676,12 +748,17 @@ void produceMaps(const std::vector<diMuonMassBias::histo2DMap>& inputMap,
         }
       }
 
-      if (isWidth) {
-        // for width resolution between 0.5 and 2.8
-        histoMap.at(var)->GetZaxis()->SetRangeUser(0.5, 2.85);
+      // set the limits
+      if (!useAutoLimits) {
+        if (isWidth) {
+          // for width resolution between 0.5 and 2.8
+          histoMap.at(var)->GetZaxis()->SetRangeUser(0.5, 2.85);
+        } else {
+          // for mass between 90.5 and 91.5
+          histoMap.at(var)->GetZaxis()->SetRangeUser(90., 92.);
+        }
       } else {
-        // for mass between 90.5 and 91.5
-        histoMap.at(var)->GetZaxis()->SetRangeUser(90., 92.);
+        histoMap.at(var)->GetZaxis()->SetRangeUser(extrema.at(var).first, extrema.at(var).second);
       }
 
       MakeNicePlotStyle<TH2>(histoMap.at(var));
@@ -716,7 +793,7 @@ void produceMaps(const std::vector<diMuonMassBias::histo2DMap>& inputMap,
 }
 
 /************************************************/
-void DiMuonMassProfiles(TString namesandlabels, const TString& Rlabel = "")
+void DiMuonMassProfiles(TString namesandlabels, const TString& Rlabel = "", const bool useAutoLimits = false)
 /************************************************/
 {
   gStyle->SetOptStat(0);
@@ -802,13 +879,13 @@ void DiMuonMassProfiles(TString namesandlabels, const TString& Rlabel = "")
                                           "TkTkMassVsPhiPlusInEtaBins/th2d_mass_PhiPlus_backward-backward",
                                           "TkTkMassVsPhiPlusInEtaBins/th2d_mass_PhiPlus_forward-backward"};
 
-  producePlots(v_meanHistos, MEtoHarvest, labels, Rlabel, false);
-  producePlots(v_widthHistos, MEtoHarvest, labels, Rlabel, true);
+  producePlots(v_meanHistos, MEtoHarvest, labels, Rlabel, useAutoLimits, false);
+  producePlots(v_widthHistos, MEtoHarvest, labels, Rlabel, useAutoLimits, true);
 
   std::vector<std::string> MEtoHarvest3D = {"th3d_mass_vs_eta_phi_plus", "th3d_mass_vs_eta_phi_minus"};
 
-  produceMaps(v_meanMaps, MEtoHarvest3D, labels, Rlabel, false);
-  produceMaps(v_widthMaps, MEtoHarvest3D, labels, Rlabel, true);
+  produceMaps(v_meanMaps, MEtoHarvest3D, labels, Rlabel, useAutoLimits, false);
+  produceMaps(v_widthMaps, MEtoHarvest3D, labels, Rlabel, useAutoLimits, true);
 
   // finally close the file
   for (const auto& file : sourceFiles) {
