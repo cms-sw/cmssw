@@ -10,19 +10,16 @@
 // ###                         SEXAQUARK                              ###
 // ######################################################################
 
-
 class G4SQ : public G4ParticleDefinition {
+private:
+  static G4SQ* theInstance;
+  G4SQ() {}
+  ~G4SQ() {}
 
-  private:
-    static G4SQ* theInstance;
-    G4SQ(){}
-    ~G4SQ(){}
-
-  public:
-    static G4SQ* Definition(double mass);
-//    static G4SQ* SQDefinition(double mass);
-    static G4SQ* SQ(double mass);
-
+public:
+  static G4SQ* Definition(double mass);
+  //    static G4SQ* SQDefinition(double mass);
+  static G4SQ* SQ(double mass);
 };
 
 #endif

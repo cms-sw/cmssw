@@ -26,7 +26,7 @@
 //
 // $Id: G4AntiSQ.hh 67971 2013-03-13 10:13:24Z gcosmo $
 //
-// 
+//
 // ------------------------------------------------------------
 //      GEANT 4 class header file
 //
@@ -47,19 +47,16 @@
 // ###                      ANTI-SEXAQUARK                            ###
 // ######################################################################
 
-
 class G4AntiSQ : public G4ParticleDefinition {
+private:
+  static G4AntiSQ* theInstance;
+  G4AntiSQ() {}
+  ~G4AntiSQ() {}
 
-  private:
-    static G4AntiSQ* theInstance;
-    G4AntiSQ(){}
-    ~G4AntiSQ(){}
-
-  public:
-    static G4AntiSQ* Definition(double mass);
-    //static G4AntiSQ* AntiSQDefinition(double mass);
-    static G4AntiSQ* AntiSQ(double mass);
-
+public:
+  static G4AntiSQ* Definition(double mass);
+  //static G4AntiSQ* AntiSQDefinition(double mass);
+  static G4AntiSQ* AntiSQ(double mass);
 };
 
 #endif

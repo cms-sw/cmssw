@@ -10,28 +10,21 @@
 
 class G4ParticleDefinition;
 
-
 class G4SQNeutronAnnih : public G4HadronicInteraction {
+public:
+  G4SQNeutronAnnih(double mass);
 
-  public:
+  virtual ~G4SQNeutronAnnih();
 
-    G4SQNeutronAnnih(double mass);
+  G4double momDistr(G4double x_in);
 
-    virtual ~G4SQNeutronAnnih();
+  virtual G4HadFinalState* ApplyYourself(const G4HadProjectile& aTrack, G4Nucleus& targetNucleus);
 
-    G4double momDistr(G4double x_in);
-
-    virtual G4HadFinalState * ApplyYourself(
-                   const G4HadProjectile & aTrack,
-                   G4Nucleus & targetNucleus);
-
-  private:
-
-    G4ParticleDefinition* theSQ;
-    G4ParticleDefinition* theK0S;
-    G4ParticleDefinition* theAntiL;
-    G4ParticleDefinition* theProton;
-
+private:
+  G4ParticleDefinition* theSQ;
+  G4ParticleDefinition* theK0S;
+  G4ParticleDefinition* theAntiL;
+  G4ParticleDefinition* theProton;
 };
 
 #endif
