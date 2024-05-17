@@ -765,6 +765,9 @@ void L1FPGATrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     // test track word
     //aTrack.testTrackWordBits();
 
+    // set track word again to set MVA variable from TTTrack into track word
+    aTrack.setTrackWordBits();
+
     L1TkTracksForOutput->push_back(aTrack);
   }
 
