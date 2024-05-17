@@ -44,7 +44,7 @@ public:
                                       std::vector<std::string> const& featureNames);
 
   // Passed by reference a track without MVA filled, method fills the track's MVA field
-  void setL1TrackQuality(TTTrack<Ref_Phase2TrackerDigi_>& aTrack);
+  double getL1TrackQuality(TTTrack<Ref_Phase2TrackerDigi_>& aTrack);
   // Function to run the BDT in isolation allowing a feature vector in the ap_fixed datatype to be passed
   // and a single output to be returned which is then used to fill the bits in the Track Word for situations
   // where a TTTrack datatype is unavailable to be passed to the track quality
@@ -64,7 +64,8 @@ public:
                     std::vector<std::string> const& featureNames);
 
   void setBonusFeatures(std::vector<float> bonusFeatures);
-
+  QualityAlgorithm getQualityAlgorithm(){ return qualityAlgorithm_; }
+  
 private:
   // Private Member Data
   QualityAlgorithm qualityAlgorithm_ = QualityAlgorithm::None;
