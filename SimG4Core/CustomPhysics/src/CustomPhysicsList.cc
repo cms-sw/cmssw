@@ -20,6 +20,12 @@
 #include "SimG4Core/CustomPhysics/interface/CMSQGSPSIMPBuilder.h"
 #include "SimG4Core/CustomPhysics/interface/CMSSIMPInelasticProcess.h"
 
+#include "SimG4Core/CustomPhysics/interface/G4SQInelasticProcess.h"
+#include "SimG4Core/CustomPhysics/interface/G4SQLoopProcess.h"
+#include "SimG4Core/CustomPhysics/interface/G4SQLoopProcessDiscr.h"
+#include "SimG4Core/CustomPhysics/interface/G4SQNeutronAnnih.h"
+#include "SimG4Core/CustomPhysics/interface/G4SQInelasticCrossSection.h"
+
 using namespace CLHEP;
 
 G4ThreadLocal std::unique_ptr<G4ProcessHelper> CustomPhysicsList::myHelper;
@@ -98,6 +104,23 @@ void CustomPhysicsList::ConstructProcess() {
         if (particle->GetParticleType() == "darkpho") {
           CMSDarkPairProductionProcess* darkGamma = new CMSDarkPairProductionProcess(dfactor);
           pmanager->AddDiscreteProcess(darkGamma);
+        }
+        if (particle->GetParticleName() == "anti_sexaq") {
+
+          // here the different sexaquark interactions get defined
+          G4SQInelasticProcess * sqInelPr = new G4SQInelasticProcess(particle->GetPDGMass()/GeV);
+          G4SQNeutronAnnih * sqModel = new G4SQNeutronAnnih(particle->GetPDGMass()/GeV);
+          sqInelPr->RegisterMe(sqModel);
+          G4SQInelasticCrossSection * sqInelXS = new G4SQInelasticCrossSection(particle->GetPDGMass()/GeV);
+          sqInelPr->AddDataSet(sqInelXS);
+          pmanager->AddDiscreteProcess(sqInelPr);
+          // add also the looping needed to simulate flat interaction probability
+          G4SQLoopProcess * sqLoopPr = new G4SQLoopProcess();
+          pmanager->AddContinuousProcess(sqLoopPr);
+          G4SQLoopProcessDiscr * sqLoopPrDiscr = new G4SQLoopProcessDiscr(particle->GetPDGMass()/GeV);
+          pmanager->AddDiscreteProcess(sqLoopPrDiscr);
+        } else if (particle->GetParticleName() == "sexaq"){
+          edm::LogInfo("CustomPhysics") << "   No pmanager implemented for sexaq, only for anti_sexaq";
         }
       }
     }
