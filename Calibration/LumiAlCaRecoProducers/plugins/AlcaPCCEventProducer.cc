@@ -88,7 +88,6 @@ void AlcaPCCEventProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
     // Iterate over Clusters in module to fill per ROC histogram
     for (auto const& cluster : mod) {
       for (int i = 0; i < cluster.size(); ++i) {
-        
         const auto pix = cluster.pixel(i);
         int irow = pix.x / rowsperroc; /* constant column direction is along x-axis */
         int icol = pix.y / colsperroc; /* constant row direction is along y-axis */
@@ -100,7 +99,7 @@ void AlcaPCCEventProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
         // TODO: add roc threshold to config if(di.adc > fRocThreshold_) {
         if (pix.adc > 0) {
-            thePCCob->incrementRoc(((detId << 7) + key), 1);
+          thePCCob->incrementRoc(((detId << 7) + key), 1);
         }
       }
     }
