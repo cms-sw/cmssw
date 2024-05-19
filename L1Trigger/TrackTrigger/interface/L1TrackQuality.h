@@ -64,7 +64,6 @@ public:
                     std::vector<std::string> const& featureNames);
 
   void setBonusFeatures(std::vector<float> bonusFeatures);
-  QualityAlgorithm getQualityAlgorithm(){ return qualityAlgorithm_; }
   
 private:
   // Private Member Data
