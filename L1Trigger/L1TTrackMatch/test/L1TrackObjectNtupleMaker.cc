@@ -144,6 +144,7 @@ private:
   int L1Tk_minNStub;     // require L1 tracks to have >= minNStub (this is mostly for tracklet purposes)
   bool SaveTrackJets;
   bool SaveTrackSums;
+  bool runDispVert;
 
   edm::InputTag L1TrackInputTag;                                              // L1 track collection
   edm::InputTag MCTruthTrackInputTag;                                         // MC truth collection
@@ -621,7 +622,8 @@ L1TrackObjectNtupleMaker::L1TrackObjectNtupleMaker(edm::ParameterSet const& iCon
 
   SaveTrackJets = iConfig.getParameter<bool>("SaveTrackJets");
   SaveTrackSums = iConfig.getParameter<bool>("SaveTrackSums");
-
+  runDispVert = iConfig.getParameter<bool>("runDispVert");
+  
   L1StubInputTag = iConfig.getParameter<edm::InputTag>("L1StubInputTag");
   MCTruthClusterInputTag = iConfig.getParameter<edm::InputTag>("MCTruthClusterInputTag");
   MCTruthStubInputTag = iConfig.getParameter<edm::InputTag>("MCTruthStubInputTag");
@@ -770,7 +772,7 @@ L1TrackObjectNtupleMaker::L1TrackObjectNtupleMaker(edm::ParameterSet const& iCon
   GenJetToken_ = consumes<std::vector<reco::GenJet>>(GenJetInputTag);
   GenParticleToken_ = consumes<std::vector<reco::GenParticle>>(GenParticleInputTag);
   SimVertexToken_ = consumes<std::vector<SimVertex>>(SimVertexInputTag);
-  DispVertToken_ = consumes<std::vector<l1t::DisplacedTrackVertex>>(DisplacedVertexInputTag);
+  if(runDispVert) DispVertToken_ = consumes<std::vector<l1t::DisplacedTrackVertex>>(DisplacedVertexInputTag);
   L1VertexToken_ = consumes<l1t::VertexCollection>(RecoVertexInputTag);
   L1VertexEmuToken_ = consumes<l1t::VertexWordCollection>(RecoVertexEmuInputTag);
   tTopoToken_ = esConsumes<TrackerTopology, TrackerTopologyRcd>(edm::ESInputTag("", ""));
@@ -1577,25 +1579,25 @@ void L1TrackObjectNtupleMaker::beginJob() {
   eventTree->Branch("gen_mother_pdgid", &m_gen_mother_pdgid);
 
   eventTree->Branch("gen_z0", &m_gen_z0);
-
-  eventTree->Branch("dv_d_T", &m_dv_d_T);
-  eventTree->Branch("dv_R_T", &m_dv_R_T);
-  eventTree->Branch("dv_cos_T", &m_dv_cos_T);
-  eventTree->Branch("dv_x", &m_dv_x);
-  eventTree->Branch("dv_y", &m_dv_y);
-  eventTree->Branch("dv_z", &m_dv_z);
-  eventTree->Branch("dv_openingAngle", &m_dv_openingAngle);
-  eventTree->Branch("dv_parentPt", &m_dv_parentPt);
-  eventTree->Branch("dv_firstIndexTrk", &m_dv_firstIndexTrk);
-  eventTree->Branch("dv_secondIndexTrk", &m_dv_secondIndexTrk);
-  eventTree->Branch("dv_firstIndexPt", &m_dv_firstIndexPt);
-  eventTree->Branch("dv_secondIndexPt", &m_dv_secondIndexPt);
-  eventTree->Branch("dv_inTraj", &m_dv_inTraj);
-  eventTree->Branch("dv_del_Z", &m_dv_del_Z);
-  eventTree->Branch("dv_delIndexPt", &m_dv_delIndexPt);
-  eventTree->Branch("dv_isReal", &m_dv_isReal);
-  eventTree->Branch("dv_score", &m_dv_score);
-  
+  if(runDispVert){
+    eventTree->Branch("dv_d_T", &m_dv_d_T);
+    eventTree->Branch("dv_R_T", &m_dv_R_T);
+    eventTree->Branch("dv_cos_T", &m_dv_cos_T);
+    eventTree->Branch("dv_x", &m_dv_x);
+    eventTree->Branch("dv_y", &m_dv_y);
+    eventTree->Branch("dv_z", &m_dv_z);
+    eventTree->Branch("dv_openingAngle", &m_dv_openingAngle);
+    eventTree->Branch("dv_parentPt", &m_dv_parentPt);
+    eventTree->Branch("dv_firstIndexTrk", &m_dv_firstIndexTrk);
+    eventTree->Branch("dv_secondIndexTrk", &m_dv_secondIndexTrk);
+    eventTree->Branch("dv_firstIndexPt", &m_dv_firstIndexPt);
+    eventTree->Branch("dv_secondIndexPt", &m_dv_secondIndexPt);
+    eventTree->Branch("dv_inTraj", &m_dv_inTraj);
+    eventTree->Branch("dv_del_Z", &m_dv_del_Z);
+    eventTree->Branch("dv_delIndexPt", &m_dv_delIndexPt);
+    eventTree->Branch("dv_isReal", &m_dv_isReal);
+    eventTree->Branch("dv_score", &m_dv_score);
+  }
   if (SaveTrackJets) {
     eventTree->Branch("genjet_eta", &m_genjet_eta);
     eventTree->Branch("genjet_p", &m_genjet_p);
@@ -1848,25 +1850,25 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
   m_gen_mother_pdgid->clear();
 
   m_gen_z0->clear();
-
-  m_dv_d_T->clear();
-  m_dv_R_T->clear();
-  m_dv_cos_T->clear();
-  m_dv_x->clear();
-  m_dv_y->clear();
-  m_dv_z->clear();
-  m_dv_openingAngle->clear();
-  m_dv_parentPt->clear();
-  m_dv_firstIndexTrk->clear();
-  m_dv_secondIndexTrk->clear();
-  m_dv_firstIndexPt->clear();
-  m_dv_secondIndexPt->clear();
-  m_dv_inTraj->clear();
-  m_dv_del_Z->clear();
-  m_dv_delIndexPt->clear();
-  m_dv_isReal->clear();
-  m_dv_score->clear();
-  
+  if(runDispVert){
+    m_dv_d_T->clear();
+    m_dv_R_T->clear();
+    m_dv_cos_T->clear();
+    m_dv_x->clear();
+    m_dv_y->clear();
+    m_dv_z->clear();
+    m_dv_openingAngle->clear();
+    m_dv_parentPt->clear();
+    m_dv_firstIndexTrk->clear();
+    m_dv_secondIndexTrk->clear();
+    m_dv_firstIndexPt->clear();
+    m_dv_secondIndexPt->clear();
+    m_dv_inTraj->clear();
+    m_dv_del_Z->clear();
+    m_dv_delIndexPt->clear();
+    m_dv_isReal->clear();
+    m_dv_score->clear();
+  }
   if (Displaced == "Prompt" || Displaced == "Both") {
     m_matchtrk_pt->clear();
     m_matchtrk_eta->clear();
@@ -2057,7 +2059,7 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
 
   //Displaced vertices
   edm::Handle<std::vector<l1t::DisplacedTrackVertex>> DispVertHandle;
-  iEvent.getByToken(DispVertToken_, DispVertHandle);
+  if(runDispVert) iEvent.getByToken(DispVertToken_, DispVertHandle);
   
   //Vertex
   edm::Handle<l1t::VertexCollection> L1PrimaryVertexHandle;
