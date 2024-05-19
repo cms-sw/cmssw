@@ -750,19 +750,10 @@ void L1FPGATrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     aTrack.setTrackWordBits();
 
     if (trackQuality_) {
-      double qualityScore = trackQualityModel_->getL1TrackQuality(aTrack);
-      aTrack.settrkMVA1(qualityScore);
-      if(extended_){
-	qualityScore = trackQualityDispModel_->getL1TrackQuality(aTrack);
-	if(trackQualityDispModel_->getQualityAlgorithm()==L1TrackQuality::QualityAlgorithm::GBDT){
-	  aTrack.settrkMVA2(qualityScore);
-	}
-	else{
-	  aTrack.settrkMVA1(qualityScore);
-	}
-      }
+      aTrack.settrkMVA1(trackQualityModel_->getL1TrackQuality(aTrack));
+      if(extended_)
+	aTrack.settrkMVA2(trackQualityDispModel_->getL1TrackQuality(aTrack));
     }
-
     //    hph::HitPatternHelper hph(setupHPH_, tmp_hit, tmp_tanL, tmp_z0);
     //    if (trackQuality_) {
     //      trackQualityModel_->setBonusFeatures(hph.bonusFeatures());
