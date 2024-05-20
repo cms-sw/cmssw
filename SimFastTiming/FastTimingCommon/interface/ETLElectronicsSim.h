@@ -49,7 +49,6 @@ private:
   const edm::ESGetToken<MTDGeometry, MTDDigiGeometryRecord> geomToken_;
   const MTDGeometry* geom_;
 
-  const bool debug_;
   const float bxTime_;
   const float integratedLum_;
 
