@@ -127,7 +127,7 @@ namespace l1ct {
     class BufferEntry {
     public:
       BufferEntry() {}
-      BufferEntry(const T& obj, std::vector<size_t> srIndices, int glbeta, int glbphi, unsigned int clk);
+      BufferEntry(const T& obj, std::vector<size_t> srIndices, int glbeta, int glbphi, int locphi, unsigned int clk);
 
       unsigned int clock() const { return linkobjclk_; }
       int nextSR() const { return (objcount_ < srIndices_.size()) ? srIndices_[objcount_] : -1; }
@@ -135,6 +135,7 @@ namespace l1ct {
       int pt() const { return obj_.intPt(); }
       int glbPhi() const { return glbphi_; }
       int glbEta() const { return glbeta_; }
+      int sectorLocalPhi() const { return locphi_; }
 
       //T obj() { return obj_; }
       const T& obj() const { return obj_; }
@@ -145,6 +146,8 @@ namespace l1ct {
       std::vector<size_t> srIndices_;
       /// The global eta and phi of the object (hard to get with duplicates)
       int glbeta_, glbphi_;
+      /// The local phi relative to the sector (not SR), used for GCT duplicate removal
+      int locphi_;
       unsigned int linkobjclk_, objcount_;
     };
 
@@ -154,8 +157,13 @@ namespace l1ct {
     public:
       Buffer() : clkindex360_(INIT360), clkindex240_(INIT240), timeOfNextObject_(-1) {}
 
-      void addEntry(
-          const T& obj, std::vector<size_t> srs, int glbeta, int glbphi, unsigned int dupNum, unsigned int ndup);
+      void addEntry(const T& obj,
+                    std::vector<size_t> srs,
+                    int glbeta,
+                    int glbphi,
+                    int locphi,
+                    unsigned int dupNum,
+                    unsigned int ndup);
 
       BufferEntry<T>& front() { return data_.front(); }
       const BufferEntry<T>& front() const { return data_.front(); }
@@ -171,6 +179,7 @@ namespace l1ct {
       int pt(unsigned int index = 0) const { return data_[index].pt(); }
       int glbPhi(unsigned int index = 0) const { return data_[index].glbPhi(); }
       int glbEta(unsigned int index = 0) const { return data_[index].glbEta(); }
+      int sectorLocalPhi(unsigned int index = 0) const { return data_[index].sectorLocalPhi(); }
 
       unsigned int numEntries() const { return data_.size(); }
 
@@ -273,6 +282,10 @@ namespace l1ct {
 
       /// get the logical buffer index (i.e. the index in the order in the firmware)
       size_t logicBuffIndex(size_t bufIdx) const;
+
+      /// GCT sends duplicates. This indicates if an entry is a duplicate
+      /// For other objects, it always returns false
+      bool isDuplicate(int locphi, size_t logicBufIdx) const;
 
       /// The numbers of eta and phi in a big region (board)
       unsigned int neta_, nphi_;

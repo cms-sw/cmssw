@@ -1,0 +1,49 @@
+#include "L1Trigger/Phase2L1ParticleFlow/interface/l1-converters/gcteminput_ref.h"
+
+#ifdef CMSSW_GIT_HASH
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+
+// TODO: Currently this only works in CMSSW
+l1ct::GctEmClusterDecoderEmulator::GctEmClusterDecoderEmulator(const edm::ParameterSet &iConfig)
+    : corrector_(iConfig.getParameter<std::string>("gctEmCorrector"), -1),
+      resol_(iConfig.getParameter<edm::ParameterSet>("gctEmResol")) {}
+
+edm::ParameterSetDescription l1ct::GctEmClusterDecoderEmulator::getParameterSetDescription() {
+  edm::ParameterSetDescription description;
+  description.add<std::string>("gctEmCorrector");
+  edm::ParameterSetDescription gctEmResolPSD;
+  gctEmResolPSD.add<std::vector<double>>("etaBins");
+  gctEmResolPSD.add<std::vector<double>>("offset");
+  gctEmResolPSD.add<std::vector<double>>("scale");
+  gctEmResolPSD.add<std::string>("kind");
+  description.add<edm::ParameterSetDescription>("gctEmResol", gctEmResolPSD);
+  return description;
+}
+#endif
+
+l1ct::GctEmClusterDecoderEmulator::~GctEmClusterDecoderEmulator() {}
+
+l1ct::EmCaloObjEmu l1ct::GctEmClusterDecoderEmulator::decode(const l1ct::DetectorSector<l1ct::EmCaloObjEmu> &sec,
+                                                             const ap_uint<64> &in) const {
+  // need to add emid
+  l1ct::EmCaloObjEmu calo;
+  calo.clear();
+  calo.hwPt = pt(in) * l1ct::pt_t(0.5);  // the LSB for GCT objects
+  calo.hwEta = eta(in) * 4;
+  calo.hwPhi = phi(in) * 4;
+
+  if (corrector_.valid()) {
+    float newpt = corrector_.correctedPt(calo.floatPt(), calo.floatPt(), sec.region.floatGlbEta(calo.hwEta));
+    calo.hwPt = l1ct::Scales::makePtFromFloat(newpt);
+  }
+  calo.hwPtErr = l1ct::Scales::makePtFromFloat(resol_(calo.floatPt(), std::abs(sec.region.floatGlbEta(calo.hwEta))));
+
+  // hwQual definition:
+  // bit 0: standaloneWP: is_iso && is_ss
+  // bit 1: looseL1TkMatchWP: is_looseTkiso && is_looseTkss
+  // bit 2: photonWP:
+  calo.hwEmID = (passes_iso(in) & passes_ss(in)) | ((passes_looseTkiso(in) & passes_looseTkss(in)) << 1) | (false << 2);
+
+  return calo;
+}
