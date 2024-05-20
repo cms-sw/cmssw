@@ -1,7 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-mtdSimLayerClusterToTPAssociation = cms.EDProducer("MtdSimLayerClusterToTPAssociatorEDProducer",
-    associator = cms.InputTag('mtdSimLayerClusterToTPAssociatorByTrackId'),
-    mtdSimClustersTag = cms.InputTag('mix','MergedMtdTruthLC'),
-    trackingParticlesTag = cms.InputTag('mix', 'MergedTrackTruth')
-)
+from SimFastTiming.MtdAssociatorProducers.mtdSimLayerClusterToTPAssociationDefault_cfi import mtdSimLayerClusterToTPAssociationDefault as _mtdSimLayerClusterToTPAssociationDefault
+mtdSimLayerClusterToTPAssociation = _mtdSimLayerClusterToTPAssociationDefault.clone()
+
+from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
+premix_stage2.toModify(mtdSimLayerClusterToTPAssociation, mtdSimClustersTag = "mixData:MergedMtdTruthLC")
+premix_stage2.toModify(mtdSimLayerClusterToTPAssociation, trackingParticlesTag = "mixData:MergedTrackTruth")

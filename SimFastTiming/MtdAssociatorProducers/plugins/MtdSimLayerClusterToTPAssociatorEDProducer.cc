@@ -11,7 +11,9 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "SimDataFormats/Associations/interface/MtdSimLayerClusterToTPAssociator.h"
 
@@ -25,6 +27,8 @@ class MtdSimLayerClusterToTPAssociatorEDProducer : public edm::global::EDProduce
 public:
   explicit MtdSimLayerClusterToTPAssociatorEDProducer(const edm::ParameterSet &);
   ~MtdSimLayerClusterToTPAssociatorEDProducer() override;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
 private:
   void produce(edm::StreamID, edm::Event &, const edm::EventSetup &) const override;
@@ -72,6 +76,15 @@ void MtdSimLayerClusterToTPAssociatorEDProducer::produce(edm::StreamID,
 
   iEvent.put(std::move(s2tp));
   iEvent.put(std::move(tp2s));
+}
+
+void MtdSimLayerClusterToTPAssociatorEDProducer::fillDescriptions(edm::ConfigurationDescriptions &cfg) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("associator", edm::InputTag("mtdSimLayerClusterToTPAssociatorByTrackId"));
+  desc.add<edm::InputTag>("mtdSimClustersTag", edm::InputTag("mix", "MergedMtdTruthLC"));
+  desc.add<edm::InputTag>("trackingParticlesTag", edm::InputTag("mix", "MergedTrackTruth"));
+
+  cfg.add("mtdSimLayerClusterToTPAssociationDefault", desc);
 }
 
 // define this as a plug-in

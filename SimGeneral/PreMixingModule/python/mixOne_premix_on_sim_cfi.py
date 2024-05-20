@@ -264,6 +264,12 @@ phase2_timing_layer.toModify(mixData,
             digiTagSig = cms.InputTag("mix", "FTLEndcap"),
             pileInputTag = cms.InputTag("mix", "FTLEndcap"),
         ),
+        mtdTruth = cms.PSet(
+            workerType = cms.string("PreMixingMtdTruthWorker"),
+            labelSig = cms.InputTag("mix", "MergedMtdTruthLC"),
+            pileInputTag = cms.InputTag("mix", "MergedMtdTruthLC"),
+            collectionDM = cms.string("MergedMtdTruthLC"),
+        )
     )
 )
 # ECAL
