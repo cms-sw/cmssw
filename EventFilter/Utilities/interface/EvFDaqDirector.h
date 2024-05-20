@@ -40,13 +40,13 @@ namespace edm {
   class ProcessContext;
 }  // namespace edm
 
-namespace Json {
-  class Value;
-}
-
 namespace jsoncollector {
   class DataPointDefinition;
-}
+
+  namespace Json {
+    class Value;
+  }
+}  // namespace jsoncollector
 
 namespace edm {
   class ConfigurationDescriptions;
