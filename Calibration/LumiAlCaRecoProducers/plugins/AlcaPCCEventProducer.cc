@@ -89,16 +89,14 @@ void AlcaPCCEventProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
     for (auto const& cluster : mod) {
       for (int i = 0; i < cluster.size(); ++i) {
         const auto pix = cluster.pixel(i);
-        int irow = pix.x / rowsperroc; /* constant column direction is along x-axis */
-        int icol = pix.y / colsperroc; /* constant row direction is along y-axis */
-
-        /* generate the folling roc index that is going to map with ROC id as
-        8  9  10 11 12 13 14 15
-        0  1  2  3  4  5  6  7 */
-        int key = icol + irow * nROCcolumns;
-
         // TODO: add roc threshold to config if(di.adc > fRocThreshold_) {
         if (pix.adc > 0) {
+          int irow = pix.x / rowsperroc; /* constant column direction is along x-axis */
+          int icol = pix.y / colsperroc; /* constant row direction is along y-axis */
+          /* generate the folling roc index that is going to map with ROC id as
+          8  9  10 11 12 13 14 15
+          0  1  2  3  4  5  6  7 */
+          int key = icol + irow * nROCcolumns;
           thePCCob->incrementRoc(((detId << 7) + key), 1);
         }
       }
