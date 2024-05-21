@@ -1,11 +1,12 @@
 # Author: Izaak Neutelings (March 2023)
 # Instructions:
-#   cmsrel CMSSW_14_1_0_pre0
-#   cd CMSSW_14_1_0_pre0/src/
+#   export SCRAM_ARCH="el9_amd64_gcc12"
+#   cmsrel CMSSW_14_1_X_2024-05-13-2300 -n CMSSW_14_1_X # custom project name
+#   cd CMSSW_14_1_X/src/
 #   cmsenv
-#   git cms-addpkg RecoLocalCalo/HGCalRecAlgos
-#   git cms-merge-topic -u CMS-HGCAL:dev/hackathon_base_CMSSW_14_1_0_pre0
-#   git clone https://github.com/pfs/Geometry-HGCalMapping.git $CMSSW_BASE/src/Geometry/HGCalMapping/data
+#   git cms-merge-topic -u CMS-HGCAL:dev/hackathon_base_CMSSW_14_1_X
+#   git clone https://github.com/pfs/Geometry-HGCalMapping.git  $CMSSW_BASE/src/Geometry/HGCalMapping/data
+#   git clone https://gitlab.cern.ch/hgcal-dpg/hgcal-comm.git HGCalCommissioning
 #   scram b -j 10
 #   cmsRun $CMSSW_BASE/src/RecoLocalCalo/HGCalRecAlgos/test/testHGCalRecHitESProducer_cfg.py
 # Sources:
@@ -76,10 +77,11 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 500
 # GEOMETRY
 process.load(f"Configuration.Geometry.Geometry{options.geometry}Reco_cff")
 process.load(f"Configuration.Geometry.Geometry{options.geometry}_cff")
-process.load('Geometry.HGCalMapping.hgCalMappingIndexESSource_cfi')
-process.hgCalMappingIndexESSource.modules = cms.FileInPath(options.modules)
-process.hgCalMappingIndexESSource.si = cms.FileInPath(options.sicells)
-process.hgCalMappingIndexESSource.sipm = cms.FileInPath(options.sipmcells)
+#process.load('Geometry.HGCalMapping.hgCalMappingIndexESSource_cfi') # old
+process.load('Geometry.HGCalMapping.hgCalMappingESProducer_cfi')
+process.hgCalMappingESProducer.si = cms.FileInPath(options.sicells)
+process.hgCalMappingESProducer.sipm = cms.FileInPath(options.sipmcells)
+process.hgCalMappingESProducer.modules = cms.FileInPath(options.modules)
 
 # CALIBRATIONS & CONFIGURATION Alpaka ESProducers
 process.load('Configuration.StandardSequences.Accelerators_cff')
@@ -88,13 +90,14 @@ process.load('Configuration.StandardSequences.Accelerators_cff')
 process.hgcalConfigESProducer = cms.ESProducer( # ESProducer to load configurations parameters from YAML file, like gain
   'hgcalrechit::HGCalConfigurationESProducer@alpaka',
   gain=cms.int32(1), # to switch between 80, 160, 320 fC calibration
-  charMode=cms.int32(1),
-  moduleIndexerSource=cms.ESInputTag('')
+  #charMode=cms.int32(1),
+  indexSource=cms.ESInputTag('')
 )
 process.hgcalCalibESProducer = cms.ESProducer( # ESProducer to load calibration parameters from JSON file, like pedestals
   'hgcalrechit::HGCalCalibrationESProducer@alpaka',
   filename=cms.string(options.params), # to be set up in configTBConditions
-  moduleIndexerSource=cms.ESInputTag('')
+  indexSource=cms.ESInputTag(''),
+  configSource=cms.ESInputTag(''), #('hgcalConfigESProducer', ''),
 )
 
 # MAIN PROCESS
@@ -102,8 +105,8 @@ process.testHGCalRecHitESProducers = cms.EDProducer(
   'TestHGCalRecHitESProducers@alpaka',
   #'alpaka_cuda_async::TestHGCalRecHitProducer', # GPU
   #'alpaka_serial_sync::TestHGCalRecHitProducer', # CPU
-  configSource = cms.ESInputTag(''), #('hgcalConfigESProducer', ''),
-  calibSource = cms.ESInputTag(''), #('hgcalCalibESProducer', ''),
+  configSource=cms.ESInputTag(''), #('hgcalConfigESProducer', ''),
+  calibSource=cms.ESInputTag(''), #('hgcalCalibESProducer', ''),
 )
 process.t = cms.Task(process.testHGCalRecHitESProducers)
 process.p = cms.Path(process.t)

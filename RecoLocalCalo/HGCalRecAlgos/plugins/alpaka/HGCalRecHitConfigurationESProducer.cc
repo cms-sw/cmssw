@@ -17,7 +17,7 @@
 
 #include "CondFormats/HGCalObjects/interface/HGCalMappingModuleIndexer.h"
 #include "CondFormats/DataRecord/interface/HGCalElectronicsMappingRcd.h"
-#include "CondFormats/DataRecord/interface/HGCalModuleConfigurationRcd.h"
+#include "CondFormats/DataRecord/interface/HGCalModuleConfigurationRcd.h" // depends on HGCalElectronicsMappingRcd
 #include "CondFormats/HGCalObjects/interface/HGCalCalibrationParameterHost.h" // for HGCalConfigParamHost
 #include "CondFormats/HGCalObjects/interface/alpaka/HGCalCalibrationParameterDevice.h"
 
@@ -34,20 +34,18 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
       HGCalConfigurationESProducer(const edm::ParameterSet& iConfig)
         : ESProducer(iConfig),
-          charMode_(iConfig.getParameter<int>("charMode")),
           gain_(iConfig.getParameter<int>("gain")) {
-        auto cc = setWhatProduced(this);
+        auto cc = setWhatProduced(this); //HGCalConfigurationESProducer::produce
         //findingRecord<HGCalModuleConfigurationRcd>();
         //configToken_ = cc.consumes(iConfig.getParameter<edm::ESInputTag>("configSource"));
         //configToken_ = esConsumes(iConfig.getParameter<edm::ESInputTag>("configSource"));
-        moduleIndexerToken_ = cc.consumes(iConfig.getParameter<edm::ESInputTag>("moduleIndexerSource"));
+        indexToken_ = cc.consumes(iConfig.getParameter<edm::ESInputTag>("indexSource"));
       }
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
         edm::ParameterSetDescription desc;
-        desc.add<int>("charMode",0)->setComment("Manual override for characterization mode to unpack raw data");
         desc.add<int>("gain",2)->setComment("Manual override for gain (1: 80 fC, 2: 160 fC, 4: 320 fC)");
-        desc.add<edm::ESInputTag>("moduleIndexerSource",edm::ESInputTag(""))->setComment("Label for module info to set SoA size");
+        desc.add<edm::ESInputTag>("indexSource",edm::ESInputTag(""))->setComment("Label for module indexer to set SoA size");
         desc.add<edm::ESInputTag>("configSource",edm::ESInputTag(""))->setComment("Label for ROC configuration parameters");
         descriptions.addWithDefaultLabel(desc);
       }
@@ -55,10 +53,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       std::optional<hgcalrechit::HGCalConfigParamHost> produce(const HGCalModuleConfigurationRcd& iRecord) {
         //std::cout << "HGCalConfigurationESProducer::produce" << std::endl;
         //const auto& config = iRecord.get(configToken_);
-        auto const& moduleMap = iRecord.get(moduleIndexerToken_);
+        //auto const& moduleMap = iRecord.get(indexToken_);
+        auto const& moduleMap = iRecord.getRecord<HGCalElectronicsMappingRcd>().get(indexToken_);
 
         // load dense indexing
-        const uint32_t nmod = moduleMap.getMaxERxSize(); // ROC-level size
+        const uint32_t nmod = moduleMap.getMaxERxSize(); // half-ROC-level size
         hgcalrechit::HGCalConfigParamHost product(nmod, cms::alpakatools::host());
         //product.view().map() = moduleMap; // set dense indexing in SoA (now redundant & NOT thread safe !?) 
         std::cout << "HGCalConfigurationESProducer::produce: moduleMap.getMaxDataSize()=" << moduleMap.getMaxDataSize()
@@ -68,41 +67,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         // fill SoA with default placeholders
         // TODO: retrieve values from custom JSON format (see HGCalCalibrationESProducer)
         for (uint32_t imod = 0; imod < nmod; imod++) {
-          //uint32_t charMode = charMode_;
           uint8_t gain = gain_; // allow manual override
-          //std::cout << "Module imod=" << std::setw(3) << imod
-          //          << ", charMode=" << charMode << ", gain=" << uint32_t(gain) << std::endl;
           product.view()[imod].gain() = gain;
         }
-
-        //// OLD: fill SoA from YAML
-        //// TODO: Use typecode to assign dense index
-        //size_t nmods = config.moduleConfigs.size();
-        ////LogDebug("HGCalRecHitCalibrationAlgorithms") << "Configuration retrieved for " << nmods << " modules: " << config << std::endl;
-        //std::cout << "HGCalRecHitCalibrationAlgorithms" << "Configuration retrieved for " << nmods << " modules: " << config << std::endl;
-        //for(auto it : config.moduleConfigs) { // loop over map module electronicsId -> HGCalModuleConfig
-        //  HGCalModuleConfig moduleConfig(it.second);
-        //  LogDebug("HGCalRecHitCalibrationAlgorithms")
-        //    << "Module " << it.first << std::hex << " (0x" << it.first << std::dec
-        //    << ") charMode=" << moduleConfig.charMode
-        //    << ", ngains=" << moduleConfig.gains.size(); //<< std::endl;
-        //  for(auto rocit : moduleConfig.gains) {
-        //    uint32_t rocid = rocit.first;
-        //    uint8_t gain = (gain_>=1 ? gain_ : rocit.second); // allow manual override
-        //    product.view()[cpi.denseROCMap(rocid)].gain() = gain;
-        //    LogDebug("HGCalRecHitCalibrationAlgorithms")
-        //      << "  ROC " << std::setw(4) << rocid << std::hex << " (0x" << rocid << std::dec
-        //      << "): gain=" << (unsigned int) gain << " (override: " << gain_ << ")"; //std::endl;
-        //  }
-        //}
 
         return product;
       }  // end of produce()
 
     private:
-      edm::ESGetToken<HGCalMappingModuleIndexer, HGCalElectronicsMappingRcd> moduleIndexerToken_;
+      edm::ESGetToken<HGCalMappingModuleIndexer, HGCalElectronicsMappingRcd> indexToken_;
       //edm::ESGetToken<HGCalCondSerializableConfig, HGCalModuleConfigurationRcd> configToken_;
-      const int32_t charMode_; // manual override of YAML files
       const int32_t gain_; // manual override of YAML files
 
     };

@@ -49,17 +49,23 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     void produce(device::Event&, device::EventSetup const&) override;
     void beginRun(edm::Run const&, edm::EventSetup const&) override;
     edm::ESWatcher<HGCalModuleConfigurationRcd> configWatcher_;
-    edm::ESWatcher<HGCalElectronicsMappingRcd> calibWatcher_;
-    edm::ESGetToken<HGCalMappingModuleIndexer, HGCalElectronicsMappingRcd> moduleIndexerToken_;
+    edm::ESGetToken<HGCalMappingModuleIndexer, HGCalElectronicsMappingRcd> indexerToken_;
     device::ESGetToken<hgcalrechit::HGCalConfigParamDevice, HGCalModuleConfigurationRcd> configToken_;
-    device::ESGetToken<hgcalrechit::HGCalCalibParamDevice, HGCalElectronicsMappingRcd> calibToken_;
+    device::ESGetToken<hgcalrechit::HGCalCalibParamDevice, HGCalModuleConfigurationRcd> calibToken_;
   };
 
   TestHGCalRecHitESProducers::TestHGCalRecHitESProducers(const edm::ParameterSet& iConfig) {
     std::cout << "TestHGCalRecHitESProducers::TestHGCalRecHitESProducers" << std::endl;
-    moduleIndexerToken_ = esConsumes(iConfig.getParameter<edm::ESInputTag>("calibSource"));
+    indexerToken_ = esConsumes(iConfig.getParameter<edm::ESInputTag>("configSource"));
     configToken_ = esConsumes(iConfig.getParameter<edm::ESInputTag>("configSource"));
     calibToken_ = esConsumes(iConfig.getParameter<edm::ESInputTag>("calibSource"));
+  }
+
+  void TestHGCalRecHitESProducers::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+    desc.add("configSource", edm::ESInputTag{})->setComment("Label for ROC configuration parameters");
+    desc.add("calibSource", edm::ESInputTag{})->setComment("Label for calibration parameters");
+    descriptions.addWithDefaultLabel(desc);
   }
 
   void TestHGCalRecHitESProducers::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup){
@@ -69,7 +75,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   void TestHGCalRecHitESProducers::produce(device::Event& iEvent, device::EventSetup const& iSetup) {
     std::cout << "TestHGCalRecHitESProducers::produce" << std::endl;
     auto queue = iEvent.queue();
-    auto const& moduleMap = iSetup.getData(moduleIndexerToken_);
+    auto const& moduleMap = iSetup.getData(indexerToken_);
     auto const& configParamDevice = iSetup.getData(configToken_);
     //printf("TestHGCalRecHitESProducers::produce: time to load configParamDevice from config ESProducers: %f seconds\n", duration(start,now()));
     auto const& calibParamDevice = iSetup.getData(calibToken_);
@@ -87,11 +93,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         std::cout << std::setw(6) << imod
           << std::setw(6) << uint32_t(configParamDevice.view()[imod].gain()) << std::endl;
       }
-    }
+    //}
 
     // Check if there are new conditions and read them
-    if(calibWatcher_.check(iSetup)){
-      int size = calibParamDevice.view().metadata().size();
+    //if(calibWatcher_.check(iSetup)){
+      size = calibParamDevice.view().metadata().size();
       std::cout << "TestHGCalRecHitESProducers::produce: moduleMap.getMaxDataSize()=" << moduleMap.getMaxDataSize()
                 << ", moduleMap.getMaxERxSize()=" << moduleMap.getMaxERxSize() << std::endl;
       std::cout << "TestHGCalRecHitESProducers::produce: device size=" << size << std::endl;
@@ -108,13 +114,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       }
     }
 
-  }
-
-  void TestHGCalRecHitESProducers::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-    edm::ParameterSetDescription desc;
-    desc.add("configSource", edm::ESInputTag{})->setComment("Label for ROC configuration parameters");
-    desc.add("calibSource", edm::ESInputTag{})->setComment("Label for calibration parameters");
-    descriptions.addWithDefaultLabel(desc);
   }
 
 } // namespace ALPAKA_ACCELERATOR_NAMESPACE
