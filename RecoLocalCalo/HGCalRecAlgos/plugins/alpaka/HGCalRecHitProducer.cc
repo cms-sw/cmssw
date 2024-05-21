@@ -58,7 +58,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     edm::ESWatcher<HGCalElectronicsMappingRcd> calibWatcher_;
     edm::ESWatcher<HGCalModuleConfigurationRcd> configWatcher_;
     const edm::EDGetTokenT<hgcaldigi::HGCalDigiHost> digisToken_;
-    device::ESGetToken<hgcalrechit::HGCalCalibParamDevice, HGCalElectronicsMappingRcd> calibToken_;
+    device::ESGetToken<hgcalrechit::HGCalCalibParamDevice, HGCalModuleConfigurationRcd> calibToken_;
     device::ESGetToken<hgcalrechit::HGCalConfigParamDevice, HGCalModuleConfigurationRcd> configToken_;
     const device::EDPutToken<hgcalrechit::HGCalRecHitDevice> recHitsToken_;
     HGCalRecHitCalibrationAlgorithms calibrator_;  // cannot be "const" because the calibrate() method is not const
@@ -76,6 +76,17 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       calibToken_ = esConsumes(iConfig.getParameter<edm::ESInputTag>("calibSource"));
       configToken_ = esConsumes(iConfig.getParameter<edm::ESInputTag>("configSource"));
     }
+
+  void HGCalRecHitProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+    desc.add<edm::InputTag>("digis", edm::InputTag("hgcalDigis", "DIGI", "TEST"));
+    desc.add("calibSource", edm::ESInputTag{})->setComment("Label for calibration parameters");
+    desc.add("configSource", edm::ESInputTag{})->setComment("Label for ROC configuration parameters");
+    desc.add<int>("n_blocks", -1);
+    desc.add<int>("n_threads", -1);
+    desc.add<int>("n_hits_scale", -1);
+    descriptions.addWithDefaultLabel(desc);
+  }
 
   void HGCalRecHitProducer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup){
     // auto moduleInfo = iSetup.getData(moduleInfoToken_);
@@ -150,17 +161,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     LogDebug("HGCalRecHitProducer") << "\n\nINFO -- storing rec hits in the event"; //<< std::endl;
     iEvent.emplace(recHitsToken_, std::move(*recHits));
-  }
-
-  void HGCalRecHitProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-    edm::ParameterSetDescription desc;
-    desc.add<edm::InputTag>("digis", edm::InputTag("hgcalDigis", "DIGI", "TEST"));
-    desc.add("calibSource", edm::ESInputTag{})->setComment("Label for calibration parameters");
-    desc.add("configSource", edm::ESInputTag{})->setComment("Label for ROC configuration parameters");
-    desc.add<int>("n_blocks", -1);
-    desc.add<int>("n_threads", -1);
-    desc.add<int>("n_hits_scale", -1);
-    descriptions.addWithDefaultLabel(desc);
   }
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
