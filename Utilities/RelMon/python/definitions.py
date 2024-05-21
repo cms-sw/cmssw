@@ -198,7 +198,10 @@ data_pattern_blist_pairs=(\
 data_pattern_blist_pairs=()
 
 ## colors for gauge
-
 from  matplotlib.colors import LinearSegmentedColormap
 gauge_cmap=LinearSegmentedColormap.from_list('rg',["r", "orange","y","lime"], N=256) 
+
+## cms logo
+cms_logo_url = "https://cms-docdb.cern.ch/cgi-bin/PublicDocDB/RetrieveFile?docid=3045&amp;filename=CMSlogo_color_label_1024_May2014.png&amp;version=3"
+
 
