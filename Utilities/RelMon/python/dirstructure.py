@@ -168,14 +168,21 @@ class Directory(Weighted):
       subdirnames.append(subdir.name)
     return subdirnames
 
-  def get_piechart_js(self,w=400,link=None,title=None):
+  def get_piechart_js(self,w=400,link=None):
+
     """
     Build the HTML snippet to render a piechart with chart.js
     """
+    if self.get_success_rate()>=99.9: # if the success rate is very high let's make the page lighter 
+      img_link = "https://raw.githubusercontent.com/cms-PdmV/RelMonService2/5ee98db210c0898fd34b4deac3653fa2bdff269b/report_website/lime_circle.png"
+      html ='<img src="%s" height=%d width=%d>' %(img_link,w,w)
+      if link is not None:
+        html = '<a href="%s"> %s </a>' %(link,html) 
+      return html
 
     name = random.getrandbits(64) # just a random has for the canvas
     html = "" 
-    html += '<canvas id="%s" style="width:100%%;max-width:%d"></canvas>'%(name,w)
+    html += '<canvas id="%s" height=%d width=%d></canvas>'%(name,w,w)
     # piechart
     html += '<script> new Chart("%s",'%(name) 
     html += '{ type: "pie",'
@@ -191,12 +198,10 @@ class Directory(Weighted):
 
     if link is not None:
       html += 'onClick : function(event) { window.open("%s", "_blank");},'%(link)
-    
-    if title is not None:
-      html += 'title: { display: true, text: "%s"},'%(title)
+  
 
-    html +='legend: { display: false },'
-
+    html +='legend: { display: false }, responsive : false, hover: {mode: null}, tooltips: {enabled: false}' 
+    #tooltips: {enabled: false}, hover: {mode: null},'
 
     html += '}}); </script>'
 
