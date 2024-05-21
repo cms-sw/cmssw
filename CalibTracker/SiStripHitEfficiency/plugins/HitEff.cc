@@ -439,7 +439,7 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es) {
 
           //##### Layers from TEC
           else if (diffPreviousLayer == -3 && missedLayer > k_LayersAtTIDEnd && missedLayer <= k_LayersAtTECEnd &&
-              previousMissedLayer > k_LayersAtTIDEnd && previousMissedLayer <= k_LayersAtTECEnd) {
+                   previousMissedLayer > k_LayersAtTIDEnd && previousMissedLayer <= k_LayersAtTECEnd) {
             missHitPerLayer[missedLayer] += 1;
             missHitPerLayer[previousMissedLayer] += 1;
             hasMissingHits = true;
@@ -639,9 +639,8 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es) {
                 tmpTmeas = layerMeasurements.measurements(*tobLayer, tsos, *thePropagator, *estimator);
                 prev_tmpTmeas = layerMeasurements.measurements(*prevTobLayer, tsos, *thePropagator, *estimator);
               }
-            }
-            else if (misLayer > k_LayersAtTIDEnd && misLayer < k_LayersAtTECEnd && previousMisLayer > k_LayersAtTIDEnd &&
-                previousMisLayer < k_LayersAtTECEnd) {  //TEC
+            } else if (misLayer > k_LayersAtTIDEnd && misLayer < k_LayersAtTECEnd &&
+                       previousMisLayer > k_LayersAtTIDEnd && previousMisLayer < k_LayersAtTECEnd) {  //TEC
               std::vector<ForwardDetLayer const*> negTECLayers =
                   measurementTrackerHandle->geometricSearchTracker()->negTecLayers();
               std::vector<ForwardDetLayer const*> posTECLayers =
