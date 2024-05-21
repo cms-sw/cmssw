@@ -13,7 +13,7 @@ Steps to be taken to submit batch jobs which create the flat ROOT Trees.
 
 Create the executable CalibMain.exe using the script installCalib.csh
 
-Name of the ROOT files to be used as input can be kept in a file (example 24CE.txt)
+Name of the ROOT files to be used as input can be kept in a file (example d24CE.txt)
 
 Some sample command lines for running calibration jobs (which creates correction files)
 and monitoring jobs (which creates a set of histograms to be used for making
