@@ -43,7 +43,6 @@ public:
                            int ncols,
                            float pitchx,
                            float pitchy,
-                           bool upgradeGeometry,
                            int ROWS_PER_ROC,       // Num of Rows per ROC
                            int COLS_PER_ROC,       // Num of Cols per ROC
                            int BIG_PIX_PER_ROC_X,  // in x direction, rows. BIG_PIX_PER_ROC_X = 0 for SLHC
@@ -57,8 +56,8 @@ public:
         m_ROWS_PER_ROC(ROWS_PER_ROC),  // Num of Rows per ROC
         m_COLS_PER_ROC(COLS_PER_ROC),  // Num of Cols per ROC
         m_ROCS_X(ROCS_X),              // 2 for SLHC
-        m_ROCS_Y(ROCS_Y),              // 8 for SLHC
-        m_upgradeGeometry(upgradeGeometry) {
+        m_ROCS_Y(ROCS_Y)               // 8 for SLHC
+  {
     // Calculate the edge of the active sensor with respect to the center,
     // that is simply the half-size.
     // Take into account large pixels
@@ -111,31 +110,42 @@ public:
   //-------------------------------------------------------------
   // Return the BIG pixel information for a given pixel
   //
-  bool isItBigPixelInX(const int ixbin) const override {
-    return ((m_upgradeGeometry) ? (false) : ((ixbin == 79) | (ixbin == 80)));
-  }
+  bool isItBigPixelInX(const int ixbin) const override { return ((ixbin == 79) | (ixbin == 80)); }
 
   bool isItBigPixelInY(const int iybin) const override {
-    if UNLIKELY (m_upgradeGeometry)
-      return false;
-    else {
-      int iybin0 = iybin % 52;
-      return ((iybin0 == 0) | (iybin0 == 51));
-      // constexpr int bigYIndeces[]{0,51,52,103,104,155,156,207,208,259,260,311,312,363,364,415,416,511};
-      // return *std::lower_bound(std::begin(bigYIndeces),std::end(bigYIndeces),iybin) == iybin;
+    int iybin0 = iybin % 52;
+    return ((iybin0 == 0) | (iybin0 == 51));
+  }
+  float pixelFractionInX(const int ixbin) const override {
+    if ((ixbin == 79) | (ixbin == 80)) {
+      return 2.0f;
+    } else {
+      return 1.0f;
     }
   }
+
+  float pixelFractionInY(const int iybin) const override {
+    int iybin0 = iybin % 52;
+
+    if ((iybin0 == 0) | (iybin0 == 51)) {
+      return 2.0f;
+    } else {
+      return 1.0f;
+    }
+  }
+  // constexpr int bigYIndeces[]{0,51,52,103,104,155,156,207,208,259,260,311,312,363,364,415,416,511};
+  // return *std::lower_bound(std::begin(bigYIndeces),std::end(bigYIndeces),iybin) == iybin;
 
   //-------------------------------------------------------------
   // Return BIG pixel flag in a given pixel range
   //
-  bool containsBigPixelInX(int ixmin, int ixmax) const override {
-    return m_upgradeGeometry ? false : ((ixmin <= 80) & (ixmax >= 79));
-  }
+  bool containsBigPixelInX(int ixmin, int ixmax) const override { return ((ixmin <= 80) & (ixmax >= 79)); }
   bool containsBigPixelInY(int iymin, int iymax) const override {
-    return m_upgradeGeometry ? false
-                             : (isItBigPixelInY(iymin) || isItBigPixelInY(iymax) || (iymin / 52) != (iymax / 52));
+    return (isItBigPixelInY(iymin) || isItBigPixelInY(iymax) || (iymin / 52) != (iymax / 52));
   }
+
+  bool bigpixelsX() const override { return false; }
+  bool bigpixelsY() const override { return false; }
 
   //-------------------------------------------------------------
   // Check whether the pixel is at the edge of the module
@@ -175,7 +185,6 @@ private:
   int m_COLS_PER_ROC;
   int m_ROCS_X;
   int m_ROCS_Y;
-  bool m_upgradeGeometry;
 };
 
 #endif

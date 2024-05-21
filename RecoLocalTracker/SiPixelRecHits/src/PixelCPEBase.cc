@@ -6,9 +6,6 @@
 // Change to use Generic error & Template calibration from DB - D.Fehling 11/08
 
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
-#include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
-#include "Geometry/CommonTopologies/interface/ProxyPixelTopology.h"
-
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEBase.h"
 
 #define CORRECT_FOR_BIG_PIXELS
@@ -176,17 +173,9 @@ void PixelCPEBase::fillDetParams() {
 
     auto topol = &(p.theDet->specificTopology());
     p.theTopol = topol;
-    auto const proxyT = dynamic_cast<const ProxyPixelTopology*>(p.theTopol);
-    if (proxyT)
-      p.theRecTopol = dynamic_cast<const RectangularPixelTopology*>(&(proxyT->specificTopology()));
-    else
-      p.theRecTopol = dynamic_cast<const RectangularPixelTopology*>(p.theTopol);
-    assert(p.theRecTopol);
 
     //--- The geometrical description of one module/plaquette
-    //p.theNumOfRow = p.theRecTopol->nrows();	// rows in x //Not used, AH. PM: leave commented out.
-    //p.theNumOfCol = p.theRecTopol->ncolumns();	// cols in y //Not used, AH. PM: leave commented out.
-    std::pair<float, float> pitchxy = p.theRecTopol->pitch();
+    std::pair<float, float> pitchxy = p.theTopol->pitch();
     p.thePitchX = pitchxy.first;   // pitch along x
     p.thePitchY = pitchxy.second;  // pitch along y
 
@@ -220,8 +209,8 @@ void PixelCPEBase::setTheClu(DetParam const& theDetParam, ClusterParam& theClust
   maxInY = theClusterParam.theCluster->maxPixelCol();
 
   int min_row(0), min_col(0);
-  int max_row = theDetParam.theRecTopol->nrows() - 1;
-  int max_col = theDetParam.theRecTopol->ncolumns() - 1;
+  int max_row = theDetParam.theTopol->nrows() - 1;
+  int max_col = theDetParam.theTopol->ncolumns() - 1;
 
   if (minInX == min_row)
     theClusterParam.edgeTypeX_ = 1;
@@ -246,8 +235,8 @@ void PixelCPEBase::setTheClu(DetParam const& theDetParam, ClusterParam& theClust
   //if(theClusterParam.theCluster->pixelADC()[i] == 0) { hasBadPixels_ = true; break;}
   //}
 
-  theClusterParam.spansTwoROCs_ = theDetParam.theRecTopol->containsBigPixelInX(minInX, maxInX) ||
-                                  theDetParam.theRecTopol->containsBigPixelInY(minInY, maxInY);
+  theClusterParam.spansTwoROCs_ = theDetParam.theTopol->containsBigPixelInX(minInX, maxInX) ||
+                                  theDetParam.theTopol->containsBigPixelInY(minInY, maxInY);
 }
 
 //-----------------------------------------------------------------------------

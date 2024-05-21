@@ -1,5 +1,4 @@
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEGenericBase.h"
-#include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
 
 namespace {
   constexpr float micronsToCm = 1.0e-4;
@@ -109,17 +108,17 @@ void PixelCPEGenericBase::initializeLocalErrorVariables(
   minPixelCol = theClusterParam.theCluster->minPixelCol();
   minPixelRow = theClusterParam.theCluster->minPixelRow();
 
-  edgex = (theDetParam.theRecTopol->isItEdgePixelInX(minPixelRow)) ||
-          (theDetParam.theRecTopol->isItEdgePixelInX(maxPixelRow));
-  edgey = (theDetParam.theRecTopol->isItEdgePixelInY(minPixelCol)) ||
-          (theDetParam.theRecTopol->isItEdgePixelInY(maxPixelCol));
+  edgex =
+      (theDetParam.theTopol->isItEdgePixelInX(minPixelRow)) || (theDetParam.theTopol->isItEdgePixelInX(maxPixelRow));
+  edgey =
+      (theDetParam.theTopol->isItEdgePixelInY(minPixelCol)) || (theDetParam.theTopol->isItEdgePixelInY(maxPixelCol));
 
   sizex = theClusterParam.theCluster->sizeX();
   sizey = theClusterParam.theCluster->sizeY();
 
   // Find if cluster contains double (big) pixels.
-  bigInX = theDetParam.theRecTopol->containsBigPixelInX(minPixelRow, maxPixelRow);
-  bigInY = theDetParam.theRecTopol->containsBigPixelInY(minPixelCol, maxPixelCol);
+  bigInX = theDetParam.theTopol->containsBigPixelInX(minPixelRow, maxPixelRow);
+  bigInY = theDetParam.theTopol->containsBigPixelInY(minPixelCol, maxPixelCol);
 };
 
 void PixelCPEGenericBase::setXYErrors(float& xerr,

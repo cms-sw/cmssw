@@ -46,6 +46,7 @@ numWFIB.extend([29634.0]) #2026D110
 numWFIB.extend([30034.0]) #2026D111
 numWFIB.extend([30434.0]) #2026D112
 numWFIB.extend([30834.0]) #2026D113
+numWFIB.extend([31234.0]) #2026D114
 
 #Additional sample for short matrix and IB
 #CloseByPGun for HGCAL

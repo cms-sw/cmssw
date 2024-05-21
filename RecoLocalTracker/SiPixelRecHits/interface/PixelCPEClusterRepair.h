@@ -6,7 +6,6 @@
 // Already in the base class
 //#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 //#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
-//#include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
 //#include "Geometry/CommonDetAlgo/interface/MeasurementPoint.h"
 //#include "Geometry/CommonDetAlgo/interface/MeasurementError.h"
 //#include "Geometry/Surface/interface/GloballyPositioned.h"

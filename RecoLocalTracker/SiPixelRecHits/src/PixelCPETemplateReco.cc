@@ -3,7 +3,6 @@
 
 // Geometry services
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
-#include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
 
 //#define DEBUG
 
@@ -206,11 +205,11 @@ LocalPoint PixelCPETemplateReco::localPosition(DetParam const& theDetParam, Clus
   bool xdouble[mrow], ydouble[mcol];
   // x directions (shorter), rows
   for (int irow = 0; irow < mrow; ++irow)
-    xdouble[irow] = theDetParam.theRecTopol->isItBigPixelInX(irow + row_offset);
+    xdouble[irow] = theDetParam.theTopol->isItBigPixelInX(irow + row_offset);
 
   // y directions (longer), columns
   for (int icol = 0; icol < mcol; ++icol)
-    ydouble[icol] = theDetParam.theRecTopol->isItBigPixelInY(icol + col_offset);
+    ydouble[icol] = theDetParam.theTopol->isItBigPixelInY(icol + col_offset);
 
   SiPixelTemplateReco::ClusMatrix clusterPayload{&clustMatrix[0][0], xdouble, ydouble, mrow, mcol};
 
@@ -441,10 +440,10 @@ LocalError PixelCPETemplateReco::localError(DetParam const& theDetParam, Cluster
     int minPixelRow = theClusterParam.theCluster->minPixelRow();
 
     //--- Are we near either of the edges?
-    bool edgex = (theDetParam.theRecTopol->isItEdgePixelInX(minPixelRow) ||
-                  theDetParam.theRecTopol->isItEdgePixelInX(maxPixelRow));
-    bool edgey = (theDetParam.theRecTopol->isItEdgePixelInY(minPixelCol) ||
-                  theDetParam.theRecTopol->isItEdgePixelInY(maxPixelCol));
+    bool edgex =
+        (theDetParam.theTopol->isItEdgePixelInX(minPixelRow) || theDetParam.theTopol->isItEdgePixelInX(maxPixelRow));
+    bool edgey =
+        (theDetParam.theTopol->isItEdgePixelInY(minPixelCol) || theDetParam.theTopol->isItEdgePixelInY(maxPixelCol));
 
     if (theClusterParam.ierr != 0) {
       // If reconstruction fails the hit position is calculated from cluster center of gravity
