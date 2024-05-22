@@ -25,10 +25,10 @@ process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
 process.load('RecoLocalCalo.CaloTowersCreator.calotowermaker_cfi')
 process.towerMakerAll = process.calotowermaker.clone()
-process.towerMakerAll.hbheInput = cms.InputTag("hbhereco")
-process.towerMakerAll.hoInput = cms.InputTag("none")
-process.towerMakerAll.hfInput = cms.InputTag("none")
-process.towerMakerAll.ecalInputs = cms.VInputTag(cms.InputTag("ecalRecHit","EcalRecHitsEB"), cms.InputTag("ecalRecHit","EcalRecHitsEE"))
+process.towerMakerAll.hbheInput = "hbhereco"
+process.towerMakerAll.hoInput = "none"
+process.towerMakerAll.hfInput = "none"
+process.towerMakerAll.ecalInputs = [cms.InputTag("ecalRecHit","EcalRecHitsEB"), cms.InputTag("ecalRecHit","EcalRecHitsEE")]
 process.towerMakerAll.AllowMissingInputs = True
 
 process.load('Calibration.HcalCalibAlgos.hcalIsoTrkAnalyzer_cff')
