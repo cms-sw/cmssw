@@ -56,13 +56,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   TestHGCalRecHitESProducers::TestHGCalRecHitESProducers(const edm::ParameterSet& iConfig) {
     std::cout << "TestHGCalRecHitESProducers::TestHGCalRecHitESProducers" << std::endl;
-    indexerToken_ = esConsumes(iConfig.getParameter<edm::ESInputTag>("configSource"));
+    indexerToken_ = esConsumes(iConfig.getParameter<edm::ESInputTag>("indexSource"));
     configToken_ = esConsumes(iConfig.getParameter<edm::ESInputTag>("configSource"));
     calibToken_ = esConsumes(iConfig.getParameter<edm::ESInputTag>("calibSource"));
   }
 
   void TestHGCalRecHitESProducers::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
+    desc.add("indexSource", edm::ESInputTag{})->setComment("Label for module indexer to set SoA size");
     desc.add("configSource", edm::ESInputTag{})->setComment("Label for ROC configuration parameters");
     desc.add("calibSource", edm::ESInputTag{})->setComment("Label for calibration parameters");
     descriptions.addWithDefaultLabel(desc);

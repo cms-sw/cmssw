@@ -91,12 +91,12 @@ process.hgcalConfigESProducer = cms.ESProducer( # ESProducer to load configurati
   'hgcalrechit::HGCalConfigurationESProducer@alpaka',
   gain=cms.int32(1), # to switch between 80, 160, 320 fC calibration
   #charMode=cms.int32(1),
-  indexSource=cms.ESInputTag('')
+  indexSource=cms.ESInputTag('hgCalMappingESProducer','')
 )
 process.hgcalCalibESProducer = cms.ESProducer( # ESProducer to load calibration parameters from JSON file, like pedestals
   'hgcalrechit::HGCalCalibrationESProducer@alpaka',
   filename=cms.string(options.params), # to be set up in configTBConditions
-  indexSource=cms.ESInputTag(''),
+  indexSource=cms.ESInputTag('hgCalMappingESProducer',''),
   configSource=cms.ESInputTag(''), #('hgcalConfigESProducer', ''),
 )
 
@@ -105,8 +105,9 @@ process.testHGCalRecHitESProducers = cms.EDProducer(
   'TestHGCalRecHitESProducers@alpaka',
   #'alpaka_cuda_async::TestHGCalRecHitProducer', # GPU
   #'alpaka_serial_sync::TestHGCalRecHitProducer', # CPU
-  configSource=cms.ESInputTag(''), #('hgcalConfigESProducer', ''),
-  calibSource=cms.ESInputTag(''), #('hgcalCalibESProducer', ''),
+  indexSource=cms.ESInputTag('hgCalMappingESProducer', ''),
+  configSource=cms.ESInputTag('hgcalConfigESProducer', ''),
+  calibSource=cms.ESInputTag('hgcalCalibESProducer', ''),
 )
 process.t = cms.Task(process.testHGCalRecHitESProducers)
 process.p = cms.Path(process.t)
