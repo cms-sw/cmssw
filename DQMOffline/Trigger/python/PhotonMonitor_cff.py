@@ -52,7 +52,7 @@ Photon60_DisplacedIdL_PFHT350_monitoring = hltPhotonmonitoring.clone(
 )
 
 CscCluster50_Photon20Unseeded = hltPhotonmonitoring.clone(
-    FolderName = 'HLT/EGM/Photon/CscCluster50_Photon20Unseeded/',
+    FolderName = 'HLT/EXO/DisplacedPhoton/CscCluster50_Photon20Unseeded/',
     numGenericTriggerEventPSet = dict(hltPaths = ["HLT_CscCluster50_Photon20Unseeded_v*"])
 )
 
