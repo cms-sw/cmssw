@@ -97,7 +97,7 @@ def customisePostEra_Run3_2023(process):
 
 def customisePostEra_Run3_2024(process):
     #start with a repeat of 2023
-    customisePostEra_Run3_2023(process)
+    customisePostEra_Run3(process)
     return process
 
 def customisePostEra_Run3_express_trackingOnly(process):
