@@ -1541,7 +1541,7 @@ int main(int, char**) try {
   pset.addUntrackedParameter<std::string>("svalue", g);
   assert(par != 0);
   assert(par->label() == std::string("svalue"));
-  assert(par->type() == edm::k_string);
+  assert(par->type() == edm::k_stringRaw);
   assert(par->isTracked() == false);
   assert(edm::parameterTypeEnumToString(par->type()) == std::string("string"));
 
@@ -1605,7 +1605,7 @@ int main(int, char**) try {
   std::vector<std::string> v6;
   par = psetDesc.add<std::vector<std::string>>("v6", v6);
   pset.addParameter<std::vector<std::string>>("v6", v6);
-  assert(par->type() == edm::k_vstring);
+  assert(par->type() == edm::k_vstringRaw);
   assert(edm::parameterTypeEnumToString(par->type()) == std::string("vstring"));
 
   std::vector<edm::EventID> v7;
