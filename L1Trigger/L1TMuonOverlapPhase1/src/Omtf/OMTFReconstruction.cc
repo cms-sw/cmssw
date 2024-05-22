@@ -142,8 +142,9 @@ void OMTFReconstruction::beginRun(edm::Run const& run,
         }
       }
 
-      edm::LogVerbatim("OMTFReconstruction") << "OMTFProcessor constructed. processorType " << processorType
-                                             << ". GoldenPattern type: " << patternType << std::endl;
+      edm::LogVerbatim("OMTFReconstruction")
+          << "OMTFProcessor constructed. processorType " << processorType << ". GoldenPattern type: " << patternType
+          << " nProcessors " << omtfConfig->nProcessors() << std::endl;
     } else if (patternType == "GoldenPatternWithStat") {
       //pattern generation is only possible if the processor is constructed only once per job
       //PatternGenerator modifies the patterns!!!
@@ -156,13 +157,6 @@ void OMTFReconstruction::beginRun(edm::Run const& run,
               xmlReader.readPatterns<GoldenPatternWithStat>(*omtfParams, patternsXMLFiles, false));
         } else {  //in principle should not happen
           throw cms::Exception("OMTFReconstruction::beginRun: omtfParams is nullptr");
-        }
-        auto omtfProcGoldenPat = dynamic_cast<OMTFProcessor<GoldenPatternWithStat>*>(omtfProc.get());
-
-        if (edmParameterSet.exists("generatePatterns") && edmParameterSet.getParameter<bool>("generatePatterns")) {
-          observers.emplace_back(
-              std::make_unique<PatternGenerator>(edmParameterSet, omtfConfig.get(), omtfProcGoldenPat->getPatterns()));
-          edm::LogVerbatim("OMTFReconstruction") << "generatePatterns: true " << std::endl;
         }
       }
     } else {
@@ -211,14 +205,38 @@ void OMTFReconstruction::addObservers(
       if (edmParameterSet.getParameter<bool>("eventCaptureDebug")) {
         observers.emplace_back(std::make_unique<EventCapture>(
             edmParameterSet, omtfConfig.get(), candidateSimMuonMatcher, muonGeometryTokens
-            //&(omtfProcGoldenPat->getPatterns() ),
+            //, &(omtfProcGoldenPat->getPatterns() )
             //watch out, will crash if the proc is re-constructed from the DB after L1TMuonOverlapParamsRcd change
             ));
       }
 
     if (edmParameterSet.exists("dumpHitsToROOT") && edmParameterSet.getParameter<bool>("dumpHitsToROOT")) {
-      std::string rootFileName = edmParameterSet.getParameter<std::string>("dumpHitsFileName");
-      observers.emplace_back(std::make_unique<DataROOTDumper2>(edmParameterSet, omtfConfig.get(), rootFileName));
+      //std::string rootFileName = edmParameterSet.getParameter<std::string>("dumpHitsFileName");
+      if (candidateSimMuonMatcher == nullptr) {
+        edm::LogVerbatim("OMTFReconstruction")
+            << "dumpHitsToROOT needs candidateSimMuonMatcher, but it is null " << std::endl;
+        throw cms::Exception("dumpHitsToROOT needs candidateSimMuonMatcher, but it is null");
+      }
+      observers.emplace_back(
+          std::make_unique<DataROOTDumper2>(edmParameterSet, omtfConfig.get(), candidateSimMuonMatcher));
+    }
+  }
+
+  auto omtfProcGoldenPatWithStat = dynamic_cast<OMTFProcessor<GoldenPatternWithStat>*>(omtfProc.get());
+  if (omtfProcGoldenPatWithStat) {
+    if (edmParameterSet.exists("eventCaptureDebug"))
+      if (edmParameterSet.getParameter<bool>("eventCaptureDebug")) {
+        observers.emplace_back(std::make_unique<EventCapture>(
+            edmParameterSet, omtfConfig.get(), candidateSimMuonMatcher, muonGeometryTokens
+            //&(omtfProcGoldenPat->getPatterns() )
+            //watch out, will crash if the proc is re-constructed from the DB after L1TMuonOverlapParamsRcd change
+            ));
+      }
+
+    if (edmParameterSet.exists("generatePatterns") && edmParameterSet.getParameter<bool>("generatePatterns")) {
+      observers.emplace_back(std::make_unique<PatternGenerator>(
+          edmParameterSet, omtfConfig.get(), omtfProcGoldenPatWithStat->getPatterns(), candidateSimMuonMatcher));
+      edm::LogVerbatim("OMTFReconstruction") << "generatePatterns: true " << std::endl;
     }
   }
 }

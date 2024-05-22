@@ -11,7 +11,25 @@ AlgoMuons GhostBuster::select(AlgoMuons refHitCands, int charge) {
   AlgoMuons refHitCleanCands;
   // Sort candidates with decreased goodness,
   auto customLess = [&](const AlgoMuons::value_type& a, const AlgoMuons::value_type& b) -> bool {
-    return (*a) < (*b);  //< operator of AlgoMuon
+    if (!a->isValid()) {
+      return true;
+    }
+    if (!b->isValid()) {
+      return false;
+    }
+
+    if (a->getQ() > b->getQ())
+      return false;
+    else if (a->getQ() == b->getQ() && a->getDisc() > b->getDisc())
+      return false;
+    else if (a->getQ() == b->getQ() && a->getDisc() == b->getDisc() &&
+             a->getPatternNumConstr() > b->getPatternNumConstr())
+      return false;
+    else if (a->getQ() == b->getQ() && a->getDisc() == b->getDisc() &&
+             a->getPatternNumConstr() == b->getPatternNumConstr() && a->getRefHitNumber() < b->getRefHitNumber())
+      return false;
+    else
+      return true;
   };
 
   std::sort(refHitCands.rbegin(), refHitCands.rend(), customLess);
@@ -30,8 +48,11 @@ AlgoMuons GhostBuster::select(AlgoMuons refHitCands, int charge) {
         //TODO here the candidate that is killed does not kill other candidates - check if the firmware does the same (KB)
       }
     }
-    if ((*it1)->getQ() > 0 && !isGhost)
+    if ((*it1)->getQ() > 0 && !isGhost) {
       refHitCleanCands.emplace_back(new AlgoMuon(**it1));
+      if (omtfConfig->getStubEtaEncoding() == ProcConfigurationBase::StubEtaEncoding::bits)
+        refHitCleanCands.back()->setEta(OMTFConfiguration::etaBits2HwEta((*it1)->getEtaHw()));
+    }
 
     if (refHitCleanCands.size() >= 3)
       break;

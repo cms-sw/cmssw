@@ -7,6 +7,7 @@
 
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/Tools/EmulationObserverBase.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Math/VectorUtil.h"
 
 EmulationObserverBase::EmulationObserverBase(const edm::ParameterSet& edmCfg, const OMTFConfiguration* omtfConfig)
@@ -27,7 +28,7 @@ void EmulationObserverBase::observeProcesorEmulation(unsigned int iProcessor,
   unsigned int i = 0;
   for (auto& gbCandidate : gbCandidates) {
     if (gbCandidate->getGoldenPatern() != nullptr &&
-        gbCandidate->getGpResult().getFiredLayerCnt() > omtfCand->getGpResult().getFiredLayerCnt()) {
+        gbCandidate->getGpResultConstr().getFiredLayerCnt() > omtfCand->getGpResultConstr().getFiredLayerCnt()) {
       //LogTrace("l1tOmtfEventPrint") <<__FUNCTION__<<":"<<__LINE__<<" gbCandidate "<<gbCandidate<<" "<<std::endl;
       omtfCand = gbCandidate;
 
@@ -90,4 +91,43 @@ const SimTrack* EmulationObserverBase::findSimMuon(const edm::Event& event, cons
       result = &aTrack;
   }
   return result;
+}
+
+const std::vector<const reco::GenParticle*> EmulationObserverBase::findGenMuon(const edm::Event& event) {
+  std::vector<const reco::GenParticle*> muons;
+
+  if (edmCfg.exists("genParticleTag") == false)
+    return muons;
+
+  edm::Handle<reco::GenParticleCollection> genParticles;
+
+  event.getByLabel(edmCfg.getParameter<edm::InputTag>("genParticleTag"), genParticles);
+
+  //todo
+  float etaCutFrom = 0.8;
+  float etaCutTo = 1.24;
+
+  for (size_t i = 0; i < genParticles->size(); ++i) {
+    const reco::GenParticle& genPart = (*genParticles)[i];
+
+    if (std::abs(genPart.pdgId()) == 13) {
+      if (std::abs(genPart.momentum().eta()) >= etaCutFrom && std::abs(genPart.momentum().eta()) <= etaCutTo) {
+        genPart.momentum().eta();
+
+        muons.push_back(&genPart);
+        //int id = p.pdgId();
+        LogTrace("l1tOmtfEventPrint") << __FUNCTION__ << ":" << __LINE__ << " genParticle: pdgId " << genPart.pdgId()
+                                      << " px " << genPart.px() << " py " << genPart.py() << " pz " << genPart.pz()
+                                      << " pt " << genPart.pt() << " vx " << genPart.vx() << " vy " << genPart.vy()
+                                      << " vz " << genPart.vz() << " eta " << genPart.momentum().eta() << endl;
+
+        LogTrace("l1tOmtfEventPrint") << __FUNCTION__ << ":" << __LINE__ << " genParticle: pdgId " << genPart.pdgId()
+                                      << " px " << genPart.px() / genPart.p() << " py " << genPart.py() / genPart.p()
+                                      << " pz " << genPart.pz() / genPart.p() << " pt " << genPart.pt() << endl;
+        //<<" vx "<<genPart.vx()<<" vy "<<genPart.vy()<<" vz "<<genPart.vz()<<endl;
+      }
+    }
+  }
+
+  return muons;
 }

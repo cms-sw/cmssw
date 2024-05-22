@@ -9,12 +9,14 @@
 #define L1T_OmtfP1_PATTERNGENERATOR_H_
 
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/Tools/PatternOptimizerBase.h"
+#include "L1Trigger/L1TMuonOverlapPhase1/interface/Tools/CandidateSimMuonMatcher.h"
 
 class PatternGenerator : public PatternOptimizerBase {
 public:
   PatternGenerator(const edm::ParameterSet& edmCfg,
                    const OMTFConfiguration* omtfConfig,
-                   GoldenPatternVec<GoldenPatternWithStat>& gps);
+                   GoldenPatternVec<GoldenPatternWithStat>& gps,
+                   CandidateSimMuonMatcher* candidateSimMuonMatcher);
 
   ~PatternGenerator() override;
 
@@ -28,6 +30,10 @@ protected:
 
   void updateStat();
 
+  void updateStatUsingMatcher2();
+
+  std::function<void()> updateStatFunction;
+
   void upadatePdfs();
 
   void saveHists(TFile& outfile) override;
@@ -37,6 +43,8 @@ protected:
   void reCalibratePt();
 
   void groupPatterns();
+
+  CandidateSimMuonMatcher* candidateSimMuonMatcher = nullptr;
 
   //indexing: [charge][iLayer]
   std::vector<std::vector<TH2I*> > ptDeltaPhiHists;

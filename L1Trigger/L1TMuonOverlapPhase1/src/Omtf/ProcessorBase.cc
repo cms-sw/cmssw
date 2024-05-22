@@ -154,9 +154,11 @@ MuonStubPtrs1D ProcessorBase<GoldenPatternType>::restrictInput(unsigned int iPro
   for (unsigned int iInput = 0; iInput < input.getMuonStubs()[iLayer].size(); ++iInput) {
     if (iInput >= iStart && iInput <= iEnd) {
       if (this->myOmtfConfig->isBendingLayer(iLayer)) {
-        layerStubs.push_back(input.getMuonStub(iLayer - 1, iInput));
+        if (input.getMuonStub(iLayer - 1, iInput) &&
+            input.getMuonStub(iLayer - 1, iInput)->qualityHw >= myOmtfConfig->getMinDtPhiBQuality())
+          layerStubs.push_back(input.getMuonStub(iLayer - 1, iInput));
       } else
-        layerStubs.push_back(input.getMuonStub(iLayer, iInput));  //input.getHitPhi(iLayer, iInput)
+        layerStubs.push_back(input.getMuonStub(iLayer, iInput));
     }
   }
   //LogTrace("OMTFReconstruction") <<__FUNCTION__<<":"<<__LINE__<<" layerHits.size() "<<layerHits.size()<<std::endl;

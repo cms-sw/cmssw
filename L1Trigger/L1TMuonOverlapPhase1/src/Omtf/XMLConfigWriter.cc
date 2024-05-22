@@ -100,10 +100,8 @@ void XMLConfigWriter::initialiseXMLDocument(const std::string& docName) {
   theDoc = domImpl->createDocument(nullptr, _toDOMS(docName), nullptr);
   theTopElement = theDoc->getDocumentElement();
 
-  unsigned int version = myOMTFConfig->patternsVersion();
-  unsigned int mask16bits = 0xFFFF;
-
-  version &= mask16bits;
+  const unsigned int mask16bits = 0xFFFF;
+  const unsigned int version = (myOMTFConfig->patternsVersion() & mask16bits);
 
   std::ostringstream stringStr;
   stringStr.str("");
@@ -224,7 +222,7 @@ void XMLConfigWriter::writeAlgoMuon(xercesc::DOMElement* aTopElement, const Algo
   stringStr << aCand.getRefHitNumber();
   aResult->setAttribute(_toDOMS("iRefHit"), _toDOMS(stringStr.str()));
   stringStr.str("");
-  stringStr << aCand.getPt();
+  stringStr << aCand.getPtConstr();
   aResult->setAttribute(_toDOMS("ptCode"), _toDOMS(stringStr.str()));
   stringStr.str("");
   stringStr << aCand.getPhi();
@@ -233,7 +231,7 @@ void XMLConfigWriter::writeAlgoMuon(xercesc::DOMElement* aTopElement, const Algo
   stringStr << eta2Bits(abs(aCand.getEtaHw()));
   aResult->setAttribute(_toDOMS("etaCode"), _toDOMS(stringStr.str()));
   stringStr.str("");
-  stringStr << aCand.getCharge();
+  stringStr << aCand.getChargeConstr();
   aResult->setAttribute(_toDOMS("charge"), _toDOMS(stringStr.str()));
   stringStr.str("");
   stringStr << aCand.getQ();
@@ -251,7 +249,7 @@ void XMLConfigWriter::writeAlgoMuon(xercesc::DOMElement* aTopElement, const Algo
   stringStr << aCand.getPhiRHit();
   aResult->setAttribute(_toDOMS("phiRHit"), _toDOMS(stringStr.str()));
   stringStr.str("");
-  stringStr << aCand.getHwPatternNumber();
+  stringStr << aCand.getHwPatternNumConstr();
   aResult->setAttribute(_toDOMS("patNum"), _toDOMS(stringStr.str()));
 
   aTopElement->appendChild(aResult);
@@ -541,14 +539,6 @@ void XMLConfigWriter::writeGPs(const GoldenPatternVec<GoldenPatternType>& golden
       if (!gp) {
         throw cms::Exception("OMTF::XMLConfigWriter::writeGPs: the gps are not GoldenPatterns ");
       }
-      /*cout<<gp->key()<<endl;;
-      for(unsigned int iLayer = 0; iLayer<myOMTFConfig->nLayers(); ++iLayer) {
-        for(unsigned int iRefLayer=0; iRefLayer<myOMTFConfig->nRefLayers(); ++iRefLayer) {
-          if(gp->getPdf()[iLayer][iRefLayer][0] != 0) {
-            cout<<"iLayer "<<iLayer<<" iRefLayer "<<iRefLayer<<" pdf[0] "<<gp->getPdf()[iLayer][iRefLayer][0]<<"!!!!!!!!!!!!!!!!!!!!\n";
-          }
-        }
-      }*/
       gps[i] = gp;
     }
     writeGPData(gps[0], gps[1], gps[2], gps[3]);
@@ -561,7 +551,7 @@ void XMLConfigWriter::writeConnectionsData(
     const std::vector<std::vector<OMTFConfiguration::vector2D> >& measurements4D) {
   std::ostringstream stringStr;
 
-  for (unsigned int iProcessor = 0; iProcessor < 6; ++iProcessor) {
+  for (unsigned int iProcessor = 0; iProcessor < myOMTFConfig->nProcessors(); ++iProcessor) {
     xercesc::DOMElement* aProcessorElement = theDoc->createElement(_toDOMS("Processor"));
     stringStr.str("");
     stringStr << iProcessor;
@@ -579,13 +569,13 @@ void XMLConfigWriter::writeConnectionsData(
     unsigned int iRefHit = 0;
     ///////
     for (unsigned int iRefLayer = 0; iRefLayer < myOMTFConfig->nRefLayers(); ++iRefLayer) {
-      for (unsigned int iRegion = 0; iRegion < 6; ++iRegion) {
+      for (unsigned int iRegion = 0; iRegion < myOMTFConfig->nLogicRegions(); ++iRegion) {
         unsigned int maxHitCount = 0;
-        for (unsigned int iInput = 0; iInput < 14; ++iInput) {
+        for (unsigned int iInput = 0; iInput < myOMTFConfig->nInputs(); ++iInput) {
           if ((int)maxHitCount < myOMTFConfig->getMeasurements4Dref()[iProcessor][iRegion][iRefLayer][iInput])
             maxHitCount = myOMTFConfig->getMeasurements4Dref()[iProcessor][iRegion][iRefLayer][iInput];
         }
-        for (unsigned int iInput = 0; iInput < 14; ++iInput) {
+        for (unsigned int iInput = 0; iInput < myOMTFConfig->nInputs(); ++iInput) {
           unsigned int hitCount = myOMTFConfig->getMeasurements4Dref()[iProcessor][iRegion][iRefLayer][iInput];
           if (hitCount < maxHitCount * 0.1)
             continue;
@@ -658,7 +648,7 @@ void XMLConfigWriter::writeConnectionsData(
       }
     }
     ////
-    for (unsigned int iRegion = 0; iRegion < 6; ++iRegion) {
+    for (unsigned int iRegion = 0; iRegion < myOMTFConfig->nLogicRegions(); ++iRegion) {
       xercesc::DOMElement* aRegionElement = theDoc->createElement(_toDOMS("LogicRegion"));
       stringStr.str("");
       stringStr << iRegion;
@@ -697,7 +687,7 @@ void XMLConfigWriter::writeConnectionsData(
 unsigned int XMLConfigWriter::findMaxInput(const OMTFConfiguration::vector1D& myCounts) {
   unsigned int max = 0;
   unsigned int maxInput = 0;
-  for (unsigned int iInput = 0; iInput < 14; ++iInput) {
+  for (unsigned int iInput = 0; iInput < myOMTFConfig->nInputs(); ++iInput) {
     if (myCounts[iInput] > (int)max) {
       max = myCounts[iInput];
       maxInput = iInput;

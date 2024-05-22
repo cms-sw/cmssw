@@ -125,13 +125,13 @@ void StubsSimHitsMatcher::match(const edm::Event& iEvent,
   iEvent.getByLabel(trackingParticleTag, trackingParticleHandle);
 
   if (procMuon->isValid() && omtfCand) {
-    OmtfName board(omtfCand->processor(), omtfCand->trackFinderType());
+    OmtfName board(omtfCand->processor(), omtfCand->trackFinderType(), omtfConfig);
     auto processorPhiZero = OMTFinputMaker::getProcessorPhiZero(omtfConfig, omtfCand->processor());
 
     std::set<MatchedTrackInfo> matchedTrackInfos;
     ostr << board.name() << " " << *procMuon << std::endl;
 
-    auto& gpResult = procMuon->getGpResult();
+    auto& gpResult = procMuon->getGpResultConstr();
     for (unsigned int iLogicLayer = 0; iLogicLayer < gpResult.getStubResults().size(); ++iLogicLayer) {
       auto& stub = gpResult.getStubResults()[iLogicLayer].getMuonStub();
       if (stub && gpResult.isLayerFired(iLogicLayer)) {
@@ -158,7 +158,7 @@ void StubsSimHitsMatcher::match(const edm::Event& iEvent,
                 auto strip = roll->strip(simHit.localPosition());
                 double simHitStripGlobalPhi = (roll->toGlobal(roll->centreOfStrip((int)strip))).phi();
 
-                if (abs(stubGlobalPhi - simHitStripGlobalPhi) < 0.02) {
+                if (std::abs(stubGlobalPhi - simHitStripGlobalPhi) < 0.02) {
                   matchedTrackInfos.insert(MatchedTrackInfo(simHit.eventId().event(), simHit.trackId()));
                 }
 
@@ -185,7 +185,7 @@ void StubsSimHitsMatcher::match(const edm::Event& iEvent,
                 auto strip = rpcDigiSimLink.getStrip();
                 double simHitStripGlobalPhi = (roll->toGlobal(roll->centreOfStrip((int)strip))).phi();
 
-                if (abs(stubGlobalPhi - simHitStripGlobalPhi) < 0.02) {
+                if (std::abs(stubGlobalPhi - simHitStripGlobalPhi) < 0.02) {
                   auto matchedTrackInfo = matchedTrackInfos.insert(
                       MatchedTrackInfo(rpcDigiSimLink.getEventId().event(), rpcDigiSimLink.getTrackId()));
                   matchedTrackInfo.first->matchedDigiCnt.at(iLogicLayer)++;
@@ -250,7 +250,7 @@ void StubsSimHitsMatcher::match(const edm::Event& iEvent,
                   LocalPoint point(wireX, 0, 0);
                   auto digiWireGlobal = layer->toGlobal(point);
 
-                  if (abs(stubGlobalPhi - digiWireGlobal.phi()) < 0.03) {
+                  if (std::abs(stubGlobalPhi - digiWireGlobal.phi()) < 0.03) {
                     auto matchedTrackInfo = matchedTrackInfos.insert(
                         MatchedTrackInfo(dtDigiSimLink->eventId().event(), dtDigiSimLink->SimTrackId()));
                     matchedTrackInfo.first->matchedDigiCnt.at(iLogicLayer)++;
@@ -316,7 +316,7 @@ void StubsSimHitsMatcher::match(const edm::Event& iEvent,
                   auto strip = cscDigiSimLink.channel();
                   auto digiStripGlobalPhi = layer->centerOfStrip(strip).phi();
 
-                  if (abs(stubGlobalPhi - digiStripGlobalPhi) < 0.03) {
+                  if (std::abs(stubGlobalPhi - digiStripGlobalPhi) < 0.03) {
                     auto matchedTrackInfo = matchedTrackInfos.insert(
                         MatchedTrackInfo(cscDigiSimLink.eventId().event(), cscDigiSimLink.SimTrackId()));
                     matchedTrackInfo.first->matchedDigiCnt.at(iLogicLayer)++;
@@ -351,7 +351,7 @@ void StubsSimHitsMatcher::match(const edm::Event& iEvent,
     }
 
     ostr << board.name() << " " << *procMuon << std::endl;
-    ostr << procMuon->getGpResult() << std::endl << std::endl;
+    ostr << procMuon->getGpResultConstr() << std::endl << std::endl;
 
     int maxMatchedStubs = 0;
     const TrackingParticle* bestMatchedPart = nullptr;

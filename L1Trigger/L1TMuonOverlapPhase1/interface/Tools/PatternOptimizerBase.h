@@ -49,10 +49,15 @@ protected:
 
   GoldenPatternVec<GoldenPatternWithStat>& goldenPatterns;
 
-  TH1I* simMuPt;
-  TH1I* simMuFoundByOmtfPt;
+  TH1I* simMuPt = nullptr;
+  TH1I* simMuFoundByOmtfPt = nullptr;
+  TH1I* simMuEta = nullptr;
 
-  TH1F* simMuPtSpectrum;
+  TH1I* candEta = nullptr;
+
+  TH1F* simMuPtSpectrum = nullptr;
+  TH2I* simMuPtVsDispl = nullptr;
+  TH2I* simMuPtVsRho = nullptr;
 
   bool writeLayerStat = false;
 };

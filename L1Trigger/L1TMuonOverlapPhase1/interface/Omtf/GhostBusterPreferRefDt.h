@@ -4,13 +4,6 @@
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/Omtf/AlgoMuon.h"
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/Omtf/IGhostBuster.h"
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/Omtf/OMTFConfiguration.h"
-#include <vector>
-#include <ostream>
-
-#include <map>
-#include <set>
-
-#include <memory>
 
 class GhostBusterPreferRefDt : public IGhostBuster {
 private:
