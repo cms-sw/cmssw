@@ -426,8 +426,8 @@ namespace cmsdt {
 
   constexpr int X_SIZE = 17;
   constexpr int TANPSI_SIZE = 14;
-  constexpr double PHI_SIZE = 1. / 131072; //pow(2,17)   //1 rad range, 17 bits
-  constexpr double PHIB_SIZE = 4. / 8192; //pow(2,13)  //4 rad range, 13 bits
+  constexpr double PHI_SIZE = 1. / 131072;  //pow(2,17)   //1 rad range, 17 bits
+  constexpr double PHIB_SIZE = 4. / 8192;   //pow(2,13)  //4 rad range, 13 bits
 
   constexpr int PHI_LUT_ADDR_WIDTH = 11;
   constexpr int PHI_B_SHL_BITS = 5;
