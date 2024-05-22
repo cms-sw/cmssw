@@ -71,10 +71,13 @@ namespace DiLeptonHelp {
         if (etaReg == etaRegion::END)
           continue;
 
+        const auto& toSub = m_etaRegionNames[etaReg];
+
         if (((TObject*)histo)->InheritsFrom("TH2")) {
           m_h2_map[etaReg] = fs.make<TH2F>(
-              (name + "_" + m_etaRegionNames[etaReg]).c_str(),
-              (title + " (" + m_etaRegionNames[etaReg] + ");" + xTitle + ";" + yTitle + ";" + zTitle).c_str(),
+              (name + "_" + toSub).c_str(),
+              (title + " (" + toSub + ");" + xTitle + " (" + toSub + ") ;" + yTitle + " (" + toSub + ");" + zTitle)
+                  .c_str(),
               histo->GetNbinsX(),
               histo->GetXaxis()->GetXmin(),
               histo->GetXaxis()->GetXmax(),
@@ -82,12 +85,12 @@ namespace DiLeptonHelp {
               histo->GetYaxis()->GetXmin(),
               histo->GetYaxis()->GetXmax());
         } else {
-          m_h1_map[etaReg] =
-              fs.make<TH1F>((name + "_" + m_etaRegionNames[etaReg]).c_str(),
-                            (title + " (" + m_etaRegionNames[etaReg] + ");" + xTitle + ";" + yTitle).c_str(),
-                            histo->GetNbinsX(),
-                            histo->GetXaxis()->GetXmin(),
-                            histo->GetXaxis()->GetXmax());
+          m_h1_map[etaReg] = fs.make<TH1F>(
+              (name + "_" + toSub).c_str(),
+              (title + " (" + toSub + ");" + xTitle + " (" + toSub + ") ;" + yTitle + " (" + toSub + ")").c_str(),
+              histo->GetNbinsX(),
+              histo->GetXaxis()->GetXmin(),
+              histo->GetXaxis()->GetXmax());
         }
       }
 
