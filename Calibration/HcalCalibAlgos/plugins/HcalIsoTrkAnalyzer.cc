@@ -7,8 +7,15 @@
 #include "TLorentzVector.h"
 #include "TTree.h"
 
-#include "CondFormats/DataRecord/interface/EcalPFRecHitThresholdsRcd.h"
+#include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
+#include "CalibFormats/HcalObjects/interface/HcalDbService.h"
+#include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
+
 #include "CondFormats/EcalObjects/interface/EcalPFRecHitThresholds.h"
+#include "CondFormats/HcalObjects/interface/HcalRespCorrs.h"
+#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
+#include "CondFormats/DataRecord/interface/EcalPFRecHitThresholdsRcd.h"
+#include "CondFormats/DataRecord/interface/HcalRespCorrsRcd.h"
 
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
@@ -40,10 +47,6 @@
 #include "DataFormats/L1TGlobal/interface/GlobalAlgBlk.h"
 #include "DataFormats/L1TGlobal/interface/GlobalExtBlk.h"
 #include "DataFormats/L1Trigger/interface/BXVector.h"
-
-#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
-#include "CondFormats/DataRecord/interface/HcalRespCorrsRcd.h"
-#include "CondFormats/HcalObjects/interface/HcalRespCorrs.h"
 
 //Generator information
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
@@ -112,6 +115,7 @@ private:
                               edm::Handle<CaloTowerCollection>& towerHandle,
                               edm::Handle<reco::GenParticleCollection>& genParticles,
                               const HcalRespCorrs* respCorrs,
+                              const HcalDbService* conditions,
                               const edm::Handle<reco::MuonCollection>& muonh);
   double dR(math::XYZTLorentzVector&, math::XYZTLorentzVector&);
   double trackP(const reco::Track*, const edm::Handle<reco::GenParticleCollection>&);
@@ -120,12 +124,14 @@ private:
   DetId newId(const DetId&);
   void storeEnergy(int indx,
                    const HcalRespCorrs* respCorrs,
+                   const HcalDbService* conditions,
                    const std::vector<DetId>& ids,
                    std::vector<double>& edet,
                    double& eHcal,
                    std::vector<unsigned int>* detIds,
                    std::vector<double>* hitEnergies);
   bool notaMuon(const reco::Track* pTrack0, const edm::Handle<reco::MuonCollection>& muonh);
+  double gainFactor(const HcalDbService* dbserv, const HcalDetId& id);
 
   l1t::L1TGlobalUtil* l1GtUtils_;
   HLTConfigProvider hltConfig_;
@@ -142,7 +148,7 @@ private:
   const int prescaleLow_, prescaleHigh_;
   const int useRaw_, dataType_, mode_;
   const bool ignoreTrigger_, useL1Trigger_;
-  const bool unCorrect_, collapseDepth_;
+  const bool unCorrect_, getCharge_, collapseDepth_;
   const double hitEthrEB_, hitEthrEE0_, hitEthrEE1_;
   const double hitEthrEE2_, hitEthrEE3_;
   const double hitEthrEELo_, hitEthrEEHi_;
@@ -178,10 +184,12 @@ private:
   const edm::ESGetToken<CaloTopology, CaloTopologyRecord> tok_caloTopology_;
   const edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> tok_htopo_;
   const edm::ESGetToken<HcalRespCorrs, HcalRespCorrsRcd> tok_resp_;
+  const edm::ESGetToken<HcalDbService, HcalDbRecord> tok_dbservice_;
   const edm::ESGetToken<EcalPFRecHitThresholds, EcalPFRecHitThresholdsRcd> tok_ecalPFRecHitThresholds_;
 
   unsigned int nRun_, nLow_, nHigh_;
   double a_charIsoR_, a_coneR1_, a_coneR2_;
+  const HcalTopology* theHBHETopology_;
   const HcalDDDRecConstants* hdc_;
   const EcalPFRecHitThresholds* eThresholds_;
 
@@ -244,6 +252,7 @@ HcalIsoTrkAnalyzer::HcalIsoTrkAnalyzer(const edm::ParameterSet& iConfig)
       ignoreTrigger_(iConfig.getUntrackedParameter<bool>("ignoreTriggers", false)),
       useL1Trigger_(iConfig.getUntrackedParameter<bool>("useL1Trigger", false)),
       unCorrect_(iConfig.getUntrackedParameter<bool>("unCorrect", false)),
+      getCharge_(iConfig.getUntrackedParameter<bool>("getCharge")),
       collapseDepth_(iConfig.getUntrackedParameter<bool>("collapseDepth", false)),
       hitEthrEB_(iConfig.getParameter<double>("EBHitEnergyThreshold")),
       hitEthrEE0_(iConfig.getParameter<double>("EEHitEnergyThreshold0")),
@@ -297,10 +306,12 @@ HcalIsoTrkAnalyzer::HcalIsoTrkAnalyzer(const edm::ParameterSet& iConfig)
       tok_caloTopology_(esConsumes<CaloTopology, CaloTopologyRecord>()),
       tok_htopo_(esConsumes<HcalTopology, HcalRecNumberingRecord>()),
       tok_resp_(esConsumes<HcalRespCorrs, HcalRespCorrsRcd>()),
+      tok_dbservice_(esConsumes<HcalDbService, HcalDbRecord>()),
       tok_ecalPFRecHitThresholds_(esConsumes<EcalPFRecHitThresholds, EcalPFRecHitThresholdsRcd>()),
       nRun_(0),
       nLow_(0),
       nHigh_(0),
+      theHBHETopology_(nullptr),
       hdc_(nullptr) {
   usesResource(TFileService::kSharedResource);
 
@@ -368,10 +379,10 @@ HcalIsoTrkAnalyzer::HcalIsoTrkAnalyzer(const edm::ParameterSet& iConfig)
       << "\t momentumHigh_ " << pTrackHigh_ << "\t prescaleHigh_ " << prescaleHigh_ << "\n\t useRaw_ " << useRaw_
       << "\t ignoreTrigger_ " << ignoreTrigger_ << "\n\t useL1Trigegr_ " << useL1Trigger_ << "\t dataType_      "
       << dataType_ << "\t mode_          " << mode_ << "\t unCorrect_     " << unCorrect_ << "\t collapseDepth_ "
-      << collapseDepth_ << "\t L1TrigName_    " << l1TrigName_ << "\nThreshold flag used " << usePFThresh_
-      << " value for EB " << hitEthrEB_ << " EE " << hitEthrEE0_ << ":" << hitEthrEE1_ << ":" << hitEthrEE2_ << ":"
-      << hitEthrEE3_ << ":" << hitEthrEELo_ << ":" << hitEthrEEHi_ << " and " << debEvents_.size()
-      << " events to be debugged";
+      << collapseDepth_ << "\t GetCharge " << getCharge_ << "\t L1TrigName_    " << l1TrigName_
+      << "\nThreshold flag used " << usePFThresh_ << " value for EB " << hitEthrEB_ << " EE " << hitEthrEE0_ << ":"
+      << hitEthrEE1_ << ":" << hitEthrEE2_ << ":" << hitEthrEE3_ << ":" << hitEthrEELo_ << ":" << hitEthrEEHi_
+      << " and " << debEvents_.size() << " events to be debugged";
   edm::LogVerbatim("HcalIsoTrack") << "Process " << processName_ << " L1Filter:" << l1Filter_
                                    << " L2Filter:" << l2Filter_ << " L3Filter:" << l3Filter_;
   for (unsigned int k = 0; k < trigNames_.size(); ++k) {
@@ -428,6 +439,7 @@ void HcalIsoTrkAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const
   const HcalTopology* theHBHETopology = &iSetup.getData(tok_htopo_);
 
   // get Hcal response corrections
+  const HcalDbService* conditions = &iSetup.getData(tok_dbservice_);
   const HcalRespCorrs* respCorrs = &iSetup.getData(tok_resp_);
 
   //=== genParticle information
@@ -590,6 +602,7 @@ void HcalIsoTrkAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const
                          caloTower,
                          genParticles,
                          respCorrs,
+                         conditions,
                          muonh);
     t_TracksSaved = ntksave[0];
     t_TracksLoose = ntksave[1];
@@ -704,6 +717,7 @@ void HcalIsoTrkAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const
                                  caloTower,
                                  genParticles,
                                  respCorrs,
+                                 conditions,
                                  muonh);
               t_TracksSaved += ntksave[0];
               t_TracksLoose += ntksave[1];
@@ -920,6 +934,7 @@ void HcalIsoTrkAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.addUntracked<double>("hcalScale", 1.0);
   desc.addUntracked<int>("dataType", 0);
   desc.addUntracked<bool>("unCorrect", false);
+  desc.addUntracked<bool>("getCharge", false);
   desc.addUntracked<bool>("collapseDepth", false);
   desc.addUntracked<std::string>("l1TrigName", "L1_SingleJet60");
   desc.addUntracked<int>("outMode", 11);
@@ -949,6 +964,7 @@ std::array<int, 3> HcalIsoTrkAnalyzer::fillTree(std::vector<math::XYZTLorentzVec
                                                 edm::Handle<CaloTowerCollection>& tower,
                                                 edm::Handle<reco::GenParticleCollection>& genParticles,
                                                 const HcalRespCorrs* respCorrs,
+                                                const HcalDbService* conditions,
                                                 const edm::Handle<reco::MuonCollection>& muonh) {
   int nSave(0), nLoose(0), nTight(0);
   //Loop over tracks
@@ -1205,7 +1221,7 @@ std::array<int, 3> HcalIsoTrkAnalyzer::fillTree(std::vector<math::XYZTLorentzVec
           for (unsigned k = 0; k < ids.size(); ++k)
             ids[k] = newId(ids[k]);
         }
-        storeEnergy(0, respCorrs, ids, edet0, t_eHcal, t_DetIds, t_HitEnergies);
+        storeEnergy(0, respCorrs, conditions, ids, edet0, t_eHcal, t_DetIds, t_HitEnergies);
 
         //----- hcal energy in the extended cone 1 (a_coneR+10) --------------
         t_eHcal10 = spr::eCone_hcal(geo,
@@ -1222,7 +1238,7 @@ std::array<int, 3> HcalIsoTrkAnalyzer::fillTree(std::vector<math::XYZTLorentzVec
           for (unsigned k = 0; k < ids1.size(); ++k)
             ids1[k] = newId(ids1[k]);
         }
-        storeEnergy(1, respCorrs, ids1, edet1, t_eHcal10, t_DetIds1, t_HitEnergies1);
+        storeEnergy(1, respCorrs, conditions, ids1, edet1, t_eHcal10, t_DetIds1, t_HitEnergies1);
 
         //----- hcal energy in the extended cone 3 (a_coneR+30) --------------
         t_eHcal30 = spr::eCone_hcal(geo,
@@ -1239,7 +1255,7 @@ std::array<int, 3> HcalIsoTrkAnalyzer::fillTree(std::vector<math::XYZTLorentzVec
           for (unsigned k = 0; k < ids3.size(); ++k)
             ids3[k] = newId(ids3[k]);
         }
-        storeEnergy(3, respCorrs, ids3, edet3, t_eHcal30, t_DetIds3, t_HitEnergies3);
+        storeEnergy(3, respCorrs, conditions, ids3, edet3, t_eHcal30, t_DetIds3, t_HitEnergies3);
 
 #ifdef EDM_ML_DEBUG
         if (debug_) {
@@ -1401,6 +1417,7 @@ DetId HcalIsoTrkAnalyzer::newId(const DetId& id) {
 
 void HcalIsoTrkAnalyzer::storeEnergy(int indx,
                                      const HcalRespCorrs* respCorrs,
+                                     const HcalDbService* conditions,
                                      const std::vector<DetId>& ids,
                                      std::vector<double>& edet,
                                      double& eHcal,
@@ -1414,11 +1431,18 @@ void HcalIsoTrkAnalyzer::storeEnergy(int indx,
         edet[k] /= corr;
       ehcal += edet[k];
     }
+  } else if (getCharge_) {
+    for (unsigned int k = 0; k < ids.size(); ++k) {
+      double gain = gainFactor(conditions, HcalDetId(ids[k]));
+      if (gain != 0)
+        edet[k] /= gain;
+      ehcal += edet[k];
+    }
   } else {
     for (const auto& en : edet)
       ehcal += en;
   }
-  if ((std::abs(ehcal - eHcal) > 0.001) && (!unCorrect_))
+  if ((std::abs(ehcal - eHcal) > 0.001) && (!unCorrect_) && (!getCharge_))
     edm::LogWarning("HcalIsoTrack") << "Check inconsistent energies: " << indx << " " << eHcal << ":" << ehcal
                                     << " from " << ids.size() << " cells";
   eHcal = hcalScale_ * ehcal;
@@ -1483,6 +1507,14 @@ bool HcalIsoTrkAnalyzer::notaMuon(const reco::Track* pTrack0, const edm::Handle<
     }
   }
   return flag;
+}
+
+double HcalIsoTrkAnalyzer::gainFactor(const HcalDbService* conditions, const HcalDetId& id) {
+  double gain(0.0);
+  const HcalCalibrations& calibs = conditions->getHcalCalibrations(id);
+  for (int capid = 0; capid < 4; ++capid)
+    gain += (0.25 * calibs.respcorrgain(capid));
+  return gain;
 }
 
 //define this as a plug-in
