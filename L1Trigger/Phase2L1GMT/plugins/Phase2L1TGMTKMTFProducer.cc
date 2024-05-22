@@ -131,6 +131,7 @@ void Phase2L1TGMTKMTFProducer::produce(edm::Event& iEvent, const edm::EventSetup
                   0,
                   dxy,
                   track.approxDispChi2());
+    p.setTF(l1t::tftype::bmtf);
     int bstart = 0;
     wordtype word(0);
     bstart = wordconcat<wordtype>(word, bstart, 1, 1);
