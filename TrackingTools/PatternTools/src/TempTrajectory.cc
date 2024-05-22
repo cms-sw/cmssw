@@ -23,19 +23,14 @@ namespace {
   }
 }  // namespace
 
-TempTrajectory::TempTrajectory(Trajectory&& traj)
-    : theChiSquared(0),
-      theNumberOfFoundHits(0),
-      theNumberOfFoundPixelHits(0),
-      theNumberOfLostHits(0),
-      theNumberOfCCCBadHits_(0),
-      theDirection(traj.direction()),
-      theValid(traj.isValid()),
-      theNHseed(traj.seedNHits()),
-      theNLoops(traj.nLoops()),
-      theDPhiCache(traj.dPhiCacheForLoopersReconstruction()),
-      theCCCThreshold_(traj.cccThreshold()),
-      stopReason_(traj.stopReason()) {
+TempTrajectory::TempTrajectory(Trajectory&& traj) : thePayload(std::make_unique<Payload>()) {
+  assert(traj.isValid());
+  thePayload->theDirection = traj.direction();
+  thePayload->theNHseed = traj.seedNHits();
+  thePayload->theNLoops = traj.nLoops();
+  thePayload->theDPhiCache = traj.dPhiCacheForLoopersReconstruction();
+  thePayload->theCCCThreshold_ = traj.cccThreshold();
+  thePayload->stopReason_ = traj.stopReason();
   for (auto& it : traj.measurements()) {
     push(it);
   }
@@ -45,41 +40,41 @@ TempTrajectory::TempTrajectory(Trajectory&& traj)
 void TempTrajectory::pop() {
   if (!empty()) {
     if (theData.back().recHit()->isValid()) {
-      theNumberOfFoundHits--;
+      thePayload->theNumberOfFoundHits--;
       if (badForCCC(theData.back()))
-        theNumberOfCCCBadHits_--;
+        thePayload->theNumberOfCCCBadHits_--;
       if (Trajectory::pixel(*(theData.back().recHit())))
-        theNumberOfFoundPixelHits--;
+        thePayload->theNumberOfFoundPixelHits--;
     } else if (lost(*(theData.back().recHit()))) {
-      theNumberOfLostHits--;
+      thePayload->theNumberOfLostHits--;
     }
     theData.pop_back();
-    theNumberOfTrailingFoundHits = countTrailingValidHits(theData);
+    thePayload->theNumberOfTrailingFoundHits = countTrailingValidHits(theData);
   }
 }
 
 void TempTrajectory::pushAux(double chi2Increment) {
   const TrajectoryMeasurement& tm = theData.back();
   if (tm.recHit()->isValid()) {
-    theNumberOfFoundHits++;
-    theNumberOfTrailingFoundHits++;
+    thePayload->theNumberOfFoundHits++;
+    thePayload->theNumberOfTrailingFoundHits++;
     if (badForCCC(tm))
-      theNumberOfCCCBadHits_++;
+      thePayload->theNumberOfCCCBadHits_++;
     if (Trajectory::pixel(*(tm.recHit())))
-      theNumberOfFoundPixelHits++;
+      thePayload->theNumberOfFoundPixelHits++;
   }
   //else if (lost( tm.recHit()) && !inactive(tm.recHit().det())) theNumberOfLostHits++;
   else if (lost(*(tm.recHit()))) {
-    theNumberOfLostHits++;
-    theNumberOfTrailingFoundHits = 0;
+    thePayload->theNumberOfLostHits++;
+    thePayload->theNumberOfTrailingFoundHits = 0;
   }
 
-  theChiSquared += chi2Increment;
+  thePayload->theChiSquared += chi2Increment;
 }
 
 void TempTrajectory::push(const TempTrajectory& segment) {
-  assert(segment.theDirection == theDirection);
-  assert(segment.theCCCThreshold_ == theCCCThreshold_);
+  assert(segment.thePayload->theDirection == thePayload->theDirection);
+  assert(segment.thePayload->theCCCThreshold_ == thePayload->theCCCThreshold_);
 
   const int N = segment.measurements().size();
   TrajectoryMeasurement const* tmp[N];
@@ -89,34 +84,34 @@ void TempTrajectory::push(const TempTrajectory& segment) {
     tmp[i++] = &tm;
   while (i != 0)
     theData.push_back(*tmp[--i]);
-  theNumberOfFoundHits += segment.theNumberOfFoundHits;
-  theNumberOfFoundPixelHits += segment.theNumberOfFoundPixelHits;
-  theNumberOfLostHits += segment.theNumberOfLostHits;
-  theNumberOfCCCBadHits_ += segment.theNumberOfCCCBadHits_;
-  theNumberOfTrailingFoundHits = countTrailingValidHits(theData);
-  theChiSquared += segment.theChiSquared;
+  thePayload->theNumberOfFoundHits += segment.thePayload->theNumberOfFoundHits;
+  thePayload->theNumberOfFoundPixelHits += segment.thePayload->theNumberOfFoundPixelHits;
+  thePayload->theNumberOfLostHits += segment.thePayload->theNumberOfLostHits;
+  thePayload->theNumberOfCCCBadHits_ += segment.thePayload->theNumberOfCCCBadHits_;
+  thePayload->theNumberOfTrailingFoundHits = countTrailingValidHits(theData);
+  thePayload->theChiSquared += segment.thePayload->theChiSquared;
 }
 
 void TempTrajectory::join(TempTrajectory& segment) {
-  assert(segment.theDirection == theDirection);
+  assert(segment.thePayload->theDirection == thePayload->theDirection);
 
-  if (theCCCThreshold_ != segment.theCCCThreshold_)
-    segment.updateBadForCCC(theCCCThreshold_);
+  if (thePayload->theCCCThreshold_ != segment.thePayload->theCCCThreshold_)
+    segment.updateBadForCCC(thePayload->theCCCThreshold_);
   if (segment.theData.shared()) {
     push(segment);
     segment.theData.clear();  // obey the contract, and increase the chances it will be not shared one day
   } else {
     theData.join(segment.theData);
-    theNumberOfFoundHits += segment.theNumberOfFoundHits;
-    theNumberOfFoundPixelHits += segment.theNumberOfFoundPixelHits;
-    theNumberOfLostHits += segment.theNumberOfLostHits;
-    theNumberOfCCCBadHits_ += segment.theNumberOfCCCBadHits_;
-    theNumberOfTrailingFoundHits = countTrailingValidHits(theData);
-    theChiSquared += segment.theChiSquared;
+    thePayload->theNumberOfFoundHits += segment.thePayload->theNumberOfFoundHits;
+    thePayload->theNumberOfFoundPixelHits += segment.thePayload->theNumberOfFoundPixelHits;
+    thePayload->theNumberOfLostHits += segment.thePayload->theNumberOfLostHits;
+    thePayload->theNumberOfCCCBadHits_ += segment.thePayload->theNumberOfCCCBadHits_;
+    thePayload->theNumberOfTrailingFoundHits = countTrailingValidHits(theData);
+    thePayload->theChiSquared += segment.thePayload->theChiSquared;
   }
 }
 
-PropagationDirection TempTrajectory::direction() const { return PropagationDirection(theDirection); }
+PropagationDirection TempTrajectory::direction() const { return PropagationDirection(thePayload->theDirection); }
 
 void TempTrajectory::check() const {
   if (theData.empty())
@@ -151,35 +146,36 @@ bool TempTrajectory::badForCCC(const TrajectoryMeasurement& tm) {
     return false;
   return siStripClusterTools::chargePerCM(thit->rawId(),
                                           thit->firstClusterRef().stripCluster(),
-                                          tm.updatedState().localParameters()) < theCCCThreshold_;
+                                          tm.updatedState().localParameters()) < thePayload->theCCCThreshold_;
 }
 
 void TempTrajectory::updateBadForCCC(float ccc_threshold) {
   // If the supplied threshold is the same as the currently cached
   // one, then return the current number of bad hits for CCC,
   // otherwise do a new full rescan.
-  if (ccc_threshold == theCCCThreshold_)
+  if (ccc_threshold == thePayload->theCCCThreshold_)
     return;
 
-  theCCCThreshold_ = ccc_threshold;
-  theNumberOfCCCBadHits_ = 0;
+  thePayload->theCCCThreshold_ = ccc_threshold;
+  thePayload->theNumberOfCCCBadHits_ = 0;
   for (auto const& h : theData) {
     if (badForCCC(h))
-      theNumberOfCCCBadHits_++;
+      thePayload->theNumberOfCCCBadHits_++;
   }
 }
 
 int TempTrajectory::numberOfCCCBadHits(float ccc_threshold) {
   updateBadForCCC(ccc_threshold);
-  return theNumberOfCCCBadHits_;
+  return thePayload->theNumberOfCCCBadHits_;
 }
 
 Trajectory TempTrajectory::toTrajectory() const {
-  PropagationDirection p = PropagationDirection(theDirection);
+  assert(isValid());
+  PropagationDirection p = PropagationDirection(thePayload->theDirection);
   Trajectory traj(p);
-  traj.setNLoops(theNLoops);
-  traj.setStopReason(stopReason_);
-  traj.numberOfCCCBadHits(theCCCThreshold_);
+  traj.setNLoops(thePayload->theNLoops);
+  traj.setStopReason(thePayload->stopReason_);
+  traj.numberOfCCCBadHits(thePayload->theCCCThreshold_);
 
   traj.reserve(theData.size());
   const TrajectoryMeasurement* tmp[theData.size()];

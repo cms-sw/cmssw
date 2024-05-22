@@ -1,9 +1,10 @@
 #ifndef TRAJECTORYSTOPREASONS_H
 #define TRAJECTORYSTOPREASONS_H
 
+#include <cstdint>
 #include <string>
 
-enum class StopReason {
+enum class StopReason : uint8_t {
   UNINITIALIZED = 0,
   MAX_HITS = 1,
   MAX_LOST_HITS = 2,
