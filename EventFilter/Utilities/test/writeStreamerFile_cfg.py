@@ -34,7 +34,11 @@ process.source = cms.Source("EmptySource",
                             firstEvent=cms.untracked.uint32(args.startEvent)
 )
 
-process.maxEvents.input = args.numEvents
+if args.numEvents != 0:
+    process.maxEvents.input = args.numEvents
+else:
+    process.maxEvents.input = 1
+
 process.options = dict(numberOfThreads = args.numThreads,
                        numberOfStreams = args.numFwkStreams)
 
@@ -52,8 +56,15 @@ process.t = cms.Task(
     process.otherThing
 )
 
+
+process.filter = cms.EDFilter("PrescaleEventFilter", offset = cms.uint32(0), prescale=cms.uint32(1))
+if args.numEvents == 0:
+    process.filter.offset = 2
+    process.filter.prescale = 4
+process.p = cms.Path(process.filter)
+
 process.streamA = cms.OutputModule("GlobalEvFOutputModule",
-                                   SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring()),
+                                   SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring("p")),
                                    outputCommands = cms.untracked.vstring("keep *")
 )
 

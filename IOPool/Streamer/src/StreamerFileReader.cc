@@ -51,7 +51,12 @@ namespace edm::streamer {
     deserializeAndMergeWithRegistry(*header, subsequent);
     //NOTE: should read first Event to get the meta data and then set 'artificial file'
     auto eview = getNextEvent();
-    assert(eview and eview->isEventMetaData());
+
+    //if no events then file must be empty
+    if (eview == nullptr)
+      return;
+
+    assert(eview->isEventMetaData());
     deserializeEventMetaData(*eview);
     updateEventMetaData();
   }

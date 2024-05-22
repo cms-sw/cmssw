@@ -192,6 +192,61 @@ CMDLINE_READ="cmsRun readStreamerFile_cfg.py --input test.dat --runNumber=${runn
 ${CMDLINE_READ} > out_2_read.log 2>&1 || dieread "${CMDLINE_READ}" $? $OUTDIR
 
 
+###############################
+echo "Running test on reading single empty file"
+CMDLINE_WRITE="cmsRun writeStreamerFile_cfg.py --numEvents=0 --runNumber=${runnumber}"
+${CMDLINE_WRITE}  > out_2_write.log 2>&1 || diewrite "${CMDLINE_WRITE}" $? $OUTDIR
+
+#prepare file to read
+ls -1 data/run${runnumber}/run${runnumber}_ls0000_streamA_pid*.ini | head -1 | xargs cat > test.dat
+cat data/run${runnumber}/run${runnumber}_ls0001_streamA_pid*.dat >> test.dat
+
+CMDLINE_READ="cmsRun readStreamerFile_cfg.py --input test.dat --runNumber=${runnumber} --numEvents=0"
+${CMDLINE_READ} > out_2_read.log 2>&1 || dieread "${CMDLINE_READ}" $? $OUTDIR
+
+rm -rf data
+##########################
+echo "Running test on reading two separate empty files"
+
+CMDLINE_WRITE="cmsRun writeStreamerFile_cfg.py --numEvents=10 --runNumber=${runnumber} --numEvents=0"
+${CMDLINE_WRITE}  > out_2_write.log 2>&1 || diewrite "${CMDLINE_WRITE}" $? $OUTDIR
+
+#prepare file to read
+ls -1 data/run${runnumber}/run${runnumber}_ls0000_streamA_pid*.ini | head -1 | xargs cat > test1.dat
+cat data/run${runnumber}/run${runnumber}_ls0001_streamA_pid*.dat >> test1.dat
+
+rm -rf data
+
+CMDLINE_WRITE="cmsRun writeStreamerFile_cfg.py --numEvents=10 --startEvent=11 --runNumber=${runnumber} --numEvents=0"
+${CMDLINE_WRITE}  > out_2_write.log 2>&1 || diewrite "${CMDLINE_WRITE}" $? $OUTDIR
+
+#prepare file to read
+ls -1 data/run${runnumber}/run${runnumber}_ls0000_streamA_pid*.ini | head -1 | xargs cat > test2.dat
+cat data/run${runnumber}/run${runnumber}_ls0001_streamA_pid*.dat >> test2.dat
+
+CMDLINE_READ="cmsRun readStreamerFile_cfg.py --input test1.dat --input test2.dat --runNumber=${runnumber} --numEvents=0"
+${CMDLINE_READ} > out_2_read.log 2>&1 || dieread "${CMDLINE_READ}" $? $OUTDIR
+
+rm -rf data
+##########################
+
+echo "Running test one concatenated empty file"
+
+CMDLINE_WRITE="cmsRun writeStreamerFile_cfg.py --numEvents=0 --runNumber=${runnumber}"
+${CMDLINE_WRITE}  > out_2_write.log 2>&1 || diewrite "${CMDLINE_WRITE}" $? $OUTDIR
+
+CMDLINE_WRITE="cmsRun writeStreamerFile_cfg.py --numEvents=0 --startEvent=11 --runNumber=${runnumber}"
+${CMDLINE_WRITE}  > out_2_write.log 2>&1 || diewrite "${CMDLINE_WRITE}" $? $OUTDIR
+
+#prepare file to read
+ls -1 data/run${runnumber}/run${runnumber}_ls0000_streamA_pid*.ini | head -1 | xargs cat > test.dat
+cat data/run${runnumber}/run${runnumber}_ls0001_streamA_pid*.dat >> test.dat
+
+CMDLINE_READ="cmsRun readStreamerFile_cfg.py --input test.dat --runNumber=${runnumber} --numEvents=0"
+${CMDLINE_READ} > out_2_read.log 2>&1 || dieread "${CMDLINE_READ}" $? $OUTDIR
+#cat out_2_read.log
+
+rm -rf data
 ############################
 
 #no failures, clean up everything including logs if there are no errors

@@ -31,7 +31,10 @@ for ev in range(0, args.numEvents):
     evid += 1
 transitions.append(cms.EventID(rn,lumi,0)) #end lumi
 transitions.append(cms.EventID(rn,0,0)) #end run
-    
+
+if args.numEvents == 0:
+    transitions = []
+
 process.test = cms.EDAnalyzer("RunLumiEventChecker",
                               eventSequence = cms.untracked.VEventID(*transitions),
                               unorderedEvents = cms.untracked.bool(True)

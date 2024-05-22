@@ -85,7 +85,10 @@ namespace dqmservices {
   void DQMStreamerReader::setupMetaData(edm::streamer::InitMsgView const& msg, bool subsequent) {
     deserializeAndMergeWithRegistry(msg, subsequent);
     auto event = getEventMsg();
-    assert(event and event->isEventMetaData());
+    //file might be empty
+    if (not event)
+      return;
+    assert(event->isEventMetaData());
     deserializeEventMetaData(*event);
     updateEventMetaData();
   }

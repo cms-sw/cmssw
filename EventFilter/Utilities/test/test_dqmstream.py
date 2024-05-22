@@ -65,7 +65,8 @@ for lumi in range(1, options.maxLS+1):
         evid += 1
     transitions.append(cms.EventID(rn,lumi,0)) #end lumi
 transitions.append(cms.EventID(rn,0,0)) #end run
-    
+
+
 #only see 1 event as process.source.minEventsPerLumi == 1
 process.test = cms.EDAnalyzer("RunLumiEventChecker",
                               eventSequence = cms.untracked.VEventID(*transitions),
@@ -73,6 +74,10 @@ process.test = cms.EDAnalyzer("RunLumiEventChecker",
                               minNumberOfEvents = cms.untracked.uint32(1+2+2),
                               maxNumberOfEvents = cms.untracked.uint32(1+2+2)
 )
-
+if options.eventsPerLS == 0:
+    process.test.eventSequence = []
+    process.test.minNumberOfEvents = 0
+    process.test.maxNumberOfEvents = 0
+    
 process.p = cms.Path(process.test)
                               
