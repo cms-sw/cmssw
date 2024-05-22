@@ -1,29 +1,26 @@
-#ifndef LUMIMONITOR_H
-#define LUMIMONITOR_H
+#ifndef DQM_TRACKINGMONITOR_V0MONITOR_H
+#define DQM_TRACKINGMONITOR_V0MONITOR_H
 
 #include <string>
 #include <vector>
 #include <map>
 
-#include "FWCore/Utilities/interface/EDGetToken.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/Candidate/interface/VertexCompositeCandidate.h"
+#include "DataFormats/OnlineMetaData/interface/OnlineLuminosityRecord.h"
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
+#include "DataFormats/Scalers/interface/LumiScalers.h"
+#include "DataFormats/V0Candidate/interface/V0Candidate.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
-
-#include "DataFormats/Candidate/interface/Candidate.h"
-#include "DataFormats/Candidate/interface/VertexCompositeCandidate.h"
-#include "DataFormats/V0Candidate/interface/V0Candidate.h"
-#include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
-
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
-
-#include "DataFormats/Scalers/interface/LumiScalers.h"
-#include "DataFormats/OnlineMetaData/interface/OnlineLuminosityRecord.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 
 class GenericTriggerEventFlag;
 
@@ -44,6 +41,8 @@ public:
 
   V0Monitor(const edm::ParameterSet&);
   ~V0Monitor() override;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 protected:
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
@@ -72,17 +71,16 @@ protected:
 private:
   void getHistoPSet(edm::ParameterSet pset, MEbinning& mebinning);
 
-  std::string folderName_;
+  const std::string folderName_;
 
-  edm::EDGetTokenT<reco::VertexCompositeCandidateCollection> v0Token_;
-  edm::EDGetTokenT<reco::BeamSpot> bsToken_;
-  edm::EDGetTokenT<reco::VertexCollection> pvToken_;
-  edm::EDGetTokenT<LumiScalersCollection> lumiscalersToken_;
-  edm::EDGetTokenT<OnlineLuminosityRecord> metaDataToken_;
+  const edm::EDGetTokenT<reco::VertexCompositeCandidateCollection> v0Token_;
+  const edm::EDGetTokenT<reco::BeamSpot> bsToken_;
+  const edm::EDGetTokenT<reco::VertexCollection> pvToken_;
+  const edm::EDGetTokenT<LumiScalersCollection> lumiscalersToken_;
+  const edm::EDGetTokenT<OnlineLuminosityRecord> metaDataToken_;
 
   const bool forceSCAL_;
-
-  int pvNDOF_;
+  const int pvNDOF_;
 
   GenericTriggerEventFlag* genTriggerEventFlag_;
 
@@ -136,4 +134,4 @@ private:
   MEbinning ls_binning_;
 };
 
-#endif  // LUMIMONITOR_H
+#endif  // DQM_TRACKINGMONITOR_V0MONITOR_H
