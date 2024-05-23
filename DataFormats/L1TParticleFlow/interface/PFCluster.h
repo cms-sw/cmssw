@@ -32,7 +32,8 @@ namespace l1t {
           sigmaRR_(sigmaRR),
           puIdScore_(0), 
           emIdScore_(0), 
-          piIdScore_(0) {
+          piIdScore_(0),
+          digiData_(0) {
       setPdgId(isEM ? 22 : 130);  // photon : non-photon(K0)
     }
     PFCluster(
@@ -88,8 +89,10 @@ namespace l1t {
     void setPiIDScore(float score) { piIdScore_ = score; }
     float piIDScore() const { return piIdScore_; }
 
-
-
+    uint64_t digiWord() const { return digiData_; }
+    void setDigiWord(uint64_t data) {
+      digiData_ = data;
+    }
 
   private:
     float hOverE_, ptError_, egVsPionMVAOut_, egVsPUMVAOut_;
@@ -98,6 +101,7 @@ namespace l1t {
     float puIdScore_, emIdScore_, piIdScore_;
 
     ConstituentsAndFractions constituents_;
+    uint64_t digiData_;
   };
 
   typedef std::vector<l1t::PFCluster> PFClusterCollection;
