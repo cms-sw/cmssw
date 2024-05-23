@@ -63,6 +63,8 @@ protected:
   int theMaxCand;               /**< Maximum number of trajectory candidates 
 		                     to propagate to the next layer. */
   float theLostHitPenalty;      /**< Chi**2 Penalty for each lost hit. */
+  float theFoundHitBonus;       /**< Chi**2 Bonus for each found hit. */
+  int theMinHitForDoubleBonus;  /**< minimun number of hits to double the bonus above */
   bool theIntermediateCleaning; /**< Tells whether an intermediary cleaning stage 
                                      should take place during TB. */
   bool theAlwaysUseInvalidHits;
