@@ -374,7 +374,18 @@ int Zmumumerge(int argc, char* argv[]) {
   pt::ptree alignments = main_tree.get_child("alignments");
   pt::ptree validation = main_tree.get_child("validation");
 
+  //Load defined order
+  std::vector<std::pair<std::string, pt::ptree>> alignmentsOrdered;
   for (const auto& childTree : alignments) {
+    alignmentsOrdered.push_back(childTree);
+  }
+  std::sort(alignmentsOrdered.begin(),
+            alignmentsOrdered.end(),
+            [](const std::pair<std::string, pt::ptree>& left, const std::pair<std::string, pt::ptree>& right) {
+              return left.second.get<int>("index") < right.second.get<int>("index");
+            });
+
+  for (const auto& childTree : alignmentsOrdered) {
     // do not consider the nodes with a "file" to merge
     if (childTree.second.find("file") == childTree.second.not_found()) {
       std::cerr << "Ignoring alignment: " << childTree.second.get<std::string>("title") << ".\nNo file to merged found!"

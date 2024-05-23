@@ -558,10 +558,12 @@ void PreparePVTrends::outputGraphs(const pv::wrappedTrends &allInputs,
   g_asym->SetTitle(label);
 
   // scatter or RMS TH1
-  h_RMS[index] = new TH1F(Form("h_RMS_dz_eta_%s", label.Data()), label, ticks.size() - 1, &(ticks[0]));
+  std::vector<double> newTicks = ticks;
+  newTicks.insert(newTicks.end(), ticks.back() + 1.);
+  h_RMS[index] = new TH1F(Form("h_RMS_dz_eta_%s", label.Data()), label, newTicks.size() - 1, &(newTicks[0]));
   h_RMS[index]->SetStats(kFALSE);
 
-  for (size_t bincounter = 1; bincounter < ticks.size(); bincounter++) {
+  for (size_t bincounter = 1; bincounter < ticks.size() + 1; bincounter++) {
     h_RMS[index]->SetBinContent(
         bincounter, std::abs(allInputs.getHigh()[label][bincounter - 1] - allInputs.getLow()[label][bincounter - 1]));
     h_RMS[index]->SetBinError(bincounter, 0.01);
