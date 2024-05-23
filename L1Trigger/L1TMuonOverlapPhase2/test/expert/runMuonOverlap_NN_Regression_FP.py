@@ -51,34 +51,28 @@ process.source = cms.Source('PoolSource',
 	                    
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(500))
 
-process.load('Configuration.Geometry.GeometryExtended2026D86Reco_cff')
-process.load('Configuration.Geometry.GeometryExtended2026D86_cff')
-############################
-#process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
+# import of standard configurations
+process.load('Configuration.StandardSequences.Services_cff')
+#process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
+#process.load('FWCore.MessageService.MessageLogger_cfi')
+#process.load('Configuration.EventContent.EventContent_cff')
+#process.load('SimGeneral.MixingModule.mixNoPU_cfi')
+process.load('Configuration.Geometry.GeometryExtended2026D95Reco_cff')
+process.load('Configuration.StandardSequences.MagneticField_cff')
+#process.load('Configuration.StandardSequences.RawToDigi_cff')
+#process.load('Configuration.StandardSequences.SimL1Emulator_cff')
+#process.load('Configuration.StandardSequences.SimPhase2L1GlobalTriggerEmulator_cff')
+#process.load('L1Trigger.Configuration.Phase2GTMenus.SeedDefinitions.prototypeSeeds')
+process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, '103X_upgrade2023_realistic_v2', '') 
+process.GlobalTag = GlobalTag(process.GlobalTag, '131X_mcRun4_realistic_v9', '')
 
 
-####Event Setup Producer
-# process.load('L1Trigger.L1TMuonOverlapPhase1.fakeOmtfParams_cff')
-# process.esProd = cms.EDAnalyzer("EventSetupRecordDataGetter",
-#    toGet = cms.VPSet(
-#       cms.PSet(record = cms.string('L1TMuonOverlapParamsRcd'),
-#                data = cms.vstring('L1TMuonOverlapParams'))
-#                    ),
-#    verbose = cms.untracked.bool(False)
-# )
 
 process.TFileService = cms.Service("TFileService", fileName = cms.string('omtfAnalysis1.root'), closeFileFast = cms.untracked.bool(True) )
 		
-#TODO
-#process.load("L1Trigger.DTTriggerPhase2.dtTriggerPhase2PrimitiveDigis_cfi")
-#process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-#process.load("Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff")
-#process.GlobalTag.globaltag = "90X_dataRun2_Express_v2"
-#process.GlobalTag.globaltag = "80X_dataRun2_2016SeptRepro_v7"
-#process.GlobalTag.globaltag = "100X_upgrade2018_realistic_v10"
 
 #Calibrate Digis
 process.load("L1Trigger.DTTriggerPhase2.CalibratedDigis_cfi")
@@ -98,28 +92,6 @@ process.load("L1Trigger.DTTriggerPhase2.dtTriggerPhase2PrimitiveDigis_cfi")
 #process.dtTriggerPhase2PrimitiveDigis.debug = True
 process.dtTriggerPhase2PrimitiveDigis.scenario = 0
 process.dtTriggerPhase2PrimitiveDigis.dump = True
-
-
-####Event Setup Producer
-process.load('L1Trigger.L1TMuonOverlapPhase1.fakeOmtfParams_cff')
-#process.omtfParams.configXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/hwToLogicLayer_0x0006.xml")
-process.omtfParams.configXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/hwToLogicLayer_0x0008.xml")
-process.omtfParams.patternsXMLFiles = cms.VPSet(
-		#cms.PSet(patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/Patterns_0x0003.xml")),
-		#cms.PSet(patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/Patterns_0x0009_oldSample_3_10Files_classProb1.xml") ),
-		#cms.PSet(patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuonOverlapPhase1/test/expert/omtf/Patterns_template.xml")),
-		cms.PSet(patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/Patterns_0x00012_oldSample_3_30Files_grouped1_classProb17_recalib2.xml")),
-		#cms.PSet(patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuonOverlapPhase1/test/expert/omtf/Patterns_layerStat_ExtraplMB1nadMB2_t10_classProb17_recalib2.xml")),
-	)
-
-process.esProd = cms.EDAnalyzer("EventSetupRecordDataGetter",
-   toGet = cms.VPSet(
-      cms.PSet(record = cms.string('L1TMuonOverlapParamsRcd'),
-               data = cms.vstring('L1TMuonOverlapParams'))
-                   ),
-   verbose = cms.untracked.bool(False)
-)
-	
 								
 ####OMTF Emulator
 
@@ -149,8 +121,7 @@ process.simOmtfPhase2Digis.neuralNetworkFile = cms.FileInPath("L1Trigger/L1TMuon
 process.dumpED = cms.EDAnalyzer("EventContentAnalyzer")
 process.dumpES = cms.EDAnalyzer("PrintEventSetupContent")
 
-process.L1TMuonSeq = cms.Sequence( process.esProd          
-                                   + process.simOmtfPhase2Digis 
+process.L1TMuonSeq = cms.Sequence( process.simOmtfPhase2Digis 
                                    #+ process.dumpED
                                    #+ process.dumpES
 )
