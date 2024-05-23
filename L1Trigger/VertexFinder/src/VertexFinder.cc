@@ -762,7 +762,6 @@ namespace l1tVertexFinder {
   void VertexFinder::fastHistoEmulation() {
     // Relevant constants for the track word
     static constexpr int kZ0Size = 12,  // Width of z-position (40cm / 0.1)
-        kZ0MagSize = 5,                 // Width of z-position magnitude (signed)
         kPtSize = 14,                   // Width of pt
         kPtMagSize = 9,                 // Width of pt magnitude (unsigned)
         kReducedPrecisionPt = 7         // Width of the reduced precision, integer only, pt
