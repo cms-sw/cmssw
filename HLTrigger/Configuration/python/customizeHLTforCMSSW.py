@@ -268,6 +268,14 @@ def customizeHLTfor44576(process):
         break
     return process
 
+
+def customizeHLTfor45023(process):
+    for pset in process.psets.values():
+        if hasattr(pset, 'ComponentType') and pset.ComponentType == 'CkfTrajectoryBuilder':
+           pset.foundHitBonus = cms.double(0.0)
+           pset.minHitForDoubleBonus = cms.int32(9999)
+    return process     
+
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
@@ -278,5 +286,6 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
 
     process = checkHLTfor43774(process)
     process = customizeHLTfor44576(process)
+    process = customizeHLTfor45023(process)
 
     return process
