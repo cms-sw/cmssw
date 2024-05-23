@@ -13,7 +13,6 @@
 #include "TrackingTools/MeasurementDet/interface/TrajectoryMeasurementGroup.h"
 #include "TrackingTools/DetLayers/interface/DetGroup.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
-#include "TrajectoryLessByFoundHits.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryStateUpdator.h"
 #include "TrackingTools/DetLayers/interface/GeomDetCompatibilityChecker.h"
 #include "TrackingTools/MeasurementDet/interface/MeasurementDet.h"
@@ -482,7 +481,8 @@ void TrajectorySegmentBuilder::cleanCandidates(vector<TempTrajectory>& candidate
   int index[NC];
   for (int i = 0; i != NC; ++i)
     index[i] = i;
-  std::sort(index, index + NC, [&candidates](int i, int j) { return lessByFoundHits(candidates[i], candidates[j]); });
+  std::sort(
+      index, index + NC, [&candidates](int i, int j) { return candidates[i].foundHits() < candidates[j].foundHits(); });
   //   cout << "SortedCandidates.foundHits";
   //   for (auto i1 : index)
   //     cout << " " << candidates[i1].foundHits();
