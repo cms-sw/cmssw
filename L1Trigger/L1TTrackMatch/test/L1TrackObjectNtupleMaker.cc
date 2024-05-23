@@ -1818,14 +1818,14 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
       m_trkjetemExt_ntracks->clear();
       m_trkjetemExt_nxtracks->clear();
     }
-
-    m_pv_L1reco->clear();
-    m_pv_L1reco_sum->clear();
-    m_pv_L1reco_emu->clear();
-    m_pv_L1reco_sum_emu->clear();
-    m_pv_MC->clear();
-    m_MC_lep->clear();
   }
+
+  m_pv_L1reco->clear();
+  m_pv_L1reco_sum->clear();
+  m_pv_L1reco_emu->clear();
+  m_pv_L1reco_sum_emu->clear();
+  m_pv_MC->clear();
+  m_MC_lep->clear();
 
   // -----------------------------------------------------------------------------------------------
   // retrieve various containers
@@ -2347,7 +2347,6 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
     for (iterL1Track = TTTrackExtendedHandle->begin(); iterL1Track != TTTrackExtendedHandle->end(); iterL1Track++) {
       L1TrackPtr l1track_ptr(TTTrackExtendedHandle, this_l1track);
       L1TrackRef l1track_ref(TTTrackExtendedGTTHandle, this_l1track);
-      this_l1track++;
 
       float tmp_trk_pt = iterL1Track->momentum().perp();
       float tmp_trk_eta = iterL1Track->momentum().eta();
@@ -2523,28 +2522,29 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
       m_trkExt_gtt_eta->push_back(l1track_ref->momentum().eta());
       m_trkExt_gtt_phi->push_back(l1track_ref->momentum().phi());
       m_trkExt_selected_index->push_back(getSelectedTrackIndex(l1track_ref, TTTrackExtendedSelectedHandle));
-      m_trkExt_selected_emulation_index->push_back(
-          getSelectedTrackIndex(l1track_ref, TTTrackExtendedSelectedEmulationHandle));
-      m_trkExt_selected_associated_index->push_back(
-          getSelectedTrackIndex(l1track_ref, TTTrackExtendedSelectedAssociatedHandle));
-      m_trkExt_selected_associated_emulation_index->push_back(
-          getSelectedTrackIndex(l1track_ref, TTTrackExtendedSelectedAssociatedEmulationHandle));
-      m_trkExt_selected_forjets_index->push_back(
-          getSelectedTrackIndex(l1track_ref, TTTrackExtendedSelectedForJetsHandle));
-      m_trkExt_selected_emulation_forjets_index->push_back(
-          getSelectedTrackIndex(l1track_ref, TTTrackExtendedSelectedEmulationForJetsHandle));
-      m_trkExt_selected_associated_forjets_index->push_back(
-          getSelectedTrackIndex(l1track_ref, TTTrackExtendedSelectedAssociatedForJetsHandle));
-      m_trkExt_selected_associated_emulation_forjets_index->push_back(
-          getSelectedTrackIndex(l1track_ref, TTTrackExtendedSelectedAssociatedEmulationForJetsHandle));
-      m_trkExt_selected_foretmiss_index->push_back(
-          getSelectedTrackIndex(l1track_ref, TTTrackExtendedSelectedForEtMissHandle));
-      m_trkExt_selected_emulation_foretmiss_index->push_back(
-          getSelectedTrackIndex(l1track_ref, TTTrackExtendedSelectedEmulationForEtMissHandle));
-      m_trkExt_selected_associated_foretmiss_index->push_back(
-          getSelectedTrackIndex(l1track_ref, TTTrackExtendedSelectedAssociatedForEtMissHandle));
-      m_trkExt_selected_associated_emulation_foretmiss_index->push_back(
-          getSelectedTrackIndex(l1track_ref, TTTrackExtendedSelectedAssociatedEmulationForEtMissHandle));
+      if (getSelectedTrackIndex(l1track_ref, TTTrackExtendedSelectedEmulationHandle) >= 0)
+        m_trkExt_selected_emulation_index->push_back(this_l1track);
+      if (getSelectedTrackIndex(l1track_ref, TTTrackExtendedSelectedAssociatedHandle) >= 0)
+        m_trkExt_selected_associated_index->push_back(this_l1track);
+      if (getSelectedTrackIndex(l1track_ref, TTTrackExtendedSelectedAssociatedEmulationHandle) >= 0)
+        m_trkExt_selected_associated_emulation_index->push_back(this_l1track);
+      if (getSelectedTrackIndex(l1track_ref, TTTrackExtendedSelectedForJetsHandle) >= 0)
+        m_trkExt_selected_forjets_index->push_back(this_l1track);
+      if (getSelectedTrackIndex(l1track_ref, TTTrackExtendedSelectedEmulationForJetsHandle) >= 0)
+        m_trkExt_selected_emulation_forjets_index->push_back(this_l1track);
+      if (getSelectedTrackIndex(l1track_ref, TTTrackExtendedSelectedAssociatedForJetsHandle) >= 0)
+        m_trkExt_selected_associated_forjets_index->push_back(this_l1track);
+      if (getSelectedTrackIndex(l1track_ref, TTTrackExtendedSelectedAssociatedEmulationForJetsHandle) >= 0)
+        m_trkExt_selected_associated_emulation_forjets_index->push_back(this_l1track);
+      if (getSelectedTrackIndex(l1track_ref, TTTrackExtendedSelectedForEtMissHandle) >= 0)
+        m_trkExt_selected_foretmiss_index->push_back(this_l1track);
+      if (getSelectedTrackIndex(l1track_ref, TTTrackExtendedSelectedEmulationForEtMissHandle) >= 0)
+        m_trkExt_selected_emulation_foretmiss_index->push_back(this_l1track);
+      if (getSelectedTrackIndex(l1track_ref, TTTrackExtendedSelectedAssociatedForEtMissHandle) >= 0)
+        m_trkExt_selected_associated_foretmiss_index->push_back(this_l1track);
+      if (getSelectedTrackIndex(l1track_ref, TTTrackExtendedSelectedAssociatedEmulationForEtMissHandle) >= 0)
+        m_trkExt_selected_associated_emulation_foretmiss_index->push_back(this_l1track);
+      this_l1track++;
     }  //end track loop
   }    //end if SaveAllTracks (displaced)
 
