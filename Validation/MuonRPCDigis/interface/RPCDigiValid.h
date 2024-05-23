@@ -47,6 +47,16 @@ private:
   // Timing information
   MonitorElement *hDigiTimeAll_, *hDigiTime_, *hDigiTimeIRPC_, *hDigiTimeNoIRPC_;
 
+  // Multiplicity plots
+  MonitorElement *hNSimHitPerRoll_, *hNDigiPerRoll_;
+
+  // Residual plots
+  MonitorElement *hRes_;
+  std::map<int, MonitorElement *> hResBarrelLayers_;
+  std::map<int, MonitorElement *> hResBarrelWheels_;
+  std::map<int, MonitorElement *> hResEndcapDisks_;
+  std::map<int, MonitorElement *> hResEndcapRings_;
+
   // Tokens for accessing run data. Used for passing to edm::Event. - stanislav
   edm::EDGetTokenT<edm::PSimHitContainer> simHitToken_;
   edm::EDGetTokenT<RPCDigiCollection> rpcDigiToken_;

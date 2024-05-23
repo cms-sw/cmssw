@@ -39,11 +39,17 @@ void RPCDigiValid::analyze(const Event &event, const EventSetup &eventSetup) {
   event.getByToken(rpcDigiToken_, rpcDigisHandle);
 
   // loop over Simhit
+  std::map<const RPCRoll *, std::vector<double>> detToSimHitXsMap;
   for (auto simIt = simHitHandle->begin(); simIt != simHitHandle->end(); ++simIt) {
     const RPCDetId rsid = simIt->detUnitId();
     const RPCRoll *roll = dynamic_cast<const RPCRoll *>(rpcGeom->roll(rsid));
     if (!roll)
       continue;
+
+    if (detToSimHitXsMap.find(roll) == detToSimHitXsMap.end())
+      detToSimHitXsMap[roll] = std::vector<double>();
+    detToSimHitXsMap[roll].push_back(simIt->localPosition().x());
+
     const int region = rsid.region();
     const GlobalPoint gp = roll->toGlobal(simIt->localPosition());
 
@@ -70,7 +76,12 @@ void RPCDigiValid::analyze(const Event &event, const EventSetup &eventSetup) {
         match->second->Fill(gp.x(), gp.y());
     }
   }
+  for (auto detToSimHitXs : detToSimHitXsMap) {
+    hNSimHitPerRoll_->Fill(detToSimHitXs.second.size());
+  }
+
   // loop over Digis
+  std::map<const RPCRoll *, std::vector<double>> detToDigiXsMap;
   for (auto detUnitIt = rpcDigisHandle->begin(); detUnitIt != rpcDigisHandle->end(); ++detUnitIt) {
     const RPCDetId rsid = (*detUnitIt).first;
     const RPCRoll *roll = dynamic_cast<const RPCRoll *>(rpcGeom->roll(rsid));
@@ -120,6 +131,56 @@ void RPCDigiValid::analyze(const Event &event, const EventSetup &eventSetup) {
         else
           hDigiTimeNoIRPC_->Fill(digiTime);
       }
+
+      // Keep digi position
+      const double digiX = roll->centreOfStrip(digiIt->strip()).x();
+      if (detToDigiXsMap.find(roll) == detToDigiXsMap.end())
+        detToDigiXsMap[roll] = std::vector<double>();
+      detToDigiXsMap[roll].push_back(digiX);
+    }
+  }
+  for (auto detToDigiXs : detToDigiXsMap) {
+    const auto digiXs = detToDigiXs.second;
+    const int nDigi = digiXs.size();
+    hNDigiPerRoll_->Fill(nDigi);
+
+    // Fill residual plots, only for nDigi==1 and nSimHit==1
+    const auto roll = detToDigiXs.first;
+    const auto detId = roll->id();
+    if (nDigi != 1)
+      continue;
+    if (detToSimHitXsMap.find(roll) == detToSimHitXsMap.end())
+      continue;
+
+    const auto simHitXs = detToSimHitXsMap[roll];
+    const int nSimHit = simHitXs.size();
+    if (nSimHit != 1)
+      continue;
+
+    const double dx = digiXs[0] - simHitXs[0];
+    hRes_->Fill(dx);
+    if (roll->isBarrel()) {
+      const int wheel = detId.ring();  // ring() is wheel number for Barrel
+      const int station = detId.station();
+      const int layer = detId.layer();
+      const int stla = (station <= 2) ? (2 * (station - 1) + layer) : (station + 2);
+
+      auto matchLayer = hResBarrelLayers_.find(stla);
+      if (matchLayer != hResBarrelLayers_.end())
+        matchLayer->second->Fill(dx);
+
+      auto matchWheel = hResBarrelWheels_.find(wheel);
+      if (matchWheel != hResBarrelWheels_.end())
+        matchWheel->second->Fill(dx);
+    } else {
+      const int disk = detId.region() * detId.station();
+      auto matchDisk = hResEndcapDisks_.find(disk);
+      if (matchDisk != hResEndcapDisks_.end())
+        matchDisk->second->Fill(dx);
+
+      auto matchRing = hResEndcapRings_.find(detId.ring());
+      if (matchRing != hResEndcapRings_.end())
+        matchRing->second->Fill(dx);
     }
   }
 }
@@ -144,8 +205,8 @@ void RPCDigiValid::bookHistograms(DQMStore::IBooker &booker, edm::Run const &run
   // XY plots
   hXY_Barrel_ = booker.book2D("XY_Barrel", "X-Y view of Barrel", nbinsXY, -maxXY, maxXY, nbinsXY, -maxXY, maxXY);
   for (int disk = 1; disk <= 4; ++disk) {
-    const std::string meNameP = fmt::format("XY_EndcapP{:1d}", disk);
-    const std::string meNameN = fmt::format("XY_EndcapN{:1d}", disk);
+    const std::string meNameP = fmt::format("XY_Endcap_p{:1d}", disk);
+    const std::string meNameN = fmt::format("XY_Endcap_m{:1d}", disk);
     const std::string meTitleP = fmt::format("X-Y view of Endcap{:+1d};X (cm);Y (cm)", disk);
     const std::string meTitleN = fmt::format("X-Y view of Endcap{:+1d};X (cm);Y (cm)", -disk);
     hXY_Endcap_[disk] = booker.book2D(meNameP, meTitleP, nbinsXY, -maxXY, maxXY, nbinsXY, -maxXY, maxXY);
@@ -177,4 +238,38 @@ void RPCDigiValid::bookHistograms(DQMStore::IBooker &booker, edm::Run const &run
   hDigiTime_ = booker.book1D("DigiTime", "Digi time only with timing information;Digi time (ns)", 100, -12.5, 12.5);
   hDigiTimeIRPC_ = booker.book1D("DigiTimeIRPC", "IRPC Digi time;Digi time (ns)", 100, -12.5, 12.5);
   hDigiTimeNoIRPC_ = booker.book1D("DigiTimeNoIRPC", "non-IRPC Digi time;Digi time (ns)", 100, -12.5, 12.5);
+
+  // SimHit and Digi multiplicity per roll
+  hNSimHitPerRoll_ = booker.book1D("NSimHitPerRoll", "SimHit multiplicity per Roll;Multiplicity", 10, 0, 10);
+  hNDigiPerRoll_ = booker.book1D("NDigiPerRoll", "Digi multiplicity per Roll;Multiplicity", 10, 0, 10);
+
+  // Residual of SimHit-Digi x-position
+  hRes_ = booker.book1D("Digi_SimHit_Difference", "Digi-SimHit difference;dx (cm)", 100, -8, 8);
+
+  for (int layer = 1; layer <= 6; ++layer) {
+    const std::string meName = fmt::format("Residual_Barrel_Layer{:1d}", layer);
+    const std::string meTitle = fmt::format("Residual of Barrel Layer{:1d};dx (cm)", layer);
+    hResBarrelLayers_[layer] = booker.book1D(meName, meTitle, 100, -8, 8);
+  }
+
+  hResBarrelWheels_[-2] = booker.book1D("Residual_Barrel_Wheel_m2", "Residual of Barrel Wheel-2;dx (cm)", 100, -8, 8);
+  hResBarrelWheels_[-1] = booker.book1D("Residual_Barrel_Wheel_m1", "Residual of Barrel Wheel-1;dx (cm)", 100, -8, 8);
+  hResBarrelWheels_[+0] = booker.book1D("Residual_Barrel_Wheel_00", "Residual of Barrel Wheel 0;dx (cm)", 100, -8, 8);
+  hResBarrelWheels_[+1] = booker.book1D("Residual_Barrel_Wheel_p1", "Residual of Barrel Wheel+1;dx (cm)", 100, -8, 8);
+  hResBarrelWheels_[+2] = booker.book1D("Residual_Barrel_Wheel_p2", "Residual of Barrel Wheel+2;dx (cm)", 100, -8, 8);
+
+  for (int disk = 1; disk <= 4; ++disk) {
+    const std::string meNameP = fmt::format("Residual_Endcap_Disk_p{:1d}", disk);
+    const std::string meNameN = fmt::format("Residual_Endcap_Disk_m{:1d}", disk);
+    const std::string meTitleP = fmt::format("Residual of Endcap Disk{:+1d};dx (cm)", disk);
+    const std::string meTitleN = fmt::format("Residual of Endcap Disk{:+1d};dx (cm)", -disk);
+    hResEndcapDisks_[+disk] = booker.book1D(meNameP, meTitleP, 100, -8, 8);
+    hResEndcapDisks_[-disk] = booker.book1D(meNameN, meTitleN, 100, -8, 8);
+  }
+
+  for (int ring = 1; ring <= 3; ++ring) {
+    const std::string meName = fmt::format("Residual_Endcap_Ring{:1d}", ring);
+    const std::string meTitle = fmt::format("Residual of Endcap Ring{:1d};dx (cm)", ring);
+    hResEndcapRings_[ring] = booker.book1D(meName, meTitle, 100, -8, 8);
+  }
 }
