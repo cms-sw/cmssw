@@ -17,6 +17,8 @@ TrajectoryBuilderForConversions = RecoTracker.CkfPattern.CkfTrajectoryBuilder_cf
     trajectoryFilter     = dict(refToPSet_ = 'TrajectoryFilterForConversions'),
     maxCand              = 5,
     lostHitPenalty       = 30.,
+    foundHitBonus        = 10.,
+    minHitForDoubleBonus = 8,
     intermediateCleaning = True,
     alwaysUseInvalidHits = True,
     seedAs5DHit          = False

@@ -41,7 +41,7 @@ CkfTrajectoryBuilder::CkfTrajectoryBuilder(const edm::ParameterSet& conf,
   theMaxCand = conf.getParameter<int>("maxCand");
   theLostHitPenalty = conf.getParameter<double>("lostHitPenalty");
   theFoundHitBonus = conf.getParameter<double>("foundHitBonus");
-  theMinHitForDoubleBonus = conf.getParameter<double>("minHitForDoubleBounus");
+  theMinHitForDoubleBonus = conf.getParameter<int>("minHitForDoubleBonus");
   theIntermediateCleaning = conf.getParameter<bool>("intermediateCleaning");
   theAlwaysUseInvalidHits = conf.getParameter<bool>("alwaysUseInvalidHits");
 }
@@ -51,7 +51,7 @@ void CkfTrajectoryBuilder::fillPSetDescription(edm::ParameterSetDescription& iDe
   iDesc.add<int>("maxCand", 5);
   iDesc.add<double>("lostHitPenalty", 30.);
   iDesc.add<double>("foundHitBonus", 10.);
-  iDesc.add<int>("minHitForDoubleBounus", 8);
+  iDesc.add<int>("minHitForDoubleBonus", 8);
   iDesc.add<bool>("intermediateCleaning", true);
   iDesc.add<bool>("alwaysUseInvalidHits", true);
 
