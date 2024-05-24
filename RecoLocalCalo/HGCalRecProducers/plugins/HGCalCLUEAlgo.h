@@ -198,6 +198,13 @@ private:
 
   std::vector<int> numberOfClustersPerLayer_;
 
+  inline float distance2(const TILE& lt, int cell1, int cell2, int layerId) const {  // 2-d distance on the layer (x-y)
+    return (lt.distance2(cells_[layerId].dim1[cell1],
+                         cells_[layerId].dim2[cell1],
+                         cells_[layerId].dim1[cell2],
+                         cells_[layerId].dim2[cell2]));
+  }
+
   inline float distance(const TILE& lt, int cell1, int cell2, int layerId) const {  // 2-d distance on the layer (x-y)
     return std::sqrt(lt.distance2(cells_[layerId].dim1[cell1],
                                   cells_[layerId].dim2[cell1],
