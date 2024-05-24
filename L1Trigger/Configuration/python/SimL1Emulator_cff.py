@@ -130,8 +130,8 @@ _phase2_siml1emulator.add(l1tPhase2CaloJetEmulator)
 
 # Overlap and EndCap Muon Track Finder
 # ########################################################################
-from L1Trigger.L1TMuonOverlapPhase2.fakeOmtfParamsPhase2_cff import *
-_phase2_siml1emulator.add(omtfParamsPhase2)
+from L1Trigger.L1TMuonOverlapPhase2.simOmtfPhase2Digis_cfi import *
+_phase2_siml1emulator.add(simOmtfPhase2Digis)
 
 from L1Trigger.L1TMuonEndCapPhase2.simCscTriggerPrimitiveDigisForEMTF_cfi import *
 from L1Trigger.L1TMuonEndCapPhase2.rpcRecHitsForEMTF_cfi import *
