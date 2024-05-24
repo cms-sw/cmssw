@@ -18,8 +18,8 @@ using namespace std;
 
 HepMC3Product::HepMC3Product(HepMC3::GenEvent* evt)
     : isVtxGenApplied_(false), isVtxBoostApplied_(false), isPBoostApplied_(false) {
-      addHepMCData(evt);
-    }
+  addHepMCData(evt);
+}
 
 HepMC3Product::~HepMC3Product() {
   delete evt_;
