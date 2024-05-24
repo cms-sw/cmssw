@@ -50,8 +50,8 @@ void CkfTrajectoryBuilder::fillPSetDescription(edm::ParameterSetDescription& iDe
   BaseCkfTrajectoryBuilder::fillPSetDescription(iDesc);
   iDesc.add<int>("maxCand", 5);
   iDesc.add<double>("lostHitPenalty", 30.);
-  iDesc.add<double>("foundHitBonus", 10.);
-  iDesc.add<int>("minHitForDoubleBonus", 8);
+  iDesc.add<double>("foundHitBonus", 0.);
+  iDesc.add<int>("minHitForDoubleBonus", 8888);
   iDesc.add<bool>("intermediateCleaning", true);
   iDesc.add<bool>("alwaysUseInvalidHits", true);
 
