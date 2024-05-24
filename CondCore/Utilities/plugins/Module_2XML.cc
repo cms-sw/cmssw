@@ -46,6 +46,7 @@ PAYLOAD_2XML_MODULE(pluginUtilities_payload2xml) {
   PAYLOAD_2XML_CLASS(CastorRecoParams);
   PAYLOAD_2XML_CLASS(CastorSaturationCorrs);
   PAYLOAD_2XML_CLASS(CentralityTable);
+  PAYLOAD_2XML_CLASS(DeDxCalibration);
   PAYLOAD_2XML_CLASS(DTCCBConfig);
   PAYLOAD_2XML_CLASS(DTDeadFlag);
   PAYLOAD_2XML_CLASS(DTHVStatus);
