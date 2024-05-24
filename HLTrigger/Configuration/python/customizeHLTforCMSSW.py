@@ -268,7 +268,6 @@ def customizeHLTfor44576(process):
         break
     return process
 
-
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
