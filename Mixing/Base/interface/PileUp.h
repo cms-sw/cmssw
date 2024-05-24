@@ -13,6 +13,7 @@
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/ServiceRegistry/interface/ServiceToken.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/ExceptionCollector.h"
 
 #include "TH1F.h"
 
@@ -82,6 +83,7 @@ namespace edm {
     void beginJob(eventsetup::ESRecordsToProductResolverIndices const&);
     void beginStream(edm::StreamID);
     void endStream();
+    void endStream(ExceptionCollector&);
 
     void beginRun(const edm::Run& run, const edm::EventSetup& setup);
     void beginLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup& setup);

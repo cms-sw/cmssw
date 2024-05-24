@@ -14,6 +14,7 @@
 // Original Author:  W. David Dagenhart
 //         Created:  13 March 2024
 
+#include "DataFormats/Provenance/interface/ProvenanceFwd.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistryfwd.h"
@@ -28,8 +29,35 @@ namespace edmtest {
 
     static void fillDescriptions(edm::ConfigurationDescriptions&);
 
+    void preBeginJob(edm::PathsAndConsumesOfModulesBase const&, edm::ProcessContext const&);
+    void postBeginJob();
+    void preEndJob();
+    void postEndJob();
+
+    void preModuleBeginJob(edm::ModuleDescription const&);
+    void postModuleBeginJob(edm::ModuleDescription const&);
+    void preModuleEndJob(edm::ModuleDescription const&);
+    void postModuleEndJob(edm::ModuleDescription const&);
+
+    void preBeginStream(edm::StreamContext const&);
+    void postBeginStream(edm::StreamContext const&);
+    void preEndStream(edm::StreamContext const&);
+    void postEndStream(edm::StreamContext const&);
+
+    void preModuleBeginStream(edm::StreamContext const&, edm::ModuleCallingContext const&);
+    void postModuleBeginStream(edm::StreamContext const&, edm::ModuleCallingContext const&);
+    void preModuleEndStream(edm::StreamContext const&, edm::ModuleCallingContext const&);
+    void postModuleEndStream(edm::StreamContext const&, edm::ModuleCallingContext const&);
+
     void preBeginProcessBlock(edm::GlobalContext const&);
+    void postBeginProcessBlock(edm::GlobalContext const&);
     void preEndProcessBlock(edm::GlobalContext const&);
+    void postEndProcessBlock(edm::GlobalContext const&);
+
+    void preModuleBeginProcessBlock(edm::GlobalContext const&, edm::ModuleCallingContext const&);
+    void postModuleBeginProcessBlock(edm::GlobalContext const&, edm::ModuleCallingContext const&);
+    void preModuleEndProcessBlock(edm::GlobalContext const&, edm::ModuleCallingContext const&);
+    void postModuleEndProcessBlock(edm::GlobalContext const&, edm::ModuleCallingContext const&);
 
     void preStreamBeginLumi(edm::StreamContext const&);
     void postStreamBeginLumi(edm::StreamContext const&);
@@ -76,6 +104,36 @@ namespace edmtest {
 
     void preGlobalWriteRun(edm::GlobalContext const&);
     void postGlobalWriteRun(edm::GlobalContext const&);
+
+    unsigned int nPreBeginJob() const;
+    unsigned int nPostBeginJob() const;
+    unsigned int nPreEndJob() const;
+    unsigned int nPostEndJob() const;
+
+    unsigned int nPreModuleBeginJob() const;
+    unsigned int nPostModuleBeginJob() const;
+    unsigned int nPreModuleEndJob() const;
+    unsigned int nPostModuleEndJob() const;
+
+    unsigned int nPreBeginStream() const;
+    unsigned int nPostBeginStream() const;
+    unsigned int nPreEndStream() const;
+    unsigned int nPostEndStream() const;
+
+    unsigned int nPreModuleBeginStream() const;
+    unsigned int nPostModuleBeginStream() const;
+    unsigned int nPreModuleEndStream() const;
+    unsigned int nPostModuleEndStream() const;
+
+    unsigned int nPreBeginProcessBlock() const;
+    unsigned int nPostBeginProcessBlock() const;
+    unsigned int nPreEndProcessBlock() const;
+    unsigned int nPostEndProcessBlock() const;
+
+    unsigned int nPreModuleBeginProcessBlock() const;
+    unsigned int nPostModuleBeginProcessBlock() const;
+    unsigned int nPreModuleEndProcessBlock() const;
+    unsigned int nPostModuleEndProcessBlock() const;
 
     unsigned int nPreStreamBeginLumi() const;
     unsigned int nPostStreamBeginLumi() const;
@@ -126,6 +184,36 @@ namespace edmtest {
   private:
     bool verbose_;
     bool printTimestamps_;
+
+    std::atomic<unsigned int> nPreBeginJob_ = 0;
+    std::atomic<unsigned int> nPostBeginJob_ = 0;
+    std::atomic<unsigned int> nPreEndJob_ = 0;
+    std::atomic<unsigned int> nPostEndJob_ = 0;
+
+    std::atomic<unsigned int> nPreModuleBeginJob_ = 0;
+    std::atomic<unsigned int> nPostModuleBeginJob_ = 0;
+    std::atomic<unsigned int> nPreModuleEndJob_ = 0;
+    std::atomic<unsigned int> nPostModuleEndJob_ = 0;
+
+    std::atomic<unsigned int> nPreBeginStream_ = 0;
+    std::atomic<unsigned int> nPostBeginStream_ = 0;
+    std::atomic<unsigned int> nPreEndStream_ = 0;
+    std::atomic<unsigned int> nPostEndStream_ = 0;
+
+    std::atomic<unsigned int> nPreModuleBeginStream_ = 0;
+    std::atomic<unsigned int> nPostModuleBeginStream_ = 0;
+    std::atomic<unsigned int> nPreModuleEndStream_ = 0;
+    std::atomic<unsigned int> nPostModuleEndStream_ = 0;
+
+    std::atomic<unsigned int> nPreBeginProcessBlock_ = 0;
+    std::atomic<unsigned int> nPostBeginProcessBlock_ = 0;
+    std::atomic<unsigned int> nPreEndProcessBlock_ = 0;
+    std::atomic<unsigned int> nPostEndProcessBlock_ = 0;
+
+    std::atomic<unsigned int> nPreModuleBeginProcessBlock_ = 0;
+    std::atomic<unsigned int> nPostModuleBeginProcessBlock_ = 0;
+    std::atomic<unsigned int> nPreModuleEndProcessBlock_ = 0;
+    std::atomic<unsigned int> nPostModuleEndProcessBlock_ = 0;
 
     std::atomic<unsigned int> nPreStreamBeginLumi_ = 0;
     std::atomic<unsigned int> nPostStreamBeginLumi_ = 0;

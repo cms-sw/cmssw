@@ -25,6 +25,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/StreamID.h"
 
 #include <atomic>
 #include <limits>
@@ -33,6 +34,11 @@
 constexpr unsigned int kTestStreams = 4;
 constexpr unsigned int kUnset = std::numeric_limits<unsigned int>::max();
 constexpr unsigned int kNumberOfTestModules = 2;
+// 3 modules configured plus TriggerResultsInserter plus PathStatusInserter plus EndPathStatusInserter
+constexpr unsigned int kNumberOfModulesWithJobTransitions = 6;
+constexpr unsigned int kNumberOfModulesWithStreamTransitions = 3;
+constexpr unsigned int kNumberOfModulesWithProcessBlockTransitions = 2;
+constexpr unsigned int kStreamToThrowOn = 2;
 
 namespace edmtest {
 
@@ -40,10 +46,18 @@ namespace edmtest {
     struct Cache {};
   }  // namespace
 
-  class ExceptionThrowingProducer
-      : public edm::global::EDProducer<edm::StreamCache<Cache>, edm::RunCache<Cache>, edm::LuminosityBlockCache<Cache>> {
+  class ExceptionThrowingProducer : public edm::global::EDProducer<edm::StreamCache<Cache>,
+                                                                   edm::RunCache<Cache>,
+                                                                   edm::LuminosityBlockCache<Cache>,
+                                                                   edm::WatchProcessBlock> {
   public:
     explicit ExceptionThrowingProducer(edm::ParameterSet const&);
+
+    ~ExceptionThrowingProducer() noexcept(false) override;
+    ExceptionThrowingProducer(const ExceptionThrowingProducer&) = delete;
+    ExceptionThrowingProducer& operator=(const ExceptionThrowingProducer&) = delete;
+    ExceptionThrowingProducer(ExceptionThrowingProducer&&) = delete;
+    ExceptionThrowingProducer& operator=(ExceptionThrowingProducer&&) = delete;
 
     void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override;
 
@@ -58,23 +72,41 @@ namespace edmtest {
     void streamBeginLuminosityBlock(edm::StreamID, edm::LuminosityBlock const&, edm::EventSetup const&) const override;
     void streamEndLuminosityBlock(edm::StreamID, edm::LuminosityBlock const&, edm::EventSetup const&) const override;
     void streamEndRun(edm::StreamID, edm::Run const&, edm::EventSetup const&) const override;
+    void endStream(edm::StreamID) const override;
 
+    void beginProcessBlock(edm::ProcessBlock const& processBlock) override;
+    void endProcessBlock(edm::ProcessBlock const& processBlock) override;
+
+    void beginJob() override;
     void endJob() override;
 
     static void fillDescriptions(edm::ConfigurationDescriptions&);
 
   private:
-    bool verbose_;
+    const bool verbose_;
 
-    edm::EventID eventIDThrowOnEvent_;
-    edm::EventID eventIDThrowOnGlobalBeginRun_;
-    edm::EventID eventIDThrowOnGlobalBeginLumi_;
-    edm::EventID eventIDThrowOnGlobalEndRun_;
-    edm::EventID eventIDThrowOnGlobalEndLumi_;
-    edm::EventID eventIDThrowOnStreamBeginRun_;
-    edm::EventID eventIDThrowOnStreamBeginLumi_;
-    edm::EventID eventIDThrowOnStreamEndRun_;
-    edm::EventID eventIDThrowOnStreamEndLumi_;
+    const edm::EventID eventIDThrowOnEvent_;
+    const edm::EventID eventIDThrowOnGlobalBeginRun_;
+    const edm::EventID eventIDThrowOnGlobalBeginLumi_;
+    const edm::EventID eventIDThrowOnGlobalEndRun_;
+    const edm::EventID eventIDThrowOnGlobalEndLumi_;
+    const edm::EventID eventIDThrowOnStreamBeginRun_;
+    const edm::EventID eventIDThrowOnStreamBeginLumi_;
+    const edm::EventID eventIDThrowOnStreamEndRun_;
+    const edm::EventID eventIDThrowOnStreamEndLumi_;
+    const bool throwInBeginJob_;
+    const bool throwInBeginStream_;
+    const bool throwInBeginProcessBlock_;
+    const bool throwInEndProcessBlock_;
+    const bool throwInEndStream_;
+    const bool throwInEndJob_;
+
+    unsigned int nBeginJob_ = 0;
+    mutable std::atomic<unsigned int> nBeginStream_{0};
+    unsigned int nBeginProcessBlock_ = 0;
+    unsigned int nEndProcessBlock_ = 0;
+    mutable std::atomic<unsigned int> nEndStream_{0};
+    unsigned int nEndJob_ = 0;
 
     mutable std::vector<unsigned int> nStreamBeginLumi_;
     mutable std::vector<unsigned int> nStreamEndLumi_;
@@ -86,19 +118,31 @@ namespace edmtest {
     mutable std::atomic<unsigned int> nGlobalBeginRun_{0};
     mutable std::atomic<unsigned int> nGlobalEndRun_{0};
 
-    unsigned int expectedStreamBeginLumi_;
-    unsigned int expectedOffsetNoStreamEndLumi_;
-    mutable unsigned int streamWithBeginLumiException_ = kUnset;
-    unsigned int expectedGlobalBeginLumi_;
-    unsigned int expectedOffsetNoGlobalEndLumi_;
-    unsigned int expectedOffsetNoWriteLumi_;
+    const unsigned int expectedNBeginJob_;
+    const unsigned int expectedNBeginStream_;
+    const unsigned int expectedNBeginProcessBlock_;
+    const unsigned int expectedNEndProcessBlock_;
+    const unsigned int expectedNEndStream_;
+    const unsigned int expectedNEndJob_;
+    const bool expectNoRunsProcessed_;
 
-    unsigned int expectedStreamBeginRun_;
-    unsigned int expectedOffsetNoStreamEndRun_;
+    const unsigned int expectedOffsetNoEndJob_;
+    const unsigned int expectedOffsetNoEndStream_;
+    const unsigned int expectedOffsetNoEndProcessBlock_;
+
+    const unsigned int expectedStreamBeginLumi_;
+    const unsigned int expectedOffsetNoStreamEndLumi_;
+    mutable unsigned int streamWithBeginLumiException_ = kUnset;
+    const unsigned int expectedGlobalBeginLumi_;
+    const unsigned int expectedOffsetNoGlobalEndLumi_;
+    const unsigned int expectedOffsetNoWriteLumi_;
+
+    const unsigned int expectedStreamBeginRun_;
+    const unsigned int expectedOffsetNoStreamEndRun_;
     mutable unsigned int streamWithBeginRunException_ = kUnset;
-    unsigned int expectedGlobalBeginRun_;
-    unsigned int expectedOffsetNoGlobalEndRun_;
-    unsigned int expectedOffsetNoWriteRun_;
+    const unsigned int expectedGlobalBeginRun_;
+    const unsigned int expectedOffsetNoGlobalEndRun_;
+    const unsigned int expectedOffsetNoWriteRun_;
 
     mutable std::atomic<bool> streamBeginLumiExceptionOccurred_ = false;
     mutable std::atomic<bool> streamEndLumiExceptionOccurred_ = false;
@@ -120,10 +164,26 @@ namespace edmtest {
         eventIDThrowOnStreamBeginLumi_(pset.getUntrackedParameter<edm::EventID>("eventIDThrowOnStreamBeginLumi")),
         eventIDThrowOnStreamEndRun_(pset.getUntrackedParameter<edm::EventID>("eventIDThrowOnStreamEndRun")),
         eventIDThrowOnStreamEndLumi_(pset.getUntrackedParameter<edm::EventID>("eventIDThrowOnStreamEndLumi")),
+        throwInBeginJob_(pset.getUntrackedParameter<bool>("throwInBeginJob")),
+        throwInBeginStream_(pset.getUntrackedParameter<bool>("throwInBeginStream")),
+        throwInBeginProcessBlock_(pset.getUntrackedParameter<bool>("throwInBeginProcessBlock")),
+        throwInEndProcessBlock_(pset.getUntrackedParameter<bool>("throwInEndProcessBlock")),
+        throwInEndStream_(pset.getUntrackedParameter<bool>("throwInEndStream")),
+        throwInEndJob_(pset.getUntrackedParameter<bool>("throwInEndJob")),
         nStreamBeginLumi_(kTestStreams, 0),
         nStreamEndLumi_(kTestStreams, 0),
         nStreamBeginRun_(kTestStreams, 0),
         nStreamEndRun_(kTestStreams, 0),
+        expectedNBeginJob_(pset.getUntrackedParameter<unsigned int>("expectedNBeginJob")),
+        expectedNBeginStream_(pset.getUntrackedParameter<unsigned int>("expectedNBeginStream")),
+        expectedNBeginProcessBlock_(pset.getUntrackedParameter<unsigned int>("expectedNBeginProcessBlock")),
+        expectedNEndProcessBlock_(pset.getUntrackedParameter<unsigned int>("expectedNEndProcessBlock")),
+        expectedNEndStream_(pset.getUntrackedParameter<unsigned int>("expectedNEndStream")),
+        expectedNEndJob_(pset.getUntrackedParameter<unsigned int>("expectedNEndJob")),
+        expectNoRunsProcessed_(pset.getUntrackedParameter<bool>("expectNoRunsProcessed")),
+        expectedOffsetNoEndJob_(pset.getUntrackedParameter<unsigned int>("expectedOffsetNoEndJob")),
+        expectedOffsetNoEndStream_(pset.getUntrackedParameter<unsigned int>("expectedOffsetNoEndStream")),
+        expectedOffsetNoEndProcessBlock_(pset.getUntrackedParameter<unsigned int>("expectedOffsetNoEndProcessBlock")),
         expectedStreamBeginLumi_(pset.getUntrackedParameter<unsigned int>("expectedStreamBeginLumi")),
         expectedOffsetNoStreamEndLumi_(pset.getUntrackedParameter<unsigned int>("expectedOffsetNoStreamEndLumi")),
         expectedGlobalBeginLumi_(pset.getUntrackedParameter<unsigned int>("expectedGlobalBeginLumi")),
@@ -134,6 +194,40 @@ namespace edmtest {
         expectedGlobalBeginRun_(pset.getUntrackedParameter<unsigned int>("expectedGlobalBeginRun")),
         expectedOffsetNoGlobalEndRun_(pset.getUntrackedParameter<unsigned int>("expectedOffsetNoGlobalEndRun")),
         expectedOffsetNoWriteRun_(pset.getUntrackedParameter<unsigned int>("expectedOffsetNoWriteRun")) {}
+
+  ExceptionThrowingProducer::~ExceptionThrowingProducer() noexcept(false) {
+    if (nBeginJob_ != expectedNBeginJob_) {
+      edm::LogAbsolute("ExceptionThrowingProducer")
+          << "ExceptionThrowingProducer::beginJob did not run expected number of times.";
+      edm::LogAbsolute("ExceptionThrowingProducer") << "At least one test in ExceptionThrowingProducer FAILED";
+    } else if (nEndJob_ != expectedNEndJob_) {
+      edm::LogAbsolute("ExceptionThrowingProducer")
+          << "ExceptionThrowingProducer::endJob did not run expected number of times.";
+      edm::LogAbsolute("ExceptionThrowingProducer") << "At least one test in ExceptionThrowingProducer FAILED";
+    } else if (nEndJob_ == 0u && nBeginProcessBlock_ == 0 && nEndProcessBlock_ == 0 && nBeginStream_.load() == 0 &&
+               nEndStream_.load() == 0 && nGlobalBeginRun_.load() == 0 && nGlobalEndRun_.load() == 0) {
+      edm::LogAbsolute("ExceptionThrowingProducer") << "All tests in ExceptionThrowingProducer PASSED";
+    }
+
+    edm::Service<edmtest::TestServiceOne> serviceOne;
+
+    if (verbose_) {
+      edm::LogAbsolute("ExceptionThrowingProducer") << "serviceOne->nPostEndJob = " << serviceOne->nPostEndJob();
+      edm::LogAbsolute("ExceptionThrowingProducer")
+          << "serviceOne->nPreModuleEndJob = " << serviceOne->nPreModuleEndJob();
+      edm::LogAbsolute("ExceptionThrowingProducer")
+          << "serviceOne->nPostModuleEndJob = " << serviceOne->nPostModuleEndJob();
+    }
+
+    if (serviceOne->nPostEndJob() != nBeginJob_ ||
+        serviceOne->nPreModuleEndJob() != nBeginJob_ * kNumberOfModulesWithJobTransitions - expectedOffsetNoEndJob_ ||
+        serviceOne->nPostModuleEndJob() != nBeginJob_ * kNumberOfModulesWithJobTransitions - expectedOffsetNoEndJob_) {
+      edm::LogAbsolute("ExceptionThrowingProducer")
+          << "FAILED: Unexpected number of service end job related signals in TestServiceOne, checking while in "
+             "ExceptionThrowingProducer destructor";
+      edm::LogAbsolute("ExceptionThrowingProducer") << "At least one test in ExceptionThrowingProducer FAILED";
+    }
+  }
 
   void ExceptionThrowingProducer::produce(edm::StreamID, edm::Event& event, edm::EventSetup const&) const {
     if (event.id() == eventIDThrowOnEvent_) {
@@ -187,7 +281,13 @@ namespace edmtest {
     }
   }
 
-  std::unique_ptr<Cache> ExceptionThrowingProducer::beginStream(edm::StreamID) const {
+  std::unique_ptr<Cache> ExceptionThrowingProducer::beginStream(edm::StreamID streamID) const {
+    ++nBeginStream_;
+    if (throwInBeginStream_ && streamID.value() == kStreamToThrowOn) {
+      throw cms::Exception("IntentionalTestException")
+          << "ExceptionThrowingProducer::beginStream, module configured to throw during beginStream for stream: "
+          << kStreamToThrowOn;
+    }
     return std::make_unique<Cache>();
   }
 
@@ -265,8 +365,78 @@ namespace edmtest {
     }
   }
 
+  void ExceptionThrowingProducer::endStream(edm::StreamID streamID) const {
+    ++nEndStream_;
+    if (throwInEndStream_ && streamID.value() == kStreamToThrowOn) {
+      throw cms::Exception("IntentionalTestException")
+          << "ExceptionThrowingProducer::endStream, module configured to throw during endStream for stream: "
+          << kStreamToThrowOn;
+    }
+  }
+
+  void ExceptionThrowingProducer::beginProcessBlock(edm::ProcessBlock const& processBlock) {
+    ++nBeginProcessBlock_;
+    if (throwInBeginProcessBlock_) {
+      throw cms::Exception("IntentionalTestException")
+          << "ExceptionThrowingProducer::beginProcessBlock, module configured to throw during beginProcessBlock";
+    }
+  }
+
+  void ExceptionThrowingProducer::endProcessBlock(edm::ProcessBlock const& processBlock) {
+    ++nEndProcessBlock_;
+    if (throwInEndProcessBlock_) {
+      throw cms::Exception("IntentionalTestException")
+          << "ExceptionThrowingProducer::endProcessBlock, module configured to throw during endProcessBlock";
+    }
+  }
+
+  void ExceptionThrowingProducer::beginJob() {
+    ++nBeginJob_;
+    if (throwInBeginJob_) {
+      throw cms::Exception("IntentionalTestException")
+          << "ExceptionThrowingProducer::beginJob, module configured to throw during beginJob";
+    }
+  }
+
   void ExceptionThrowingProducer::endJob() {
+    ++nEndJob_;
+
     bool testsPass = true;
+
+    if (nBeginStream_.load() != expectedNBeginStream_) {
+      edm::LogAbsolute("ExceptionThrowingProducer")
+          << "FAILED: Unexpected number of beginStream transitions, saw: " << nBeginStream_.load()
+          << " expected: " << expectedNBeginStream_;
+      testsPass = false;
+    }
+
+    if (nBeginProcessBlock_ != expectedNBeginProcessBlock_) {
+      edm::LogAbsolute("ExceptionThrowingProducer")
+          << "FAILED: Unexpected number of beginProcessBlock transitions, saw: " << nBeginProcessBlock_
+          << " expected: " << expectedNBeginProcessBlock_;
+      testsPass = false;
+    }
+
+    if (nEndProcessBlock_ != expectedNEndProcessBlock_) {
+      edm::LogAbsolute("ExceptionThrowingProducer")
+          << "FAILED: Unexpected number of endProcessBlock transitions, saw: " << nEndProcessBlock_
+          << " expected: " << expectedNEndProcessBlock_;
+      testsPass = false;
+    }
+
+    if (nEndStream_.load() != expectedNEndStream_) {
+      edm::LogAbsolute("ExceptionThrowingProducer")
+          << "FAILED: Unexpected number of endStream transitions, saw: " << nEndStream_.load()
+          << " expected: " << expectedNEndStream_;
+      testsPass = false;
+    }
+
+    if (expectNoRunsProcessed_ && nGlobalBeginRun_.load() != 0) {
+      edm::LogAbsolute("ExceptionThrowingProducer")
+          << "FAILED: Unexpected number of globalBeginRun transitions, saw: " << nGlobalBeginRun_.load()
+          << " expected: " << 0;
+      testsPass = false;
+    }
 
     unsigned int totalStreamBeginLumi = 0;
     unsigned int i = 0;
@@ -358,6 +528,45 @@ namespace edmtest {
     }
 
     edm::Service<edmtest::TestServiceOne> serviceOne;
+    if (serviceOne->nPreBeginJob() != nBeginJob_ || serviceOne->nPostBeginJob() != nBeginJob_ ||
+        serviceOne->nPreEndJob() != nBeginJob_ ||
+        serviceOne->nPreModuleBeginJob() != nBeginJob_ * kNumberOfModulesWithJobTransitions ||
+        serviceOne->nPostModuleBeginJob() != nBeginJob_ * kNumberOfModulesWithJobTransitions) {
+      edm::LogAbsolute("ExceptionThrowingProducer")
+          << "FAILED: Unexpected number of service transitions in TestServiceOne, beginJob and endJob";
+      testsPass = false;
+    }
+
+    if (serviceOne->nPreBeginStream() != nBeginStream_ || serviceOne->nPostBeginStream() != nBeginStream_ ||
+        serviceOne->nPreEndStream() != nBeginStream_ || serviceOne->nPostEndStream() != nBeginStream_ ||
+        serviceOne->nPreModuleBeginStream() != nBeginStream_ * kNumberOfModulesWithStreamTransitions ||
+        serviceOne->nPostModuleBeginStream() != nBeginStream_ * kNumberOfModulesWithStreamTransitions ||
+        serviceOne->nPreModuleEndStream() !=
+            nBeginStream_ * kNumberOfModulesWithStreamTransitions - expectedOffsetNoEndStream_ ||
+        serviceOne->nPostModuleEndStream() !=
+            nBeginStream_ * kNumberOfModulesWithStreamTransitions - expectedOffsetNoEndStream_) {
+      edm::LogAbsolute("ExceptionThrowingProducer")
+          << "FAILED: Unexpected number of service transitions in TestServiceOne, beginStream and endStream";
+      testsPass = false;
+    }
+
+    if (serviceOne->nPreBeginProcessBlock() != nBeginProcessBlock_ ||
+        serviceOne->nPostBeginProcessBlock() != nBeginProcessBlock_ ||
+        serviceOne->nPreEndProcessBlock() != nBeginProcessBlock_ ||
+        serviceOne->nPostEndProcessBlock() != nBeginProcessBlock_ ||
+        serviceOne->nPreModuleBeginProcessBlock() !=
+            nBeginProcessBlock_ * kNumberOfModulesWithProcessBlockTransitions ||
+        serviceOne->nPostModuleBeginProcessBlock() !=
+            nBeginProcessBlock_ * kNumberOfModulesWithProcessBlockTransitions ||
+        serviceOne->nPreModuleEndProcessBlock() !=
+            nBeginProcessBlock_ * kNumberOfModulesWithProcessBlockTransitions - expectedOffsetNoEndProcessBlock_ ||
+        serviceOne->nPostModuleEndProcessBlock() !=
+            nBeginProcessBlock_ * kNumberOfModulesWithProcessBlockTransitions - expectedOffsetNoEndProcessBlock_) {
+      edm::LogAbsolute("ExceptionThrowingProducer") << "FAILED: Unexpected number of service transitions in "
+                                                       "TestServiceOne, beginProcessBlock and endProcessBlock";
+      testsPass = false;
+    }
+
     if (serviceOne->nPreStreamBeginLumi() != totalStreamBeginLumi ||
         serviceOne->nPostStreamBeginLumi() != totalStreamBeginLumi ||
         serviceOne->nPreStreamEndLumi() != totalStreamBeginLumi ||
@@ -486,10 +695,60 @@ namespace edmtest {
     }
 
     if (verbose_) {
+      edm::LogAbsolute("ExceptionThrowingProducer") << "nBeginJob_ = " << nBeginJob_;
+      edm::LogAbsolute("ExceptionThrowingProducer") << "nBeginStream_ = " << nBeginStream_.load();
+      edm::LogAbsolute("ExceptionThrowingProducer") << "nBeginProcessBlock_ = " << nBeginProcessBlock_;
+      edm::LogAbsolute("ExceptionThrowingProducer") << "nEndProcessBlock_ = " << nEndProcessBlock_;
+      edm::LogAbsolute("ExceptionThrowingProducer") << "nEndStream_ = " << nEndStream_.load();
+      edm::LogAbsolute("ExceptionThrowingProducer") << "nEndJob_ = " << nEndJob_ << "\n";
+
       edm::LogAbsolute("ExceptionThrowingProducer") << "nGlobalBeginLumi_ = " << nGlobalBeginLumi_;
       edm::LogAbsolute("ExceptionThrowingProducer") << "nGlobalEndLumi_ = " << nGlobalEndLumi_;
       edm::LogAbsolute("ExceptionThrowingProducer") << "nGlobalBeginRun_ = " << nGlobalBeginRun_;
-      edm::LogAbsolute("ExceptionThrowingProducer") << "nGlobalEndRun_ = " << nGlobalEndRun_;
+      edm::LogAbsolute("ExceptionThrowingProducer") << "nGlobalEndRun_ = " << nGlobalEndRun_ << "\n";
+
+      edm::LogAbsolute("ExceptionThrowingProducer") << "serviceOne->nPreBeginJob = " << serviceOne->nPreBeginJob();
+      edm::LogAbsolute("ExceptionThrowingProducer") << "serviceOne->nPostBeginJob = " << serviceOne->nPostBeginJob();
+      edm::LogAbsolute("ExceptionThrowingProducer") << "serviceOne->nPreEndJob = " << serviceOne->nPreEndJob();
+
+      edm::LogAbsolute("ExceptionThrowingProducer")
+          << "serviceOne->nPreModuleBeginJob = " << serviceOne->nPreModuleBeginJob();
+      edm::LogAbsolute("ExceptionThrowingProducer")
+          << "serviceOne->nPostModuleBeginJob = " << serviceOne->nPostModuleBeginJob() << "\n";
+
+      edm::LogAbsolute("ExceptionThrowingProducer")
+          << "serviceOne->nPreBeginStream = " << serviceOne->nPreBeginStream();
+      edm::LogAbsolute("ExceptionThrowingProducer")
+          << "serviceOne->nPostBeginStream = " << serviceOne->nPostBeginStream();
+      edm::LogAbsolute("ExceptionThrowingProducer") << "serviceOne->nPreEndStream = " << serviceOne->nPreEndStream();
+      edm::LogAbsolute("ExceptionThrowingProducer") << "serviceOne->nPostEndStream = " << serviceOne->nPostEndStream();
+
+      edm::LogAbsolute("ExceptionThrowingProducer")
+          << "serviceOne->nPreModuleBeginStream = " << serviceOne->nPreModuleBeginStream();
+      edm::LogAbsolute("ExceptionThrowingProducer")
+          << "serviceOne->nPostModuleBeginStream = " << serviceOne->nPostModuleBeginStream();
+      edm::LogAbsolute("ExceptionThrowingProducer")
+          << "serviceOne->nPreModuleEndStream = " << serviceOne->nPreModuleEndStream();
+      edm::LogAbsolute("ExceptionThrowingProducer")
+          << "serviceOne->nPostModuleEndStream = " << serviceOne->nPostModuleEndStream() << "\n";
+
+      edm::LogAbsolute("ExceptionThrowingProducer")
+          << "serviceOne->nPreBeginProcessBlock = " << serviceOne->nPreBeginProcessBlock();
+      edm::LogAbsolute("ExceptionThrowingProducer")
+          << "serviceOne->nPostBeginProcessBlock = " << serviceOne->nPostBeginProcessBlock();
+      edm::LogAbsolute("ExceptionThrowingProducer")
+          << "serviceOne->nPreEndProcessBlock = " << serviceOne->nPreEndProcessBlock();
+      edm::LogAbsolute("ExceptionThrowingProducer")
+          << "serviceOne->nPostEndProcessBlock = " << serviceOne->nPostEndProcessBlock();
+
+      edm::LogAbsolute("ExceptionThrowingProducer")
+          << "serviceOne->nPreModuleBeginProcessBlock = " << serviceOne->nPreModuleBeginProcessBlock();
+      edm::LogAbsolute("ExceptionThrowingProducer")
+          << "serviceOne->nPostModuleBeginProcessBlock = " << serviceOne->nPostModuleBeginProcessBlock();
+      edm::LogAbsolute("ExceptionThrowingProducer")
+          << "serviceOne->nPreModuleEndProcessBlock = " << serviceOne->nPreModuleEndProcessBlock();
+      edm::LogAbsolute("ExceptionThrowingProducer")
+          << "serviceOne->nPostModuleEndProcessBlock = " << serviceOne->nPostModuleEndProcessBlock() << "\n";
 
       edm::LogAbsolute("ExceptionThrowingProducer")
           << "serviceOne->nPreStreamBeginLumi = " << serviceOne->nPreStreamBeginLumi();
@@ -573,6 +832,11 @@ namespace edmtest {
     } else {
       edm::LogAbsolute("ExceptionThrowingProducer") << "At least one test in ExceptionThrowingProducer FAILED";
     }
+
+    if (throwInEndJob_) {
+      throw cms::Exception("IntentionalTestException")
+          << "ExceptionThrowingProducer::endJob, module configured to throw during endJob";
+    }
   }
 
   void ExceptionThrowingProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -589,6 +853,23 @@ namespace edmtest {
     desc.addUntracked<edm::EventID>("eventIDThrowOnStreamEndRun", invalidEventID);
     desc.addUntracked<edm::EventID>("eventIDThrowOnStreamEndLumi", invalidEventID);
 
+    desc.addUntracked<bool>("throwInBeginJob", false);
+    desc.addUntracked<bool>("throwInBeginStream", false);
+    desc.addUntracked<bool>("throwInBeginProcessBlock", false);
+    desc.addUntracked<bool>("throwInEndProcessBlock", false);
+    desc.addUntracked<bool>("throwInEndStream", false);
+    desc.addUntracked<bool>("throwInEndJob", false);
+
+    desc.addUntracked<unsigned int>("expectedNBeginJob", 1);
+    desc.addUntracked<unsigned int>("expectedNBeginStream", 4);
+    desc.addUntracked<unsigned int>("expectedNBeginProcessBlock", 1);
+    desc.addUntracked<unsigned int>("expectedNEndProcessBlock", 1);
+    desc.addUntracked<unsigned int>("expectedNEndStream", 4);
+    desc.addUntracked<unsigned int>("expectedNEndJob", 1);
+    desc.addUntracked<bool>("expectNoRunsProcessed", false);
+    desc.addUntracked<unsigned int>("expectedOffsetNoEndJob", 0);
+    desc.addUntracked<unsigned int>("expectedOffsetNoEndStream", 0);
+    desc.addUntracked<unsigned int>("expectedOffsetNoEndProcessBlock", 0);
     desc.addUntracked<unsigned int>("expectedStreamBeginLumi", kUnset);
     desc.addUntracked<unsigned int>("expectedOffsetNoStreamEndLumi", 0);
     desc.addUntracked<unsigned int>("expectedGlobalBeginLumi", 0);

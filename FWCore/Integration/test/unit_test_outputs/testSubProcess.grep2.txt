@@ -72,6 +72,7 @@
 ++++ finished: constructing module with label 'out' id = 35
 ++ preallocate: 1 concurrent runs, 1 concurrent luminosity sections, 1 streams
 ++ starting: begin job
+++ finished: begin job
 ++ starting: begin job
 ++ starting: begin job
 ++++ starting: begin job for module with label 'thingWithMergeProducer' id = 5
@@ -147,7 +148,11 @@
 ++++ finished: begin job for module with label 'path3' id = 27
 ++++ starting: begin job for module with label 'path4' id = 28
 ++++ finished: begin job for module with label 'path4' id = 28
-++ finished: begin job
+++ starting: begin stream 0
+++ finished: begin stream 0
+++ starting: begin stream 0
+++ finished: begin stream 0
+++ starting: begin stream 0
 ++++ starting: begin stream for module: stream = 0 label = 'thingWithMergeProducer' id = 5
 ++++ finished: begin stream for module: stream = 0 label = 'thingWithMergeProducer' id = 5
 ++++ starting: begin stream for module: stream = 0 label = 'get' id = 6
@@ -162,6 +167,10 @@
 ++++ finished: begin stream for module: stream = 0 label = 'getInt' id = 10
 ++++ starting: begin stream for module: stream = 0 label = 'noPut' id = 11
 ++++ finished: begin stream for module: stream = 0 label = 'noPut' id = 11
+++ finished: begin stream 0
+++ starting: begin stream 0
+++ finished: begin stream 0
+++ starting: begin stream 0
 ++++ starting: begin stream for module: stream = 0 label = 'thingWithMergeProducer' id = 17
 ++++ finished: begin stream for module: stream = 0 label = 'thingWithMergeProducer' id = 17
 ++++ starting: begin stream for module: stream = 0 label = 'test' id = 18
@@ -176,6 +185,8 @@
 ++++ finished: begin stream for module: stream = 0 label = 'dependsOnNoPut' id = 22
 ++++ starting: begin stream for module: stream = 0 label = 'out' id = 23
 ++++ finished: begin stream for module: stream = 0 label = 'out' id = 23
+++ finished: begin stream 0
+++ starting: begin stream 0
 ++++ starting: begin stream for module: stream = 0 label = 'thingWithMergeProducer' id = 29
 ++++ finished: begin stream for module: stream = 0 label = 'thingWithMergeProducer' id = 29
 ++++ starting: begin stream for module: stream = 0 label = 'test' id = 30
@@ -190,6 +201,7 @@
 ++++ finished: begin stream for module: stream = 0 label = 'dependsOnNoPut' id = 34
 ++++ starting: begin stream for module: stream = 0 label = 'out' id = 35
 ++++ finished: begin stream for module: stream = 0 label = 'out' id = 35
+++ finished: begin stream 0
 ++++ starting: begin process block
 ++++ finished: begin process block
 ++++ starting: begin process block
@@ -7339,6 +7351,11 @@
 ++++++ starting: write process block for module: label = 'out' id = 23
 ++++++ finished: write process block for module: label = 'out' id = 23
 ++++ finished: write process block
+++ starting: end stream 0
+++ finished: end stream 0
+++ starting: end stream 0
+++ finished: end stream 0
+++ starting: end stream 0
 ++++ starting: end stream for module: stream = 0 label = 'thingWithMergeProducer' id = 5
 ++++ finished: end stream for module: stream = 0 label = 'thingWithMergeProducer' id = 5
 ++++ starting: end stream for module: stream = 0 label = 'get' id = 6
@@ -7353,6 +7370,10 @@
 ++++ finished: end stream for module: stream = 0 label = 'getInt' id = 10
 ++++ starting: end stream for module: stream = 0 label = 'noPut' id = 11
 ++++ finished: end stream for module: stream = 0 label = 'noPut' id = 11
+++ finished: end stream 0
+++ starting: end stream 0
+++ finished: end stream 0
+++ starting: end stream 0
 ++++ starting: end stream for module: stream = 0 label = 'thingWithMergeProducer' id = 17
 ++++ finished: end stream for module: stream = 0 label = 'thingWithMergeProducer' id = 17
 ++++ starting: end stream for module: stream = 0 label = 'test' id = 18
@@ -7367,6 +7388,8 @@
 ++++ finished: end stream for module: stream = 0 label = 'dependsOnNoPut' id = 22
 ++++ starting: end stream for module: stream = 0 label = 'out' id = 23
 ++++ finished: end stream for module: stream = 0 label = 'out' id = 23
+++ finished: end stream 0
+++ starting: end stream 0
 ++++ starting: end stream for module: stream = 0 label = 'thingWithMergeProducer' id = 29
 ++++ finished: end stream for module: stream = 0 label = 'thingWithMergeProducer' id = 29
 ++++ starting: end stream for module: stream = 0 label = 'test' id = 30
@@ -7381,6 +7404,9 @@
 ++++ finished: end stream for module: stream = 0 label = 'dependsOnNoPut' id = 34
 ++++ starting: end stream for module: stream = 0 label = 'out' id = 35
 ++++ finished: end stream for module: stream = 0 label = 'out' id = 35
+++ finished: end stream 0
+++ starting: end job
+++ finished: end job
 ++++ starting: end job for module with label 'thingWithMergeProducer' id = 5
 ++++ finished: end job for module with label 'thingWithMergeProducer' id = 5
 ++++ starting: end job for module with label 'get' id = 6
@@ -7451,4 +7477,3 @@
 ++++ finished: end job for module with label 'path3' id = 27
 ++++ starting: end job for module with label 'path4' id = 28
 ++++ finished: end job for module with label 'path4' id = 28
-++ finished: end job

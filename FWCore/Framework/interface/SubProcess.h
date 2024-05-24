@@ -13,6 +13,7 @@
 #include "FWCore/Framework/interface/ProductSelector.h"
 #include "FWCore/ServiceRegistry/interface/ProcessContext.h"
 #include "FWCore/ServiceRegistry/interface/ServiceLegacy.h"
+#include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ServiceToken.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/BranchType.h"
@@ -23,6 +24,7 @@
 
 #include <map>
 #include <memory>
+#include <mutex>
 #include <set>
 #include <vector>
 
@@ -32,6 +34,7 @@ namespace edm {
   class BranchIDListHelper;
   class EventPrincipal;
   class EventSetupImpl;
+  class ExceptionCollector;
   class HistoryAppender;
   class LuminosityBlockPrincipal;
   class LumiTransitionInfo;
@@ -86,7 +89,7 @@ namespace edm {
     std::vector<ModuleProcessName> keepOnlyConsumedUnscheduledModules(bool deleteModules);
 
     void doBeginJob();
-    void doEndJob();
+    void doEndJob(ExceptionCollector&);
 
     void doEventAsync(WaitingTaskHolder iHolder,
                       EventPrincipal const& principal,
@@ -113,8 +116,8 @@ namespace edm {
                                    LumiTransitionInfo const& iTransitionInfo,
                                    bool cleaningUpAfterException);
 
-    void doBeginStream(unsigned int);
-    void doEndStream(unsigned int);
+    void doBeginStream(unsigned int streamID);
+    void doEndStream(unsigned int streamID, ExceptionCollector& collector, std::mutex& collectorMutex) noexcept;
     void doStreamBeginRunAsync(WaitingTaskHolder iHolder, unsigned int iID, RunTransitionInfo const&);
 
     void doStreamEndRunAsync(WaitingTaskHolder iHolder,
@@ -238,7 +241,7 @@ namespace edm {
 
   private:
     void beginJob();
-    void endJob();
+    void endJob(ExceptionCollector&);
     void processAsync(WaitingTaskHolder iHolder,
                       EventPrincipal const& e,
                       std::vector<std::shared_ptr<const EventSetupImpl>> const*);
