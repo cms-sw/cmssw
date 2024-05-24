@@ -68,7 +68,9 @@ void HTXSRivetProducer::produce(edm::Event& iEvent, const edm::EventSetup&) {
   bool product_exists = iEvent.getByToken(_hepmcCollection, evt);
   if (product_exists) {
     // get HepMC GenEvent
-    const HepMC3::GenEvent* myGenEvent = evt->GetEvent();
+    const HepMC3::GenEventData* genEventData = evt->GetEvent();
+    std::unique_ptr<HepMC3::GenEvent> myGenEvent = std::make_unique<HepMC3::GenEvent>();
+    myGenEvent->read_data(*genEventData);
 
     if (_prodMode == "AUTO") {
       // for these prod modes, don't change what is set in BeginRun

@@ -122,7 +122,9 @@ void ParticleLevelProducer::produce(edm::Event& event, const edm::EventSetup& ev
   edm::Handle<HepMC3Product> srcHandle;
   event.getByToken(srcToken_, srcHandle);
 
-  const HepMC3::GenEvent* genEvent = srcHandle->GetEvent();
+  const HepMC3::GenEventData* genEventData = srcHandle->GetEvent();
+  std::unique_ptr<HepMC3::GenEvent> genEvent = std::make_unique<HepMC3::GenEvent>();
+  genEvent->read_data(*genEventData);
 
   if (!rivetAnalysis_ || !rivetAnalysis_->hasProjection("FS")) {
     rivetAnalysis_ = new Rivet::RivetAnalysis(pset_);
