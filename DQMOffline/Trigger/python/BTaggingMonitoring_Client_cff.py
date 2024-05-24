@@ -214,9 +214,7 @@ BTVEfficiency_PFJet_DeepJet = DQMEDHarvester("DQMGenericClient",
 
 BTVEfficiency_TurnOnCurves = DQMEDHarvester("DQMGenericClient",
     subDirs        = cms.untracked.vstring(
-        "HLT/BTV/HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_PFDiJet30_PFBtagDeepCSV_1p5*",
-        "HLT/BTV/HLT_DoublePFJets40_CaloBTagDeepCSV_p71*",
-        "HLT/BTV/HLT_Mu12_DoublePFJets40_CaloBTagDeepCSV_p71*",
+        "HLT/BTV/HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_PFDiJet30*",
     ),
     verbose        = cms.untracked.uint32(0),
     resolution     = cms.vstring(),
@@ -229,9 +227,7 @@ BTVEfficiency_TurnOnCurves = DQMEDHarvester("DQMGenericClient",
 
 BTVEfficiency_OnlineTrackEff = DQMEDHarvester("DQMGenericClient",
     subDirs        = cms.untracked.vstring(
-        "HLT/BTV/HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_PFDiJet30_PFBtagDeepCSV_1p5*",
-        "HLT/BTV/HLT_DoublePFJets40_CaloBTagDeepCSV_p71*",
-        "HLT/BTV/HLT_Mu12_DoublePFJets40_CaloBTagDeepCSV_p71*",
+        "HLT/BTV/HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_PFDiJet30*",
     ),
     verbose        = cms.untracked.uint32(0),
     resolution     = cms.vstring(),
@@ -245,9 +241,7 @@ BTVEfficiency_OnlineTrackEff = DQMEDHarvester("DQMGenericClient",
 
 BTVEfficiency_OnlineTrackFake = DQMEDHarvester("DQMGenericClient",
     subDirs        = cms.untracked.vstring(
-        "HLT/BTV/HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_PFDiJet30_PFBtagDeepCSV_1p5*",
-        "HLT/BTV/HLT_DoublePFJets40_CaloBTagDeepCSV_p71*",
-        "HLT/BTV/HLT_Mu12_DoublePFJets40_CaloBTagDeepCSV_p71*",
+        "HLT/BTV/HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_PFDiJet30*",
     ),
     verbose        = cms.untracked.uint32(0),
     resolution     = cms.vstring(),
@@ -262,9 +256,7 @@ BTVEfficiency_OnlineTrackFake = DQMEDHarvester("DQMGenericClient",
 from DQMOffline.Trigger.TrackingMonitoring_Client_cff import TrackToTrackEfficiencies
 
 BJetTrackToTrackEfficiencies = TrackToTrackEfficiencies.clone(
-    subDirs = ["HLT/BTV/HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_PFDiJet30_PFBtagDeepCSV_1p5*",
-               "HLT/BTV/HLT_DoublePFJets40_CaloBTagDeepCSV_p71*",
-               "HLT/BTV/HLT_Mu12_DoublePFJets40_CaloBTagDeepCSV_p71*",
+    subDirs = ["HLT/BTV/HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_PFDiJet30*",
               ]
 )
 
