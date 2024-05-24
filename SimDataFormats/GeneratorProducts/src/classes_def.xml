@@ -99,6 +99,12 @@
 
 	<class name="edm::Wrapper&lt;edm::HepMC3Product&gt;"/>
 	<class name="edm::HepMC3Product"/>
+	<class name="HepMC3::GenEventData"/>
+	<class name="HepMC3::FourVector"/>
+	<class name="HepMC3::GenParticleData"/>
+	<class name="HepMC3::GenVertexData"/>
+	<class name="std::vector&lt;HepMC3::GenParticleData&gt;"/>
+	<class name="std::vector&lt;HepMC3::GenVertexData&gt;"/>
 
 	<!-- Classes shared between different kinds of products -->
 

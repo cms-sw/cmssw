@@ -9,6 +9,7 @@
 #include "DataFormats/Common/interface/Ref.h"
 #include <TMatrixD.h>
 #include <HepMC3/GenEvent.h>
+#include <HepMC3/Data/GenEventData.h>
 #include <cstddef>
 
 namespace HepMC3 {
@@ -32,9 +33,7 @@ namespace edm {
 
     void boostToLab(TMatrixD const *lorentz, std::string const &type);
 
-    const HepMC3::GenEvent &getHepMCData() const;
-
-    const HepMC3::GenEvent *GetEvent() const { return evt_; }
+    const HepMC3::GenEventData *GetEvent() const { return evt_; }
 
     bool isVtxGenApplied() const { return isVtxGenApplied_; }
     bool isVtxBoostApplied() const { return isVtxBoostApplied_; }
@@ -47,7 +46,7 @@ namespace edm {
     void swap(HepMC3Product &other);
 
   private:
-    HepMC3::GenEvent *evt_;
+    HepMC3::GenEventData *evt_;
 
     bool isVtxGenApplied_;
     bool isVtxBoostApplied_;
