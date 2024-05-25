@@ -75,7 +75,7 @@
 //                               with values > 1 as depth 2 (3), all depths in
 //                               HB with values > 1 as depth 2 (4), all depths
 //                               in HB and HE with values > 1 as depth 2 (5),
-//                               for depth = 1 and 2, depth = 1, else depth 
+//                               for depth = 1 and 2, depth = 1, else depth
 //                                = 2. (Default 0)
 //   useGen (bool)             = true/false to use generator level momentum
 //                               or reconstruction level momentum (def false)

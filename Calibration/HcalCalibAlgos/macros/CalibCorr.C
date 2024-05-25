@@ -1394,15 +1394,15 @@ void CalibCorrScale2(const char* infile, const char* outfile, double scaleB, dou
             ++good;
             int ieta = std::atoi(items[1].c_str());
             int depth = std::atoi(items[2].c_str());
-	    int jp(-1);
-	    for (int j = 0; j < 3; ++j) {
-	      if (std::abs(ieta) > ietasL[j] && std::abs(ieta) <= ietasH[j]) {
-		if (jp < 0)
-		  jp = j;
-	      }
-	    }
-	    if (jp < 0)
-	      jp = 2;
+            int jp(-1);
+            for (int j = 0; j < 3; ++j) {
+              if (std::abs(ieta) > ietasL[j] && std::abs(ieta) <= ietasH[j]) {
+                if (jp < 0)
+                  jp = j;
+              }
+            }
+            if (jp < 0)
+              jp = 2;
             float corrf = scale[jp] * std::atof(items[3].c_str());
             float dcorr = scale[jp] * std::atof(items[4].c_str());
             myfile << std::setw(10) << items[0] << std::setw(10) << std::dec << ieta << std::setw(10) << depth
