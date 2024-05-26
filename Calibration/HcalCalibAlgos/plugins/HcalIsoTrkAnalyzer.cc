@@ -89,7 +89,7 @@
 class HcalIsoTrkAnalyzer : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::SharedResources> {
 public:
   explicit HcalIsoTrkAnalyzer(edm::ParameterSet const&);
-  ~HcalIsoTrkAnalyzer() override {}
+  ~HcalIsoTrkAnalyzer() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -190,6 +190,7 @@ private:
   unsigned int nRun_, nLow_, nHigh_;
   double a_charIsoR_, a_coneR1_, a_coneR2_;
   const HcalTopology* theHBHETopology_;
+  HcalRespCorrs* respCorrs_;
   const HcalDDDRecConstants* hdc_;
   const EcalPFRecHitThresholds* eThresholds_;
 
@@ -304,14 +305,15 @@ HcalIsoTrkAnalyzer::HcalIsoTrkAnalyzer(const edm::ParameterSet& iConfig)
       tok_sevlv_(esConsumes<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd>()),
       tok_geom_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
       tok_caloTopology_(esConsumes<CaloTopology, CaloTopologyRecord>()),
-      tok_htopo_(esConsumes<HcalTopology, HcalRecNumberingRecord>()),
-      tok_resp_(esConsumes<HcalRespCorrs, HcalRespCorrsRcd>()),
+      tok_htopo_(esConsumes<HcalTopology, HcalRecNumberingRecord, edm::Transition::BeginRun>()),
+      tok_resp_(esConsumes<HcalRespCorrs, HcalRespCorrsRcd, edm::Transition::BeginRun>()),
       tok_dbservice_(esConsumes<HcalDbService, HcalDbRecord>()),
       tok_ecalPFRecHitThresholds_(esConsumes<EcalPFRecHitThresholds, EcalPFRecHitThresholdsRcd>()),
       nRun_(0),
       nLow_(0),
       nHigh_(0),
       theHBHETopology_(nullptr),
+      respCorrs_(nullptr),
       hdc_(nullptr) {
   usesResource(TFileService::kSharedResource);
 
@@ -414,6 +416,11 @@ HcalIsoTrkAnalyzer::HcalIsoTrkAnalyzer(const edm::ParameterSet& iConfig)
   }
 }
 
+HcalIsoTrkAnalyzer::~HcalIsoTrkAnalyzer() {
+  if (respCorrs_)
+    delete respCorrs_;
+}
+
 void HcalIsoTrkAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
   t_Run = iEvent.id().run();
   t_Event = iEvent.id().event();
@@ -436,11 +443,9 @@ void HcalIsoTrkAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const
   // get calogeometry and calotopology
   const CaloGeometry* geo = &iSetup.getData(tok_geom_);
   const CaloTopology* caloTopology = &iSetup.getData(tok_caloTopology_);
-  const HcalTopology* theHBHETopology = &iSetup.getData(tok_htopo_);
 
   // get Hcal response corrections
   const HcalDbService* conditions = &iSetup.getData(tok_dbservice_);
-  const HcalRespCorrs* respCorrs = &iSetup.getData(tok_resp_);
 
   //=== genParticle information
   edm::Handle<reco::GenParticleCollection> genParticles = iEvent.getHandle(tok_parts_);
@@ -593,7 +598,7 @@ void HcalIsoTrkAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const
                          trkCaloDets,
                          geo,
                          caloTopology,
-                         theHBHETopology,
+                         theHBHETopology_,
                          theEcalChStatus,
                          theEcalSevlv,
                          barrelRecHitsHandle,
@@ -601,7 +606,7 @@ void HcalIsoTrkAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const
                          hbhe,
                          caloTower,
                          genParticles,
-                         respCorrs,
+                         respCorrs_,
                          conditions,
                          muonh);
     t_TracksSaved = ntksave[0];
@@ -708,7 +713,7 @@ void HcalIsoTrkAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const
                                  trkCaloDets,
                                  geo,
                                  caloTopology,
-                                 theHBHETopology,
+                                 theHBHETopology_,
                                  theEcalChStatus,
                                  theEcalSevlv,
                                  barrelRecHitsHandle,
@@ -716,7 +721,7 @@ void HcalIsoTrkAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const
                                  hbhe,
                                  caloTower,
                                  genParticles,
-                                 respCorrs,
+                                 respCorrs_,
                                  conditions,
                                  muonh);
               t_TracksSaved += ntksave[0];
@@ -821,6 +826,12 @@ void HcalIsoTrkAnalyzer::beginJob() {
 
 // ------------ method called when starting to processes a run  ------------
 void HcalIsoTrkAnalyzer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
+  theHBHETopology_ = &iSetup.getData(tok_htopo_);
+  const HcalRespCorrs* resp = &iSetup.getData(tok_resp_);
+  respCorrs_ = new HcalRespCorrs(*resp);
+  respCorrs_->setTopo(theHBHETopology_);
+  edm::LogVerbatim("HcalIsoTrack") << "beginRun " << iRun.run() << " get responseCoorection " << respCorrs_;
+  
   hdc_ = &iSetup.getData(tok_ddrec_);
 
   if (!ignoreTrigger_) {
@@ -853,6 +864,11 @@ void HcalIsoTrkAnalyzer::beginRun(edm::Run const& iRun, edm::EventSetup const& i
 void HcalIsoTrkAnalyzer::endRun(edm::Run const& iRun, edm::EventSetup const&) {
   nRun_++;
   edm::LogVerbatim("HcalIsoTrack") << "endRun[" << nRun_ << "] " << iRun.run();
+
+  if (respCorrs_) {
+    delete respCorrs_;
+    respCorrs_ = nullptr;
+  }
 }
 
 void HcalIsoTrkAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
