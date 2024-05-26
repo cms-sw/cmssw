@@ -950,6 +950,14 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent, trigger::TriggerFi
                                     << "\nNo muons added to filterproduct." << endl;
     } else {
       for (std::list<int>::const_iterator itObj = listMuon.begin(); itObj != listMuon.end(); ++itObj) {
+        // skip invalid indices
+        if (*itObj < 0 or unsigned(*itObj) >= muons->size(0)) {
+          edm::LogWarning("HLTL1TSeed")
+              << "Invalid index from the L1ObjectMap (L1uGT emulator), will be ignored (l1t::MuonBxCollection):"
+              << " index=" << *itObj << " (size of unpacked L1T objects in BX0 = " << muons->size(0) << ")";
+          continue;
+        }
+
         // Transform to index for Bx = 0 to begin of BxVector
         unsigned int index = muons->begin(0) - muons->begin() + *itObj;
 
@@ -970,6 +978,14 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent, trigger::TriggerFi
                                     << "\nNo muon showers added to filterproduct." << endl;
     } else {
       for (std::list<int>::const_iterator itObj = listMuonShower.begin(); itObj != listMuonShower.end(); ++itObj) {
+        // skip invalid indices
+        if (*itObj < 0 or unsigned(*itObj) >= muonShowers->size(0)) {
+          edm::LogWarning("HLTL1TSeed")
+              << "Invalid index from the L1ObjectMap (L1uGT emulator), will be ignored (l1t::MuonShowerBxCollection):"
+              << " index=" << *itObj << " (size of unpacked L1T objects in BX0 = " << muonShowers->size(0) << ")";
+          continue;
+        }
+
         // Transform to index for Bx = 0 to begin of BxVector
         unsigned int index = muonShowers->begin(0) - muonShowers->begin() + *itObj;
 
@@ -989,6 +1005,14 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent, trigger::TriggerFi
                                     << "\nNo egammas added to filterproduct." << endl;
     } else {
       for (std::list<int>::const_iterator itObj = listEG.begin(); itObj != listEG.end(); ++itObj) {
+        // skip invalid indices
+        if (*itObj < 0 or unsigned(*itObj) >= egammas->size(0)) {
+          edm::LogWarning("HLTL1TSeed")
+              << "Invalid index from the L1ObjectMap (L1uGT emulator), will be ignored (l1t::EGammaBxCollection):"
+              << " index=" << *itObj << " (size of unpacked L1T objects in BX0 = " << egammas->size(0) << ")";
+          continue;
+        }
+
         // Transform to begin of BxVector
         unsigned int index = egammas->begin(0) - egammas->begin() + *itObj;
 
@@ -1009,6 +1033,14 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent, trigger::TriggerFi
                                     << "\nNo jets added to filterproduct." << endl;
     } else {
       for (std::list<int>::const_iterator itObj = listJet.begin(); itObj != listJet.end(); ++itObj) {
+        // skip invalid indices
+        if (*itObj < 0 or unsigned(*itObj) >= jets->size(0)) {
+          edm::LogWarning("HLTL1TSeed")
+              << "Invalid index from the L1ObjectMap (L1uGT emulator), will be ignored (l1t::JetBxCollection):"
+              << " index=" << *itObj << " (size of unpacked L1T objects in BX0 = " << jets->size(0) << ")";
+          continue;
+        }
+
         // Transform to begin of BxVector
         unsigned int index = jets->begin(0) - jets->begin() + *itObj;
 
@@ -1029,6 +1061,14 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent, trigger::TriggerFi
                                     << "\nNo taus added to filterproduct." << endl;
     } else {
       for (std::list<int>::const_iterator itObj = listTau.begin(); itObj != listTau.end(); ++itObj) {
+        // skip invalid indices
+        if (*itObj < 0 or unsigned(*itObj) >= taus->size(0)) {
+          edm::LogWarning("HLTL1TSeed")
+              << "Invalid index from the L1ObjectMap (L1uGT emulator), will be ignored (l1t::TauBxCollection):"
+              << " index=" << *itObj << " (size of unpacked L1T objects in BX0 = " << taus->size(0) << ")";
+          continue;
+        }
+
         // Transform to begin of BxVector
         unsigned int index = taus->begin(0) - taus->begin() + *itObj;
 
