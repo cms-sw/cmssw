@@ -106,7 +106,6 @@ private:
                               std::vector<spr::propagatedTrackID>& trkCaloDets,
                               const CaloGeometry* geo,
                               const CaloTopology* topo,
-                              const HcalTopology* theHBHETopology,
                               const EcalChannelStatus* theEcalChStatus,
                               const EcalSeverityLevelAlgo* theEcalSevlv,
                               edm::Handle<EcalRecHitCollection>& barrelRecHitsHandle,
@@ -114,7 +113,6 @@ private:
                               edm::Handle<HBHERecHitCollection>& hbhe,
                               edm::Handle<CaloTowerCollection>& towerHandle,
                               edm::Handle<reco::GenParticleCollection>& genParticles,
-                              const HcalRespCorrs* respCorrs,
                               const HcalDbService* conditions,
                               const edm::Handle<reco::MuonCollection>& muonh);
   double dR(math::XYZTLorentzVector&, math::XYZTLorentzVector&);
@@ -123,7 +121,6 @@ private:
   double eThreshold(const DetId& id, const CaloGeometry* geo) const;
   DetId newId(const DetId&);
   void storeEnergy(int indx,
-                   const HcalRespCorrs* respCorrs,
                    const HcalDbService* conditions,
                    const std::vector<DetId>& ids,
                    std::vector<double>& edet,
@@ -598,7 +595,6 @@ void HcalIsoTrkAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const
                          trkCaloDets,
                          geo,
                          caloTopology,
-                         theHBHETopology_,
                          theEcalChStatus,
                          theEcalSevlv,
                          barrelRecHitsHandle,
@@ -606,7 +602,6 @@ void HcalIsoTrkAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const
                          hbhe,
                          caloTower,
                          genParticles,
-                         respCorrs_,
                          conditions,
                          muonh);
     t_TracksSaved = ntksave[0];
@@ -713,7 +708,6 @@ void HcalIsoTrkAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const
                                  trkCaloDets,
                                  geo,
                                  caloTopology,
-                                 theHBHETopology_,
                                  theEcalChStatus,
                                  theEcalSevlv,
                                  barrelRecHitsHandle,
@@ -721,7 +715,6 @@ void HcalIsoTrkAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const
                                  hbhe,
                                  caloTower,
                                  genParticles,
-                                 respCorrs_,
                                  conditions,
                                  muonh);
               t_TracksSaved += ntksave[0];
@@ -971,7 +964,6 @@ std::array<int, 3> HcalIsoTrkAnalyzer::fillTree(std::vector<math::XYZTLorentzVec
                                                 std::vector<spr::propagatedTrackID>& trkCaloDets,
                                                 const CaloGeometry* geo,
                                                 const CaloTopology* caloTopology,
-                                                const HcalTopology* theHBHETopology,
                                                 const EcalChannelStatus* theEcalChStatus,
                                                 const EcalSeverityLevelAlgo* theEcalSevlv,
                                                 edm::Handle<EcalRecHitCollection>& barrelRecHitsHandle,
@@ -979,7 +971,6 @@ std::array<int, 3> HcalIsoTrkAnalyzer::fillTree(std::vector<math::XYZTLorentzVec
                                                 edm::Handle<HBHERecHitCollection>& hbhe,
                                                 edm::Handle<CaloTowerCollection>& tower,
                                                 edm::Handle<reco::GenParticleCollection>& genParticles,
-                                                const HcalRespCorrs* respCorrs,
                                                 const HcalDbService* conditions,
                                                 const edm::Handle<reco::MuonCollection>& muonh) {
   int nSave(0), nLoose(0), nTight(0);
@@ -1202,9 +1193,9 @@ std::array<int, 3> HcalIsoTrkAnalyzer::fillTree(std::vector<math::XYZTLorentzVec
       t_hmaxNearP = spr::chargeIsolationCone(nTracks, trkCaloDirections, a_charIsoR_, nNearTRKs, false);
       const DetId cellH(trkDetItr.detIdHCAL);
       double h5x5 = spr::eHCALmatrix(
-          theHBHETopology, cellH, hbhe, 2, 2, false, true, -100.0, -100.0, -100.0, -100.0, -100.0, 100.0);
+          theHBHETopology_, cellH, hbhe, 2, 2, false, true, -100.0, -100.0, -100.0, -100.0, -100.0, 100.0);
       double h7x7 = spr::eHCALmatrix(
-          theHBHETopology, cellH, hbhe, 3, 3, false, true, -100.0, -100.0, -100.0, -100.0, -100.0, 100.0);
+          theHBHETopology_, cellH, hbhe, 3, 3, false, true, -100.0, -100.0, -100.0, -100.0, -100.0, 100.0);
       t_hAnnular = h7x7 - h5x5;
 #ifdef EDM_ML_DEBUG
       if (debug_)
@@ -1237,7 +1228,7 @@ std::array<int, 3> HcalIsoTrkAnalyzer::fillTree(std::vector<math::XYZTLorentzVec
           for (unsigned k = 0; k < ids.size(); ++k)
             ids[k] = newId(ids[k]);
         }
-        storeEnergy(0, respCorrs, conditions, ids, edet0, t_eHcal, t_DetIds, t_HitEnergies);
+        storeEnergy(0, conditions, ids, edet0, t_eHcal, t_DetIds, t_HitEnergies);
 
         //----- hcal energy in the extended cone 1 (a_coneR+10) --------------
         t_eHcal10 = spr::eCone_hcal(geo,
@@ -1254,7 +1245,7 @@ std::array<int, 3> HcalIsoTrkAnalyzer::fillTree(std::vector<math::XYZTLorentzVec
           for (unsigned k = 0; k < ids1.size(); ++k)
             ids1[k] = newId(ids1[k]);
         }
-        storeEnergy(1, respCorrs, conditions, ids1, edet1, t_eHcal10, t_DetIds1, t_HitEnergies1);
+        storeEnergy(1, conditions, ids1, edet1, t_eHcal10, t_DetIds1, t_HitEnergies1);
 
         //----- hcal energy in the extended cone 3 (a_coneR+30) --------------
         t_eHcal30 = spr::eCone_hcal(geo,
@@ -1271,7 +1262,7 @@ std::array<int, 3> HcalIsoTrkAnalyzer::fillTree(std::vector<math::XYZTLorentzVec
           for (unsigned k = 0; k < ids3.size(); ++k)
             ids3[k] = newId(ids3[k]);
         }
-        storeEnergy(3, respCorrs, conditions, ids3, edet3, t_eHcal30, t_DetIds3, t_HitEnergies3);
+        storeEnergy(3, conditions, ids3, edet3, t_eHcal30, t_DetIds3, t_HitEnergies3);
 
 #ifdef EDM_ML_DEBUG
         if (debug_) {
@@ -1432,7 +1423,6 @@ DetId HcalIsoTrkAnalyzer::newId(const DetId& id) {
 }
 
 void HcalIsoTrkAnalyzer::storeEnergy(int indx,
-                                     const HcalRespCorrs* respCorrs,
                                      const HcalDbService* conditions,
                                      const std::vector<DetId>& ids,
                                      std::vector<double>& edet,
@@ -1442,7 +1432,7 @@ void HcalIsoTrkAnalyzer::storeEnergy(int indx,
   double ehcal(0);
   if (unCorrect_) {
     for (unsigned int k = 0; k < ids.size(); ++k) {
-      double corr = (respCorrs->getValues(ids[k]))->getValue();
+      double corr = (respCorrs_->getValues(ids[k]))->getValue();
       if (corr != 0)
         edet[k] /= corr;
       ehcal += edet[k];
