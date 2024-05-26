@@ -149,7 +149,8 @@ unsigned int truncateId(unsigned int detId, int truncateFlag, bool debug = false
     if (depth > 1)
       depth = 2;
   } else if (truncate0 == 6) {
-    //Ignore depth index for depth > 1 in HB and HE
+    //Ignore depth index for depth > 2 in HB and HE and
+    // depthe 1, 2 are considered as depth 1
     if (depth <= 2)
       depth = 1;
     else
