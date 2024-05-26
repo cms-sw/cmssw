@@ -831,7 +831,7 @@ void HcalIsoTrkAnalyzer::beginRun(edm::Run const& iRun, edm::EventSetup const& i
   respCorrs_ = new HcalRespCorrs(*resp);
   respCorrs_->setTopo(theHBHETopology_);
   edm::LogVerbatim("HcalIsoTrack") << "beginRun " << iRun.run() << " get responseCoorection " << respCorrs_;
-  
+
   hdc_ = &iSetup.getData(tok_ddrec_);
 
   if (!ignoreTrigger_) {
