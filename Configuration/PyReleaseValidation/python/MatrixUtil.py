@@ -103,7 +103,7 @@ def selectedLS(list_runs=[],maxNum=-1,l_json=data_json2015):
 
 InputInfoNDefault=2000000    
 class InputInfo(object):
-    def __init__(self,dataSet,dataSetParent='',label='',run=[],ls={},files=1000,events=InputInfoNDefault,split=10,location='CAF',ib_blacklist=None,ib_block=None) :
+    def __init__(self,dataSet,dataSetParent='',label='',run=[],ls={},files=1000,events=InputInfoNDefault,split=10,location='CAF',ib_blacklist=None,ib_block=None,skimEvents=False) :
         self.run = run
         self.ls = ls
         self.files = files
@@ -115,29 +115,34 @@ class InputInfo(object):
         self.ib_blacklist = ib_blacklist
         self.ib_block = ib_block
         self.dataSetParent = dataSetParent
-        
+        self.skimEvents = skimEvents
+
     def das(self, das_options, dataset):
-        if len(self.run) != 0 or self.ls:
+        if not self.skimEvents and (len(self.run) != 0 or self.ls):
             queries = self.queries(dataset)
             if len(self.run) != 0:
-              command = ";".join(["dasgoclient %s --query '%s'" % (das_options, query) for query in queries])
+                command = ";".join(["dasgoclient %s --query '%s'" % (das_options, query) for query in queries])
             else:
               lumis = self.lumis()
               commands = []
               while queries:
-                commands.append("dasgoclient %s --query 'lumi,%s' --format json | das-selected-lumis.py %s " % (das_options, queries.pop(), lumis.pop()))
+                    commands.append("dasgoclient %s --query 'lumi,%s' --format json | das-selected-lumis.py %s " % (das_options, queries.pop(), lumis.pop()))
               command = ";".join(commands)
             command = "({0})".format(command)
-        else:
+        elif not self.skimEvents:
             command = "dasgoclient %s --query '%s'" % (das_options, self.queries(dataset)[0])
-       
+        elif self.skimEvents:
+            command = "das-up-to-nevents.py -d %s -e %d"%(dataset,self.events)
         # Run filter on DAS output 
         if self.ib_blacklist:
             command += " | grep -E -v "
             command += " ".join(["-e '{0}'".format(pattern) for pattern in self.ib_blacklist])
-        from os import getenv
-        if getenv("CMSSW_USE_IBEOS","false")=="true": return command + " | ibeos-lfn-sort"
-        return command + " | sort -u"
+        if not self.skimEvents: ## keep run-lumi sorting
+            from os import getenv
+            if getenv("CMSSW_USE_IBEOS","false")=="true": return command + " | ibeos-lfn-sort"
+            return command + " | sort -u"
+        else:
+            return command
 
     def lumiRanges(self):
         if len(self.run) != 0:
@@ -145,7 +150,7 @@ class InputInfo(object):
         if self.ls :
             return "echo '{\n"+",".join(('"%d" : %s\n'%( int(x),self.ls[x]) for x in self.ls.keys()))+"}'"
         return None
-
+    
     def lumis(self):
       query_lumis = []
       if self.ls:
