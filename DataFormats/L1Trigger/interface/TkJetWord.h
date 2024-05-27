@@ -23,6 +23,7 @@ namespace l1t {
     static constexpr double MAX_ETA = 8.;
 
     enum TkJetBitWidths {
+      kValidSize = 1,
       kPtSize = 16,
       kPtMagSize = 11,
       kGlbEtaSize = 14,
@@ -31,13 +32,15 @@ namespace l1t {
       kNtSize = 5,
       kXtSize = 4,
       kDispFlagSize = 1,
-      kUnassignedSize = 65,
-      kTkJetWordSize =
-          kPtSize + kGlbEtaSize + kGlbPhiSize + kZ0Size + kNtSize + kXtSize + kDispFlagSize + kUnassignedSize,
+      kUnassignedSize = 64,
+      kTkJetWordSize = kValidSize + kPtSize + kGlbEtaSize + kGlbPhiSize + kZ0Size + kNtSize + kXtSize + kDispFlagSize +
+                       kUnassignedSize,
     };
 
     enum TkJetBitLocations {
-      kPtLSB = 0,
+      kValidLSB = 0,
+      kValidMSB = kValidLSB + TkJetBitWidths::kValidSize - 1,
+      kPtLSB = kValidMSB + 1,
       kPtMSB = kPtLSB + TkJetBitWidths::kPtSize - 1,
       kGlbPhiLSB = kPtMSB + 1,
       kGlbPhiMSB = kGlbPhiLSB + TkJetBitWidths::kGlbPhiSize - 1,
@@ -55,6 +58,7 @@ namespace l1t {
       kUnassignedMSB = kUnassignedLSB + TkJetBitWidths::kUnassignedSize - 1,
     };
 
+    typedef ap_uint<TkJetBitWidths::kValidSize> tkjetvalid_t;
     typedef ap_ufixed<kPtSize, kPtMagSize, AP_TRN, AP_SAT> pt_t;
     typedef ap_int<kGlbEtaSize> glbeta_t;
     typedef ap_int<kGlbPhiSize> glbphi_t;
@@ -69,7 +73,8 @@ namespace l1t {
   public:
     // ----------Constructors --------------------------
     TkJetWord() {}
-    TkJetWord(pt_t pt,
+    TkJetWord(tkjetvalid_t valid,
+              pt_t pt,
               glbeta_t eta,
               glbphi_t phi,
               z0_t z0,
@@ -91,6 +96,7 @@ namespace l1t {
 
     // ----------member functions (getters) ------------
     // These functions return arbitarary precision words (lists of bits) for each quantity
+    tkjetvalid_t validWord() const { return tkJetWord()(TkJetBitLocations::kValidMSB, TkJetBitLocations::kValidLSB); }
     pt_t ptWord() const {
       pt_t ret;
       ret.V = tkJetWord()(TkJetBitLocations::kPtMSB, TkJetBitLocations::kPtLSB);
@@ -134,6 +140,7 @@ namespace l1t {
 
     // These functions return the packed bits in integer format for each quantity
     // Signed quantities have the sign enconded in the left-most bit.
+    unsigned int validBits() const { return validWord().to_uint(); }
     unsigned int ptBits() const { return ptWord().range().to_uint(); }
     unsigned int glbEtaBits() const { return glbEtaWord().to_uint(); }
     unsigned int glbPhiBits() const { return glbPhiWord().to_uint(); }
@@ -145,6 +152,7 @@ namespace l1t {
 
     // These functions return the unpacked and converted values
     // These functions return real numbers converted from the digitized quantities by unpacking the 64-bit vertex word
+    bool valid() const { return validWord().to_bool(); }
     float pt() const { return ptWord().to_float(); }
     float glbeta() const {
       return unpackSignedValue(
@@ -163,7 +171,8 @@ namespace l1t {
     unsigned int unassigned() const { return unassignedWord().to_uint(); }
 
     // ----------member functions (setters) ------------
-    void setTkJetWord(pt_t pt,
+    void setTkJetWord(tkjetvalid_t valid,
+                      pt_t pt,
                       glbeta_t eta,
                       glbphi_t phi,
                       z0_t z0,
