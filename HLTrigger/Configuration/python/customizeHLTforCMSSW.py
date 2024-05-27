@@ -268,6 +268,53 @@ def customizeHLTfor44576(process):
         break
     return process
 
+def customizeHLTfor45063(process):
+    """Assigns value of MuonHLTSeedMVAClassifier mva input file, scales and mean values according to the value of isFromL1"""
+    for prod in producers_by_type(process, 'MuonHLTSeedMVAClassifier'):
+        if hasattr(prod, "isFromL1"):
+            if (prod.isFromL1 == True):
+                if hasattr(prod, "mvaFileBL1"):
+                    prod.mvaFileB = prod.mvaFileBL1
+                if hasattr(prod, "mvaFileEL1"):
+                    prod.mvaFileE = prod.mvaFileEL1
+                if hasattr(prod, "mvaScaleMeanBL1"):
+                    prod.mvaScaleMeanB = prod.mvaScaleMeanBL1
+                if hasattr(prod, "mvaScaleStdBL1"):
+                    prod.mvaScaleStdB = prod.mvaScaleStdBL1
+                if hasattr(prod, "mvaScaleMeanEL1"):
+                    prod.mvaScaleMeanE = prod.mvaScaleMeanEL1
+                if hasattr(prod, "mvaScaleStdEL1"):                    
+                    prod.mvaScaleStdE = prod.mvaScaleStdEL1                
+            else:
+                if hasattr(prod, "mvaFileBL2"):
+                    prod.mvaFileB = prod.mvaFileBL2
+                if hasattr(prod, "mvaFileEL2"):
+                    prod.mvaFileE = prod.mvaFileEL2
+                if hasattr(prod, "mvaScaleMeanBL2"):
+                    prod.mvaScaleMeanB = prod.mvaScaleMeanBL2
+                if hasattr(prod, "mvaScaleStdBL2"):
+                    prod.mvaScaleStdB = prod.mvaScaleStdBL2
+                if hasattr(prod, "mvaScaleMeanEL2"):
+                    prod.mvaScaleMeanE = prod.mvaScaleMeanEL2
+                if hasattr(prod, "mvaScaleStdEL2"):
+                    prod.mvaScaleStdE = prod.mvaScaleStdEL2
+                    
+    for prod in producers_by_type(process, 'MuonHLTSeedMVAClassifier'):
+        delattr(prod,"mvaFileBL1")
+        delattr(prod,"mvaFileEL1")
+        delattr(prod,"mvaScaleMeanBL1")
+        delattr(prod,"mvaScaleStdBL1")
+        delattr(prod,"mvaScaleMeanEL1")
+        delattr(prod,"mvaScaleStdEL1")
+        delattr(prod,"mvaFileBL2")
+        delattr(prod,"mvaFileEL2")
+        delattr(prod,"mvaScaleMeanBL2")
+        delattr(prod,"mvaScaleStdBL2")
+        delattr(prod,"mvaScaleMeanEL2")
+        delattr(prod,"mvaScaleStdEL2")       
+                    
+    return process
+            
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
@@ -278,5 +325,6 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
 
     process = checkHLTfor43774(process)
     process = customizeHLTfor44576(process)
+    process = customizeHLTfor45063(process)
 
     return process
