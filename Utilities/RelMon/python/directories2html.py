@@ -828,7 +828,6 @@ def make_summary_table(indir,aggregation_rules,aggregation_rules_twiki, hashing_
   page_html+=make_categories_summary(dir_dict,aggregation_rules)
 
   # Make the Directories chart
-  # page_html+='<div class="span-24"><h2 class="alt"><a name="detailed_barchart">Detailed Barchart</a></h2></div>'
   page_html+='<div id="dir_chart"></div> <a href="#top">Top...</a><hr>'
   
   # Barbarian vertical space. Suggestions are welcome
@@ -839,9 +838,6 @@ def make_summary_table(indir,aggregation_rules,aggregation_rules_twiki, hashing_
   # Prepare the table
   page_html+='<div class="span-24"><h2 class="alt"><a name="summary_table">Summary Table</a></h2> <h4> <span class="alt"> (scrollable) </span> </h4> </div>'
 
-  # for i in range(5):
-  #   page_html+='<div class="span-24"><p></p></div>\n'
-  
   div_width= min(len(dir_dict.keys()) * 70 + 500,1500) #80 px per column + 200 for the first column
   page_html+='<div class="wrapper" style = "width: %dpx;">'%(div_width)
   page_html+="""
@@ -857,17 +853,14 @@ def make_summary_table(indir,aggregation_rules,aggregation_rules_twiki, hashing_
 
   sorted_samples=sorted(dir_dict.keys())
   for sample in sorted_samples:
-    if "_" in sample:
+    if "_" in sample and "Data" not in sample:
       sample_nick="_".join(sample.split("X_")[0].split("_")[:-1]) 
-      #slightly cleaner: _X is for the GT string, the _ split take away the 123X
+      # Cleaning for MC: just the fragment
+    elif "Data" in sample and "RelVal" in sample:
+      sample_nick = "".join([sample.split("_")[0],sample.split("RelVal")[-1]])
+      # Cleaning for Data: PD + Era + Run
     else:
       sample_nick = sample
-    ## For runs: put only the number after the _
-    #if "_" in sample:
-      #run_number=sample.split("_")[-1]      
-      #if (not run_number.isalpha()) and len(run_number)>=6:
-    #sample_nick=run_number
-      
       
     page_html+="""
           <th> <p class = "vertical_head center_head">%s</th></p>"""%sample_nick
