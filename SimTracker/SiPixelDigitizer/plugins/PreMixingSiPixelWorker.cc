@@ -107,8 +107,8 @@ PreMixingSiPixelWorker::PreMixingSiPixelWorker(const edm::ParameterSet& ps,
   LogDebug("PreMixingSiPixelWorker") << "applyLateReweighting_ in PreMixingSiPixelWorker  " << applyLateReweighting_;
 
 
-  std::cout << " applyLateReweighting_ in PreMixingSiPixelWorker " << applyLateReweighting_ << std::endl;
-  std::cout << " usePixelExtraLiteFormat_ in PreMixingSiPixelWorker " << usePixelExtraLiteFormat_ << std::endl;
+  LogDebug("PreMixingSiPixelWorker")  << " applyLateReweighting_ in PreMixingSiPixelWorker " << applyLateReweighting_ ;
+  LogDebug("PreMixingSiPixelWorker")  << " usePixelExtraLiteFormat_ in PreMixingSiPixelWorker " << usePixelExtraLiteFormat_ ;
 
   PixelDigiToken_ = iC.consumes<edm::DetSetVector<PixelDigi>>(pixeldigi_collectionSig_);
   PixelDigiPToken_ = iC.consumes<edm::DetSetVector<PixelDigi>>(pixeldigi_collectionPile_);
@@ -273,7 +273,6 @@ void PreMixingSiPixelWorker::addPileups(PileUpEventPrincipal const& pep, edm::Ev
           if (iu->type().isTrackerPixel()) {
             uint32_t detIDinLoop = iu->geographicalId().rawId();
             if (detIDinLoop == detID) {
-		     std::cout << " lateSignalReweight with Extra " << std::endl;
               digitizer_.lateSignalReweight(
                   dynamic_cast<const PixelGeomDetUnit*>(iu), TempDigis, TempSimExtra, tTopo, engine);
               break;
@@ -294,7 +293,6 @@ void PreMixingSiPixelWorker::addPileups(PileUpEventPrincipal const& pep, edm::Ev
           if (iu->type().isTrackerPixel()) {
             uint32_t detIDinLoop = iu->geographicalId().rawId();
             if (detIDinLoop == detID) {
-		     std::cout << " lateSignalReweight with Extra Lite " << std::endl;
               digitizer_.lateSignalReweight(
                   dynamic_cast<const PixelGeomDetUnit*>(iu), TempDigis, TempSimExtra, tTopo, engine);
               break;

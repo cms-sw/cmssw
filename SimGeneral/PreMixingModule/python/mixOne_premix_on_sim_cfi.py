@@ -159,7 +159,18 @@ from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
 (runDependentForPixel & premix_stage2).toModify(mixData.workers.pixel,
          UseReweighting=False,
          applyLateReweighting=True,
-         store_SimHitEntryExitPoints=False
+         usePixelExtraLiteFormat = False,
+         store_SimHitEntryExitPoints=False,
+         store_SimHitEntryExitPointsLite = False
+)
+
+from Configuration.ProcessModifiers.runDependentForPixelVal_cff import runDependentForPixelVal
+(runDependentForPixelVal & premix_stage2).toModify(mixData.workers.pixel,
+         UseReweighting=False,
+         applyLateReweighting=True,
+         usePixelExtraLiteFormat = True,
+         store_SimHitEntryExitPoints=False,
+         store_SimHitEntryExitPointsLite = False
 )
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim

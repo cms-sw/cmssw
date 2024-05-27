@@ -785,7 +785,7 @@ bool SiPixelChargeReweightingAlgorithm::lateSignalReweight(const PixelGeomDetUni
   }
   ierr = PixelTempRewgt2D(ID0, ID1, pixrewgt);
   if (ierr != 0) {
-    edm::LogError("SiPixelChargeReweightingAlgorithm") << "Cluster Charge Reweighting did not work properly.";
+    LogDebug("SiPixelChargeReweightingAlgorithm ") << "Cluster Charge Reweighting did not work properly.";
     return false;
   }
   if (PrintClusters) {
