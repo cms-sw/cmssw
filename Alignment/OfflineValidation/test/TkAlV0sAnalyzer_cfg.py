@@ -2,6 +2,21 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process('Analysis')
 
+import FWCore.ParameterSet.VarParsing as VarParsing
+
+options = VarParsing.VarParsing()
+options.register('unitTest',
+                 False, # default value
+                 VarParsing.VarParsing.multiplicity.singleton, # singleton or list
+                 VarParsing.VarParsing.varType.bool, # string, int, or float
+                 "is it a unit test?")
+options.register('maxEvents',
+                 -1,
+                 VarParsing.VarParsing.multiplicity.singleton, # singleton or list
+                 VarParsing.VarParsing.varType.int, # string, int, or float
+                 "num. events to run")
+options.parseArguments()
+
 ###################################################################
 # import of standard configurations
 ###################################################################
@@ -16,7 +31,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, '140X_dataRun3_Prompt_v2', '')
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100000) )
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32((10 if (options.unitTest) else options.maxEvents)))
 
 ###################################################################
 # Set the process to run multi-threaded
@@ -27,19 +42,21 @@ process.options.numberOfThreads = 8
 # Messages
 ###################################################################
 process.load('FWCore.MessageService.MessageLogger_cfi')   
-process.MessageLogger.cerr.FwkReport.reportEvery = 1000
+process.MessageLogger.cerr.FwkReport.reportEvery = 1 if (options.unitTest) else 1000
 
 ###################################################################
 # Source
 ###################################################################
-#readFiles = cms.untracked.vstring(['root://eoscms.cern.ch//eos/cms/tier0/store/data/Run2024D/HLTPhysics/ALCARECO/TkAlV0s-PromptReco-v1/000/380/623/00000/0e0761c1-f437-4fca-b8b5-5793e7ab0748.root'])
-
-import FWCore.Utilities.FileUtils as FileUtils
-filelist = FileUtils.loadListFromFile("fileList.txt")
-readFiles = cms.untracked.vstring( *filelist)
-
+readFiles=[]
+if options.unitTest:
+    readFiles = cms.untracked.vstring(['/store/data/Run2024D/HLTPhysics/ALCARECO/TkAlV0s-PromptReco-v1/000/380/933/00000/8d5dab35-8329-4648-a630-bab3497d725e.root'])
+else:
+    import FWCore.Utilities.FileUtils as FileUtils
+    filelist = FileUtils.loadListFromFile("fileList.txt")
+    readFiles = cms.untracked.vstring( *filelist)
+    
 process.source = cms.Source("PoolSource",
-                            fileNames = readFiles,
+                            fileNames = readFiles
                             )
 
 ###################################################################
