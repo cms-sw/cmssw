@@ -285,6 +285,7 @@ void L1TrackJetEmulatorProducer::produce(Event &iEvent, const EventSetup &iSetup
 
   vector<edm::Ptr<L1TTTrackType>> L1TrackAssocJet;
   for (unsigned int j = 0; j < mzb.clusters.size(); ++j) {
+    l1t::TkJetWord::tkjetvalid_t valid = 1;
     l1t::TkJetWord::glbeta_t jetEta = DoubleToBit(double(mzb.clusters[j].eta),
                                                   TkJetWord::TkJetBitWidths::kGlbEtaSize,
                                                   TkJetWord::MAX_ETA / (1 << TkJetWord::TkJetBitWidths::kGlbEtaSize));
@@ -305,7 +306,7 @@ void L1TrackJetEmulatorProducer::produce(Event &iEvent, const EventSetup &iSetup
     for (unsigned int itrk = 0; itrk < mzb.clusters[j].trackidx.size(); itrk++)
       L1TrackAssocJet.push_back(L1TrkPtrs_[mzb.clusters[j].trackidx[itrk]]);
 
-    l1t::TkJetWord trkJet(jetPt, jetEta, jetPhi, jetZ0, total_ntracks, total_disptracks, dispflag, unassigned);
+    l1t::TkJetWord trkJet(valid, jetPt, jetEta, jetPhi, jetZ0, total_ntracks, total_disptracks, dispflag, unassigned);
 
     L1TrackJetContainer->push_back(trkJet);
   }
