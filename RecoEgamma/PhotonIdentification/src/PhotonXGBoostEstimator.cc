@@ -3,6 +3,9 @@
 
 PhotonXGBoostEstimator::PhotonXGBoostEstimator(const edm::FileInPath& weightsFile, int best_ntree_limit) {
   XGBoosterCreate(NULL, 0, &booster_);
+  // Set number of threads to 1, to avoid spawning hundreds of OpenMP threads
+  // See https://github.com/cms-sw/cmssw/issues/44923 for details
+  XGBoosterSetParam(booster_, "nthread", "1");
   XGBoosterLoadModel(booster_, weightsFile.fullPath().c_str());
   best_ntree_limit_ = best_ntree_limit;
 
