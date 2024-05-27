@@ -101,7 +101,7 @@ struct HGCalPassive {
       double rinB = HGCalGeomTools::radius(zo, zFrontB, rMinFront, slopeB) + shiftBot;
       zim += moduleThick;
       for (unsigned int k = 0; k < tagSector.size(); ++k) {
-        std::string parentName = parentName + tagLayer[j] + tagSector[k];
+        std::string parentName = args.parentName() + tagLayer[j] + tagSector[k];
         double phi1 = phi0 + k * dphi;
         double phi2 = phi1 + dphi;
         double phi0 = phi1 + 0.5 * dphi;
