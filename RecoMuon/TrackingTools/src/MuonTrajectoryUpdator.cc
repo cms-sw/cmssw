@@ -158,7 +158,7 @@ pair<bool, TrajectoryStateOnSurface> MuonTrajectoryUpdator::update(const Traject
 
             if (!lastUpdatedTSOS.isValid()) {
               edm::LogInfo(metname) << "Invalid last TSOS, will skip RecHit ";
-              lastUpdatedTSOS = propagatedTSOS; // Revert update
+              lastUpdatedTSOS = propagatedTSOS;  // Revert update
               continue;
             }
 
