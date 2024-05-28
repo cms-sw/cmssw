@@ -79,7 +79,8 @@
 //                               depths in HE with values > 1 as depth 2; (4)
 //                               all depths in HB with values > 1 as depth 2;
 //                               (5) all depths in HB and HE with values > 1
-//                               as depth 2.
+//                               as depth 2; (6) for depth = 1 and 2, depth =
+//                               1, else depth = 2.
 //                               The digit *d* is used if zside is to be
 //                               ignored (1) or not (0)
 //                               (Default 0)
