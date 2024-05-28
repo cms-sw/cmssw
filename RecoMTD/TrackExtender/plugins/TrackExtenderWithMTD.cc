@@ -906,7 +906,6 @@ void TrackExtenderWithMTDT<TrackCollection>::produce(edm::Event& ev, const edm::
 #endif
     }
 
-    
     auto ordering = checkRecHitsOrdering(thits);
     if (ordering == RefitDirection::insideOut) {
       thits.insert(thits.end(), mtdthits.begin(), mtdthits.end());
@@ -995,7 +994,7 @@ void TrackExtenderWithMTDT<TrackCollection>::produce(edm::Event& ev, const edm::
           backtrack.hitPattern().printHitPattern(reco::HitPattern::MISSING_INNER_HITS, i, std::cout);
         }
 #endif
-	npixBarrel.push_back(backtrack.hitPattern().numberOfValidPixelBarrelHits());
+        npixBarrel.push_back(backtrack.hitPattern().numberOfValidPixelBarrelHits());
         npixEndcap.push_back(backtrack.hitPattern().numberOfValidPixelEndcapHits());
         outermostHitPosition.push_back(
             mBTL.hit ? (float)(*track).outerRadius()
