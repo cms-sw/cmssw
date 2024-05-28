@@ -294,7 +294,8 @@ std::vector<l1t::RegionalMuonCand> OMTFProcessor<GoldenPatternType>::getFinalcan
     //check if it matters if it needs to be here as well
     trackAddr[1] = myCand->getRefLayer();
     trackAddr[2] = myCand->getDisc();
-    trackAddr[3] = myCand->getGpResultUnconstr().getPdfSumUnconstr();
+    //TODO: uGMT expects only 3 sub-addresses, so not set 4th. This is anyway currently not used.
+    //trackAddr[3] = myCand->getGpResultUnconstr().getPdfSumUnconstr();
     if (candidate.hwPt() > 0 || candidate.hwPtUnconstrained() > 0) {
       candidate.setTrackAddress(trackAddr);
       candidate.setTFIdentifiers(iProcessor, mtfType);
