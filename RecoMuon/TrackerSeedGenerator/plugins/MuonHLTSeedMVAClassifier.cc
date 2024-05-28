@@ -8,6 +8,7 @@
 // system include files
 #include <memory>
 #include <cmath>
+#include <tinyxml2.h>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -22,6 +23,8 @@
 // Geometry
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+
+#include "CommonTools/MVAUtils/interface/TMVAZipReader.h"
 
 // TrajectorySeed
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
@@ -44,6 +47,7 @@ public:
   ~MuonHLTSeedMVAClassifier() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  bool checkMVAFileConsistency(const std::string& weightsFileFullPath, bool isFromL1) const;
 
 private:
   void produce(edm::Event&, const edm::EventSetup&) override;
@@ -87,6 +91,38 @@ private:
                     const reco::RecoChargedCandidateCollection& l2Muons);
 };
 
+bool MuonHLTSeedMVAClassifier::checkMVAFileConsistency(const std::string& weightsFileFullPath,
+                                                       const bool isFromL1) const {
+  tinyxml2::XMLDocument xmlDoc;
+  if (reco::details::hasEnding(weightsFileFullPath, ".xml")) {
+    xmlDoc.LoadFile(weightsFileFullPath.c_str());
+  } else {
+    edm::LogError("MuonHLTSeedMVAClassifier") << "unsupported file extension, it should be a .xml file!";
+    return false;
+  }
+  tinyxml2::XMLElement* root = xmlDoc.FirstChildElement("MethodSetup");
+  if (root == nullptr) {
+    edm::LogError("MuonHLTSeedMVAClassifier") << "could not retrieve the MethodSetup node from XML file!";
+    return false;
+  }
+
+  const auto& vars = root->FirstChildElement("Variables");
+  size_t n = 0;
+  if (vars != nullptr) {
+    for (tinyxml2::XMLElement* e = vars->FirstChildElement("Variable"); e != nullptr;
+         e = e->NextSiblingElement("Variable")) {
+      ++n;
+    }
+  } else {
+    edm::LogError("MuonHLTSeedMVAClassifier") << "could not retrieve the Variables node from XML file!";
+    return false;
+  }
+
+  LogTrace("MuonHLTSeedMVAClassifier") << "MVA file:" << weightsFileFullPath.c_str() << " n Var:" << n;
+  bool condition = (isFromL1 && (n == inputIndexes::kLastL1)) || (!isFromL1 && (n == inputIndexes::kLastL2));
+  return condition;
+}
+
 MuonHLTSeedMVAClassifier::MuonHLTSeedMVAClassifier(const edm::ParameterSet& iConfig)
     : seedToken_(consumes<TrajectorySeedCollection>(iConfig.getParameter<edm::InputTag>("src"))),
       l1MuonToken_(consumes<l1t::MuonBxCollection>(iConfig.getParameter<edm::InputTag>("L1Muon"))),
@@ -111,14 +147,9 @@ MuonHLTSeedMVAClassifier::MuonHLTSeedMVAClassifier(const edm::ParameterSet& iCon
   const auto& mvaFileBPath = mvaFileB_.fullPath();
   const auto& mvaFileEPath = mvaFileE_.fullPath();
 
-  if (!isFromL1_ and
-      ((mvaFileBPath.find("FromL1") != std::string::npos) or (mvaFileEPath.find("FromL1") != std::string::npos))) {
-    throw cms::Exception("ConfigurationError")
-        << " isFromL1 parameter is False, but using FromL1 MVA files.\n Please check your configuration";
-  } else if (isFromL1_ and ((mvaFileBPath.find("FromL1") == std::string::npos) or
-                            (mvaFileEPath.find("FromL1") == std::string::npos))) {
-    throw cms::Exception("ConfigurationError")
-        << " isFromL1 parameter is True, but not using FromL1 MVA files.\n Please check your configuration";
+  if (!checkMVAFileConsistency(mvaFileBPath, isFromL1_) || !checkMVAFileConsistency(mvaFileEPath, isFromL1_)) {
+    throw cms::Exception("ConfigurationError") << " MVA files appear to be not consistent with the value of isFromL1 "
+                                                  "parameter.\n Please check your configuration.";
   }
 
   if (!rejectAll_) {
