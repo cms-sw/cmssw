@@ -1,3 +1,4 @@
+#include "CondFormats/PhysicsToolsObjects/interface/DeDxCalibration.h"
 #include "CondFormats/PhysicsToolsObjects/interface/Histogram.h"
 #include "CondFormats/PhysicsToolsObjects/interface/Histogram2D.h"
 #include "CondFormats/PhysicsToolsObjects/interface/Histogram3D.h"
