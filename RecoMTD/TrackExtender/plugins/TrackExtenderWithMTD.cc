@@ -899,8 +899,14 @@ void TrackExtenderWithMTDT<TrackCollection>::produce(edm::Event& ev, const edm::
                                            mETL);
         mtdthits.insert(mtdthits.end(), etlhits.begin(), etlhits.end());
       }
+#ifdef EDM_ML_DEBUG
+      else {
+        LogTrace("TrackExtenderWithMTD") << "Failing getTrajectoryStateClosestToBeamLine, no search for hits in MTD!";
+      }
+#endif
     }
 
+    
     auto ordering = checkRecHitsOrdering(thits);
     if (ordering == RefitDirection::insideOut) {
       thits.insert(thits.end(), mtdthits.begin(), mtdthits.end());
@@ -979,7 +985,17 @@ void TrackExtenderWithMTDT<TrackCollection>::produce(edm::Event& ev, const edm::
         for (unsigned ihit = hitsstart; ihit < hitsend; ++ihit) {
           backtrack.appendHitPattern((*outhits)[ihit], ttopo);
         }
-        npixBarrel.push_back(backtrack.hitPattern().numberOfValidPixelBarrelHits());
+#ifdef EDM_ML_DEBUG
+        LogTrace("TrackExtenderWithMTD") << "TrackExtenderWithMTD: hit pattern of refitted track";
+        for (int i = 0; i < backtrack.hitPattern().numberOfAllHits(reco::HitPattern::TRACK_HITS); i++) {
+          backtrack.hitPattern().printHitPattern(reco::HitPattern::TRACK_HITS, i, std::cout);
+        }
+        LogTrace("TrackExtenderWithMTD") << "TrackExtenderWithMTD: missing hit pattern of refitted track";
+        for (int i = 0; i < backtrack.hitPattern().numberOfAllHits(reco::HitPattern::MISSING_INNER_HITS); i++) {
+          backtrack.hitPattern().printHitPattern(reco::HitPattern::MISSING_INNER_HITS, i, std::cout);
+        }
+#endif
+	npixBarrel.push_back(backtrack.hitPattern().numberOfValidPixelBarrelHits());
         npixEndcap.push_back(backtrack.hitPattern().numberOfValidPixelEndcapHits());
         outermostHitPosition.push_back(
             mBTL.hit ? (float)(*track).outerRadius()

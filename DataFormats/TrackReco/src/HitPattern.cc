@@ -143,7 +143,7 @@ namespace {
       MTDDetId mtdid(id);
       switch (mtdid.mtdSubDetector()) {
         case MTDDetId::BTL:
-          layer = BTLDetId(id).modType();
+          layer = BTLDetId(id).globalRunit();
           break;
         case MTDDetId::ETL:
           layer = ETLDetId(id).mtdRR();
@@ -188,6 +188,7 @@ uint16_t HitPattern::encode(const DetId& id, TrackingRecHit::Type hitType, const
     detid = MUON_HIT;  // DetId::Muon is 2 and needs to be reordered to match old encoding where it got masked
   } else if (detid == DetId::Forward && subdet == FastTime) {
     detid = MTD_HIT;  // since DetId::Forward is some other number, reorder it here
+    subdet = static_cast<uint16_t>(MTDDetId(id).mtdSubDetector());
   }
 
   return encode(detid, subdet, layer, side, hitType);
@@ -850,7 +851,21 @@ void HitPattern::printHitPattern(HitCategory category, int position, std::ostrea
       stream << "(UNKNOWN Muon SubStructure!) \tsubsubstructure " << getSubStructure(pattern);
     }
   } else if (timingHitFilter(pattern)) {
-    stream << "\tdetector " << getSubStructure(pattern);
+    uint32_t rr = getLayer(pattern);
+    switch (getSubStructure(pattern)) {
+      case 1:
+        stream << "\tRU " << getLayer(pattern);
+        break;
+      case 2: {
+        uint32_t disc(99), discside(99), sector(99);
+        ETLDetId::decodeSector(rr, disc, discside, sector);
+        stream << "\tdisc/disc side/sector " << disc << " " << discside << " " << sector;
+        break;
+      }
+      default:
+        stream << "\tlayer " << rr;
+        break;
+    }
   } else {
     stream << "\tlayer " << getLayer(pattern);
   }
