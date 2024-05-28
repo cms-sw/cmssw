@@ -22,7 +22,7 @@ namespace pat {
 
     void set(std::string name, float value);
 
-    float predict();
+    float predict(const int iterationEnd = 0);
 
   private:
     std::vector<float> features_;
