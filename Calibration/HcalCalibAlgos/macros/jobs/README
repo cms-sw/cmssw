@@ -1,0 +1,28 @@
+Steps to be taken to submit batch jobs which create the flat ROOT Trees.
+1. Modify one of the python files:
+     - isoTrackNewAlCaAnalysis_cfg.py for AlCaReco files from EGamma data stream
+     - isoTrackAlCaCommissioning_cfg.py for AlCaReco files from Commissioning stream
+2. Use crab to submit the jobs:
+     - crab submit -c CrabConfig_EGamm_EraC_2024_EGamm0.py for the EGamma stream
+     - crab submit -c CrabConfig_Commissioning.py for the Commissioning stream
+   This will create a whole set of ROOT output files with isolated track candidates
+   of momentum between 10 and 100 Gev
+3. May strip off events with track candidates of momentum between 40 and 60 GeV
+   ./CalibMain.exe 3 <InputFile> <HistogramFile> <Flag> <DirectoryName> <Prefix>
+                   <PUcorr> <Truncate> <Nmax> <pmin> <pmax> <debug>
+
+Create the executable CalibMain.exe using the script installCalib.csh
+
+Name of the ROOT files to be used as input can be kept in a file (example d24CE.txt)
+
+Some sample command lines for running calibration jobs (which creates correction files)
+and monitoring jobs (which creates a set of histograms to be used for making
+histograms to be used in the next step) are kept in *jobs.txt*.
+
+Note <DirectoryName> for EGamma stream (hcalIsoTrackAnalyzer) is different from
+that for Commissioning stream (hcalIsoTrkAnalyzer)
+
+Fit the histograms and make the plots:
+root [1] .L CalibFitPlots.C+g
+root [2] FitHistExtended("24CEM1.root","24CFit.root","24CE1",54,3,true,true,3,false)
+root [3] PlotHist("24CFit.root","24CE1","24C E#gamma Depth Dependent",1,11,0,13.6,true,false,2)
