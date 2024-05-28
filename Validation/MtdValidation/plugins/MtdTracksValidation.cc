@@ -159,6 +159,7 @@ private:
   edm::EDGetTokenT<edm::ValueMap<float>> SigmaTofKToken_;
   edm::EDGetTokenT<edm::ValueMap<float>> SigmaTofPToken_;
   edm::EDGetTokenT<edm::ValueMap<float>> trackMVAQualToken_;
+  edm::EDGetTokenT<edm::ValueMap<float>> outermostHitPositionToken_;
 
   edm::ESGetToken<MTDGeometry, MTDDigiGeometryRecord> mtdgeoToken_;
   edm::ESGetToken<MTDTopology, MTDTopologyRcd> mtdtopoToken_;
@@ -199,6 +200,8 @@ private:
   MonitorElement* meTrackNumHitsNT_;
   MonitorElement* meTrackMVAQual_;
   MonitorElement* meTrackPathLenghtvsEta_;
+  MonitorElement* meTrackOutermostHitR_;
+  MonitorElement* meTrackOutermostHitZ_;
 
   MonitorElement* meTrackSigmaTof_[3];
   MonitorElement* meTrackSigmaTofvsP_[3];
@@ -293,6 +296,8 @@ MtdTracksValidation::MtdTracksValidation(const edm::ParameterSet& iConfig)
   SigmaTofKToken_ = consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("sigmaTofK"));
   SigmaTofPToken_ = consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("sigmaTofP"));
   trackMVAQualToken_ = consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("trackMVAQual"));
+  outermostHitPositionToken_ =
+      consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("outermostHitPositionSrc"));
   mtdgeoToken_ = esConsumes<MTDGeometry, MTDDigiGeometryRecord>();
   mtdtopoToken_ = esConsumes<MTDTopology, MTDTopologyRcd>();
   mtdlayerToken_ = esConsumes<MTDDetLayerGeometry, MTDRecoGeometryRecord>();
@@ -332,6 +337,7 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
   const auto& mtdQualMVA = iEvent.get(trackMVAQualToken_);
   const auto& trackAssoc = iEvent.get(trackAssocToken_);
   const auto& pathLength = iEvent.get(pathLengthToken_);
+  const auto& outermostHitPosition = iEvent.get(outermostHitPositionToken_);
 
   const auto& primRecoVtx = *(RecVertexHandle.product()->begin());
 
@@ -547,6 +553,11 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
           }
         }
       }
+
+      if (isBTL)
+        meTrackOutermostHitR_->Fill(outermostHitPosition[trackref]);
+      if (isETL)
+        meTrackOutermostHitZ_->Fill(outermostHitPosition[trackref]);
 
       LogDebug("MtdTracksValidation") << "Track p/pt = " << track.p() << " " << track.pt() << " eta " << track.eta()
                                       << " BTL " << isBTL << " ETL " << isETL << " 2disks " << twoETLdiscs;
@@ -973,6 +984,10 @@ void MtdTracksValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
   meTrackPathLenghtvsEta_ = ibook.bookProfile(
       "TrackPathLenghtvsEta", "MTD Track pathlength vs MTD track Eta;|#eta|;Pathlength", 100, 0, 3.2, 100.0, 400.0, "S");
 
+  meTrackOutermostHitR_ = ibook.book1D("TrackOutermostHitR", "Track outermost hit position R; R[cm]", 100, 0, 120.);
+
+  meTrackOutermostHitZ_ = ibook.book1D("TrackOutermostHitZ", "Track outermost hit position Z; z[cm]", 100, 0, 350.);
+
   meTrackSigmaTof_[0] =
       ibook.book1D("TrackSigmaTof_Pion", "Sigma(TOF) for pion hypothesis; #sigma_{t0} [ps]", 10, 0, 5);
   meTrackSigmaTof_[1] =
@@ -1238,6 +1253,8 @@ void MtdTracksValidation::fillDescriptions(edm::ConfigurationDescriptions& descr
   desc.add<edm::InputTag>("sigmaTofK", edm::InputTag("trackExtenderWithMTD:generalTrackSigmaTofK"));
   desc.add<edm::InputTag>("sigmaTofP", edm::InputTag("trackExtenderWithMTD:generalTrackSigmaTofP"));
   desc.add<edm::InputTag>("trackMVAQual", edm::InputTag("mtdTrackQualityMVA:mtdQualMVA"));
+  desc.add<edm::InputTag>("outermostHitPositionSrc",
+                          edm::InputTag("trackExtenderWithMTD:generalTrackOutermostHitPosition"));
   desc.add<double>("trackMinimumPt", 0.7);  // [GeV]
   desc.add<double>("trackMaximumBtlEta", 1.5);
   desc.add<double>("trackMinimumEtlEta", 1.6);

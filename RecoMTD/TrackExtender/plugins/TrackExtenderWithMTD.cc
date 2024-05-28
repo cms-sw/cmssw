@@ -566,6 +566,7 @@ private:
   edm::EDPutToken etlMatchTimeChi2Token_;
   edm::EDPutToken npixBarrelToken_;
   edm::EDPutToken npixEndcapToken_;
+  edm::EDPutToken outermostHitPositionToken_;
   edm::EDPutToken pOrigTrkToken_;
   edm::EDPutToken betaOrigTrkToken_;
   edm::EDPutToken t0OrigTrkToken_;
@@ -657,6 +658,7 @@ TrackExtenderWithMTDT<TrackCollection>::TrackExtenderWithMTDT(const ParameterSet
   etlMatchTimeChi2Token_ = produces<edm::ValueMap<float>>("etlMatchTimeChi2");
   npixBarrelToken_ = produces<edm::ValueMap<int>>("npixBarrel");
   npixEndcapToken_ = produces<edm::ValueMap<int>>("npixEndcap");
+  outermostHitPositionToken_ = produces<edm::ValueMap<float>>("generalTrackOutermostHitPosition");
   pOrigTrkToken_ = produces<edm::ValueMap<float>>("generalTrackp");
   betaOrigTrkToken_ = produces<edm::ValueMap<float>>("generalTrackBeta");
   t0OrigTrkToken_ = produces<edm::ValueMap<float>>("generalTrackt0");
@@ -774,6 +776,7 @@ void TrackExtenderWithMTDT<TrackCollection>::produce(edm::Event& ev, const edm::
   std::vector<float> etlMatchTimeChi2;
   std::vector<int> npixBarrel;
   std::vector<int> npixEndcap;
+  std::vector<float> outermostHitPosition;
   std::vector<float> pOrigTrkRaw;
   std::vector<float> betaOrigTrkRaw;
   std::vector<float> t0OrigTrkRaw;
@@ -978,6 +981,13 @@ void TrackExtenderWithMTDT<TrackCollection>::produce(edm::Event& ev, const edm::
         }
         npixBarrel.push_back(backtrack.hitPattern().numberOfValidPixelBarrelHits());
         npixEndcap.push_back(backtrack.hitPattern().numberOfValidPixelEndcapHits());
+
+        std::cout << "isBTL: " << mBTL.hit << "    outermost hot position: z = " << (*track).outerZ()
+                  << "   R = " << (*track).outerRadius() << std::endl;
+        outermostHitPosition.push_back(
+            mBTL.hit ? (float)(*track).outerRadius()
+                     : (float)(*track).outerZ());  // save R of the outermost hit for BTL, z for ETL.
+
         LogTrace("TrackExtenderWithMTD") << "TrackExtenderWithMTD: tmtd " << tmtdMap << " +/- " << sigmatmtdMap
                                          << " t0 " << t0Map << " +/- " << sigmat0Map << " tof pi/K/p " << tofpiMap
                                          << "+/-" << fmt::format("{:0.2g}", sigmatofpiMap) << " ("
@@ -1013,6 +1023,7 @@ void TrackExtenderWithMTDT<TrackCollection>::produce(edm::Event& ev, const edm::
       etlMatchTimeChi2.push_back(-1.f);
       npixBarrel.push_back(-1.f);
       npixEndcap.push_back(-1.f);
+      outermostHitPosition.push_back(0.);
     }
 
     ++itrack;
@@ -1028,6 +1039,7 @@ void TrackExtenderWithMTDT<TrackCollection>::produce(edm::Event& ev, const edm::
   fillValueMap(ev, tracksH, etlMatchTimeChi2, etlMatchTimeChi2Token_);
   fillValueMap(ev, tracksH, npixBarrel, npixBarrelToken_);
   fillValueMap(ev, tracksH, npixEndcap, npixEndcapToken_);
+  fillValueMap(ev, tracksH, outermostHitPosition, outermostHitPositionToken_);
   fillValueMap(ev, tracksH, pOrigTrkRaw, pOrigTrkToken_);
   fillValueMap(ev, tracksH, betaOrigTrkRaw, betaOrigTrkToken_);
   fillValueMap(ev, tracksH, t0OrigTrkRaw, t0OrigTrkToken_);
