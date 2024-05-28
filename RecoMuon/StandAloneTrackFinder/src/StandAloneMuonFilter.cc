@@ -233,7 +233,12 @@ void StandAloneMuonFilter::refit(const TrajectoryStateOnSurface& initialTSOS,
     LogTrace(metname) << "search Trajectory Measurement from: " << lastTSOS.globalPosition();
 
     // pick the best measurement from each group
-    std::vector<TrajectoryMeasurement> bestMeasurements = findBestMeasurements(*layer, lastTSOS);
+    std::vector<TrajectoryMeasurement> bestMeasurements{};
+
+    if (lastTSOS.isValid())
+      bestMeasurements = findBestMeasurements(*layer, lastTSOS);
+    else
+      edm::LogInfo(metname) << "Invalid last TSOS, will not find best measurements ";
 
     // RB: Different ways can be choosen if no bestMeasurement is available:
     // 1- check on lastTSOS-initialTSOS eta difference
@@ -251,7 +256,11 @@ void StandAloneMuonFilter::refit(const TrajectoryStateOnSurface& initialTSOS,
     if (bestMeasurements.empty() && lastdEta > 0.1) {
       LogTrace(metname) << "No measurement and big eta variation wrt seed" << endl
                         << "trying with lastButOneUpdatedTSOS";
-      bestMeasurements = findBestMeasurements(*layer, theLastButOneUpdatedTSOS);
+
+      if (theLastButOneUpdatedTSOS.isValid())
+        bestMeasurements = findBestMeasurements(*layer, theLastButOneUpdatedTSOS);
+      else
+        edm::LogInfo(metname) << "Invalid last but one updated TSOS, will not find best measurements ";
     }
 
     //if no measurement found and the current FTS has an eta very different
@@ -259,7 +268,11 @@ void StandAloneMuonFilter::refit(const TrajectoryStateOnSurface& initialTSOS,
     //according to the initial FTS. (1A)
     if (bestMeasurements.empty() && lastdEta > 0.1) {
       LogTrace(metname) << "No measurement and big eta variation wrt seed" << endl << "tryng with seed TSOS";
-      bestMeasurements = findBestMeasurements(*layer, initialTSOS);
+
+      if (initialTSOS.isValid())
+        bestMeasurements = findBestMeasurements(*layer, initialTSOS);
+      else
+        edm::LogInfo(metname) << "Invalid initial TSOS, will not find best measurements ";
     }
 
     // FIXME: uncomment this line!!
