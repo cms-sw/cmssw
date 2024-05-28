@@ -21,10 +21,10 @@ namespace HepMC3 {
 namespace edm {
   class HepMC3Product {
   public:
-    HepMC3Product() : evt_(nullptr), isVtxGenApplied_(false), isVtxBoostApplied_(false), isPBoostApplied_(false) {}
+    HepMC3Product() : isVtxGenApplied_(false), isVtxBoostApplied_(false), isPBoostApplied_(false) {}
 
     explicit HepMC3Product(HepMC3::GenEvent *evt);
-    virtual ~HepMC3Product();
+    ~HepMC3Product();
 
     void addHepMCData(HepMC3::GenEvent *evt);
 
@@ -33,20 +33,14 @@ namespace edm {
 
     void boostToLab(TMatrixD const *lorentz, std::string const &type);
 
-    const HepMC3::GenEventData *GetEvent() const { return evt_; }
+    const HepMC3::GenEventData *GetEvent() const { return &evt_; }
 
     bool isVtxGenApplied() const { return isVtxGenApplied_; }
     bool isVtxBoostApplied() const { return isVtxBoostApplied_; }
     bool isPBoostApplied() const { return isPBoostApplied_; }
 
-    HepMC3Product(HepMC3Product const &orig);
-    HepMC3Product &operator=(HepMC3Product const &other);
-    HepMC3Product(HepMC3Product &&orig);
-    HepMC3Product &operator=(HepMC3Product &&other);
-    void swap(HepMC3Product &other);
-
   private:
-    HepMC3::GenEventData *evt_;
+    HepMC3::GenEventData evt_;
 
     bool isVtxGenApplied_;
     bool isVtxBoostApplied_;

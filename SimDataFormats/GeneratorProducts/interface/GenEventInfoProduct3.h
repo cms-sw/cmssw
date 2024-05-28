@@ -20,7 +20,7 @@ public:
   GenEventInfoProduct3(const HepMC3::GenEvent *evt);
   GenEventInfoProduct3(const GenEventInfoProduct3 &other);
   GenEventInfoProduct3(GenEventInfoProduct3 &&other);
-  virtual ~GenEventInfoProduct3();
+  ~GenEventInfoProduct3();
 
   GenEventInfoProduct3 &operator=(const GenEventInfoProduct3 &other);
   GenEventInfoProduct3 &operator=(GenEventInfoProduct3 &&other);

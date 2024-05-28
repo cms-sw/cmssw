@@ -22,17 +22,12 @@ HepMC3Product::HepMC3Product(HepMC3::GenEvent* evt)
 }
 
 HepMC3Product::~HepMC3Product() {
-  delete evt_;
-  evt_ = nullptr;
   isVtxGenApplied_ = false;
   isVtxBoostApplied_ = false;
   isPBoostApplied_ = false;
 }
 
-void HepMC3Product::addHepMCData(HepMC3::GenEvent* evt) {
-  evt_ = new HepMC3::GenEventData();
-  evt->write_data(*evt_);
-}
+void HepMC3Product::addHepMCData(HepMC3::GenEvent* evt) { evt->write_data(evt_); }
 
 void HepMC3Product::applyVtxGen(HepMC3::FourVector const& vtxShift) {
   //std::cout<< " applyVtxGen called " << isVtxGenApplied_ << endl;
@@ -40,9 +35,9 @@ void HepMC3Product::applyVtxGen(HepMC3::FourVector const& vtxShift) {
   if (isVtxGenApplied())
     return;
   HepMC3::GenEvent evt;
-  evt.read_data(*evt_);
+  evt.read_data(evt_);
   evt.shift_position_by(vtxShift);
-  evt.write_data(*evt_);
+  evt.write_data(evt_);
   isVtxGenApplied_ = true;
   return;
 }
@@ -50,7 +45,7 @@ void HepMC3Product::applyVtxGen(HepMC3::FourVector const& vtxShift) {
 void HepMC3Product::boostToLab(TMatrixD const* lorentz, std::string const& type) {
   //std::cout << "from boostToLab:" << std::endl;
   HepMC3::GenEvent evt;
-  evt.read_data(*evt_);
+  evt.read_data(evt_);
 
   if (lorentz == nullptr) {
     //std::cout << " lorentz = 0 " << std::endl;
@@ -110,39 +105,6 @@ void HepMC3Product::boostToLab(TMatrixD const* lorentz, std::string const& type)
     //  << "no type found for boostToLab(std::string), options are vertex or momentum \n";
   }
 
-  evt.write_data(*evt_);
+  evt.write_data(evt_);
   return;
-}
-
-// copy constructor
-HepMC3Product::HepMC3Product(HepMC3Product const& other) : evt_(nullptr) {
-  if (other.evt_)
-    evt_ = new HepMC3::GenEventData(*other.evt_);
-  isVtxGenApplied_ = other.isVtxGenApplied_;
-  isVtxBoostApplied_ = other.isVtxBoostApplied_;
-  isPBoostApplied_ = other.isPBoostApplied_;
-  //fTimeOffset = other.fTimeOffset;
-}
-
-// swap
-void HepMC3Product::swap(HepMC3Product& other) {
-  std::swap(evt_, other.evt_);
-  std::swap(isVtxGenApplied_, other.isVtxGenApplied_);
-  std::swap(isVtxBoostApplied_, other.isVtxBoostApplied_);
-  std::swap(isPBoostApplied_, other.isPBoostApplied_);
-  //std::swap(fTimeOffset, other.fTimeOffset);
-}
-
-// assignment: use copy/swap idiom for exception safety.
-HepMC3Product& HepMC3Product::operator=(HepMC3Product const& other) {
-  HepMC3Product temp(other);
-  swap(temp);
-  return *this;
-}
-
-// move, needed explicitly as we have raw pointer...
-HepMC3Product::HepMC3Product(HepMC3Product&& other) : evt_(nullptr) { swap(other); }
-HepMC3Product& HepMC3Product::operator=(HepMC3Product&& other) {
-  swap(other);
-  return *this;
 }
