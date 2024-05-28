@@ -90,6 +90,7 @@ namespace cond {
         IMPORT_PAYLOAD_CASE(CastorRecoParams)
         IMPORT_PAYLOAD_CASE(CastorSaturationCorrs)
         IMPORT_PAYLOAD_CASE(CentralityTable)
+        IMPORT_PAYLOAD_CASE(DeDxCalibration)
         IMPORT_PAYLOAD_CASE(DTCCBConfig)
         IMPORT_PAYLOAD_CASE(DTDeadFlag)
         IMPORT_PAYLOAD_CASE(DTHVStatus)

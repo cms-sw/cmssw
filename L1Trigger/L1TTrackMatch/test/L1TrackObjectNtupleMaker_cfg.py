@@ -13,7 +13,7 @@ L1TRK_INST ="MyL1TrackJets" ### if not in input DIGRAW then we make them in the 
 process = cms.Process(L1TRK_INST)
 
 #L1TRKALGO = 'HYBRID'  #baseline, 4par fit
-# L1TRKALGO = 'HYBRID_DISPLACED'  #extended, 5par fit
+#L1TRKALGO = 'HYBRID_DISPLACED'  #extended, 5par fit
 L1TRKALGO = 'HYBRID_PROMPTANDDISP'
 
 DISPLACED = ''
@@ -45,8 +45,7 @@ process.MessageLogger.cerr.INFO.limit = cms.untracked.int32(0) # default: 0
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(20))
 
 readFiles = cms.untracked.vstring(
-                              'file:/eos/cms/store/cmst3/group/l1tr/gpetrucc/prod125X/WTo3Pion_pythia8_PU200/WTo3Pion_pythia8_PU200.batch3.job99.root'
-#                                  '/store/relval/CMSSW_13_0_0/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/130X_mcRun4_realistic_v2_2026D95noPU-v1/00000/16f6615d-f98c-475f-ad33-0e89934b6c7f.root'
+    '/store/mc/Phase2Spring23DIGIRECOMiniAOD/TT_TuneCP5_14TeV-powheg-pythia8/GEN-SIM-DIGI-RAW-MINIAOD/PU200_L1TFix_Trk1GeV_131X_mcRun4_realistic_v9-v1/50000/1cc5c14c-5bae-4e68-a369-04e230788660.root'
 )
 secFiles = cms.untracked.vstring()
 
@@ -127,8 +126,6 @@ if runVtxNN:
     VertexAssociator = process.l1tTrackVertexNNAssociationProducer
     AssociationName = "l1tTrackVertexNNAssociationProducer"
 else:
-    process.l1tVertexFinderEmulator = process.l1tVertexProducer.clone()
-    process.l1tVertexFinderEmulator.VertexReconstruction.Algorithm = "FHEmulation"
     VertexAssociator = process.l1tTrackVertexAssociationProducer
     AssociationName = "l1tTrackVertexAssociationProducer"
     
@@ -152,6 +149,7 @@ if (L1TRKALGO == 'HYBRID'):
     process.pTkMETEmu = cms.Path(process.l1tTrackerEmuEtMiss)
     process.pTkMHT = cms.Path(process.l1tTrackerHTMiss)
     process.pTkMHTEmulator = cms.Path(process.l1tTrackerEmuHTMiss)
+    process.pL1TrackTripletEmulator = cms.Path(process.l1tTrackTripletEmulation)
     DISPLACED = 'Prompt'
 
 # HYBRID: extended tracking

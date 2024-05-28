@@ -32,6 +32,8 @@ if 'MessageLogger' in process.__dict__:
     process.MessageLogger.CaloSim=dict()
     process.MessageLogger.FlatThetaGun=dict()
     process.MessageLogger.FlatEvtVtx=dict()
+    process.MessageLogger.HGCalGeom=dict()
+    process.MessageLogger.HGCalGeomX=dict()
 
 # Input source
 process.source = cms.Source("EmptySource")

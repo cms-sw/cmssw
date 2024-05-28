@@ -41,18 +41,18 @@ namespace lutNN {
   template <int input_I, int input_F, size_t inputSize, int lut_I, int lut_F, int neurons, int output_I>
   class LutNeuronLayerFixedPoint {
   public:
-    static const int input_W = input_I + input_F;
-    static const int lut_W = lut_I + lut_F;
+    static constexpr int input_W = input_I + input_F;
+    static constexpr int lut_W = lut_I + lut_F;
 
     //the lut out values sum
     //static const int lutOutSum_I = lut_I + ceil(log2(inputSize)); //MB: ceil(log2(inputSize)) is not constexpr which makes issue for code-checks
-    static const int lutOutSum_I = lut_I + ceillog2(inputSize);
-    static const int lutOutSum_W = lutOutSum_I + lut_F;
+    static constexpr int lutOutSum_I = lut_I + ceillog2(inputSize);
+    static constexpr int lutOutSum_W = lutOutSum_I + lut_F;
 
-    static const int output_W = output_I + lut_F;
+    static constexpr int output_W = output_I + lut_F;
 
     //static_assert( (1<<input_I) <= lutSize);
-    static const size_t lutSize = 1 << input_I;
+    static constexpr size_t lutSize = 1 << input_I;
 
     typedef std::array<ap_ufixed<input_W, input_I, AP_TRN, AP_SAT>, inputSize> inputArrayType;
 

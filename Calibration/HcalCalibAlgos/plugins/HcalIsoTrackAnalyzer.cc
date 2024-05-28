@@ -32,7 +32,7 @@
 class HcalIsoTrackAnalyzer : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::SharedResources> {
 public:
   explicit HcalIsoTrackAnalyzer(edm::ParameterSet const&);
-  ~HcalIsoTrackAnalyzer() override {}
+  ~HcalIsoTrackAnalyzer() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -111,6 +111,11 @@ HcalIsoTrackAnalyzer::HcalIsoTrackAnalyzer(const edm::ParameterSet& iConfig)
                                    << "\t momentumHigh_ " << pTrackHigh_ << "\t useRaw_ " << useRaw_
                                    << "\t dataType_      " << dataType_ << "\t unCorrect " << unCorrect_ << " and "
                                    << debEvents_.size() << " events to be debugged";
+}
+
+HcalIsoTrackAnalyzer::~HcalIsoTrackAnalyzer() {
+  if (respCorrs_)
+    delete respCorrs_;
 }
 
 void HcalIsoTrackAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) {

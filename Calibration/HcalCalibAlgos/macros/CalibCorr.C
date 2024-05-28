@@ -51,6 +51,10 @@
 // void CalibCorrScale(infile, oufile, scale)
 //      Scales all contents of correction factors by "scale" from "infile"
 //      to "outfile"
+// void CalibCorrScale2(infile, oufile, scaleB, scaleT, scaleE)
+//      Scales all contents of correction factors in the barrel, transition and
+//      endcap regions by "scaleB", "scaleT", "scaleE" from "infile" and writes
+//      them to "outfile"
 //////////////////////////////////////////////////////////////////////////////
 #ifndef CalibrationHcalCalibAlgosCalibCorr_h
 #define CalibrationHcalCalibAlgosCalibCorr_h
@@ -143,6 +147,13 @@ unsigned int truncateId(unsigned int detId, int truncateFlag, bool debug = false
   } else if (truncate0 == 5) {
     //Ignore depth index for depth > 1 in HB and HE
     if (depth > 1)
+      depth = 2;
+  } else if (truncate0 == 6) {
+    //Ignore depth index for depth > 2 in HB and HE and
+    // depthe 1, 2 are considered as depth 1
+    if (depth <= 2)
+      depth = 1;
+    else
       depth = 2;
   }
   id = (subdet << 25) | (0x1000000) | ((depth & 0xF) << 20) | ((zside > 0) ? (0x80000 | (ieta << 10)) : (ieta << 10));
@@ -1341,6 +1352,60 @@ void CalibCorrScale(const char* infile, const char* outfile, double scale) {
             int depth = std::atoi(items[2].c_str());
             float corrf = scale * std::atof(items[3].c_str());
             float dcorr = scale * std::atof(items[4].c_str());
+            myfile << std::setw(10) << items[0] << std::setw(10) << std::dec << ieta << std::setw(10) << depth
+                   << std::setw(10) << corrf << " " << std::setw(10) << dcorr << std::endl;
+          }
+        }
+        fInput.close();
+        std::cout << "Reads total of " << all << ", " << comment << " and " << good << " good records from " << infile
+                  << " and copied to " << outfile << std::endl;
+      }
+    }
+    myfile.close();
+  }
+}
+
+void CalibCorrScale2(const char* infile, const char* outfile, double scaleB, double scaleT, double scaleE) {
+  int ietasL[3] = {0, 13, 17};
+  int ietasH[3] = {14, 18, 29};
+  double scale[3] = {scaleB, scaleT, scaleE};
+  std::ofstream myfile;
+  myfile.open(outfile);
+  if (!myfile.is_open()) {
+    std::cout << "** ERROR: Can't open '" << outfile << std::endl;
+  } else {
+    if (std::string(infile) != "") {
+      std::ifstream fInput(infile);
+      if (!fInput.good()) {
+        std::cout << "Cannot open file " << infile << std::endl;
+      } else {
+        char buffer[1024];
+        unsigned int all(0), good(0), comment(0);
+        while (fInput.getline(buffer, 1024)) {
+          ++all;
+          if (buffer[0] == '#') {
+            myfile << buffer << std::endl;
+            ++comment;
+            continue;  //ignore comment
+          }
+          std::vector<std::string> items = splitString(std::string(buffer));
+          if (items.size() != 5) {
+            std::cout << "Ignore  line: " << buffer << std::endl;
+          } else {
+            ++good;
+            int ieta = std::atoi(items[1].c_str());
+            int depth = std::atoi(items[2].c_str());
+            int jp(-1);
+            for (int j = 0; j < 3; ++j) {
+              if (std::abs(ieta) > ietasL[j] && std::abs(ieta) <= ietasH[j]) {
+                if (jp < 0)
+                  jp = j;
+              }
+            }
+            if (jp < 0)
+              jp = 2;
+            float corrf = scale[jp] * std::atof(items[3].c_str());
+            float dcorr = scale[jp] * std::atof(items[4].c_str());
             myfile << std::setw(10) << items[0] << std::setw(10) << std::dec << ieta << std::setw(10) << depth
                    << std::setw(10) << corrf << " " << std::setw(10) << dcorr << std::endl;
           }

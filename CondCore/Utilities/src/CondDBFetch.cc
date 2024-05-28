@@ -70,6 +70,7 @@ namespace cond {
       FETCH_PAYLOAD_CASE(CastorRecoParams)
       FETCH_PAYLOAD_CASE(CastorSaturationCorrs)
       FETCH_PAYLOAD_CASE(CentralityTable)
+      FETCH_PAYLOAD_CASE(DeDxCalibration)
       FETCH_PAYLOAD_CASE(DTCCBConfig)
       FETCH_PAYLOAD_CASE(DTDeadFlag)
       FETCH_PAYLOAD_CASE(DTHVStatus)
