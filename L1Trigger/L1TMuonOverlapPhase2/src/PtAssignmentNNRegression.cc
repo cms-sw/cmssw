@@ -21,35 +21,35 @@
 #include <fstream>
 
 namespace lutNN {
-  static const int input_I = 10;
-  static const int input_F = 4;
-  static const std::size_t networkInputSize = 18;
+  static constexpr int input_I = 10;
+  static constexpr int input_F = 4;
+  static constexpr std::size_t networkInputSize = 18;
 
-  static const int layer1_neurons = 16;
-  static const int layer1_lut_I = 3;
-  static const int layer1_lut_F = 13;
+  static constexpr int layer1_neurons = 16;
+  static constexpr int layer1_lut_I = 3;
+  static constexpr int layer1_lut_F = 13;
 
-  static const int layer1_output_I = 4;
+  static constexpr int layer1_output_I = 4;
   //4 bits are for the count of the noHit layers which goes to the input of the layer2
-  static const int layer2_input_I = 8;
+  static constexpr int layer2_input_I = 8;
 
-  static const int layer2_neurons = 9;
-  static const int layer2_lut_I = 5;
-  static const int layer2_lut_F = 11;
+  static constexpr int layer2_neurons = 9;
+  static constexpr int layer2_lut_I = 5;
+  static constexpr int layer2_lut_F = 11;
 
-  static const int layer3_input_I = 5;
+  static constexpr int layer3_input_I = 5;
 
-  static const int layer3_0_inputCnt = 8;
-  static const int layer3_0_lut_I = 5;
-  static const int layer3_0_lut_F = 11;
-  static const int output0_I = 8;
-  static const int output0_F = 2;
+  static constexpr int layer3_0_inputCnt = 8;
+  static constexpr int layer3_0_lut_I = 5;
+  static constexpr int layer3_0_lut_F = 11;
+  static constexpr int output0_I = 8;
+  static constexpr int output0_F = 2;
 
-  static const int layer3_1_inputCnt = 1;
-  static const int layer3_1_lut_I = 4;
-  static const int layer3_1_lut_F = 11;
-  static const int output1_I = 8;
-  static const int output1_F = 0;  //Does not matter in principle - it is not used
+  static constexpr int layer3_1_inputCnt = 1;
+  static constexpr int layer3_1_lut_I = 4;
+  static constexpr int layer3_1_lut_F = 11;
+  static constexpr int output1_I = 8;
+  static constexpr int output1_F = 0;  //Does not matter in principle - it is not used
 
   typedef LutNetworkFixedPointRegression2Outputs<input_I,
                                                  input_F,
