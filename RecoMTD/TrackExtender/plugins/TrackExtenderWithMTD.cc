@@ -981,9 +981,6 @@ void TrackExtenderWithMTDT<TrackCollection>::produce(edm::Event& ev, const edm::
         }
         npixBarrel.push_back(backtrack.hitPattern().numberOfValidPixelBarrelHits());
         npixEndcap.push_back(backtrack.hitPattern().numberOfValidPixelEndcapHits());
-
-        std::cout << "isBTL: " << mBTL.hit << "    outermost hot position: z = " << (*track).outerZ()
-                  << "   R = " << (*track).outerRadius() << std::endl;
         outermostHitPosition.push_back(
             mBTL.hit ? (float)(*track).outerRadius()
                      : (float)(*track).outerZ());  // save R of the outermost hit for BTL, z for ETL.

@@ -557,7 +557,7 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
       if (isBTL)
         meTrackOutermostHitR_->Fill(outermostHitPosition[trackref]);
       if (isETL)
-        meTrackOutermostHitZ_->Fill(outermostHitPosition[trackref]);
+        meTrackOutermostHitZ_->Fill(std::abs(outermostHitPosition[trackref]));
 
       LogDebug("MtdTracksValidation") << "Track p/pt = " << track.p() << " " << track.pt() << " eta " << track.eta()
                                       << " BTL " << isBTL << " ETL " << isETL << " 2disks " << twoETLdiscs;
@@ -984,9 +984,8 @@ void MtdTracksValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
   meTrackPathLenghtvsEta_ = ibook.bookProfile(
       "TrackPathLenghtvsEta", "MTD Track pathlength vs MTD track Eta;|#eta|;Pathlength", 100, 0, 3.2, 100.0, 400.0, "S");
 
-  meTrackOutermostHitR_ = ibook.book1D("TrackOutermostHitR", "Track outermost hit position R; R[cm]", 100, 0, 120.);
-
-  meTrackOutermostHitZ_ = ibook.book1D("TrackOutermostHitZ", "Track outermost hit position Z; z[cm]", 100, 0, 350.);
+  meTrackOutermostHitR_ = ibook.book1D("TrackOutermostHitR", "Track outermost hit position R; R[cm]", 30, 0, 120.);
+  meTrackOutermostHitZ_ = ibook.book1D("TrackOutermostHitZ", "Track outermost hit position Z; z[cm]", 60, 0, 300.);
 
   meTrackSigmaTof_[0] =
       ibook.book1D("TrackSigmaTof_Pion", "Sigma(TOF) for pion hypothesis; #sigma_{t0} [ps]", 10, 0, 5);
