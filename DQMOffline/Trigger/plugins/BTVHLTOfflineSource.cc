@@ -383,7 +383,7 @@ void BTVHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetu
             v.Discr_turnon_loose.denominator->Fill(Discr_offline);
             v.Discr_turnon_medium.denominator->Fill(Discr_offline);
             v.Discr_turnon_tight.denominator->Fill(Discr_offline);
-            
+
             v.Pt_turnon_loose.denominator->Fill(Pt_offline);
             v.Pt_turnon_medium.denominator->Fill(Pt_offline);
             v.Pt_turnon_tight.denominator->Fill(Pt_offline);
@@ -395,7 +395,6 @@ void BTVHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetu
             v.Phi_turnon_loose.denominator->Fill(Phi_offline);
             v.Phi_turnon_medium.denominator->Fill(Phi_offline);
             v.Phi_turnon_tight.denominator->Fill(Phi_offline);
-
 
             if (Discr_online > turnon_threshold_loose_) {
               v.Discr_turnon_loose.numerator->Fill(Discr_offline);

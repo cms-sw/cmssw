@@ -1100,8 +1100,8 @@ void BTagAndProbe::fillDescriptions(edm::ConfigurationDescriptions& descriptions
   desc.add<edm::InputTag>("electrons", edm::InputTag("gedGsfElectrons"));
   desc.add<edm::InputTag>("elecID",
                           edm::InputTag("egmGsfElectronIDsForDQM:cutBasedElectronID-RunIIIWinter22-V1-tight"));
-  desc.add<std::vector<edm::InputTag> >(
-      "btagAlgos", {edm::InputTag("pfParticleNetAK4DiscriminatorsJetTagsForRECO:BvsAll")});
+  desc.add<std::vector<edm::InputTag> >("btagAlgos",
+                                        {edm::InputTag("pfParticleNetAK4DiscriminatorsJetTagsForRECO:BvsAll")});
 
   desc.add<std::string>("jetSelection", "pt > 30");
   desc.add<std::string>("eleSelection", "pt > 0 && abs(eta) < 2.5");
