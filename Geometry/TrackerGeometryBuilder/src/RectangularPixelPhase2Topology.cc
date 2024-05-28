@@ -83,16 +83,17 @@ std::pair<float, float> RectangularPixelPhase2Topology::pixel(const LocalPoint& 
   if (iybin0 > m_COLS_PER_ROC) {
     LogDebug("RectangularPixelPhase2Topology") << " very bad, newbiny " << iybin0 << "\n"
                                                << py << " " << m_yoffset << " " << m_pitchy << " " << newybin << " "
-                                               << iybin << " " << fractionY << " " << iybin0 << " " << numROC;
+                                               << iybin << " " << fractionY << " " << iybin0 << " " << m_COLS_PER_ROC;
   }
 #endif  // EDM_ML_DEBUG
 
 #ifdef EDM_ML_DEBUG
 
   if (mpY < 0. || mpY >= 2 * m_COLS_PER_ROC) {
-    LogDebug("RectangularPixelPhase2Topology") << " bad pix y " << mpY << "\n"
-                                               << py << " " << m_yoffset << " " << m_pitchy << " " << newybin << " "
-                                               << iybin << " " << fractionY << " " << iybin0 << " " << numROC;
+    LogDebug("RectangularPixelPhase2Topology")
+        << " bad pix y " << mpY << "\n"
+        << py << " " << m_yoffset << " " << m_pitchy << " " << newybin << " " << iybin << " " << fractionY << " "
+        << iybin0 << " " << 2 * m_COLS_PER_ROC;
   }
 #endif  // EDM_ML_DEBUG
 
@@ -130,7 +131,7 @@ std::pair<float, float> RectangularPixelPhase2Topology::pixel(const LocalPoint& 
 
 #ifdef EDM_ML_DEBUG
 
-  if (ixbin0 > m_ROW_PER_ROC || ixbin0 < 0)  //  ixbin < 0 outside range
+  if (ixbin0 > m_ROWS_PER_ROC || ixbin0 < 0)  //  ixbin < 0 outside range
   {
     LogDebug("RectangularPixelPhase2Topology")
         << " very bad, newbinx " << ixbin << "\n"
@@ -140,7 +141,7 @@ std::pair<float, float> RectangularPixelPhase2Topology::pixel(const LocalPoint& 
 
 #ifdef EDM_ML_DEBUG
 
-  if (mpX < 0. || mpX >= 2 * m_ROW_PER_ROC) {
+  if (mpX < 0. || mpX >= 2 * m_ROWS_PER_ROC) {
     LogDebug("RectangularPixelPhase2Topology")
         << " bad pix x " << mpX << "\n"
         << px << " " << m_xoffset << " " << m_pitchx << " " << newxbin << " " << ixbin << " " << fractionX;
