@@ -90,9 +90,13 @@ process.eventInfo = cms.EDAnalyzer(
 ## END OLD HITEFF
 
 ## TODO double-check in main CalibTree config if hiteff also takes refitted tracks
-process.allPath = cms.Path(process.MeasurementTrackerEvent*process.offlineBeamSpot*process.refitTracks
-        *process.anEff*process.shallowEventRun*process.eventInfo
-        *process.hiteff)
+process.allPath = cms.Path(process.MeasurementTrackerEvent*
+                           process.offlineBeamSpot*
+                           process.refitTracks*
+                           process.anEff*
+                           process.shallowEventRun*
+                           process.eventInfo*
+                           process.hiteff)
 
 # save the DQM plots in the DQMIO format
 process.dqmOutput = cms.OutputModule("DQMRootOutputModule",

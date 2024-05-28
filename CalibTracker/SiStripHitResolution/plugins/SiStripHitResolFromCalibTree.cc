@@ -73,7 +73,7 @@ struct hit {
 class SiStripHitResolFromCalibTree : public ConditionDBWriter<SiStripBadStrip> {
 public:
   explicit SiStripHitResolFromCalibTree(const edm::ParameterSet&);
-  ~SiStripHitResolFromCalibTree() override = default;
+  ~SiStripHitResolFromCalibTree() override;
 
 private:
   void algoBeginJob(const edm::EventSetup&) override;
@@ -199,6 +199,30 @@ SiStripHitResolFromCalibTree::SiStripHitResolFromCalibTree(const edm::ParameterS
     nTEClayers_ = 7;  // number of rings
 
   quality_ = new SiStripQuality(detInfo_);
+
+  layerfound_vsLumi.reserve(::k_END_OF_LAYS_AND_RINGS);
+  layertotal_vsLumi.reserve(::k_END_OF_LAYS_AND_RINGS);
+  layerfound_vsPU.reserve(::k_END_OF_LAYS_AND_RINGS);
+  layertotal_vsPU.reserve(::k_END_OF_LAYS_AND_RINGS);
+  layerfound_vsCM.reserve(::k_END_OF_LAYS_AND_RINGS);
+  layertotal_vsCM.reserve(::k_END_OF_LAYS_AND_RINGS);
+  layerfound_vsBX.reserve(::k_END_OF_LAYS_AND_RINGS);
+  layertotal_vsBX.reserve(::k_END_OF_LAYS_AND_RINGS);
+}
+
+SiStripHitResolFromCalibTree::~SiStripHitResolFromCalibTree() {
+  if (quality_)
+    delete quality_;
+  if (tkmap)
+    delete tkmap;
+  if (tkmapbad)
+    delete tkmapbad;
+  if (tkmapeff)
+    delete tkmapeff;
+  if (tkmapnum)
+    delete tkmapnum;
+  if (tkmapden)
+    delete tkmapden;
 }
 
 void SiStripHitResolFromCalibTree::algoBeginJob(const edm::EventSetup&) {}
@@ -334,7 +358,7 @@ void SiStripHitResolFromCalibTree::algoAnalyze(const edm::Event& e, const edm::E
   //Open the ROOT Calib Tree
   for (unsigned int ifile = 0; ifile < calibTreeFileNames_.size(); ifile++) {
     edm::LogInfo("SiStripHitResolFromCalibTree") << "Loading file: " << calibTreeFileNames_[ifile] << endl;
-    TFile* CalibTreeFile = TFile::Open(calibTreeFileNames_[ifile].c_str(), "READ");
+    TFile* CalibTreeFile = TFile::Open(calibTreeFileNames_[ifile].c_str(), "READ+CACHEREAD");
 
     // Get event infos
     bool foundEventInfos = false;
@@ -709,6 +733,9 @@ void SiStripHitResolFromCalibTree::algoAnalyze(const edm::Event& e, const edm::E
       }
       //At this point, both of our maps are loaded with the correct information
     }
+    // once we're done close the bloody file
+    CalibTreeFile->Close();
+    delete CalibTreeFile;
   }  // go to next CalibTreeFile
 
   makeHotColdMaps(fs);

@@ -76,6 +76,7 @@
 #include "TString.h"
 #include "TStyle.h"
 #include "TTree.h"
+#include "TKey.h"
 
 // custom made printout
 #define LOGPRINT edm::LogPrint("SiStripHitEffFromCalibTree")
@@ -94,7 +95,7 @@ struct hit {
 class SiStripHitEffFromCalibTree : public ConditionDBWriter<SiStripBadStrip> {
 public:
   explicit SiStripHitEffFromCalibTree(const edm::ParameterSet&);
-  ~SiStripHitEffFromCalibTree() override = default;
+  ~SiStripHitEffFromCalibTree() override;
 
 private:
   // overridden from ConditionDBWriter
@@ -168,16 +169,16 @@ private:
   // for using events after number of tracks cut
   map<pair<unsigned int, unsigned int>, bool> event_used;
 
-  vector<hit> hits[23];
+  vector<hit> hits[::k_END_OF_LAYERS];
   vector<TH2F*> HotColdMaps;
-  map<unsigned int, pair<unsigned int, unsigned int> > modCounter[23];
+  map<unsigned int, pair<unsigned int, unsigned int> > modCounter[::k_END_OF_LAYERS];
   TrackerMap* tkmap;
   TrackerMap* tkmapbad;
   TrackerMap* tkmapeff;
   TrackerMap* tkmapnum;
   TrackerMap* tkmapden;
-  long layerfound[23];
-  long layertotal[23];
+  long layerfound[::k_END_OF_LAYERS];
+  long layertotal[::k_END_OF_LAYERS];
   map<unsigned int, vector<int> > layerfound_perBx;
   map<unsigned int, vector<int> > layertotal_perBx;
   vector<TH1F*> layerfound_vsLumi;
@@ -188,10 +189,10 @@ private:
   vector<TH1F*> layertotal_vsCM;
   vector<TH1F*> layerfound_vsBX;
   vector<TH1F*> layertotal_vsBX;
-  int goodlayertotal[35];
-  int goodlayerfound[35];
-  int alllayertotal[35];
-  int alllayerfound[35];
+  int goodlayertotal[::k_END_OF_LAYS_AND_RINGS];
+  int goodlayerfound[::k_END_OF_LAYS_AND_RINGS];
+  int alllayertotal[::k_END_OF_LAYS_AND_RINGS];
+  int alllayerfound[::k_END_OF_LAYS_AND_RINGS];
   map<unsigned int, double> BadModules;
 };
 
@@ -229,6 +230,83 @@ SiStripHitEffFromCalibTree::SiStripHitEffFromCalibTree(const edm::ParameterSet& 
     nTEClayers = 7;  // number of rings
 
   quality_ = new SiStripQuality(detInfo_);
+
+  layerfound_vsLumi.reserve(::k_END_OF_LAYERS);
+  layertotal_vsLumi.reserve(::k_END_OF_LAYERS);
+  layerfound_vsPU.reserve(::k_END_OF_LAYERS);
+  layertotal_vsPU.reserve(::k_END_OF_LAYERS);
+  layerfound_vsCM.reserve(::k_END_OF_LAYERS);
+  layertotal_vsCM.reserve(::k_END_OF_LAYERS);
+  layerfound_vsBX.reserve(::k_END_OF_LAYERS);
+  layertotal_vsBX.reserve(::k_END_OF_LAYERS);
+}
+
+namespace utils {
+
+  void Recursion(TFile* f1, TDirectory* target) {
+    TString path((char*)strstr(target->GetPath(), ":"));
+    path.Remove(0, 2);
+    f1->cd(path);
+    TDirectory* temp = gDirectory;
+    std::cout << "Checking initial Get Keys Here: " << temp->GetPath() << std::endl;
+
+    TIter next(temp->GetListOfKeys());
+    TKey* key;
+    while ((key = (TKey*)next())) {
+      printf("key: %s points to an object of class: %s \n", key->GetName(), key->GetClassName());
+
+      TObject* obj = key->ReadObj();
+      if (obj->IsA()->InheritsFrom(TDirectory::Class())) {
+        std::cout << "Found subdirectory " << obj->GetName() << std::endl;
+        TDirectory* subdir = (TDirectory*)obj;
+        std::cout << subdir->GetPath() << std::endl;
+        Recursion(f1, subdir);
+      } else if (obj->IsA()->InheritsFrom(TTree::Class())) {
+        std::cout << "object found" << std::endl;
+        delete obj;
+      } else {
+        std::cout << "no new directory:" << std::endl;
+      }
+    }
+  }
+}  // namespace utils
+
+SiStripHitEffFromCalibTree::~SiStripHitEffFromCalibTree() {
+  if (quality_)
+    delete quality_;
+  if (tkmap)
+    delete tkmap;
+  if (tkmapbad)
+    delete tkmapbad;
+  if (tkmapeff)
+    delete tkmapeff;
+  if (tkmapnum)
+    delete tkmapnum;
+  if (tkmapden)
+    delete tkmapden;
+
+  if (fs) {
+    auto& tFile = fs->file();
+    //tFile.Print(); // Print information about the file
+    edm::LogPrint("") << __PRETTY_FUNCTION__ << " File Name: " << tFile.GetName() << std::endl;
+    edm::LogPrint("") << __PRETTY_FUNCTION__ << " File Title: " << tFile.GetTitle() << std::endl;
+    edm::LogPrint("") << __PRETTY_FUNCTION__ << " File Option: " << tFile.GetOption() << std::endl;
+    edm::LogPrint("") << __PRETTY_FUNCTION__ << " File Writable: " << tFile.IsWritable() << std::endl;
+    edm::LogPrint("") << __PRETTY_FUNCTION__ << " File IsZombie: " << tFile.IsZombie() << std::endl;
+    edm::LogPrint("") << __PRETTY_FUNCTION__ << " File has inconsistent hash: " << tFile.HasInconsistentHash()
+                      << std::endl;
+
+    bool debug{false};
+
+    if (!tFile.IsZombie() && tFile.IsWritable() && debug) {
+      // Delete all objects in the file recursively
+      utils::Recursion(&tFile, &tFile);
+      edm::LogPrint("") << __PRETTY_FUNCTION__ << "done deleting" << std::endl;
+      // Write and close the file
+      tFile.Write();  // Ensure all objects are written
+      tFile.Close();
+    }
+  }
 }
 
 void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::EventSetup& c) {
@@ -272,15 +350,15 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
   instLumiHisto_cutOnTracks = fs->make<TH1F>("instLumi_cutOnTracks", "inst. lumi.", 250, 0, 25000);
   PUHisto_cutOnTracks = fs->make<TH1F>("PU_cutOnTracks", "PU", 300, 0, 300);
 
-  for (int l = 0; l < 35; l++) {
+  for (int l = 0; l < ::k_END_OF_LAYS_AND_RINGS; l++) {
     goodlayertotal[l] = 0;
     goodlayerfound[l] = 0;
     alllayertotal[l] = 0;
     alllayerfound[l] = 0;
   }
 
-  TH1F* resolutionPlots[23];
-  for (Long_t ilayer = 0; ilayer < 23; ilayer++) {
+  TH1F* resolutionPlots[::k_END_OF_LAYERS];
+  for (Long_t ilayer = 0; ilayer < ::k_END_OF_LAYERS; ilayer++) {
     std::string lyrName = ::layerName(ilayer, showRings_, nTEClayers);
 
     resolutionPlots[ilayer] = fs->make<TH1F>(Form("resol_layer_%i", (int)(ilayer)), lyrName.c_str(), 125, -125, 125);
@@ -548,7 +626,7 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
         }
       }
 
-      if (!badquality && layer < 23) {
+      if (!badquality && layer < ::k_END_OF_LAYERS) {
         if (resxsig != 1000.0)
           resolutionPlots[layer]->Fill(stripTrajMid - stripCluster);
         else
@@ -610,8 +688,8 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
         }
 
         if (layerfound_perBx.find(bx) == layerfound_perBx.end()) {
-          layerfound_perBx[bx] = vector<int>(23, 0);
-          layertotal_perBx[bx] = vector<int>(23, 0);
+          layerfound_perBx[bx] = vector<int>(::k_END_OF_LAYERS, 0);
+          layertotal_perBx[bx] = vector<int>(::k_END_OF_LAYERS, 0);
         }
         if (!badflag)
           layerfound_perBx[bx][layer]++;
@@ -685,6 +763,9 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
       }
       //At this point, both of our maps are loaded with the correct information
     }
+    // once we're done close the bloody file
+    CalibTreeFile->Close();
+    delete CalibTreeFile;
   }  // go to next CalibTreeFile
 
   makeHotColdMaps();
