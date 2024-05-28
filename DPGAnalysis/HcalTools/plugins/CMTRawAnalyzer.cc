@@ -8574,7 +8574,7 @@ void CMTRawAnalyzer::fillDigiErrorsQIE11(QIE11DataFrame qie11df) {
         h_nadccounts3_HE->Fill(float(ampts[5]), 1.);
       }
     }  // nadccounts3
-    if ((ampts[0] == ampts[1])) {
+    if (ampts[0] == ampts[1]) {
       if (sub == 1) {
         h_nadccounts2_HB->Fill(float(ampts[1]), 1.);
       }
@@ -8582,7 +8582,7 @@ void CMTRawAnalyzer::fillDigiErrorsQIE11(QIE11DataFrame qie11df) {
         h_nadccounts2_HE->Fill(float(ampts[1]), 1.);
       }
     }  // nadccounts2
-    if ((ampts[1] == ampts[2])) {
+    if (ampts[1] == ampts[2]) {
       if (sub == 1) {
         h_nadccounts2_HB->Fill(float(ampts[2]), 1.);
       }
@@ -8590,7 +8590,7 @@ void CMTRawAnalyzer::fillDigiErrorsQIE11(QIE11DataFrame qie11df) {
         h_nadccounts2_HE->Fill(float(ampts[2]), 1.);
       }
     }  // nadccounts2
-    if ((ampts[2] == ampts[3])) {
+    if (ampts[2] == ampts[3]) {
       if (sub == 1) {
         h_nadccounts2_HB->Fill(float(ampts[3]), 1.);
       }
@@ -8598,7 +8598,7 @@ void CMTRawAnalyzer::fillDigiErrorsQIE11(QIE11DataFrame qie11df) {
         h_nadccounts2_HE->Fill(float(ampts[3]), 1.);
       }
     }  // nadccounts2
-    if ((ampts[3] == ampts[4])) {
+    if (ampts[3] == ampts[4]) {
       if (sub == 1) {
         h_nadccounts2_HB->Fill(float(ampts[4]), 1.);
       }
@@ -8606,7 +8606,7 @@ void CMTRawAnalyzer::fillDigiErrorsQIE11(QIE11DataFrame qie11df) {
         h_nadccounts2_HE->Fill(float(ampts[4]), 1.);
       }
     }  // nadccounts2
-    if ((ampts[4] == ampts[5])) {
+    if (ampts[4] == ampts[5]) {
       if (sub == 1) {
         h_nadccounts2_HB->Fill(float(ampts[5]), 1.);
       }
@@ -8614,7 +8614,7 @@ void CMTRawAnalyzer::fillDigiErrorsQIE11(QIE11DataFrame qie11df) {
         h_nadccounts2_HE->Fill(float(ampts[5]), 1.);
       }
     }  // nadccounts2
-    if ((ampts[5] == ampts[6])) {
+    if (ampts[5] == ampts[6]) {
       if (sub == 1) {
         h_nadccounts2_HB->Fill(float(ampts[6]), 1.);
       }
@@ -8622,7 +8622,7 @@ void CMTRawAnalyzer::fillDigiErrorsQIE11(QIE11DataFrame qie11df) {
         h_nadccounts2_HE->Fill(float(ampts[6]), 1.);
       }
     }  // nadccounts2
-    if ((ampts[6] == ampts[7])) {
+    if (ampts[6] == ampts[7]) {
       if (sub == 1) {
         h_nadccounts2_HB->Fill(float(ampts[7]), 1.);
       }
