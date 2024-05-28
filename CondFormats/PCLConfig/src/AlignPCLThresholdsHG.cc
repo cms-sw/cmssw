@@ -111,7 +111,8 @@ const int AlignPCLThresholdsHG::payloadVersion() const {
       return 1;
     default:
       throw cms::Exception("AlignPCLThresholdsHG")
-          << "Payload version with parameter size equal to " << static_cast<int>(FSIZE) + static_cast<int>(ISIZE) + static_cast<int>(SSIZE) << " is not defined.\n";
+          << "Payload version with parameter size equal to "
+          << static_cast<int>(FSIZE) + static_cast<int>(ISIZE) + static_cast<int>(SSIZE) << " is not defined.\n";
   }
 }
 
