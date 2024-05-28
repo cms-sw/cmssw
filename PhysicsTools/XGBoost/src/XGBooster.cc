@@ -1,14 +1,14 @@
-#include "PhysicsTools/PatAlgos/interface/XGBooster.h"
 #include <algorithm>
 #include <cassert>
 #include <cmath>
-#include <stdexcept>
-
-#include <iostream>
 #include <fstream>
+#include <iostream>
 #include <sstream>
-#include <vector>
 #include <stdexcept>
+#include <stdexcept>
+#include <vector>
+
+#include "PhysicsTools/XGBoost/interface/XGBooster.h"
 
 using namespace pat;
 
