@@ -357,5 +357,5 @@ def add_hlt_validation_phaseII(process,hltProcessName=None):
             ),
         ),
     )
-
+    process.HLTValidationPath.insert(0,process.HLTGenResSource)
     return process

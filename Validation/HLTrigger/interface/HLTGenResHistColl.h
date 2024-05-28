@@ -51,6 +51,7 @@ private:
   void book1D(DQMStore::IBooker& iBooker, const edm::ParameterSet& histConfig);
   void book2D(DQMStore::IBooker& iBooker, const edm::ParameterSet& histConfig2D);
   bool passFilterSelection(trigger::size_type key, const trigger::TriggerEvent& triggerEvent)const;
+  std::string getHistName(const std::string& resVar, const std::string& vsVar="")const;
 
   std::vector<std::unique_ptr<HLTGenValHist>> hists_;  
   std::string objType_;
@@ -61,6 +62,7 @@ private:
   std::string hltProcessName_;
   std::string collectionName_;
   double dR2limit_;
+  std::string histNamePrefix_;
   std::string separator_;
   std::vector<edm::ParameterSet> histConfigs_;
   std::vector<edm::ParameterSet> histConfigs2D_;

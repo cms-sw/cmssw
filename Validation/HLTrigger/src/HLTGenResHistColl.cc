@@ -59,6 +59,7 @@ HLTGenResHistColl::HLTGenResHistColl(edm::ParameterSet filterCollConfig,std::str
   dR2limit_ = filterCollConfig.getParameter<double>("dR2limit");
   histConfigs_ = filterCollConfig.getParameter<std::vector<edm::ParameterSet>>("histConfigs");
   histConfigs2D_ = filterCollConfig.getParameter<std::vector<edm::ParameterSet>>("histConfigs2D");
+  histNamePrefix_ = "resHist";
   separator_ = "__";
 }
 
@@ -198,29 +199,38 @@ void HLTGenResHistColl::book1D(DQMStore::IBooker& iBooker, const edm::ParameterS
   std::vector<float> vsBinLowEdges = convertVec<double,float>(vsBinLowEdgesDouble);
   std::vector<float> resBinLowEdges = convertVec<double,float>(resBinLowEdgesDouble);
   
-  std::string histNameInc = collectionName_ + separator_ +objType_ + separator_ + resVar;
+  std::string histNameInc = getHistName(resVar);
   std::string histTitleInc = collectionName_ + "to " + objType_ + " " + resVar;
   if (!tag.empty()) {
       histNameInc += separator_ + tag;
       histTitleInc += " " + tag;
   }
-  std::string histName2D = collectionName_ + separator_ +objType_ + separator_ + resVar + separator_ + "vs" + separator_ + vsVar;
+  std::string histNameVsBase = getHistName(resVar,vsVar);
+  std::string histName2D = histNameVsBase +separator_ + "2D";
+  std::string histNameProfile = histNameVsBase +separator_+"profile";
   
   std::string histTitle2D = collectionName_ + "to " + objType_ + " " + resVar + " vs " + vsVar;
+  std::string histTitleProfile = histTitle2D;
   if (!tag.empty()) {
       histName2D += separator_ + tag;
       histTitle2D += " " + tag;
+      histNameProfile += separator_ + tag;
+      histTitleProfile += " " + tag;
   }
 
   auto resInc = iBooker.book1D(
-      histNameInc.c_str(), histTitleInc.c_str(), resBinLowEdges.size()-1,resBinLowEdges.data());  // booking MonitorElement
+      histNameInc.c_str(), histTitleInc.c_str(), resBinLowEdges.size()-1,resBinLowEdges.data());  
 
   auto res2D = iBooker.book2D(
-      histName2D.c_str(), histTitle2D.c_str(), vsBinLowEdges.size() - 1, vsBinLowEdges.data(), resBinLowEdges.size()-1,resBinLowEdges.data());  // booking MonitorElement
+      histName2D.c_str(), histTitle2D.c_str(), vsBinLowEdges.size() - 1, vsBinLowEdges.data(), resBinLowEdges.size()-1,resBinLowEdges.data());  
 
-  std::unique_ptr<HLTGenValHist> hist;  // creating the hist object
+  //so bookProfile requires double bin edges, not float like book2D...
+  auto resProf = iBooker.bookProfile(
+      histNameProfile.c_str(), histTitleProfile.c_str(), vsBinLowEdgesDouble.size() - 1, vsBinLowEdgesDouble.data(), 0, 0 );  
 
-  hist = std::make_unique<HLTGenValHist2D>(res2D->getTH2F(), vsVar, resVar, vsVarFunc,resVarFunc,rangeCuts);
+  std::unique_ptr<HLTGenValHist> hist;  
+
+  hist = std::make_unique<HLTGenValHist2D>(res2D->getTH2F(), resProf->getTProfile(), vsVar, resVar, vsVarFunc,resVarFunc,rangeCuts);
   hists_.emplace_back(std::move(hist));
   hist = std::make_unique<HLTGenValHist1D>(resInc->getTH1(), resVar,resVarFunc,rangeCuts);
   hists_.emplace_back(std::move(hist));    
@@ -275,4 +285,12 @@ void HLTGenResHistColl::book2D(DQMStore::IBooker& iBooker, const edm::ParameterS
   hist = std::make_unique<HLTGenValHist2D>(me->getTH2F(), vsVarX, vsVarY, vsVarFuncX, vsVarFuncY);
 
   hists_.emplace_back(std::move(hist));
+}
+
+std::string HLTGenResHistColl::getHistName(const std::string& resVar, const std::string& vsVar)const {
+  std::string histName =  histNamePrefix_ + separator_ + collectionName_ + separator_ + objType_ + separator_ + resVar;
+  if(!vsVar.empty()){
+    histName+= separator_ + "vs" + separator_ + vsVar;
+  }
+  return histName;
 }
