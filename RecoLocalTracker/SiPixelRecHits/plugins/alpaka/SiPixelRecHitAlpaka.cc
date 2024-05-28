@@ -60,14 +60,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         tBeamSpot(consumes(iConfig.getParameter<edm::InputTag>("beamSpot"))),
         tokenClusters_(consumes(iConfig.getParameter<edm::InputTag>("src"))),
         tokenDigi_(consumes(iConfig.getParameter<edm::InputTag>("src"))),
-        tokenHit_(produces()) {
-    // Workaround until the ProductID problem in issue https://github.com/cms-sw/cmssw/issues/44643 is fixed
-#ifdef ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLED
-    if constexpr (std::is_same_v<TrackerTraits, pixelTopology::Phase1>) {
-      producesTemporarily("edm::DeviceProduct<alpaka_cuda_async::TrackingRecHitSoAPhase1>");
-    }
-#endif
-  }
+        tokenHit_(produces()) {}
 
   template <typename TrackerTraits>
   void SiPixelRecHitAlpaka<TrackerTraits>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

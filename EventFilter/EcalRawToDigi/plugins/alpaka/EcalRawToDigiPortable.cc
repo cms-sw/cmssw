@@ -64,14 +64,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         fedsToUnpack_{ps.getParameter<std::vector<int>>("FEDs")} {
     config_.maxChannelsEB = ps.getParameter<uint32_t>("maxChannelsEB");
     config_.maxChannelsEE = ps.getParameter<uint32_t>("maxChannelsEE");
-
-    // Workaround until the ProductID problem in issue https://github.com/cms-sw/cmssw/issues/44643 is fixed
-#ifdef ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLED
-    producesTemporarily("edm::DeviceProduct<alpaka_cuda_async::EcalDigiDeviceCollection>",
-                        ps.getParameter<std::string>("digisLabelEB"));
-    producesTemporarily("edm::DeviceProduct<alpaka_cuda_async::EcalDigiDeviceCollection>",
-                        ps.getParameter<std::string>("digisLabelEE"));
-#endif
   }
 
   void EcalRawToDigiPortable::produce(device::Event& event, device::EventSetup const& setup) {
