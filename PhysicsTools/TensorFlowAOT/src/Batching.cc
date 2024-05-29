@@ -95,7 +95,7 @@ namespace tfaot {
     for (size_t i = 0; i < rule.nSizes(); i++) {
       out << (i == 0 ? "" : ",") << rule.getSizes()[i];
     }
-    return out << ", lastPadding=" << rule.getLastPadding() + ")";
+    return out << ", lastPadding=" << rule.getLastPadding() << ")";
   }
 
   void BatchStrategy::setDefaultRule(size_t batchSize, const std::vector<size_t>& availableBatchSizes) {
