@@ -119,12 +119,12 @@ float XGBooster::predict(const int iterationEnd) {
 
   auto ret = XGBoosterPredictFromDMatrix(booster_, dvalues, json, &out_shape, &out_len, &score);
 
-  XGDMatrixFree(dvalues);
-
   if (ret == 0) {
     assert(out_len == 1 && "Unexpected prediction format");
     result = score[0];
   }
+
+  XGDMatrixFree(dvalues);
 
   reset();
 
