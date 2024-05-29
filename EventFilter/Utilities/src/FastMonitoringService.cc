@@ -195,8 +195,7 @@ namespace evf {
   };
 
   FastMonitoringService::FastMonitoringService(const edm::ParameterSet& iPS, edm::ActivityRegistry& reg)
-      : MicroStateService(iPS, reg),
-        fmt_(new FastMonitoringThread()),
+      : fmt_(new FastMonitoringThread()),
         tbbMonitoringMode_(iPS.getUntrackedParameter<bool>("tbbMonitoringMode", true)),
         tbbConcurrencyTracker_(iPS.getUntrackedParameter<bool>("tbbConcurrencyTracker", true) && tbbMonitoringMode_),
         sleepTime_(iPS.getUntrackedParameter<int>("sleepTime", 1)),
@@ -1046,10 +1045,5 @@ namespace evf {
     } else
       fmt_->jsonMonitor_->snap(ls);
   }
-
-  //compatibility
-  MicroStateService::MicroStateService(const edm::ParameterSet& iPS, edm::ActivityRegistry& reg) {}
-
-  MicroStateService::~MicroStateService() {}
 
 }  //end namespace evf

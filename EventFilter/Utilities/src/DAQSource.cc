@@ -132,12 +132,12 @@ DAQSource::DAQSource(edm::ParameterSet const& pset, edm::InputSourceDescription 
   //get handles to DaqDirector and FastMonitoringService because getting them isn't possible in readSupervisor thread
   if (fileListMode_) {
     try {
-      fms_ = static_cast<evf::FastMonitoringService*>(edm::Service<evf::MicroStateService>().operator->());
+      fms_ = static_cast<evf::FastMonitoringService*>(edm::Service<evf::FastMonitoringService>().operator->());
     } catch (cms::Exception const&) {
       edm::LogInfo("DAQSource") << "No FastMonitoringService found in the configuration";
     }
   } else {
-    fms_ = static_cast<evf::FastMonitoringService*>(edm::Service<evf::MicroStateService>().operator->());
+    fms_ = static_cast<evf::FastMonitoringService*>(edm::Service<evf::FastMonitoringService>().operator->());
     if (!fms_) {
       throw cms::Exception("DAQSource") << "FastMonitoringService not found";
     }

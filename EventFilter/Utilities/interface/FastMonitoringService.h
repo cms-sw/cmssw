@@ -13,7 +13,7 @@
 
 #include <filesystem>
 
-#include "EventFilter/Utilities/interface/MicroStateService.h"
+#include "EventFilter/Utilities/interface/FastMonitoringService.h"
 
 #include <string>
 #include <vector>
@@ -33,9 +33,6 @@
   At snapshot time only (every few seconds) we do the map lookup to produce snapshot.
   The general counters and status variables (event number, number of processed events, number of passed and stored 
   events, luminosity section etc.) are also monitored here.
-
-  N.B. MicroStateService is referenced by a common base class which is now trivial.
-  It's complete removal will be completed in the future commit.
 */
 
 class FedRawDataInputSource;
@@ -164,7 +161,7 @@ namespace evf {
   //reserve output module space
   constexpr int nReservedModules = 128;
 
-  class FastMonitoringService : public MicroStateService {
+  class FastMonitoringService {
   public:
     // the names of the states - some of them are never reached in an online app
     static const edm::ModuleDescription specialMicroStateNames[FastMonState::mCOUNT];
@@ -172,7 +169,7 @@ namespace evf {
     static const std::string inputStateNames[FastMonState::inCOUNT];
     // Reserved names for microstates
     FastMonitoringService(const edm::ParameterSet&, edm::ActivityRegistry&);
-    ~FastMonitoringService() override;
+    ~FastMonitoringService();
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
     std::string makeModuleLegendaJson();
