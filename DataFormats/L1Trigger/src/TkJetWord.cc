@@ -56,7 +56,7 @@ namespace l1t {
     }
     offset += TkJetBitWidths::kXtSize;
     for (unsigned int b = offset; b < (offset + TkJetBitWidths::kDispFlagSize); b++) {
-      tkJetWord_.set(b, nx[b - offset]);
+      tkJetWord_.set(b, dispflag[b - offset]);
     }
     offset += TkJetBitWidths::kDispFlagSize;
     for (unsigned int b = offset; b < (offset + TkJetBitWidths::kUnassignedSize); b++) {
