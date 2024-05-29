@@ -226,7 +226,7 @@ void HLTGenResHistColl::book1D(DQMStore::IBooker& iBooker, const edm::ParameterS
 
   //so bookProfile requires double bin edges, not float like book2D...
   auto resProf = iBooker.bookProfile(
-      histNameProfile.c_str(), histTitleProfile.c_str(), vsBinLowEdgesDouble.size() - 1, vsBinLowEdgesDouble.data(), 0, 0 );  
+      histNameProfile.c_str(), histTitleProfile.c_str(), vsBinLowEdgesDouble.size() - 1, vsBinLowEdgesDouble.data(), 0.2, 5 );  
 
   std::unique_ptr<HLTGenValHist> hist;  
 
