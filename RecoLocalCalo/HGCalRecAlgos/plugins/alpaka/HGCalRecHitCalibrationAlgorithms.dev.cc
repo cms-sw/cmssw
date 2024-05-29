@@ -5,6 +5,60 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   using namespace cms::alpakatools;
 
+  //
+  struct HGCalRecHitCalibrationKernel_flagRecHits {
+    template <typename TAcc>
+    ALPAKA_FN_ACC void operator()(TAcc const& acc, HGCalDigiDevice::View digis, HGCalRecHitDevice::View recHits) const {
+      for (auto idx : uniform_elements(acc, digis.metadata().size())) {
+        recHits[idx].flags() = digis[idx].flags();
+      }
+    }
+  };
+
+  //
+  struct HGCalRecHitCalibrationKernel_adcToCharge {
+    template <typename TAcc>
+    ALPAKA_FN_ACC void operator()(TAcc const& acc, HGCalDigiDevice::View digis, HGCalRecHitDevice::View recHits, HGCalCalibParamDevice::ConstView calibs) const {
+
+      auto adc_to_fC = [&](uint32_t adc, uint32_t cm, uint32_t adcm1, float adc_ped, float cm_slope, float cm_ped, float bxm1_slope, float adc2fC) {
+        return adc2fC*( (adc-adc_ped) + cm_slope*(cm-cm_ped) + bxm1_slope*(adcm1-adc_ped) );
+      };
+      
+      auto tot_to_fC = [&](uint32_t tot, float tot_lin, float tot_ped, float tot2fC, float tot_p0, float tot_p1, float tot_p2) {
+        bool isLin(tot>tot_lin);
+        bool isNotLin(!isLin);
+        return isLin*( tot2fC*(tot-tot_ped) ) + isNotLin*( tot_p0 + tot_p1*tot + tot_p2*tot*tot);
+      };
+
+      for (auto idx : uniform_elements(acc, digis.metadata().size())) {
+
+        auto calib = calibs[idx];
+        auto digi = digis[idx];
+        bool useTOT(digi.tctp()==3);
+        bool useADC(!useTOT);
+        recHits[idx].energy() = \
+          useADC*adc_to_fC(digi.adc(), digi.cm(), digi.adcm1(), calib.ADC_ped(), calib.CM_slope(), calib.CM_ped(), calib.BXm1_slope(), calib.ADCtofC()) + \
+          useTOT*tot_to_fC(digi.tot(), calib.TOT_lin(), calib.TOTtofC(), calib.TOT_ped(), calib.TOT_P0(), calib.TOT_P1(), calib.TOT_P2());
+
+      }
+    }
+  };
+
+  //
+  struct HGCalRecHitCalibrationKernel_toaToTime {
+    template <typename TAcc>
+    ALPAKA_FN_ACC void operator()(TAcc const& acc, HGCalDigiDevice::View digis, HGCalRecHitDevice::View recHits, HGCalCalibParamDevice::ConstView calib) const {
+
+      auto toa_to_ps = [&](uint32_t toa, float toatops) { return toa*toatops; };
+        
+        for (auto idx : uniform_elements(acc, digis.metadata().size())) {
+          recHits[idx].time() = toa_to_ps(digis[idx].toa(), calib[idx].TOAtops());
+        }
+      
+    }
+  };
+  
+  /*
   enum HGCalCalibrationFlag {
       kPedestalCorrection=0,
       kCMCorrection,
@@ -26,8 +80,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         recHits[idx].flags() = digis[idx].flags();
       }
     }
-  };
-
+  };  
+  
   struct HGCalRecHitCalibrationKernel_pedestalCorrection {
     template <typename TAcc>
     ALPAKA_FN_ACC void operator()(TAcc const& acc, HGCalDigiDevice::View digis, HGCalRecHitDevice::View recHits, HGCalCalibParamDevice::ConstView calib) const {
@@ -88,6 +142,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       }
     }
   };
+*/
 
   struct HGCalRecHitCalibrationKernel_printRecHits {
     template <typename TAcc>
@@ -116,33 +171,44 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     LogDebug("HGCalRecHitCalibrationAlgorithms") << "\n\nINFO -- Allocating rechits buffer and initiating values" << std::endl;
     auto device_recHits = std::make_unique<HGCalRecHitDevice>(device_digis.view().metadata().size(), queue);
-    alpaka::exec<Acc1D>(queue, grid, HGCalRecHitCalibrationKernel_digisToRecHits{}, device_digis.view(), device_recHits->view());
+
+    alpaka::exec<Acc1D>(queue, grid, HGCalRecHitCalibrationKernel_flagRecHits{}, device_digis.view(), device_recHits->view());
+    alpaka::exec<Acc1D>(queue, grid, HGCalRecHitCalibrationKernel_adcToCharge{}, device_digis.view(), device_recHits->view(), device_calib.view());
+    alpaka::exec<Acc1D>(queue, grid, HGCalRecHitCalibrationKernel_toaToTime{},   device_digis.view(), device_recHits->view(), device_calib.view());
+ 
     LogDebug("HGCalRecHitCalibrationAlgorithms") << "Input recHits: " << std::endl;
     int n_hits_to_print = 10;
     print_recHit_device(queue, *device_recHits, n_hits_to_print);
 
-    alpaka::exec<Acc1D>(queue, grid, HGCalRecHitCalibrationKernel_pedestalCorrection{}, device_digis.view(), device_recHits->view(), device_calib.view());
-    LogDebug("HGCalRecHitCalibrationAlgorithms") << "RecHits after pedestal calibration: " << std::endl;
-    print_recHit_device(queue, *device_recHits, n_hits_to_print);
-
-    alpaka::exec<Acc1D>(queue, grid, HGCalRecHitCalibrationKernel_commonModeCorrection{}, device_digis.view(), device_recHits->view(), device_calib.view());
-    LogDebug("HGCalRecHitCalibrationAlgorithms") << "Digis after CM calibration: " << std::endl;
-    //print_digi_device(device_digis, n_hits_to_print);
-    print_recHit_device(queue, *device_recHits, n_hits_to_print);
-
-    alpaka::exec<Acc1D>(queue, grid, HGCalRecHitCalibrationKernel_chargeConversion_exp{}, device_digis.view(), device_recHits->view(), device_config.view());
-    //alpaka::exec<Acc1D>(queue, grid, HGCalRecHitCalibrationKernel_chargeConversion{}, device_digis.view(), device_recHits->view(), device_config.view());
-    LogDebug("HGCalRecHitCalibrationAlgorithms") << "RecHits after charge conversion: " << std::endl;
-    print_recHit_device(queue, *device_recHits, n_hits_to_print);
-
     /*
-    float ADCmValue = n_hits_to_print; // dummy value
-    alpaka::exec<Acc1D>(queue, grid, HGCalRecHitCalibrationKernel_ADCmCorrection{}, device_digis.view(), calib_device.view());
-    LogDebug("HGCalRecHitCalibrationAlgorithms") << "Digis after ADCm calibration: " << std::endl;
-    print_digi_device(device_digis, n_hits_to_print);
+      alpaka::exec<Acc1D>(queue, grid, HGCalRecHitCalibrationKernel_digisToRecHits{}, device_digis.view(), device_recHits->view());
+      LogDebug("HGCalRecHitCalibrationAlgorithms") << "Input recHits: " << std::endl;
+      int n_hits_to_print = 10;
+      print_recHit_device(queue, *device_recHits, n_hits_to_print);
 
-    LogDebug("HGCalRecHitCalibrationAlgorithms") << "RecHits after calibration: " << std::endl;
-    print_recHit_device(queue, *device_recHits, n_hits_to_print);
+      alpaka::exec<Acc1D>(queue, grid, HGCalRecHitCalibrationKernel_pedestalCorrection{}, device_digis.view(), device_recHits->view(), device_calib.view());
+      LogDebug("HGCalRecHitCalibrationAlgorithms") << "RecHits after pedestal calibration: " << std::endl;
+      print_recHit_device(queue, *device_recHits, n_hits_to_print);
+      
+      alpaka::exec<Acc1D>(queue, grid, HGCalRecHitCalibrationKernel_commonModeCorrection{}, device_digis.view(), device_recHits->view(), device_calib.view());
+      LogDebug("HGCalRecHitCalibrationAlgorithms") << "Digis after CM calibration: " << std::endl;
+      //print_digi_device(device_digis, n_hits_to_print);
+      print_recHit_device(queue, *device_recHits, n_hits_to_print);
+      
+      alpaka::exec<Acc1D>(queue, grid, HGCalRecHitCalibrationKernel_chargeConversion_exp{}, device_digis.view(), device_recHits->view(), device_config.view());
+      //alpaka::exec<Acc1D>(queue, grid, HGCalRecHitCalibrationKernel_chargeConversion{}, device_digis.view(), device_recHits->view(), device_config.view());
+      LogDebug("HGCalRecHitCalibrationAlgorithms") << "RecHits after charge conversion: " << std::endl;
+      print_recHit_device(queue, *device_recHits, n_hits_to_print);
+    */
+    
+    /*
+      float ADCmValue = n_hits_to_print; // dummy value
+      alpaka::exec<Acc1D>(queue, grid, HGCalRecHitCalibrationKernel_ADCmCorrection{}, device_digis.view(), calib_device.view());
+      LogDebug("HGCalRecHitCalibrationAlgorithms") << "Digis after ADCm calibration: " << std::endl;
+      print_digi_device(device_digis, n_hits_to_print);
+      
+      LogDebug("HGCalRecHitCalibrationAlgorithms") << "RecHits after calibration: " << std::endl;
+      print_recHit_device(queue, *device_recHits, n_hits_to_print);
     */
 
     return device_recHits;

@@ -127,7 +127,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
               << "CM_slope = "    << deviceCalibParamProvider.view()[i].CM_slope()   << ", "
               << "CM_ped = "      << deviceCalibParamProvider.view()[i].CM_ped()     << ", "
               << "BXm1_slope = "  << deviceCalibParamProvider.view()[i].BXm1_slope() << ", "
-              //<< "BXm1_offset = " << deviceCalibParamProvider.view()[i].BXm1_offset() // redundant
               << std::endl;
       }
     }
