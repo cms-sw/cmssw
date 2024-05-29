@@ -35,12 +35,75 @@ bool L1SCJetEmu::inCone(L1SCJetEmu::Particle seed, L1SCJetEmu::Particle part) co
   return ret;
 }
 
-L1SCJetEmu::Jet L1SCJetEmu::makeJet_HW(const std::vector<Particle>& parts) const {
+std::vector<L1SCJetEmu::Particle> L1SCJetEmu::sortConstituents(const std::vector<Particle>& parts,
+                                                               const Particle seed) const {
+  std::vector<Particle> sortedParts = parts;  // instantiate a vector to store sorted parts
+  std::sort(sortedParts.begin(), sortedParts.end(), [](const Particle& a, const Particle& b) {
+    return a.hwPt > b.hwPt;
+  });                               // sort by pt by jet mass fn as in firmware
+  std::vector<Particle> truncated;  // instantiate vector to store truncated, sorted parts
+  truncated.resize(NCONSTITSFW);
+  for (unsigned iConst = 0; iConst < NCONSTITSFW; ++iConst) {  // iterate over NCONSTITS (or truncated.size())
+    if (iConst <
+        sortedParts.size()) {  // if iConst is less than the number of constituents in the jet then store the constituent
+      truncated[iConst].hwEta = static_cast<detaphi_t>(sortedParts.at(iConst).hwEta - seed.hwEta);
+      truncated[iConst].hwPhi = static_cast<detaphi_t>(deltaPhi(sortedParts.at(iConst), seed));
+      truncated[iConst].hwPt = sortedParts.at(iConst).hwPt;
+    } else {  // if iConst is greater than the number of constituents in the jet then store an empty constituent (pt = 0) to mimic sparse array from firmware
+      truncated[iConst].clear();
+    }
+  }
+  return truncated;
+}
+
+L1SCJetEmu::mass2_t L1SCJetEmu::jetMass_HW(const std::vector<Particle>& parts) const {  // need ampersand?
+
+  // // INSTANTIATE LUTS
+  static std::array<eventrig_t, hwEtaPhi_steps> cosh_lut =
+      init_trig_lut<eventrig_t, hwEtaPhi_steps>([](float x) -> eventrig_t { return std::cosh(x); });
+  static std::array<eventrig_t, hwEtaPhi_steps> cos_lut =
+      init_trig_lut<eventrig_t, hwEtaPhi_steps>([](float x) -> eventrig_t { return std::cos(x); });
+  static std::array<oddtrig_t, hwEtaPhi_steps> sin_lut =
+      init_trig_lut<oddtrig_t, hwEtaPhi_steps>([](float x) -> oddtrig_t { return std::sin(x); });
+  static std::array<oddtrig_t, hwEtaPhi_steps> sinh_lut =
+      init_trig_lut<oddtrig_t, hwEtaPhi_steps>([](float x) -> oddtrig_t { return std::sinh(x); });
+
+  std::vector<ppt_t> en;
+  en.resize(parts.size());
+  std::transform(parts.begin(), parts.end(), en.begin(), [](const Particle& part) {
+    return ppt_t(part.hwPt * cosh_lut[std::abs(part.hwEta)]);
+  });
+  ppt_t sum_en = std::accumulate(en.begin(), en.end(), ppt_t(0));
+
+  std::vector<ppt_t> px;
+  px.resize(parts.size());
+  std::transform(parts.begin(), parts.end(), px.begin(), [](const Particle& part) {
+    return ppt_t(part.hwPt * cos_lut[std::abs(part.hwPhi)]);
+  });
+  ppt_t sum_px = std::accumulate(px.begin(), px.end(), ppt_t(0));
+
+  std::vector<npt_t> py;
+  py.resize(parts.size());
+  std::transform(parts.begin(), parts.end(), py.begin(), [](const Particle& part) {
+    return npt_t(part.hwPt * sin_lut[std::abs(part.hwPhi)] * ((part.hwPhi >= 0) ? 1 : -1));
+  });
+  npt_t sum_py = std::accumulate(py.begin(), py.end(), npt_t(0));
+
+  std::vector<npt_t> pz;
+  pz.resize(parts.size());
+  std::transform(parts.begin(), parts.end(), pz.begin(), [](const Particle& part) {
+    return npt_t(part.hwPt * sinh_lut[std::abs(part.hwEta)] * ((part.hwEta >= 0) ? 1 : -1));
+  });
+  npt_t sum_pz = std::accumulate(pz.begin(), pz.end(), npt_t(0));
+
+  return (sum_en * sum_en) - (sum_px * sum_px) - (sum_py * sum_py) - (sum_pz * sum_pz);
+}
+
+L1SCJetEmu::Jet L1SCJetEmu::makeJet_HW(const std::vector<Particle>& parts, const Particle seed) const {
   // Seed Cone Jet algorithm with ap_fixed types and hardware emulation
-  Particle seed = reduce(parts, op_max);
 
   // Event with saturation, order of terms doesn't matter since they're all positive
-  auto sumpt = [](pt_t(a), const Particle& b) { return a + b.hwPt; };
+  auto sumpt = [](pt_t(a), const Particle& b) { return a + b.hwPt; };  // essentially a python lambda fn
 
   // Sum the pt
   pt_t pt = std::accumulate(parts.begin(), parts.end(), pt_t(0), sumpt);
@@ -66,13 +129,19 @@ L1SCJetEmu::Jet L1SCJetEmu::makeJet_HW(const std::vector<Particle>& parts) const
   });
   // Accumulate the pt-weighted phis. Init to 0, include seed in accumulation
   pt_etaphi_t sum_pt_phi = std::accumulate(pt_dphi.begin(), pt_dphi.end(), pt_etaphi_t(0));
-  etaphi_t phi = seed.hwPhi + etaphi_t(sum_pt_phi * inv_pt);
+  etaphi_t phi = seed.hwPhi + etaphi_t(sum_pt_phi * inv_pt);  // shift the seed by pt weighted sum_pt_phi
+
+  std::vector<Particle> truncated =
+      sortConstituents(parts, seed);  // sort the constituents by pt and truncate to NCONSTITS
+  mass2_t massSq = L1SCJetEmu::jetMass_HW(truncated);
 
   Jet jet;
   jet.hwPt = pt;
   jet.hwEta = eta;
   jet.hwPhi = phi;
+  jet.hwMassSq = massSq;
   jet.constituents = parts;
+  // jet.constituents = truncated;  // store the truncated, sorted NCONSTITSFW sparse array of constituents
 
   if (debug_) {
     std::for_each(pt_dphi.begin(), pt_dphi.end(), [](pt_etaphi_t& x) { dbgCout() << "pt_dphi: " << x << std::endl; });
@@ -97,10 +166,11 @@ std::vector<L1SCJetEmu::Jet> L1SCJetEmu::emulateEvent(std::vector<Particle>& par
 
   std::vector<Jet> jets;
   jets.reserve(nJets_);
-  while (!work.empty() && jets.size() < nJets_) {
+  while ((!work.empty() && jets.size() < nJets_)) {
     // Take the highest pt candidate as a seed
     // Use the firmware reduce function to find the same seed as the firmware
     // in case there are multiple seeds with the same pT
+    // ... or use external seed if configured to do so
     Particle seed = reduce(work, op_max);
 
     // Get the particles within a coneSize_ of the seed
@@ -110,14 +180,19 @@ std::vector<L1SCJetEmu::Jet> L1SCJetEmu::emulateEvent(std::vector<Particle>& par
     });
     if (debug_) {
       dbgCout() << "Seed: " << seed.hwPt << ", " << seed.hwEta << ", " << seed.hwPhi << std::endl;
+      std::cout << "N particles : " << particlesInCone.size() << std::endl;
       std::for_each(particlesInCone.begin(), particlesInCone.end(), [&](Particle& part) {
         dbgCout() << "  Part: " << part.hwPt << ", " << part.hwEta << ", " << part.hwPhi << std::endl;
         inCone(seed, part);
       });
     }
-    jets.push_back(makeJet_HW(particlesInCone));
-    // remove the clustered particles
-    work.erase(std::remove_if(work.begin(), work.end(), [&](const Particle& part) { return inCone(seed, part); }),
+    jets.push_back(makeJet_HW(particlesInCone, seed));
+    //remove the clustered particles
+    work.erase(std::remove_if(work.begin(),
+                              work.end(),
+                              [&](const Particle& part) {
+                                return inCone(seed, part);
+                              }),  //erase particles from further jet clustering
                work.end());
   }
   return jets;

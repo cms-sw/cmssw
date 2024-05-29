@@ -3,17 +3,32 @@ import FWCore.ParameterSet.Config as cms
 from L1Trigger.Phase2L1ParticleFlow.l1SeedConePFJetProducer_cfi import l1SeedConePFJetProducer 
 from L1Trigger.Phase2L1ParticleFlow.l1SeedConePFJetEmulatorProducer_cfi import l1SeedConePFJetEmulatorProducer
 from L1Trigger.Phase2L1ParticleFlow.l1tDeregionizerProducer_cfi import l1tDeregionizerProducer as l1tLayer2Deregionizer, l1tDeregionizerProducerExtended as l1tLayer2DeregionizerExtended
+
 l1tSC4PFL1PF            = l1SeedConePFJetProducer.clone(L1PFObjects = 'l1tLayer1:PF')
 l1tSC4PFL1Puppi         = l1SeedConePFJetProducer.clone()
 l1tSC4PFL1PuppiEmulator = l1SeedConePFJetEmulatorProducer.clone(L1PFObjects = 'l1tLayer2Deregionizer:Puppi')
+
+l1tSC8PFL1PF            = l1SeedConePFJetProducer.clone(L1PFObjects = 'l1tLayer1:PF', coneSize = cms.double(0.8))
+l1tSC8PFL1Puppi         = l1SeedConePFJetProducer.clone(coneSize = cms.double(0.8))
 l1tSC8PFL1PuppiEmulator = l1SeedConePFJetEmulatorProducer.clone(L1PFObjects = 'l1tLayer2Deregionizer:Puppi',
-                                                                 coneSize = cms.double(0.8))
+                                                                 coneSize = cms.double(0.8),
+                                                                 wideConeJet = cms.bool(True))
+l1tSC4PFL1PuppiCorrected         = l1SeedConePFJetProducer.clone(coneSize = cms.double(0.4),
+                                                        doCorrections = cms.bool(True),
+                                                        correctorFile = cms.string("L1Trigger/Phase2L1ParticleFlow/data/jecs/jecs_20220308.root"),
+                                                        correctorDir = cms.string('L1PuppiSC4EmuJets'))
+l1tSC8PFL1PuppiCorrected         = l1SeedConePFJetProducer.clone(coneSize = cms.double(0.8),
+                                                        wideConeJet = cms.bool(True),
+                                                        doCorrections = cms.bool(True),
+                                                        correctorFile = cms.string("L1Trigger/Phase2L1ParticleFlow/data/jecs/jecs_20220308.root"),
+                                                        correctorDir = cms.string('L1PuppiSC4EmuJets'))
 l1tSC4PFL1PuppiCorrectedEmulator = l1SeedConePFJetEmulatorProducer.clone(L1PFObjects = 'l1tLayer2Deregionizer:Puppi',
                                                                           doCorrections = cms.bool(True),
                                                                           correctorFile = cms.string("L1Trigger/Phase2L1ParticleFlow/data/jecs/jecs_20220308.root"),
                                                                           correctorDir = cms.string('L1PuppiSC4EmuJets'))
 l1tSC8PFL1PuppiCorrectedEmulator = l1SeedConePFJetEmulatorProducer.clone(L1PFObjects = 'l1tLayer2Deregionizer:Puppi',
                                                                           coneSize = cms.double(0.8),
+                                                                          wideConeJet = cms.bool(True),
                                                                           doCorrections = cms.bool(True),
                                                                           correctorFile = cms.string("L1Trigger/Phase2L1ParticleFlow/data/jecs/jecs_20220308.root"),
                                                                           correctorDir = cms.string('L1PuppiSC4EmuJets'))
@@ -43,7 +58,7 @@ l1tSC4PFL1PuppiExtendedCorrectedEmulator = l1SeedConePFJetEmulatorProducer.clone
                                                                      correctorDir = cms.string('L1PuppiSC4EmuJets'))
 
 L1TPFJetsTask = cms.Task(
-    l1tLayer2Deregionizer, l1tSC4PFL1PF, l1tSC4PFL1Puppi, l1tSC4PFL1PuppiEmulator, l1tSC4PFL1PuppiCorrectedEmulator, l1tSC4PFL1PuppiCorrectedEmulatorMHT,
+    l1tLayer2Deregionizer, l1tSC4PFL1PF, l1tSC4PFL1Puppi, l1tSC4PFL1PuppiCorrected, l1tSC8PFL1Puppi, l1tSC8PFL1PuppiCorrected, l1tSC4PFL1PuppiEmulator, l1tSC4PFL1PuppiCorrectedEmulator, l1tSC4PFL1PuppiCorrectedEmulatorMHT,
     l1tSC8PFL1PuppiEmulator, l1tSC8PFL1PuppiCorrectedEmulator
 )
 
