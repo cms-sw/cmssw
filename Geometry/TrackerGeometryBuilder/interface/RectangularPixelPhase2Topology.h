@@ -109,7 +109,7 @@ public:
   bool isItBigPixelInX(const int ixbin) const override {
     bool no_big_pixel = (m_BIG_PIX_PER_ROC_X == 0);
     if (!no_big_pixel)
-      no_big_pixel = abs((ixbin - m_nrows / 2) + 0.5) > m_BIG_PIX_PER_ROC_X;
+      no_big_pixel = std::abs((ixbin - m_nrows / 2) + 0.5) > m_BIG_PIX_PER_ROC_X;
 
     return !no_big_pixel;
   }
@@ -117,7 +117,7 @@ public:
   bool isItBigPixelInY(const int iybin) const override {
     bool no_big_pixel = (m_BIG_PIX_PER_ROC_Y == 0);
     if (!no_big_pixel)
-      no_big_pixel = abs((iybin - m_ncols / 2) + 0.5) > m_BIG_PIX_PER_ROC_Y;
+      no_big_pixel = std::abs((iybin - m_ncols / 2) + 0.5) > m_BIG_PIX_PER_ROC_Y;
 
     return !no_big_pixel;
   }
