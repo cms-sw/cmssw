@@ -165,8 +165,19 @@ void HLTGenValSource::initCfgs(const edm::Run& iRun, const edm::EventSetup& iSet
   auto timeString = timeStringStream.str();
   infoString_ += "\"date & time\":\"" + timeString + "\",";
 
-  // CMSSW version
-  std::string cmsswVersion = std::getenv("CMSSW_VERSION");
+  std::string cmsswVersion;
+  const edm::ProcessHistory& processHistory = iRun.processHistory();
+  for(const auto& process : processHistory){
+    if (process.processName() == hltProcessName_) {
+      cmsswVersion = process.releaseVersion();
+      break;
+    }
+    std::cout <<"process name"<<process<<std::endl;
+
+  }
+  if (cmsswVersion.empty()){
+    cmsswVersion = std::getenv("CMSSW_VERSION");
+  }  
   infoString_ += std::string("\"CMSSW release\":\"") + cmsswVersion + "\",";
 
   // Initialize hltConfig, for cross-checking whether chosen paths exist
