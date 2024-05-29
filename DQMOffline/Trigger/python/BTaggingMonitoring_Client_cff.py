@@ -60,6 +60,16 @@ BTVEfficiency_BTagMu_DiJet_DeepJet = DQMEDHarvester("DQMGenericClient",
     )    
 )
 
+BTVEfficiency_BTagMu_DiJet_UParT = DQMEDHarvester("DQMGenericClient",
+    subDirs        = cms.untracked.vstring("HLT/BTV/BTagMu_DiJet/*_UParTAK4"),
+    verbose        = cms.untracked.uint32(0),
+    resolution     = cms.vstring(),
+    efficiency     = cms.vstring(
+        "effic_bjetCSV_1     'efficiency vs 1st b-jet UParT score; UParT score; efficiency' bjetCSV_1_numerator  bjetCSV_1_denominator"
+    )
+)
+
+
 BTVEfficiency_BTagMu_Jet = DQMEDHarvester("DQMGenericClient",
     subDirs        = cms.untracked.vstring("HLT/BTV/BTagMu_Jet/*"),
     verbose        = cms.untracked.uint32(0),
@@ -108,6 +118,15 @@ BTVEfficiency_BTagMu_Jet_DeepJet = DQMEDHarvester("DQMGenericClient",
     resolution     = cms.vstring(),
     efficiency     = cms.vstring(
         "effic_bjetCSV_1     'efficiency vs 1st b-jet DeepJet score; DeepJet score; efficiency' bjetCSV_1_numerator  bjetCSV_1_denominator"
+    )
+)
+
+BTVEfficiency_BTagMu_Jet_UParT = DQMEDHarvester("DQMGenericClient",
+    subDirs        = cms.untracked.vstring("HLT/BTV/BTagMu_Jet/*_UParTAK4"),
+    verbose        = cms.untracked.uint32(0),
+    resolution     = cms.vstring(),
+    efficiency     = cms.vstring(
+        "effic_bjetCSV_1     'efficiency vs 1st b-jet UParT score;UParT score; efficiency' bjetCSV_1_numerator  bjetCSV_1_denominator"
     )
 )
 
@@ -170,6 +189,15 @@ BTVEfficiency_BTagDiMu_Jet_DeepJet = DQMEDHarvester("DQMGenericClient",
     )
 )
 
+BTVEfficiency_BTagDiMu_Jet_UParT = DQMEDHarvester("DQMGenericClient",
+    subDirs        = cms.untracked.vstring("HLT/BTV/BTagDiMu_Jet/*_UParTAK4"),
+    verbose        = cms.untracked.uint32(0),
+    resolution     = cms.vstring(),
+    efficiency     = cms.vstring(
+        "effic_bjetCSV_1     'efficiency vs 1st b-jet UParT score; UParT score; efficiency' bjetCSV_1_numerator  bjetCSV_1_denominator"
+    )
+)
+
 BTVEfficiency_PFJet = DQMEDHarvester("DQMGenericClient",
     subDirs        = cms.untracked.vstring("HLT/BTV/PFJet/*"),
     verbose        = cms.untracked.uint32(0),
@@ -209,6 +237,15 @@ BTVEfficiency_PFJet_DeepJet = DQMEDHarvester("DQMGenericClient",
     resolution     = cms.vstring(),
     efficiency     = cms.vstring(
         "effic_bjetCSV_1     'efficiency vs 1st b-jet DeepJet score; DeepJet score; efficiency' bjetCSV_1_numerator  bjetCSV_1_denominator"
+    )
+)
+
+BTVEfficiency_PFJet_UParT = DQMEDHarvester("DQMGenericClient",
+    subDirs        = cms.untracked.vstring("HLT/BTV/PFJet/*_UParTAK4"),
+    verbose        = cms.untracked.uint32(0),
+    resolution     = cms.vstring(),
+    efficiency     = cms.vstring(
+        "effic_bjetCSV_1     'efficiency vs 1st b-jet UParT score; UParT score; efficiency' bjetCSV_1_numerator  bjetCSV_1_denominator"
     )
 )
 
@@ -280,5 +317,9 @@ btaggingClient = cms.Sequence(
   + BTVEfficiency_BTagMu_Jet_DeepJet
   + BTVEfficiency_BTagDiMu_Jet_DeepJet
   + BTVEfficiency_PFJet_DeepJet
+  + BTVEfficiency_BTagMu_DiJet_UParT
+  + BTVEfficiency_BTagMu_Jet_UParT
+  + BTVEfficiency_BTagDiMu_Jet_UParT
+  + BTVEfficiency_PFJet_UParT    
   + BJetTrackToTrackEfficiencies
 )
