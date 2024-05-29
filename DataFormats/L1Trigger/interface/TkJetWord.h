@@ -20,7 +20,7 @@ namespace l1t {
   public:
     // ----------constants, enums and typedefs ---------
     static constexpr double MAX_Z0 = 30.;
-    static constexpr double MAX_ETA = 8.;
+    static constexpr double MAX_ETA = 2 * M_PI;
 
     enum TkJetBitWidths {
       kValidSize = 1,
@@ -156,7 +156,7 @@ namespace l1t {
     float pt() const { return ptWord().to_float(); }
     float glbeta() const {
       return unpackSignedValue(
-          glbEtaWord(), TkJetBitWidths::kGlbEtaSize, (MAX_ETA) / (1 << TkJetBitWidths::kGlbEtaSize));
+          glbEtaWord(), TkJetBitWidths::kGlbEtaSize, (2 * MAX_ETA) / (1 << TkJetBitWidths::kGlbEtaSize));
     }
     float glbphi() const {
       return unpackSignedValue(
