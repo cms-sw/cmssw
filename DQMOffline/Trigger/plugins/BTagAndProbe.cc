@@ -691,7 +691,7 @@ void BTagAndProbe::analyze(edm::Event const& iEvent, edm::EventSetup const& iSet
   edm::Handle<std::vector<reco::ShallowTagInfo> > shallowTagInfos;
   iEvent.getByToken(shallowTagInfosToken_, shallowTagInfos);
   if (!shallowTagInfos.isValid()) {
-    edm::LogWarning("BTagAndProbe") << "shallow tag handle not valid, will skip event \n";
+    // edm::LogWarning("BTagAndProbe") << "shallow tag handle not valid, will skip event \n";
     return;
   }
 
