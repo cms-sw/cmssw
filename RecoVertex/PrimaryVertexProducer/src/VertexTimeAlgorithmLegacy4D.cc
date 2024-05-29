@@ -26,7 +26,6 @@ bool VertexTimeAlgorithmLegacy4D::vertexTime(float& vtxTime, float& vtxTimeError
   }
 
   double sumwt = 0.;
-  double sumwt2 = 0.;
   double sumw = 0.;
 
   for (const auto& trk : vtx.originalTracks()) {
@@ -37,7 +36,6 @@ bool VertexTimeAlgorithmLegacy4D::vertexTime(float& vtxTime, float& vtxTimeError
     const double inverr = err > 0. ? 1.0 / err : 0.;
     const double w = inverr * inverr;
     sumwt += w * time;
-    sumwt2 += w * time * time;
     sumw += w;
   }
 
