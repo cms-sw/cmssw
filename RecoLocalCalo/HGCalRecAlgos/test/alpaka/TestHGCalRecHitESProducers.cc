@@ -18,6 +18,7 @@
 
 // includes for size, calibration, and configuration parameters
 #include "FWCore/Framework/interface/ESWatcher.h"
+#include "CondFormats/HGCalObjects/interface/HGCalConfiguration.h"
 #include "CondFormats/HGCalObjects/interface/HGCalMappingModuleIndexer.h"
 #include "CondFormats/DataRecord/interface/HGCalElectronicsMappingRcd.h"
 #include "CondFormats/DataRecord/interface/HGCalModuleConfigurationRcd.h"
@@ -50,22 +51,25 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     void beginRun(edm::Run const&, edm::EventSetup const&) override;
     edm::ESWatcher<HGCalModuleConfigurationRcd> configWatcher_;
     edm::ESGetToken<HGCalMappingModuleIndexer, HGCalElectronicsMappingRcd> indexerToken_;
-    device::ESGetToken<hgcalrechit::HGCalConfigParamDevice, HGCalModuleConfigurationRcd> configToken_;
-    device::ESGetToken<hgcalrechit::HGCalCalibParamDevice, HGCalModuleConfigurationRcd> calibToken_;
+    edm::ESGetToken<HGCalConfiguration, HGCalModuleConfigurationRcd> configToken_;
+    device::ESGetToken<hgcalrechit::HGCalConfigParamDevice, HGCalModuleConfigurationRcd> configParamToken_;
+    device::ESGetToken<hgcalrechit::HGCalCalibParamDevice, HGCalModuleConfigurationRcd> calibParamToken_;
   };
 
   TestHGCalRecHitESProducers::TestHGCalRecHitESProducers(const edm::ParameterSet& iConfig) {
     std::cout << "TestHGCalRecHitESProducers::TestHGCalRecHitESProducers" << std::endl;
     indexerToken_ = esConsumes(iConfig.getParameter<edm::ESInputTag>("indexSource"));
     configToken_ = esConsumes(iConfig.getParameter<edm::ESInputTag>("configSource"));
-    calibToken_ = esConsumes(iConfig.getParameter<edm::ESInputTag>("calibSource"));
+    configParamToken_ = esConsumes(iConfig.getParameter<edm::ESInputTag>("configParamSource"));
+    calibParamToken_ = esConsumes(iConfig.getParameter<edm::ESInputTag>("calibParamSource"));
   }
 
   void TestHGCalRecHitESProducers::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
     desc.add("indexSource", edm::ESInputTag{})->setComment("Label for module indexer to set SoA size");
-    desc.add("configSource", edm::ESInputTag{})->setComment("Label for ROC configuration parameters");
-    desc.add("calibSource", edm::ESInputTag{})->setComment("Label for calibration parameters");
+    desc.add("configSource", edm::ESInputTag{})->setComment("Label for HGCal configuration for unpacking raw data");
+    desc.add("configParamSource", edm::ESInputTag{})->setComment("Label for ROC configuration parameters for calibrations");
+    desc.add("calibParamSource", edm::ESInputTag{})->setComment("Label for calibration parameters");
     descriptions.addWithDefaultLabel(desc);
   }
 
@@ -77,9 +81,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     std::cout << "TestHGCalRecHitESProducers::produce" << std::endl;
     auto queue = iEvent.queue();
     auto const& moduleMap = iSetup.getData(indexerToken_);
-    auto const& configParamDevice = iSetup.getData(configToken_);
+    auto const& configParamDevice = iSetup.getData(configParamToken_);
     //printf("TestHGCalRecHitESProducers::produce: time to load configParamDevice from config ESProducers: %f seconds\n", duration(start,now()));
-    auto const& calibParamDevice = iSetup.getData(calibToken_);
+    auto const& calibParamDevice = iSetup.getData(calibParamToken_);
     //printf("TestHGCalRecHitESProducers::produce: time to load calibParamDevice from calib ESProducers: %f seconds\n", duration(start,now()));
 
     // Check if there are new conditions and read them

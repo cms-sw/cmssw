@@ -1,8 +1,8 @@
 # Author: Izaak Neutelings (March 2023)
 # Instructions:
 #   export SCRAM_ARCH="el9_amd64_gcc12"
-#   cmsrel CMSSW_14_1_X_2024-05-13-2300 -n CMSSW_14_1_X # custom project name
-#   cd CMSSW_14_1_X/src/
+#   cmsrel CMSSW_14_1_0_pre4
+#   cd CMSSW_14_1_0_pre4/src/
 #   cmsenv
 #   git cms-merge-topic -u CMS-HGCAL:dev/hackathon_base_CMSSW_14_1_X
 #   git clone https://github.com/pfs/Geometry-HGCalMapping.git  $CMSSW_BASE/src/Geometry/HGCalMapping/data
@@ -11,6 +11,7 @@
 #   cmsRun $CMSSW_BASE/src/RecoLocalCalo/HGCalRecAlgos/test/testHGCalRecHitESProducer_cfg.py
 # Sources:
 #   https://github.com/CMS-HGCAL/cmssw/blob/hgcal-condformat-HGCalNANO-13_2_0_pre3/DPGAnalysis/HGCalTools/python/tb2023_cfi.py
+#   https://gitlab.cern.ch/hgcal-dpg/hgcal-comm/-/blob/master/SystemTestEventFilters/test/test_raw2reco.py
 #   https://github.com/CMS-HGCAL/cmssw/blob/dev/hackathon_base_CMSSW_14_1_0_pre0/SimCalorimetry/HGCalSimProducers/test/hgcalRealistiDigis_cfg.py
 import os
 import FWCore.ParameterSet.Config as cms
@@ -19,6 +20,8 @@ import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.VarParsing import VarParsing
 options = VarParsing('standard')
 options.register('geometry', 'Extended2026D94', VarParsing.multiplicity.singleton, VarParsing.varType.string, 'geometry to use')
+options.register('config',"",mytype=VarParsing.varType.string,
+                 info="Path to configuration (JSON format)")
 options.register('params',"",mytype=VarParsing.varType.string,
                  info="Path to calibration parameters (JSON format)")
 options.register('modules',"",mytype=VarParsing.varType.string,
@@ -28,6 +31,8 @@ options.register('sicells','Geometry/HGCalMapping/data/CellMaps/WaferCellMapTrac
 options.register('sipmcells','Geometry/HGCalMapping/data/CellMaps/channels_sipmontile.hgcal.txt',mytype=VarParsing.varType.string,
                  info="Path to SiPM-on-tile cell mapper. Absolute, or relative to CMSSW src directory")
 options.parseArguments()
+if not options.config:
+  options.config = "config.json"
 if not options.params:
   outdir = os.path.join(os.environ.get('CMSSW_BASE',''),"src/HGCalCommissioning/LocalCalibration/data")
   #options.params = f"{outdir}/calibration_parameters_v2.json"
@@ -46,6 +51,7 @@ print(f">>> Input files:  {options.files!r}")
 print(f">>> Module map:   {options.modules!r}")
 print(f">>> SiCell map:   {options.sicells!r}")
 print(f">>> SipmCell map: {options.sipmcells!r}")
+print(f">>> Config:       {options.config!r}")
 print(f">>> Calib params: {options.params!r}")
 
 # PROCESS
@@ -83,21 +89,30 @@ process.hgCalMappingESProducer.si = cms.FileInPath(options.sicells)
 process.hgCalMappingESProducer.sipm = cms.FileInPath(options.sipmcells)
 process.hgCalMappingESProducer.modules = cms.FileInPath(options.modules)
 
+# CONFIGURATION ESProducers
+#process.load("RecoLocalCalo.HGCalRecAlgos.HGCalConfigurationESProducer")
+#process.load("RecoLocalCalo.HGCalRecAlgos.hgCalConfigurationESProducer_cfi")
+process.hgcalConfigESProducer = cms.ESSource( # ESProducer to load configurations for unpacker
+  'HGCalConfigurationESProducer',
+  filename=cms.string(options.config), # to be set up in configTBConditions
+  indexSource=cms.ESInputTag('hgCalMappingESProducer','')
+)
+
 # CALIBRATIONS & CONFIGURATION Alpaka ESProducers
 process.load('Configuration.StandardSequences.Accelerators_cff')
 #process.load('HeterogeneousCore.AlpakaCore.ProcessAcceleratorAlpaka_cfi')
 #process.load('HeterogeneousCore.CUDACore.ProcessAcceleratorCUDA_cfi')
-process.hgcalConfigESProducer = cms.ESProducer( # ESProducer to load configurations parameters from YAML file, like gain
+process.hgcalConfigParamESProducer = cms.ESProducer( # ESProducer to load configurations parameters from YAML file, like gain
   'hgcalrechit::HGCalConfigurationESProducer@alpaka',
   gain=cms.int32(1), # to switch between 80, 160, 320 fC calibration
   #charMode=cms.int32(1),
   indexSource=cms.ESInputTag('hgCalMappingESProducer','')
 )
-process.hgcalCalibESProducer = cms.ESProducer( # ESProducer to load calibration parameters from JSON file, like pedestals
+process.hgcalCalibParamESProducer = cms.ESProducer( # ESProducer to load calibration parameters from JSON file, like pedestals
   'hgcalrechit::HGCalCalibrationESProducer@alpaka',
   filename=cms.string(options.params), # to be set up in configTBConditions
   indexSource=cms.ESInputTag('hgCalMappingESProducer',''),
-  configSource=cms.ESInputTag(''), #('hgcalConfigESProducer', ''),
+  configSource=cms.ESInputTag(''),
 )
 
 # MAIN PROCESS
@@ -107,7 +122,8 @@ process.testHGCalRecHitESProducers = cms.EDProducer(
   #'alpaka_serial_sync::TestHGCalRecHitProducer', # CPU
   indexSource=cms.ESInputTag('hgCalMappingESProducer', ''),
   configSource=cms.ESInputTag('hgcalConfigESProducer', ''),
-  calibSource=cms.ESInputTag('hgcalCalibESProducer', ''),
+  configParamSource=cms.ESInputTag('hgcalConfigParamESProducer', ''),
+  calibParamSource=cms.ESInputTag('hgcalCalibParamESProducer', ''),
 )
 process.t = cms.Task(process.testHGCalRecHitESProducers)
 process.p = cms.Path(process.t)
