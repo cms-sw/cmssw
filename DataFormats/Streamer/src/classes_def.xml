@@ -7,10 +7,12 @@
   <version ClassVersion="11" checksum="1146084488"/>
  </class>
  <class name="std::vector<edm::StreamedProduct>"/>
- <class name="edm::SendEvent" ClassVersion="10">
+ <class name="edm::SendEvent" ClassVersion="11">
+  <version ClassVersion="11" checksum="3216100975"/>
   <version ClassVersion="10" checksum="747121728"/>
  </class>
- <class name="edm::SendJobHeader" ClassVersion="11">
+ <class name="edm::SendJobHeader" ClassVersion="12">
+  <version ClassVersion="12" checksum="3199648792"/>
   <version ClassVersion="11" checksum="79372782"/>
   <version ClassVersion="10" checksum="1238072397"/>
  </class>

@@ -10,30 +10,35 @@ echo "LOCAL_TEST_DIR = $SCRAM_TEST_PATH"
 RC=0
 
 mkdir inDir
+echo "test padding"
 cmsRun ${SCRAM_TEST_PATH}/streamOutPadding_cfg.py > outp 2>&1 || die "cmsRun streamOutPadding_cfg.py" $?
 cp teststreamfile.dat teststreamfile.padding
 mv teststreamfile.dat inDir/
-timeout --signal SIGTERM 180 cmsRun ${SCRAM_TEST_PATH}/streamIn_cfg.py  > inp  2>&1 || die "cmsRun streamIn_cfg.py" $?
+timeout --signal SIGTERM 180 cmsRun ${SCRAM_TEST_PATH}/streamIn_cfg.py  > inp  2>&1 || die "cmsRun streamIn_cfg.py with padding" $?
 rm -rf inDir
 
 mkdir inDir
+
+echo "test original"
 cmsRun ${SCRAM_TEST_PATH}/streamOut_cfg.py > out 2>&1 || die "cmsRun streamOut_cfg.py" $?
 cp teststreamfile.dat teststreamfile.original
 mv teststreamfile.dat inDir
-timeout --signal SIGTERM 180 cmsRun ${SCRAM_TEST_PATH}/streamIn_cfg.py  > in  2>&1 || die "cmsRun streamIn_cfg.py" $?
+timeout --signal SIGTERM 180 cmsRun ${SCRAM_TEST_PATH}/streamIn_cfg.py  > in  2>&1 || die "cmsRun streamIn_cfg.py original" $?
 
+echo "test original and alt"
 rm watcherSourceToken
 cp teststreamfile.original inDir/teststreamfile.dat
 cmsRun ${SCRAM_TEST_PATH}/streamOutAlt_cfg.py  > outAlt 2>&1 || die "cmsRun streamOutAlt_cfg.py" $?
 mv teststreamfile_alt.dat inDir
-timeout --signal SIGTERM 180 cmsRun ${SCRAM_TEST_PATH}/streamIn_cfg.py  >alt  2>&1 || die "cmsRun streamIn_cfg.py" $?
+timeout --signal SIGTERM 180 cmsRun ${SCRAM_TEST_PATH}/streamIn_cfg.py --alt >alt  2>&1 || die "cmsRun streamIn_cfg.py alt" $?
 #timeout --signal SIGTERM 180 cmsRun  ${SCRAM_TEST_PATH}/streamInAlt_cfg.py  > alt  2>&1 || die "cmsRun streamInAlt_cfg.py" $?
 
+echo "test ext"
 rm watcherSourceToken
 cp teststreamfile.original inDir/teststreamfile.dat
-cmsRun ${SCRAM_TEST_PATH}/streamOutExt_cfg.py  > outExt 2>&1 || die "cmsRun streamOutExt_cfg.py" $?
+cmsRun ${SCRAM_TEST_PATH}/streamOutExt_cfg.py > outExt 2>&1 || die "cmsRun streamOutExt_cfg.py" $?
 mv teststreamfile_ext.dat inDir
-timeout --signal SIGTERM 180 cmsRun ${SCRAM_TEST_PATH}/streamIn_cfg.py  > ext  2>&1 || die "cmsRun streamIn_cfg.py" $?
+timeout --signal SIGTERM 180 cmsRun ${SCRAM_TEST_PATH}/streamIn_cfg.py --ext > ext  2>&1 || die "cmsRun streamIn_cfg.py ext" $?
 #timeout --signal SIGTERM 180 cmsRun ${SCRAM_TEST_PATH}/streamInExt_cfg.py  > ext  2>&1 || die "cmsRun streamInExt_cfg.py" $?
 
 # echo "CHECKSUM = 1" > out
