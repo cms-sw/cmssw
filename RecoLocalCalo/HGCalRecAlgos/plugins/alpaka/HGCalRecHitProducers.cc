@@ -47,9 +47,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   using namespace cms::alpakatools;
 
-  class HGCalRecHitProducer : public stream::EDProducer<> {
+  class HGCalRecHitsProducer : public stream::EDProducer<> {
   public:
-    explicit HGCalRecHitProducer(const edm::ParameterSet&);
+    explicit HGCalRecHitsProducer(const edm::ParameterSet&);
     static void fillDescriptions(edm::ConfigurationDescriptions&);
 
   private:
@@ -65,7 +65,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     int n_hits_scale;
   };
 
-  HGCalRecHitProducer::HGCalRecHitProducer(const edm::ParameterSet& iConfig)
+  HGCalRecHitsProducer::HGCalRecHitsProducer(const edm::ParameterSet& iConfig)
       : digisToken_{consumes<hgcaldigi::HGCalDigiHost>(iConfig.getParameter<edm::InputTag>("digis"))},
         recHitsToken_{produces()},
         calibrator_{HGCalRecHitCalibrationAlgorithms(
@@ -77,7 +77,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       configToken_ = esConsumes(iConfig.getParameter<edm::ESInputTag>("configSource"));
     }
 
-  void HGCalRecHitProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  void HGCalRecHitsProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
     desc.add<edm::InputTag>("digis", edm::InputTag("hgcalDigis", "DIGI", "TEST"));
     desc.add("calibSource", edm::ESInputTag{})->setComment("Label for calibration parameters");
@@ -88,7 +88,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     descriptions.addWithDefaultLabel(desc);
   }
 
-  void HGCalRecHitProducer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup){
+  void HGCalRecHitsProducer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup){
     // auto moduleInfo = iSetup.getData(moduleInfoToken_);
     // std::tuple<uint16_t,uint8_t,uint8_t,uint8_t> denseIdxMax = moduleInfo.getMaxValuesForDenseIndex();    
     // calibrationParameterProvider_.initialize(HGCalCalibrationParameterProviderConfig{.EventSLinkMax=std::get<0>(denseIdxMax),
@@ -99,7 +99,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // });
   }
 
-  void HGCalRecHitProducer::produce(device::Event& iEvent, device::EventSetup const& iSetup) {
+  void HGCalRecHitsProducer::produce(device::Event& iEvent, device::EventSetup const& iSetup) {
     auto queue = iEvent.queue();
 
     // Read digis
@@ -150,16 +150,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       //  << "idx=" << i << ", elecId=" << hostDigis.view()[i].electronicsId()
       //  << ", cm=" << hostDigis.view()[i].cm() << std::endl;
     }
-    LogDebug("HGCalRecHitProducer") << "Loaded host digis: " << hostDigis.view().metadata().size(); //<< std::endl;
+    LogDebug("HGCalRecHitsProducer") << "Loaded host digis: " << hostDigis.view().metadata().size(); //<< std::endl;
 
-    LogDebug("HGCalRecHitProducer") << "\n\nINFO -- calling calibrate method"; //<< std::endl;
+    LogDebug("HGCalRecHitsProducer") << "\n\nINFO -- calling calibrate method"; //<< std::endl;
     auto start = now();
     auto recHits = calibrator_.calibrate(queue, hostDigis, deviceCalibParamProvider, deviceConfigParamProvider);
     alpaka::wait(queue);
     auto stop = now();
-    LogDebug("HGCalRecHitProducer") << "Time: " << duration(start, stop); //<< std::endl;
+    LogDebug("HGCalRecHitsProducer") << "Time: " << duration(start, stop); //<< std::endl;
 
-    LogDebug("HGCalRecHitProducer") << "\n\nINFO -- storing rec hits in the event"; //<< std::endl;
+    LogDebug("HGCalRecHitsProducer") << "\n\nINFO -- storing rec hits in the event"; //<< std::endl;
     iEvent.emplace(recHitsToken_, std::move(*recHits));
   }
 
@@ -167,4 +167,4 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
 // define this as a plug-in
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/MakerMacros.h"
-DEFINE_FWK_ALPAKA_MODULE(HGCalRecHitProducer);
+DEFINE_FWK_ALPAKA_MODULE(HGCalRecHitsProducer);
