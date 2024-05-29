@@ -94,4 +94,4 @@ void FWCandidateHGCalLegoProxyBuilder::build(const reco::HGCalMultiCluster &iDat
 REGISTER_FWPROXYBUILDER(FWCandidateHGCalLegoProxyBuilder,
                         reco::HGCalMultiCluster,
                         "HGCal Multiclusters Lego",
-                        static_cast<int>(FWViewType::kLegoBit) | static_cast<int>(FWViewType::kLegoHFBit));
+                        FWViewType::kLegoBit | FWViewType::kLegoHFBit);
