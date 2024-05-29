@@ -56,7 +56,8 @@ public:
                                 std::vector<SimVertex> const& simVertices,
                                 std::vector<size_t>& selected_cPeff,
                                 unsigned int layers,
-                                std::unordered_map<DetId, const HGCRecHit*> const&) const;
+                                std::unordered_map<DetId, const unsigned int> const&,
+                                std::vector<HGCRecHit> const& hits) const;
 
 protected:
   edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
@@ -88,12 +89,14 @@ protected:
   edm::EDGetTokenT<std::vector<CaloParticle>> label_cp_fake;
   edm::EDGetTokenT<std::vector<SimVertex>> simVertices_;
   std::vector<edm::EDGetTokenT<std::vector<float>>> clustersMaskTokens_;
-  edm::EDGetTokenT<std::unordered_map<DetId, const HGCRecHit*>> hitMap_;
-  edm::EDGetTokenT<hgcal::RecoToSimCollection> associatorMapRtS;
-  edm::EDGetTokenT<hgcal::SimToRecoCollection> associatorMapStR;
-  edm::EDGetTokenT<hgcal::SimToRecoCollectionWithSimClusters> associatorMapSimtR;
-  edm::EDGetTokenT<hgcal::RecoToSimCollectionWithSimClusters> associatorMapRtSim;
+  edm::EDGetTokenT<std::unordered_map<DetId, const unsigned int>> hitMap_;
+  edm::EDGetTokenT<ticl::RecoToSimCollection> associatorMapRtS;
+  edm::EDGetTokenT<ticl::SimToRecoCollection> associatorMapStR;
+  edm::EDGetTokenT<ticl::SimToRecoCollectionWithSimClusters> associatorMapSimtR;
+  edm::EDGetTokenT<ticl::RecoToSimCollectionWithSimClusters> associatorMapRtSim;
   std::unique_ptr<HGVHistoProducerAlgo> histoProducerAlgo_;
+  std::vector<edm::InputTag> hits_label_;
+  std::vector<edm::EDGetTokenT<HGCRecHitCollection>> hits_token_;
 
 private:
   CaloParticleSelector cpSelector;

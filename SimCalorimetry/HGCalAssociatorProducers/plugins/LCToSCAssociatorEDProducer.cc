@@ -39,17 +39,16 @@ private:
 
   edm::EDGetTokenT<SimClusterCollection> SCCollectionToken_;
   edm::EDGetTokenT<reco::CaloClusterCollection> LCCollectionToken_;
-  edm::EDGetTokenT<hgcal::LayerClusterToSimClusterAssociator> associatorToken_;
+  edm::EDGetTokenT<ticl::LayerClusterToSimClusterAssociator> associatorToken_;
 };
 
 LCToSCAssociatorEDProducer::LCToSCAssociatorEDProducer(const edm::ParameterSet &pset) {
-  produces<hgcal::SimToRecoCollectionWithSimClusters>();
-  produces<hgcal::RecoToSimCollectionWithSimClusters>();
+  produces<ticl::SimToRecoCollectionWithSimClusters>();
+  produces<ticl::RecoToSimCollectionWithSimClusters>();
 
   SCCollectionToken_ = consumes<SimClusterCollection>(pset.getParameter<edm::InputTag>("label_scl"));
   LCCollectionToken_ = consumes<reco::CaloClusterCollection>(pset.getParameter<edm::InputTag>("label_lcl"));
-  associatorToken_ =
-      consumes<hgcal::LayerClusterToSimClusterAssociator>(pset.getParameter<edm::InputTag>("associator"));
+  associatorToken_ = consumes<ticl::LayerClusterToSimClusterAssociator>(pset.getParameter<edm::InputTag>("associator"));
 }
 
 LCToSCAssociatorEDProducer::~LCToSCAssociatorEDProducer() {}
@@ -62,7 +61,7 @@ LCToSCAssociatorEDProducer::~LCToSCAssociatorEDProducer() {}
 void LCToSCAssociatorEDProducer::produce(edm::StreamID, edm::Event &iEvent, const edm::EventSetup &iSetup) const {
   using namespace edm;
 
-  edm::Handle<hgcal::LayerClusterToSimClusterAssociator> theAssociator;
+  edm::Handle<ticl::LayerClusterToSimClusterAssociator> theAssociator;
   iEvent.getByToken(associatorToken_, theAssociator);
 
   Handle<SimClusterCollection> SCCollection;
@@ -73,13 +72,13 @@ void LCToSCAssociatorEDProducer::produce(edm::StreamID, edm::Event &iEvent, cons
 
   // associate LC and SC
   LogTrace("AssociatorValidator") << "Calling associateRecoToSim method\n";
-  hgcal::RecoToSimCollectionWithSimClusters recSimColl = theAssociator->associateRecoToSim(LCCollection, SCCollection);
+  ticl::RecoToSimCollectionWithSimClusters recSimColl = theAssociator->associateRecoToSim(LCCollection, SCCollection);
 
   LogTrace("AssociatorValidator") << "Calling associateSimToReco method\n";
-  hgcal::SimToRecoCollectionWithSimClusters simRecColl = theAssociator->associateSimToReco(LCCollection, SCCollection);
+  ticl::SimToRecoCollectionWithSimClusters simRecColl = theAssociator->associateSimToReco(LCCollection, SCCollection);
 
-  auto rts = std::make_unique<hgcal::RecoToSimCollectionWithSimClusters>(recSimColl);
-  auto str = std::make_unique<hgcal::SimToRecoCollectionWithSimClusters>(simRecColl);
+  auto rts = std::make_unique<ticl::RecoToSimCollectionWithSimClusters>(recSimColl);
+  auto str = std::make_unique<ticl::SimToRecoCollectionWithSimClusters>(simRecColl);
 
   iEvent.put(std::move(rts));
   iEvent.put(std::move(str));

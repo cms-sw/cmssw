@@ -2,6 +2,6 @@
 
 #include "SimDataFormats/Associations/interface/TracksterToSimTracksterAssociator.h"
 
-hgcal::TracksterToSimTracksterAssociator::TracksterToSimTracksterAssociator(
-    std::unique_ptr<hgcal::TracksterToSimTracksterAssociatorBaseImpl> ptr)
+ticl::TracksterToSimTracksterAssociator::TracksterToSimTracksterAssociator(
+    std::unique_ptr<ticl::TracksterToSimTracksterAssociatorBaseImpl> ptr)
     : m_impl(std::move(ptr)) {}

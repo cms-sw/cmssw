@@ -7,6 +7,8 @@
 
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "DataFormats/HGCRecHit/interface/HGCRecHit.h"
+#include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
+#include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 #include "SimDataFormats/Associations/interface/LayerClusterToCaloParticleAssociator.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 
@@ -14,7 +16,7 @@ namespace edm {
   class EDProductGetter;
 }
 
-namespace hgcal {
+namespace ticl {
   // This structure is used both for LayerClusters and CaloParticles storing their id and the fraction of a hit
   // that belongs to the LayerCluster or CaloParticle. The meaning of the operator is extremely important since
   // this struct will be used inside maps and other containers and when searching for one particular occurence
@@ -55,32 +57,41 @@ namespace hgcal {
   typedef std::vector<std::vector<std::pair<unsigned int, float>>> layerClusterToCaloParticle;
   // This is used to save the caloParticleOnLayer structure for all CaloParticles in each layer.
   // It is not exactly what is returned outside, but out of its entries, the output object is build.
-  typedef std::vector<std::vector<hgcal::caloParticleOnLayer>> caloParticleToLayerCluster;
+  typedef std::vector<std::vector<ticl::caloParticleOnLayer>> caloParticleToLayerCluster;
   //This is the output of the makeConnections function that contain all the work with CP2LC and LC2CP
   //association. It will be read by the relevant associateSimToReco and associateRecoToSim functions to
   //provide the final product.
   typedef std::tuple<layerClusterToCaloParticle, caloParticleToLayerCluster> association;
-}  // namespace hgcal
+}  // namespace ticl
 
-class LCToCPAssociatorByEnergyScoreImpl : public hgcal::LayerClusterToCaloParticleAssociatorBaseImpl {
+template <typename HIT>
+class LCToCPAssociatorByEnergyScoreImpl : public ticl::LayerClusterToCaloParticleAssociatorBaseImpl {
 public:
   explicit LCToCPAssociatorByEnergyScoreImpl(edm::EDProductGetter const &,
                                              bool,
                                              std::shared_ptr<hgcal::RecHitTools>,
-                                             const std::unordered_map<DetId, const HGCRecHit *> *);
+                                             const std::unordered_map<DetId, const unsigned int> *,
+                                             const std::vector<const HIT *> &hits);
 
-  hgcal::RecoToSimCollection associateRecoToSim(const edm::Handle<reco::CaloClusterCollection> &cCH,
-                                                const edm::Handle<CaloParticleCollection> &cPCH) const override;
+  ticl::RecoToSimCollection associateRecoToSim(const edm::Handle<reco::CaloClusterCollection> &cCH,
+                                               const edm::Handle<CaloParticleCollection> &cPCH) const override;
 
-  hgcal::SimToRecoCollection associateSimToReco(const edm::Handle<reco::CaloClusterCollection> &cCH,
-                                                const edm::Handle<CaloParticleCollection> &cPCH) const override;
+  ticl::SimToRecoCollection associateSimToReco(const edm::Handle<reco::CaloClusterCollection> &cCH,
+                                               const edm::Handle<CaloParticleCollection> &cPCH) const override;
 
 private:
   const bool hardScatterOnly_;
   std::shared_ptr<hgcal::RecHitTools> recHitTools_;
-  const std::unordered_map<DetId, const HGCRecHit *> *hitMap_;
+  const std::unordered_map<DetId, const unsigned int> *hitMap_;
   unsigned layers_;
   edm::EDProductGetter const *productGetter_;
-  hgcal::association makeConnections(const edm::Handle<reco::CaloClusterCollection> &cCH,
-                                     const edm::Handle<CaloParticleCollection> &cPCH) const;
+  ticl::association makeConnections(const edm::Handle<reco::CaloClusterCollection> &cCH,
+                                    const edm::Handle<CaloParticleCollection> &cPCH) const;
+  std::vector<const HIT *> hits_;
 };
+
+extern template class LCToCPAssociatorByEnergyScoreImpl<HGCRecHit>;
+extern template class LCToCPAssociatorByEnergyScoreImpl<reco::PFRecHit>;
+
+using HGCalLCToCPAssociatorByEnergyScoreImpl = LCToCPAssociatorByEnergyScoreImpl<HGCRecHit>;
+using BarrelLCToCPAssociatorByEnergyScoreImpl = LCToCPAssociatorByEnergyScoreImpl<reco::PFRecHit>;
