@@ -14,13 +14,13 @@
 #include "G4hMultipleScattering.hh"
 #include "G4hIonisation.hh"
 #include "G4ProcessManager.hh"
+#include "G4HadronicProcess.hh"
 
 #include "SimG4Core/CustomPhysics/interface/FullModelHadronicProcess.h"
 #include "SimG4Core/CustomPhysics/interface/CMSDarkPairProductionProcess.h"
 #include "SimG4Core/CustomPhysics/interface/CMSQGSPSIMPBuilder.h"
 #include "SimG4Core/CustomPhysics/interface/CMSSIMPInelasticProcess.h"
 
-#include "SimG4Core/CustomPhysics/interface/CMSSQInelasticProcess.h"
 #include "SimG4Core/CustomPhysics/interface/CMSSQLoopProcess.h"
 #include "SimG4Core/CustomPhysics/interface/CMSSQLoopProcessDiscr.h"
 #include "SimG4Core/CustomPhysics/interface/CMSSQNeutronAnnih.h"
@@ -107,7 +107,7 @@ void CustomPhysicsList::ConstructProcess() {
         }
         if (particle->GetParticleName() == "anti_sexaq") {
           // here the different sexaquark interactions get defined
-          CMSSQInelasticProcess* sqInelPr = new CMSSQInelasticProcess(particle->GetPDGMass() / GeV);
+          G4HadronicProcess* sqInelPr = new G4HadronicProcess();
           CMSSQNeutronAnnih* sqModel = new CMSSQNeutronAnnih(particle->GetPDGMass() / GeV);
           sqInelPr->RegisterMe(sqModel);
           CMSSQInelasticCrossSection* sqInelXS = new CMSSQInelasticCrossSection(particle->GetPDGMass() / GeV);
