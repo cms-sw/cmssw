@@ -15,8 +15,6 @@ process.options.numberOfThreads = 4
 process.options.numberOfStreams = 4
 process.source = cms.Source("EmptySource")
 
-process.add_(cms.Service("AsyncService"))
-
 if args.earlyTermination or args.exception:
     process.tester = cms.EDProducer("edmtest::AsyncServiceWaitingTester",
         throwingStream = cms.untracked.uint32(0)
