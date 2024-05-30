@@ -17,8 +17,7 @@
 
 namespace {
   constexpr int kEBChannels = 61200, kEEChannels = 14648, kSides = 2, kRMS = 5;
-  constexpr int MIN_IETA = 1, MIN_IPHI = 1, MAX_IETA = 85,
-                MAX_IPHI = 360;                                      // barrel lower and upper bounds on eta and phi
+  constexpr int MAX_IETA = 85, MAX_IPHI = 360;                       // barrel lower and upper bounds on eta and phi
   constexpr int IX_MIN = 1, IY_MIN = 1, IX_MAX = 100, IY_MAX = 100;  // endcaps lower and upper bounds on x and y
 
   /*****************************************************
