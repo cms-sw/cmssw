@@ -418,9 +418,10 @@ class EventID(_ParameterTypeBase):
     def __init__(self, run, *args):
         super(EventID,self).__init__()
         if isinstance(run, str):
-            self.__run = self._valueFromString(run).__run
-            self.__luminosityBlock = self._valueFromString(run).__luminosityBlock
-            self.__event = self._valueFromString(run).__event
+            v = self._valueFromString(run)
+            self.__run = v.__run
+            self.__luminosityBlock = v.__luminosityBlock
+            self.__event = v.__event
         else:
             self.__run = run
             if len(args) == 1:
@@ -433,9 +434,10 @@ class EventID(_ParameterTypeBase):
                 raise RuntimeError('EventID ctor must have 2 or 3 arguments')
     def setValue(self, value):
         if isinstance(value, str):
-            self.__run = self._valueFromString(value).__run
-            self.__luminosityBlock = self._valueFromString(value).__luminosityBlock
-            self.__event = self._valueFromString(value).__event
+            v = self._valueFromString(value)
+            self.__run = v.__run
+            self.__luminosityBlock = v.__luminosityBlock
+            self.__event = v.__event
         else:
             try:
                 iter(value)
@@ -477,21 +479,24 @@ class EventID(_ParameterTypeBase):
         return parameterSet.newEventID(self.run(), self.luminosityBlock(), self.event())
     def insertInto(self, parameterSet, myname:str):
         parameterSet.addEventID(self.isTracked(), myname, self.cppID(parameterSet))
-
+    def value(self) -> str:
+        return str(self.__run)+':'+str(self.__luminosityBlock)+":"+str(self.__event)
 
 class LuminosityBlockID(_ParameterTypeBase):
     def __init__(self, run, block=None):
         super(LuminosityBlockID,self).__init__()
         if isinstance(run, str):
-            self.__run = self._valueFromString(run).__run
-            self.__block = self._valueFromString(run).__block
+            v = self._valueFromString(run)
+            self.__run = v.__run
+            self.__block = v.__block
         else:
             self.__run = run
             self.__block = block
     def setValue(self, value):
         if isinstance(value, str):
-            self.__run = self._valueFromString(value).__run
-            self.__block = self._valueFromString(value).__block
+            v = self._valueFromString(value)
+            self.__run = v.__run
+            self.__block = v.__block
         else:
             self.__run = value[0]
             self.__block = value[1]
@@ -513,6 +518,8 @@ class LuminosityBlockID(_ParameterTypeBase):
         return parameterSet.newLuminosityBlockID(self.run(), self.luminosityBlock())
     def insertInto(self, parameterSet, myname:str):
         parameterSet.addLuminosityBlockID(self.isTracked(), myname, self.cppID(parameterSet))
+    def value(self) -> str:
+        return str(self.__run)+":"+str(self.__block)
 
 
 class LuminosityBlockRange(_ParameterTypeBase):
@@ -613,6 +620,8 @@ class LuminosityBlockRange(_ParameterTypeBase):
         return parameterSet.newLuminosityBlockRange(self.start(), self.startSub(),self.end(), self.endSub())
     def insertInto(self, parameterSet, myname:str):
         parameterSet.addLuminosityBlockRange(self.isTracked(), myname, self.cppID(parameterSet))
+    def value(self) -> str:
+        return str(self.__start)+":"+str(self.__startSub)+"-"+str(self.__end)+":"+str(self.__endSub)
 
 class EventRange(_ParameterTypeBase):
     def __init__(self, start, *args):
@@ -750,6 +759,9 @@ class EventRange(_ParameterTypeBase):
         return parameterSet.newEventRange(self.start(), self.startLumi(), self.startSub(), self.end(), self.endLumi(), self.endSub())
     def insertInto(self, parameterSet, myname:str):
         parameterSet.addEventRange(self.isTracked(), myname, self.cppID(parameterSet))
+    def value(self) -> str:
+        return str(self.__start) + ":" + str(self.__startLumi) + ":" + str(self.__startSub) + "-" + \
+               str(self.__end) + ":" + str(self.__endLumi) + ":" + str(self.__endSub)
 
 class InputTag(_ParameterTypeBase):
     def __init__(self,moduleLabel:str,productInstanceLabel:str='',processName:str=''):
@@ -2328,6 +2340,10 @@ if __name__ == "__main__":
             self.assertEqual( repr(eid), "cms.EventID(4, 0, 1)" )
             eid.setValue( (5,1,2))
             self.assertEqual( repr(eid), "cms.EventID(5, 1, 2)" )
+            self.assertEqual(eid.value(), "5:1:2")
+            other = EventID(1,1,1)
+            other.setValue(eid.value())
+            self.assertEqual(other.value(), "5:1:2")
         def testVEventID(self):
             veid = VEventID(EventID(2, 0, 3))
             veid2 = VEventID("1:2", "3:4")
@@ -2347,6 +2363,10 @@ if __name__ == "__main__":
             lid3 = LuminosityBlockID(1)
             lid3.setValue((2,3))
             self.assertEqual(repr(lid3), "cms.LuminosityBlockID(2, 3)")
+            self.assertEqual(lid3.value(), "2:3")
+            other = LuminosityBlockID(1,1)
+            other.setValue(lid3.value())
+            self.assertEqual(other.value(), "2:3")
 
         def testVLuminosityBlockID(self):
             vlid = VLuminosityBlockID(LuminosityBlockID(2, 3))
@@ -2374,13 +2394,18 @@ if __name__ == "__main__":
             range1 = EventRange(1, 0, 2, 3, 0, 4)
             range2 = EventRange._valueFromString("1:2 - 3:4")
             range3 = EventRange._valueFromString("1:MIN - 3:MAX")
-            self.assertEqual(repr(range1), repr(range1))
+            self.assertEqual(repr(range1), repr(range2))
+            self.assertEqual(range1.value(), "1:0:2-3:0:4")
             self.assertEqual(repr(range3), "cms.EventRange(1, 0, 1, 3, 0, 0)")
             pset = PSetTester()
             range1.insertInto(pset,'foo')
             range2.insertInto(pset,'bar')
             range4 = EventRange((1,2,3), (4,5,6))
             self.assertEqual(repr(range4), "cms.EventRange(1, 2, 3, 4, 5, 6)")
+            other = EventRange(1,1,1,2,2,2)
+            other.setValue(range1.value())
+            self.assertEqual(range1.value(), other.value())
+
         def testVEventRange(self):
             v1 = VEventRange(EventRange(1, 0, 2, 3, 0, 4))
             v2 = VEventRange("1:2-3:4", "5:MIN-7:MAX")
@@ -2398,7 +2423,8 @@ if __name__ == "__main__":
             range1 = LuminosityBlockRange(1, 2, 3, 4)
             range2 = LuminosityBlockRange._valueFromString("1:2 - 3:4")
             range3 = LuminosityBlockRange._valueFromString("1:MIN - 3:MAX")
-            self.assertEqual(repr(range1), repr(range1))
+            self.assertEqual(repr(range1), repr(range2))
+            self.assertEqual(range1.value(), "1:2-3:4")
             self.assertEqual(repr(range3), "cms.LuminosityBlockRange(1, 1, 3, 0)")
             pset = PSetTester()
             range1.insertInto(pset,'foo')
@@ -2408,6 +2434,9 @@ if __name__ == "__main__":
             self.assertEqual(repr(range4), "cms.LuminosityBlockRange(2, 3, 4, 5)")
             range5 = LuminosityBlockRange((1,2), (3,4))
             self.assertEqual(repr(range5), "cms.LuminosityBlockRange(1, 2, 3, 4)")
+            other = LuminosityBlockRange(1,1,2,2)
+            other.setValue(range1.value())
+            self.assertEqual(range1.value(), other.value())
         def testVLuminosityBlockRange(self):
             v1 = VLuminosityBlockRange(LuminosityBlockRange(1, 2, 3, 4))
             v2 = VLuminosityBlockRange("1:2-3:4", "5:MIN-7:MAX")
