@@ -9,6 +9,7 @@ from RecoHGCal.TICL.EMStep_cff import *
 from RecoHGCal.TICL.HADStep_cff import *
 from RecoHGCal.TICL.CLUE3DEM_cff import *
 from RecoHGCal.TICL.CLUE3DHAD_cff import *
+from RecoHGCal.TICL.PRbyPassthrough_cff import *
 
 from RecoHGCal.TICL.ticlLayerTileProducer_cfi import ticlLayerTileProducer
 from RecoHGCal.TICL.pfTICLProducer_cfi import pfTICLProducer as _pfTICLProducer
@@ -27,7 +28,8 @@ ticlLayerTileTask = cms.Task(ticlLayerTileProducer)
 ticlTrackstersMerge = _trackstersMergeProducer.clone()
 ticlTracksterLinks = _tracksterLinksProducer.clone(
     tracksters_collections = cms.VInputTag(
-        'ticlTrackstersCLUE3DHigh'
+        'ticlTrackstersCLUE3DHigh',
+        'ticlTrackstersPassthrough'
     ),
     regressionAndPid = cms.bool(True)
 )
@@ -40,7 +42,9 @@ ticl_v5.toModify(pfTICL, ticlCandidateSrc = cms.InputTag('ticlCandidate'), isTIC
 ticlPFTask = cms.Task(pfTICL)
 
 ticlIterationsTask = cms.Task(
-    ticlCLUE3DHighStepTask
+    ticlCLUE3DHighStepTask,
+    ticlPassthroughStepTask
+
 )
 ''' For future separate iterations
 ,ticlCLUE3DEMStepTask,

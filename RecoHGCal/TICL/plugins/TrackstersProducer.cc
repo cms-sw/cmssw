@@ -134,6 +134,11 @@ void TrackstersProducer::fillDescriptions(edm::ConfigurationDescriptions& descri
   pluginDescFastJet.addNode(edm::PluginDescription<PatternRecognitionFactory>("type", "FastJet", true));
   desc.add<edm::ParameterSetDescription>("pluginPatternRecognitionByFastJet", pluginDescFastJet);
 
+  // PassThrough Plugin
+  edm::ParameterSetDescription pluginDescPassThrough;
+  pluginDescPassThrough.addNode(edm::PluginDescription<PatternRecognitionFactory>("type", "Passthrough", true));
+  desc.add<edm::ParameterSetDescription>("pluginPatternRecognitionByPassthrough", pluginDescPassThrough);
+
   descriptions.add("trackstersProducer", desc);
 }
 
