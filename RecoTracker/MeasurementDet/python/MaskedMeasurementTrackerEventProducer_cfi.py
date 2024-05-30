@@ -1,7 +1,4 @@
 import FWCore.ParameterSet.Config as cms
 
-MaskedMeasurementTrackerEvent = cms.EDProducer("MaskedMeasurementTrackerEventProducer",
-    src = cms.InputTag("MeasurementTrackerEvent"),
-    OnDemand = cms.bool(False),
-    clustersToSkip = cms.InputTag(""),
-)
+from RecoTracker.MeasurementDet.maskedMeasurementTrackerEventProducer_cfi import maskedMeasurementTrackerEventProducer as _maskedMeasurementTrackerEventProducer
+MaskedMeasurementTrackerEvent = _maskedMeasurementTrackerEvent.clone()

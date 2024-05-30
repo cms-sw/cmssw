@@ -36,6 +36,23 @@ void SiStripClusterizer::produce(edm::Event& event, const edm::EventSetup& es) {
   event.put(std::move(output));
 }
 
+void SiStripClusterizer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<std::vector<edm::InputTag>>("DigiProducersList",
+                                       {edm::InputTag("siStripDigis", "ZeroSuppressed"),
+                                        edm::InputTag("siStripZeroSuppression", "VirginRaw"),
+                                        edm::InputTag("siStripZeroSuppression", "ProcessedRaw"),
+                                        edm::InputTag("siStripZeroSuppression", "ScopeMode")});
+
+  {
+    edm::ParameterSetDescription ClusterizerPSet;
+    StripClusterizerAlgorithmFactory::fillDescriptions(ClusterizerPSet);
+    desc.add<edm::ParameterSetDescription>("Clusterizer", ClusterizerPSet);
+  }
+
+  descriptions.addWithDefaultLabel(desc);
+}
+
 template <class T>
 inline bool SiStripClusterizer::findInput(const edm::EDGetTokenT<T>& tag, edm::Handle<T>& handle, const edm::Event& e) {
   e.getByToken(tag, handle);
