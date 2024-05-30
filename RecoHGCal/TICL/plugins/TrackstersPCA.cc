@@ -36,13 +36,10 @@ void ticl::assignPCAtoTracksters(std::vector<Trackster> &tracksters,
     trackster.setRawEmPt(0.f);
 
     size_t N = trackster.vertices().size();
+    if (N == 0)
+      continue;
     float weight = 1.f / N;
     float weights2_sum = 0.f;
-    Eigen::Vector3d sigmas;
-    sigmas << 0., 0., 0.;
-    Eigen::Vector3d sigmasEigen;
-    sigmasEigen << 0., 0., 0.;
-    Eigen::Matrix3d covM = Eigen::Matrix3d::Zero();
 
     for (size_t i = 0; i < N; ++i) {
       auto fraction = 1.f / trackster.vertex_multiplicity(i);
@@ -57,27 +54,11 @@ void ticl::assignPCAtoTracksters(std::vector<Trackster> &tracksters,
       for (size_t j = 0; j < 3; ++j)
         barycenter[j] += point[j];
     }
-
-    if (energyWeight && trackster.raw_energy())
-      barycenter /= trackster.raw_energy();
-
-    // Compute the Covariance Matrix and the sum of the squared weights, used
-    // to compute the correct normalization.
-    // The barycenter has to be known.
-    for (size_t i = 0; i < N; ++i) {
-      fillPoint(layerClusters[trackster.vertices(i)]);
-      if (energyWeight && trackster.raw_energy())
-        weight =
-            (layerClusters[trackster.vertices(i)].energy() / trackster.vertex_multiplicity(i)) / trackster.raw_energy();
-      weights2_sum += weight * weight;
-      for (size_t x = 0; x < 3; ++x)
-        for (size_t y = 0; y <= x; ++y) {
-          covM(x, y) += weight * (point[x] - barycenter[x]) * (point[y] - barycenter[y]);
-          covM(y, x) = covM(x, y);
-        }
-    }
-    covM *= 1.f / (1.f - weights2_sum);
-
+    float raw_energy = trackster.raw_energy();
+    float inv_raw_energy = 1.f / raw_energy;
+    if (energyWeight)
+      barycenter *= inv_raw_energy;
+    trackster.setBarycenter(ticl::Trackster::Vector(barycenter));
     std::pair<float, float> timeTrackster;
     if (computeLocalTime)
       timeTrackster = ticl::computeLocalTracksterTime(trackster, layerClusters, layerClustersTime, barycenter, N);
@@ -85,38 +66,6 @@ void ticl::assignPCAtoTracksters(std::vector<Trackster> &tracksters,
       timeTrackster = ticl::computeTracksterTime(trackster, layerClustersTime, N);
 
     trackster.setTimeAndError(timeTrackster.first, timeTrackster.second);
-
-    // Perform the actual decomposition
-    Eigen::SelfAdjointEigenSolver<Eigen::Matrix3d>::RealVectorType eigenvalues_fromEigen;
-    Eigen::SelfAdjointEigenSolver<Eigen::Matrix3d>::EigenvectorsType eigenvectors_fromEigen;
-    Eigen::SelfAdjointEigenSolver<Eigen::Matrix3d> eigensolver(covM);
-    if (eigensolver.info() != Eigen::Success) {
-      eigenvalues_fromEigen = eigenvalues_fromEigen.Zero();
-      eigenvectors_fromEigen = eigenvectors_fromEigen.Zero();
-    } else {
-      eigenvalues_fromEigen = eigensolver.eigenvalues();
-      eigenvectors_fromEigen = eigensolver.eigenvectors();
-    }
-
-    // Compute the spread in the both spaces.
-    for (size_t i = 0; i < N; ++i) {
-      fillPoint(layerClusters[trackster.vertices(i)]);
-      sigmas += weight * (point - barycenter).cwiseAbs2();
-      Eigen::Vector3d point_transformed = eigenvectors_fromEigen * (point - barycenter);
-      if (energyWeight && trackster.raw_energy())
-        weight =
-            (layerClusters[trackster.vertices(i)].energy() / trackster.vertex_multiplicity(i)) / trackster.raw_energy();
-      sigmasEigen += weight * (point_transformed.cwiseAbs2());
-    }
-    sigmas /= (1.f - weights2_sum);
-    sigmasEigen /= (1.f - weights2_sum);
-
-    // Add trackster attributes
-    trackster.setBarycenter(ticl::Trackster::Vector(barycenter));
-
-    trackster.fillPCAVariables(
-        eigenvalues_fromEigen, eigenvectors_fromEigen, sigmas, sigmasEigen, 3, ticl::Trackster::PCAOrdering::ascending);
-
     LogDebug("TrackstersPCA") << "Use energy weighting: " << energyWeight << std::endl;
     LogDebug("TrackstersPCA") << "\nTrackster characteristics: " << std::endl;
     LogDebug("TrackstersPCA") << "Size: " << N << std::endl;
@@ -125,22 +74,77 @@ void ticl::assignPCAtoTracksters(std::vector<Trackster> &tracksters,
     LogDebug("TrackstersPCA") << "Means:          " << barycenter[0] << ", " << barycenter[1] << ", " << barycenter[2]
                               << std::endl;
     LogDebug("TrackstersPCA") << "Time:          " << trackster.time() << " +/- " << trackster.timeError() << std::endl;
-    LogDebug("TrackstersPCA") << "EigenValues from Eigen/Tr(cov): " << eigenvalues_fromEigen[2] / covM.trace() << ", "
-                              << eigenvalues_fromEigen[1] / covM.trace() << ", "
-                              << eigenvalues_fromEigen[0] / covM.trace() << std::endl;
-    LogDebug("TrackstersPCA") << "EigenValues from Eigen:         " << eigenvalues_fromEigen[2] << ", "
-                              << eigenvalues_fromEigen[1] << ", " << eigenvalues_fromEigen[0] << std::endl;
-    LogDebug("TrackstersPCA") << "EigenVector 3 from Eigen: " << eigenvectors_fromEigen(0, 2) << ", "
-                              << eigenvectors_fromEigen(1, 2) << ", " << eigenvectors_fromEigen(2, 2) << std::endl;
-    LogDebug("TrackstersPCA") << "EigenVector 2 from Eigen: " << eigenvectors_fromEigen(0, 1) << ", "
-                              << eigenvectors_fromEigen(1, 1) << ", " << eigenvectors_fromEigen(2, 1) << std::endl;
-    LogDebug("TrackstersPCA") << "EigenVector 1 from Eigen: " << eigenvectors_fromEigen(0, 0) << ", "
-                              << eigenvectors_fromEigen(1, 0) << ", " << eigenvectors_fromEigen(2, 0) << std::endl;
-    LogDebug("TrackstersPCA") << "Original sigmas:          " << sigmas[0] << ", " << sigmas[1] << ", " << sigmas[2]
-                              << std::endl;
-    LogDebug("TrackstersPCA") << "SigmasEigen in PCA space: " << sigmasEigen[2] << ", " << sigmasEigen[1] << ", "
-                              << sigmasEigen[0] << std::endl;
-    LogDebug("TrackstersPCA") << "covM:     \n" << covM << std::endl;
+
+    if (N > 2) {
+      Eigen::Vector3d sigmas;
+      sigmas << 0., 0., 0.;
+      Eigen::Vector3d sigmasEigen;
+      sigmasEigen << 0., 0., 0.;
+      Eigen::Matrix3d covM = Eigen::Matrix3d::Zero();
+      // Compute the Covariance Matrix and the sum of the squared weights, used
+      // to compute the correct normalization.
+      // The barycenter has to be known.
+      for (size_t i = 0; i < N; ++i) {
+        fillPoint(layerClusters[trackster.vertices(i)]);
+        if (energyWeight && trackster.raw_energy())
+          weight = (layerClusters[trackster.vertices(i)].energy() / trackster.vertex_multiplicity(i)) * inv_raw_energy;
+        weights2_sum += weight * weight;
+        for (size_t x = 0; x < 3; ++x)
+          for (size_t y = 0; y <= x; ++y) {
+            covM(x, y) += weight * (point[x] - barycenter[x]) * (point[y] - barycenter[y]);
+            covM(y, x) = covM(x, y);
+          }
+      }
+      covM *= 1.f / (1.f - weights2_sum);
+
+      // Perform the actual decomposition
+      Eigen::SelfAdjointEigenSolver<Eigen::Matrix3d>::RealVectorType eigenvalues_fromEigen;
+      Eigen::SelfAdjointEigenSolver<Eigen::Matrix3d>::EigenvectorsType eigenvectors_fromEigen;
+      Eigen::SelfAdjointEigenSolver<Eigen::Matrix3d> eigensolver(covM);
+      if (eigensolver.info() != Eigen::Success) {
+        eigenvalues_fromEigen = eigenvalues_fromEigen.Zero();
+        eigenvectors_fromEigen = eigenvectors_fromEigen.Zero();
+      } else {
+        eigenvalues_fromEigen = eigensolver.eigenvalues();
+        eigenvectors_fromEigen = eigensolver.eigenvectors();
+      }
+
+      // Compute the spread in the both spaces.
+      for (size_t i = 0; i < N; ++i) {
+        fillPoint(layerClusters[trackster.vertices(i)]);
+        sigmas += weight * (point - barycenter).cwiseAbs2();
+        Eigen::Vector3d point_transformed = eigenvectors_fromEigen * (point - barycenter);
+        if (energyWeight && raw_energy)
+          weight = (layerClusters[trackster.vertices(i)].energy() / trackster.vertex_multiplicity(i)) * inv_raw_energy;
+        sigmasEigen += weight * (point_transformed.cwiseAbs2());
+      }
+      sigmas /= (1.f - weights2_sum);
+      sigmasEigen /= (1.f - weights2_sum);
+
+      trackster.fillPCAVariables(eigenvalues_fromEigen,
+                                 eigenvectors_fromEigen,
+                                 sigmas,
+                                 sigmasEigen,
+                                 3,
+                                 ticl::Trackster::PCAOrdering::ascending);
+
+      LogDebug("TrackstersPCA") << "EigenValues from Eigen/Tr(cov): " << eigenvalues_fromEigen[2] / covM.trace() << ", "
+                                << eigenvalues_fromEigen[1] / covM.trace() << ", "
+                                << eigenvalues_fromEigen[0] / covM.trace() << std::endl;
+      LogDebug("TrackstersPCA") << "EigenValues from Eigen:         " << eigenvalues_fromEigen[2] << ", "
+                                << eigenvalues_fromEigen[1] << ", " << eigenvalues_fromEigen[0] << std::endl;
+      LogDebug("TrackstersPCA") << "EigenVector 3 from Eigen: " << eigenvectors_fromEigen(0, 2) << ", "
+                                << eigenvectors_fromEigen(1, 2) << ", " << eigenvectors_fromEigen(2, 2) << std::endl;
+      LogDebug("TrackstersPCA") << "EigenVector 2 from Eigen: " << eigenvectors_fromEigen(0, 1) << ", "
+                                << eigenvectors_fromEigen(1, 1) << ", " << eigenvectors_fromEigen(2, 1) << std::endl;
+      LogDebug("TrackstersPCA") << "EigenVector 1 from Eigen: " << eigenvectors_fromEigen(0, 0) << ", "
+                                << eigenvectors_fromEigen(1, 0) << ", " << eigenvectors_fromEigen(2, 0) << std::endl;
+      LogDebug("TrackstersPCA") << "Original sigmas:          " << sigmas[0] << ", " << sigmas[1] << ", " << sigmas[2]
+                                << std::endl;
+      LogDebug("TrackstersPCA") << "SigmasEigen in PCA space: " << sigmasEigen[2] << ", " << sigmasEigen[1] << ", "
+                                << sigmasEigen[0] << std::endl;
+      LogDebug("TrackstersPCA") << "covM:     \n" << covM << std::endl;
+    }
   }
 }
 
