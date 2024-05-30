@@ -250,9 +250,8 @@ def add_hlt_validation_phaseII(process,hltProcessName=None):
         "HLT_Ele32_WPTight_L1Seeded:bins=ptBins,region=EB,tag=lowpt_barrel",
         "HLT_Ele32_WPTight_L1Seeded:bins=ptBins,region=EE,tag=lowpt_endcap",        
         "HLT_Photon108EB_TightID_TightIso_L1Seeded:region=EB,ptMin=120,tag=barrel",
-        "HLT_Photon108EB_TightID_TightIso_L1Seeded:region=EE,ptMin=120,tag=endcap",
         "HLT_Photon187_L1Seeded:region=EB,ptMin=200,tag=barrel",
-        "HLT_Photon187_L1Seeded:region=EB,ptMin=200,tag=barrel"
+        "HLT_Photon187_L1Seeded:region=EE,ptMin=200,tag=endcap"
     )
     process.HLTGenValSourceMU.hltPathsToCheck = cms.vstring(
         "HLT_IsoMu24_FromL1TkMuon:ptMin=30",
