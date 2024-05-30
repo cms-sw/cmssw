@@ -1,13 +1,11 @@
 #ifndef DQMServices_StreamerIO_DQMStreamerReader_h
 #define DQMServices_StreamerIO_DQMStreamerReader_h
 
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "IOPool/Streamer/interface/StreamerInputSource.h"
 #include "IOPool/Streamer/interface/StreamerInputFile.h"
 #include "IOPool/Streamer/interface/MsgTools.h"
 
 #include "DQMFileIterator.h"
-#include "DQMMonitoringService.h"
 #include "TriggerSelector.h"
 
 #include <memory>
@@ -16,7 +14,7 @@
 
 namespace dqmservices {
 
-  class DQMStreamerReader : public edm::StreamerInputSource {
+  class DQMStreamerReader : public edm::streamer::StreamerInputSource {
   public:
     DQMStreamerReader(edm::ParameterSet const& pset, edm::InputSourceDescription const& desc);
     ~DQMStreamerReader() override;
@@ -41,14 +39,15 @@ namespace dqmservices {
 
     bool openNextFileImp_();
 
-    InitMsgView const* getHeaderMsg();
-    EventMsgView const* getEventMsg();
+    edm::streamer::InitMsgView const* getHeaderMsg();
+    edm::streamer::EventMsgView const* getEventMsg();
 
-    EventMsgView const* prepareNextEvent();
+    void setupMetaData(edm::streamer::InitMsgView const& msg, bool subsequent);
+    edm::streamer::EventMsgView const* prepareNextEvent();
 
     bool isFirstFile_ = true;
     bool prepareNextFile();
-    bool acceptEvent(const EventMsgView*);
+    bool acceptEvent(const edm::streamer::EventMsgView*);
 
     DQMFileIterator fiterator_;
     unsigned int processedEventPerLs_ = 0;
@@ -65,8 +64,11 @@ namespace dqmservices {
     bool matchTriggerSel_ = false;
     bool setMatchTriggerSel(std::vector<std::string> const& tnames);
 
+    //If the event meta data changes while reading a file, we need to
+    // cause a file transition to happen to allow synchronous update
+    bool artificialFileBoundary_ = false;
     struct OpenFile {
-      std::unique_ptr<edm::StreamerInputFile> streamFile_;
+      std::unique_ptr<edm::streamer::StreamerInputFile> streamFile_;
       DQMFileIterator::LumiEntry lumi_;
 
       bool open() { return (streamFile_.get() != nullptr); }
@@ -75,9 +77,6 @@ namespace dqmservices {
 
     std::shared_ptr<edm::EventSkipperByID> eventSkipperByID_;
     std::shared_ptr<TriggerSelector> triggerSelector_;
-
-    /* this is for monitoring */
-    edm::Service<DQMMonitoringService> mon_;
   };
 
 }  // namespace dqmservices

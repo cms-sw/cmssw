@@ -14,7 +14,7 @@
 #include <iomanip>
 #include <iostream>
 
-namespace edm {
+namespace edm::streamer {
 
   StreamerInputFile::~StreamerInputFile() { closeStreamerFile(); }
 
@@ -380,4 +380,4 @@ namespace edm {
     LogAbsolute("fileAction") << std::setprecision(0) << TimeOfDay() << msg << currentFileName_;
     FlushMessageLog();
   }
-}  // namespace edm
+}  // namespace edm::streamer

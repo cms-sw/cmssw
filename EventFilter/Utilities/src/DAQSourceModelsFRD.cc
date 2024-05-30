@@ -29,6 +29,8 @@
 #include "DataFormats/Provenance/interface/Timestamp.h"
 #include "EventFilter/Utilities/interface/crc32c.h"
 
+using namespace edm::streamer;
+
 void DataModeFRD::readEvent(edm::EventPrincipal& eventPrincipal) {
   std::unique_ptr<FEDRawDataCollection> rawData(new FEDRawDataCollection);
   bool tcdsInRange;

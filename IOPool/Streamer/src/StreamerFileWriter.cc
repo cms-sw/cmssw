@@ -1,7 +1,8 @@
 #include "IOPool/Streamer/src/StreamerFileWriter.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
-namespace edm {
+namespace edm::streamer {
+
   StreamerFileWriter::StreamerFileWriter(edm::ParameterSet const& ps)
       : stream_writer_(new StreamerOutputFile(ps.getUntrackedParameter<std::string>("fileName"),
                                               ps.getUntrackedParameter<unsigned int>("padding"))) {}
@@ -38,4 +39,4 @@ namespace edm {
     desc.addUntracked<unsigned int>("padding", 0)
         ->setComment("For testing: INIT and event block size will be rounded to this size padded with 0xff bytes.");
   }
-}  //namespace edm
+}  // namespace edm::streamer
