@@ -1,14 +1,14 @@
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 
+#include "DataFormats/Common/interface/DetSetVectorNew.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
-#include "DataFormats/Common/interface/DetSetVectorNew.h"
 
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/PixelClusterParameterEstimator.h"
 #include "RecoLocalTracker/Records/interface/TkPixelCPERecord.h"
@@ -30,10 +30,11 @@
 
 class JetCoreClusterSplitter : public edm::stream::EDProducer<> {
 public:
-  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   JetCoreClusterSplitter(const edm::ParameterSet& iConfig);
-  ~JetCoreClusterSplitter() override;
+  ~JetCoreClusterSplitter() override = default;
   void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   bool split(const SiPixelCluster& aCluster,
@@ -128,8 +129,6 @@ JetCoreClusterSplitter::JetCoreClusterSplitter(const edm::ParameterSet& iConfig)
 {
   produces<edmNew::DetSetVector<SiPixelCluster>>();
 }
-
-JetCoreClusterSplitter::~JetCoreClusterSplitter() {}
 
 bool SortPixels(const SiPixelCluster::Pixel& i, const SiPixelCluster::Pixel& j) { return (i.adc > j.adc); }
 

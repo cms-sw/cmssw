@@ -20,10 +20,12 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
-#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "RecoTracker/FinalTrackSelectors/interface/TrackAlgoPriorityOrder.h"
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
@@ -36,6 +38,8 @@ public:
   ~TrackListMerger() override = default;
 
   void produce(edm::Event& e, const edm::EventSetup& c) override;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   void returnEmptyCollections(edm::Event& e);
@@ -224,7 +228,7 @@ TrackListMerger::TrackListMerger(edm::ParameterSet const& conf) {
   priorityToken = esConsumes<TrackAlgoPriorityOrder, CkfComponentsRecord>(edm::ESInputTag("", priorityName_));
 
   if (!qualityStr.empty()) {
-    qualityToSet_ = reco::TrackBase::qualityByName(conf.getParameter<std::string>("newQuality"));
+    qualityToSet_ = reco::TrackBase::qualityByName(qualityStr);
   } else
     qualityToSet_ = reco::TrackBase::undefQuality;
 
@@ -304,6 +308,41 @@ TrackListMerger::TrackListMerger(edm::ParameterSet const& conf) {
     trackProducers_[i] = hasSelector_[i] > 0 ? edTokens(trackProducerTags[i], selectors[i], mvaStores[i])
                                              : edTokens(trackProducerTags[i], mvaStores[i]);
   }
+}
+
+void TrackListMerger::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.addUntracked<bool>("copyExtras", true);
+  desc.add<bool>("copyMVA", true);
+  desc.add<std::string>("trackAlgoPriorityOrder");
+  desc.add<std::vector<edm::InputTag>>("TrackProducers", {edm::InputTag(""), edm::InputTag("")});
+  desc.add<double>("MaxNormalizedChisq", 1000.0)->setComment("maximum chisq/dof");
+  desc.add<double>("MinPT", 0.05)->setComment("in GeV/c");
+  desc.add<int>("MinFound", 3)->setComment("minimum number of RecHits used in fit");
+  desc.add<double>("Epsilon", -0.001)
+      ->setComment(" minimum difference in rechit position in cm. Negative Epsilon uses sharedInput for comparison");
+  desc.add<double>("ShareFrac", 0.19)
+      ->setComment("minimum shared fraction to be called duplicate for tracks between collections");
+  desc.add<bool>("allowFirstHitShare", true)
+      ->setComment("set new quality for confirmed tracks for each merged pair and then for the final pair");
+  desc.add<double>("FoundHitBonus", 5.0)->setComment("best track chosen by chi2 modified by parameters below");
+  desc.add<double>("LostHitPenalty", 5.0);
+  desc.add<std::vector<double>>("indivShareFrac", {1.0, 1.0})
+      ->setComment("minimum shared fraction to be called duplicate");
+  desc.add<std::string>("newQuality", "confirmed");
+
+  // Correctly define the structure of the VPSet
+  edm::ParameterSetDescription descSetToMerge;
+  descSetToMerge.add<std::vector<int>>("tLists", {});
+  descSetToMerge.add<bool>("pQual", false);
+  desc.addVPSet("setsToMerge", descSetToMerge, {});
+
+  desc.add<std::vector<int>>("hasSelector", {0, 0});
+  desc.add<std::vector<edm::InputTag>>("selectedTrackQuals", {edm::InputTag(""), edm::InputTag("")});
+  desc.addOptional<std::vector<edm::InputTag>>("mvaValueTags");
+  desc.add<bool>("writeOnlyTrkQuals", false);
+  desc.addUntracked<bool>("makeReKeyedSeeds", false);
+  descriptions.add("default_trackListMerger", desc);
 }
 
 // Functions that gets called by framework every event

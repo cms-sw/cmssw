@@ -43,7 +43,7 @@ DTuROSRawToDigi::DTuROSRawToDigi(const edm::ParameterSet& pset) {
 
 void DTuROSRawToDigi::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("inputLabel");
+  desc.add<edm::InputTag>("inputLabel", edm::InputTag("rawDataCollector"));
   desc.addUntracked<bool>("debug", false);
   descriptions.addWithDefaultLabel(desc);
 }
