@@ -38,7 +38,6 @@ CMSAntiSQ* CMSAntiSQ::Definition(double mass) {
   return theInstance;
 }
 
-
 CMSAntiSQ* CMSAntiSQ::AntiSQ(double mass) {
   return Definition(mass * GeV);  // will use correct mass if instance exists
 }

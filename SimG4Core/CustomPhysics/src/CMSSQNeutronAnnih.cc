@@ -129,9 +129,11 @@ G4HadFinalState* CMSSQNeutronAnnih::ApplyYourself(const G4HadProjectile& aTrack,
   //           << " A= " << A << " N= " << N;
 
   G4LorentzVector lv1 = aParticle->Get4Momentum();
-  edm::LogVerbatim("CMSSWNeutronAnnih") << "The neutron Fermi momentum (mag, x, y, z) " << targetNucleus.GetFermiMomentum().mag() / MeV << " "
-         << targetNucleus.GetFermiMomentum().x() / MeV << " " << targetNucleus.GetFermiMomentum().y() / MeV << " "
-         << targetNucleus.GetFermiMomentum().z() / MeV;
+  edm::LogVerbatim("CMSSWNeutronAnnih") << "The neutron Fermi momentum (mag, x, y, z) "
+                                        << targetNucleus.GetFermiMomentum().mag() / MeV << " "
+                                        << targetNucleus.GetFermiMomentum().x() / MeV << " "
+                                        << targetNucleus.GetFermiMomentum().y() / MeV << " "
+                                        << targetNucleus.GetFermiMomentum().z() / MeV;
 
   //calculate fermi momentum
 

@@ -38,7 +38,6 @@ CMSSQ* CMSSQ::Definition(double mass) {
   return theInstance;
 }
 
-
 CMSSQ* CMSSQ::SQ(double mass) {
   return Definition(mass * GeV);  // will use correct mass if instance exists
 }

@@ -35,10 +35,10 @@ G4VParticleChange* CMSSQLoopProcess::AlongStepDoIt(const G4Track& track, const G
 }
 
 G4double CMSSQLoopProcess::AlongStepGetPhysicalInteractionLength(const G4Track& track,
-                                                                G4double previousStepSize,
-                                                                G4double currentMinimumStep,
-                                                                G4double& proposedSafety,
-                                                                G4GPILSelection* selection) {
+                                                                 G4double previousStepSize,
+                                                                 G4double currentMinimumStep,
+                                                                 G4double& proposedSafety,
+                                                                 G4GPILSelection* selection) {
   return 1. * centimeter;
 }
 

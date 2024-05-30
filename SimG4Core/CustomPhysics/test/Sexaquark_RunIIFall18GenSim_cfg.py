@@ -34,12 +34,12 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('RecoVertex.BeamSpotProducer.BeamSpot_cfi')
 
 # Lengthy message logs - uncomment to debug
-#process.MessageLogger = cms.Service("MessageLogger",
-#  destinations = cms.untracked.vstring('cout'),
-#  cout = cms.untracked.PSet(
-#    threshold = cms.untracked.string('INFO')
-#  )
-#)
+process.MessageLogger = cms.Service("MessageLogger",
+  destinations = cms.untracked.vstring('cout'),
+  cout = cms.untracked.PSet(
+    threshold = cms.untracked.string('INFO')
+  )
+)
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(options.maxEvents)

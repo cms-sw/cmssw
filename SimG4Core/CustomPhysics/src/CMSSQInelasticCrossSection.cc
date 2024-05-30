@@ -19,7 +19,9 @@ G4bool CMSSQInelasticCrossSection::IsElementApplicable(const G4DynamicParticle* 
   return true;
 }
 
-G4double CMSSQInelasticCrossSection::GetElementCrossSection(const G4DynamicParticle* aPart, G4int Z, const G4Material*) {
+G4double CMSSQInelasticCrossSection::GetElementCrossSection(const G4DynamicParticle* aPart,
+                                                            G4int Z,
+                                                            const G4Material*) {
   // return zero for particle instead of antiparticle
   // sexaquark interaction with matter expected really tiny
   if (aPart->GetDefinition() != theAntiSQ)

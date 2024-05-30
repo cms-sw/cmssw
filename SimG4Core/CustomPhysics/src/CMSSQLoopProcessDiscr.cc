@@ -47,8 +47,8 @@ G4VParticleChange* CMSSQLoopProcessDiscr::PostStepDoIt(const G4Track& track, con
 }
 
 G4double CMSSQLoopProcessDiscr::PostStepGetPhysicalInteractionLength(const G4Track& track,
-                                                                    G4double previousStepSize,
-                                                                    G4ForceCondition* condition) {
+                                                                     G4double previousStepSize,
+                                                                     G4ForceCondition* condition) {
   *condition = NotForced;
   G4double intLength =
       DBL_MAX;  //by default the interaction length is super large, only when outside tracker make it 0 to be sure it will do the reset to the original position
