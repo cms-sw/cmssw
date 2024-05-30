@@ -6,8 +6,12 @@
 
 //#define EDM_ML_DEBUG
 
-HGCalCellOffset::HGCalCellOffset(
-    double waferSize, int32_t nFine, int32_t nCoarse, double guardRingOffset_, double mouseBiteCut_, double sizeOffset_) {
+HGCalCellOffset::HGCalCellOffset(double waferSize,
+                                 int32_t nFine,
+                                 int32_t nCoarse,
+                                 double guardRingOffset_,
+                                 double mouseBiteCut_,
+                                 double sizeOffset_) {
   ncell_[0] = nFine;
   ncell_[1] = nCoarse;
   hgcalcell_ = std::make_unique<HGCalCell>(waferSize, nFine, nCoarse);
@@ -26,16 +30,19 @@ HGCalCellOffset::HGCalCellOffset(
       } else if (j == HGCalCell::cornerCell) {  // Offset for corner cells
         if (k == 0) {
           double h = (mouseBiteCut_ - sqrt3By2_ * cellX_[k]);
-	  double H = mouseBiteCut_ + guardRingOffset_ - (1/sqrt3By2_*guardRingOffset_);
-	  double h1 = H - (sqrt3_/4*cellX_[k]) + (guardRingSizeOffset_/(2*sqrt3_));
-	  double h2 = H - (sqrt3_/2*cellX_[k]) + (guardRingSizeOffset_/(2*sqrt3_));
+          double H = mouseBiteCut_ + guardRingOffset_ - (1 / sqrt3By2_ * guardRingOffset_);
+          double h1 = H - (sqrt3_ / 4 * cellX_[k]) + (guardRingSizeOffset_ / (2 * sqrt3_));
+          double h2 = H - (sqrt3_ / 2 * cellX_[k]) + (guardRingSizeOffset_ / (2 * sqrt3_));
           double totalArea = 11.0 * sqrt3_ * std::pow(cellX_[k], 2) / 8.0;
-          double cutArea1 = (sqrt3By2_ * cellX_[k] * guardRingSizeOffset_) - (0.5/sqrt3_*std::pow(guardRingSizeOffset_, 2));
-          double cutArea2 = (sqrt3_ * cellX_[k] * guardRingSizeOffset_) - (0.5/sqrt3_*std::pow(guardRingSizeOffset_, 2));
+          double cutArea1 =
+              (sqrt3By2_ * cellX_[k] * guardRingSizeOffset_) - (0.5 / sqrt3_ * std::pow(guardRingSizeOffset_, 2));
+          double cutArea2 =
+              (sqrt3_ * cellX_[k] * guardRingSizeOffset_) - (0.5 / sqrt3_ * std::pow(guardRingSizeOffset_, 2));
           double A1 = 2.0 * cellX_[k] * h - std::pow(h, 2) / (sqrt3_);
           double A2 = sqrt3By2_ * cellX_[k] * cellX_[k];
           double A3 = sqrt3By2_ * cellX_[k] * cellX_[k] / 4.0;
-          double cutArea3 = sqrt3_*std::pow(H, 2) - (1/sqrt3By2_*std::pow(h1, 2)) - (1/sqrt3By2_*std::pow(h2, 2));
+          double cutArea3 =
+              sqrt3_ * std::pow(H, 2) - (1 / sqrt3By2_ * std::pow(h1, 2)) - (1 / sqrt3By2_ * std::pow(h2, 2));
           //std::cout << "h1 " << h1 << " h2 " << h2 << " H " << H << " cutarea1 " << cutArea1 << " cutarea2 " << cutArea2 << " cutarea3 " << cutArea3 << "  " << cellX_[k] << " " << guardRingSizeOffset_ << std::endl;
           double x3_1 = -(((2.0 * std::pow(h, 3)) / (3.0 * sqrt3_) - cellX_[k] * std::pow(h, 2)) / A1);
           double y3_1 = 0;
@@ -80,13 +87,16 @@ HGCalCellOffset::HGCalCellOffset(
           }
         } else if (k == 1) {
           double h = (mouseBiteCut_ - guardRingOffset_) / sqrt3By2_ - cellX_[k] / 2;
-	  double H = mouseBiteCut_ + guardRingOffset_ - (1/sqrt3By2_*guardRingOffset_);
-          double h1 = H - (sqrt3_/4*cellX_[k]) + (guardRingSizeOffset_/(2*sqrt3_));
-          double h2 = H - (sqrt3_/2*cellX_[k]) + (guardRingSizeOffset_/(2*sqrt3_));
+          double H = mouseBiteCut_ + guardRingOffset_ - (1 / sqrt3By2_ * guardRingOffset_);
+          double h1 = H - (sqrt3_ / 4 * cellX_[k]) + (guardRingSizeOffset_ / (2 * sqrt3_));
+          double h2 = H - (sqrt3_ / 2 * cellX_[k]) + (guardRingSizeOffset_ / (2 * sqrt3_));
           double totalArea = 11.0 * sqrt3_ * std::pow(cellX_[k], 2) / 8.0;
-          double cutArea1 = (sqrt3By2_ * cellX_[k] * guardRingSizeOffset_) - (0.5/sqrt3_*std::pow(guardRingSizeOffset_, 2));
-          double cutArea2 = (sqrt3_ * cellX_[k] * guardRingSizeOffset_) - (0.5/sqrt3_*std::pow(guardRingSizeOffset_, 2));
-          double cutArea3 = sqrt3_*std::pow(H, 2) - (1/sqrt3By2_*std::pow(h1, 2)) - (1/sqrt3By2_*std::pow(h2, 2));
+          double cutArea1 =
+              (sqrt3By2_ * cellX_[k] * guardRingSizeOffset_) - (0.5 / sqrt3_ * std::pow(guardRingSizeOffset_, 2));
+          double cutArea2 =
+              (sqrt3_ * cellX_[k] * guardRingSizeOffset_) - (0.5 / sqrt3_ * std::pow(guardRingSizeOffset_, 2));
+          double cutArea3 =
+              sqrt3_ * std::pow(H, 2) - (1 / sqrt3By2_ * std::pow(h1, 2)) - (1 / sqrt3By2_ * std::pow(h2, 2));
           //double cutArea3 = sqrt3_ * std::pow((mouseBiteCut_ - guardRingOffset_), 2) - sqrt3By2_ * std::pow(h, 2);
 
           double x2_0 = (0.375 * cellX_[k] * cellX_[k] - (0.25 * cellX_[k] * guardRingOffset_) +
@@ -168,10 +178,10 @@ HGCalCellOffset::HGCalCellOffset(
         for (int i = 0; i < 6; ++i) {
           offsetX[k][j][i] = tempOffsetX[i];
           offsetY[k][j][i] = tempOffsetY[i];
-        } 
+        }
       } else if (j == HGCalCell::truncatedMBCell) {
-        double H = mouseBiteCut_ + guardRingOffset_ - (1/sqrt3By2_*guardRingOffset_);
-        double h = H - (sqrt3_/2*cellX_[k]) + (guardRingSizeOffset_/(2*sqrt3_));
+        double H = mouseBiteCut_ + guardRingOffset_ - (1 / sqrt3By2_ * guardRingOffset_);
+        double h = H - (sqrt3_ / 2 * cellX_[k]) + (guardRingSizeOffset_ / (2 * sqrt3_));
         if (h > 0) {
           double totalArea = 5.0 * sqrt3_ * std::pow(cellX_[k], 2) / 4.0;
 
@@ -226,8 +236,8 @@ HGCalCellOffset::HGCalCellOffset(
           }
         }
       } else if (j == HGCalCell::extendedMBCell) {
-	double H = mouseBiteCut_ + guardRingOffset_ - (1/sqrt3By2_*guardRingOffset_);
-        double h = H - (sqrt3_/4*cellX_[k]) + (guardRingSizeOffset_/(2*sqrt3_));
+        double H = mouseBiteCut_ + guardRingOffset_ - (1 / sqrt3By2_ * guardRingOffset_);
+        double h = H - (sqrt3_ / 4 * cellX_[k]) + (guardRingSizeOffset_ / (2 * sqrt3_));
 
         double totalArea = 7.0 * sqrt3_ * std::pow(cellX_[k], 2) / 4.0;
         double cutArea1 = (sqrt3_ * cellX_[k] * guardRingSizeOffset_);
@@ -238,7 +248,7 @@ HGCalCellOffset::HGCalCellOffset(
         double x2 = -(sqrt3By2_ * 1.5 * cellX_[k] - h / sqrt3_);
         double y2 = -0.25 * cellX_[k] + h / 3.0;
         cellArea[k][j] = totalArea - cutArea1 - cutArea2;
-	//std::cout << H << "trunMB h " << h << " tot " << totalArea << " cutArea1 " << cutArea1 << " cutArea2 " << cutArea2 << std::endl;
+        //std::cout << H << "trunMB h " << h << " tot " << totalArea << " cutArea1 " << cutArea1 << " cutArea2 " << cutArea2 << std::endl;
         double xMag1 =
             ((-10.0 * sqrt3_ * cellX_[k] / 168.0) * totalArea - (cutArea1 * x1) - (cutArea2 * x2)) / (cellArea[k][j]);
         double yMag1 = ((10.0 * cellX_[k] / 168.0) * totalArea - (cutArea1 * y1) - (cutArea2 * y2)) / (cellArea[k][j]);

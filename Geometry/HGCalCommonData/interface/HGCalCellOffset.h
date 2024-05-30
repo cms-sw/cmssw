@@ -9,7 +9,12 @@
 
 class HGCalCellOffset {
 public:
-  HGCalCellOffset(double waferSize, int32_t nFine, int32_t nCoarse, double guardRingOffset_, double mouseBiteCut_, double sizeOffset_);
+  HGCalCellOffset(double waferSize,
+                  int32_t nFine,
+                  int32_t nCoarse,
+                  double guardRingOffset_,
+                  double mouseBiteCut_,
+                  double sizeOffset_);
 
   std::pair<double, double> cellOffsetUV2XY1(int32_t u, int32_t v, int32_t placementIndex, int32_t type);
   std::pair<double, double> cellOffsetUV2XY1(
