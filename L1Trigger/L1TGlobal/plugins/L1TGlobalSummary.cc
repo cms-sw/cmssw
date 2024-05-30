@@ -80,25 +80,33 @@ L1TGlobalSummary::L1TGlobalSummary(const edm::ParameterSet& iConfig) {
   }
 }
 
+namespace {
+  edm::ParameterSetDescription makeDesc(edm::InputTag const& alg, edm::InputTag const& ext, int minBx, int maxBx) {
+    edm::ParameterSetDescription desc;
+    // These parameters are part of the L1T/HLT interface, avoid changing if possible::
+    desc.add<edm::InputTag>("AlgInputTag", alg)
+        ->setComment("InputTag for uGT Algorithm Block (required parameter:  default value is invalid)");
+    desc.add<edm::InputTag>("ExtInputTag", ext)
+        ->setComment("InputTag for uGT External Block (required parameter:  default value is invalid)");
+    // These parameters have well defined  default values and are not currently
+    // part of the L1T/HLT interface.  They can be cleaned up or updated at will:
+    desc.add<int>("MinBx", minBx);
+    desc.add<int>("MaxBx", maxBx);
+    desc.add<bool>("DumpTrigResults", false);
+    desc.add<bool>("DumpRecord", false);
+    desc.add<bool>("DumpTrigSummary", true);
+    desc.add<bool>("ReadPrescalesFromFile", false);
+    desc.add<std::string>("psFileName", "prescale_L1TGlobal.csv")
+        ->setComment("File should be located in directory: L1Trigger/L1TGlobal/data/Luminosity/startup");
+    desc.add<int>("psColumn", 0);
+
+    return desc;
+  }
+}  // namespace
+
 void L1TGlobalSummary::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  edm::ParameterSetDescription desc;
-  // These parameters are part of the L1T/HLT interface, avoid changing if possible::
-  desc.add<edm::InputTag>("AlgInputTag", edm::InputTag(""))
-      ->setComment("InputTag for uGT Algorithm Block (required parameter:  default value is invalid)");
-  desc.add<edm::InputTag>("ExtInputTag", edm::InputTag(""))
-      ->setComment("InputTag for uGT External Block (required parameter:  default value is invalid)");
-  // These parameters have well defined  default values and are not currently
-  // part of the L1T/HLT interface.  They can be cleaned up or updated at will:
-  desc.add<int>("MinBx", 0);
-  desc.add<int>("MaxBx", 0);
-  desc.add<bool>("DumpTrigResults", false);
-  desc.add<bool>("DumpRecord", false);
-  desc.add<bool>("DumpTrigSummary", true);
-  desc.add<bool>("ReadPrescalesFromFile", false);
-  desc.add<std::string>("psFileName", "prescale_L1TGlobal.csv")
-      ->setComment("File should be located in directory: L1Trigger/L1TGlobal/data/Luminosity/startup");
-  desc.add<int>("psColumn", 0);
-  descriptions.add("L1TGlobalSummary", desc);
+  descriptions.add("L1TGlobalSummary", makeDesc(edm::InputTag("gtStage2Digis"), edm::InputTag("gtStage2Digis"), -2, 2));
+  descriptions.addDefault(makeDesc(edm::InputTag(""), edm::InputTag(""), 0, 0));
 }
 
 void L1TGlobalSummary::beginRun(Run const&, EventSetup const& evSetup) {
