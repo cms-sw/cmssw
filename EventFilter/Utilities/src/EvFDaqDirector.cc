@@ -24,6 +24,7 @@
 #include <unistd.h>
 #include <cstdio>
 #include <boost/algorithm/string.hpp>
+#include <fmt/printf.h>
 
 //using boost::asio::ip::tcp;
 
@@ -1550,6 +1551,7 @@ namespace evf {
                                                                int maxLS) {
     EvFDaqDirector::FileStatus fileStatus = noFile;
     serverError = false;
+    std::string dest = fmt::sprintf(" on connection to %s:%s", fileBrokerHost_, fileBrokerPort_);
 
     boost::system::error_code ec;
     try {
@@ -1559,7 +1561,7 @@ namespace evf {
           boost::asio::connect(*socket_, *endpoint_iterator_, ec);
 
           if (ec) {
-            edm::LogWarning("EvFDaqDirector") << "boost::asio::connect error -:" << ec;
+            edm::LogWarning("EvFDaqDirector") << "boost::asio::connect error -:" << ec << dest;
             serverError = true;
             break;
           }
@@ -1582,17 +1584,17 @@ namespace evf {
         boost::asio::write(*socket_, request, ec);
         if (ec) {
           if (fileBrokerKeepAlive_ && ec == boost::asio::error::connection_reset) {
-            edm::LogInfo("EvFDaqDirector") << "reconnecting socket on received connection_reset";
+            edm::LogInfo("EvFDaqDirector") << "reconnecting socket on received connection_reset" << dest;
             //we got disconnected, try to reconnect to the server before writing the request
             boost::asio::connect(*socket_, *endpoint_iterator_, ec);
             if (ec) {
-              edm::LogWarning("EvFDaqDirector") << "boost::asio::connect error -:" << ec;
+              edm::LogWarning("EvFDaqDirector") << "boost::asio::connect error -:" << ec << dest;
               serverError = true;
               break;
             }
             continue;
           }
-          edm::LogWarning("EvFDaqDirector") << "boost::asio::write error -:" << ec;
+          edm::LogWarning("EvFDaqDirector") << "boost::asio::write error -:" << ec << dest;
           serverError = true;
           break;
         }
@@ -1600,7 +1602,7 @@ namespace evf {
         boost::asio::streambuf response;
         boost::asio::read_until(*socket_, response, "\r\n", ec);
         if (ec) {
-          edm::LogWarning("EvFDaqDirector") << "boost::asio::read_until error -:" << ec;
+          edm::LogWarning("EvFDaqDirector") << "boost::asio::read_until error -:" << ec << dest;
           serverError = true;
           break;
         }
@@ -1769,7 +1771,7 @@ namespace evf {
           while (boost::asio::read(*socket_, response, boost::asio::transfer_at_least(1), ec)) {
           }
           if (ec != boost::asio::error::eof) {
-            edm::LogWarning("EvFDaqDirector") << "boost::asio::read_until error -:" << ec;
+            edm::LogWarning("EvFDaqDirector") << "boost::asio::read_until error -:" << ec << dest;
             serverError = true;
           }
         }
@@ -1785,11 +1787,11 @@ namespace evf {
     if (!fileBrokerKeepAlive_ && socket_->is_open()) {
       socket_->shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
       if (ec) {
-        edm::LogWarning("EvFDaqDirector") << "socket shutdown error -:" << ec;
+        edm::LogWarning("EvFDaqDirector") << "socket shutdown error -:" << ec << dest;
       }
       socket_->close(ec);
       if (ec) {
-        edm::LogWarning("EvFDaqDirector") << "socket close error -:" << ec;
+        edm::LogWarning("EvFDaqDirector") << "socket close error -:" << ec << dest;
       }
     }
 
@@ -1797,7 +1799,7 @@ namespace evf {
       if (socket_->is_open())
         socket_->close(ec);
       if (ec) {
-        edm::LogWarning("EvFDaqDirector") << "socket close error -:" << ec;
+        edm::LogWarning("EvFDaqDirector") << "socket close error -:" << ec << dest;
       }
       fileStatus = noFile;
       sleep(1);  //back-off if error detected
