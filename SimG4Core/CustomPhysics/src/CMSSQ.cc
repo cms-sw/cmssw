@@ -1,5 +1,5 @@
 
-#include "SimG4Core/CustomPhysics/interface/G4AntiSQ.h"
+#include "SimG4Core/CustomPhysics/interface/CMSSQ.h"
 #include "G4PhysicalConstants.hh"
 #include "G4SystemOfUnits.hh"
 #include "G4ParticleTable.hh"
@@ -8,15 +8,15 @@
 #include "G4DecayTable.hh"
 
 // ######################################################################
-// ###                       ANTI-SEXAQUARK                           ###
+// ###                          SEXAQUARK                             ###
 // ######################################################################
 
-G4AntiSQ* G4AntiSQ::theInstance = 0;
+CMSSQ* CMSSQ::theInstance = 0;
 
-G4AntiSQ* G4AntiSQ::Definition(double mass) {
+CMSSQ* CMSSQ::Definition(double mass) {
   if (theInstance != 0)
     return theInstance;
-  const G4String name = "anti_sexaq";
+  const G4String name = "sexaq";
   // search in particle table]
   G4ParticleTable* pTable = G4ParticleTable::GetParticleTable();
   G4ParticleDefinition* anInstance = pTable->FindParticle(name);
@@ -32,17 +32,13 @@ G4AntiSQ* G4AntiSQ::Definition(double mass) {
     //             shortlived      subType    anti_encoding
 
     anInstance = new G4ParticleDefinition(
-        name, mass, 0, 0.0, 0, +1, 0, 0, 0, 0, "baryon", 0, -2, -1020000020, true, -1.0, NULL, false, "sexaq");
+        name, mass, 0, 0.0, 0, +1, 0, 0, 0, 0, "baryon", 0, +2, 1020000020, true, -1.0, nullptr, false, "sexaq");
   }
-  theInstance = reinterpret_cast<G4AntiSQ*>(anInstance);
+  theInstance = reinterpret_cast<CMSSQ*>(anInstance);
   return theInstance;
 }
 
-//G4AntiSQ* G4AntiSQ::AntiSQDefinition(double mass)
-//{
-//  return Definition(mass);
-//}
 
-G4AntiSQ* G4AntiSQ::AntiSQ(double mass) {
+CMSSQ* CMSSQ::SQ(double mass) {
   return Definition(mass * GeV);  // will use correct mass if instance exists
 }

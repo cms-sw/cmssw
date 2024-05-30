@@ -1,19 +1,19 @@
 
-#ifndef G4SQInelasticCrossSection_h
-#define G4SQInelasticCrossSection_h
+#ifndef CMSSQInelasticCrossSection_h
+#define CMSSQInelasticCrossSection_h
 
 #include "globals.hh"
 #include "G4VCrossSectionDataSet.hh"
 
 class G4NistManager;
-class G4SQ;
-class G4AntiSQ;
+class CMSSQ;
+class CMSAntiSQ;
 
-class G4SQInelasticCrossSection : public G4VCrossSectionDataSet {
+class CMSSQInelasticCrossSection : public G4VCrossSectionDataSet {
 public:
-  G4SQInelasticCrossSection(double mass);
+  CMSSQInelasticCrossSection(double mass);
 
-  ~G4SQInelasticCrossSection();
+  ~CMSSQInelasticCrossSection();
 
   virtual G4bool IsElementApplicable(const G4DynamicParticle* aPart, G4int Z, const G4Material*);
 
@@ -23,8 +23,8 @@ public:
 
 private:
   G4NistManager* nist;
-  G4SQ* theSQ;
-  G4AntiSQ* theAntiSQ;
+  CMSSQ* theSQ;
+  CMSAntiSQ* theAntiSQ;
 };
 
 #endif

@@ -1,6 +1,6 @@
 
-#ifndef G4SQNeutronAnnih_h
-#define G4SQNeutronAnnih_h 1
+#ifndef CMSSQNeutronAnnih_h
+#define CMSSQNeutronAnnih_h 1
 
 #include "globals.hh"
 #include "G4HadronicInteraction.hh"
@@ -10,15 +10,15 @@
 
 class G4ParticleDefinition;
 
-class G4SQNeutronAnnih : public G4HadronicInteraction {
+class CMSSQNeutronAnnih : public G4HadronicInteraction {
 public:
-  G4SQNeutronAnnih(double mass);
+  CMSSQNeutronAnnih(double mass);
 
-  virtual ~G4SQNeutronAnnih();
+  ~CMSSQNeutronAnnih() override;
 
   G4double momDistr(G4double x_in);
 
-  virtual G4HadFinalState* ApplyYourself(const G4HadProjectile& aTrack, G4Nucleus& targetNucleus);
+  G4HadFinalState* ApplyYourself(const G4HadProjectile& aTrack, G4Nucleus& targetNucleus) override;
 
 private:
   G4ParticleDefinition* theSQ;

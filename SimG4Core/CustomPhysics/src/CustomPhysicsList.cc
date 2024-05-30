@@ -20,11 +20,11 @@
 #include "SimG4Core/CustomPhysics/interface/CMSQGSPSIMPBuilder.h"
 #include "SimG4Core/CustomPhysics/interface/CMSSIMPInelasticProcess.h"
 
-#include "SimG4Core/CustomPhysics/interface/G4SQInelasticProcess.h"
-#include "SimG4Core/CustomPhysics/interface/G4SQLoopProcess.h"
-#include "SimG4Core/CustomPhysics/interface/G4SQLoopProcessDiscr.h"
-#include "SimG4Core/CustomPhysics/interface/G4SQNeutronAnnih.h"
-#include "SimG4Core/CustomPhysics/interface/G4SQInelasticCrossSection.h"
+#include "SimG4Core/CustomPhysics/interface/CMSSQInelasticProcess.h"
+#include "SimG4Core/CustomPhysics/interface/CMSSQLoopProcess.h"
+#include "SimG4Core/CustomPhysics/interface/CMSSQLoopProcessDiscr.h"
+#include "SimG4Core/CustomPhysics/interface/CMSSQNeutronAnnih.h"
+#include "SimG4Core/CustomPhysics/interface/CMSSQInelasticCrossSection.h"
 
 using namespace CLHEP;
 
@@ -107,19 +107,19 @@ void CustomPhysicsList::ConstructProcess() {
         }
         if (particle->GetParticleName() == "anti_sexaq") {
           // here the different sexaquark interactions get defined
-          G4SQInelasticProcess* sqInelPr = new G4SQInelasticProcess(particle->GetPDGMass() / GeV);
-          G4SQNeutronAnnih* sqModel = new G4SQNeutronAnnih(particle->GetPDGMass() / GeV);
+          CMSSQInelasticProcess* sqInelPr = new CMSSQInelasticProcess(particle->GetPDGMass() / GeV);
+          CMSSQNeutronAnnih* sqModel = new CMSSQNeutronAnnih(particle->GetPDGMass() / GeV);
           sqInelPr->RegisterMe(sqModel);
-          G4SQInelasticCrossSection* sqInelXS = new G4SQInelasticCrossSection(particle->GetPDGMass() / GeV);
+          CMSSQInelasticCrossSection* sqInelXS = new CMSSQInelasticCrossSection(particle->GetPDGMass() / GeV);
           sqInelPr->AddDataSet(sqInelXS);
           pmanager->AddDiscreteProcess(sqInelPr);
           // add also the looping needed to simulate flat interaction probability
-          G4SQLoopProcess* sqLoopPr = new G4SQLoopProcess();
+          CMSSQLoopProcess* sqLoopPr = new CMSSQLoopProcess();
           pmanager->AddContinuousProcess(sqLoopPr);
-          G4SQLoopProcessDiscr* sqLoopPrDiscr = new G4SQLoopProcessDiscr(particle->GetPDGMass() / GeV);
+          CMSSQLoopProcessDiscr* sqLoopPrDiscr = new CMSSQLoopProcessDiscr(particle->GetPDGMass() / GeV);
           pmanager->AddDiscreteProcess(sqLoopPrDiscr);
         } else if (particle->GetParticleName() == "sexaq") {
-          edm::LogInfo("CustomPhysics") << "   No pmanager implemented for sexaq, only for anti_sexaq";
+          edm::LogVerbatim("CustomPhysics") << "   No pmanager implemented for sexaq, only for anti_sexaq";
         }
       }
     }

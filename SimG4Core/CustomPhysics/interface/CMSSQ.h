@@ -1,6 +1,6 @@
 
-#ifndef G4SQ_h
-#define G4SQ_h 1
+#ifndef CMSSQ_h
+#define CMSSQ_h 1
 
 #include "globals.hh"
 #include "G4ios.hh"
@@ -10,16 +10,15 @@
 // ###                         SEXAQUARK                              ###
 // ######################################################################
 
-class G4SQ : public G4ParticleDefinition {
+class CMSSQ : public G4ParticleDefinition {
 private:
-  static G4SQ* theInstance;
-  G4SQ() {}
-  ~G4SQ() {}
+  static CMSSQ* theInstance;
+  CMSSQ() {}
+  ~CMSSQ() {}
 
 public:
-  static G4SQ* Definition(double mass);
-  //    static G4SQ* SQDefinition(double mass);
-  static G4SQ* SQ(double mass);
+  static CMSSQ* Definition(double mass);
+  static CMSSQ* SQ(double mass);
 };
 
 #endif

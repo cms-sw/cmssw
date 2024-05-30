@@ -1,21 +1,21 @@
-#ifndef G4SQLoopProcessDiscr_h
-#define G4SQLoopProcessDiscr_h 1
+#ifndef CMSSQLoopProcessDiscr_h
+#define CMSSQLoopProcessDiscr_h 1
 
 #include "G4VDiscreteProcess.hh"
 #include "globals.hh"
 #include "G4Track.hh"
 #include "G4ParticleChange.hh"
 #include "G4ParticleChangeForTransport.hh"
-#include "G4SQ.h"
-#include "G4AntiSQ.h"
+#include "CMSSQ.h"
+#include "CMSAntiSQ.h"
 
 class G4Step;
 class G4ParticleDefinition;
 
-class G4SQLoopProcessDiscr : public G4VDiscreteProcess {
+class CMSSQLoopProcessDiscr : public G4VDiscreteProcess {
 public:
-  G4SQLoopProcessDiscr(double mass, const G4String& name = "SQLooper", G4ProcessType type = fUserDefined);
-  virtual ~G4SQLoopProcessDiscr();
+  CMSSQLoopProcessDiscr(double mass, const G4String& name = "SQLooper", G4ProcessType type = fUserDefined);
+  virtual ~CMSSQLoopProcessDiscr();
 
 public:
   virtual G4VParticleChange* PostStepDoIt(const G4Track&, const G4Step&);
@@ -27,11 +27,10 @@ public:
   virtual void StartTracking(G4Track* aTrack);
 
 private:
-  G4SQLoopProcessDiscr(G4SQLoopProcessDiscr&);
-  G4SQLoopProcessDiscr& operator=(const G4SQLoopProcessDiscr& right);
+  CMSSQLoopProcessDiscr(CMSSQLoopProcessDiscr&);
+  CMSSQLoopProcessDiscr& operator=(const CMSSQLoopProcessDiscr& right);
 
 protected:
-  //G4ParticleChangeForTransport* fParticleChange;
   G4ParticleChange* fParticleChange;
   double GenMass;
 

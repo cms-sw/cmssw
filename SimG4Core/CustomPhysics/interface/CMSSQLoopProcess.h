@@ -1,5 +1,5 @@
-#ifndef G4SQLoopProcess_h
-#define G4SQLoopProcess_h 1
+#ifndef CMSSQLoopProcess_h
+#define CMSSQLoopProcess_h 1
 
 #include "G4VContinuousProcess.hh"
 #include "globals.hh"
@@ -9,10 +9,10 @@
 class G4Step;
 class G4ParticleDefinition;
 
-class G4SQLoopProcess : public G4VContinuousProcess {
+class CMSSQLoopProcess : public G4VContinuousProcess {
 public:
-  G4SQLoopProcess(const G4String& name = "SQLooper", G4ProcessType type = fUserDefined);
-  virtual ~G4SQLoopProcess();
+  CMSSQLoopProcess(const G4String& name = "SQLooper", G4ProcessType type = fUserDefined);
+  virtual ~CMSSQLoopProcess();
 
 public:
   virtual G4VParticleChange* AlongStepDoIt(const G4Track&, const G4Step&);
@@ -30,8 +30,8 @@ protected:
                                           G4double& currentSafety);
 
 private:
-  G4SQLoopProcess(G4SQLoopProcess&);
-  G4SQLoopProcess& operator=(const G4SQLoopProcess& right);
+  CMSSQLoopProcess(CMSSQLoopProcess&);
+  CMSSQLoopProcess& operator=(const CMSSQLoopProcess& right);
 
 protected:
   G4ParticleChange* fParticleChange;

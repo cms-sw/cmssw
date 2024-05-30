@@ -8,24 +8,26 @@
 #include <math.h>
 #include "TMath.h"
 
-#include "SimG4Core/CustomPhysics/interface/G4SQNeutronAnnih.h"
-#include "SimG4Core/CustomPhysics/interface/G4SQ.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-G4SQNeutronAnnih::G4SQNeutronAnnih(double mass) : G4HadronicInteraction("SexaQuark-neutron annihilation") {
+#include "SimG4Core/CustomPhysics/interface/CMSSQNeutronAnnih.h"
+#include "SimG4Core/CustomPhysics/interface/CMSSQ.h"
+
+CMSSQNeutronAnnih::CMSSQNeutronAnnih(double mass) : G4HadronicInteraction("SexaQuark-neutron annihilation") {
   SetMinEnergy(0.0 * GeV);
   SetMaxEnergy(100. * TeV);
 
-  theSQ = G4SQ::SQ(mass);
+  theSQ = CMSSQ::SQ(mass);
   theK0S = G4KaonZeroShort::KaonZeroShort();
   theAntiL = G4AntiLambda::AntiLambda();
   theProton = G4Proton::
       Proton();  //proton only used when the particle which the sexaquark hits is a deutereon and the neutron dissapears, so what stays behind is a proton
 }
 
-G4SQNeutronAnnih::~G4SQNeutronAnnih() {}
+CMSSQNeutronAnnih::~CMSSQNeutronAnnih() {}
 
 //9Be momentum distribution from Jan Ryckebusch
-G4double G4SQNeutronAnnih::momDistr(G4double x_in) {
+G4double CMSSQNeutronAnnih::momDistr(G4double x_in) {
   const int n_entries = 50;
 
   G4double CDF_k[n_entries] = {0,   0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1,   1.1, 1.2, 1.3, 1.4, 1.5, 1.6,
@@ -99,7 +101,7 @@ G4double G4SQNeutronAnnih::momDistr(G4double x_in) {
   //return 1;
 }
 
-G4HadFinalState* G4SQNeutronAnnih::ApplyYourself(const G4HadProjectile& aTrack, G4Nucleus& targetNucleus) {
+G4HadFinalState* CMSSQNeutronAnnih::ApplyYourself(const G4HadProjectile& aTrack, G4Nucleus& targetNucleus) {
   theParticleChange.Clear();
   const G4HadProjectile* aParticle = &aTrack;
   G4double ekin = aParticle->GetKineticEnergy();
@@ -110,30 +112,26 @@ G4HadFinalState* G4SQNeutronAnnih::ApplyYourself(const G4HadProjectile& aTrack, 
   G4double m_K0S = G4KaonZeroShort::KaonZeroShort()->GetPDGMass();
   G4double m_L = G4AntiLambda::AntiLambda()->GetPDGMass();
 
-  G4cout << "---->   G4SQNeutronAnnih    <-----" << G4endl;
-
   //G4double plab = aParticle->GetTotalMomentum();
 
-  //    G4cout << "G4SQNeutronAnnih: Incident particle p (GeV), total Energy (GeV), particle name, eta ="
-  //           << plab/GeV << "  "
-  //           << aParticle->GetTotalEnergy()/GeV << "  "
-  //           << aParticle->GetDefinition()->GetParticleName() << " "
-  //	   << aParticle->Get4Momentum() << G4endl;
+  //    edm::LogVerbatim("CMSSWNeutronAnnih") << "CMSSQNeutronAnnih: Incident particle p (GeV), total Energy (GeV), particle name, eta ="
+  //       << plab/GeV << "  "
+  //       << aParticle->GetTotalEnergy()/GeV << "  "
+  //       << aParticle->GetDefinition()->GetParticleName() << " "
+  //	   << aParticle->Get4Momentum();
 
   // Scattered particle referred to axis of incident particle
   //const G4ParticleDefinition* theParticle = aParticle->GetDefinition();
 
   //G4int projPDG = theParticle->GetPDGEncoding();
-  //  if (verboseLevel > 1)
-  //    G4cout << "G4SQNeutronAnnih: for " << theParticle->GetParticleName()
+  //    edm::LogVerbatim("CMSSWNeutronAnnih") << "CMSSQNeutronAnnih: for " << theParticle->GetParticleName()
   //           << " PDGcode= " << projPDG << " on nucleus Z= " << Z
-  //           << " A= " << A << " N= " << N
-  //           << G4endl;
+  //           << " A= " << A << " N= " << N;
 
   G4LorentzVector lv1 = aParticle->Get4Momentum();
-  G4cout << "The neutron Fermi momentum (mag, x, y, z) " << targetNucleus.GetFermiMomentum().mag() / MeV << " "
+  edm::LogVerbatim("CMSSWNeutronAnnih") << "The neutron Fermi momentum (mag, x, y, z) " << targetNucleus.GetFermiMomentum().mag() / MeV << " "
          << targetNucleus.GetFermiMomentum().x() / MeV << " " << targetNucleus.GetFermiMomentum().y() / MeV << " "
-         << targetNucleus.GetFermiMomentum().z() / MeV << std::endl;
+         << targetNucleus.GetFermiMomentum().z() / MeV;
 
   //calculate fermi momentum
 
@@ -158,7 +156,7 @@ G4HadFinalState* G4SQNeutronAnnih::ApplyYourself(const G4HadProjectile& aTrack, 
   if (A != 0)
     BENeutronInNucleus = G4NucleiProperties::GetBindingEnergy(A, Z) / (A);
 
-  G4cout << "BE of nucleon in the nucleus (GeV): " << BENeutronInNucleus / GeV << G4endl;
+  edm::LogVerbatim("CMSSWNeutronAnnih") << "BE of nucleon in the nucleus (GeV): " << BENeutronInNucleus / GeV;
 
   G4LorentzVector lvBE(0, 0, 0, BENeutronInNucleus / GeV);
   G4LorentzVector lv = lv0 + lv1 - lvBE;

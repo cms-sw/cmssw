@@ -1,5 +1,5 @@
 
-#include "SimG4Core/CustomPhysics/interface/G4SQLoopProcessDiscr.h"
+#include "SimG4Core/CustomPhysics/interface/CMSSQLoopProcessDiscr.h"
 #include "G4SystemOfUnits.hh"
 #include "G4Step.hh"
 #include "G4ParticleDefinition.hh"
@@ -7,20 +7,20 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-G4SQLoopProcessDiscr::G4SQLoopProcessDiscr(double mass, const G4String& name, G4ProcessType type)
+CMSSQLoopProcessDiscr::CMSSQLoopProcessDiscr(double mass, const G4String& name, G4ProcessType type)
     : G4VDiscreteProcess(name, type) {
   fParticleChange = new G4ParticleChange();
   fParticleChange->ClearDebugFlag();
   GenMass = mass;
 }
 
-G4SQLoopProcessDiscr::~G4SQLoopProcessDiscr() { delete fParticleChange; }
+CMSSQLoopProcessDiscr::~CMSSQLoopProcessDiscr() { delete fParticleChange; }
 
-G4VParticleChange* G4SQLoopProcessDiscr::PostStepDoIt(const G4Track& track, const G4Step& step) {
+G4VParticleChange* CMSSQLoopProcessDiscr::PostStepDoIt(const G4Track& track, const G4Step& step) {
   G4Track* mytr = const_cast<G4Track*>(&track);
   mytr->SetPosition(posini);
   if (mytr->GetGlobalTime() / ns > 4990)
-    edm::LogWarning("G4SQLoopProcess::AlongStepDoIt")
+    edm::LogWarning("CMSSQLoopProcess::AlongStepDoIt")
         << "going to loose the particle because the GlobalTime is getting close to 5000" << std::endl;
 
   fParticleChange->Clear();
@@ -29,7 +29,7 @@ G4VParticleChange* G4SQLoopProcessDiscr::PostStepDoIt(const G4Track& track, cons
   //adding secondary antiS
   fParticleChange->SetNumberOfSecondaries(1);
   G4DynamicParticle* replacementParticle =
-      new G4DynamicParticle(G4AntiSQ::AntiSQ(GenMass), track.GetMomentumDirection(), track.GetKineticEnergy());
+      new G4DynamicParticle(CMSAntiSQ::AntiSQ(GenMass), track.GetMomentumDirection(), track.GetKineticEnergy());
   fParticleChange->AddSecondary(replacementParticle, globaltimeini);
 
   //killing original AntiS
@@ -46,7 +46,7 @@ G4VParticleChange* G4SQLoopProcessDiscr::PostStepDoIt(const G4Track& track, cons
   return fParticleChange;
 }
 
-G4double G4SQLoopProcessDiscr::PostStepGetPhysicalInteractionLength(const G4Track& track,
+G4double CMSSQLoopProcessDiscr::PostStepGetPhysicalInteractionLength(const G4Track& track,
                                                                     G4double previousStepSize,
                                                                     G4ForceCondition* condition) {
   *condition = NotForced;
@@ -62,9 +62,9 @@ G4double G4SQLoopProcessDiscr::PostStepGetPhysicalInteractionLength(const G4Trac
   return intLength;
 }
 
-G4double G4SQLoopProcessDiscr::GetMeanFreePath(const G4Track&, G4double, G4ForceCondition*) { return DBL_MAX; }
+G4double CMSSQLoopProcessDiscr::GetMeanFreePath(const G4Track&, G4double, G4ForceCondition*) { return DBL_MAX; }
 
-void G4SQLoopProcessDiscr::StartTracking(G4Track* aTrack) {
+void CMSSQLoopProcessDiscr::StartTracking(G4Track* aTrack) {
   posini = aTrack->GetPosition();
   globaltimeini = aTrack->GetGlobalTime();
 }
