@@ -21,11 +21,7 @@ HepMC3Product::HepMC3Product(HepMC3::GenEvent* evt)
   addHepMCData(evt);
 }
 
-HepMC3Product::~HepMC3Product() {
-  isVtxGenApplied_ = false;
-  isVtxBoostApplied_ = false;
-  isPBoostApplied_ = false;
-}
+HepMC3Product::~HepMC3Product() = default;
 
 void HepMC3Product::addHepMCData(HepMC3::GenEvent* evt) { evt->write_data(evt_); }
 
