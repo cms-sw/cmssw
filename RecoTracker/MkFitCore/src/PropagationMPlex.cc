@@ -157,6 +157,38 @@ namespace {
 #include "MultHelixPropTranspEndcap.ah"
   }
 
+  void MultHelixPlaneProp(const MPlexLL& A, const MPlexLS& B, MPlexLL& C) {
+    // C = A * B
+
+    typedef float T;
+    const Matriplex::idx_t N = NN;
+
+    const T* a = A.fArray;
+    ASSUME_ALIGNED(a, 64);
+    const T* b = B.fArray;
+    ASSUME_ALIGNED(b, 64);
+    T* c = C.fArray;
+    ASSUME_ALIGNED(c, 64);
+
+#include "MultHelixPlaneProp.ah"
+  }
+
+  void MultHelixPlanePropTransp(const MPlexLL& A, const MPlexLL& B, MPlexLS& C) {
+    // C = B * AT;
+
+    typedef float T;
+    const Matriplex::idx_t N = NN;
+
+    const T* a = A.fArray;
+    ASSUME_ALIGNED(a, 64);
+    const T* b = B.fArray;
+    ASSUME_ALIGNED(b, 64);
+    T* c = C.fArray;
+    ASSUME_ALIGNED(c, 64);
+
+#include "MultHelixPlanePropTransp.ah"
+  }
+
   inline void MultHelixPropTemp(const MPlexLL& A, const MPlexLL& B, MPlexLL& C, int n) {
     // C = A * B
 
@@ -1203,8 +1235,33 @@ namespace mkfit {
     // Matriplex version of:
     // result.errors = ROOT::Math::Similarity(errorProp, outErr);
     MPlexLL temp;
-    MultHelixPropFull(errorProp, outErr, temp);
-    MultHelixPropTranspFull(errorProp, temp, outErr);
+    MultHelixPlaneProp(errorProp, outErr, temp);
+    MultHelixPlanePropTransp(errorProp, temp, outErr);
+    // MultHelixPropFull(errorProp, outErr, temp);
+    // for (int kk = 0; kk < 1; ++kk) {
+    //   std::cout << "errorProp" << std::endl;
+    //   for (int i = 0; i < 6; ++i) {
+    // 	for (int j = 0; j < 6; ++j)
+    // 	  std::cout << errorProp.constAt(kk, i, j) << " ";
+    // 	std::cout << std::endl;;
+    //   }
+    //   std::cout << std::endl;;
+    //   std::cout << "outErr" << std::endl;
+    //   for (int i = 0; i < 6; ++i) {
+    // 	for (int j = 0; j < 6; ++j)
+    // 	  std::cout << outErr.constAt(kk, i, j) << " ";
+    // 	std::cout << std::endl;;
+    //   }
+    //   std::cout << std::endl;;
+    //   std::cout << "temp" << std::endl;
+    //   for (int i = 0; i < 6; ++i) {
+    // 	for (int j = 0; j < 6; ++j)
+    // 	  std::cout << temp.constAt(kk, i, j) << " ";
+    // 	std::cout << std::endl;;
+    //   }
+    //   std::cout << std::endl;;
+    // }
+    // MultHelixPropTranspFull(errorProp, temp, outErr);
 
 #ifdef DEBUG
     if (debug && g_debug) {

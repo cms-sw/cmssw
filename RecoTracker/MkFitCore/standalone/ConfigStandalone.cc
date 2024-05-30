@@ -131,6 +131,9 @@ namespace mkfit {
         TrackerInfoCreator_foo foo = (TrackerInfoCreator_foo)(*p2f);
         foo(ti, ii, verbose);
 
+        // level 2: print shapes and modules, precision 8
+        // ti.print_tracker(2, 8);
+
         return;
       }
 

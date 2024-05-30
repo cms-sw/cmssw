@@ -33,7 +33,7 @@ process.add_(cms.ESProducer("MkFitGeometryESProducer"))
 
 defaultOutputFileName="phase2-trackerinfo.bin"
 
-# level: 0 - no printout; 1 - print layers, 2 - print modules
+# level: 0 - no printout; 1 - print layers, 2 - print shapes and modules
 # outputFileName: binary dump file; no dump if empty string
 process.dump = cms.EDAnalyzer("DumpMkFitGeometry",
                               level = cms.untracked.int32(1),

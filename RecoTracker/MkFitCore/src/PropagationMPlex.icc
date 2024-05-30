@@ -17,6 +17,37 @@ namespace
   }
 }
 
+void JacErrPropCurv1(const MPlex65& A, const MPlex55& B, MPlex65& C) {
+  // C = A * B
+  typedef float T;
+  const Matriplex::idx_t N = NN;
+
+  const T* a = A.fArray;
+  ASSUME_ALIGNED(a, 64);
+  const T* b = B.fArray;
+  ASSUME_ALIGNED(b, 64);
+  T* c = C.fArray;
+  ASSUME_ALIGNED(c, 64);
+
+#include "JacErrPropCurv1.ah"
+}
+
+template <typename TfLL1>
+void JacErrPropCurv2(const MPlex65& A, const MPlex56& B, TfLL1& __restrict__ C) {
+  // C = A * B
+  typedef float T;
+  const Matriplex::idx_t N = NN;
+
+  const T* a = A.fArray;
+  ASSUME_ALIGNED(a, 64);
+  const T* b = B.fArray;
+  ASSUME_ALIGNED(b, 64);
+  T* c = C.fArray;
+  ASSUME_ALIGNED(c, 64);
+
+#include "JacErrPropCurv2.ah"
+}
+
 template <typename Tf, typename TfLL1, typename Tf1>
 static inline void parsFromPathL_impl(const Tf& __restrict__ inPar,
                                       TfLL1& __restrict__ outPar,
@@ -253,8 +284,41 @@ inline void parsAndErrPropFromPathL_impl(const Tf& __restrict__ inPar,
 
   //need to compute errorProp = jacCurv2CCS*errorPropCurv*jacCCS2Curv
   MPlex65 tmp;
+  JacErrPropCurv1(jacCurv2CCS, errorPropCurv, tmp);
+  JacErrPropCurv2(tmp, jacCCS2Curv, errorProp);
+  /*
   Matriplex::multiplyGeneral(jacCurv2CCS, errorPropCurv, tmp);
+  for (int kk = 0; kk < 1; ++kk) {
+    std::cout << "jacCurv2CCS" << std::endl;
+    for (int i = 0; i < 6; ++i) {
+  	for (int j = 0; j < 5; ++j)
+  	  std::cout << jacCurv2CCS.constAt(kk, i, j) << " ";
+  	std::cout << std::endl;;
+    }
+    std::cout << std::endl;;
+    std::cout << "errorPropCurv" << std::endl;
+    for (int i = 0; i < 5; ++i) {
+  	for (int j = 0; j < 5; ++j)
+  	  std::cout << errorPropCurv.constAt(kk, i, j) << " ";
+  	std::cout << std::endl;;
+    }
+    std::cout << std::endl;;
+    std::cout << "tmp" << std::endl;
+    for (int i = 0; i < 6; ++i) {
+  	for (int j = 0; j < 5; ++j)
+  	  std::cout << tmp.constAt(kk, i, j) << " ";
+  	std::cout << std::endl;;
+    }
+    std::cout << std::endl;;
+    std::cout << "jacCCS2Curv" << std::endl;
+    for (int i = 0; i < 5; ++i) {
+  	for (int j = 0; j < 6; ++j)
+  	  std::cout << jacCCS2Curv.constAt(kk, i, j) << " ";
+  	std::cout << std::endl;;
+    }
+  }
   Matriplex::multiplyGeneral(tmp, jacCCS2Curv, errorProp);
+  */
 }
 
 // from P.Avery's notes (http://www.phys.ufl.edu/~avery/fitting/transport.pdf eq. 5)
