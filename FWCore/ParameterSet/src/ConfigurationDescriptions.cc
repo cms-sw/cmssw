@@ -152,7 +152,8 @@ namespace edm {
     }
     CfiOptions ops = wroteClassFile ? CfiOptions{cfi::Untyped{paths}} : CfiOptions{cfi::Typed{}};
     for (auto& d : descriptions_) {
-      writeCfiForLabel(d, baseType_, pluginName_, 1 == descriptions_.size(), ops, usedCfiFileNames);
+      writeCfiForLabel(
+          d, baseType_, pluginName_, (not defaultDescDefined_) and (1 == descriptions_.size()), ops, usedCfiFileNames);
     }
   }
 
