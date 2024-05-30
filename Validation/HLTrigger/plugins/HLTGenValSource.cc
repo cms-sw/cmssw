@@ -169,16 +169,15 @@ void HLTGenValSource::initCfgs(const edm::Run& iRun, const edm::EventSetup& iSet
   const edm::ProcessHistory& processHistory = iRun.processHistory();
   for(const auto& process : processHistory){
     if (process.processName() == hltProcessName_) {
-      cmsswVersion = process.releaseVersion();
+      cmsswVersion = process.releaseVersion();//this has quotes around it
       break;
     }
-    std::cout <<"process name"<<process<<std::endl;
-
-  }
-  if (cmsswVersion.empty()){
-    cmsswVersion = std::getenv("CMSSW_VERSION");
+    
   }  
-  infoString_ += std::string("\"CMSSW release\":\"") + cmsswVersion + "\",";
+  if (cmsswVersion.empty()){
+    cmsswVersion = "\""+std::string(std::getenv("CMSSW_VERSION"))+"\""; //using convention it already has quotes on it
+  }  
+  infoString_ += std::string("\"CMSSW release\":") + cmsswVersion + ",";
 
   // Initialize hltConfig, for cross-checking whether chosen paths exist
   bool changedConfig;
