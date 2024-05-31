@@ -42,7 +42,7 @@ usage() {
 	$ECHO "-c          \t don't cleanup temporary dir (for debugging)"
 	$ECHO "-C [dir]    \t directory containing Nvidia compatibility drivers (checks CMSSW_BASE by default if available)"
 	$ECHO "-D          \t dry run: print container commands rather than executing them"
-	$ECHO "-d [exe]    \t container choice: Apptainer, Docker, Podman (default: ${CONTAINER})"
+	$ECHO "-d [exe]    \t container choice: apptainer, docker, podman, podman-hpc (default: ${CONTAINER})"
 	$ECHO "-E [path]   \t include extra path(s) for executables (default: ${EXTRAPATH})"
 	$ECHO "-f          \t force reuse of (possibly) existing container instance"
 	$ECHO "-g [device] \t device choice: auto (try to detect GPU), CPU, GPU (default: ${DEVICE})"
@@ -54,7 +54,7 @@ usage() {
 	$ECHO "-P [port]   \t base port number for services (-1: automatically find an unused port range) (default: ${BASEPORT})"
 	$ECHO "-p [pid]    \t automatically shut down server when process w/ specified PID ends (-1: use parent process PID)"
 	$ECHO "-r [num]    \t number of retries when starting container (default: ${RETRIES})"
-	$ECHO "-s [dir]    \t Apptainer sandbox directory (default: $(get_sandbox))"
+	$ECHO "-s [dir]    \t apptainer sandbox directory (default: $(get_sandbox))"
 	$ECHO "-t [dir]    \t non-default hidden temporary dir"
 	$ECHO "-v          \t (verbose) start: activate server debugging info; stop: keep server logs"
 	$ECHO "-w [time]   \t maximum time to wait for server to start (default: ${WTIME} seconds)"
@@ -132,7 +132,7 @@ fi
 
 # check acceptable values for container choice
 CONTAINER="${CONTAINER,,}"
-if [[ ! " apptainer docker podman " =~ " $CONTAINER " ]]; then
+if [[ ! " apptainer docker podman podman-hpc " =~ " $CONTAINER " ]]; then
 	echo "Unsupported container value: $CONTAINER"
 	exit 1
 fi
@@ -161,6 +161,10 @@ if [ "$CONTAINER" == "docker" ]; then
 elif [ "$CONTAINER" == "podman" ]; then
 	if [ -z "$PODMAN" ]; then
 		PODMAN="podman"
+	fi
+elif [ "$CONTAINER" == "podman-hpc" ]; then
+	if [ -z "$PODMAN" ]; then
+		PODMAN="podman-hpc"
 	fi
 else
 	if [ -z "$APPTAINER" ]; then
@@ -594,6 +598,11 @@ extra_podman(){
 		EXTRA="--device nvidia.com/gpu=all"
 	fi
 }
+extra_podman_hpc(){
+	if [ "$DEVICE" == gpu ]; then
+		EXTRA="--gpu"
+	fi
+}
 extra_apptainer(){
 	if [ "$DEVICE" == gpu ]; then
 		EXTRA="--nv"
@@ -607,7 +616,7 @@ if [ "$CONTAINER" == "docker" ]; then
 	STOP_FN=stop_docker
 	DRIVER_FN=driver_docker
 	COMPAT_FN=compat_docker
-	PROG_NAME=Docker
+	PROG_NAME=docker
 elif [ "$CONTAINER" == "podman" ]; then
 	START_FN=start_podman
 	EXTRA_FN=extra_podman
@@ -615,7 +624,15 @@ elif [ "$CONTAINER" == "podman" ]; then
 	STOP_FN=stop_podman
 	DRIVER_FN=driver_podman
 	COMPAT_FN=compat_podman
-	PROG_NAME=Podman
+	PROG_NAME=podman
+elif [ "$CONTAINER" == "podman-hpc" ]; then
+	START_FN=start_podman
+	EXTRA_FN=extra_podman_hpc
+	TEST_FN=test_podman
+	STOP_FN=stop_podman
+	DRIVER_FN=driver_podman
+	COMPAT_FN=compat_podman
+	PROG_NAME=podman-hpc
 else
 	START_FN=start_apptainer
 	EXTRA_FN=extra_apptainer
@@ -623,7 +640,7 @@ else
 	STOP_FN=stop_apptainer
 	DRIVER_FN=driver_apptainer
 	COMPAT_FN=compat_apptainer
-	PROG_NAME=Apptainer
+	PROG_NAME=apptainer
 fi
 
 if [ "$OP" == check ]; then

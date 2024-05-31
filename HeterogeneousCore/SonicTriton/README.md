@@ -132,7 +132,7 @@ The script has three operations (`start`, `stop`, `check`) and the following opt
 * `-c`: don't cleanup temporary dir (for debugging)
 * `-C [dir]`: directory containing Nvidia compatibility drivers (checks CMSSW_BASE by default if available)
 * `-D`: dry run: print container commands rather than executing them
-* `-d [exe]`: container choice: Apptainer, Docker, Podman (default: apptainer)
+* `-d [exe]`: container choice: apptainer, docker, podman, podman-hpc (default: apptainer)
 * `-E [path]`: include extra path(s) for executables (default: /cvmfs/oasis.opensciencegrid.org/mis/apptainer/current/bin)
 * `-f`: force reuse of (possibly) existing container instance
 * `-g [device]`: device choice: auto (try to detect GPU), CPU, GPU (default: auto)
@@ -144,7 +144,7 @@ The script has three operations (`start`, `stop`, `check`) and the following opt
 * `-P [port]`: base port number for services (-1: automatically find an unused port range) (default: 8000)
 * `-p [pid]`: automatically shut down server when process w/ specified PID ends (-1: use parent process PID)
 * `-r [num]`: number of retries when starting container (default: 3)
-* `-s [dir]`: Apptainer sandbox directory (default: /cvmfs/unpacked.cern.ch/registry.hub.docker.com/fastml/triton-torchgeo:22.07-py3-geometric)
+* `-s [dir]`: apptainer sandbox directory (default: /cvmfs/unpacked.cern.ch/registry.hub.docker.com/fastml/triton-torchgeo:22.07-py3-geometric)
 * `-t [dir]`: non-default hidden temporary dir
 * `-v`: (verbose) start: activate server debugging info; stop: keep server logs
 * `-w [time]`: maximum time to wait for server to start (default: 300 seconds)

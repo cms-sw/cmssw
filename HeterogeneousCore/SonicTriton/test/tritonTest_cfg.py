@@ -15,7 +15,7 @@ models = {
 allowed_modes = ["Async","PseudoAsync","Sync"]
 allowed_compression = ["none","deflate","gzip"]
 allowed_devices = ["auto","cpu","gpu"]
-allowed_containers = ["apptainer","docker","podman"]
+allowed_containers = ["apptainer","docker","podman","podman-hpc"]
 
 parser = ArgumentParser(formatter_class=ArgumentDefaultsHelpFormatter)
 parser.add_argument("--maxEvents", default=-1, type=int, help="Number of events to process (-1 for all)")
