@@ -568,6 +568,8 @@ phase2_timing_layer.toModify(FEVTEventContent,
     outputCommands = FEVTEventContent.outputCommands + RecoLocalFastTimeFEVT.outputCommands)
 phase2_timing_layer.toModify(FEVTEventContent, 
     outputCommands = FEVTEventContent.outputCommands + RecoMTDFEVT.outputCommands)
+from Configuration.ProcessModifiers.ticl_v5_cff import ticl_v5
+ticl_v5.toModify(FEVTEventContent, outputCommands=FEVTEventContent.outputCommands+TICLv5_FEVT.outputCommands)
 
 FEVTHLTALLEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *'),
@@ -651,6 +653,8 @@ approxSiStripClusters.toModify(FEVTDEBUGEventContent,
                                   'keep *_hltSiStripClusters2ApproxClusters_*_*',
                                   'keep DetIds_hltSiStripRawToDigi_*_*'
                               ])
+
+ticl_v5.toModify(FEVTDEBUGEventContent, outputCommands=FEVTDEBUGEventContent.outputCommands+TICLv5_FEVT.outputCommands)
 #
 #
 # FEVTDEBUGHLT Data Tier definition

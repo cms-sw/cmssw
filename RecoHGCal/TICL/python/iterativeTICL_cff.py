@@ -2,62 +2,81 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoHGCal.TICL.FastJetStep_cff import *
 from RecoHGCal.TICL.CLUE3DHighStep_cff import *
-from RecoHGCal.TICL.CLUE3DLowStep_cff import *
 from RecoHGCal.TICL.MIPStep_cff import *
 from RecoHGCal.TICL.TrkEMStep_cff import *
 from RecoHGCal.TICL.TrkStep_cff import *
 from RecoHGCal.TICL.EMStep_cff import *
 from RecoHGCal.TICL.HADStep_cff import *
+from RecoHGCal.TICL.CLUE3DEM_cff import *
+from RecoHGCal.TICL.CLUE3DHAD_cff import *
 
 from RecoHGCal.TICL.ticlLayerTileProducer_cfi import ticlLayerTileProducer
 from RecoHGCal.TICL.pfTICLProducer_cfi import pfTICLProducer as _pfTICLProducer
 from RecoHGCal.TICL.trackstersMergeProducer_cfi import trackstersMergeProducer as _trackstersMergeProducer
-from RecoHGCal.TICL.trackstersMergeProducerV3_cfi import trackstersMergeProducerV3 as _trackstersMergeProducerV3
 from RecoHGCal.TICL.tracksterSelectionTf_cfi import *
+
+from RecoHGCal.TICL.tracksterLinksProducer_cfi import tracksterLinksProducer as _tracksterLinksProducer
+from RecoHGCal.TICL.ticlCandidateProducer_cfi import ticlCandidateProducer as _ticlCandidateProducer
+
+from RecoHGCal.TICL.mtdSoAProducer_cfi import mtdSoAProducer as _mtdSoAProducer
+
+from Configuration.ProcessModifiers.ticl_v5_cff import ticl_v5
 
 ticlLayerTileTask = cms.Task(ticlLayerTileProducer)
 
 ticlTrackstersMerge = _trackstersMergeProducer.clone()
-ticlTrackstersMergeV3 = _trackstersMergeProducerV3.clone()
+ticlTracksterLinks = _tracksterLinksProducer.clone(
+    tracksters_collections = cms.VInputTag(
+        'ticlTrackstersCLUE3DHigh'
+    ),
+    regressionAndPid = cms.bool(True)
+)
+ticlCandidate = _ticlCandidateProducer.clone()
+mtdSoA = _mtdSoAProducer.clone()
 
 pfTICL = _pfTICLProducer.clone()
+ticl_v5.toModify(pfTICL, ticlCandidateSrc = cms.InputTag('ticlCandidate'), isTICLv5 = cms.bool(True))
+
 ticlPFTask = cms.Task(pfTICL)
 
 ticlIterationsTask = cms.Task(
     ticlCLUE3DHighStepTask
 )
+''' For future separate iterations
+,ticlCLUE3DEMStepTask,
+,ticlCLUE3DHADStepTask
+    '''
 
-from Configuration.ProcessModifiers.clue3D_cff import clue3D
-clue3D.toModify(ticlIterationsTask, func=lambda x : x.add(ticlCLUE3DHighStepTask,ticlCLUE3DLowStepTask))
+''' For future separate iterations
+ticl_v5.toReplaceWith(ticlIterationsTask, ticlIterationsTask.copyAndExclude([ticlCLUE3DHighStepTask]))
+'''
 
 from Configuration.ProcessModifiers.fastJetTICL_cff import fastJetTICL
 fastJetTICL.toModify(ticlIterationsTask, func=lambda x : x.add(ticlFastJetStepTask))
 
-from Configuration.ProcessModifiers.ticl_v3_cff import ticl_v3
-ticl_v3.toModify(ticlIterationsTask, func=lambda x : x.add( ticlTrkEMStepTask
-    ,ticlEMStepTask
-    ,ticlTrkStepTask
-    ,ticlHADStepTask) )
-ticlIterLabels = [_step.itername.value() for _iteration in ticlIterationsTask for _step in _iteration if (_step._TypedParameterizable__type == "TrackstersProducer")]
+ticlIterLabels = ["CLUE3DHigh"]
+''' For future separate iterations
+"CLUE3DEM", "CLUE3DHAD",
+'''
 
 ticlTracksterMergeTask = cms.Task(ticlTrackstersMerge)
-ticlTracksterMergeTaskV3 = cms.Task(ticlTrackstersMergeV3)
-
-ticl_v3.toModify(pfTICL, ticlCandidateSrc = "ticlTrackstersMergeV3")
+ticlTracksterLinksTask = cms.Task(ticlTracksterLinks)
 
 mergeTICLTask = cms.Task(ticlLayerTileTask
     ,ticlIterationsTask
     ,ticlTracksterMergeTask
 )
+ticl_v5.toReplaceWith(mergeTICLTask, mergeTICLTask.copyAndExclude([ticlTracksterMergeTask]))
+ticl_v5.toModify(mergeTICLTask, func=lambda x : x.add(ticlTracksterLinksTask))
 
-ticl_v3.toModify(mergeTICLTask, func=lambda x : x.add(ticlTracksterMergeTaskV3))
 ticlIterLabelsMerge = ticlIterLabels + ["Merge"]
 
-ticlIterLabelsMergeV3 = ticlIterLabels + ["MergeV3"]
-ticl_v3.toModify(ticlIterLabelsMerge, func=lambda x : x.extend(ticlIterLabelsMergeV3))
+mtdSoATask = cms.Task(mtdSoA)
+ticlCandidateTask = cms.Task(ticlCandidate)
 
-iterTICLTask = cms.Task(mergeTICLTask
-    ,ticlPFTask)
+iterTICLTask = cms.Task(mergeTICLTask,
+    ticlPFTask)
+ticl_v5.toModify(iterTICLTask, func=lambda x : x.add(mtdSoATask, ticlCandidateTask))
 
 ticlLayerTileHFNose = ticlLayerTileProducer.clone(
     detector = 'HFNose'

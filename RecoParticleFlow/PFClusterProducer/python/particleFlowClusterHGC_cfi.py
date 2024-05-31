@@ -73,3 +73,6 @@ particleFlowClusterHGCal = cms.EDProducer(
 particleFlowClusterHGCalFromSimCl = particleFlowClusterHGCal.clone(
     initialClusteringStep = _simClusterMapper_HGCal
 )
+
+from Configuration.ProcessModifiers.ticl_v5_cff import ticl_v5
+ticl_v5.toModify(particleFlowClusterHGCal.initialClusteringStep, tracksterSrc = "ticlCandidate")

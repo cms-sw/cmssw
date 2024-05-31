@@ -689,7 +689,7 @@ upgradeWFs['ticl_FastJet'] = UpgradeWorkflow_ticl_FastJet(
 upgradeWFs['ticl_FastJet'].step3 = {'--procModifiers': 'fastJetTICL'}
 upgradeWFs['ticl_FastJet'].step4 = {'--procModifiers': 'fastJetTICL'}
 
-class UpgradeWorkflow_ticl_v3(UpgradeWorkflow):
+class UpgradeWorkflow_ticl_v5(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
         if 'RecoGlobal' in step:
             stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
@@ -697,7 +697,7 @@ class UpgradeWorkflow_ticl_v3(UpgradeWorkflow):
             stepDict[stepName][k] = merge([self.step4, stepDict[step][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
         return (fragment=="TTbar_14TeV" or 'CloseByP' in fragment or 'Eta1p7_2p7' in fragment) and '2026' in key
-upgradeWFs['ticl_v3'] = UpgradeWorkflow_ticl_v3(
+upgradeWFs['ticl_v5'] = UpgradeWorkflow_ticl_v5(
     steps = [
         'RecoGlobal',
         'HARVESTGlobal'
@@ -706,12 +706,11 @@ upgradeWFs['ticl_v3'] = UpgradeWorkflow_ticl_v3(
         'RecoGlobal',
         'HARVESTGlobal'
     ],
-    suffix = '_ticl_v3',
+    suffix = '_ticl_v5',
     offset = 0.203,
 )
-upgradeWFs['ticl_v3'].step3 = {'--procModifiers': 'ticl_v3'}
-upgradeWFs['ticl_v3'].step4 = {'--procModifiers': 'ticl_v3'}
-
+upgradeWFs['ticl_v5'].step3 = {'--procModifiers': 'ticl_v5'}
+upgradeWFs['ticl_v5'].step4 = {'--procModifiers': 'ticl_v5'}
 
 # Track DNN workflows
 class UpgradeWorkflow_trackdnn(UpgradeWorkflow):
