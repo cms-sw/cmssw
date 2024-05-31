@@ -16,6 +16,10 @@ def makeStepName(key,frag,step,suffix):
 
 #just define all of them
 
+## ... but we don't need all the flavors for the GenOnly
+def notForGenOnly(key,specialType):
+    return "GenOnly" in key and specialType != 'baseline'
+
 for year in upgradeKeys:
     for i,key in enumerate(upgradeKeys[year]):
         numWF=numWFAll[year][i]
@@ -26,6 +30,8 @@ for year in upgradeKeys:
                 continue
             stepList={}
             for specialType in upgradeWFs.keys():
+                if notForGenOnly(key,specialType):
+                    continue
                 stepList[specialType] = []
             hasHarvest = False
             for step in upgradeProperties[year][key]['ScenToRun']:
@@ -43,6 +49,10 @@ for year in upgradeKeys:
                 if 'HARVEST' in step: hasHarvest = True
 
                 for specialType,specialWF in upgradeWFs.items():
+
+                    if notForGenOnly(key,specialType): ## we don't need all the flavors for the GEN
+                        continue 
+
                     if (specialType != 'baseline') and ( ('PU' in step and step.replace('PU','') in specialWF.PU) or (step in specialWF.steps) ):
                         stepList[specialType].append(stepMaker(key,frag[:-4],step,specialWF.suffix))
                         # hack to add an extra step
@@ -71,6 +81,8 @@ for year in upgradeKeys:
 
             for specialType,specialWF in upgradeWFs.items():
                 # remove other steps for premixS1
+                if notForGenOnly(key,specialType):
+                    continue
                 if specialType=="PMXS1":
                     stepList[specialType] = stepList[specialType][:1]
                 specialWF.workflow(workflows, numWF, info.dataset, stepList[specialType], key, hasHarvest)

@@ -2624,7 +2624,7 @@ upgradeWFs['Run3FStrackingOnly'] = UpgradeWorkflow_Run3FStrackingOnly(
 
 class UpgradeWorkflow_Run3FSMBMixing(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
-        if 'Gen' in step:
+        if 'Gen' in step and 'GenOnly' not in step:
             stepDict[stepName][k] = merge([{'-s':'GEN,SIM,RECOBEFMIX',
                                             '--fast':'',
                                             '--era':'Run3_FastSim',
