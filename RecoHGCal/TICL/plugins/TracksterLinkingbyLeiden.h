@@ -38,7 +38,7 @@ namespace ticl {
                         std::vector<std::vector<unsigned int>> &linkedResultTracksters,
                         std::vector<std::vector<unsigned int>> &linkedTracksterIdToInputTracksterId) override;
 
-    void fillPSetDescription(edm::ParameterSetDescription &desc);
+    static void fillPSetDescription(edm::ParameterSetDescription &desc);
 
   private:
     void buildLayers();
