@@ -16,7 +16,7 @@ namespace edm {
 // change in the future.
 class HGCalUncalibRecHitWorkerBaseClass {
 public:
-  HGCalUncalibRecHitWorkerBaseClass(const edm::ParameterSet& ps, edm::ConsumesCollector iC) {}
+  HGCalUncalibRecHitWorkerBaseClass(const edm::ParameterSet& ps, edm::ConsumesCollector iC, bool localTime) {}
   virtual ~HGCalUncalibRecHitWorkerBaseClass() {}
 
   // run HGC-EE things
@@ -38,6 +38,8 @@ public:
   virtual bool runHGCHFNose(const edm::ESHandle<HGCalGeometry>& geom,
                             const HGCalDigiCollection& digis,
                             HGChfnoseUncalibratedRecHitCollection& result) = 0;
+
+  bool computeLocalTime_ = false;
 };
 
 #endif

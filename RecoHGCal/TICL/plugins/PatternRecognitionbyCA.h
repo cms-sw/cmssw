@@ -61,6 +61,7 @@ namespace ticl {
     const float eidMinClusterEnergy_;
     const int eidNLayers_;
     const int eidNClusters_;
+    const bool computeLocalTime_;
 
     hgcal::RecHitTools rhtools_;
     tensorflow::Session* eidSession_;
