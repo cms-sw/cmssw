@@ -24,7 +24,7 @@ autoCond = {
     # GlobalTag for MC production (p-Pb collisions) with realistic alignment and calibrations for Run2
     'run2_mc_pa'                   :    '131X_mcRun2_pA_v3',
     # GlobalTag for Run2 data reprocessing
-    'run2_data'                    :    '140X_dataRun2_v1',
+    'run2_data'                    :    '140X_dataRun2_v2',
     # GlobalTag for Run2 data 2018B relvals only: HEM-15-16 fail
     'run2_data_HEfail'             :    '140X_dataRun2_HEfail_v1',
     # GlobalTag for Run2 HI data
@@ -35,12 +35,12 @@ autoCond = {
     'run3_hlt'                     :    '140X_dataRun3_HLT_frozen_v3',
     # GlobalTag for Run3 data relvals (express GT) - 140X_dataRun3_Express_v1 but snapshot at 2024-01-20 12:00:00 (UTC)
     'run3_data_express'            :    '140X_dataRun3_Express_frozen_v1',
-    # GlobalTag for Run3 data relvals (prompt GT) - 140X_dataRun3_Prompt_v1 but snapshot at 2024-01-20 12:00:00 (UTC)
-    'run3_data_prompt'             :    '140X_dataRun3_Prompt_frozen_v1',
+    # GlobalTag for Run3 data relvals (prompt GT) - 140X_dataRun3_Prompt_v3 but snapshot at 2024-05-31 09:09:12 (UTC)
+    'run3_data_prompt'             :    '140X_dataRun3_Prompt_frozen_v3',
     # GlobalTag for Run3 offline data reprocessing - snapshot at 2024-02-07 16:38:59 (UTC)
-    'run3_data'                    :    '140X_dataRun3_v3',
+    'run3_data'                    :    '140X_dataRun3_v4',
     # GlobalTag for Run3 offline data reprocessing with Prompt GT, currenlty for 2022FG - snapshot at 2024-02-12 12:00:00 (UTC)
-    'run3_data_PromptAnalysis'     :    '140X_dataRun3_PromptAnalysis_v1',
+    'run3_data_PromptAnalysis'     :    '140X_dataRun3_PromptAnalysis_v2',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2017 (and 0,0,~0-centred beamspot)
     'phase1_2017_design'           :    '131X_mc2017_design_v3',
     # GlobalTag for MC production with realistic conditions for Phase1 2017 detector
