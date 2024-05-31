@@ -75,8 +75,8 @@
 //                               index in HE (depth index set 1) (3); ignore
 //                               depth index in HB (depth index set 1) (4); all
 //                               all depths in HB and HE with values > 1 as
-//                               depth 2 (5); for depth = 1 and 2, depth = 1, 
-//                               else depth = 2 (6); in case of HB, depths 1 
+//                               depth 2 (5); for depth = 1 and 2, depth = 1,
+//                               else depth = 2 (6); in case of HB, depths 1
 //                               and 2 are set to 1, else depth = 2; for HE
 //                               ignore depth index (7); in case of HE, depths 1
 //                               and 2 are set to 1, else depth =2; for HB

@@ -150,14 +150,14 @@ unsigned int truncateId(unsigned int detId, int truncateFlag, bool debug = false
       depth = 1;
     else
       depth = 2;
- } else if (truncate0 == 7) {
+  } else if (truncate0 == 7) {
     //Ignore depth index for depth > 2 in HB; depthes 1, 2 considered as 1
     //Ignore all depths for HE
     if (subdet == 1) {
       if (depth <= 2)
-	depth = 1;
+        depth = 1;
       else
-	depth = 2;
+        depth = 2;
     } else {
       depth = 1;
     }
@@ -166,9 +166,9 @@ unsigned int truncateId(unsigned int detId, int truncateFlag, bool debug = false
     //Ignore all depths for HB
     if (subdet == 2) {
       if (depth <= 2)
-	depth = 1;
+        depth = 1;
       else
-	depth = 2;
+        depth = 2;
     } else {
       depth = 1;
     }
@@ -176,7 +176,7 @@ unsigned int truncateId(unsigned int detId, int truncateFlag, bool debug = false
     //Ignore depth index for depth > 1 in HB and all depth index for HE
     if (subdet == 1) {
       if (depth > 1)
-	depth = 2;
+        depth = 2;
     } else {
       depth = 1;
     }
