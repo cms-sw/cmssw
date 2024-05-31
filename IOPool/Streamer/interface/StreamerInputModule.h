@@ -2,6 +2,7 @@
 #define IOPool_Streamer_StreamerInputModule_h
 
 #include "IOPool/Streamer/interface/StreamerInputSource.h"
+#include "IOPool/Streamer/interface/EventMessage.h"
 
 #include "FWCore/Utilities/interface/DebugMacros.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
