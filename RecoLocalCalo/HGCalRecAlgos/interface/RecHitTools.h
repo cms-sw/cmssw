@@ -64,6 +64,7 @@ namespace hgcal {
     unsigned int getLayer(const DetId&) const;
     unsigned int getLayerWithOffset(const DetId&) const;
     int getCellType(const DetId& id) const;
+    int getSensorGroup(const DetId& id) const;
     std::pair<int, int> getWafer(const DetId&) const;
     std::pair<int, int> getCell(const DetId&) const;
 
@@ -118,6 +119,28 @@ namespace hgcal {
     int geometryType_;
     int bhMaxIphi_;
   };
+
+  enum SensorType {
+    CE_E_200_LD = 0,
+    CE_E_300_LD = 1,
+    CE_E_120_HD = 2,
+    CE_E_200_HD = 3,
+    CE_H_200_Fine_LD = 4,
+    CE_H_300_Fine_LD = 5,
+    CE_H_120_Fine_HD = 6,
+    CE_H_200_Fine_HD = 7,
+    CE_H_200_Coarse_LD = 8,
+    CE_H_300_Coarse_LD = 9,
+    CE_H_120_Coarse_HD = 10,
+    CE_H_200_Coarse_HD = 11,
+    CE_H_Tile_HD = 12,
+    CE_H_Tile_LD_c = 13,
+    CE_H_Tile_LD_m = 14,
+    EnumSize = 15
+  };
+
+  enum SensorGroup { CEE_LD = 0, CEE_HD = 1, CEH_LD = 2, CEH_HD = 3, UNKNOWN };
+
 }  // namespace hgcal
 
 #endif
