@@ -25,7 +25,7 @@ if __name__ == "__main__":
         outnamebase = "__".join(dataset.split("/")[1:3])
         outname_dqm = outnamebase + "_DQM.root"
             
-        out,err = subprocess.Popen(["cmsRun","Validation/HLTrigger/test/runPhaseIIValSource_cfg.py","inputFiles=dbs:"+dataset,f"outputFile={outname_dqm}"]).communicate()
+        out,err = subprocess.Popen(["cmsRun","Validation/HLTrigger/test/runPhaseIIValSource_cfg.py","inputFiles=dbs:"+dataset,f"outputFile={outname_dqm}",f"sampleLabel={args.sampletag}"]).communicate()
 
         out,err = subprocess.Popen(["cmsRun","Validation/HLTrigger/test/runValClient_cfg.py",f"inputFiles=file:{outname_dqm}"]).communicate()
 

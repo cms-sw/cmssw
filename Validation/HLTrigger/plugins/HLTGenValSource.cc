@@ -92,10 +92,12 @@ private:
   std::vector<edm::ParameterSet> histConfigs2D_;
   std::vector<edm::ParameterSet> binnings_;
   std::string hltProcessName_;
+  std::string sampleLabel_; //this if set is the label in the legend
 
   // constructing the info string, which will be written to the output file for display of information in the GUI
   // the string will have a JSON formating, thus starting here with the opening bracket, which will be close directly before saving to the root file
   std::string infoString_ = "{";
+  
 
   // histogram collection per path
   std::vector<HLTGenValHistCollPath> collectionPath_;
@@ -147,6 +149,7 @@ HLTGenValSource::HLTGenValSource(const edm::ParameterSet& iConfig)
   dR2limit_ = iConfig.getParameter<double>("dR2limit");
   doOnlyLastFilter_ = iConfig.getParameter<bool>("doOnlyLastFilter");
   hltProcessName_ = iConfig.getParameter<std::string>("hltProcessName");
+  sampleLabel_ = iConfig.getParameter<std::string>("sampleLabel");
   hltPathsToCheck_ = iConfig.getParameter<std::vector<std::string>>("hltPathsToCheck");
   maxPromptGenJetFrac_ = iConfig.getParameter<double>("maxPromptGenJetFrac");
   minPtForGenHT_ = iConfig.getParameter<double>("minPtForGenHT");
@@ -178,6 +181,7 @@ void HLTGenValSource::initCfgs(const edm::Run& iRun, const edm::EventSetup& iSet
     cmsswVersion = "\""+std::string(std::getenv("CMSSW_VERSION"))+"\""; //using convention it already has quotes on it
   }  
   infoString_ += std::string("\"CMSSW release\":") + cmsswVersion + ",";
+  infoString_ += std::string("\"sample label\":\"") + sampleLabel_ + "\",";
 
   // Initialize hltConfig, for cross-checking whether chosen paths exist
   bool changedConfig;
@@ -325,6 +329,7 @@ void HLTGenValSource::fillDescriptions(edm::ConfigurationDescriptions& descripti
       "hltPathsToCheck");  // this for the moment also has no default: maybe there can be some way to handle this later?
   desc.add<std::string>("dqmDirName", "HLTGenVal");
   desc.add<std::string>("hltProcessName", "HLT");
+  desc.add<std::string>("sampleLabel", ""); //this is the label in the legend
   desc.add<double>("dR2limit", 0.1);
   desc.add<bool>("doOnlyLastFilter", false);
   desc.add<double>("maxPromptGenJetFrac",0.1);

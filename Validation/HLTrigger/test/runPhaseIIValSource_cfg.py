@@ -10,6 +10,7 @@ from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
 import FWCore.ParameterSet.VarParsing as VarParsing
 options = VarParsing.VarParsing ('analysis') 
 options.register('hltProcessName', 'HLT', VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "HLT process name to validate")
+options.register('sampleLabel', '', VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "label for the sample (used in legend normally)")
 options.parseArguments()
 
 
@@ -112,7 +113,7 @@ process = customise_aging_1000(process)
 process.schedule = cms.Schedule()
 
 import Validation.HLTrigger.hltvalcust as hltvalcust
-process = hltvalcust.add_hlt_validation_phaseII(process,options.hltProcessName)
+process = hltvalcust.add_hlt_validation_phaseII(process,options.hltProcessName,options.sampleLabel)
 
 process.DQMoutput = cms.OutputModule("DQMRootOutputModule",
     dataset = cms.untracked.PSet(

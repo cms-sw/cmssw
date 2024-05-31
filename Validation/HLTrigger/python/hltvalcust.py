@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-def add_hlt_validation(process,hltProcessName=None):
+def add_hlt_validation(process,hltProcessName=None,sampleLabel=""): 
     if hltProcessName==None:
         hltProcessName = process.name_()
 
@@ -39,6 +39,7 @@ def add_hlt_validation(process,hltProcessName=None):
         # these are the only one the user needs to specify
         objType = cms.string("AK4HT"),
         hltProcessName = cms.string(hltProcessName),
+        sampleLabel = cms.string(sampleLabel),
         hltPathsToCheck = cms.vstring(
         "HLT_PFHT1050_v",
         ),
@@ -55,6 +56,7 @@ def add_hlt_validation(process,hltProcessName=None):
         # these are the only one the user needs to specify
         objType = cms.string("mu"),
         hltProcessName = cms.string(hltProcessName),
+        sampleLabel = cms.string(sampleLabel),
         hltPathsToCheck = cms.vstring(
         "HLT_Mu50_v:absEtaCut=1.2,tag=centralbarrel",
         "HLT_Mu50_v:bins=ptBinsHighPt,tag=highpt_bins",
@@ -84,6 +86,7 @@ def add_hlt_validation(process,hltProcessName=None):
 #     these are the only one the user needs to specify
         objType = cms.string("tau"),
         hltProcessName = cms.string(hltProcessName),
+        sampleLabel = cms.string(sampleLabel),
         hltPathsToCheck = cms.vstring(),
         doOnlyLastFilter = cms.bool(False),
         histConfigs = cms.VPSet(
@@ -103,6 +106,7 @@ def add_hlt_validation(process,hltProcessName=None):
         # these are the only one the user needs to specify
         objType = cms.string("ele"),
         hltProcessName = cms.string(hltProcessName), 
+        sampleLabel = cms.string(sampleLabel),
         inputCollections = cms.PSet(
             TrigEvent = cms.InputTag(f"hltTriggerSummaryAOD::{hltProcessName}"),
         ),
@@ -151,6 +155,7 @@ def add_hlt_validation(process,hltProcessName=None):
         # these are the only one the user needs to specify
         objType = cms.string("AK4jet"),
         hltProcessName = cms.string(hltProcessName),
+        sampleLabel = cms.string(sampleLabel),
         hltPathsToCheck = cms.vstring(
         "HLT_PFJet500",
         ),
@@ -173,6 +178,7 @@ def add_hlt_validation(process,hltProcessName=None):
         # these are the only one the user needs to specify
         objType = cms.string("AK8jet"),
         hltProcessName = cms.string(hltProcessName),
+        sampleLabel = cms.string(sampleLabel),
         hltPathsToCheck = cms.vstring(
         "HLT_AK8PFJet500",
         "HLT_AK8PFJet400_TrimMass30:minMass=50",
@@ -196,6 +202,7 @@ def add_hlt_validation(process,hltProcessName=None):
         # these are the only one the user needs to specify
         objType = cms.string("MET"),
         hltProcessName = cms.string(hltProcessName),
+        sampleLabel = cms.string(sampleLabel),
         hltPathsToCheck = cms.vstring(
         "HLT_PFMET120_PFMHT120_IDTight", 
         "HLT_PFMET200_NotCleaned_v11",
@@ -233,10 +240,10 @@ def add_hlt_validation(process,hltProcessName=None):
     return process
 
 
-def add_hlt_validation_phaseII(process,hltProcessName=None):
+def add_hlt_validation_phaseII(process,hltProcessName=None,sampleLabel=""):
     if hltProcessName==None:
         hltProcessName = process.name_()
-    process = add_hlt_validation(process,hltProcessName)
+    process = add_hlt_validation(process,hltProcessName,sampleLabel)
     process.HLTGenValSourceELE.hltPathsToCheck = cms.vstring(
         "HLT_Ele115_NonIso_L1Seeded",
         "HLT_Ele26_WP70_L1Seeded",
