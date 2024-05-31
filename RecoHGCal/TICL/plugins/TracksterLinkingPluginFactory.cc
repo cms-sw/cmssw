@@ -4,6 +4,7 @@
 #include "TracksterLinkingbyFastJet.h"
 #include "TracksterLinkingbySkeletons.h"
 #include "TracksterLinkingPassthrough.h"
+#include "TracksterLinkingbyLeiden.h"
 #include "RecoHGCal/TICL/plugins/TracksterLinkingPluginFactory.h"
 
 EDM_REGISTER_VALIDATED_PLUGINFACTORY(TracksterLinkingPluginFactory, "TracksterLinkingPluginFactory");
@@ -11,3 +12,4 @@ DEFINE_EDM_VALIDATED_PLUGIN(TracksterLinkingPluginFactory, ticl::TracksterLinkin
 // DEFINE_EDM_VALIDATED_PLUGIN(TracksterLinkingPluginFactory, ticl::TracksterLinkingbySuperClustering, "SuperClustering");
 DEFINE_EDM_VALIDATED_PLUGIN(TracksterLinkingPluginFactory, ticl::TracksterLinkingbyFastJet, "FastJet");
 DEFINE_EDM_VALIDATED_PLUGIN(TracksterLinkingPluginFactory, ticl::TracksterLinkingPassthrough, "Passthrough");
+DEFINE_EDM_VALIDATED_PLUGIN(TracksterLinkingPluginFactory, ticl::TracksterLinkingbyLeiden, "Leiden");

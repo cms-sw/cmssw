@@ -1,9 +1,9 @@
-#ifndef RecoHGCal_TICL_LinkingAlgoByLeiden_H__
-#define RecoHGCal_TICL_LinkingAlgoByLeiden_H__
+#ifndef RecoHGCal_TICL_TracksterLinkingbyLeiden_H__
+#define RecoHGCal_TICL_TracksterLinkingbyLeiden_H__
 
 #include <memory>
 #include <array>
-#include "RecoHGCal/TICL/plugins/LinkingAlgoBase.h"
+#include "RecoHGCal/TICL/interface/TracksterLinkingAlgoBase.h"
 #include "RecoHGCal/TICL/interface/commons.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -12,7 +12,7 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 #include "DataFormats/Math/interface/Vector3D.h"
-#include "DataFormats/HGCalReco/interface/TICLGraph.h"
+#include "RecoHGCal/TICL/plugins/TICLGraph.h"
 #include "DataFormats/GeometrySurface/interface/BoundDisk.h"
 #include "DataFormats/HGCalReco/interface/TICLLayerTile.h"
 
@@ -23,32 +23,26 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 namespace ticl {
-  class LinkingAlgoByLeiden final : public LinkingAlgoBase {
+  class TracksterLinkingbyLeiden final : public TracksterLinkingAlgoBase {
   public:
-    LinkingAlgoByLeiden(const edm::ParameterSet &conf);
-    ~LinkingAlgoByLeiden() override;
+    TracksterLinkingbyLeiden(const edm::ParameterSet &conf, edm::ConsumesCollector iC);
+    ~TracksterLinkingbyLeiden() override;
 
     void initialize(const HGCalDDDConstants *hgcons,
                     const hgcal::RecHitTools rhtools,
                     const edm::ESHandle<MagneticField> bfieldH,
                     const edm::ESHandle<Propagator> propH) override;
 
-    void linkTracksters(const edm::Handle<std::vector<reco::Track>>,
-                        const edm::Handle<edm::ValueMap<float>>,
-                        const edm::Handle<edm::ValueMap<float>>,
-                        const edm::Handle<edm::ValueMap<float>>,
-                        const std::vector<reco::Muon> &,
-                        const edm::Handle<std::vector<Trackster>>,
-                        const edm::Handle<TICLGraph> &,
-                        const bool useMTDTiming,
-                        std::vector<TICLCandidate> &,
-                        std::vector<TICLCandidate> &) override;
-    static void fillPSetDescription(edm::ParameterSetDescription &desc);
+    void linkTracksters(const Inputs &input,
+                        std::vector<Trackster> &resultTracksters,
+                        std::vector<std::vector<unsigned int>> &linkedResultTracksters,
+                        std::vector<std::vector<unsigned int>> &linkedTracksterIdToInputTracksterId) override;
+
+    void fillPSetDescription(edm::ParameterSetDescription &desc);
 
   private:
     void buildLayers();
 
-    const StringCutObjectSelector<reco::Track> cutTk_;
     std::once_flag initializeGeometry_;
 
     const HGCalDDDConstants *hgcons_;

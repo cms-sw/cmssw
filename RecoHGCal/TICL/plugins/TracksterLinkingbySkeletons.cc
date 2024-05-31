@@ -8,7 +8,7 @@
 #include "RecoParticleFlow/PFProducer/interface/PFMuonAlgo.h"
 #include "RecoHGCal/TICL/interface/TracksterLinkingAlgoBase.h"
 #include "RecoHGCal/TICL/plugins/TracksterLinkingbySkeletons.h"
-#include "TICLGraph.h"
+#include "RecoHGCal/TICL/plugins/TICLGraph.h"
 
 namespace {
   bool isRoundTrackster(std::array<ticl::Vector, 3> skeleton) { return (skeleton[0].Z() == skeleton[2].Z()); }
@@ -326,9 +326,9 @@ void TracksterLinkingbySkeletons::linkTracksters(
   std::vector<int> maskReceivedLink(tracksters.size(), 1);
   std::vector<int> isRootTracksters(tracksters.size(), 1);
 
-  std::vector<Node> allNodes;
+  std::vector<Elementary> allElemNodes;
   for (size_t it = 0; it < tracksters.size(); ++it) {
-    allNodes.emplace_back(it);
+    allElemNodes.emplace_back(it);
   }
 
   // loop over tracksters sorted by energy and link them
@@ -352,7 +352,7 @@ void TracksterLinkingbySkeletons::linkTracksters(
         for (auto n : neighbours) {
           if (t_idx == n)
             continue;
-          if (maskReceivedLink[n] == 0 or allNodes[t_idx].isInnerNeighbour(n))
+          if (maskReceivedLink[n] == 0 or allElemNodes[t_idx].isInnerNeighbour(n))
             continue;
           if (isGoodTrackster(trackster, skeleton, min_num_lcs_, min_trackster_energy_, pca_quality_th_)) {
             LogDebug("TracksterLinkingbySkeletons")
@@ -361,8 +361,8 @@ void TracksterLinkingbySkeletons::linkTracksters(
               LogDebug("TracksterLinkingbySkeletons")
                   << "\t==== LINK: Trackster " << t_idx << " Linked with Trackster " << n << std::endl;
               maskReceivedLink[n] = 0;
-              allNodes[t_idx].addOuterNeighbour(n);
-              allNodes[n].addInnerNeighbour(t_idx);
+              allElemNodes[t_idx].addOuterNeighbour(n);
+              allElemNodes[n].addInnerNeighbour(t_idx);
               isRootTracksters[n] = 0;
             }
           }
@@ -372,12 +372,11 @@ void TracksterLinkingbySkeletons::linkTracksters(
   }
 
   LogDebug("TracksterLinkingbySkeletons") << "****************  FINAL GRAPH **********************" << std::endl;
-  for (auto const &node : allNodes) {
+  for (auto const &node : allElemNodes) {
     if (isRootTracksters[node.getId()]) {
       LogDebug("TracksterLinkingbySkeletons")
-          << "ISROOT "
-          << " Node " << node.getId() << " position " << tracksters[node.getId()].barycenter() << " energy "
-          << tracksters[node.getId()].raw_energy() << std::endl;
+          << "ISROOT " << " Node " << node.getId() << " position " << tracksters[node.getId()].barycenter()
+          << " energy " << tracksters[node.getId()].raw_energy() << std::endl;
     } else {
       LogDebug("TracksterLinkingbySkeletons")
           << "Node " << node.getId() << " position " << tracksters[node.getId()].barycenter() << " energy "
@@ -385,6 +384,13 @@ void TracksterLinkingbySkeletons::linkTracksters(
     }
   }
   LogDebug("TracksterLinkingbySkeletons") << "********************************************************" << std::endl;
+
+  std::vector<Node> allNodes{};
+  allNodes.reserve(allElemNodes.size());
+  for (auto const &elementary : allElemNodes) {
+    Node n{elementary};
+    allNodes.push_back(n);
+  }
 
   TICLGraph graph(allNodes, isRootTracksters);
 

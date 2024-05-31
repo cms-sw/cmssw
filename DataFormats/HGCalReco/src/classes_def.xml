@@ -64,27 +64,4 @@
   <class name="MtdHostCollection"/>
   <class name="edm::Wrapper<MtdHostCollection>" splitLevel="0"/>
   
-  <class name="Elementary">
-  </class>
-  <class name="std::vector<Elementary>" />
-  <class name="edm::Wrapper<Elementary>" />
-  <class name="edm::Wrapper<std::vector<Elementary> >" />
-
-  <class name="Node">
-  </class>
-  <class name="std::vector<Node>" />
-  <class name="edm::Wrapper<Node>" />
-  <class name="edm::Wrapper<std::vector<Node>>" />
-
-  <class name="Community">
-  </class>
-  <class name="std::vector<Community>" />
-  <class name="edm::Wrapper<Community>" />
-  <class name="edm::Wrapper<std::vector<Community>>" />
-
-  <class name="TICLGraph">
-  </class>
-  <class name="edm::Wrapper<TICLGraph>" />
-  <class name="std::vector<TICLGraph>" />
-  <class name="edm::Wrapper<std::vector<TICLGraph>>" />
-</lcgdict>
+ 

@@ -5,7 +5,7 @@
 #include <random>
 #include <string>
 
-#include "RecoHGCal/TICL/plugins/LinkingAlgoByLeiden.h"
+#include "RecoHGCal/TICL/plugins/TracksterLinkingbyLeiden.h"
 
 #include "DataFormats/GeometrySurface/interface/BoundDisk.h"
 #include "DataFormats/HGCalReco/interface/Common.h"
@@ -18,12 +18,12 @@
 
 using namespace ticl;
 
-LinkingAlgoByLeiden::LinkingAlgoByLeiden(const edm::ParameterSet &conf)
-    : LinkingAlgoBase(conf), cutTk_(conf.getParameter<std::string>("cutTk")) {}
+TracksterLinkingbyLeiden::TracksterLinkingbyLeiden(const edm::ParameterSet &conf, edm::ConsumesCollector iC)
+    : TracksterLinkingAlgoBase(conf, iC) {}
 
-LinkingAlgoByLeiden::~LinkingAlgoByLeiden() {}
+TracksterLinkingbyLeiden::~TracksterLinkingbyLeiden() {}
 
-void LinkingAlgoByLeiden::buildLayers() {
+void TracksterLinkingbyLeiden::buildLayers() {
   // build disks at HGCal front & EM-Had interface for track propagation
 
   float zVal = hgcons_->waferZ(1, true);
@@ -49,10 +49,10 @@ void LinkingAlgoByLeiden::buildLayers() {
   }
 }
 
-void LinkingAlgoByLeiden::initialize(const HGCalDDDConstants *hgcons,
-                                     const hgcal::RecHitTools rhtools,
-                                     const edm::ESHandle<MagneticField> bfieldH,
-                                     const edm::ESHandle<Propagator> propH) {
+void TracksterLinkingbyLeiden::initialize(const HGCalDDDConstants *hgcons,
+                                          const hgcal::RecHitTools rhtools,
+                                          const edm::ESHandle<MagneticField> bfieldH,
+                                          const edm::ESHandle<Propagator> propH) {
   hgcons_ = hgcons;
   rhtools_ = rhtools;
   buildLayers();
@@ -61,29 +61,23 @@ void LinkingAlgoByLeiden::initialize(const HGCalDDDConstants *hgcons,
   propagator_ = propH;
 }
 
-void LinkingAlgoByLeiden::linkTracksters(const edm::Handle<std::vector<reco::Track>> tkH,
-                                         const edm::Handle<edm::ValueMap<float>> tkTime_h,
-                                         const edm::Handle<edm::ValueMap<float>> tkTimeErr_h,
-                                         const edm::Handle<edm::ValueMap<float>> tkTimeQual_h,
-                                         const std::vector<reco::Muon> &muons,
-                                         const edm::Handle<std::vector<Trackster>> tsH,
-                                         const edm::Handle<TICLGraph> &tgH,
-                                         const bool useMTDTiming,
-                                         std::vector<TICLCandidate> &resultLinked,
-                                         std::vector<TICLCandidate> &chargedHadronsFromTk) {
+void TracksterLinkingbyLeiden::linkTracksters(const Inputs &input,
+                    std::vector<Trackster> &resultTracksters,
+                    std::vector<std::vector<unsigned int>> &linkedResultTracksters,
+                    std::vector<std::vector<unsigned int>> &linkedTracksterIdToInputTracksterId) {
   std::cout << "Il mio bellissimo algoritmo";
 }
 
-void LinkingAlgoByLeiden::fillPSetDescription(edm::ParameterSetDescription &desc) {
+void TracksterLinkingbyLeiden::fillPSetDescription(edm::ParameterSetDescription &desc) {
   desc.add<std::string>("cutTk",
                         "1.48 < abs(eta) < 3.0 && pt > 1. && quality(\"highPurity\") && "
                         "hitPattern().numberOfLostHits(\"MISSING_OUTER_HITS\") < 5");
-  LinkingAlgoBase::fillPSetDescription(desc);
+  TracksterLinkingAlgoBase::fillPSetDescription(desc);
 }
 
-void LinkingAlgoByLeiden::leidenAlgorithm(TICLGraph &graph,
-                                          Partition &partition,
-                                          std::vector<Flat> &flatFinalPartition) {
+void TracksterLinkingbyLeiden::leidenAlgorithm(TICLGraph &graph,
+                                               Partition &partition,
+                                               std::vector<Flat> &flatFinalPartition) {
   moveNodesFast(partition, gamma_);
 
   if (!(isAlgorithmDone(graph, partition))) {

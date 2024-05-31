@@ -9,7 +9,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include <Math/VectorUtil.h>
 
-#include "DataFormats/HGCalReco/interface/TICLGraph.h"
+#include "RecoHGCal/TICL/plugins/TICLGraph.h"
 #include "DataFormats/HGCalReco/interface/Trackster.h"
 #include "DataFormats/HGCalReco/interface/TICLLayerTile.h"
 
