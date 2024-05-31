@@ -133,28 +133,53 @@ unsigned int truncateId(unsigned int detId, int truncateFlag, bool debug = false
     //Ignore depth index of all ieta values
     depth = 1;
   } else if (truncate0 == 3) {
-    //Ignore depth index for depth > 1 in HE
-    if ((subdet == 2) && (depth > 1))
-      depth = 2;
-    else
+    //Ignore depth index for HE
+    if (subdet == 2)
       depth = 1;
   } else if (truncate0 == 4) {
-    //Ignore depth index for depth > 1 in HB
-    if ((subdet == 1) && (depth > 1))
-      depth = 2;
-    else
+    //Ignore depth index for HB
+    if (subdet == 1)
       depth = 1;
   } else if (truncate0 == 5) {
     //Ignore depth index for depth > 1 in HB and HE
     if (depth > 1)
       depth = 2;
   } else if (truncate0 == 6) {
-    //Ignore depth index for depth > 2 in HB and HE and
-    // depthe 1, 2 are considered as depth 1
+    //Ignore depth index for depth > 2 in HB and HE; depths 1, 2 considered as 1
     if (depth <= 2)
       depth = 1;
     else
       depth = 2;
+ } else if (truncate0 == 7) {
+    //Ignore depth index for depth > 2 in HB; depthes 1, 2 considered as 1
+    //Ignore all depths for HE
+    if (subdet == 1) {
+      if (depth <= 2)
+	depth = 1;
+      else
+	depth = 2;
+    } else {
+      depth = 1;
+    }
+  } else if (truncate0 == 8) {
+    //Ignore depth index for depth > 2 in HB; depths 1, 2 considered as 1
+    //Ignore all depths for HB
+    if (subdet == 2) {
+      if (depth <= 2)
+	depth = 1;
+      else
+	depth = 2;
+    } else {
+      depth = 1;
+    }
+  } else if (truncate0 == 9) {
+    //Ignore depth index for depth > 1 in HB and all depth index for HE
+    if (subdet == 1) {
+      if (depth > 1)
+	depth = 2;
+    } else {
+      depth = 1;
+    }
   }
   id = (subdet << 25) | (0x1000000) | ((depth & 0xF) << 20) | ((zside > 0) ? (0x80000 | (ieta << 10)) : (ieta << 10));
   if (debug) {

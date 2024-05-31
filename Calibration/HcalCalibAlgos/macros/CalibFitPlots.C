@@ -2507,7 +2507,7 @@ void PlotHistCorrFactors(char* infile1,
           htype.push_back(ih);
           depths.push_back(j + 1);
         }
-        if (ih == 1)
+        if ((ih == 1) || (maxdepth <= 4))
           nline += hists.size();
         else
           ++nline;
@@ -2554,7 +2554,7 @@ void PlotHistCorrFactors(char* infile1,
           htype.push_back(k1);
           depths.push_back(j + 1);
         }
-        if (k1 <= 1)
+        if ((k1 <= 1) || (maxdepth <= 4))
           nline += hists.size();
         else
           ++nline;
@@ -2594,7 +2594,7 @@ void PlotHistCorrFactors(char* infile1,
       } else {
         sprintf(name, "Depth %d (Mean[CF_{%s}/CF_{%s}] = %5.3f)", depths[k], text1.c_str(), texts[k1].c_str(), fitr[k]);
       }
-      if ((depths[k] == 1) || (k1 <= 1))
+      if ((depths[k] == 1) || (k1 <= 1) || (maxdepth <= 4))
         legend->AddEntry(hists[k], name, "lp");
     }
     legend->Draw("same");
