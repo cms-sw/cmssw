@@ -151,8 +151,8 @@ unsigned int truncateId(unsigned int detId, int truncateFlag, bool debug = false
     else
       depth = 2;
   } else if (truncate0 == 7) {
-    //Ignore depth index for depth > 2 in HB; depthes 1, 2 considered as 1
-    //Ignore all depths for HE
+    //Ignore depth index for HB; depth 1, 2 considered as 1; deepth > 2 as 2
+    //Ignore depth index for depth > 2 in HE; all depths considered as 1
     if (subdet == 1) {
       if (depth <= 2)
         depth = 1;
@@ -162,8 +162,8 @@ unsigned int truncateId(unsigned int detId, int truncateFlag, bool debug = false
       depth = 1;
     }
   } else if (truncate0 == 8) {
-    //Ignore depth index for depth > 2 in HB; depths 1, 2 considered as 1
-    //Ignore all depths for HB
+    //Ignore depth index for HE; depth 1, 2 considered as 1; deepth > 2 as 2
+    //Ignore depth index for depth > 2 in HB; all depths considered as 1
     if (subdet == 2) {
       if (depth <= 2)
         depth = 1;
@@ -173,7 +173,7 @@ unsigned int truncateId(unsigned int detId, int truncateFlag, bool debug = false
       depth = 1;
     }
   } else if (truncate0 == 9) {
-    //Ignore depth index for depth > 1 in HB and all depth index for HE
+    //Depths 1 and 2 in HB considered as depth = 1; rest of the depths in HB as depth = 2
     if (subdet == 1) {
       if (depth > 1)
         depth = 2;
