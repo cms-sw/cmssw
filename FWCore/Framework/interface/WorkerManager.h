@@ -1,39 +1,31 @@
 #ifndef FWCore_Framework_WorkerManager_h
 #define FWCore_Framework_WorkerManager_h
 
-/*
-
-*/
-
 #include "FWCore/Common/interface/FWCoreCommonFwd.h"
-#include "FWCore/Framework/interface/ExceptionHelpers.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/UnscheduledCallProducer.h"
-#include "FWCore/Framework/interface/maker/Worker.h"
 #include "FWCore/Framework/interface/WorkerRegistry.h"
-#include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
+#include "FWCore/ServiceRegistry/interface/ServiceRegistryfwd.h"
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
-#include "FWCore/Utilities/interface/ConvertException.h"
-#include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Utilities/interface/get_underlying_safe.h"
+#include "FWCore/Utilities/interface/StreamID.h"
 
 #include <memory>
-
 #include <set>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace edm {
-  class EventTransitionInfo;
   class ExceptionCollector;
-  class StreamID;
-  class StreamContext;
+  class ExceptionToActionTable;
   class ModuleRegistry;
   class ModuleTypeResolverMaker;
   class PreallocationConfiguration;
+  class Worker;
   namespace eventsetup {
     class ESRecordsToProductResolverIndices;
   }
+
   class WorkerManager {
   public:
     typedef std::vector<Worker*> AllWorkers;
@@ -63,7 +55,7 @@ namespace edm {
                                    ServiceToken const&,
                                    StreamID,
                                    typename T::Context const* topContext,
-                                   U const* context);
+                                   U const* context) noexcept;
 
     template <typename T>
     void processAccumulatorsAsync(WaitingTaskHolder,
@@ -114,9 +106,27 @@ namespace edm {
                                                 ServiceToken const& token,
                                                 StreamID streamID,
                                                 typename T::Context const* topContext,
-                                                U const* context) {
-    //make sure the unscheduled items see this run or lumi transition
-    unscheduled_.runNowAsync<T, U>(std::move(task), info, token, streamID, topContext, context);
+                                                U const* context) noexcept {
+    static_assert(!T::isEvent_);
+
+    // Spawn them in reverse order. At least in the single threaded case that makes
+    // them run in forward order (and more likely to with multiple threads).
+    for (auto it = allWorkers_.rbegin(), itEnd = allWorkers_.rend(); it != itEnd; ++it) {
+      Worker* worker = *it;
+
+      ParentContext parentContext(context);
+
+      // We do not need to run prefetching here because this only handles
+      // stream begin/end transitions for runs and lumis. There are no products
+      // put into the runs or lumis in stream transitions, so there can be
+      // no data dependencies which require prefetching. Prefetching is
+      // needed for global transitions, but they are run elsewhere.
+      // (One exception, the SecondaryEventProvider (used for mixing) sends
+      // global begin/end run/lumi transitions through here. They shouldn't
+      // need prefetching either and for some years nothing has been using
+      // that part of the code anyway...)
+      worker->doWorkNoPrefetchingAsync<T>(task, info, token, streamID, parentContext, topContext);
+    }
   }
 
   template <typename T>

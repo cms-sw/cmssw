@@ -1,9 +1,6 @@
 #ifndef FWCore_Framework_GlobalSchedule_h
 #define FWCore_Framework_GlobalSchedule_h
 
-/*
-*/
-
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/Common/interface/FWCoreCommonFwd.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
@@ -103,6 +100,9 @@ namespace edm {
     AllWorkers const& allWorkers() const { return workerManagers_[0].allWorkers(); }
 
   private:
+    /// returns the action table
+    ExceptionToActionTable const& actionTable() const { return workerManagers_[0].actionTable(); }
+
     template <typename T>
     void preScheduleSignal(GlobalContext const*, ServiceToken const&);
 
@@ -113,9 +113,6 @@ namespace edm {
                          ServiceWeakToken const&,
                          bool cleaningUpAfterException,
                          std::exception_ptr&);
-
-    /// returns the action table
-    ExceptionToActionTable const& actionTable() const { return workerManagers_[0].actionTable(); }
 
     std::vector<WorkerManager> workerManagers_;
     std::shared_ptr<ActivityRegistry> actReg_;  // We do not use propagate_const because the registry itself is mutable.

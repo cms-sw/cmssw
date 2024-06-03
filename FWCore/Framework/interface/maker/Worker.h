@@ -732,6 +732,7 @@ namespace edm {
         auto returnValue = iWorker->implDoBegin(info, mcc);
         // If postModuleSignal() throws, the exception will propagate to the framework
         cpp.postModuleSignal();
+        iWorker->beginSucceeded_ = true;
         return returnValue;
       }
       static void esPrefetchAsync(Worker* worker,
@@ -760,6 +761,7 @@ namespace edm {
         cpp.preModuleSignal();
         auto returnValue = iWorker->implDoStreamBegin(id, info, mcc);
         cpp.postModuleSignal();
+        iWorker->beginSucceeded_ = true;
         return returnValue;
       }
       static void esPrefetchAsync(Worker* worker,
@@ -784,11 +786,16 @@ namespace edm {
                        ActivityRegistry* actReg,
                        ModuleCallingContext const* mcc,
                        Arg::Context const* context) {
-        ModuleSignalSentry<Arg> cpp(actReg, context, mcc);
-        cpp.preModuleSignal();
-        auto returnValue = iWorker->implDoEnd(info, mcc);
-        cpp.postModuleSignal();
-        return returnValue;
+        if (iWorker->beginSucceeded_) {
+          iWorker->beginSucceeded_ = false;
+
+          ModuleSignalSentry<Arg> cpp(actReg, context, mcc);
+          cpp.preModuleSignal();
+          auto returnValue = iWorker->implDoEnd(info, mcc);
+          cpp.postModuleSignal();
+          return returnValue;
+        }
+        return true;
       }
       static void esPrefetchAsync(Worker* worker,
                                   WaitingTaskHolder waitingTask,
@@ -812,11 +819,16 @@ namespace edm {
                        ActivityRegistry* actReg,
                        ModuleCallingContext const* mcc,
                        Arg::Context const* context) {
-        ModuleSignalSentry<Arg> cpp(actReg, context, mcc);
-        cpp.preModuleSignal();
-        auto returnValue = iWorker->implDoStreamEnd(id, info, mcc);
-        cpp.postModuleSignal();
-        return returnValue;
+        if (iWorker->beginSucceeded_) {
+          iWorker->beginSucceeded_ = false;
+
+          ModuleSignalSentry<Arg> cpp(actReg, context, mcc);
+          cpp.preModuleSignal();
+          auto returnValue = iWorker->implDoStreamEnd(id, info, mcc);
+          cpp.postModuleSignal();
+          return returnValue;
+        }
+        return true;
       }
       static void esPrefetchAsync(Worker* worker,
                                   WaitingTaskHolder waitingTask,

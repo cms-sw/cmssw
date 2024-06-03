@@ -2,6 +2,7 @@
 #include "Mixing/Base/src/SecondaryEventProvider.h"
 #include "FWCore/Common/interface/ProcessBlockHelper.h"
 #include "FWCore/Framework/interface/ExceptionActions.h"
+#include "FWCore/Framework/interface/ExceptionHelpers.h"
 #include "FWCore/Framework/interface/PreallocationConfiguration.h"
 #include "FWCore/Framework/interface/TransitionInfoTypes.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"

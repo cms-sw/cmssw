@@ -550,12 +550,18 @@ void testLimitedFilter::testTransitions(std::shared_ptr<T> iMod, Expectations co
   edm::WorkerT<edm::limited::EDFilterBase> wOther{iMod, m_desc, nullptr};
   edm::WorkerT<edm::limited::EDFilterBase> wGlobalLumi{iMod, m_desc, nullptr};
   edm::WorkerT<edm::limited::EDFilterBase> wStreamLumi{iMod, m_desc, nullptr};
+  edm::WorkerT<edm::limited::EDFilterBase> wGlobalRun{iMod, m_desc, nullptr};
+  edm::WorkerT<edm::limited::EDFilterBase> wStreamRun{iMod, m_desc, nullptr};
   for (auto& keyVal : m_transToFunc) {
     edm::Worker* worker = &wOther;
     if (keyVal.first == Trans::kStreamBeginLuminosityBlock || keyVal.first == Trans::kStreamEndLuminosityBlock) {
       worker = &wStreamLumi;
     } else if (keyVal.first == Trans::kGlobalBeginLuminosityBlock || keyVal.first == Trans::kGlobalEndLuminosityBlock) {
       worker = &wGlobalLumi;
+    } else if (keyVal.first == Trans::kStreamBeginRun || keyVal.first == Trans::kStreamEndRun) {
+      worker = &wStreamRun;
+    } else if (keyVal.first == Trans::kGlobalBeginRun || keyVal.first == Trans::kGlobalEndRun) {
+      worker = &wGlobalRun;
     }
     testTransition(iMod, worker, keyVal.first, iExpect, keyVal.second);
   }

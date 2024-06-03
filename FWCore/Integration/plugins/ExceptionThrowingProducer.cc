@@ -1,3 +1,16 @@
+// -*- C++ -*-
+//
+// Package:     FWCore/Integration
+// Class  :     ExceptionThrowingProducer
+//
+// Implementation:
+//     Intentionally throws exceptions in various Framework transitions.
+//     You can configure which transition. Includes some tests of
+//     the Framework behavior after an exception occurs.
+//
+// Original Author:  W. David Dagenhart
+//         Created:  26 September 2022
+
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -68,6 +81,11 @@ namespace edmtest {
     mutable std::atomic<unsigned int> nGlobalBeginLumi_{0};
     mutable std::atomic<unsigned int> nGlobalEndLumi_{0};
 
+    mutable std::vector<unsigned int> nStreamBeginRun_;
+    mutable std::vector<unsigned int> nStreamEndRun_;
+    mutable std::atomic<unsigned int> nGlobalBeginRun_{0};
+    mutable std::atomic<unsigned int> nGlobalEndRun_{0};
+
     unsigned int expectedStreamBeginLumi_;
     unsigned int expectedOffsetNoStreamEndLumi_;
     mutable unsigned int streamWithBeginLumiException_ = kUnset;
@@ -75,9 +93,20 @@ namespace edmtest {
     unsigned int expectedOffsetNoGlobalEndLumi_;
     unsigned int expectedOffsetNoWriteLumi_;
 
+    unsigned int expectedStreamBeginRun_;
+    unsigned int expectedOffsetNoStreamEndRun_;
+    mutable unsigned int streamWithBeginRunException_ = kUnset;
+    unsigned int expectedGlobalBeginRun_;
+    unsigned int expectedOffsetNoGlobalEndRun_;
+    unsigned int expectedOffsetNoWriteRun_;
+
     mutable std::atomic<bool> streamBeginLumiExceptionOccurred_ = false;
     mutable std::atomic<bool> streamEndLumiExceptionOccurred_ = false;
     mutable std::atomic<bool> globalBeginLumiExceptionOccurred_ = false;
+
+    mutable std::atomic<bool> streamBeginRunExceptionOccurred_ = false;
+    mutable std::atomic<bool> streamEndRunExceptionOccurred_ = false;
+    mutable std::atomic<bool> globalBeginRunExceptionOccurred_ = false;
   };
 
   ExceptionThrowingProducer::ExceptionThrowingProducer(edm::ParameterSet const& pset)
@@ -93,11 +122,18 @@ namespace edmtest {
         eventIDThrowOnStreamEndLumi_(pset.getUntrackedParameter<edm::EventID>("eventIDThrowOnStreamEndLumi")),
         nStreamBeginLumi_(kTestStreams, 0),
         nStreamEndLumi_(kTestStreams, 0),
+        nStreamBeginRun_(kTestStreams, 0),
+        nStreamEndRun_(kTestStreams, 0),
         expectedStreamBeginLumi_(pset.getUntrackedParameter<unsigned int>("expectedStreamBeginLumi")),
         expectedOffsetNoStreamEndLumi_(pset.getUntrackedParameter<unsigned int>("expectedOffsetNoStreamEndLumi")),
         expectedGlobalBeginLumi_(pset.getUntrackedParameter<unsigned int>("expectedGlobalBeginLumi")),
         expectedOffsetNoGlobalEndLumi_(pset.getUntrackedParameter<unsigned int>("expectedOffsetNoGlobalEndLumi")),
-        expectedOffsetNoWriteLumi_(pset.getUntrackedParameter<unsigned int>("expectedOffsetNoWriteLumi")) {}
+        expectedOffsetNoWriteLumi_(pset.getUntrackedParameter<unsigned int>("expectedOffsetNoWriteLumi")),
+        expectedStreamBeginRun_(pset.getUntrackedParameter<unsigned int>("expectedStreamBeginRun")),
+        expectedOffsetNoStreamEndRun_(pset.getUntrackedParameter<unsigned int>("expectedOffsetNoStreamEndRun")),
+        expectedGlobalBeginRun_(pset.getUntrackedParameter<unsigned int>("expectedGlobalBeginRun")),
+        expectedOffsetNoGlobalEndRun_(pset.getUntrackedParameter<unsigned int>("expectedOffsetNoGlobalEndRun")),
+        expectedOffsetNoWriteRun_(pset.getUntrackedParameter<unsigned int>("expectedOffsetNoWriteRun")) {}
 
   void ExceptionThrowingProducer::produce(edm::StreamID, edm::Event& event, edm::EventSetup const&) const {
     if (event.id() == eventIDThrowOnEvent_) {
@@ -107,8 +143,10 @@ namespace edmtest {
   }
 
   std::shared_ptr<Cache> ExceptionThrowingProducer::globalBeginRun(edm::Run const& run, edm::EventSetup const&) const {
+    ++nGlobalBeginRun_;
     if (edm::EventID(run.id().run(), edm::invalidLuminosityBlockNumber, edm::invalidEventNumber) ==
         eventIDThrowOnGlobalBeginRun_) {
+      globalBeginRunExceptionOccurred_.store(true);
       throw cms::Exception("IntentionalTestException")
           << "ExceptionThrowingProducer::globalBeginRun, module configured to throw on: "
           << eventIDThrowOnGlobalBeginRun_;
@@ -117,6 +155,7 @@ namespace edmtest {
   }
 
   void ExceptionThrowingProducer::globalEndRun(edm::Run const& run, edm::EventSetup const&) const {
+    ++nGlobalEndRun_;
     if (edm::EventID(run.id().run(), edm::invalidLuminosityBlockNumber, edm::invalidEventNumber) ==
         eventIDThrowOnGlobalEndRun_) {
       throw cms::Exception("IntentionalTestException")
@@ -155,9 +194,16 @@ namespace edmtest {
   void ExceptionThrowingProducer::streamBeginRun(edm::StreamID iStream,
                                                  edm::Run const& run,
                                                  edm::EventSetup const&) const {
-    if (iStream.value() == 0 &&
-        edm::EventID(run.id().run(), edm::invalidLuminosityBlockNumber, edm::invalidEventNumber) ==
-            eventIDThrowOnStreamBeginRun_) {
+    if (iStream < kTestStreams) {
+      ++nStreamBeginRun_[iStream];
+    }
+
+    bool expected = false;
+    if (edm::EventID(run.id().run(), edm::invalidLuminosityBlockNumber, edm::invalidEventNumber) ==
+            eventIDThrowOnStreamBeginRun_ &&
+        streamBeginRunExceptionOccurred_.compare_exchange_strong(expected, true)) {
+      // Remember which stream threw
+      streamWithBeginRunException_ = iStream.value();
       throw cms::Exception("IntentionalTestException")
           << "ExceptionThrowingProducer::streamBeginRun, module configured to throw on: "
           << eventIDThrowOnStreamBeginRun_;
@@ -206,9 +252,14 @@ namespace edmtest {
   void ExceptionThrowingProducer::streamEndRun(edm::StreamID iStream,
                                                edm::Run const& run,
                                                edm::EventSetup const&) const {
-    if (iStream.value() == 0 &&
-        edm::EventID(run.id().run(), edm::invalidLuminosityBlockNumber, edm::invalidEventNumber) ==
-            eventIDThrowOnStreamEndRun_) {
+    if (iStream < kTestStreams) {
+      ++nStreamEndRun_[iStream];
+    }
+
+    bool expected = false;
+    if (edm::EventID(run.id().run(), edm::invalidLuminosityBlockNumber, edm::invalidEventNumber) ==
+            eventIDThrowOnStreamEndRun_ &&
+        streamEndRunExceptionOccurred_.compare_exchange_strong(expected, true)) {
       throw cms::Exception("IntentionalTestException")
           << "ExceptionThrowingProducer::streamEndRun, module configured to throw on: " << eventIDThrowOnStreamEndRun_;
     }
@@ -216,8 +267,8 @@ namespace edmtest {
 
   void ExceptionThrowingProducer::endJob() {
     bool testsPass = true;
-    unsigned int totalStreamBeginLumi = 0;
 
+    unsigned int totalStreamBeginLumi = 0;
     unsigned int i = 0;
     for (auto const& nStreamBeginLumi : nStreamBeginLumi_) {
       totalStreamBeginLumi += nStreamBeginLumi;
@@ -243,6 +294,31 @@ namespace edmtest {
       ++i;
     }
 
+    unsigned int totalStreamBeginRun = 0;
+    i = 0;
+    for (auto const& nStreamBeginRun : nStreamBeginRun_) {
+      totalStreamBeginRun += nStreamBeginRun;
+
+      // Don't know exact number to expect because streams might skip a run (not yet
+      // but probably in the future) so only throw if it is greater than the maximum
+      // possible and we only know that for sure if the exception was thrown in stream begin run.
+      if (nStreamBeginRun > expectedStreamBeginRun_ && streamWithBeginRunException_ != kUnset) {
+        edm::LogAbsolute("ExceptionThrowingProducer")
+            << "FAILED: More than maximum possible number of streamBeginRun transitions, stream " << i << " saw "
+            << nStreamBeginRun << " max possible " << expectedStreamBeginRun_;
+        testsPass = false;
+      }
+      unsigned int expectedStreamEndRun = (streamWithBeginRunException_ == i) ? nStreamBeginRun - 1 : nStreamBeginRun;
+      if (nStreamEndRun_[i] != expectedStreamEndRun) {
+        edm::LogAbsolute("ExceptionThrowingProducer")
+            << "FAILED: Unexpected number of streamEndRun transitions, stream " << i << " saw " << nStreamEndRun_[i]
+            << " expected " << expectedStreamEndRun;
+        testsPass = false;
+      }
+
+      ++i;
+    }
+
     // There has to be at least as many global begin lumi transitions
     // as expected. Because of concurrency, the Framework might already have
     // started other lumis ahead of the one where an exception occurs.
@@ -253,12 +329,31 @@ namespace edmtest {
       testsPass = false;
     }
 
+    // There has to be at least as many global begin run transitions
+    // as expected. Because of concurrency, the Framework might already have
+    // started other runs ahead of the one where an exception occurs.
+    if (expectedGlobalBeginRun_ > 0 && nGlobalBeginRun_.load() < expectedGlobalBeginRun_) {
+      edm::LogAbsolute("ExceptionThrowingProducer")
+          << "FAILED: Less than the expected number of globalBeginRun transitions, expected at least "
+          << expectedGlobalBeginRun_ << " saw " << nGlobalBeginRun_.load();
+      testsPass = false;
+    }
+
     unsigned int expectedGlobalEndLumi =
         globalBeginLumiExceptionOccurred_.load() ? nGlobalBeginLumi_.load() - 1 : nGlobalBeginLumi_.load();
     if (nGlobalEndLumi_.load() != expectedGlobalEndLumi) {
       edm::LogAbsolute("ExceptionThrowingProducer")
           << "FAILED: number of global end lumi transitions not equal to expected value, expected "
           << expectedGlobalEndLumi << " saw " << nGlobalEndLumi_.load();
+      testsPass = false;
+    }
+
+    unsigned int expectedGlobalEndRun =
+        globalBeginRunExceptionOccurred_.load() ? nGlobalBeginRun_.load() - 1 : nGlobalBeginRun_.load();
+    if (nGlobalEndRun_.load() != expectedGlobalEndRun) {
+      edm::LogAbsolute("ExceptionThrowingProducer")
+          << "FAILED: number of global end run transitions not equal to expected value, expected "
+          << expectedGlobalEndRun << " saw " << nGlobalEndRun_.load();
       testsPass = false;
     }
 
@@ -327,9 +422,74 @@ namespace edmtest {
           << "FAILED: Unexpected number of service transitions in TestServiceTwo, global lumi";
       testsPass = false;
     }
+
+    if (serviceOne->nPreStreamBeginRun() != totalStreamBeginRun ||
+        serviceOne->nPostStreamBeginRun() != totalStreamBeginRun ||
+        serviceOne->nPreStreamEndRun() != totalStreamBeginRun ||
+        serviceOne->nPostStreamEndRun() != totalStreamBeginRun ||
+        serviceOne->nPreModuleStreamBeginRun() != totalStreamBeginRun * kNumberOfTestModules ||
+        serviceOne->nPostModuleStreamBeginRun() != totalStreamBeginRun * kNumberOfTestModules ||
+        serviceOne->nPreModuleStreamEndRun() !=
+            totalStreamBeginRun * kNumberOfTestModules - expectedOffsetNoStreamEndRun_ ||
+        serviceOne->nPostModuleStreamEndRun() !=
+            totalStreamBeginRun * kNumberOfTestModules - expectedOffsetNoStreamEndRun_) {
+      edm::LogAbsolute("ExceptionThrowingProducer")
+          << "FAILED: Unexpected number of service transitions in TestServiceOne, stream run";
+      testsPass = false;
+    }
+
+    if (serviceTwo->nPreStreamBeginRun() != totalStreamBeginRun ||
+        serviceTwo->nPostStreamBeginRun() != totalStreamBeginRun ||
+        serviceTwo->nPreStreamEndRun() != totalStreamBeginRun ||
+        serviceTwo->nPostStreamEndRun() != totalStreamBeginRun ||
+        serviceTwo->nPreModuleStreamBeginRun() != totalStreamBeginRun * kNumberOfTestModules ||
+        serviceTwo->nPostModuleStreamBeginRun() != totalStreamBeginRun * kNumberOfTestModules ||
+        serviceTwo->nPreModuleStreamEndRun() !=
+            totalStreamBeginRun * kNumberOfTestModules - expectedOffsetNoStreamEndRun_ ||
+        serviceTwo->nPostModuleStreamEndRun() !=
+            totalStreamBeginRun * kNumberOfTestModules - expectedOffsetNoStreamEndRun_) {
+      edm::LogAbsolute("ExceptionThrowingProducer")
+          << "FAILED: Unexpected number of service transitions in TestServiceTwo, stream run";
+      testsPass = false;
+    }
+
+    unsigned int nGlobalBeginRun = nGlobalBeginRun_.load();
+
+    if (serviceOne->nPreGlobalBeginRun() != nGlobalBeginRun || serviceOne->nPostGlobalBeginRun() != nGlobalBeginRun ||
+        serviceOne->nPreGlobalEndRun() != nGlobalBeginRun || serviceOne->nPostGlobalEndRun() != nGlobalBeginRun ||
+        serviceOne->nPreModuleGlobalBeginRun() != nGlobalBeginRun * kNumberOfTestModules ||
+        serviceOne->nPostModuleGlobalBeginRun() != nGlobalBeginRun * kNumberOfTestModules ||
+        serviceOne->nPreModuleGlobalEndRun() !=
+            nGlobalBeginRun * kNumberOfTestModules - expectedOffsetNoGlobalEndRun_ ||
+        serviceOne->nPostModuleGlobalEndRun() !=
+            nGlobalBeginRun * kNumberOfTestModules - expectedOffsetNoGlobalEndRun_ ||
+        serviceOne->nPreGlobalWriteRun() != nGlobalBeginRun - expectedOffsetNoWriteRun_ ||
+        serviceOne->nPostGlobalWriteRun() != nGlobalBeginRun - expectedOffsetNoWriteRun_) {
+      edm::LogAbsolute("ExceptionThrowingProducer")
+          << "FAILED: Unexpected number of service transitions in TestServiceOne, global run";
+      testsPass = false;
+    }
+
+    if (serviceTwo->nPreGlobalBeginRun() != nGlobalBeginRun || serviceTwo->nPostGlobalBeginRun() != nGlobalBeginRun ||
+        serviceTwo->nPreGlobalEndRun() != nGlobalBeginRun || serviceTwo->nPostGlobalEndRun() != nGlobalBeginRun ||
+        serviceTwo->nPreModuleGlobalBeginRun() != nGlobalBeginRun * kNumberOfTestModules ||
+        serviceTwo->nPostModuleGlobalBeginRun() != nGlobalBeginRun * kNumberOfTestModules ||
+        serviceTwo->nPreModuleGlobalEndRun() !=
+            nGlobalBeginRun * kNumberOfTestModules - expectedOffsetNoGlobalEndRun_ ||
+        serviceTwo->nPostModuleGlobalEndRun() !=
+            nGlobalBeginRun * kNumberOfTestModules - expectedOffsetNoGlobalEndRun_ ||
+        serviceTwo->nPreGlobalWriteRun() != nGlobalBeginRun - expectedOffsetNoWriteRun_ ||
+        serviceTwo->nPostGlobalWriteRun() != nGlobalBeginRun - expectedOffsetNoWriteRun_) {
+      edm::LogAbsolute("ExceptionThrowingProducer")
+          << "FAILED: Unexpected number of service transitions in TestServiceTwo, global run";
+      testsPass = false;
+    }
+
     if (verbose_) {
       edm::LogAbsolute("ExceptionThrowingProducer") << "nGlobalBeginLumi_ = " << nGlobalBeginLumi_;
       edm::LogAbsolute("ExceptionThrowingProducer") << "nGlobalEndLumi_ = " << nGlobalEndLumi_;
+      edm::LogAbsolute("ExceptionThrowingProducer") << "nGlobalBeginRun_ = " << nGlobalBeginRun_;
+      edm::LogAbsolute("ExceptionThrowingProducer") << "nGlobalEndRun_ = " << nGlobalEndRun_;
 
       edm::LogAbsolute("ExceptionThrowingProducer")
           << "serviceOne->nPreStreamBeginLumi = " << serviceOne->nPreStreamBeginLumi();
@@ -368,6 +528,44 @@ namespace edmtest {
           << "serviceOne->nPreGlobalWriteLumi = " << serviceOne->nPreGlobalWriteLumi();
       edm::LogAbsolute("ExceptionThrowingProducer")
           << "serviceOne->nPostGlobalWriteLumi = " << serviceOne->nPostGlobalWriteLumi() << "\n";
+
+      edm::LogAbsolute("ExceptionThrowingProducer")
+          << "serviceOne->nPreStreamBeginRun = " << serviceOne->nPreStreamBeginRun();
+      edm::LogAbsolute("ExceptionThrowingProducer")
+          << "serviceOne->nPostStreamBeginRun = " << serviceOne->nPostStreamBeginRun();
+      edm::LogAbsolute("ExceptionThrowingProducer")
+          << "serviceOne->nPreStreamEndRun = " << serviceOne->nPreStreamEndRun();
+      edm::LogAbsolute("ExceptionThrowingProducer")
+          << "serviceOne->nPostStreamEndRun = " << serviceOne->nPostStreamEndRun();
+      edm::LogAbsolute("ExceptionThrowingProducer")
+          << "serviceOne->nPreModuleStreamBeginRun = " << serviceOne->nPreModuleStreamBeginRun();
+      edm::LogAbsolute("ExceptionThrowingProducer")
+          << "serviceOne->nPostModuleStreamBeginRun = " << serviceOne->nPostModuleStreamBeginRun();
+      edm::LogAbsolute("ExceptionThrowingProducer")
+          << "serviceOne->nPreModuleStreamEndRun = " << serviceOne->nPreModuleStreamEndRun();
+      edm::LogAbsolute("ExceptionThrowingProducer")
+          << "serviceOne->nPostModuleStreamEndRun = " << serviceOne->nPostModuleStreamEndRun() << "\n";
+
+      edm::LogAbsolute("ExceptionThrowingProducer")
+          << "serviceOne->nPreGlobalBeginRun = " << serviceOne->nPreGlobalBeginRun();
+      edm::LogAbsolute("ExceptionThrowingProducer")
+          << "serviceOne->nPostGlobalBeginRun = " << serviceOne->nPostGlobalBeginRun();
+      edm::LogAbsolute("ExceptionThrowingProducer")
+          << "serviceOne->nPreGlobalEndRun = " << serviceOne->nPreGlobalEndRun();
+      edm::LogAbsolute("ExceptionThrowingProducer")
+          << "serviceOne->nPostGlobalEndRun = " << serviceOne->nPostGlobalEndRun();
+      edm::LogAbsolute("ExceptionThrowingProducer")
+          << "serviceOne->nPreModuleGlobalBeginRun = " << serviceOne->nPreModuleGlobalBeginRun();
+      edm::LogAbsolute("ExceptionThrowingProducer")
+          << "serviceOne->nPostModuleGlobalBeginRun = " << serviceOne->nPostModuleGlobalBeginRun();
+      edm::LogAbsolute("ExceptionThrowingProducer")
+          << "serviceOne->nPreModuleGlobalEndRun = " << serviceOne->nPreModuleGlobalEndRun();
+      edm::LogAbsolute("ExceptionThrowingProducer")
+          << "serviceOne->nPostModuleGlobalEndRun = " << serviceOne->nPostModuleGlobalEndRun();
+      edm::LogAbsolute("ExceptionThrowingProducer")
+          << "serviceOne->nPreGlobalWriteRun = " << serviceOne->nPreGlobalWriteRun();
+      edm::LogAbsolute("ExceptionThrowingProducer")
+          << "serviceOne->nPostGlobalWriteRun = " << serviceOne->nPostGlobalWriteRun() << "\n";
     }
 
     if (testsPass) {
@@ -396,6 +594,13 @@ namespace edmtest {
     desc.addUntracked<unsigned int>("expectedGlobalBeginLumi", 0);
     desc.addUntracked<unsigned int>("expectedOffsetNoGlobalEndLumi", 0);
     desc.addUntracked<unsigned int>("expectedOffsetNoWriteLumi", 0);
+
+    desc.addUntracked<unsigned int>("expectedStreamBeginRun", kUnset);
+    desc.addUntracked<unsigned int>("expectedOffsetNoStreamEndRun", 0);
+    desc.addUntracked<unsigned int>("expectedGlobalBeginRun", 0);
+    desc.addUntracked<unsigned int>("expectedOffsetNoGlobalEndRun", 0);
+    desc.addUntracked<unsigned int>("expectedOffsetNoWriteRun", 0);
+
     descriptions.addDefault(desc);
   }
 
