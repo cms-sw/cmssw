@@ -9,7 +9,8 @@ parser = argparse.ArgumentParser(prog=sys.argv[0], description='Optional paramet
 parser.add_argument("--dumpFilesOFF", help="switch on dump file production", action="store_true", default=False)
 parser.add_argument("--patternFilesOFF", help="switch on Layer-1 pattern file production", action="store_true", default=False)
 parser.add_argument("--serenity", help="use Serenity settigns as default everwhere, i.e. also for barrel", action="store_true", default=False)
-parser.add_argument("--tm18", help="Add TM18 emulators for the endcaps", action="store_true", default=False)
+parser.add_argument("--tm18", help="Add TM18 emulators", action="store_true", default=False)
+parser.add_argument("--split18", help="Make 3 TM18 layer 1 pattern files", action="store_true", default=False)
 
 args = parser.parse_args()
 
@@ -28,7 +29,7 @@ process.load('Configuration.StandardSequences.Services_cff')
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True), allowUnscheduled = cms.untracked.bool(False) )
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000))
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1008))
 process.MessageLogger.cerr.FwkReport.reportEvery = 1
 
 process.source = cms.Source("PoolSource",
@@ -37,7 +38,8 @@ process.source = cms.Source("PoolSource",
             "drop l1tPFClusters_*_*_*",
             "drop l1tPFTracks_*_*_*",
             "drop l1tPFCandidates_*_*_*",
-            "drop l1tTkPrimaryVertexs_*_*_*"),
+            "drop l1tTkPrimaryVertexs_*_*_*",
+            "drop l1tKMTFTracks_*_*_*"),
     skipEvents = cms.untracked.uint32(0),
 )
 
@@ -205,12 +207,32 @@ if args.tm18:
     if not args.patternFilesOFF:
         process.l1tLayer1HGCalTM18.patternWriters = cms.untracked.VPSet(*hgcalTM18WriterConfigs)
         process.l1tLayer1HGCalNoTKTM18.patternWriters = cms.untracked.VPSet(hgcalNoTKOutputTM18WriterConfig)
-        process.l1tLayer1BarrelSerenityTM18.patternWriters = cms.untracked.VPSet()
+        process.l1tLayer1BarrelSerenityTM18.patternWriters = cms.untracked.VPSet(*barrelSerenityTM18WriterConfigs)
         process.l1tLayer2EGTM18.writeInPattern = True
         process.l1tLayer2EGTM18.writeOutPattern = True
-
     if not args.dumpFilesOFF:
         for det in "HGCalTM18", "HGCalNoTKTM18", "BarrelSerenityTM18":
                 getattr(process, 'l1tLayer1'+det).dumpFileName = cms.untracked.string("TTbar_PU200_"+det+".dump")
+    if args.split18 and not args.patternFilesOFF:
+        from FWCore.Modules.preScaler_cfi import preScaler
+        for tmSlice, psOffset in (0,1), (6,2), (12,0):
+            setattr(process, f"preTM{tmSlice}", preScaler.clone(prescaleFactor = 3, prescaleOffset = psOffset))
+            for det in "HGCalTM18", "HGCalNoTKTM18", "BarrelSerenityTM18":
+                tsmod = getattr(process, 'l1tLayer1'+det).clone()
+                tsmod.dumpFileName = cms.untracked.string("")
+                setattr(process, f"l1tLayer1{det}TS{tmSlice}", tsmod)
+                setattr(process, f"Write_{det}TS{tmSlice}", cms.Path(getattr(process, f"preTM{tmSlice}")+tsmod))
+            getattr(process, f'l1tLayer1HGCalTM18TS{tmSlice}').patternWriters = cms.untracked.VPSet(
+                hgcalWriterOutputTM18WriterConfig.clone(outputFileName = f"l1HGCalTM18-outputs-ts{tmSlice}"),
+                hgcalWriterVU9PTM18WriterConfig.clone(inputFileName = f"l1HGCalTM18-inputs-vu9p-ts{tmSlice}"),
+                hgcalWriterVU13PTM18WriterConfig.clone(inputFileName = f"l1HGCalTM18-inputs-vu13p-ts{tmSlice}")
+            )
+            getattr(process, f'l1tLayer1HGCalNoTKTM18TS{tmSlice}').patternWriters = cms.untracked.VPSet(
+                hgcalNoTKOutputTM18WriterConfig.clone(outputFileName = f"l1HGCalTM18-outputs-ts{tmSlice}"),
+            )
+            getattr(process, f'l1tLayer1BarrelSerenityTM18TS{tmSlice}').patternWriters = cms.untracked.VPSet(
+                barrelSerenityOutputTM18WriterConfig.clone(outputFileName = f"l1BarrelSerenityTM18-outputs-ts{tmSlice}"),
+                barrelSerenityVU13PTM18WriterConfig.clone(inputFileName = f"l1BarrelSerenityTM18-inputs-vu13p-ts{tmSlice}")
+            )        
 
 process.source.fileNames  = [ '/store/cmst3/group/l1tr/cerminar/14_0_X/fpinputs_131X/v3/TTbar_PU200/inputs131X_1.root' ]

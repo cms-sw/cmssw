@@ -1,4 +1,5 @@
 #include "L1Trigger/Phase2L1ParticleFlow/interface/L1TCorrelatorLayer1PatternFileWriter.h"
+#include "L1Trigger/Phase2L1ParticleFlow/interface/regionizer/middle_buffer_multififo_regionizer_ref.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ParameterSet/interface/allowedValues.h"
 #include <iostream>
@@ -28,6 +29,10 @@ L1TCorrelatorLayer1PatternFileWriter::L1TCorrelatorLayer1PatternFileWriter(const
     }
     if (partition_ == Partition::Barrel) {
       auto sectorConfig = iConfig.getParameter<std::vector<edm::ParameterSet>>("gctSectors");
+      gctLinksEcal_ = iConfig.getParameter<uint32_t>("gctNLinksEcal");
+      gctLinksHad_ = iConfig.getParameter<uint32_t>("gctNLinksHad");
+      gctSingleLink_ = false;
+      bool gctHasMultiLink = false;
       if (sectorConfig.size() != gctSectors_)
         throw cms::Exception("Configuration", "Bad number of GCT sectors");
       for (unsigned int iS = 0; iS < gctSectors_; ++iS) {
@@ -36,16 +41,24 @@ L1TCorrelatorLayer1PatternFileWriter::L1TCorrelatorLayer1PatternFileWriter(const
         if (linksEcal.size() != gctLinksEcal_ || linksHad.size() != gctLinksHad_)
           throw cms::Exception("Configuration", "Bad number of GCT links");
         unsigned int iLink = 0;
-        for (unsigned int i = 0; i < gctLinksHad_; ++i, ++iLink) {
-          if (linksHad[i] != -1)
-            channelIdsInput_[l1t::demo::LinkId{"gct", iLink + 10 * iS}].push_back(linksHad[i]);
-        }
-        for (unsigned int i = 0; i < gctLinksEcal_; ++i) {
-          if (linksEcal[i] != -1)
-            channelIdsInput_[l1t::demo::LinkId{"gct", iLink + 10 * iS}].push_back(linksEcal[i]);
+        if (!(gctLinksEcal_ == 1 && gctLinksHad_ == 1 && linksEcal[0] == linksHad[0] && linksEcal[0] != -1)) {
+          for (unsigned int i = 0; i < gctLinksHad_; ++i, ++iLink) {
+            if (linksHad[i] != -1)
+              channelIdsInput_[l1t::demo::LinkId{"gct", iLink + 10 * iS}].push_back(linksHad[i]);
+          }
+          for (unsigned int i = 0; i < gctLinksEcal_; ++i) {
+            if (linksEcal[i] != -1)
+              channelIdsInput_[l1t::demo::LinkId{"gct", iLink + 10 * iS}].push_back(linksEcal[i]);
+          }
+          gctHasMultiLink = true;
+        } else {  // single link combining ecal and hcal
+          channelIdsInput_[l1t::demo::LinkId{"gct", 10 * iS}].push_back(linksEcal[0]);
+          gctSingleLink_ = true;
         }
         channelSpecsInput_["gct"] = {tmuxFactor_ * gctTimeslices_, 0};
       }
+      if (gctSingleLink_ && gctHasMultiLink)
+        throw cms::Exception("Configuration", "Some GCT sectors have a single link, others have multiple.");
     }
     if (partition_ == Partition::HGCal || partition_ == Partition::HGCalNoTk) {
       configTimeSlices(iConfig, "hgc", eventTemplate.raw.hgcalcluster.size(), hgcTimeslices_, hgcLinksFactor_);
@@ -89,9 +102,11 @@ L1TCorrelatorLayer1PatternFileWriter::L1TCorrelatorLayer1PatternFileWriter(const
       nEgammaObjectsOut_ = iConfig.getParameter<uint32_t>("nEgammaObjectsOut");
       if (outputLinkEgamma_ != -1) {
         channelIdsOutput_[l1t::demo::LinkId{"egamma", 0}].push_back(outputLinkEgamma_);
-        if (partition_ == Partition::HGCal && tmuxFactor_ == 18) {
-          // the format is different, as we put together both endcaps
-          channelSpecsOutput_["egamma"] = {tmuxFactor_, nOutputFramesPerBX_ * tmuxFactor_ / 2 - 3 * nEgammaObjectsOut_};
+        if (tmuxFactor_ == 18) {
+          // the format is different, as we put together multiple endcaps or slices
+          unsigned int nboards = (partition_ == Partition::Barrel) ? 3 : 2;
+          channelSpecsOutput_["egamma"] = {tmuxFactor_,
+                                           nOutputFramesPerBX_ * tmuxFactor_ / nboards - 3 * nEgammaObjectsOut_};
         } else {
           outputBoard_ = iConfig.getParameter<int32_t>("outputBoard");
           channelSpecsOutput_["egamma"] = {tmuxFactor_, nOutputFramesPerBX_ * tmuxFactor_ - 3 * nEgammaObjectsOut_};
@@ -143,7 +158,10 @@ std::unique_ptr<edm::ParameterDescriptionNode> L1TCorrelatorLayer1PatternFileWri
   edm::ParameterSetDescription gctSectorPSD;
   gctSectorPSD.add<std::vector<int32_t>>("gctLinksEcal");
   gctSectorPSD.add<std::vector<int32_t>>("gctLinksHad");
-  return std::make_unique<edm::ParameterDescription<std::vector<edm::ParameterSet>>>("gctSectors", gctSectorPSD, true);
+  return std::make_unique<edm::ParameterDescription<std::vector<edm::ParameterSet>>>(
+             "gctSectors", gctSectorPSD, true) and
+         edm::ParameterDescription<uint32_t>("gctNLinksEcal", 1, true) and
+         edm::ParameterDescription<uint32_t>("gctNLinksHad", 2, true);
 }
 std::unique_ptr<edm::ParameterDescriptionNode> L1TCorrelatorLayer1PatternFileWriter::describeHGC() {
   return describeTimeSlices("hgc");
@@ -360,24 +378,44 @@ void L1TCorrelatorLayer1PatternFileWriter::writeBarrelGCT(const l1ct::Event& eve
       continue;
     const auto& had = event.decoded.hadcalo[iS];
     const auto& ecal = event.decoded.emcalo[iS];
-    unsigned int iLink = 0, nHad = had.size(), nEcal = ecal.size();
-    for (unsigned int i = 0; i < gctLinksHad_; ++i, ++iLink) {
-      ret.clear();
-      for (unsigned int iHad = i; iHad < nHad; iHad += gctLinksHad_) {
-        ret.emplace_back(had[iHad].pack());
+    if (!gctSingleLink_) {
+      unsigned int iLink = 0, nHad = had.size(), nEcal = ecal.size();
+      for (unsigned int i = 0; i < gctLinksHad_; ++i, ++iLink) {
+        ret.clear();
+        for (unsigned int iHad = i; iHad < nHad; iHad += gctLinksHad_) {
+          ret.emplace_back(had[iHad].pack());
+        }
+        if (ret.empty())
+          ret.emplace_back(0);
+        out.add(l1t::demo::LinkId{"gct", iS * 10 + iLink}, ret);
       }
-      if (ret.empty())
-        ret.emplace_back(0);
-      out.add(l1t::demo::LinkId{"gct", iS * 10 + iLink}, ret);
-    }
-    for (unsigned int i = 0; i < gctLinksEcal_; ++i, ++iLink) {
-      ret.clear();
-      for (unsigned int iEcal = i; iEcal < nEcal; iEcal += gctLinksEcal_) {
-        ret.emplace_back(ecal[iEcal].pack());
+      for (unsigned int i = 0; i < gctLinksEcal_; ++i, ++iLink) {
+        ret.clear();
+        for (unsigned int iEcal = i; iEcal < nEcal; iEcal += gctLinksEcal_) {
+          ret.emplace_back(ecal[iEcal].pack());
+        }
+        if (ret.empty())
+          ret.emplace_back(0);
+        out.add(l1t::demo::LinkId{"gct", iS * 10 + iLink}, ret);
       }
-      if (ret.empty())
-        ret.emplace_back(0);
-      out.add(l1t::demo::LinkId{"gct", iS * 10 + iLink}, ret);
+    } else {
+      const unsigned int NCLK_EM = 54, NCLK_TOT = 3 * NCLK_EM;
+      l1ct::HadCaloObjEmu tmp;
+      ret.resize(std::min(NCLK_EM + had.size(), NCLK_TOT));
+      for (unsigned int iclock = 0, nem = ecal.size(); iclock < NCLK_EM; ++iclock) {
+        if (iclock < nem) {
+          l1ct::MiddleBufferMultififoRegionizerEmulator::encode(ecal[iclock], tmp);
+          ret[iclock] = tmp.pack();
+        } else {
+          ret[iclock] = 0;
+        }
+      }
+      for (unsigned int ihad = 0, iclock = NCLK_EM, nhad = had.size(); iclock < NCLK_TOT && ihad < nhad;
+           ++iclock, ++ihad) {
+        l1ct::MiddleBufferMultififoRegionizerEmulator::encode(had[ihad], tmp);
+        ret[iclock] = tmp.pack();
+      }
+      out.add(l1t::demo::LinkId{"gct", iS * 10}, ret);
     }
   }
 }
@@ -435,11 +473,14 @@ void L1TCorrelatorLayer1PatternFileWriter::writeEgamma(const l1ct::OutputBoard& 
 
 void L1TCorrelatorLayer1PatternFileWriter::writeEgamma(const l1ct::Event& event, l1t::demo::EventData& out) {
   std::vector<ap_uint<64>> ret;
-  if (partition_ == Partition::HGCal && tmuxFactor_ == 18) {
-    // the format is different, as we put together both endcaps
-    writeEgamma(event.board_out[0], ret);
-    ret.resize(nOutputFramesPerBX_ * tmuxFactor_ / 2, ap_uint<64>(0));
-    writeEgamma(event.board_out[1], ret);
+  if (tmuxFactor_ == 18) {
+    // the format is different, as we put together all boards
+    unsigned int nboards = event.board_out.size();
+    unsigned int npad = nOutputFramesPerBX_ * tmuxFactor_ / nboards;
+    for (unsigned int board = 0; board < nboards; ++board) {
+      ret.resize(board * npad, ap_uint<64>(0));
+      writeEgamma(event.board_out[board], ret);
+    }
   } else {
     writeEgamma(event.board_out[outputBoard_], ret);
   }

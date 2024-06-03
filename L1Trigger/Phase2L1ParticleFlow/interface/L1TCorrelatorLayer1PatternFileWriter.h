@@ -30,10 +30,11 @@ private:
   const unsigned int tfTmuxFactor_ = 18, tfLinksFactor_ = 1;  // numbers not really configurable in current architecture
   const unsigned int hgcTmuxFactor_ = 18, hgcLinksFactor_ = 4;  // not really configurable in current architecture
   const unsigned int gctTmuxFactor_ = 1, gctSectors_ = 3;       // not really configurable in current architecture
-  const unsigned int gctLinksEcal_ = 1, gctLinksHad_ = 2;       // could be made configurable later
   const unsigned int gmtTmuxFactor_ = 18, gmtLinksFactor_ = 1;  // not really configurable in current architecture
   const unsigned int gttTmuxFactor_ = 6, gttLinksFactor_ = 1;   // not really configurable in current architecture
   const unsigned int tfTimeslices_, hgcTimeslices_, gctTimeslices_, gmtTimeslices_, gttTimeslices_;
+  uint32_t gctLinksEcal_, gctLinksHad_;
+  bool gctSingleLink_;
   uint32_t gmtNumberOfMuons_;
   uint32_t gttNumberOfPVs_;
   uint32_t gttLatency_;
