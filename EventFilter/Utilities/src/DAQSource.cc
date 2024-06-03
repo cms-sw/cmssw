@@ -1079,6 +1079,7 @@ void DAQSource::readWorker(unsigned int tid) {
       init = false;
       startupCv_.notify_one();
     }
+    cvWakeup_.notify_all();
     cvReader_[tid]->wait(lk);
     lk.unlock();
 
