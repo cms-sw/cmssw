@@ -14,11 +14,17 @@
 #include "G4hMultipleScattering.hh"
 #include "G4hIonisation.hh"
 #include "G4ProcessManager.hh"
+#include "G4HadronicProcess.hh"
 
 #include "SimG4Core/CustomPhysics/interface/FullModelHadronicProcess.h"
 #include "SimG4Core/CustomPhysics/interface/CMSDarkPairProductionProcess.h"
 #include "SimG4Core/CustomPhysics/interface/CMSQGSPSIMPBuilder.h"
 #include "SimG4Core/CustomPhysics/interface/CMSSIMPInelasticProcess.h"
+
+#include "SimG4Core/CustomPhysics/interface/CMSSQLoopProcess.h"
+#include "SimG4Core/CustomPhysics/interface/CMSSQLoopProcessDiscr.h"
+#include "SimG4Core/CustomPhysics/interface/CMSSQNeutronAnnih.h"
+#include "SimG4Core/CustomPhysics/interface/CMSSQInelasticCrossSection.h"
 
 using namespace CLHEP;
 
@@ -98,6 +104,22 @@ void CustomPhysicsList::ConstructProcess() {
         if (particle->GetParticleType() == "darkpho") {
           CMSDarkPairProductionProcess* darkGamma = new CMSDarkPairProductionProcess(dfactor);
           pmanager->AddDiscreteProcess(darkGamma);
+        }
+        if (particle->GetParticleName() == "anti_sexaq") {
+          // here the different sexaquark interactions get defined
+          G4HadronicProcess* sqInelPr = new G4HadronicProcess();
+          CMSSQNeutronAnnih* sqModel = new CMSSQNeutronAnnih(particle->GetPDGMass() / GeV);
+          sqInelPr->RegisterMe(sqModel);
+          CMSSQInelasticCrossSection* sqInelXS = new CMSSQInelasticCrossSection(particle->GetPDGMass() / GeV);
+          sqInelPr->AddDataSet(sqInelXS);
+          pmanager->AddDiscreteProcess(sqInelPr);
+          // add also the looping needed to simulate flat interaction probability
+          CMSSQLoopProcess* sqLoopPr = new CMSSQLoopProcess();
+          pmanager->AddContinuousProcess(sqLoopPr);
+          CMSSQLoopProcessDiscr* sqLoopPrDiscr = new CMSSQLoopProcessDiscr(particle->GetPDGMass() / GeV);
+          pmanager->AddDiscreteProcess(sqLoopPrDiscr);
+        } else if (particle->GetParticleName() == "sexaq") {
+          edm::LogVerbatim("CustomPhysics") << "   No pmanager implemented for sexaq, only for anti_sexaq";
         }
       }
     }
