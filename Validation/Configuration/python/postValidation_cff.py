@@ -21,7 +21,6 @@ from Validation.RecoMET.METPostProcessor_cff import *
 from Validation.L1T.postProcessorL1Gen_cff import *
 from Validation.SiPixelPhase1ConfigV.SiPixelPhase1OfflineDQM_harvestingV_cff import *
 from DQMOffline.RecoB.dqmCollector_cff import *
-from Validation.SiOuterTrackerV.SiOuterTrackerMCHarvesting_cff import *
 from Validation.SiTrackerPhase2V.Phase2TrackerMCHarvesting_cff import *
 
 postValidationTracking = cms.Sequence(
@@ -115,8 +114,6 @@ postValidationCosmics = cms.Sequence(
 postValidationMiniAOD = cms.Sequence(
     electronPostValidationSequenceMiniAOD
 )
-
-postValidationOuterTracker = cms.Sequence( OuterTracker_harvestingV )
 
 _phase1_postValidation = postValidation.copy()
 _phase1_postValidation += siPixelPhase1OfflineDQM_harvestingV
