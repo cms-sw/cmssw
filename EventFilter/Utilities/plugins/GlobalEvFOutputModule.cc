@@ -493,7 +493,6 @@ namespace evf {
                                       edm::WaitingTaskWithArenaHolder iHolder) const {
     edm::Handle<edm::TriggerResults> const& triggerResults = getTriggerResults(trToken_, e);
 
-    std::cout << " writing Event " << moduleDescription().moduleLabel() << std::endl;
     auto buffer = streamCache(id);
     std::unique_ptr<EventMsgBuilder> msg =
         msgBuilders_->serializeEvent(*buffer, e, triggerResults, selectorConfig(), metaDataCache_->checksum_);
