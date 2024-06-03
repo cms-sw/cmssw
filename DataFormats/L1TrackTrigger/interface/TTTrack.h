@@ -372,6 +372,7 @@ double TTTrack<T>::chi2ZRed() const {
   return theChi2_Z_ / (theStubRefs.size() - 2.);
 }
 
+/// prompt track quality MVA
 template <typename T>
 double TTTrack<T>::trkMVA1() const {
   return theTrkMVA1_;
