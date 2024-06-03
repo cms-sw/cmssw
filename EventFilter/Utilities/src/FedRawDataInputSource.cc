@@ -1299,12 +1299,13 @@ void FedRawDataInputSource::readWorker(unsigned int tid) {
     workerPool_.push(tid);
 
     if (init) {
-      std::unique_lock<std::mutex> lk(startupLock_);
+      std::unique_lock<std::mutex> lks(startupLock_);
       init = false;
       startupCv_.notify_one();
     }
     cvWakeup_.notify_all();
     cvReader_[tid]->wait(lk);
+    lk.unlock();
 
     if (thread_quit_signal[tid])
       return;
