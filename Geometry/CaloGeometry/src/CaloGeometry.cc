@@ -16,7 +16,7 @@ unsigned int CaloGeometry::makeIndex(DetId::Detector det, int subdet, bool& ok) 
     edm::LogWarning("CaloGeometry") << "Det:Subdet " << idet << ":" << subdet << " min|max Det " << kMinDet << ":"
                                     << kMaxDet << " min|max subdet 0:" << kMaxSub;
 
-  return ((det - static_cast<int>(kMinDet)) * kNSubDets + subdet);
+  return ((det - kMinDet) * kNSubDets + subdet);
 }
 
 void CaloGeometry::setSubdetGeometry(DetId::Detector det, int subdet, const CaloSubdetectorGeometry* geom) {
