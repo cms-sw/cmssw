@@ -74,7 +74,7 @@ std::vector<l1t::SAMuon> Phase2L1TGMTSAMuonGhostCleaner::prodMuons(std::vector<l
       m.setHwQual(m.hwQual() >> 4);
     int bstart = 0;
     wordtype word(0);
-    bstart = wordconcat<wordtype>(word, bstart, 1, 1);
+    bstart = wordconcat<wordtype>(word, bstart, m.hwPt()>0, 1);
     bstart = wordconcat<wordtype>(word, bstart, m.hwPt(), BITSGTPT);
     bstart = wordconcat<wordtype>(word, bstart, m.hwPhi(), BITSGTPHI);
     bstart = wordconcat<wordtype>(word, bstart, m.hwEta(), BITSGTETA);
