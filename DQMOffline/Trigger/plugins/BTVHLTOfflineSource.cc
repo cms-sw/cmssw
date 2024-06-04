@@ -86,12 +86,9 @@ private:
   float turnon_threshold_tight_;
 
   edm::EDGetTokenT<reco::JetTagCollection> offlineDiscrTokenb_;
-  edm::EDGetTokenT<reco::JetTagCollection> offlineDiscrTokenbb_;
   edm::EDGetTokenT<edm::View<reco::BaseTagInfo>> offlineIPToken_;
 
-  edm::EDGetTokenT<std::vector<reco::Vertex>> hltFastPVToken_;
   edm::EDGetTokenT<std::vector<reco::Vertex>> hltPFPVToken_;
-  edm::EDGetTokenT<std::vector<reco::Vertex>> hltCaloPVToken_;
   edm::EDGetTokenT<std::vector<reco::Vertex>> offlinePVToken_;
 
   edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken;
@@ -99,15 +96,11 @@ private:
   edm::EDGetTokenT<trigger::TriggerEvent> triggerSummaryToken;
   edm::EDGetTokenT<trigger::TriggerEvent> triggerSummaryFUToken;
 
-  edm::EDGetTokenT<std::vector<reco::ShallowTagInfo>> shallowTagInfosTokenCalo_;
   edm::EDGetTokenT<std::vector<reco::ShallowTagInfo>> shallowTagInfosTokenPf_;
 
-  edm::EDGetTokenT<std::vector<reco::SecondaryVertexTagInfo>> SVTagInfosTokenCalo_;
   edm::EDGetTokenT<std::vector<SVTagInfo>> SVTagInfosTokenPf_;
 
-  edm::EDGetTokenT<reco::JetTagCollection> caloTagsToken_;
   edm::EDGetTokenT<reco::JetTagCollection> pfTagsToken_;
-  edm::Handle<reco::JetTagCollection> caloTags;
   edm::Handle<reco::JetTagCollection> pfTags;
 
   float minDecayLength_;
@@ -247,13 +240,9 @@ BTVHLTOfflineSource::BTVHLTOfflineSource(const edm::ParameterSet& iConfig)
       turnon_threshold_medium_(iConfig.getParameter<double>("turnon_threshold_medium")),
       turnon_threshold_tight_(iConfig.getParameter<double>("turnon_threshold_tight")),
       offlineDiscrTokenb_(consumes<reco::JetTagCollection>(iConfig.getParameter<edm::InputTag>("offlineDiscrLabelb"))),
-      offlineDiscrTokenbb_(
-          consumes<reco::JetTagCollection>(iConfig.getParameter<edm::InputTag>("offlineDiscrLabelbb"))),
       offlineIPToken_(consumes<View<BaseTagInfo>>(iConfig.getParameter<edm::InputTag>("offlineIPLabel"))),
 
-      hltFastPVToken_(consumes<std::vector<reco::Vertex>>(iConfig.getParameter<edm::InputTag>("hltFastPVLabel"))),
       hltPFPVToken_(consumes<std::vector<reco::Vertex>>(iConfig.getParameter<edm::InputTag>("hltPFPVLabel"))),
-      hltCaloPVToken_(consumes<std::vector<reco::Vertex>>(iConfig.getParameter<edm::InputTag>("hltCaloPVLabel"))),
       offlinePVToken_(consumes<std::vector<reco::Vertex>>(iConfig.getParameter<edm::InputTag>("offlinePVLabel"))),
       triggerResultsToken(consumes<edm::TriggerResults>(triggerResultsLabel_)),
       triggerResultsFUToken(consumes<edm::TriggerResults>(
@@ -261,14 +250,9 @@ BTVHLTOfflineSource::BTVHLTOfflineSource(const edm::ParameterSet& iConfig)
       triggerSummaryToken(consumes<trigger::TriggerEvent>(triggerSummaryLabel_)),
       triggerSummaryFUToken(consumes<trigger::TriggerEvent>(
           edm::InputTag(triggerSummaryLabel_.label(), triggerSummaryLabel_.instance(), std::string("FU")))),
-      shallowTagInfosTokenCalo_(
-          consumes<vector<reco::ShallowTagInfo>>(edm::InputTag("hltDeepCombinedSecondaryVertexBJetTagsInfosCalo"))),
       shallowTagInfosTokenPf_(
           consumes<vector<reco::ShallowTagInfo>>(edm::InputTag("hltDeepCombinedSecondaryVertexBJetTagsInfos"))),
-      SVTagInfosTokenCalo_(consumes<std::vector<reco::SecondaryVertexTagInfo>>(
-          edm::InputTag("hltInclusiveSecondaryVertexFinderTagInfos"))),
       SVTagInfosTokenPf_(consumes<std::vector<SVTagInfo>>(edm::InputTag("hltDeepSecondaryVertexTagInfosPF"))),
-      caloTagsToken_(consumes<reco::JetTagCollection>(iConfig.getParameter<edm::InputTag>("onlineDiscrLabelCalo"))),
       pfTagsToken_(consumes<reco::JetTagCollection>(iConfig.getParameter<edm::InputTag>("onlineDiscrLabelPF"))),
       minDecayLength_(iConfig.getParameter<double>("minDecayLength")),
       maxDecayLength_(iConfig.getParameter<double>("maxDecayLength")),
@@ -324,9 +308,6 @@ void BTVHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetu
     }
   }
 
-  edm::Handle<reco::JetTagCollection> caloTags;
-  iEvent.getByToken(caloTagsToken_, caloTags);
-
   edm::Handle<reco::JetTagCollection> pfTags;
   iEvent.getByToken(pfTagsToken_, pfTags);
 
@@ -334,9 +315,6 @@ void BTVHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetu
 
   Handle<reco::JetTagCollection> offlineJetTagHandlerb;
   iEvent.getByToken(offlineDiscrTokenb_, offlineJetTagHandlerb);
-
-  Handle<reco::JetTagCollection> offlineJetTagHandlerbb;
-  iEvent.getByToken(offlineDiscrTokenbb_, offlineJetTagHandlerbb);
 
   Handle<View<BaseTagInfo>> offlineIPTagHandle;
   iEvent.getByToken(offlineIPToken_, offlineIPTagHandle);
@@ -352,7 +330,6 @@ void BTVHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetu
     return;
 
   edm::Handle<std::vector<SVTagInfo>> jetSVTagsCollPF;
-  edm::Handle<std::vector<reco::SecondaryVertexTagInfo>> jetSVTagsCollCalo;
 
   for (auto& v : hltPathsAll_) {
     unsigned index = triggerNames.triggerIndex(v.getPath());
@@ -366,16 +343,11 @@ void BTVHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetu
       continue;
     }
 
-    if (v.getTriggerType() == "PF") {
-      iEvent.getByToken(SVTagInfosTokenPf_, jetSVTagsCollPF);
-    } else {
-      iEvent.getByToken(SVTagInfosTokenCalo_, jetSVTagsCollCalo);
-    }
+    iEvent.getByToken(SVTagInfosTokenPf_, jetSVTagsCollPF);
 
     // PF and Calo btagging
-    if ((v.getTriggerType() == "PF" && pfTags.isValid()) ||
-        (v.getTriggerType() == "Calo" && caloTags.isValid() && !caloTags->empty())) {
-      const auto& iter = (v.getTriggerType() == "PF") ? pfTags->begin() : caloTags->begin();
+    if (v.getTriggerType() == "PF" && pfTags.isValid()) {
+      const auto& iter = pfTags->begin();
 
       float Discr_online = iter->second;
       if (Discr_online < 0)
@@ -390,18 +362,6 @@ void BTVHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetu
           float DR = reco::deltaR(iterOffb.first->eta(), iterOffb.first->phi(), iter->first->eta(), iter->first->phi());
           if (DR < 0.3) {
             float Discr_offline = iterOffb.second;
-
-            // offline probb and probbb must be added (if probbb isn't specified, it'll just use probb)
-            if (offlineJetTagHandlerbb.isValid()) {
-              for (auto const& iterOffbb : *offlineJetTagHandlerbb) {
-                DR = reco::deltaR(
-                    iterOffbb.first->eta(), iterOffbb.first->phi(), iter->first->eta(), iter->first->phi());
-                if (DR < 0.3) {
-                  Discr_offline += iterOffbb.second;
-                  break;
-                }
-              }
-            }
 
             if (Discr_offline < 0)
               Discr_offline = -0.05;
@@ -425,8 +385,7 @@ void BTVHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetu
       }  ///offline
 
       bool pfSVTagCollValid = (v.getTriggerType() == "PF" && jetSVTagsCollPF.isValid());
-      bool caloSVTagCollValid = (v.getTriggerType() == "Calo" && jetSVTagsCollCalo.isValid());
-      if (offlineIPTagHandle.isValid() && (pfSVTagCollValid || caloSVTagCollValid)) {
+      if (offlineIPTagHandle.isValid() && pfSVTagCollValid) {
         std::vector<float> offlineIP3D;
         std::vector<float> offlineIP3DSig;
         std::vector<const reco::Track*> offlineTracks = getOfflineBTagTracks(
@@ -437,9 +396,6 @@ void BTVHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetu
         if (pfSVTagCollValid)
           onlineTracks = getOnlineBTagTracks<SVTagInfo>(
               iter->first->eta(), iter->first->phi(), jetSVTagsCollPF, onlineIP3D, onlineIP3DSig);
-        if (caloSVTagCollValid)
-          onlineTracks = getOnlineBTagTracks<reco::SecondaryVertexTagInfo>(
-              iter->first->eta(), iter->first->phi(), jetSVTagsCollCalo, onlineIP3D, onlineIP3DSig);
 
         for (unsigned int iOffTrk = 0; iOffTrk < offlineTracks.size(); ++iOffTrk) {
           const reco::Track* offTrk = offlineTracks.at(iOffTrk);
@@ -504,35 +460,17 @@ void BTVHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetu
         }
       }
 
-      if (v.getTriggerType() == "PF") {
-        iEvent.getByToken(hltPFPVToken_, VertexHandler);
-      } else {
-        iEvent.getByToken(hltFastPVToken_, VertexHandler);
-      }
+      iEvent.getByToken(hltPFPVToken_, VertexHandler);
       if (VertexHandler.isValid()) {
         v.PVz->Fill(VertexHandler->begin()->z());
         if (offlineVertexHandler.isValid()) {
           v.PVz_HLTMinusRECO->Fill(VertexHandler->begin()->z() - offlineVertexHandler->begin()->z());
         }
       }
-    }  // caloTagsValid or PFTagsValid
-
-    // specific to Calo b-tagging
-    if (caloTags.isValid() && v.getTriggerType() == "Calo" && !caloTags->empty()) {
-      iEvent.getByToken(hltCaloPVToken_, VertexHandler);
-      if (VertexHandler.isValid()) {
-        v.fastPVz->Fill(VertexHandler->begin()->z());
-        if (offlineVertexHandler.isValid()) {
-          v.fastPVz_HLTMinusRECO->Fill(VertexHandler->begin()->z() - offlineVertexHandler->begin()->z());
-        }
-      }
-    }
+    }  // PFTagsValid
 
     // additional plots from tag info collections
     /////////////////////////////////////////////
-
-    edm::Handle<std::vector<reco::ShallowTagInfo>> shallowTagInfosCalo;
-    iEvent.getByToken(shallowTagInfosTokenCalo_, shallowTagInfosCalo);
 
     edm::Handle<std::vector<reco::ShallowTagInfo>> shallowTagInfosPf;
     iEvent.getByToken(shallowTagInfosTokenPf_, shallowTagInfosPf);
@@ -544,9 +482,8 @@ void BTVHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetu
     //    iEvent.getByToken(pfTagInfosToken_, pfTagInfos);
 
     // first try to get info from shallowTagInfos ...
-    if ((v.getTriggerType() == "PF" && shallowTagInfosPf.isValid()) ||
-        (v.getTriggerType() == "Calo" && shallowTagInfosCalo.isValid())) {
-      const auto& shallowTagInfoCollection = (v.getTriggerType() == "PF") ? shallowTagInfosPf : shallowTagInfosCalo;
+    if (v.getTriggerType() == "PF" && shallowTagInfosPf.isValid()) {
+      const auto& shallowTagInfoCollection = shallowTagInfosPf;
       for (const auto& shallowTagInfo : *shallowTagInfoCollection) {
         const auto& tagVars = shallowTagInfo.taggingVariables();
 
