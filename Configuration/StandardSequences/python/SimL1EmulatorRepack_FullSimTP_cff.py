@@ -4,6 +4,7 @@ import FWCore.ParameterSet.Config as cms
 ## L1REPACK FullSimTP : Re-Emulate all of L1 and repack into RAW
 
 from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
+from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
 
 (~stage2L1Trigger).toModify(None, lambda x:
     print("# L1T WARN:  L1REPACK:FullSimTP (intended for data) only supports Stage-2 eras for now.\n# L1T WARN:  Use a legacy version of L1REPACK for now."))
@@ -140,9 +141,14 @@ rawDataCollector = EventFilter.RawDataCollector.rawDataCollectorByLabel_cfi.rawD
 
 
 SimL1EmulatorTask = cms.Task()
-stage2L1Trigger.toReplaceWith(SimL1EmulatorTask, cms.Task(unpackEcal,unpackHcal,unpackCSC,unpackDT,unpackRPC,unpackGEM,unpackEmtf,unpackBmtf,unpackOmtf
+stage2L1Trigger.toReplaceWith(SimL1EmulatorTask, cms.Task(unpackEcal,unpackHcal,unpackCSC,unpackDT,unpackRPC,unpackEmtf,unpackBmtf,unpackOmtf
                                  ,simEcalTriggerPrimitiveDigis
                                  ,simHcalTriggerPrimitiveDigis
                                  ,SimL1EmulatorCoreTask,packCaloStage2
                                  ,packGmtStage2,packGtStage2,rawDataCollector))
+
+_SimL1EmulatorTaskWithGEM = SimL1EmulatorTask.copy()
+_SimL1EmulatorTaskWithGEM.add(unpackGEM)
+(stage2L1Trigger & run3_GEM).toReplaceWith(SimL1EmulatorTask, _SimL1EmulatorTaskWithGEM)
+
 SimL1Emulator = cms.Sequence(SimL1EmulatorTask)
