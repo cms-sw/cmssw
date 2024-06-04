@@ -5,6 +5,7 @@
 #include "FWCore/Concurrency/interface/chain_first.h"
 #include "FWCore/Concurrency/interface/FinalWaitingTask.h"
 #include "FWCore/Concurrency/interface/WaitingThreadPool.h"
+#include "FWCore/Concurrency/interface/hardware_pause.h"
 
 TEST_CASE("Test WaitingThreadPool", "[edm::WaitingThreadPool") {
   // Using parallelism 2 here because otherwise the
@@ -36,20 +37,29 @@ TEST_CASE("Test WaitingThreadPool", "[edm::WaitingThreadPool") {
 
   SECTION("Two async calls") {
     std::atomic<int> count{0};
+    std::atomic<bool> mayContinue{false};
 
     oneapi::tbb::task_group group;
     edm::FinalWaitingTask waitTask{group};
 
     {
       using namespace edm::waiting_task::chain;
-      auto h = first([&pool, &count](edm::WaitingTaskHolder h) {
+      auto h = first([&pool, &count, &mayContinue](edm::WaitingTaskHolder h) {
                  edm::WaitingTaskWithArenaHolder h2(std::move(h));
-                 pool.runAsync(h2, [&count]() { ++count; });
+                 pool.runAsync(h2, [&count, &mayContinue]() {
+                   while (not mayContinue) {
+                     hardware_pause();
+                   }
+                   using namespace std::chrono_literals;
+                   std::this_thread::sleep_for(10ms);
+                   ++count;
+                 });
                  pool.runAsync(h2, [&count]() { ++count; });
                }) |
                lastTask(edm::WaitingTaskHolder(group, &waitTask));
       h.doneWaiting(std::exception_ptr());
     }
+    mayContinue = true;
     waitTask.waitNoThrow();
     REQUIRE(count.load() == 2);
     REQUIRE(waitTask.done());
@@ -58,20 +68,29 @@ TEST_CASE("Test WaitingThreadPool", "[edm::WaitingThreadPool") {
 
   SECTION("Concurrent async calls") {
     std::atomic<int> count{0};
+    std::atomic<int> mayContinue{0};
 
     oneapi::tbb::task_group group;
     edm::FinalWaitingTask waitTask{group};
 
     {
       using namespace edm::waiting_task::chain;
-      auto h1 = first([&pool, &count](edm::WaitingTaskHolder h) {
+      auto h1 = first([&pool, &count, &mayContinue](edm::WaitingTaskHolder h) {
                   edm::WaitingTaskWithArenaHolder h2(std::move(h));
+                  ++mayContinue;
+                  while (mayContinue != 2) {
+                    hardware_pause();
+                  }
                   pool.runAsync(h2, [&count]() { ++count; });
                 }) |
                 lastTask(edm::WaitingTaskHolder(group, &waitTask));
 
-      auto h2 = first([&pool, &count](edm::WaitingTaskHolder h) {
+      auto h2 = first([&pool, &count, &mayContinue](edm::WaitingTaskHolder h) {
                   edm::WaitingTaskWithArenaHolder h2(std::move(h));
+                  ++mayContinue;
+                  while (mayContinue != 2) {
+                    hardware_pause();
+                  }
                   pool.runAsync(h2, [&count]() { ++count; });
                 }) |
                 lastTask(edm::WaitingTaskHolder(group, &waitTask));
