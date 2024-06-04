@@ -154,6 +154,15 @@ private:
     ObjME Discr_turnon_loose;
     ObjME Discr_turnon_medium;
     ObjME Discr_turnon_tight;
+    ObjME Pt_turnon_loose;
+    ObjME Pt_turnon_medium;
+    ObjME Pt_turnon_tight;
+    ObjME Eta_turnon_loose;
+    ObjME Eta_turnon_medium;
+    ObjME Eta_turnon_tight;
+    ObjME Phi_turnon_loose;
+    ObjME Phi_turnon_medium;
+    ObjME Phi_turnon_tight;
     MonitorElement* PVz = nullptr;
     MonitorElement* fastPVz = nullptr;
     MonitorElement* PVz_HLTMinusRECO = nullptr;
@@ -362,6 +371,9 @@ void BTVHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetu
           float DR = reco::deltaR(iterOffb.first->eta(), iterOffb.first->phi(), iter->first->eta(), iter->first->phi());
           if (DR < 0.3) {
             float Discr_offline = iterOffb.second;
+            float Pt_offline = iterOffb.first->pt();
+            float Eta_offline = iterOffb.first->eta();
+            float Phi_offline = iterOffb.first->phi();
 
             if (Discr_offline < 0)
               Discr_offline = -0.05;
@@ -372,12 +384,36 @@ void BTVHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetu
             v.Discr_turnon_medium.denominator->Fill(Discr_offline);
             v.Discr_turnon_tight.denominator->Fill(Discr_offline);
 
-            if (Discr_online > turnon_threshold_loose_)
+            v.Pt_turnon_loose.denominator->Fill(Pt_offline);
+            v.Pt_turnon_medium.denominator->Fill(Pt_offline);
+            v.Pt_turnon_tight.denominator->Fill(Pt_offline);
+
+            v.Eta_turnon_loose.denominator->Fill(Eta_offline);
+            v.Eta_turnon_medium.denominator->Fill(Eta_offline);
+            v.Eta_turnon_tight.denominator->Fill(Eta_offline);
+
+            v.Phi_turnon_loose.denominator->Fill(Phi_offline);
+            v.Phi_turnon_medium.denominator->Fill(Phi_offline);
+            v.Phi_turnon_tight.denominator->Fill(Phi_offline);
+
+            if (Discr_online > turnon_threshold_loose_) {
               v.Discr_turnon_loose.numerator->Fill(Discr_offline);
-            if (Discr_online > turnon_threshold_medium_)
+              v.Pt_turnon_loose.numerator->Fill(Pt_offline);
+              v.Eta_turnon_loose.numerator->Fill(Eta_offline);
+              v.Phi_turnon_loose.numerator->Fill(Phi_offline);
+            }
+            if (Discr_online > turnon_threshold_medium_) {
               v.Discr_turnon_medium.numerator->Fill(Discr_offline);
-            if (Discr_online > turnon_threshold_tight_)
+              v.Pt_turnon_medium.numerator->Fill(Pt_offline);
+              v.Eta_turnon_medium.numerator->Fill(Eta_offline);
+              v.Phi_turnon_medium.numerator->Fill(Phi_offline);
+            }
+            if (Discr_online > turnon_threshold_tight_) {
               v.Discr_turnon_tight.numerator->Fill(Discr_offline);
+              v.Pt_turnon_tight.numerator->Fill(Pt_offline);
+              v.Eta_turnon_tight.numerator->Fill(Eta_offline);
+              v.Phi_turnon_tight.numerator->Fill(Phi_offline);
+            }
 
             break;
           }
@@ -787,6 +823,42 @@ void BTVHLTOfflineSource::bookHistograms(DQMStore::IBooker& iBooker, edm::Run co
     histoname = "Turnon_tight_Discr";
     title = "turn-on with tight threshold " + trigPath;
     v.bookME(iBooker, v.Discr_turnon_tight, histoname, title, 22, -0.1, 1.);
+
+    histoname = "Turnon_loose_Pt";
+    title = "turn-on with loose threshold " + trigPath;
+    v.bookME(iBooker, v.Pt_turnon_loose, histoname, title, 50, 0., 500.);
+
+    histoname = "Turnon_medium_Pt";
+    title = "turn-on with medium threshold " + trigPath;
+    v.bookME(iBooker, v.Pt_turnon_medium, histoname, title, 50, 0., 500.);
+
+    histoname = "Turnon_tight_Pt";
+    title = "turn-on with tight threshold " + trigPath;
+    v.bookME(iBooker, v.Pt_turnon_tight, histoname, title, 50, 0., 500.);
+
+    histoname = "Turnon_loose_Eta";
+    title = "turn-on with loose threshold " + trigPath;
+    v.bookME(iBooker, v.Eta_turnon_loose, histoname, title, 60, -3., 3.);
+
+    histoname = "Turnon_medium_Eta";
+    title = "turn-on with medium threshold " + trigPath;
+    v.bookME(iBooker, v.Eta_turnon_medium, histoname, title, 60, -3., 3.);
+
+    histoname = "Turnon_tight_Eta";
+    title = "turn-on with tight threshold " + trigPath;
+    v.bookME(iBooker, v.Eta_turnon_tight, histoname, title, 60, -3., 3.);
+
+    histoname = "Turnon_loose_Phi";
+    title = "turn-on with loose threshold " + trigPath;
+    v.bookME(iBooker, v.Phi_turnon_loose, histoname, title, 60, -3., 3.);
+
+    histoname = "Turnon_medium_Phi";
+    title = "turn-on with medium threshold " + trigPath;
+    v.bookME(iBooker, v.Phi_turnon_medium, histoname, title, 60, -3., 3.);
+
+    histoname = "Turnon_tight_Phi";
+    title = "turn-on with tight threshold " + trigPath;
+    v.bookME(iBooker, v.Phi_turnon_tight, histoname, title, 60, -3., 3.);
 
     histoname = labelname + "_PVz";
     title = "online z(PV) " + trigPath;
