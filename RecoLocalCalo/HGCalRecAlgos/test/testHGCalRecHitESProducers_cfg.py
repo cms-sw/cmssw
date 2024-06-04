@@ -7,8 +7,8 @@
 #   git cms-merge-topic -u CMS-HGCAL:dev/hackathon_base_CMSSW_14_1_X
 #   git clone https://github.com/pfs/Geometry-HGCalMapping.git  $CMSSW_BASE/src/Geometry/HGCalMapping/data
 #   git clone https://gitlab.cern.ch/hgcal-dpg/hgcal-comm.git HGCalCommissioning
-#   scram b -j 10
-#   cmsRun $CMSSW_BASE/src/RecoLocalCalo/HGCalRecAlgos/test/testHGCalRecHitESProducer_cfg.py
+#   scram b -j8
+#   cmsRun $CMSSW_BASE/src/RecoLocalCalo/HGCalRecAlgos/test/testHGCalRecHitESProducers_cfg.py
 # Sources:
 #   https://github.com/CMS-HGCAL/cmssw/blob/hgcal-condformat-HGCalNANO-13_2_0_pre3/DPGAnalysis/HGCalTools/python/tb2023_cfi.py
 #   https://gitlab.cern.ch/hgcal-dpg/hgcal-comm/-/blob/master/SystemTestEventFilters/test/test_raw2reco.py
@@ -18,28 +18,24 @@ import FWCore.ParameterSet.Config as cms
 
 # USER OPTIONS
 from FWCore.ParameterSet.VarParsing import VarParsing
+datadir = os.path.join(os.environ.get('CMSSW_BASE',''),"src/HGCalCommissioning/LocalCalibration/data")
 options = VarParsing('standard')
-options.register('geometry', 'Extended2026D94', VarParsing.multiplicity.singleton, VarParsing.varType.string, 'geometry to use')
-options.register('config',"",mytype=VarParsing.varType.string,
+options.register('geometry', 'Extended2026D94', VarParsing.multiplicity.singleton, VarParsing.varType.string,
+                 info="geometry to use")
+options.register('config',f"{datadir}/config_feds.json",mytype=VarParsing.varType.string,
                  info="Path to configuration (JSON format)")
-options.register('params',"",mytype=VarParsing.varType.string,
+options.register('params',f"{datadir}/level0_calib_params.json",mytype=VarParsing.varType.string,
                  info="Path to calibration parameters (JSON format)")
-options.register('modules',"",mytype=VarParsing.varType.string,
+options.register('modules',
+                 #"Geometry/HGCalMapping/data/ModuleMaps/modulelocator_test.txt", # test beam with six modules
+                 "Geometry/HGCalMapping/data/ModuleMaps/modulelocator_test_2mods.txt", # only first two modules,
+                 mytype=VarParsing.varType.string,
                  info="Path to module mapper. Absolute, or relative to CMSSW src directory")
 options.register('sicells','Geometry/HGCalMapping/data/CellMaps/WaferCellMapTraces.txt',mytype=VarParsing.varType.string,
                  info="Path to Si cell mapper. Absolute, or relative to CMSSW src directory")
 options.register('sipmcells','Geometry/HGCalMapping/data/CellMaps/channels_sipmontile.hgcal.txt',mytype=VarParsing.varType.string,
                  info="Path to SiPM-on-tile cell mapper. Absolute, or relative to CMSSW src directory")
 options.parseArguments()
-if not options.config:
-  options.config = "config.json"
-if not options.params:
-  outdir = os.path.join(os.environ.get('CMSSW_BASE',''),"src/HGCalCommissioning/LocalCalibration/data")
-  #options.params = f"{outdir}/calibration_parameters_v2.json"
-  options.params = f"{outdir}/level0_calib_params.json"
-if not options.modules:
-  #options.modules = "Geometry/HGCalMapping/data/ModuleMaps/modulelocator_test.txt" # test beam
-  options.modules = "Geometry/HGCalMapping/data/ModuleMaps/modulelocator_test_2mods.txt" # only first two modules
 if len(options.files)==0:
   options.files=['file:/eos/cms/store/group/dpg_hgcal/comm_hgcal/psilva/hackhathon/23234.103_TTbar_14TeV+2026D94Aging3000/step2.root']
   #options.files=['file:/eos/cms/store/group/dpg_hgcal/comm_hgcal/psilva/hackhathon/23234.103_TTbar_14TeV+2026D94Aging3000/step2.root']
@@ -89,12 +85,17 @@ process.hgCalMappingESProducer.si = cms.FileInPath(options.sicells)
 process.hgCalMappingESProducer.sipm = cms.FileInPath(options.sipmcells)
 process.hgCalMappingESProducer.modules = cms.FileInPath(options.modules)
 
-# CONFIGURATION ESProducers
+# GLOBAL CONFIGURATION ESProducers (for unpacker)
 #process.load("RecoLocalCalo.HGCalRecAlgos.HGCalConfigurationESProducer")
 #process.load("RecoLocalCalo.HGCalRecAlgos.hgCalConfigurationESProducer_cfi")
 process.hgcalConfigESProducer = cms.ESSource( # ESProducer to load configurations for unpacker
   'HGCalConfigurationESProducer',
-  filename=cms.string(options.config), # to be set up in configTBConditions
+  filename=cms.string(options.config),
+  passthroughMode=cms.int32(0), # ignore mismatch
+  cbHeaderMarker=cms.int32(0x5f), # capture block
+  slinkHeaderMarker=cms.int32(0x2a),
+  econdHeaderMarker=cms.int32(0x154),
+  charMode=cms.int32(1),
   indexSource=cms.ESInputTag('hgCalMappingESProducer','')
 )
 
@@ -110,7 +111,7 @@ process.hgcalConfigParamESProducer = cms.ESProducer( # ESProducer to load config
 )
 process.hgcalCalibParamESProducer = cms.ESProducer( # ESProducer to load calibration parameters from JSON file, like pedestals
   'hgcalrechit::HGCalCalibrationESProducer@alpaka',
-  filename=cms.string(options.params), # to be set up in configTBConditions
+  filename=cms.string(options.params),
   indexSource=cms.ESInputTag('hgCalMappingESProducer',''),
   configSource=cms.ESInputTag(''),
 )

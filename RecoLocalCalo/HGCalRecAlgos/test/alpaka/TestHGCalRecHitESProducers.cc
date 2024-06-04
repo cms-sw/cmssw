@@ -77,10 +77,17 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     std::cout << "TestHGCalRecHitESProducers::beginRun" << std::endl;
   }
 
+  static std::string int2hex(int value) {
+    std::stringstream stream;
+    stream << "0x" << std::hex << value;
+    return stream.str();
+  }
+
   void TestHGCalRecHitESProducers::produce(device::Event& iEvent, device::EventSetup const& iSetup) {
     std::cout << "TestHGCalRecHitESProducers::produce" << std::endl;
     auto queue = iEvent.queue();
     auto const& moduleMap = iSetup.getData(indexerToken_);
+    auto const& config = iSetup.getData(configToken_); // HGCalConfiguration
     auto const& configParamDevice = iSetup.getData(configParamToken_);
     //printf("TestHGCalRecHitESProducers::produce: time to load configParamDevice from config ESProducers: %f seconds\n", duration(start,now()));
     auto const& calibParamDevice = iSetup.getData(calibParamToken_);
@@ -88,9 +95,31 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     // Check if there are new conditions and read them
     if (configWatcher_.check(iSetup)){
-      int size = configParamDevice.view().metadata().size();
       std::cout << "TestHGCalRecHitESProducers::produce: moduleMap.getMaxDataSize()=" << moduleMap.getMaxDataSize()
                 << ", moduleMap.getMaxERxSize()=" << moduleMap.getMaxERxSize() << std::endl;
+      
+      // ESProducer for global HGCal configuration (structs) with header markers, etc.
+      auto nfeds = config.feds.size(); // number of FEDs
+      std::cout << "TestHGCalRecHitESProducers::produce: nfeds=" << nfeds << std::endl;
+      for (std::size_t fedid = 0; fedid < nfeds; ++fedid) {
+        auto fed = config.feds[fedid]; // HGCalFedConfig_t
+        auto nmods = fed.econds.size(); // number of ECON-Ds for this FED
+        std::cout << "  fedid=" << fedid << ", nmods=" << nmods
+                  << ", passthroughMode=" << fed.mismatchPassthroughMode
+                  << ", cbHeaderMarker=0x" << std::hex << fed.cbHeaderMarker
+                  << ", slinkHeaderMarker=0x" << fed.slinkHeaderMarker
+                  << std::dec << std::endl;
+        std::cout << "  modid  nrocs  headerMarker" << std::endl;
+        for (std::size_t modid = 0; modid < nmods; ++modid) {
+          auto mod = fed.econds[modid];
+          auto nrocs = mod.rocs.size(); // number of ECON-Ds for this FED
+          std::cout << std::setw(7) << modid << std::setw(7) << nrocs
+                    << std::setw(14) << int2hex(mod.headerMarker) << std::endl;
+        }
+      }
+      
+      // Alpaka ESProducer for SoA with configuration parameters with gains
+      int size = configParamDevice.view().metadata().size();
       std::cout << "TestHGCalRecHitESProducers::produce: device size=" << size << std::endl;
       std::cout << "  imod  gain" << std::endl;
       for(int imod=0; imod<size; imod++) {
@@ -98,18 +127,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         std::cout << std::setw(6) << imod
           << std::setw(6) << uint32_t(configParamDevice.view()[imod].gain()) << std::endl;
       }
-    //}
-
-    // Check if there are new conditions and read them
-    //if(calibWatcher_.check(iSetup)){
+      
+      // Alpaka ESProducer for SoA with calibration parameters with pedestals, etc.
       size = calibParamDevice.view().metadata().size();
-      std::cout << "TestHGCalRecHitESProducers::produce: moduleMap.getMaxDataSize()=" << moduleMap.getMaxDataSize()
-                << ", moduleMap.getMaxERxSize()=" << moduleMap.getMaxERxSize() << std::endl;
       std::cout << "TestHGCalRecHitESProducers::produce: device size=" << size << std::endl;
-      std::cout << "  idx  hex  ADC_ped  CM_slope  CM_ped  BXm1_slope" << std::endl;
+      std::cout << "  idx   hex  ADC_ped  CM_slope  CM_ped  BXm1_slope" << std::endl;
       for(int idx=0; idx<size; idx++) {
         if(idx>=250) break;
-        std::cout << std::setw(5) << idx << std::hex << std::setw(5) << idx << std::dec
+        std::cout << std::setw(5) << idx << std::setw(6) << int2hex(idx) << std::dec
           << std::setw(9)  << calibParamDevice.view()[idx].ADC_ped()
           << std::setw(10) << calibParamDevice.view()[idx].CM_slope()
           << std::setw(8)  << calibParamDevice.view()[idx].CM_ped()
@@ -117,6 +142,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           // << std::setw(6) << calibParamDevice.view()[idx].BXm1_offset() // redundant
           << std::endl;
       }
+      
     }
 
   }

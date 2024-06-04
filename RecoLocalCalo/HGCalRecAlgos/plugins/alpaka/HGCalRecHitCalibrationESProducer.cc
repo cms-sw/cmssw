@@ -99,14 +99,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           uint32_t nrows = calib_data[module]["Channel"].size(); // number of channels to compare with JSON arrays
           std::cout << "HGCalCalibrationESProducer::produce: calib_data[\"" << module << "\"][\"Channel\"].size() = "
                     << nrows  << ", offset=" << offset << std::endl;
-          
+
           // retrieve gains from configuration (placeholder with gain=1 for now)
           // TODO: retrieve from Configurations ESProducer / SoA
           std::vector<uint8_t> gains(6,1); // 3 ROCs x 2 halves = 6 half-ROCs (ECON eRxs) per module
-          
+
           // check number of channels make sense
           uint32_t nchans = (nrows%39==0 ? 39 : 37); // number of channels per eRx (37 excl. common modes)
-          if (nrows%37!=0 or nrows%39!=0) {
+          if (nrows%37!=0 and nrows%39!=0) {
             edm::LogWarning("HGCalCalibrationESProducer") << " nchannels%nchannels_per_erX!=0 nchannels="
                                                           << nrows << ", nchannels_per_erX=37 or 39!";
           }
@@ -131,7 +131,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             fill_SoA_column<float>(product.view().BXm1_slope(),calib_data[module]["BXm1_slope"][i_gain],offset_soa,nchans,offset_arr);
           }
 
-          // fill columns for gain-dependent calibration parameters
+          // fill columns for gain-independent calibration parameters
           fill_SoA_column<float>(product.view().TOTtofC(),   calib_data[module]["TOTtofC"],   offset,nrows);
           fill_SoA_column<float>(product.view().TOT_ped(),   calib_data[module]["TOT_ped"],   offset,nrows);
           fill_SoA_column<float>(product.view().TOT_lin(),   calib_data[module]["TOT_lin"],   offset,nrows);
@@ -142,7 +142,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           fill_SoA_column<float>(product.view().MIPS_scale(),calib_data[module]["MIPS_scale"],offset,nrows);
           fill_SoA_column<mybool>(product.view().valid(),    calib_data[module]["Valid"],     offset,nrows); // mybool (=std::byte) defined in HGCalCalibrationParameterSoA.h
 
-          std::cout << "HGCalCalibrationESProducer::produce: memcpied all columns !" << std::endl;
+          //std::cout << "HGCalCalibrationESProducer::produce: memcpied all columns !" << std::endl;
         }
 
         return product;
