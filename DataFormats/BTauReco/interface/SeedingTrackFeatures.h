@@ -8,6 +8,7 @@ namespace btagbtvdeep {
 
   class SeedingTrackFeatures {
   public:
+    SeedingTrackFeatures() = default;
     float pt;
     float eta;
     float phi;
