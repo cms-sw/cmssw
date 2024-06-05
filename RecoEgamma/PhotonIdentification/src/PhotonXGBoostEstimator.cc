@@ -2,34 +2,21 @@
 #include <sstream>
 
 PhotonXGBoostEstimator::PhotonXGBoostEstimator(const edm::FileInPath& weightsFile, int best_ntree_limit) {
-  XGBoosterCreate(NULL, 0, &booster_);
-  // Set number of threads to 1, to avoid spawning hundreds of OpenMP threads
-  // See https://github.com/cms-sw/cmssw/issues/44923 for details
-  XGBoosterSetParam(booster_, "nthread", "1");
-  XGBoosterLoadModel(booster_, weightsFile.fullPath().c_str());
-  best_ntree_limit_ = best_ntree_limit;
+  booster_ = std::make_unique<pat::XGBooster>(weightsFile.fullPath());
+  booster_->addFeature("rawEnergy");
+  booster_->addFeature("r9");
+  booster_->addFeature("sigmaIEtaIEta");
+  booster_->addFeature("etaWidth");
+  booster_->addFeature("phiWidth");
+  booster_->addFeature("s4");
+  booster_->addFeature("eta");
+  booster_->addFeature("hOvrE");
+  booster_->addFeature("ecalPFIso");
 
-  std::stringstream config;
-  config << "{\"training\": false, \"type\": 0, \"iteration_begin\": 0, \"iteration_end\": " << best_ntree_limit_
-         << ", \"strict_shape\": false}";
-  config_ = config.str();
+  best_ntree_limit_ = best_ntree_limit;
 }
 
-PhotonXGBoostEstimator::~PhotonXGBoostEstimator() { XGBoosterFree(booster_); }
-
-namespace {
-  enum inputIndexes {
-    rawEnergy = 0,      // 0
-    r9 = 1,             // 1
-    sigmaIEtaIEta = 2,  // 2
-    etaWidth = 3,       // 3
-    phiWidth = 4,       // 4
-    s4 = 5,             // 5
-    eta = 6,            // 6
-    hOvrE = 7,          // 7
-    ecalPFIso = 8,      // 8
-  };
-}  // namespace
+PhotonXGBoostEstimator::~PhotonXGBoostEstimator() {}
 
 float PhotonXGBoostEstimator::computeMva(float rawEnergyIn,
                                          float r9In,
@@ -40,24 +27,15 @@ float PhotonXGBoostEstimator::computeMva(float rawEnergyIn,
                                          float etaIn,
                                          float hOvrEIn,
                                          float ecalPFIsoIn) const {
-  float var[9];
-  var[rawEnergy] = rawEnergyIn;
-  var[r9] = r9In;
-  var[sigmaIEtaIEta] = sigmaIEtaIEtaIn;
-  var[etaWidth] = etaWidthIn;
-  var[phiWidth] = phiWidthIn;
-  var[s4] = s4In;
-  var[eta] = etaIn;
-  var[hOvrE] = hOvrEIn;
-  var[ecalPFIso] = ecalPFIsoIn;
+  booster_->set("rawEnergy", rawEnergyIn);
+  booster_->set("r9", r9In);
+  booster_->set("sigmaIEtaIEta", sigmaIEtaIEtaIn);
+  booster_->set("etaWidth", etaWidthIn);
+  booster_->set("phiWidth", phiWidthIn);
+  booster_->set("s4", s4In);
+  booster_->set("eta", etaIn);
+  booster_->set("hOvrE", hOvrEIn);
+  booster_->set("ecalPFIso", ecalPFIsoIn);
 
-  DMatrixHandle dmat;
-  XGDMatrixCreateFromMat(var, 1, 9, -999.9f, &dmat);
-  uint64_t const* out_shape;
-  uint64_t out_dim;
-  const float* out_result = NULL;
-  XGBoosterPredictFromDMatrix(booster_, dmat, config_.c_str(), &out_shape, &out_dim, &out_result);
-  float ret = out_result[0];
-  XGDMatrixFree(dmat);
-  return ret;
+  return booster_->predict(best_ntree_limit_);
 }
