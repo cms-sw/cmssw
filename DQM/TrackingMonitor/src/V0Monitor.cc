@@ -1,16 +1,93 @@
-#include "DQM/TrackingMonitor/interface/V0Monitor.h"
 #include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "RecoVertex/VertexTools/interface/VertexDistance3D.h"
+#include "DQM/TrackingMonitor/interface/V0Monitor.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
-
-#include "DQM/TrackingMonitor/interface/GetLumi.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // -----------------------------
 //  constructors and destructor
 // -----------------------------
+
+// ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
+void V0Monitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<std::string>("FolderName", "Tracking/V0Monitoring");
+  desc.add<edm::InputTag>("v0", edm::InputTag("generalV0Candidates:Kshort"));
+  desc.add<edm::InputTag>("beamSpot", edm::InputTag("offlineBeamSpot"));
+  desc.add<edm::InputTag>("primaryVertex", edm::InputTag("offlinePrimaryVertices"));
+  desc.add<edm::InputTag>("lumiScalers", edm::InputTag("scalersRawToDigi"));
+  desc.add<bool>("forceSCAL", true);
+  desc.add<edm::InputTag>("metadata", edm::InputTag("onlineMetaDataDigis"));
+  desc.add<int>("pvNDOF", 4);
+
+  {
+    edm::ParameterSetDescription psd0;
+    {
+      edm::ParameterSetDescription psd1;
+      psd1.add<int>("nbins", 3700);
+      psd1.add<double>("xmin", 0.);
+      psd1.add<double>("xmax", 14000.);
+      psd0.add<edm::ParameterSetDescription>("lumiPSet", psd1);
+    }
+    {
+      edm::ParameterSetDescription psd2;
+      psd2.add<int>("nbins", 100);
+      psd2.add<double>("xmin", 0.400);
+      psd2.add<double>("xmax", 0.600);
+      psd0.add<edm::ParameterSetDescription>("massPSet", psd2);
+    }
+    {
+      edm::ParameterSetDescription psd3;
+      psd3.add<int>("nbins", 100);
+      psd3.add<double>("xmin", 0.);
+      psd3.add<double>("xmax", 50.);
+      psd0.add<edm::ParameterSetDescription>("ptPSet", psd3);
+    }
+    {
+      edm::ParameterSetDescription psd4;
+      psd4.add<int>("nbins", 60);
+      psd4.add<double>("xmin", -3.);
+      psd4.add<double>("xmax", 3.);
+      psd0.add<edm::ParameterSetDescription>("etaPSet", psd4);
+    }
+    {
+      edm::ParameterSetDescription psd5;
+      psd5.add<int>("nbins", 350);
+      psd5.add<double>("xmin", 0.);
+      psd5.add<double>("xmax", 70.);
+      psd0.add<edm::ParameterSetDescription>("LxyPSet", psd5);
+    }
+    {
+      edm::ParameterSetDescription psd6;
+      psd6.add<int>("nbins", 100);
+      psd6.add<double>("xmin", 0.);
+      psd6.add<double>("xmax", 30.);
+      psd0.add<edm::ParameterSetDescription>("chi2oNDFPSet", psd6);
+    }
+    {
+      edm::ParameterSetDescription psd7;
+      psd7.add<int>("nbins", 100);
+      psd7.add<double>("xmin", -0.5);
+      psd7.add<double>("xmax", 99.5);
+      psd0.add<edm::ParameterSetDescription>("puPSet", psd7);
+    }
+    {
+      edm::ParameterSetDescription psd8;
+      psd8.add<int>("nbins", 2000);
+      psd8.add<double>("xmin", 0.);
+      psd8.add<double>("xmax", 2000.);
+      psd0.add<edm::ParameterSetDescription>("lsPSet", psd8);
+    }
+    desc.add<edm::ParameterSetDescription>("histoPSet", psd0);
+  }
+
+  {
+    edm::ParameterSetDescription genericTriggerEventPSet;
+    GenericTriggerEventFlag::fillPSetDescription(genericTriggerEventPSet);
+    desc.add<edm::ParameterSetDescription>("genericTriggerEventPSet", genericTriggerEventPSet);
+  }
+
+  descriptions.addWithDefaultLabel(desc);
+}
 
 V0Monitor::V0Monitor(const edm::ParameterSet& iConfig)
     : folderName_(iConfig.getParameter<std::string>("FolderName")),
