@@ -1,5 +1,5 @@
-#ifndef PhysicsTools_PatAlgos_XGBooster_h
-#define PhysicsTools_PatAlgos_XGBooster_h
+#ifndef PhysicsTools_XGBoost_XGBooster_h
+#define PhysicsTools_XGBoost_XGBooster_h
 
 #include <memory>
 #include <string>
@@ -22,7 +22,7 @@ namespace pat {
 
     void set(std::string name, float value);
 
-    float predict();
+    float predict(const int iterationEnd = 0);
 
   private:
     std::vector<float> features_;
