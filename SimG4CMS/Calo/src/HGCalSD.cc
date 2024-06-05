@@ -279,17 +279,17 @@ void HGCalSD::update(const BeginOfJob* job) {
     waferSize_ = hgcons_->waferSize(false);
     double mouseBite = hgcons_->mouseBite(false);
     guardRingOffset_ = hgcons_->guardRingOffset(false);
-    double sensorSizeOffset = hgcons_->sensorSizeOffset(false);
+    sensorSizeOffset_ = hgcons_->sensorSizeOffset(false);
     if (useOffset > 0) {
       rejectMB_ = true;
       fiducialCut_ = true;
     }
-    double mouseBiteNew = (fiducialCut_) ? (mouseBite + guardRingOffset_ + sensorSizeOffset / cos30deg_) : mouseBite;
+    double mouseBiteNew = (fiducialCut_) ? (mouseBite + guardRingOffset_ + sensorSizeOffset_ / cos30deg_) : mouseBite;
     mouseBiteCut_ = waferSize_ * tan30deg_ - mouseBiteNew;
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCSim") << "HGCalSD::Initialized with mode " << geom_mode_ << " Slope cut " << slopeMin_
                                << " top Level " << levelT1_ << ":" << levelT2_ << " useSimWt " << useSimWt_ << " wafer "
-                               << waferSize_ << ":" << mouseBite << ":" << guardRingOffset_ << ":" << sensorSizeOffset
+                               << waferSize_ << ":" << mouseBite << ":" << guardRingOffset_ << ":" << sensorSizeOffset_
                                << ":" << mouseBiteNew << ":" << mouseBiteCut_ << " useOffset " << useOffset
                                << " dd4hep " << dd4hep_;
 #endif
@@ -337,7 +337,7 @@ void HGCalSD::update(const BeginOfJob* job) {
   if ((nHC_ > 1) && calibCells_)
     newCollection(collName_[1], ps_);
   cellOffset_ = std::make_unique<HGCalCellOffset>(
-      waferSize_, hgcons_->getUVMax(0), hgcons_->getUVMax(1), guardRingOffset_, mouseBiteCut_);
+      waferSize_, hgcons_->getUVMax(0), hgcons_->getUVMax(1), guardRingOffset_, mouseBiteCut_, sensorSizeOffset_);
 }
 
 void HGCalSD::initRun() {}

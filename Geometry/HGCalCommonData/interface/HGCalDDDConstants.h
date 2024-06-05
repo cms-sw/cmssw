@@ -17,6 +17,7 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "Geometry/HGCalCommonData/interface/HGCalCassette.h"
 #include "Geometry/HGCalCommonData/interface/HGCalCell.h"
+#include "Geometry/HGCalCommonData/interface/HGCalCellOffset.h"
 #include "Geometry/HGCalCommonData/interface/HGCalCellUV.h"
 #include "Geometry/HGCalCommonData/interface/HGCalGeometryMode.h"
 #include "Geometry/HGCalCommonData/interface/HGCalGeomTools.h"
@@ -59,6 +60,7 @@ public:
   }
   std::pair<double, double> cellEtaPhiTrap(int type, int irad) const;
   bool cellInLayer(int waferU, int waferV, int cellU, int cellV, int lay, int zside, bool reco) const;
+  const HGCalCellOffset* cellOffset() const { return cellOffset_.get(); }
   double cellSizeHex(int type) const;
   inline std::pair<double, double> cellSizeTrap(int type, int irad) const {
     return std::make_pair(hgpar_->radiusLayer_[type][irad - 1], hgpar_->radiusLayer_[type][irad]);
@@ -258,6 +260,7 @@ private:
   HGCalCassette hgcassette_;
   std::unique_ptr<HGCalCell> hgcell_;
   std::unique_ptr<HGCalCellUV> hgcellUV_;
+  std::unique_ptr<HGCalCellOffset> cellOffset_;
   HGCalGeomTools geomTools_;
   constexpr static double k_horizontalShift = 1.0;
   constexpr static float dPhiMin = 0.02;
