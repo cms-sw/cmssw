@@ -13,12 +13,14 @@ namespace mkfit {
   class Event;
   class EventOfHits;
   class MkBuilder;
+  class TrackerInfo;
 
   class Shell {
   public:
     enum SeedSelect_e { SS_UseAll = 0, SS_Label, SS_IndexPreCleaning, SS_IndexPostCleaning };
 
     Shell(std::vector<DeadVec> &dv, const std::string &in_file, int start_ev);
+    ~Shell();
     void Run();
 
     void Status();
@@ -40,6 +42,7 @@ namespace mkfit {
     Event *event() { return m_event; }
     EventOfHits *eoh() { return m_eoh; }
     MkBuilder *builder() { return m_builder; }
+    TrackerInfo *tracker_info();
 
     const TrackVec &seeds() const { return m_seeds; }
     const TrackVec &tracks() const { return m_tracks; }
@@ -56,6 +59,12 @@ namespace mkfit {
     // Analysis drivers / main functions / Comparators
 
     void Compare();
+
+    // --------------------------------------------------------
+    // Visualization stuff
+#ifdef WITH_REVE
+    void ShowTracker();
+#endif
 
   private:
     std::vector<DeadVec> &m_deadvectors;

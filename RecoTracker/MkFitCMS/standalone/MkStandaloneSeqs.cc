@@ -127,6 +127,7 @@ namespace mkfit {
       }
 
       quality_print();
+      add_to_quality_sum(*this);
     }
 
     void Quality::quality_reset() { m_cnt = m_cnt1 = m_cnt2 = m_cnt_8 = m_cnt1_8 = m_cnt2_8 = m_cnt_nomc = 0; }
@@ -230,6 +231,21 @@ namespace mkfit {
         std::cout << "  nH >= 80% =" << m_cnt_8 << "  in pT 10%=" << m_cnt1_8 << "  in pT 20%=" << m_cnt2_8
                   << std::endl;
       }
+    }
+
+    Quality Quality::s_quality_sum;
+  
+    void Quality::add_to_quality_sum(const Quality &q) {
+      static std::mutex q_mutex;
+      std::lock_guard<std::mutex> q_lock(q_mutex);
+
+      s_quality_sum.m_cnt += q.m_cnt;
+      s_quality_sum.m_cnt1 += q.m_cnt1;
+      s_quality_sum.m_cnt2 += q.m_cnt2;
+      s_quality_sum.m_cnt_8 += q.m_cnt_8;
+      s_quality_sum.m_cnt1_8 += q.m_cnt1_8;
+      s_quality_sum.m_cnt2_8 += q.m_cnt2_8;
+      s_quality_sum.m_cnt_nomc += q.m_cnt_nomc;
     }
 
     //------------------------------------------------------------------------------

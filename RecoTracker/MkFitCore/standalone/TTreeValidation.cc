@@ -4,7 +4,7 @@
 #include "RecoTracker/MkFitCore/standalone/ConfigStandalone.h"
 #include "RecoTracker/MkFitCore/interface/IterationConfig.h"
 
-#ifndef NO_ROOT
+#ifdef WITH_ROOT
 
 namespace mkfit {
 

@@ -14,7 +14,7 @@
 
 #include "RecoTracker/MkFitCore/standalone/Event.h"
 
-#ifndef NO_ROOT
+#ifdef WITH_ROOT
 #include "RecoTracker/MkFitCore/standalone/Validation.h"
 #include "RecoTracker/MkFitCore/standalone/RntDumper/RntDumper.h"
 #endif
@@ -426,6 +426,10 @@ void test_standard() {
       std::cout << " Iteration " << i << " build time (event > 1) = " << t_skip_iter[i] << " \n";
     printf("================================================================\n");
   }
+  if (Config::quality_val) {
+    printf("Sum up of quality-val:\n");
+    StdSeq::Quality::s_quality_sum.quality_print();
+  }
   if (g_operation == "read") {
     data_file.close();
   }
@@ -802,6 +806,10 @@ int main(int argc, const char* argv[]) {
     } else if (*i == "--loop-over-file") {
       Config::loopOverFile = true;
     } else if (*i == "--shell") {
+#ifndef WITH_ROOT
+      std::cerr << "--shell option is only supported when compiled with ROOT.\n";
+      exit(1);
+#endif
       run_shell = true;
     } else if (*i == "--num-tracks") {
       next_arg_or_die(mArgs, i);
@@ -1003,18 +1011,28 @@ int main(int argc, const char* argv[]) {
          MPT_SIZE, Config::numThreadsEvents, Config::numThreadsFinder,
          sizeof(Track), sizeof(Hit), sizeof(SVector3), sizeof(SMatrixSym33), sizeof(MCHitInfo));
 
+#ifdef WITH_ROOT
+  Shell *shell = nullptr;
+#endif
   if (run_shell) {
+#ifdef WITH_ROOT
     tbb::global_control global_limit(tbb::global_control::max_allowed_parallelism, Config::numThreadsFinder);
 
     initGeom();
-    Shell s(mkfit::internal::deadvectors, g_input_file, g_start_event);
-    s.Run();
+    shell = new Shell(mkfit::internal::deadvectors, g_input_file, g_start_event);
+    shell->Run();
+#else
+    std::cerr << "shell selected on a non-ROOT build.\n";
+#endif
   } else {
     test_standard();
   }
 
-#ifndef NO_ROOT
+#ifdef WITH_ROOT
   RntDumper::FinalizeAll();
+  if (run_shell) {
+    delete shell;
+  }
 #endif
 
   // clang-format on

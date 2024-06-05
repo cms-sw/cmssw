@@ -779,8 +779,7 @@ namespace mkfit {
       if (m_FailFlag[i]) {
         rnt_shi.RegisterFailedProp(i, m_Par[1 - iI], m_Par[iI], m_event, m_SeedOriginIdx[i]);
       } else if (sim_lbls[i].is_set()) {
-        CandInfo &ci = rnt_shi.RegisterGoodProp(i, m_Par[iI], m_event, m_SeedOriginIdx[i]);
-        ci.ic2list.reset();  // zero initialize
+        /* CandInfo &ci = */ rnt_shi.RegisterGoodProp(i, m_Par[iI], m_event, m_SeedOriginIdx[i]);
       }  // else ... could do something about the bad seeds ... probably better to collect elsewhere.
     }
     // Get BinSearch result from V1. Note -- it can clear m_FailFlag for some cands!
@@ -1058,8 +1057,10 @@ namespace mkfit {
                   hit_lbl },
                 state2pos(mp_s), state2mom(mp_s),
                 new_ddq, new_ddphi, hchi2, (int) hi_orig,
-                (sim_lbl == hit_lbl), dqdphi_presel, !prop_fail
+                (sim_lbl == hit_lbl), dqdphi_presel, !prop_fail,
+                false, IdxChi2List()
               });
+              ci.hmi.back().ic2list.reset(); // zero initialize
 
               bool new_dec = dqdphi_presel && !prop_fail;
               ++ci.n_all_hits;
