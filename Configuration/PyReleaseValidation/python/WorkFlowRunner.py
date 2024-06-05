@@ -159,10 +159,11 @@ class WorkFlowRunner(Thread):
                     # Disable input for premix stage2 in FastSim to allow combined stage1+stage2 workflow (in FS, stage2 does also GEN)
                     # Ugly hack but works
                     if istep!=1 and not '--filein' in cmd and not 'premix_stage1' in cmd and not ("--fast" in cmd and "premix_stage2" in cmd):
-                        if "ALCA" not in cmd:
+                        steps = cmd.split("-s ")[1].split(" ")[0] ## relying on the syntax: cmsDriver -s STEPS --otherFlags
+                        if "ALCA" not in steps:
                             cmd+=' --filein  file:step%s.root '%(istep-1,)
-                        elif "ALCA" in cmd and "RECO" in cmd:
-                             cmd+=' --filein  file:step%s.root '%(istep-1,)
+                        elif "ALCA" in steps and "RECO" in steps:
+                            cmd+=' --filein  file:step%s.root '%(istep-1,)
                         else:
                             cmd+=' --filein %s'%(self.recoOutput)
                     if not '--fileout' in com:
