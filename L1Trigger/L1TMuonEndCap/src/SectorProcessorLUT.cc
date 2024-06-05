@@ -29,6 +29,8 @@ void SectorProcessorLUT::read(bool pc_lut_data, int pc_lut_version) {
     coord_lut_dir = "ph_lut_Run3_2022_data";  // Update in October 2022 from Run 3 2022 alignment, data only
   else if (pc_lut_version == 4 && pc_lut_data)
     coord_lut_dir = "ph_lut_Run3_2023_data";  // Update in June 2023 from Run 3 2023 alignment, data only
+  else if (pc_lut_version == 5 && pc_lut_data)
+    coord_lut_dir = "ph_lut_Run3_2024_data";  // Update in May 2024 from Run 3 2024 alignment, data only
   else if (pc_lut_version >= 2)
     coord_lut_dir = "ph_lut_v2";  // MC still uses ideal CMS aligment
   else if (pc_lut_version == -1 && pc_lut_data)
