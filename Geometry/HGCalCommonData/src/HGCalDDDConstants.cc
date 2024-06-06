@@ -35,11 +35,21 @@ HGCalDDDConstants::HGCalDDDConstants(const HGCalParameters* hp, const std::strin
     hgcell_ = std::make_unique<HGCalCell>(2.0 * rmaxT_, hgpar_->nCellsFine_, hgpar_->nCellsCoarse_);
     hgcellUV_ = std::make_unique<HGCalCellUV>(
         2.0 * rmax_, hgpar_->sensorSeparation_, hgpar_->nCellsFine_, hgpar_->nCellsCoarse_);
+    cellOffset_ = std::make_unique<HGCalCellOffset>(hgpar_->waferSize_,
+                                                    hgpar_->nCellsFine_,
+                                                    hgpar_->nCellsCoarse_,
+                                                    hgpar_->guardRingOffset_,
+                                                    hgpar_->mouseBite_,
+                                                    hgpar_->sensorSizeOffset_);
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "rmax_ " << rmax_ << ":" << rmaxT_ << ":" << hexside_ << ":" << hexsideT_
                                   << " CellSize " << 0.5 * HGCalParameters::k_ScaleFromDDD * hgpar_->cellSize_[0] << ":"
                                   << 0.5 * HGCalParameters::k_ScaleFromDDD * hgpar_->cellSize_[1];
 #endif
+  } else {
+    hgcell_.reset();
+    hgcellUV_.reset();
+    cellOffset_.reset();
   }
   if (cassetteMode()) {
     hgcassette_.setParameter(hgpar_->cassettes_, hgpar_->cassetteShift_);

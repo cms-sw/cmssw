@@ -9,12 +9,18 @@
 
 class HGCalCellOffset {
 public:
-  HGCalCellOffset(double waferSize, int32_t nFine, int32_t nCoarse, double guardRingOffset_, double mouseBiteCut_);
+  HGCalCellOffset(double waferSize,
+                  int32_t nFine,
+                  int32_t nCoarse,
+                  double guardRingOffset_,
+                  double mouseBiteCut_,
+                  double sizeOffset_);
 
   std::pair<double, double> cellOffsetUV2XY1(int32_t u, int32_t v, int32_t placementIndex, int32_t type);
   std::pair<double, double> cellOffsetUV2XY1(
       int32_t u, int32_t v, int32_t placementIndex, int32_t type, int32_t partialType);
   double cellAreaUV(int32_t u, int32_t v, int32_t placementIndex, int32_t type, bool reco);
+  double cellAreaUV(int32_t u, int32_t v, int32_t placementIndex, int32_t type, int32_t partialType, bool reco);
 
 private:
   const double sqrt3_ = std::sqrt(3.0);
@@ -22,7 +28,7 @@ private:
   std::array<std::array<std::array<double, 6>, 6>, 2> offsetX, offsetY;
   std::array<std::array<std::array<double, 6>, 11>, 2> offsetPartialX, offsetPartialY;
   int32_t ncell_[2];
-  double cellX_[2], cellY_[2], fullArea[2], cellArea[2][6];
+  double cellX_[2], cellY_[2], fullArea[2], cellArea[2][6], cellAreaPartial[2][11];
   std::unique_ptr<HGCalCell> hgcalcell_;
 };
 
