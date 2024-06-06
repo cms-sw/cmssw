@@ -5,7 +5,7 @@ import argparse
 
 
 def das_file_nevents(X):
-    cmd = "dasgoclient --query 'file=%s | grep file.nevents'"%(X)
+    cmd = "dasgoclient --query 'file=%s | grep file.nevents'"%(X.replace("\n",""))
     return int(subprocess.check_output(cmd, shell=True, executable="/bin/bash").decode('utf8'))
 
 if __name__ == '__main__':
