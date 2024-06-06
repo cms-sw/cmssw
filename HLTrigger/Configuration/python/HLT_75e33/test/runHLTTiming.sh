@@ -50,10 +50,7 @@ if [ -e 'Phase2_L1P2GT_HLT.py' ]; then
     git clone https://github.com/cms-patatrack/patatrack-scripts --depth 1
   fi
   patatrack-scripts/benchmark -j 4 -t 16 -s 16 -e 1000 --no-run-io-benchmark -k Phase2Timing_resources.json -- Phase2_L1P2GT_HLT.py
-  if [ ! -d 'circles' ]; then
-    git clone https://github.com/fwyzard/circles.git --depth 1
-  fi
-  circles/scripts/merge.py logs/step*/pid*/Phase2Timing_resources.json > Phase2Timing_resources.json
+  mergeResourcesJson.py logs/step*/pid*/Phase2Timing_resources.json > Phase2Timing_resources.json
   if [ -e "$(dirname $0)/augmentResources.py" ]; then
     python3 $(dirname $0)/augmentResources.py
   fi
