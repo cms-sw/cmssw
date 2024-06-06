@@ -265,6 +265,19 @@ namespace tensorflow {
     return state;
   }
 
+  bool checkEmptyInputs(const NamedTensorList& inputs) {
+    // check for empty tensors in the inputs
+    bool isEmpty = false;
+    for (const auto& input : inputs) {
+      // Checking using the shape
+      if (input.second.shape().num_elements() == 0) {
+        isEmpty = true;
+        break;
+      }
+    }
+    return isEmpty;
+  }
+
   void run(Session* session,
            const NamedTensorList& inputs,
            const std::vector<std::string>& outputNames,
@@ -276,6 +289,10 @@ namespace tensorflow {
 
     // create empty run options
     RunOptions runOptions;
+
+    // Check if the inputs are empty
+    if (checkEmptyInputs(inputs))
+      return;
 
     // run and check the status
     Status status = session->Run(runOptions, inputs, outputNames, {}, outputs, nullptr, threadPoolOptions);

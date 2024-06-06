@@ -106,6 +106,8 @@ namespace tensorflow {
   // version of the function above that accepts a const session
   bool closeSession(const Session*& session);
 
+  bool checkEmptyInputs(const NamedTensorList& inputs);
+
   // run the session with inputs and outputNames, store output tensors, and control the underlying
   // thread pool using threadPoolOptions
   // used for thread scheduling with custom thread pool options
