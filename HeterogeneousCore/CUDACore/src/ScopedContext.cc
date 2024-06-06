@@ -1,5 +1,6 @@
 #include "HeterogeneousCore/CUDACore/interface/ScopedContext.h"
 
+#include "FWCore/Concurrency/interface/Async.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -7,34 +8,6 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 
 #include "chooseDevice.h"
-
-namespace {
-  struct CallbackData {
-    edm::WaitingTaskWithArenaHolder holder;
-    int device;
-  };
-
-  void CUDART_CB cudaScopedContextCallback(cudaStream_t streamId, cudaError_t status, void* data) {
-    std::unique_ptr<CallbackData> guard{reinterpret_cast<CallbackData*>(data)};
-    edm::WaitingTaskWithArenaHolder& waitingTaskHolder = guard->holder;
-    int device = guard->device;
-    if (status == cudaSuccess) {
-      LogTrace("ScopedContext") << " GPU kernel finished (in callback) device " << device << " CUDA stream "
-                                << streamId;
-      waitingTaskHolder.doneWaiting(nullptr);
-    } else {
-      // wrap the exception in a try-catch block to let GDB "catch throw" break on it
-      try {
-        auto error = cudaGetErrorName(status);
-        auto message = cudaGetErrorString(status);
-        throw cms::Exception("CUDAError") << "Callback of CUDA stream " << streamId << " in device " << device
-                                          << " error " << error << ": " << message;
-      } catch (cms::Exception&) {
-        waitingTaskHolder.doneWaiting(std::current_exception());
-      }
-    }
-  }
-}  // namespace
 
 namespace cms::cuda {
   namespace impl {
@@ -83,8 +56,13 @@ namespace cms::cuda {
     }
 
     void ScopedContextHolderHelper::enqueueCallback(int device, cudaStream_t stream) {
-      cudaCheck(
-          cudaStreamAddCallback(stream, cudaScopedContextCallback, new CallbackData{waitingTaskHolder_, device}, 0));
+      edm::Service<edm::Async> async;
+      SharedEventPtr event = getEventCache().get();
+      cudaCheck(cudaEventRecord(event.get(), stream));
+      async->runAsync(
+          std::move(waitingTaskHolder_),
+          [event = std::move(event)]() mutable { cudaCheck(cudaEventSynchronize(event.get())); },
+          []() { return "Enqueued by cms::cuda::ScopedContextHolderHelper::enqueueCallback()"; });
     }
   }  // namespace impl
 
