@@ -1,3 +1,8 @@
+/**  Produces Pseudo-random upstream objects converts them into P2GTCandidates and 
+ *   writes them into buffer files. Intended to more thoroughly test the whole
+ *   phase space of Phase-2 GT inputs.
+ * */
+
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/allowedValues.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -17,6 +22,7 @@
 #include "L1Trigger/DemonstratorTools/interface/utilities.h"
 
 #include "L1GTEvaluationInterface.h"
+#include "L1GTChannelMapping.h"
 
 #include <vector>
 #include <array>
@@ -58,61 +64,45 @@ private:
   void writeInputPatterns(
       const std::unordered_map<std::string, std::vector<std::unique_ptr<l1t::L1TGT_BaseInterface>>> &inputObjects);
 
+  void writeOutputPatterns(
+      const std::unordered_map<std::string, std::vector<std::unique_ptr<l1t::L1TGT_BaseInterface>>> &inputObjects);
+
   void endJob() override;
 
   std::mt19937 randomGenerator_;
-  l1t::demo::BoardDataWriter boardDataWriter_;
+  l1t::demo::BoardDataWriter inputBoardDataWriter_;
+  const std::array<std::tuple<const char *, std::size_t, std::size_t>, 27> outputChannelDef_;
+  l1t::demo::BoardDataWriter outputBoardDataWriter_;
 };
-
-template <typename T, std::size_t low, std::size_t high, std::size_t incr = 1>
-static constexpr std::array<T, high - low> arange() {
-  std::array<T, high - low> array;
-  T value = low;
-  for (T &el : array) {
-    el = value;
-    value += incr;
-  }
-  return array;
-}
-
-template <typename T, std::size_t low, std::size_t high, std::size_t incr = 1>
-static std::vector<T> vrange() {
-  std::array<T, high - low> arr(arange<T, low, high, incr>());
-  return std::vector(std::begin(arr), std::end(arr));
-}
-
-static const l1t::demo::BoardDataWriter::ChannelMap_t CHANNEL_MAP_VU9P{
-    {{"GTT", 0}, {{6, 0}, vrange<std::size_t, 0, 6>()}},
-    {{"GTT", 1}, {{6, 0}, vrange<std::size_t, 6, 12>()}},
-    {{"CL2", 0}, {{6, 0}, vrange<std::size_t, 28, 34>()}},
-    {{"CL2", 1}, {{6, 0}, vrange<std::size_t, 34, 40>()}},
-    {{"GCT", 0}, {{6, 0}, vrange<std::size_t, 54, 60>()}},
-    {{"GMT", 0}, {{18, 0}, vrange<std::size_t, 60, 78>()}},
-    {{"CL2", 2}, {{6, 0}, vrange<std::size_t, 80, 86>()}},
-    {{"GTT", 2}, {{6, 0}, vrange<std::size_t, 104, 110>()}},
-    {{"GTT", 3}, {{6, 0}, vrange<std::size_t, 110, 116>()}}};
-
-static const l1t::demo::BoardDataWriter::ChannelMap_t CHANNEL_MAP_VU13P{
-    {{"GTT", 0}, {{6, 0}, vrange<std::size_t, 0, 6>()}},
-    {{"GTT", 1}, {{6, 0}, vrange<std::size_t, 6, 12>()}},
-    {{"GCT", 0}, {{6, 0}, vrange<std::size_t, 24, 30>()}},
-    {{"CL2", 0}, {{6, 0}, vrange<std::size_t, 32, 38>()}},
-    {{"CL2", 1}, {{6, 0}, vrange<std::size_t, 38, 44>()}},
-    {{"GMT", 0}, {{18, 0}, {48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 68, 69, 70, 71, 72, 73}}},
-    {{"CL2", 2}, {{6, 0}, vrange<std::size_t, 80, 86>()}},
-    {{"GTT", 2}, {{6, 0}, vrange<std::size_t, 112, 118>()}},
-    {{"GTT", 3}, {{6, 0}, vrange<std::size_t, 118, 124>()}}};
 
 L1GTEvaluationProducer::L1GTEvaluationProducer(const edm::ParameterSet &config)
     : randomGenerator_(config.exists("random_seed") ? config.getParameter<unsigned int>("random_seed")
                                                     : std::random_device()()),
-      boardDataWriter_(l1t::demo::parseFileFormat(config.getParameter<std::string>("patternFormat")),
-                       config.getParameter<std::string>("outputFilename"),
-                       config.getParameter<std::string>("outputFileExtension"),
-                       9,
-                       1,
-                       config.getParameter<unsigned int>("maxLines"),
-                       config.getParameter<std::string>("platform") == "VU13P" ? CHANNEL_MAP_VU13P : CHANNEL_MAP_VU9P) {
+      inputBoardDataWriter_(
+          l1t::demo::parseFileFormat(config.getParameter<std::string>("patternFormat")),
+          config.getParameter<std::string>("inputFilename"),
+          config.getParameter<std::string>("inputFileExtension"),
+          9,
+          1,
+          config.getParameter<unsigned int>("maxLines"),
+          config.getParameter<std::string>("platform") == "VU13P" ? INPUT_CHANNEL_MAP_VU13P : INPUT_CHANNEL_MAP_VU9P),
+      outputChannelDef_(config.getParameter<std::string>("platform") == "VU13P" ? OUTPUT_CHANNELS_VU13P
+                                                                                : OUTPUT_CHANNELS_VU9P),
+      outputBoardDataWriter_(l1t::demo::parseFileFormat(config.getParameter<std::string>("patternFormat")),
+                             config.getParameter<std::string>("outputFilename"),
+                             config.getParameter<std::string>("outputFileExtension"),
+                             9,
+                             1,
+                             config.getParameter<unsigned int>("maxLines"),
+                             [&]() {
+                               demo::BoardDataWriter::ChannelMap_t channelMap;
+                               for (const auto &[name, start, end] : outputChannelDef_) {
+                                 for (std::size_t i = start; i < end; i++) {
+                                   channelMap.insert({{name, i - start}, {{1, 0}, {i}}});
+                                 }
+                               }
+                               return channelMap;
+                             }()) {
   produces<P2GTCandidateCollection>("GCTNonIsoEg");
   produces<P2GTCandidateCollection>("GCTIsoEg");
   produces<P2GTCandidateCollection>("GCTJets");
@@ -148,6 +138,8 @@ void L1GTEvaluationProducer::fillDescriptions(edm::ConfigurationDescriptions &de
   edm::ParameterSetDescription desc;
   desc.addOptional<unsigned int>("random_seed");
   desc.add<unsigned int>("maxLines", 1024);
+  desc.add<std::string>("inputFilename");
+  desc.add<std::string>("inputFileExtension", "txt");
   desc.add<std::string>("outputFilename");
   desc.add<std::string>("outputFileExtension", "txt");
   desc.add<std::string>("patternFormat", "EMPv2");
@@ -205,41 +197,62 @@ static std::vector<ap_uint<64>> vpack(const Args &...vobjects) {
 
 void L1GTEvaluationProducer::writeInputPatterns(
     const std::unordered_map<std::string, std::vector<std::unique_ptr<l1t::L1TGT_BaseInterface>>> &inputObjects) {
-  boardDataWriter_.addEvent(
-      l1t::demo::EventData{{{{"GTT", 0},
+  inputBoardDataWriter_.addEvent(
+      l1t::demo::EventData{{{{"GTT", 1},
                              vpack(inputObjects.at("GTTPromptJets"),
                                    inputObjects.at("GTTDisplacedJets"),
                                    inputObjects.at("GTTPromptHtSum"),
                                    inputObjects.at("GTTDisplacedHtSum"),
                                    inputObjects.at("GTTEtSum"))},
-                            {{"GTT", 1}, vpack(inputObjects.at("GTTHadronicTaus"))},
-                            {{"CL2", 0},
+                            {{"GTT", 2}, vpack(inputObjects.at("GTTHadronicTaus"))},
+                            {{"CL2", 1},
                              vpack(inputObjects.at("CL2JetsSC4"),
                                    inputObjects.at("CL2HtSum"),
                                    inputObjects.at("CL2EtSum"),
                                    inputObjects.at("CL2JetsSC8"))},
-                            {{"CL2", 1}, vpack(inputObjects.at("CL2Taus"))},
-                            {{"GCT", 0},
+                            {{"CL2", 2}, vpack(inputObjects.at("CL2Taus"))},
+                            {{"GCT", 1},
                              vpack(inputObjects.at("GCTNonIsoEg"),
                                    inputObjects.at("GCTIsoEg"),
                                    inputObjects.at("GCTJets"),
                                    inputObjects.at("GCTTaus"),
                                    inputObjects.at("GCTEtSum"),
                                    inputObjects.at("GCTHtSum"))},
-                            {{"GMT", 0},
+                            {{"GMT", 1},
                              vpack(inputObjects.at("GMTSaPromptMuons"),
                                    inputObjects.at("GMTSaDisplacedMuons"),
                                    inputObjects.at("GMTTkMuons"),
                                    inputObjects.at("GMTTopo"))},
-                            {{"CL2", 2}, vpack(inputObjects.at("CL2Electrons"), inputObjects.at("CL2Photons"))},
-                            {{"GTT", 2},
+                            {{"CL2", 3}, vpack(inputObjects.at("CL2Electrons"), inputObjects.at("CL2Photons"))},
+                            {{"GTT", 3},
                              vpack(inputObjects.at("GTTPhiCandidates"),
                                    inputObjects.at("GTTRhoCandidates"),
                                    inputObjects.at("GTTBsCandidates"))},
-                            {{"GTT", 3},
+                            {{"GTT", 4},
                              vpack(inputObjects.at("GTTPromptTracks"),
                                    inputObjects.at("GTTDisplacedTracks"),
                                    inputObjects.at("GTTPrimaryVert"))}}});
+}
+
+void L1GTEvaluationProducer::writeOutputPatterns(
+    const std::unordered_map<std::string, std::vector<std::unique_ptr<l1t::L1TGT_BaseInterface>>> &outputObjects) {
+  std::map<demo::LinkId, std::vector<ap_uint<64>>> eventData;
+
+  for (const auto &[name, start, end] : outputChannelDef_) {
+    std::vector<ap_uint<64>> data = vpack(outputObjects.at(name));
+    std::size_t numChannels = end - start;
+    for (std::size_t i = start; i < end; i++) {
+      for (std::size_t j = i - start; j < data.size(); j += numChannels) {
+        eventData[{name, i - start}].push_back(data[j]);
+      }
+
+      while (eventData[{name, i - start}].size() < 9) {
+        eventData[{name, i - start}].push_back(0);
+      }
+    }
+  }
+
+  outputBoardDataWriter_.addEvent(eventData);
 }
 
 void L1GTEvaluationProducer::produce(edm::Event &event, const edm::EventSetup &setup) {
@@ -323,6 +336,7 @@ void L1GTEvaluationProducer::produce(edm::Event &event, const edm::EventSetup &s
 
   // Write them to a pattern file
   writeInputPatterns(inputObjects);
+  writeOutputPatterns(inputObjects);
 
   for (const auto &[key, inputCollection] : inputObjects) {
     std::unique_ptr<P2GTCandidateCollection> gtCollection = std::make_unique<P2GTCandidateCollection>();
@@ -334,6 +348,9 @@ void L1GTEvaluationProducer::produce(edm::Event &event, const edm::EventSetup &s
   }
 }
 
-void L1GTEvaluationProducer::endJob() { boardDataWriter_.flush(); }
+void L1GTEvaluationProducer::endJob() {
+  inputBoardDataWriter_.flush();
+  outputBoardDataWriter_.flush();
+}
 
 DEFINE_FWK_MODULE(L1GTEvaluationProducer);
