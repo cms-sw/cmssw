@@ -226,10 +226,10 @@ void LHCInfoPerFillPopConSourceHandler::getNewObjects() {
   } else {
     //check what is already inside the database
     edm::LogInfo(m_name) << "got info for tag " << tagInfo().name << ": size " << tagInfo().size
-                          << ", last object valid since " << tagInfo().lastInterval.since << " ( "
-                          << boost::posix_time::to_iso_extended_string(
+                         << ", last object valid since " << tagInfo().lastInterval.since << " ( "
+                         << boost::posix_time::to_iso_extended_string(
                                 cond::time::to_boost(tagInfo().lastInterval.since))
-                          << " ); from " << m_name << "::getNewObjects";
+                         << " ); from " << m_name << "::getNewObjects";
   }
 
   cond::Time_t lastSince = tagInfo().lastInterval.since;
@@ -241,7 +241,7 @@ void LHCInfoPerFillPopConSourceHandler::getNewObjects() {
     }
   } else {
     edm::LogInfo(m_name) << "The last Iov in tag " << tagInfo().name << " valid since " << lastSince << "from "
-                          << m_name << "::getNewObjects";
+                         << m_name << "::getNewObjects";
   }
 
   //retrieve the data from the relational database source
@@ -273,12 +273,12 @@ void LHCInfoPerFillPopConSourceHandler::getNewObjects() {
       std::max(startTimestamp, m_endFillMode ? lastSince : m_prevPayload->createTime());
 
   edm::LogInfo(m_name) << "Starting sampling at "
-                        << boost::posix_time::to_simple_string(cond::time::to_boost(nextFillSearchTimestamp));
+                       << boost::posix_time::to_simple_string(cond::time::to_boost(nextFillSearchTimestamp));
 
   while (true) {
     if (nextFillSearchTimestamp >= executionTimeIov) {
       edm::LogInfo(m_name) << "Sampling ended at the time "
-                            << boost::posix_time::to_simple_string(cond::time::to_boost(executionTimeIov));
+                           << boost::posix_time::to_simple_string(cond::time::to_boost(executionTimeIov));
       break;
     }
     boost::posix_time::ptime nextFillSearchTime = cond::time::to_boost(nextFillSearchTimestamp);
@@ -300,7 +300,7 @@ void LHCInfoPerFillPopConSourceHandler::getNewObjects() {
     query->filterLT("start_time", m_endTime);
     if (m_endFillMode)
       query->filterNotNull("end_time");
-    else 
+    else
       query->filterEQ("end_time", cond::OMSServiceQuery::SNULL);
 
     bool foundFill = query->execute();
@@ -317,13 +317,12 @@ void LHCInfoPerFillPopConSourceHandler::getNewObjects() {
     unsigned short lhcFill = m_fillPayload->fillNumber();
     bool ongoingFill = endFillTime == 0ULL;
     if (ongoingFill) {
-      edm::LogInfo(m_name) << "Found ongoing fill " << lhcFill << " created at "
-                            << cond::time::to_boost(startFillTime);
+      edm::LogInfo(m_name) << "Found ongoing fill " << lhcFill << " created at " << cond::time::to_boost(startFillTime);
       endSampleTime = executionTime;
       nextFillSearchTimestamp = executionTimeIov;
     } else {
       edm::LogInfo(m_name) << "Found fill " << lhcFill << " created at " << cond::time::to_boost(startFillTime)
-                            << " ending at " << cond::time::to_boost(endFillTime);
+                           << " ending at " << cond::time::to_boost(endFillTime);
       endSampleTime = cond::time::to_boost(endFillTime);
       nextFillSearchTimestamp = endFillTime;
     }
@@ -344,17 +343,19 @@ void LHCInfoPerFillPopConSourceHandler::getNewObjects() {
     }
 
     if (!m_endFillMode) {
-      if(m_tmpBuffer.size() > 1) {
+      if (m_tmpBuffer.size() > 1) {
         throw cms::Exception("LHCInfoPerFillPopConSourceHandler")
-          << "More than 1 payload buffered for writing in duringFill mode.\
+            << "More than 1 payload buffered for writing in duringFill mode.\
           In this mode only up to 1 payload can be written";
-      }  else if (m_tmpBuffer.size() == 1) {
-        if(theLHCInfoPerFillImpl::comparePayloads(*(m_tmpBuffer.begin()->second), *m_prevPayload)) {
+      } else if (m_tmpBuffer.size() == 1) {
+        if (theLHCInfoPerFillImpl::comparePayloads(*(m_tmpBuffer.begin()->second), *m_prevPayload)) {
           m_tmpBuffer.clear();
-          edm::LogInfo(m_name) << "The buffered payload has the same data as the previous payload in the tag. It will not be written.";
+          edm::LogInfo(m_name)
+              << "The buffered payload has the same data as the previous payload in the tag. It will not be written.";
         }
-      } else if(m_tmpBuffer.empty()) {
-        addEmptyPayload(cond::lhcInfoHelper::getFillLastLumiIOV(oms, lhcFill)); //the IOV doesn't matter when using OnlinePopCon
+      } else if (m_tmpBuffer.empty()) {
+        addEmptyPayload(
+            cond::lhcInfoHelper::getFillLastLumiIOV(oms, lhcFill));  //the IOV doesn't matter when using OnlinePopCon
       }
       // In duringFill mode, convert the timestamp-type IOVs to lumiid-type IOVs
       // before transferring the payloads from the buffer to the final collection
@@ -401,7 +402,7 @@ void LHCInfoPerFillPopConSourceHandler::addEmptyPayload(cond::Time_t iov) {
     m_iovs.insert(make_pair(iov, newPayload));
     m_prevPayload = newPayload;
     edm::LogInfo(m_name) << "Added empty payload with IOV " << iov << " ( "
-                          << boost::posix_time::to_iso_extended_string(cond::time::to_boost(iov)) << " )";
+                         << boost::posix_time::to_iso_extended_string(cond::time::to_boost(iov)) << " )";
   }
 }
 
@@ -424,7 +425,8 @@ void LHCInfoPerFillPopConSourceHandler::addPayloadToBuffer(cond::OMSServiceResul
   payload.setRecLumi(recLumi);
 }
 
-void LHCInfoPerFillPopConSourceHandler::convertBufferedIovsToLumiid(std::map<cond::Time_t, cond::Time_t> timestampToLumiid) {
+void LHCInfoPerFillPopConSourceHandler::convertBufferedIovsToLumiid(
+    std::map<cond::Time_t, cond::Time_t> timestampToLumiid) {
   for (auto& item : m_tmpBuffer) {
     // Check if the lumiid IOV corresponding to the timestamp is present in the map
     if (timestampToLumiid.find(item.first) == timestampToLumiid.end()) {
@@ -437,9 +439,9 @@ void LHCInfoPerFillPopConSourceHandler::convertBufferedIovsToLumiid(std::map<con
 }
 
 size_t LHCInfoPerFillPopConSourceHandler::getLumiData(const cond::OMSService& oms,
-                    unsigned short fillId,
-                    const boost::posix_time::ptime& beginFillTime,
-                    const boost::posix_time::ptime& endFillTime) {
+                                                      unsigned short fillId,
+                                                      const boost::posix_time::ptime& beginFillTime,
+                                                      const boost::posix_time::ptime& endFillTime) {
   auto query = oms.query("lumisections");
   query->addOutputVars(
       {"start_time", "delivered_lumi", "recorded_lumi", "beams_stable", "run_number", "lumisection_number"});
@@ -450,7 +452,7 @@ size_t LHCInfoPerFillPopConSourceHandler::getLumiData(const cond::OMSService& om
   if (query->execute()) {
     auto queryResult = query->result();
     edm::LogInfo(m_name) << "Found " << queryResult.size() << " lumisections with STABLE BEAM during the fill "
-                          << fillId;
+                         << fillId;
 
     if (!queryResult.empty()) {
       if (m_endFillMode) {
@@ -466,8 +468,8 @@ size_t LHCInfoPerFillPopConSourceHandler::getLumiData(const cond::OMSService& om
 }
 
 void LHCInfoPerFillPopConSourceHandler::getDipData(const cond::OMSService& oms,
-                const boost::posix_time::ptime& beginFillTime,
-                const boost::posix_time::ptime& endFillTime) {
+                                                   const boost::posix_time::ptime& beginFillTime,
+                                                   const boost::posix_time::ptime& endFillTime) {
   // unsure how to handle this.
   // the old implementation is not helping: apparently it is checking only the bunchconfiguration for the first diptime set of values...
   auto query1 = oms.query("diplogger/dip/acc/LHC/RunControl/CirculatingBunchConfig/Beam1");
@@ -528,8 +530,8 @@ void LHCInfoPerFillPopConSourceHandler::getDipData(const cond::OMSService& oms,
 }
 
 bool LHCInfoPerFillPopConSourceHandler::getCTPPSData(cond::persistency::Session& session,
-                  const boost::posix_time::ptime& beginFillTime,
-                  const boost::posix_time::ptime& endFillTime) {
+                                                     const boost::posix_time::ptime& beginFillTime,
+                                                     const boost::posix_time::ptime& endFillTime) {
   //run the fifth query against the CTPPS schema
   //Initializing the CMS_CTP_CTPPS_COND schema.
   coral::ISchema& CTPPS = session.coralSession().schema("CMS_PPS_SPECT_COND");
@@ -627,16 +629,16 @@ bool LHCInfoPerFillPopConSourceHandler::getCTPPSData(cond::persistency::Session&
   }
   if (m_debug) {
     edm::LogInfo(m_name) << "Last assigned: "
-                          << "DipTime: " << savedDipTime << " "
-                          << "LumiSection: " << savedLumiSection << " "
-                          << "RunNumber: " << savedRunNumber;
+                         << "DipTime: " << savedDipTime << " "
+                         << "LumiSection: " << savedLumiSection << " "
+                         << "RunNumber: " << savedRunNumber;
   }
   return ret;
 }
 
 bool LHCInfoPerFillPopConSourceHandler::getEcalData(cond::persistency::Session& session,
-                  const boost::posix_time::ptime& lowerTime,
-                  const boost::posix_time::ptime& upperTime) {
+                                                    const boost::posix_time::ptime& lowerTime,
+                                                    const boost::posix_time::ptime& upperTime) {
   //run the sixth query against the CMS_DCS_ENV_PVSS_COND schema
   //Initializing the CMS_DCS_ENV_PVSS_COND schema.
   coral::ISchema& ECAL = session.nominalSchema();
@@ -735,7 +737,7 @@ bool LHCInfoPerFillPopConSourceHandler::getEcalData(cond::persistency::Session& 
   if (m_debug) {
     for (auto& im : iovMap) {
       edm::LogInfo(m_name) << "Found iov=" << im.first << " (" << cond::time::to_boost(im.first) << " ) moved to "
-                            << im.second << " ( " << cond::time::to_boost(im.second) << " )";
+                           << im.second << " ( " << cond::time::to_boost(im.second) << " )";
     }
   }
   return ret;
