@@ -40,6 +40,8 @@ CkfTrajectoryBuilder::CkfTrajectoryBuilder(const edm::ParameterSet& conf,
     : BaseCkfTrajectoryBuilder(conf, iC, std::move(filter)) {
   theMaxCand = conf.getParameter<int>("maxCand");
   theLostHitPenalty = conf.getParameter<double>("lostHitPenalty");
+  theFoundHitBonus = conf.getParameter<double>("foundHitBonus");
+  theMinHitForDoubleBonus = conf.getParameter<int>("minHitForDoubleBonus");
   theIntermediateCleaning = conf.getParameter<bool>("intermediateCleaning");
   theAlwaysUseInvalidHits = conf.getParameter<bool>("alwaysUseInvalidHits");
 }
@@ -48,6 +50,8 @@ void CkfTrajectoryBuilder::fillPSetDescription(edm::ParameterSetDescription& iDe
   BaseCkfTrajectoryBuilder::fillPSetDescription(iDesc);
   iDesc.add<int>("maxCand", 5);
   iDesc.add<double>("lostHitPenalty", 30.);
+  iDesc.add<double>("foundHitBonus", 0.);
+  iDesc.add<int>("minHitForDoubleBonus", 8888);
   iDesc.add<bool>("intermediateCleaning", true);
   iDesc.add<bool>("alwaysUseInvalidHits", true);
 
@@ -104,9 +108,13 @@ unsigned int CkfTrajectoryBuilder::limitedCandidates(const std::shared_ptr<const
   TempTrajectoryContainer newCand;  // = TrajectoryContainer();
   newCand.reserve(theMaxCand);
 
-  auto trajCandLess = [&](TempTrajectory const& a, TempTrajectory const& b) {
-    return (a.chiSquared() + a.lostHits() * theLostHitPenalty) < (b.chiSquared() + b.lostHits() * theLostHitPenalty);
+  auto score = [&](TempTrajectory const& a) {
+    auto bonus = theFoundHitBonus;
+    bonus += a.foundHits() > theMinHitForDoubleBonus ? bonus : 0;
+    return a.chiSquared() + a.lostHits() * theLostHitPenalty - bonus * a.foundHits();
   };
+
+  auto trajCandLess = [&](TempTrajectory const& a, TempTrajectory const& b) { return score(a) < score(b); };
 
   while (!candidates.empty()) {
     newCand.clear();
