@@ -120,11 +120,6 @@ if options.iteration!=0:
     )
     process.es_prefer_trackerAlignmentErr = cms.ESPrefer("PoolDBESSource","myTrackerAlignmentErr")
 
-##
-## Trigger Selection
-##
-process.load("Alignment.APEEstimation.TriggerSelection_cff")
-
 
 ##
 ## ApeEstimator
