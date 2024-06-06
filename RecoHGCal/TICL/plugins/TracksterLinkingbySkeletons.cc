@@ -231,8 +231,6 @@ bool TracksterLinkingbySkeletons::areCompatible(const ticl::Trackster &myTrackst
             }
           }
         }
-        LogDebug("TracksterLinkingbySkeletons")
-            << "\t\t Check distance in Z " << minDistance_z << " TH " << min_distance_z_ << std::endl;
         if (minDistance_z < min_distance_z_[isEE]) {
           LogDebug("TracksterLinkingbySkeletons")
               << "\t Trackster have distance in Z " << minDistance_z
