@@ -939,7 +939,7 @@ def make_summary_table(indir,aggregation_rules,aggregation_rules_twiki, hashing_
         chart=subdirs_dict[subdir_name].get_piechart_js(50,summary_page)
         page_html+='%s'%chart
       else:
-        page_html+='<img src="%s" title="%s" height=50 width=50>' %(img_link)
+        page_html+='<img src="%s" title="%s" height=50 width=50>' %(img_link,"Unavailable")
       page_html+='</div></td>' 
 
     page_html+="          </tr>\n"        
