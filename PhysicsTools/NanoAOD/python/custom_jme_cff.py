@@ -1289,6 +1289,14 @@ def RecomputePuppiMET(proc):
   )
   return proc
 
+def RecomputePuppiWeightsAndMET(proc):
+  """
+  Recompute Puppi weights PuppiMET.
+  """
+  proc = RecomputePuppiWeights(proc)
+  proc = RecomputePuppiMET(proc)
+  return proc
+
 #===========================================================================
 #
 # CUSTOMIZATION function
