@@ -93,6 +93,13 @@ private:
   MonitorElement* meHitTvsPhi_;
   MonitorElement* meHitTvsEta_;
   MonitorElement* meHitTvsZ_;
+
+  MonitorElement* meHitTrkID1_;
+  MonitorElement* meHitTrkID2_;
+  MonitorElement* meHitTrkID3_;
+  MonitorElement* meHitTrkID4_;
+
+  MonitorElement* meHitDeltaT_;
 };
 
 // ------------ constructor and destructor --------------
@@ -120,32 +127,31 @@ void BtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
   auto btlSimHitsHandle = makeValid(iEvent.getHandle(btlSimHitsToken_));
   MixCollection<PSimHit> btlSimHits(btlSimHitsHandle.product());
 
-  std::unordered_map<uint32_t, MTDHit> m_btlHits;
-  std::unordered_map<uint32_t, std::set<int> > m_btlTrkPerCell;
+  std::unordered_map<uint32_t, std::unordered_map<uint64_t, MTDHit> > m_btlHitsPerCell;
 
-  // --- Loop over the BLT SIM hits
+  // --- Loop over the BLT SIM hits and accumulate the hits with the same track ID in each cell
   for (auto const& simHit : btlSimHits) {
-    // --- Use only hits compatible with the in-time bunch-crossing
+    // --- Use only SIM hits compatible with the in-time bunch-crossing
     if (simHit.tof() < 0 || simHit.tof() > 25.)
       continue;
 
     DetId id = simHit.detUnitId();
 
-    m_btlTrkPerCell[id.rawId()].insert(simHit.trackId());
+    // --- Build a global track ID by combining the SIM hit's eventId and trackId
+    uint64_t globalTrkID = ((uint64_t)simHit.eventId().rawId() << 32) | simHit.trackId();
 
-    auto simHitIt = m_btlHits.emplace(id.rawId(), MTDHit()).first;
+    // --- Sum the energies of SIM hits with the same track ID in the same cell
+    m_btlHitsPerCell[id.rawId()][globalTrkID].energy += convertUnitsTo(0.001_MeV, simHit.energyLoss());
 
-    // --- Accumulate the energy (in MeV) of SIM hits in the same detector cell
-    (simHitIt->second).energy += convertUnitsTo(0.001_MeV, simHit.energyLoss());
-
-    // --- Get the time of the first SIM hit in the cell
-    if ((simHitIt->second).time == 0 || simHit.tof() < (simHitIt->second).time) {
-      (simHitIt->second).time = simHit.tof();
+    // --- Assign the time and position of the first SIM hit in time to the accumulated hit
+    if (m_btlHitsPerCell[id.rawId()][globalTrkID].time == 0. ||
+        simHit.tof() < m_btlHitsPerCell[id.rawId()][globalTrkID].time) {
+      m_btlHitsPerCell[id.rawId()][globalTrkID].time = simHit.tof();
 
       auto hit_pos = simHit.localPosition();
-      (simHitIt->second).x = hit_pos.x();
-      (simHitIt->second).y = hit_pos.y();
-      (simHitIt->second).z = hit_pos.z();
+      m_btlHitsPerCell[id.rawId()][globalTrkID].x = hit_pos.x();
+      m_btlHitsPerCell[id.rawId()][globalTrkID].y = hit_pos.y();
+      m_btlHitsPerCell[id.rawId()][globalTrkID].z = hit_pos.z();
     }
 
   }  // simHit loop
@@ -154,20 +160,50 @@ void BtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
   //  Histogram filling
   // ==============================================================================
 
-  if (!m_btlHits.empty())
-    meNhits_->Fill(log10(m_btlHits.size()));
+  if (!m_btlHitsPerCell.empty())
+    meNhits_->Fill(log10(m_btlHitsPerCell.size()));
 
-  for (auto const& hit : m_btlTrkPerCell)
-    meNtrkPerCell_->Fill((hit.second).size());
+  // --- Loop over the BTL cells
+  for (auto const& cell : m_btlHitsPerCell) {
+    // --- Get the map of the hits in the cell
+    const auto& m_hits = cell.second;
 
-  for (auto const& hit : m_btlHits) {
-    meHitLogEnergy_->Fill(log10((hit.second).energy));
-
-    if ((hit.second).energy < hitMinEnergy_)
+    // --- Skip cells with no hits
+    if (m_hits.empty())
       continue;
 
-    // --- Get the SIM hit global position
-    BTLDetId detId(hit.first);
+    // --- Loop over the hits in the cell, sum the hit energies and store the hit IDs in a vector
+    std::vector<uint64_t> v_hitID;
+    float ene_tot_cell = 0.;
+
+    for (auto const& hit : m_hits) {
+      ene_tot_cell += hit.second.energy;
+      v_hitID.push_back(hit.first);
+    }
+
+    meHitLogEnergy_->Fill(log10(ene_tot_cell));
+
+    // --- Skip cells with a total anergy less than hitMinEnergy_
+    if (ene_tot_cell < hitMinEnergy_)
+      continue;
+
+    // --- Order the hits in time
+    bool swapped;
+    for (unsigned int ihit = 0; ihit < v_hitID.size() - 1; ++ihit) {
+      swapped = false;
+      for (unsigned int jhit = 0; jhit < v_hitID.size() - ihit - 1; ++jhit) {
+        if (m_hits.at(v_hitID[jhit]).time > m_hits.at(v_hitID[jhit + 1]).time) {
+          std::swap(v_hitID[jhit], v_hitID[jhit + 1]);
+          swapped = true;
+        }
+      }
+      if (swapped == false)
+        break;
+    }
+
+    // --- Get the hit global position
+
+    BTLDetId detId(cell.first);
     DetId geoId = detId.geographicalId(MTDTopologyMode::crysLayoutFromTopoMode(topology->getMTDTopologyMode()));
     const MTDGeomDet* thedet = geom->idToDet(geoId);
     if (thedet == nullptr)
@@ -176,19 +212,21 @@ void BtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
     const ProxyMTDTopology& topoproxy = static_cast<const ProxyMTDTopology&>(thedet->topology());
     const RectangularMTDTopology& topo = static_cast<const RectangularMTDTopology&>(topoproxy.specificTopology());
 
-    Local3DPoint local_point(
-        convertMmToCm((hit.second).x), convertMmToCm((hit.second).y), convertMmToCm((hit.second).z));
+    Local3DPoint local_point(convertMmToCm(m_hits.at(v_hitID[0]).x),
+                             convertMmToCm(m_hits.at(v_hitID[0]).y),
+                             convertMmToCm(m_hits.at(v_hitID[0]).z));
 
     local_point = topo.pixelToModuleLocalPoint(local_point, detId.row(topo.nrows()), detId.column(topo.nrows()));
     const auto& global_point = thedet->toGlobal(local_point);
 
     // --- Fill the histograms
-    meHitEnergy_->Fill((hit.second).energy);
-    meHitTime_->Fill((hit.second).time);
 
-    meHitXlocal_->Fill((hit.second).x);
-    meHitYlocal_->Fill((hit.second).y);
-    meHitZlocal_->Fill((hit.second).z);
+    meHitEnergy_->Fill(ene_tot_cell);
+    meHitTime_->Fill(m_hits.at(v_hitID[0]).time);
+
+    meHitXlocal_->Fill(m_hits.at(v_hitID[0]).x);
+    meHitYlocal_->Fill(m_hits.at(v_hitID[0]).y);
+    meHitZlocal_->Fill(m_hits.at(v_hitID[0]).z);
 
     meOccupancy_->Fill(global_point.z(), global_point.phi());
 
@@ -198,15 +236,51 @@ void BtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
     meHitPhi_->Fill(global_point.phi());
     meHitEta_->Fill(global_point.eta());
 
-    meHitTvsE_->Fill((hit.second).energy, (hit.second).time);
-    meHitEvsPhi_->Fill(global_point.phi(), (hit.second).energy);
-    meHitEvsEta_->Fill(global_point.eta(), (hit.second).energy);
-    meHitEvsZ_->Fill(global_point.z(), (hit.second).energy);
-    meHitTvsPhi_->Fill(global_point.phi(), (hit.second).time);
-    meHitTvsEta_->Fill(global_point.eta(), (hit.second).time);
-    meHitTvsZ_->Fill(global_point.z(), (hit.second).time);
+    meHitTvsE_->Fill(ene_tot_cell, m_hits.at(v_hitID[0]).time);
+    meHitEvsPhi_->Fill(global_point.phi(), ene_tot_cell);
+    meHitEvsEta_->Fill(global_point.eta(), ene_tot_cell);
+    meHitEvsZ_->Fill(global_point.z(), ene_tot_cell);
+    meHitTvsPhi_->Fill(global_point.phi(), m_hits.at(v_hitID[0]).time);
+    meHitTvsEta_->Fill(global_point.eta(), m_hits.at(v_hitID[0]).time);
+    meHitTvsZ_->Fill(global_point.z(), m_hits.at(v_hitID[0]).time);
 
-  }  // hit loop
+    meNtrkPerCell_->Fill(v_hitID.size());
+
+    // first hit in the cell
+    int trackID = (int)(v_hitID[0] & 0xFFFFFFFF) / 100000000;
+    meHitTrkID1_->Fill(trackID);
+
+    // second hit in the cell
+    if (v_hitID.size() == 2) {
+      float deltaT = m_hits.at(v_hitID[1]).time - m_hits.at(v_hitID[0]).time;
+      meHitDeltaT_->Fill(deltaT);
+
+      trackID = (int)(v_hitID[1] & 0xFFFFFFFF) / 100000000;
+      meHitTrkID2_->Fill(trackID);
+
+    }
+    // third hit in the cell
+    else if (v_hitID.size() == 3) {
+      float deltaT = std::max(m_hits.at(v_hitID[1]).time - m_hits.at(v_hitID[0]).time,
+                              m_hits.at(v_hitID[2]).time - m_hits.at(v_hitID[1]).time);
+      meHitDeltaT_->Fill(deltaT);
+
+      trackID = (int)(v_hitID[2] & 0xFFFFFFFF) / 100000000;
+      meHitTrkID3_->Fill(trackID);
+
+    }
+    // fourth hit in the cell
+    else if (v_hitID.size() == 4) {
+      float deltaT = std::max(std::max(m_hits.at(v_hitID[1]).time - m_hits.at(v_hitID[0]).time,
+                                       m_hits.at(v_hitID[2]).time - m_hits.at(v_hitID[1]).time),
+                              m_hits.at(v_hitID[3]).time - m_hits.at(v_hitID[2]).time);
+      meHitDeltaT_->Fill(deltaT);
+
+      trackID = (int)(v_hitID[3] & 0xFFFFFFFF) / 100000000;
+      meHitTrkID4_->Fill(trackID);
+    }
+
+  }  // cell loop
 
   // --- This is to count the number of processed events, needed in the harvesting step
   meNevents_->Fill(0.5);
@@ -256,6 +330,13 @@ void BtlSimHitsValidation::bookHistograms(DQMStore::IBooker& ibook,
       ibook.bookProfile("BtlHitTvsEta", "BTL SIM time vs #eta;#eta_{SIM};T_{SIM} [ns]", 50, -1.55, 1.55, 0., 100.);
   meHitTvsZ_ =
       ibook.bookProfile("BtlHitTvsZ", "BTL SIM time vs Z;Z_{SIM} [cm];T_{SIM} [ns]", 50, -260., 260., 0., 100.);
+
+  meHitTrkID1_ = ibook.book1I("BtlHitTrkID1", "Track ID of the first hit;trackID", 10, 0, 10);
+  meHitTrkID2_ = ibook.book1I("BtlHitTrkID2", "Track ID of the second hit;trackID", 10, 0, 10);
+  meHitTrkID3_ = ibook.book1I("BtlHitTrkID3", "Track ID of the third hit;trackID", 10, 0, 10);
+  meHitTrkID4_ = ibook.book1I("BtlHitTrkID4", "Track ID of the fourth hit;trackID", 10, 0, 10);
+
+  meHitDeltaT_ = ibook.book1D("BtlHitDeltaT", "Time difference between hits in the same cell", 100., 0., 25.);
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
