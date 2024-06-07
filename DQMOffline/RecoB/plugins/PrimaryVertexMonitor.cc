@@ -62,9 +62,9 @@ void PrimaryVertexMonitor::bookHistograms(DQMStore::IBooker& iBooker, edm::Run c
   iBooker.setCurrentFolder(dqmLabel);
 
   //   xPos = iBooker.book1D ("xPos","x Coordinate" ,100, -0.1, 0.1);
-
-  nbvtx = iBooker.book1D("vtxNbr", "Reconstructed Vertices in Event", 80, -0.5, 79.5);
-  nbgvtx = iBooker.book1D("goodvtxNbr", "Reconstructed Good Vertices in Event", 80, -0.5, 79.5);
+  auto maxPU = conf_.getParameter<double>("PUMax");
+  nbvtx = iBooker.book1D("vtxNbr", "Reconstructed Vertices in Event", maxPU, -0.5, maxPU - 0.5);
+  nbgvtx = iBooker.book1D("goodvtxNbr", "Reconstructed Good Vertices in Event", maxPU, -0.5, maxPU - 0.5);
 
   // to be configured each year...
   auto vposx = conf_.getParameter<double>("Xpos");
@@ -144,8 +144,8 @@ void PrimaryVertexMonitor::bookHistograms(DQMStore::IBooker& iBooker, edm::Run c
   bsSigmaZ = iBooker.book1D("bsSigmaZ", "BeamSpot sigmaZ", 100, 0., 10.);
   bsDxdz = iBooker.book1D("bsDxdz", "BeamSpot dxdz", 100, -0.0003, 0.0003);
   bsDydz = iBooker.book1D("bsDydz", "BeamSpot dydz", 100, -0.0003, 0.0003);
-  bsBeamWidthX = iBooker.book1D("bsBeamWidthX", "BeamSpot BeamWidthX", 100, 0., 100.);
-  bsBeamWidthY = iBooker.book1D("bsBeamWidthY", "BeamSpot BeamWidthY", 100, 0., 100.);
+  bsBeamWidthX = iBooker.book1D("bsBeamWidthX", "BeamSpot BeamWidthX", 500, 0., 15.);
+  bsBeamWidthY = iBooker.book1D("bsBeamWidthY", "BeamSpot BeamWidthY", 500, 0., 15.);
   bsType = iBooker.book1D("bsType", "BeamSpot type", 4, -1.5, 2.5);
   bsType->setBinLabel(1, "Unknown");
   bsType->setBinLabel(2, "Fake");
