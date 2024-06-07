@@ -191,7 +191,8 @@ uint32_t HGCalSD::setDetUnitId(const G4Step* aStep) {
 
   uint32_t id = setDetUnitId(layer, module, cell, iz, hitPoint);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCSim") << "ID Layer " << layer << " Module " << module << " Cell " << cell << " " << std::hex << id << std::dec << " " << HGCSiliconDetId(id);
+  edm::LogVerbatim("HGCSim") << "ID Layer " << layer << " Module " << module << " Cell " << cell << " " << std::hex
+                             << id << std::dec << " " << HGCSiliconDetId(id);
 #endif
   if ((rejectMB_ || fiducialCut_) && id != 0) {
     auto uv = HGCSiliconDetId(id).waferUV();
