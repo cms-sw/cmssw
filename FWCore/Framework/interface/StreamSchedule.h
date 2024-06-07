@@ -368,7 +368,7 @@ namespace edm {
 
     auto id = principal.id();
     ServiceWeakToken weakToken = token;
-    auto doneTask = make_waiting_task([this, iHolder = std::move(iHolder), id, cleaningUpAfterException, weakToken](
+    auto doneTask = make_waiting_task([this, iHolder = std::move(iHolder), cleaningUpAfterException, weakToken](
                                           std::exception_ptr const* iPtr) mutable {
       std::exception_ptr excpt;
       if (iPtr) {
