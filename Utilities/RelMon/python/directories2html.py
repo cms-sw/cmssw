@@ -83,7 +83,7 @@ style_location="/cms-service-reldqm"
 def get_page_header(directory=None, standalone=False, additional_header=""):
   style_location="/cms-service-reldqm"
   if standalone:
-    style_location = "http://cms-service-reldqm.web.cern.ch/" + style_location +"/"
+    style_location = "https://raw.githubusercontent.com/cms-PdmV/RelMonService2/77c534ec93401ca5de222ac62a6422f02389dafc/report_website/" #RelMonService2 
   javascripts=''
   style=''
   tablestyle=''
