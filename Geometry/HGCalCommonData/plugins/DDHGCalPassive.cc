@@ -21,9 +21,7 @@
 #include <vector>
 #include <sstream>
 
-#ifndef EDM_ML_DEBUG
-#define EDM_ML_DEBUG
-#endif
+// #define EDM_ML_DEBUG
 
 using namespace angle_units::operators;
 
