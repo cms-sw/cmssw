@@ -1282,7 +1282,7 @@ def RecomputePuppiMET(proc):
     runOnMC = False
 
   from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
-  runMetCorAndUncFromMiniAOD(proc, isData=runOnMC,
+  runMetCorAndUncFromMiniAOD(proc, isData=not(runOnMC),
     jetCollUnskimmed='updatedJetsPuppi',metType='Puppi',postfix='Puppi',jetFlavor='AK4PFPuppi',
     puppiProducerLabel='packedpuppi',puppiProducerForMETLabel='packedpuppiNoLep',
     recoMetFromPFCs=True
