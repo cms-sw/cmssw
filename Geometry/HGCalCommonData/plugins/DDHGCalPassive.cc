@@ -21,7 +21,10 @@
 #include <vector>
 #include <sstream>
 
+#ifndef EDM_ML_DEBUG
 #define EDM_ML_DEBUG
+#endif
+
 using namespace angle_units::operators;
 
 class DDHGCalPassive : public DDAlgorithm {
