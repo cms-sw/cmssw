@@ -77,6 +77,7 @@ def parseBaseline(name, baseline):
     parsed = {}
     parsed["name"] = name
     
+    parsed["complete"] = False
     if "complete" in baseline:
         parsed["complete"] = baseline["complete"]
         if parsed["complete"]: # no further arguments needed as no reprocessing is performed

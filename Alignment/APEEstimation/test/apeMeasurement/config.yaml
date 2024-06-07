@@ -4,6 +4,7 @@ datasets:
         - 333333
         - 333336
         - 333339
+        lastRun: 333340
         dataset: /MinimumBias/Run2023C-TkAlMinBias-PromptReco-v1/ALCARECO
         json: /eos/user/c/cmsdqm/www/CAF/certification/Collisions23/DCSOnly_JSON/Collisions23_13p6TeV_eraBCD_366403_370790_DCSOnly_TkPx.json 
         
@@ -25,7 +26,7 @@ datasets:
     somedesignsample:
         iovs: 
         - 1
-        fileList: /path/to/fileList_iov{}.py  
+        fileList: /path/to/fileList_iov{}.py # will be converted to /path/to/fileList_iov1.py
         redo: False # if data set files already exist, redo skim?
         
         targetPath: /some/eos/path # where to transfer the files
@@ -51,8 +52,6 @@ baselines:
         #~ maxIterations: 15
         #~ baseline: Design
         #~ dataset: MinBias2024A
-    
-        #~ #OPTIONAL, can inherit from dataset
         #~ globalTag: 141X_Whatever_GT
         #~ conditions:
             #~ AlignmentRcd:
