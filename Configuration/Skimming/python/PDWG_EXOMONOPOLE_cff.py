@@ -22,12 +22,7 @@ hltMonopole.HLTPaths = cms.vstring(
     #"HLT_DoublePhoton70_v*",
     #"HLT_DoublePhoton85_v*",
     #2024: on EGamma, MET and JetMET datasets
-    "HLT_Photon175_v*",
     "HLT_Photon200_v*",
-    "HLT_PFMET170_HBHECleaned_v*",
-    "HLT_PFMET300_v*",
-    "HLT_PFMET250_HBHECleaned_v*",
-    "HLT_PFMET200_HBHE_BeamHaloCleaned_v*",
     "HLT_PFMET200_BeamHaloCleaned_v*"
 )
 hltMonopole.throw = False
