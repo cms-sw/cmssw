@@ -36,6 +36,8 @@ autoNANO = {
     # JME custom NANO
     'JME' : { 'sequence': '@PHYS',
                'customize': '@PHYS+PhysicsTools/NanoAOD/custom_jme_cff.PrepJMECustomNanoAOD'},
+    'JMErePuppi' : { 'sequence': '@PHYS',
+                     'customize': '@PHYS+@JME+PhysicsTools/NanoAOD/custom_jme_cff.RecomputePuppiWeightsAndMET'},
     # Muon POG flavours : add tables through customize, supposed to be combined with PHYS
     'MUPOG' : { 'sequence': '@PHYS',
                 'customize' : '@PHYS+PhysicsTools/NanoAOD/custom_muon_cff.PrepMuonCustomNanoAOD'},
