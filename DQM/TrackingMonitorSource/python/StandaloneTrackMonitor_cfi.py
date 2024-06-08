@@ -24,6 +24,6 @@ standaloneTrackMonitor = standaloneTrackMonitorDefault.clone(
     verbose           = False,
     trackEtaH         = dict(Xbins = 60,  Xmin = -3.0, Xmax = 3.0),
     trackPtH          = dict(Xbins = 100, Xmin =  0.0 ,Xmax = 100.0),
-    trackPhiH         = dict(Xbins = 100, Xmin = 3.15, Xmax = 3.15),
+    trackPhiH         = dict(Xbins = 100, Xmin = -3.15, Xmax = 3.15),
     #trackMVAH        = dict(Xbins = 100 ,Xmin = -1.0, Xmax = 1.0)
 )
