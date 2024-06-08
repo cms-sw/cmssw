@@ -151,50 +151,27 @@ void SingleLongTrackProducer::produce(edm::Event &iEvent, const edm::EventSetup 
   bool hitIsNotValid{false};
 
   for (const auto &track : selTracks) {
-    reco::HitPattern hitpattern = track.hitPattern();
-    int deref{0};
-
-    // this checks track recHits
-    try {  // (Un)Comment this line with /* to (not) allow for events with not valid hits
+    // Check validity of track extra and rechits
+    if (track.recHitsOk()) {
+      reco::HitPattern hitpattern = track.hitPattern();
       auto hb = track.recHitsBegin();
 
+      // Checking if rechits are valid
       for (unsigned int h = 0; h < track.recHitsSize(); h++) {
         auto recHit = *(hb + h);
         auto const &hit = *recHit;
-
         if (onlyValidHits && !hit.isValid()) {
           hitIsNotValid = true;
           continue;
         }
       }
-    } catch (cms::Exception const &e) {
-      deref += 1;
-      if (debug)
-        std::cerr << e.explainSelf() << std::endl;
-    }
 
-    if (hitIsNotValid == true)
-      break;  // (Un)Comment this line with */ to (not) allow for events with not valid hits
+      if (hitIsNotValid == true)
+        break;  // (Un)Comment this line to (not) allow for events with not valid hits
 
-    int deref2{0};
-
-    // this checks track hitPattern hits
-    try {
-      auto hb = track.recHitsBegin();
-
+      // Checking if hitpattern hits are valid
       for (unsigned int h = 0; h < track.recHitsSize(); h++) {
         uint32_t pHit = hitpattern.getHitPattern(reco::HitPattern::TRACK_HITS, h);
-
-        auto recHit = *(hb + h);
-        auto const &hit = *recHit;
-
-        if (onlyValidHits && !hit.isValid()) {
-          if (debug)
-            edm::LogPrint("SingleLongTrackProducer") << "hit not valid: " << h;
-          continue;
-        }
-
-        // loop over the hits of the track.
         if (onlyValidHits && !(hitpattern.validHitFilter(pHit))) {
           if (debug)
             edm::LogPrint("SingleLongTrackProducer") << "hit not valid: " << h;
@@ -202,15 +179,8 @@ void SingleLongTrackProducer::produce(edm::Event &iEvent, const edm::EventSetup 
         }
       }
       goodTracks->push_back(track);
-    } catch (cms::Exception const &e) {
-      deref2 += 1;
-      if (debug)
-        std::cerr << e.explainSelf() << std::endl;
-    }
-
-    if (debug)
-      edm::LogPrint("SingleLongTrackProducer")
-          << "found tracks with " << deref << "missing valid hits and " << deref2 << " missing hit pattern";
+    } else
+      break;
   }
 
   if (debug) {
