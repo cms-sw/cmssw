@@ -49,7 +49,6 @@
 
 <class name="PixelSimHitExtraInfoLite" ClassVersion="3">
    <field name="index_"   transient="true" />
-   <field name="hitIndex"   transient="true" />
    <field name="UncompressedEntryPoint_"   transient="true" />
    <field name="UncompressedExitPoint_"   transient="true" />
    <version ClassVersion="3" checksum="425674366"/>
