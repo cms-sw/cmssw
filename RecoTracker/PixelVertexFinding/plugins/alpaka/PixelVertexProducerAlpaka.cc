@@ -64,12 +64,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         ptMin_(conf.getParameter<double>("PtMin")),  // 0.5 GeV
         ptMax_(conf.getParameter<double>("PtMax")),  // 75. Onsumes
         tokenDeviceTrack_(consumes(conf.getParameter<edm::InputTag>("pixelTrackSrc"))),
-        tokenDeviceVertex_(produces()) {
-    // Workaround until the ProductID problem in issue https://github.com/cms-sw/cmssw/issues/44643 is fixed
-#ifdef ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLED
-    producesTemporarily("edm::DeviceProduct<alpaka_cuda_async::ZVertexSoACollection>");
-#endif
-  }
+        tokenDeviceVertex_(produces()) {}
 
   template <typename TrackerTraits>
   void PixelVertexProducerAlpaka<TrackerTraits>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
