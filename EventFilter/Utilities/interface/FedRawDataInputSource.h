@@ -115,7 +115,7 @@ private:
 
   const edm::DaqProvenanceHelper daqProvenanceHelper_;
 
-  std::unique_ptr<FRDEventMsgView> event_;
+  std::unique_ptr<edm::streamer::FRDEventMsgView> event_;
 
   edm::EventID eventID_;
   edm::ProcessHistoryID processHistoryID_;

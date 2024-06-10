@@ -23,6 +23,8 @@ Disclaimer: Most of the code here is randomly written during
 #include "zlib.h"
 
 int main() try {
+  using namespace edm::streamer;
+
   typedef std::vector<uint8> Buffer;
   Buffer buf(2024);
   Buffer buf2(2024);
