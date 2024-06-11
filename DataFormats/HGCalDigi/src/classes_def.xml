@@ -48,9 +48,25 @@
 
   <class name="hgcaldigi::HGCalDigiSoALayout<128,false>"/>
   <class name="edm::Wrapper<PortableHostCollection<hgcaldigi::HGCalDigiSoALayout<128,false> > >" splitLevel="0"/>
-  
+
   <!-- Recursive templates implementing the association of indices and layouts, and containing the data -->
   <class name="portablecollection::CollectionLeaf<0, hgcaldigi::HGCalDigiSoALayout<128, false>>"/>
+
+  <class name="hgcaldigi::HGCalECONDInfoSoA"/>
+  <class name="hgcaldigi::HGCalECONDInfoSoA::View"/>
+  <class name="hgcaldigi::HGCalECONDInfoHost"/>
+  <read
+    sourceClass="hgcaldigi::HGCalECONDInfoHost"
+    targetClass="hgcaldigi::HGCalECONDInfoHost"
+    version="[1-]"
+    source="hgcaldigi::HGCalECONDInfoSoA layout_;"
+    target="buffer_,layout_,view_"
+    embed="false">
+  <![CDATA[
+    hgcaldigi::HGCalECONDInfoHost::ROOTReadStreamer(newObj, onfile.layout_);
+  ]]>
+  </read>
+  <class name="edm::Wrapper<hgcaldigi::HGCalECONDInfoHost>" splitLevel="0"/>
 
   <class name="HGCalFlaggedECONDInfo"/>
   <class name="HGCalFlaggedECONDInfoCollection"/>

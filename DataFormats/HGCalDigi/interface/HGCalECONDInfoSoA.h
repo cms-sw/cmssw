@@ -47,6 +47,7 @@ namespace hgcaldigi {
                       // 3: Wrong ECON-D header marker
                       // 4: ECON-D payload length overflow(>469)
                       // 5: unpacked ECON-D length and payload length not match
+                      // 6: S-Link trailer location error
                       SOA_COLUMN(uint8_t, exception),
                       // Location
                       // If exception found before ECON-D, this would be 0

@@ -74,7 +74,7 @@ namespace hgcal {
     CAPTUREBLOCK_OC_MASK = 0x7,
     CAPTUREBLOCK_OC_POS = 4,
     SLINK_BOE_MASK = 0xff,
-    SLINK_BOE_POS = 23,
+    SLINK_BOE_POS = 24,
     SLINK_V_MASK = 0xf,
     SLINK_V_POS = 19,
     SLINK_R8_MASK = 0xff,

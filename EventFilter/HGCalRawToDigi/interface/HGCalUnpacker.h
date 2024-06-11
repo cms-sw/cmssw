@@ -15,6 +15,9 @@
 #include "DataFormats/HGCalDigi/interface/HGCalDigiHost.h"
 #include "DataFormats/HGCalDigi/interface/HGCalECONDInfoHost.h"
 #include "CondFormats/HGCalObjects/interface/HGCalMappingModuleIndexer.h"
+#include "CondFormats/HGCalObjects/interface/HGCalConfiguration.h"
+#include "FWCore/Utilities/interface/Exception.h"
+
 #include <cstdint>
 #include <functional>
 #include <vector>
@@ -30,6 +33,7 @@ public:
   void parseFEDData(unsigned fedId,
                     const FEDRawData& fed_data,
                     const HGCalMappingModuleIndexer& moduleIndexer,
+                    const HGCalConfiguration& config,
                     hgcaldigi::HGCalDigiHost& digis,
                     hgcaldigi::HGCalECONDInfoHost& econdInfo,
                     bool headerOnlyMode = false);

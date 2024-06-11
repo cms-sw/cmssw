@@ -16,6 +16,8 @@
 #include "CondFormats/DataRecord/interface/HGCalElectronicsMappingRcd.h"
 #include "CondFormats/HGCalObjects/interface/HGCalMappingModuleIndexer.h"
 #include "CondFormats/HGCalObjects/interface/HGCalMappingCellIndexer.h"
+#include "CondFormats/DataRecord/interface/HGCalModuleConfigurationRcd.h"
+#include "CondFormats/HGCalObjects/interface/HGCalConfiguration.h"
 // #include "CondFormats/HGCalObjects/interface/alpaka/HGCalMappingParameterDeviceCollection.h"
 // #include "Geometry/HGCalMapping/interface/HGCalMappingTools.h"
 
@@ -36,6 +38,7 @@ private:
 
   // output tokens
   const edm::EDPutTokenT<hgcaldigi::HGCalDigiHost> digisToken_;
+  const edm::EDPutTokenT<hgcaldigi::HGCalECONDInfoHost> econdInfoToken_;
 
   // TODO @hqucms
   // what else do we want to output?
@@ -48,8 +51,10 @@ private:
   edm::ESWatcher<HGCalElectronicsMappingRcd> mapWatcher_;
   edm::ESGetToken<HGCalMappingCellIndexer, HGCalElectronicsMappingRcd> cellIndexToken_;
   edm::ESGetToken<HGCalMappingModuleIndexer, HGCalElectronicsMappingRcd> moduleIndexToken_;
+  edm::ESGetToken<HGCalConfiguration, HGCalModuleConfigurationRcd> configToken_; 
   HGCalMappingCellIndexer cellIndexer_;
   HGCalMappingModuleIndexer moduleIndexer_;
+  HGCalConfiguration config_;
 
   // TODO @hqucms
   // how to implement this enabled eRx pattern? Can this be taken from the logical mapping?
@@ -67,11 +72,13 @@ private:
 HGCalRawToDigi::HGCalRawToDigi(const edm::ParameterSet& iConfig)
     : fedRawToken_(consumes<FEDRawDataCollection>(iConfig.getParameter<edm::InputTag>("src"))),
       digisToken_(produces<hgcaldigi::HGCalDigiHost>()),
+      econdInfoToken_(produces<hgcaldigi::HGCalECONDInfoHost>()),
       // flaggedRawDataToken_(produces<HGCalFlaggedECONDInfoCollection>("UnpackerFlags")),
       // elecDigisToken_(produces<HGCalElecDigiCollection>("DIGI")),
       // elecCMsToken_(produces<HGCalElecDigiCollection>("CM")),
       cellIndexToken_(esConsumes<edm::Transition::BeginRun>()),
       moduleIndexToken_(esConsumes<edm::Transition::BeginRun>()),
+      configToken_(esConsumes<edm::Transition::BeginRun>()),
       // unpackerConfig_(HGCalUnpackerConfig{.sLinkBOE = iConfig.getParameter<unsigned int>("slinkBOE"),
       //                                     .cbHeaderMarker = iConfig.getParameter<unsigned int>("cbHeaderMarker"),
       //                                     .econdHeaderMarker = iConfig.getParameter<unsigned int>("econdHeaderMarker"),
@@ -84,6 +91,7 @@ void HGCalRawToDigi::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetu
   if (mapWatcher_.check(iSetup)) {
     moduleIndexer_ = iSetup.getData(moduleIndexToken_);
     cellIndexer_ = iSetup.getData(cellIndexToken_);
+    config_ = iSetup.getData(configToken_);
   }
 
   // TODO @hqucms
@@ -108,7 +116,7 @@ void HGCalRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
     const auto& fed_data = raw_data.FEDData(fedId);
     if (fed_data.size() == 0)
       continue;
-    unpacker_.parseFEDData(fedId, fed_data, moduleIndexer_, digis, econdInfo, /*headerOnlyMode*/ false);
+    unpacker_.parseFEDData(fedId, fed_data, moduleIndexer_, config_, digis, econdInfo, /*headerOnlyMode*/ false);
   }
 
   // TODO @hqucms
@@ -183,6 +191,7 @@ void HGCalRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
 
   // put information to the event
   iEvent.emplace(digisToken_, std::move(digis));
+  iEvent.emplace(econdInfoToken_,std::move(econdInfo));
   // iEvent.emplace(flaggedRawDataToken_, std::move(flagged_econds));
   // iEvent.emplace(elecDigisToken_, std::move(elec_digis));
   // iEvent.emplace(elecCMsToken_, std::move(elec_cms));
