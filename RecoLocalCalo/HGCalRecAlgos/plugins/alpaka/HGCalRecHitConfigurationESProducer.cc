@@ -44,7 +44,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
         edm::ParameterSetDescription desc;
-        desc.add<int>("gain",2)->setComment("Manual override for gain (1: 80 fC, 2: 160 fC, 4: 320 fC)");
+        desc.addOptional<int>("gain",2)->setComment("Manual override for gain for all modules (1: 80 fC, 2: 160 fC, 4: 320 fC)");
         desc.add<edm::ESInputTag>("indexSource",edm::ESInputTag(""))->setComment("Label for module indexer to set SoA size");
         desc.add<edm::ESInputTag>("configSource",edm::ESInputTag(""))->setComment("Label for ROC configuration parameters");
         descriptions.addWithDefaultLabel(desc);

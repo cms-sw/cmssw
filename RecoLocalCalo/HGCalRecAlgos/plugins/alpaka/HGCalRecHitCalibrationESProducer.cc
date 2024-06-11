@@ -26,8 +26,8 @@
 #include <string>
 #include <iostream>
 #include <iomanip> // for std::setw
-#include <fstream> // needed to read json file with std::ifstream
 #include <sstream>
+#include <fstream> // needed to read json file with std::ifstream
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
 
@@ -89,10 +89,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
         // load calib parameters from JSON
         std::cout << "HGCalCalibrationESProducer::produce: filename_=" << filename_ << std::endl;
-        //std::ifstream infile("/home/hgcdaq00/DPG/test/hackathon_2024Mar/ineuteli/level0_calib_params.json");
         std::ifstream infile(filename_);
         json calib_data = json::parse(infile);
-        for (const auto& it: calib_data.items()) {
+        for (const auto& it: calib_data.items()) { // loop over module typecodes in JSON file
           std::string module = it.key(); // module typecode, e.g. "ML-F3PT-TX-0003"
           if (module=="Metadata") continue; // ignore metadata fields
           uint32_t offset = moduleMap.getIndexForModuleData(module); // convert module typecode to dense index for this module

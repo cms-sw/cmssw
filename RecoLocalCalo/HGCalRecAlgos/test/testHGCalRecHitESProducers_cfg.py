@@ -22,13 +22,16 @@ datadir = os.path.join(os.environ.get('CMSSW_BASE',''),"src/HGCalCommissioning/L
 options = VarParsing('standard')
 options.register('geometry', 'Extended2026D94', VarParsing.multiplicity.singleton, VarParsing.varType.string,
                  info="geometry to use")
-options.register('config',f"{datadir}/config_feds.json",mytype=VarParsing.varType.string,
+options.register('fedconfig',f"{datadir}/config_feds.json",mytype=VarParsing.varType.string,
+                 info="Path to configuration (JSON format)")
+options.register('modconfig',f"{datadir}/config_econds.json",mytype=VarParsing.varType.string,
                  info="Path to configuration (JSON format)")
 options.register('params',f"{datadir}/level0_calib_params.json",mytype=VarParsing.varType.string,
                  info="Path to calibration parameters (JSON format)")
 options.register('modules',
                  #"Geometry/HGCalMapping/data/ModuleMaps/modulelocator_test.txt", # test beam with six modules
-                 "Geometry/HGCalMapping/data/ModuleMaps/modulelocator_test_2mods.txt", # only first two modules,
+                 #"Geometry/HGCalMapping/data/ModuleMaps/modulelocator_test_2mods.txt", # only first two modules, fedId=49
+                 "HGCalCommissioning/SystemTestEventFilters/data/ModuleMaps/modulelocator_test_2mods.txt", # fedId=0
                  mytype=VarParsing.varType.string,
                  info="Path to module mapper. Absolute, or relative to CMSSW src directory")
 options.register('sicells','Geometry/HGCalMapping/data/CellMaps/WaferCellMapTraces.txt',mytype=VarParsing.varType.string,
@@ -42,13 +45,14 @@ if len(options.files)==0:
   #options.files=['file:/afs/cern.ch/user/y/yumiao/public/HGCAL_Raw_Data_Handling/Data/Digis/testFakeDigisSoA.root']
   #options.files=['file:/home/hgcdaq00/CMSSW/data/23234.103_TTbar_14TeV+2026D94Aging3000/step2.root'] # on DAQ PC
   #options.files=['file:/home/hgcdaq00/CMSSW/data/testFakeDigisSoA.root'] # on DAQ PC
-print(f">>> Geometry:     {options.geometry!r}")
-print(f">>> Input files:  {options.files!r}")
-print(f">>> Module map:   {options.modules!r}")
-print(f">>> SiCell map:   {options.sicells!r}")
-print(f">>> SipmCell map: {options.sipmcells!r}")
-print(f">>> Config:       {options.config!r}")
-print(f">>> Calib params: {options.params!r}")
+print(f">>> Geometry:      {options.geometry!r}")
+print(f">>> Input files:   {options.files!r}")
+print(f">>> Module map:    {options.modules!r}")
+print(f">>> SiCell map:    {options.sicells!r}")
+print(f">>> SipmCell map:  {options.sipmcells!r}")
+print(f">>> FED config:    {options.fedconfig!r}")
+print(f">>> ECON-D config: {options.modconfig!r}")
+print(f">>> Calib params:  {options.params!r}")
 
 # PROCESS
 from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9 as Era_Phase2
@@ -90,11 +94,14 @@ process.hgCalMappingESProducer.modules = cms.FileInPath(options.modules)
 #process.load("RecoLocalCalo.HGCalRecAlgos.hgCalConfigurationESProducer_cfi")
 process.hgcalConfigESProducer = cms.ESSource( # ESProducer to load configurations for unpacker
   'HGCalConfigurationESProducer',
-  filename=cms.string(options.config),
-  passthroughMode=cms.int32(0), # ignore mismatch
-  cbHeaderMarker=cms.int32(0x5f), # capture block
-  slinkHeaderMarker=cms.int32(0x2a),
-  econdHeaderMarker=cms.int32(0x154),
+  fedjson=cms.string(options.fedconfig), # JSON with FED configuration parameters
+  modjson=cms.string(options.modconfig), # JSON with ECON-D configuration parameters
+  passthroughMode=cms.int32(0),          # ignore mismatch
+  cbHeaderMarker=cms.int32(0x7f),        # capture block
+  #cbHeaderMarker=cms.int32(0x5f),        # capture block
+  slinkHeaderMarker=cms.int32(0x55),     # S-link
+  #slinkHeaderMarker=cms.int32(0x2a),     # S-link
+  econdHeaderMarker=cms.int32(0x154),    # ECON-D
   charMode=cms.int32(1),
   indexSource=cms.ESInputTag('hgCalMappingESProducer','')
 )
