@@ -206,7 +206,7 @@
     "online?": true,
     "owners": [
       "EXO",
-      "Scouting"
+      "TSG (Scouting)"
     ]
   },
   "DST_PFScouting_AXONominal_v": {
@@ -227,14 +227,14 @@
     "online?": true,
     "owners": [
       "EXO",
-      "Scouting"
+      "TSG (Scouting)"
     ]
   },
   "DST_PFScouting_AXOVTight_v": {
     "online?": true,
     "owners": [
       "EXO",
-      "Scouting"
+      "TSG (Scouting)"
     ]
   },
   "DST_PFScouting_DatasetMuon_v": {
@@ -272,12 +272,21 @@
       "TSG (Scouting)"
     ]
   },
+  "DST_PFScouting_SinglePhotonEB_v": {
+    "online?": true,
+    "owners": [
+      "EGM",
+      "EXO",
+      "SMP",
+      "TSG (Scouting)"
+    ]
+  },
   "DST_PFScouting_ZeroBias_v": {
     "online?": true,
     "owners": [
       "BPH",
       "EXO",
-      "Scouting"
+      "TSG (Scouting)"
     ]
   },
   "DST_Physics_v": {
@@ -4631,6 +4640,24 @@
       "BPH"
     ]
   },
+  "HLT_Mu0_Barrel_L1HP6_IP6_v": {
+    "online?": true,
+    "owners": [
+      "BPH"
+    ]
+  },
+  "HLT_Mu0_Barrel_L1HP6_v": {
+    "online?": true,
+    "owners": [
+      "BPH"
+    ]
+  },
+  "HLT_Mu0_Barrel_L1HP7_v": {
+    "online?": true,
+    "owners": [
+      "BPH"
+    ]
+  },
   "HLT_Mu0_Barrel_L1HP8_v": {
     "online?": true,
     "owners": [
@@ -5130,6 +5157,12 @@
     "online?": true,
     "owners": [
       "EXO"
+    ]
+  },
+  "HLT_Mu6_Barrel_L1HP7_IP6_v": {
+    "online?": true,
+    "owners": [
+      "BPH"
     ]
   },
   "HLT_Mu7_Barrel_L1HP8_IP6_v": {
@@ -7157,7 +7190,7 @@
     ]
   },
   "MC_PFScouting_v": {
-    "online?": true,
+    "online?": false,
     "owners": [
       "BPH",
       "EXO",
