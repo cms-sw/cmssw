@@ -84,9 +84,9 @@ process.maxEvents = cms.untracked.PSet(
       input = cms.untracked.int32(options.maxEvents)
 )
 
-process.options = cms.untracked.PSet(
-      SkipEvent = cms.untracked.vstring('ProductNotFound')
-)
+#process.options = cms.untracked.PSet(
+#      SkipEvent = cms.untracked.vstring('ProductNotFound')
+#)
 
 process.source = cms.Source(
       "PoolSource",
@@ -110,7 +110,7 @@ if options.mc:
 else:
       process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
       if options.run3:
-            process.GlobalTag = GlobalTag(process.GlobalTag, '112X_dataRun3_Prompt_v5', '')
+            process.GlobalTag = GlobalTag(process.GlobalTag, '140X_dataRun3_v3', '')
 
 ## running on unpacked data, or after running the unpacker
 if not options.mc or options.unpack:

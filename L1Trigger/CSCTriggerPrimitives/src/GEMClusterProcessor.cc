@@ -142,6 +142,21 @@ void GEMClusterProcessor::addCoincidenceClusters(const GEMPadDigiClusterCollecti
           if (!match)
             continue;
 
+          auto const& p_pads = p->pads();
+          auto const& co_p_pads = co_p->pads();
+
+          int num_unphys_pads_in_p = std::count_if(p_pads.begin(), p_pads.end(), [](auto pad) { return pad >= 192; });
+          int num_unphys_pads_co_p =
+              std::count_if(co_p_pads.begin(), co_p_pads.end(), [](auto pad) { return pad >= 192; });
+
+          if (num_unphys_pads_in_p > 0 || num_unphys_pads_co_p > 0) {
+            edm::LogWarning("GEMClusterProcessor")
+                << "Encountered unphysical GEM pads when making a coincidence cluster, resetting cluster to empty.";
+            clusters_.emplace_back(
+                id, co_id, GEMPadDigiCluster(), GEMPadDigiCluster(), delayGEMinOTMB_, tmbL1aWindowSize_);
+            continue;
+          }
+
           // make a new coincidence
           clusters_.emplace_back(id, co_id, *p, *co_p, delayGEMinOTMB_, tmbL1aWindowSize_);
           // std::cout << clusters_.back() << std::endl;
@@ -184,6 +199,16 @@ void GEMClusterProcessor::addSingleClusters(const GEMPadDigiClusterCollection* i
             return q.has_cluster(*p);
           }) != std::end(coincidences))
         continue;
+
+      auto const& p_pads = p->pads();
+      int num_unphys_pads = std::count_if(p_pads.begin(), p_pads.end(), [](auto pad) { return pad >= 192; });
+
+      if (num_unphys_pads > 0) {
+        edm::LogWarning("GEMClusterProcessor")
+            << "Encountered unphysical GEM pads when making a single cluster, resetting cluster to empty.";
+        clusters_.emplace_back(id, id, GEMPadDigiCluster(), GEMPadDigiCluster(), delayGEMinOTMB_, tmbL1aWindowSize_);
+        continue;
+      }
 
       // put the single clusters into the collection
       if (id.layer() == 1) {
