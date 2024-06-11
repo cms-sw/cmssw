@@ -18,9 +18,11 @@
 #include "TLatex.h"
 
 namespace {
-  enum { kEBChannels = 61200, kEEChannels = 14648, NRGBs = 5, NCont = 255 };
-  enum { MIN_IETA = 1, MIN_IPHI = 1, MAX_IETA = 85, MAX_IPHI = 360 };  // barrel lower and upper bounds on eta and phi
-  enum { IX_MIN = 1, IY_MIN = 1, IX_MAX = 100, IY_MAX = 100 };         // endcaps lower and upper bounds on x and y
+  static constexpr int kEBChannels = 61200, kEEChannels = 14648, NRGBs = 5, NCont = 255;
+  // barrel lower and upper bounds on eta and phi  
+  static constexpr int MIN_IETA = 1, MIN_IPHI = 1, MAX_IETA = 85, MAX_IPHI = 360;
+  // endcaps lower and upper bounds on x and y
+  static constexpr int IX_MIN = 1, IY_MIN = 1, IX_MAX = 100, IY_MAX = 100;
 
   /*******************************************************
         2d plot of ECAL barrel channel status of 1 IOV
