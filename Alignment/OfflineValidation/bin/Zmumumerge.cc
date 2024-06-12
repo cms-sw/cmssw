@@ -298,8 +298,8 @@ void Draw_TH1D_forMultiRootFiles(const vector<TString>& file_names,
   lg->SetLineColor(0);
   lg->SetEntrySeparation(0.05);
 
-  double ymin;
-  double ymax;
+  double ymin = 0.;
+  double ymax = 0.;
 
   for (auto const& labelname : label_names | boost::adaptors::indexed(0)) {
     double temp_ymin = th1d_input[labelname.index()]->GetMinimum();
