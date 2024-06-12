@@ -37,8 +37,9 @@ upgradeKeys[2017] = [
     '2023HI',
     '2023HIRP', #RawPrime
     '2024HLTOnDigi',
-    '2024HLTOnDigiPU'
-
+    '2024HLTOnDigiPU',
+    '2024GenOnly',
+    '2024SimOnGen',
 ]
 
 upgradeKeys[2026] = [
@@ -93,7 +94,9 @@ upgradeKeys[2026] = [
     '2026D113',
     '2026D113PU',
     '2026D114',
-    '2026D114PU'
+    '2026D114PU',
+    '2026D110GenOnly',
+    '2026D110SimOnGen',
 ]
 
 # pre-generation of WF numbers
@@ -178,7 +181,7 @@ class UpgradeWorkflow(object):
     def condition(self, fragment, stepList, key, hasHarvest):
         return False
     def preventReuse(self, stepName, stepDict, k):
-        if "Sim" in stepName:
+        if "Sim" in stepName and stepName != "Sim":
             stepDict[stepName][k] = None
         if "Gen" in stepName:
             stepDict[stepName][k] = None
@@ -198,6 +201,7 @@ class UpgradeWorkflow_baseline(UpgradeWorkflow):
 upgradeWFs['baseline'] = UpgradeWorkflow_baseline(
     steps =  [
         'Gen',
+        'Sim',
         'GenSim',
         'GenSimHLBeamSpot',
         'GenSimHLBeamSpot14',
@@ -2620,7 +2624,7 @@ upgradeWFs['Run3FStrackingOnly'] = UpgradeWorkflow_Run3FStrackingOnly(
 
 class UpgradeWorkflow_Run3FSMBMixing(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
-        if 'Gen' in step:
+        if 'Gen' in step and 'GenOnly' not in step:
             stepDict[stepName][k] = merge([{'-s':'GEN,SIM,RECOBEFMIX',
                                             '--fast':'',
                                             '--era':'Run3_FastSim',
@@ -2933,7 +2937,22 @@ upgradeProperties[2017] = {
         'Era':'Run3_pp_on_PbPb_approxSiStripClusters',
         'BeamSpot': 'DBrealistic',
         'ScenToRun' : ['GenSim','Digi','RecoNano','HARVESTNano','ALCA'],
-    }
+    },
+    '2024GenOnly' : {
+        'Geom' : 'DB:Extended',
+        'GT' : 'auto:phase1_2024_realistic',
+        'Era' : 'Run3',
+        'BeamSpot': 'DBrealistic',
+        'ScenToRun' : ['Gen'],
+    },
+    '2024SimOnGen' : {
+        'Geom' : 'DB:Extended',
+        'GT' : 'auto:phase1_2024_realistic',
+        'HLTmenu': '@relval2024',
+        'Era' : 'Run3',
+        'BeamSpot': 'DBrealistic',
+        'ScenToRun' : ['Gen','Sim','Digi','RecoNano','HARVESTNano','ALCA'],
+    },
 }
 
 # standard PU sequences
@@ -3132,6 +3151,21 @@ upgradeProperties[2026] = {
         'GT' : 'auto:phase2_realistic_T33',
         'Era' : 'Phase2C17I13M9',
         'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal', 'ALCAPhase2'],
+    },
+    '2026D110GenOnly' : {
+        'Geom' : 'Extended2026D110',
+        'Beamspot' : 'HLLHC',
+        'GT' : 'auto:phase2_realistic_T33',
+        'Era' : 'Phase2C17I13M9',
+        'ScenToRun' : ['Gen'],
+    },
+    '2026D110SimOnGen' : {
+        'Geom' : 'Extended2026D110',
+        'HLTmenu': '@relval2026',
+        'Beamspot' : 'HLLHC',
+        'GT' : 'auto:phase2_realistic_T33',
+        'Era' : 'Phase2C17I13M9',
+        'ScenToRun' : ['Gen','Sim','DigiTrigger','RecoGlobal', 'HARVESTGlobal', 'ALCAPhase2'],
     },
 }
 
