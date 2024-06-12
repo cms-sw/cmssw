@@ -24,6 +24,9 @@
 
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 
+#include "DataFormats/Common/interface/TriggerResults.h"
+
+
 
 #include "DataFormats/JetReco/interface/Jet.h"
 
@@ -63,6 +66,9 @@ private:
   // This allows us to construct more complicated observables easily, and have it more configurable
   // in the config file.
   std::map<std::string, std::function<double (const reco::PFCandidate)> > m_funcMap;
+  std::map<std::string, std::function<double (const reco::PFCandidateCollection,  reco::PFCandidate::ParticleType pfType)> > m_eventFuncMap;
+  std::map<std::string, std::function<double (const std::vector<reco::PFCandidatePtr> pfCands,  reco::PFCandidate::ParticleType pfType)> > m_jetWideFuncMap;
+  std::map<std::string, std::function<double (const reco::PFCandidate, const reco::PFJet)> > m_pfInJetFuncMap;
   std::map<std::string, std::function<double (const reco::PFJet)> > m_jetFuncMap;
 
   // Book MonitorElements
@@ -86,12 +92,39 @@ private:
 
   std::string getSuffix(std::vector<int> binList,  std::vector<std::string> observables, std::vector<std::vector<double> > binnings);
 
+  static double getEnergySpectrum(const reco::PFCandidate pfCand, const reco::PFJet jet){ if(!jet.pt()) return -1;
+                                                                                          return pfCand.pt() / jet.pt();}
+
+
+  static double getNPFC(const reco::PFCandidateCollection pfCands,  reco::PFCandidate::ParticleType pfType){
+              int nPF = 0;
+              for(auto pfCand: pfCands){
+                // We use X to indicate all
+                if(pfCand.particleId() == pfType || pfType == reco::PFCandidate::ParticleType::X) nPF++;
+              }
+              return nPF;
+           }
+
+  static double getNPFCinJet(const std::vector<reco::PFCandidatePtr> pfCands,  reco::PFCandidate::ParticleType pfType){
+              int nPF = 0;
+              for(auto pfCand: pfCands){
+                if(!pfCand) continue;
+                // We use X to indicate all
+                if(pfCand->particleId() == pfType || pfType == reco::PFCandidate::ParticleType::X) nPF++;
+              }
+              return nPF;
+           }
+
 
   // Various functions designed to get information from a PF canddidate
   static double getPt(const reco::PFCandidate pfCand){ return pfCand.pt();}
+  static double getEnergy(const reco::PFCandidate pfCand){ return pfCand.energy();}
   static double getEta(const reco::PFCandidate pfCand){ return pfCand.eta();}
   static double getPhi(const reco::PFCandidate pfCand){ return pfCand.phi();}
 
+  static double getHadCalibration(const reco::PFCandidate pfCand){ if(pfCand.rawHcalEnergy()==0) return -1;
+                                                                   return pfCand.hcalEnergy() / pfCand.rawHcalEnergy();
+                                                                  }
 
 
   static double getTime(const reco::PFCandidate pfCand){ return pfCand.time();}
@@ -229,6 +262,10 @@ private:
   edm::EDGetTokenT<reco::PFJetCollection> pfJetsToken_;
 
 
+  edm::InputTag theTriggerResultsLabel_;
+  edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken_;
+
+
   std::vector<std::string> m_allSuffixes;
   std::vector<std::string> m_allJetSuffixes;
 
@@ -249,6 +286,8 @@ private:
   // The observable name should have an entry in m_funcMap to define how
   // it can be retrieved from a PFCandidate.
   vstring m_observables;
+  vstring m_eventObservables;
+  vstring m_pfInJetObservables;
   vstring m_neutralPFObservables;
   vstring m_chargedPFObservables;
 

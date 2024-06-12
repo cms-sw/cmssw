@@ -19,21 +19,21 @@ process.load("DQMServices.Components.DQMEnvironment_cfi")
 process.load('DQMOffline.ParticleFlow.runBasic_cfi')
 
 
-process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(200)
-)
+#process.maxEvents = cms.untracked.PSet(
+#    input = cms.untracked.int32(200)
+#)
 
 with open('fileList.log') as f:
     lines = f.readlines()
 
+#process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring())
 # Input source
 process.source = cms.Source("PoolSource",
-    secondaryFileNames = cms.untracked.vstring(),
+    #secondaryFileNames = cms.untracked.vstring(),
     fileNames = cms.untracked.vstring(lines)
 )
 
 from DQMOffline.ParticleFlow.runBasic_cfi import *
-#process.PFAnalyzer = cms.Sequence(PFAnalyzer)
 
 process.DQMoutput = cms.OutputModule("DQMRootOutputModule",
                                      fileName = cms.untracked.string("OUT_step1.root"))
@@ -48,16 +48,7 @@ process.DQMoutput_step = cms.EndPath(process.DQMoutput)
 process.schedule = cms.Schedule(
     process.p,
     process.DQMoutput_step
-    #process.dqmsave_step
     )
-
-#process.dump = cms.EDAnalyzer("EventContentAnalyzer")
-
-
-#process.p = cms.Path(                    #process.dump*
-#                     process.PFAnalyzer*
-#                     process.dqmSaver
-#                     )
 
 
 

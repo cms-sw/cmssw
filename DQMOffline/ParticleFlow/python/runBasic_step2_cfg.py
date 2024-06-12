@@ -23,6 +23,11 @@ process.maxEvents = cms.untracked.PSet(
 # Input source
 process.source = cms.Source("DQMRootSource",
                             fileNames = cms.untracked.vstring("file:OUT_step1.root"))
+#process.source = cms.Source("DQMRootSource",
+#                            fileNames = cms.untracked.vstring("file:test.root"))
+
+#process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring())
+
 
 
 # Other statements

@@ -18,6 +18,9 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Common/interface/Handle.h"
 
+#include "FWCore/Common/interface/TriggerNames.h"
+
+
 #include <string>
 #include <cmath>
 
@@ -29,9 +32,15 @@ PFAnalyzer::PFAnalyzer(const edm::ParameterSet& pSet){
   thePfCandidateCollection_ = consumes<reco::PFCandidateCollection>(pSet.getParameter<edm::InputTag>("pfCandidates"));
   pfJetsToken_ = consumes<reco::PFJetCollection>(pSet.getParameter<edm::InputTag>("pfJetCollection"));
 
+  theTriggerResultsLabel_ = pSet.getParameter<edm::InputTag>("TriggerResultsLabel");
+  triggerResultsToken_ = consumes<edm::TriggerResults>(edm::InputTag(theTriggerResultsLabel_));
+
+
   // TODO we might want to define some observables that are only for PFCs in jets,
   // and that might take a jet as an input to the function as well
   m_observables = parameters_.getParameter<vstring>("observables");
+  m_eventObservables = parameters_.getParameter<vstring>("eventObservables");
+  m_pfInJetObservables = parameters_.getParameter<vstring>("pfInJetObservables");
 
   // List of cuts applied to PFCs that we want to plot
   m_cutList = parameters_.getParameter<vstring>("cutList");
@@ -42,6 +51,7 @@ PFAnalyzer::PFAnalyzer(const edm::ParameterSet& pSet){
   // Many of these are quite trivial, but this enables a simple way to include a 
   // variety of observables on-the-fly. 
   m_funcMap["pt"] = getPt;
+  m_funcMap["energy"] = getEnergy;
   m_funcMap["eta"] = getEta;
   m_funcMap["phi"] = getPhi;
 
@@ -62,6 +72,8 @@ PFAnalyzer::PFAnalyzer(const edm::ParameterSet& pSet){
   m_funcMap["HO_E"] = getHOEnergy;
   m_funcMap["RawHO_E"] = getRawHOEnergy;
 
+  m_funcMap["PFHad_calibration"] = getHadCalibration;
+
   m_funcMap["MVAIsolated"] = getMVAIsolated;
   m_funcMap["MVAEPi"] = getMVAEPi;
   m_funcMap["MVAEMu"] = getMVAEMu;
@@ -79,6 +91,11 @@ PFAnalyzer::PFAnalyzer(const edm::ParameterSet& pSet){
   m_funcMap["hcalE"] = getHCalEnergy;
   m_funcMap["eOverP"] = getEoverP;
   m_funcMap["nTrkInBlock"] = getNTracksInBlock;
+
+  m_eventFuncMap["NPFC"] = getNPFC;
+  m_jetWideFuncMap["NPFC"] = getNPFCinJet;
+
+  m_pfInJetFuncMap["PFSpectrum"] = getEnergySpectrum;
 
   // Link jet observables to static functions in the header file.
   // This is very similar to m_funcMap, but for jets instead.
@@ -153,9 +170,8 @@ void PFAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun
     
     float binMax = atof(m_observables[i].c_str());
     m_observables[i] = observableName;
-    
-    for(unsigned int j=0; j<m_allSuffixes.size(); j++){
 
+    for(unsigned int j=0; j<m_allSuffixes.size(); j++){
 
       // For each observable, we make a couple histograms based on a few generic categorizations.
       // In all cases, the PFCs that go into these histograms must pass the PFC selection from m_cutList.
@@ -246,6 +262,130 @@ void PFAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun
       }
     }    
   }
+
+
+  // Do the same for global observables (things like the number of PFCs in an event, or in a jet, etc)
+  for(unsigned int i=0; i<m_eventObservables.size(); i++){
+    size_t pos = m_eventObservables[i].find(";");
+    std::string observableName = m_eventObservables[i].substr(0, pos);
+    m_eventObservables[i].erase(0, pos + 1);
+
+    pos = m_eventObservables[i].find(";");
+    std::string axisString = m_eventObservables[i].substr(0, pos);
+    m_eventObservables[i].erase(0, pos + 1);
+
+    pos = m_eventObservables[i].find(";");
+    int nBins = atoi(m_eventObservables[i].substr(0, pos).c_str());
+    m_eventObservables[i].erase(0, pos + 1);
+
+    pos = m_eventObservables[i].find(";");
+    float binMin = atof(m_eventObservables[i].substr(0, pos).c_str());
+    m_eventObservables[i].erase(0, pos + 1);
+
+    float binMax = atof(m_eventObservables[i].c_str());
+    m_eventObservables[i] = observableName;
+
+    // All PFCs
+    std::string histName = Form("allPFC_%s", observableName.c_str());
+    MonitorElement* mHist = ibooker.book1D(histName, Form(";%s;", axisString.c_str()), nBins, binMin, binMax);
+    map_of_MEs.insert(std::pair<std::string, MonitorElement*>(m_directory + "/" + histName, mHist));
+
+    // Neutral hadron PFCs
+    histName = Form("neutralHadPFC_%s", observableName.c_str());
+    MonitorElement* mHistNeutral = ibooker.book1D(histName, Form(";%s;", axisString.c_str()), nBins, binMin, binMax);
+    map_of_MEs.insert(std::pair<std::string, MonitorElement*>(m_directory + "/" + histName, mHistNeutral));
+
+    // Charged hadron PFCs
+    histName = Form("chargedHadPFC_%s", observableName.c_str());
+    MonitorElement* mHistCharged = ibooker.book1D(histName, Form(";%s;", axisString.c_str()), nBins, binMin, binMax);
+    map_of_MEs.insert(std::pair<std::string, MonitorElement*>(m_directory + "/" + histName, mHistCharged));
+
+    // Electron PFCs
+    histName = Form("electronPFC_%s", observableName.c_str());
+    MonitorElement* mHistElectron = ibooker.book1D(histName, Form(";%s;", axisString.c_str()), nBins, binMin, binMax);
+    map_of_MEs.insert(std::pair<std::string, MonitorElement*>(m_directory + "/" + histName, mHistElectron));
+
+    // Muon PFCs
+    histName = Form("muonPFC_%s", observableName.c_str());
+    MonitorElement* mHistMuon = ibooker.book1D(histName, Form(";%s;", axisString.c_str()), nBins, binMin, binMax);
+    map_of_MEs.insert(std::pair<std::string, MonitorElement*>(m_directory + "/" + histName, mHistMuon));
+
+    // Gamma PFCs
+    histName = Form("gammaPFC_%s", observableName.c_str());
+    MonitorElement* mHistGamma = ibooker.book1D(histName, Form(";%s;", axisString.c_str()), nBins, binMin, binMax);
+    map_of_MEs.insert(std::pair<std::string, MonitorElement*>(m_directory + "/" + histName, mHistGamma));
+
+    // Had HF PFCs
+    histName = Form("hadHFPFC_%s", observableName.c_str());
+    MonitorElement* mHistHadHF = ibooker.book1D(histName, Form(";%s;", axisString.c_str()), nBins, binMin, binMax);
+    map_of_MEs.insert(std::pair<std::string, MonitorElement*>(m_directory + "/" + histName, mHistHadHF));
+
+    // EM HF PFCs
+    histName = Form("emHFPFC_%s", observableName.c_str());
+    MonitorElement* mHistEMHF = ibooker.book1D(histName, Form(";%s;", axisString.c_str()), nBins, binMin, binMax);
+    map_of_MEs.insert(std::pair<std::string, MonitorElement*>(m_directory + "/" + histName, mHistEMHF));
+
+
+    for(unsigned int k=0; k<m_allJetSuffixes.size(); k++){
+      // These histograms are for PFCs passing the basic selection, and which are matched to jets
+      // that pass the jet selection
+      histName = Form("allPFC_jetMatched_%s_jetCuts%s", observableName.c_str(), m_allJetSuffixes[k].c_str());
+      MonitorElement* mHistInJet = ibooker.book1D(histName, Form(";%s;", axisString.c_str()), nBins, binMin, binMax);
+      map_of_MEs.insert(std::pair<std::string, MonitorElement*>(m_directory + "/" + histName, mHistInJet));
+
+      // This histogram is all neutral PFCs that pass the basic selection
+      histName = Form("neutralHadPFC_jetMatched_%s_jetCuts%s", observableName.c_str(), m_allJetSuffixes[k].c_str());
+      MonitorElement* mHistNeutralInJet = ibooker.book1D(histName, Form(";%s;", axisString.c_str()), nBins, binMin, binMax);
+      map_of_MEs.insert(std::pair<std::string, MonitorElement*>(m_directory + "/" + histName, mHistNeutralInJet));
+
+      // This histogram is all neutral PFCs that pass the basic selection
+      histName = Form("chargedHadPFC_jetMatched_%s_jetCuts%s", observableName.c_str(), m_allJetSuffixes[k].c_str());
+      MonitorElement* mHistChargedInJet = ibooker.book1D(histName, Form(";%s;", axisString.c_str()), nBins, binMin, binMax);
+      map_of_MEs.insert(std::pair<std::string, MonitorElement*>(m_directory + "/" + histName, mHistChargedInJet));
+
+      // This histogram is electron PFCs that pass the basic selection
+      histName = Form("electronPFC_jetMatched_%s_jetCuts%s", observableName.c_str(), m_allJetSuffixes[k].c_str());
+      MonitorElement* mHistElectronInJet = ibooker.book1D(histName, Form(";%s;", axisString.c_str()), nBins, binMin, binMax);
+      map_of_MEs.insert(std::pair<std::string, MonitorElement*>(m_directory + "/" + histName, mHistElectronInJet));
+
+      // This histogram is electron PFCs that pass the basic selection
+      histName = Form("muonPFC_jetMatched_%s_jetCuts%s", observableName.c_str(), m_allJetSuffixes[k].c_str());
+      MonitorElement* mHistMuonInJet = ibooker.book1D(histName, Form(";%s;", axisString.c_str()), nBins, binMin, binMax);
+      map_of_MEs.insert(std::pair<std::string, MonitorElement*>(m_directory + "/" + histName, mHistMuonInJet));
+
+      // This histogram is electron PFCs that pass the basic selection
+      histName = Form("gammaPFC_jetMatched_%s_jetCuts%s", observableName.c_str(), m_allJetSuffixes[k].c_str());
+      MonitorElement* mHistGammaInJet = ibooker.book1D(histName, Form(";%s;", axisString.c_str()), nBins, binMin, binMax);
+      map_of_MEs.insert(std::pair<std::string, MonitorElement*>(m_directory + "/" + histName, mHistGammaInJet));
+
+      // This histogram is electron PFCs that pass the basic selection
+      histName = Form("hadHFPFC_jetMatched_%s_jetCuts%s", observableName.c_str(), m_allJetSuffixes[k].c_str());
+      MonitorElement* mHistHadHFInJet = ibooker.book1D(histName, Form(";%s;", axisString.c_str()), nBins, binMin, binMax);
+      map_of_MEs.insert(std::pair<std::string, MonitorElement*>(m_directory + "/" + histName, mHistHadHFInJet));
+
+      // This histogram is electron PFCs that pass the basic selection
+      histName = Form("emHFPFC_jetMatched_%s_jetCuts%s", observableName.c_str(), m_allJetSuffixes[k].c_str());
+      MonitorElement* mHistEMHFInJet = ibooker.book1D(histName, Form(";%s;", axisString.c_str()), nBins, binMin, binMax);
+      map_of_MEs.insert(std::pair<std::string, MonitorElement*>(m_directory + "/" + histName, mHistEMHFInJet));
+    }
+  }
+
+  std::string histName = Form("jetPt");
+  MonitorElement* mHist = ibooker.book1D(histName, Form(";%s;", "p_{T,jet}"), 2000,0,2000);
+  map_of_MEs.insert(std::pair<std::string, MonitorElement*>(m_directory + "/" + histName, mHist));
+  histName = Form("jetPtLead");
+  mHist = ibooker.book1D(histName, Form(";%s;", "p_{T, leading jet}"), 2000,0,2000);
+  map_of_MEs.insert(std::pair<std::string, MonitorElement*>(m_directory + "/" + histName, mHist));
+
+
+  histName = Form("jetEta");
+  mHist = ibooker.book1D(histName, Form(";%s;", "#eta_{jet}"), 200,-5,5);
+  map_of_MEs.insert(std::pair<std::string, MonitorElement*>(m_directory + "/" + histName, mHist));
+  histName = Form("jetEtaLead");
+  mHist = ibooker.book1D(histName, Form(";%s;", "#eta_{leading jet}"), 200,-5,5);
+  map_of_MEs.insert(std::pair<std::string, MonitorElement*>(m_directory + "/" + histName, mHist));
+
+
 }
 
 void PFAnalyzer::bookMESetSelection(std::string DirName, DQMStore::IBooker& ibooker) {
@@ -276,14 +416,14 @@ std::string PFAnalyzer::stringWithDecimals(int bin, std::vector<double> bins){
 
   int nDecimals = int(-1*sigFigs) + 1;
   // We do not want to use decimals since these can mess up histogram retrieval in some cases.
-  // Instead, we use a '_' to indicate the decimal.
+  // Instead, we use a 'p' to indicate the decimal.
   double newDigit =  (bins[bin] -  int(bins[bin]))*pow(10, nDecimals);
   double newDigit2 =  (bins[bin+1] -  int(bins[bin+1]))*pow(10,nDecimals);
   std::string signStringLow = "";
   std::string signStringHigh = "";
   if(bins[bin]<0) signStringLow = "m";
   if(bins[bin+1]<0) signStringHigh = "m";
-  return Form("%s%.0fp%.0f__%s%.0fp%.0f", signStringLow.c_str(), bins[bin], newDigit, signStringHigh.c_str(), bins[bin+1], newDigit2);
+  return Form("%s%.0fp%.0f_%s%.0fp%.0f", signStringLow.c_str(), bins[bin], newDigit, signStringHigh.c_str(), bins[bin+1], newDigit2);
   
 
 }
@@ -322,10 +462,7 @@ std::vector<std::string> PFAnalyzer::getAllSuffixes(std::vector<std::string> obs
   for(unsigned int i=0; i<binnings.size(); i++){
     nTotalBins = (binnings[i].size()-1)*nTotalBins;
     nBins.push_back(binnings[i].size()-1);
-    std::cout << (binnings[i].size()-1) << "\t" ;
   }
-  std::cout << nTotalBins << std::endl;
-  
 
   std::vector<std::vector<int> > binList;
   
@@ -367,7 +504,6 @@ std::string PFAnalyzer::getSuffix(std::vector<int> binList, std::vector<std::str
     if(binList[i] < 0) return "";
     std::string digitString = stringWithDecimals(binList[i], binnings[i]);
 
-    //suffix = Form("%s_%s_%.0f_%.0f", suffix.c_str(), observables[i].c_str(), binnings[i][binList[i]], binnings[i][binList[i]+1]);
     suffix = Form("%s_%s_%s", suffix.c_str(), observables[i].c_str(), digitString.c_str());
   }
 
@@ -425,6 +561,32 @@ int PFAnalyzer::getJetBin(const reco::PFJet jetCand){
 
 // ***********************************************************
 void PFAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+
+
+  // **** Get the TriggerResults container
+  edm::Handle<edm::TriggerResults> triggerResults;
+  iEvent.getByToken(triggerResultsToken_, triggerResults);
+
+  // Hack to make it pass the lowest unprescaled HLT?
+  Int_t JetHiPass = 0;
+  std::string highPtJetExpr_ = "HLT_PFJet450_v*";
+
+  if (triggerResults.isValid()) {
+    const edm::TriggerNames& triggerNames = iEvent.triggerNames(*triggerResults);
+
+    const unsigned int nTrig(triggerNames.size());
+    for (unsigned int i = 0; i < nTrig; ++i) {
+      if (triggerNames.triggerName(i).find(highPtJetExpr_.substr(0, highPtJetExpr_.rfind("_v") + 2)) !=
+              std::string::npos &&
+          triggerResults->accept(i))
+        JetHiPass = 1;
+    }
+  }
+
+
+  if(!JetHiPass) return;
+
+
   // Retrieve the PFCs
   edm::Handle<reco::PFCandidateCollection> pfCollection;
   iEvent.getByToken(thePfCandidateCollection_, pfCollection);
@@ -439,6 +601,11 @@ void PFAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     edm::LogError("PFAnalyzer") << "invalid collection: PF jets \n";
     return;
   }
+
+  if(pfJets->size() < 2) return;
+  if(pfJets->at(0).pt() < 450) return;
+  if(pfJets->at(0).pt() / pfJets->at(1).pt() > 2) return;
+
 
   // TODO Perform some event selection
   // Probably we want to define a few different options for how the selection will work
@@ -489,10 +656,26 @@ void PFAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     }
   }
 
-  std::cout << std::endl;
+  for(unsigned int i=0; i<m_eventObservables.size(); i++){
+    std::string histName = Form("%s", m_eventObservables[i].c_str());
+    map_of_MEs[m_directory + "/allPFC_" + histName]->Fill(m_eventFuncMap[m_eventObservables[i]](*pfCollection, reco::PFCandidate::ParticleType::X));
+    map_of_MEs[m_directory + "/chargedHadPFC_" + histName]->Fill(m_eventFuncMap[m_eventObservables[i]](*pfCollection, reco::PFCandidate::ParticleType::h));
+    map_of_MEs[m_directory + "/neutralHadPFC_" + histName]->Fill(m_eventFuncMap[m_eventObservables[i]](*pfCollection, reco::PFCandidate::ParticleType::h0));
+    map_of_MEs[m_directory + "/electronPFC_" + histName]->Fill(m_eventFuncMap[m_eventObservables[i]](*pfCollection, reco::PFCandidate::ParticleType::e));
+    map_of_MEs[m_directory + "/muonPFC_" + histName]->Fill(m_eventFuncMap[m_eventObservables[i]](*pfCollection, reco::PFCandidate::ParticleType::mu));
+    map_of_MEs[m_directory + "/gammaPFC_" + histName]->Fill(m_eventFuncMap[m_eventObservables[i]](*pfCollection, reco::PFCandidate::ParticleType::gamma));
+    map_of_MEs[m_directory + "/hadHFPFC_" + histName]->Fill(m_eventFuncMap[m_eventObservables[i]](*pfCollection,  reco::PFCandidate::ParticleType::h_HF));
+    map_of_MEs[m_directory + "/emHFPFC_" + histName]->Fill(m_eventFuncMap[m_eventObservables[i]](*pfCollection, reco::PFCandidate::ParticleType::egamma_HF));
+  }
 
+
+
+  map_of_MEs[m_directory + "/jetPtLead"]->Fill(pfJets->begin()->pt());
+  map_of_MEs[m_directory + "/jetEtaLead"]->Fill(pfJets->begin()->eta());
   // Make plots of all observables, this time for PF candidates within jets
   for (reco::PFJetCollection::const_iterator cjet = pfJets->begin(); cjet != pfJets->end(); ++cjet) {
+    map_of_MEs[m_directory + "/jetPt"]->Fill(cjet->pt());
+    map_of_MEs[m_directory + "/jetEta"]->Fill(cjet->eta());
 
     int jetBinNumber = getJetBin(*cjet);
     if(jetBinNumber<0) continue;
@@ -540,6 +723,21 @@ void PFAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
         }
       }
     }
+
+    for(unsigned int i=0; i<m_eventObservables.size(); i++){
+      std::string histName = Form("%s_jetCuts%s", m_eventObservables[i].c_str(), jetBinString.c_str());
+      map_of_MEs[m_directory + "/allPFC_jetMatched_" + histName]->Fill(m_jetWideFuncMap[m_eventObservables[i]](pfConstits, reco::PFCandidate::ParticleType::X));
+  
+      map_of_MEs[m_directory + "/chargedHadPFC_jetMatched_" + histName]->Fill(m_jetWideFuncMap[m_eventObservables[i]](pfConstits, reco::PFCandidate::ParticleType::h));
+      map_of_MEs[m_directory + "/neutralHadPFC_jetMatched_" + histName]->Fill(m_jetWideFuncMap[m_eventObservables[i]](pfConstits, reco::PFCandidate::ParticleType::h0));
+      map_of_MEs[m_directory + "/electronPFC_jetMatched_" + histName]->Fill(m_jetWideFuncMap[m_eventObservables[i]](pfConstits, reco::PFCandidate::ParticleType::e));
+      map_of_MEs[m_directory + "/muonPFC_jetMatched_" + histName]->Fill(m_jetWideFuncMap[m_eventObservables[i]](pfConstits, reco::PFCandidate::ParticleType::mu));
+      map_of_MEs[m_directory + "/gammaPFC_jetMatched_" + histName]->Fill(m_jetWideFuncMap[m_eventObservables[i]](pfConstits, reco::PFCandidate::ParticleType::gamma));
+      map_of_MEs[m_directory + "/hadHFPFC_jetMatched_" + histName]->Fill(m_jetWideFuncMap[m_eventObservables[i]](pfConstits,  reco::PFCandidate::ParticleType::h_HF));
+      map_of_MEs[m_directory + "/emHFPFC_jetMatched_" + histName]->Fill(m_jetWideFuncMap[m_eventObservables[i]](pfConstits, reco::PFCandidate::ParticleType::egamma_HF));
+    }
+
+
   }
 
 }
