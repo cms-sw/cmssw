@@ -13,7 +13,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "RecoHGCal/TICL/interface/GlobalCache.h"
-#include "RecoHGCal/TICL/interface/commons.h"
+#include "DataFormats/HGCalReco/interface/commons.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
 
