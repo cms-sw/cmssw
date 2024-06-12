@@ -214,9 +214,7 @@ BTVEfficiency_PFJet_DeepJet = DQMEDHarvester("DQMGenericClient",
 
 BTVEfficiency_TurnOnCurves = DQMEDHarvester("DQMGenericClient",
     subDirs        = cms.untracked.vstring(
-        "HLT/BTV/HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_PFDiJet30_PFBtagDeepCSV_1p5*",
-        "HLT/BTV/HLT_DoublePFJets40_CaloBTagDeepCSV_p71*",
-        "HLT/BTV/HLT_Mu12_DoublePFJets40_CaloBTagDeepCSV_p71*",
+        "HLT/BTV/HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_PFDiJet30*",
     ),
     verbose        = cms.untracked.uint32(0),
     resolution     = cms.vstring(),
@@ -224,14 +222,21 @@ BTVEfficiency_TurnOnCurves = DQMEDHarvester("DQMGenericClient",
         "Turnon_loose   'turn-on (loose online OP);discriminator;efficiency'   Turnon_loose_Discr_numerator   Turnon_loose_Discr_denominator",
         "Turnon_medium  'turn-on (medium online OP);discriminator;efficiency'  Turnon_medium_Discr_numerator  Turnon_medium_Discr_denominator",
         "Turnon_tight   'turn-on (tight online OP);discriminator;efficiency'   Turnon_tight_Discr_numerator   Turnon_tight_Discr_denominator",
+        "Turnon_loose_pt    'turn-on (loose online OP);pt;efficiency'    Turnon_loose_Pt_numerator    Turnon_loose_Pt_denominator",
+        "Turnon_medium_pt   'turn-on (medium online OP);pt;efficiency'   Turnon_medium_Pt_numerator   Turnon_medium_Pt_denominator",
+        "Turnon_tight_pt    'turn-on (tight online OP);pt;efficiency'    Turnon_tight_Pt_numerator    Turnon_tight_Pt_denominator",
+        "Turnon_loose_eta   'turn-on (loose online OP);eta;efficiency'   Turnon_loose_Eta_numerator   Turnon_loose_Eta_denominator",
+        "Turnon_medium_eta  'turn-on (medium online OP);eta;efficiency'  Turnon_medium_Eta_numerator  Turnon_medium_Eta_denominator",
+        "Turnon_tight_eta   'turn-on (tight online OP);eta;efficiency'   Turnon_tight_Eta_numerator   Turnon_tight_Eta_denominator",
+        "Turnon_loose_phi   'turn-on (loose online OP);phi;efficiency'   Turnon_loose_Phi_numerator   Turnon_loose_Phi_denominator",
+        "Turnon_medium_phi  'turn-on (medium online OP);phi;efficiency'  Turnon_medium_Phi_numerator  Turnon_medium_Phi_denominator",
+        "Turnon_tight_phi   'turn-on (tight online OP);phi;efficiency'   Turnon_tight_Phi_numerator   Turnon_tight_Phi_denominator",
     ),
 )
 
 BTVEfficiency_OnlineTrackEff = DQMEDHarvester("DQMGenericClient",
     subDirs        = cms.untracked.vstring(
-        "HLT/BTV/HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_PFDiJet30_PFBtagDeepCSV_1p5*",
-        "HLT/BTV/HLT_DoublePFJets40_CaloBTagDeepCSV_p71*",
-        "HLT/BTV/HLT_Mu12_DoublePFJets40_CaloBTagDeepCSV_p71*",
+        "HLT/BTV/HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_PFDiJet30*",
     ),
     verbose        = cms.untracked.uint32(0),
     resolution     = cms.vstring(),
@@ -245,9 +250,7 @@ BTVEfficiency_OnlineTrackEff = DQMEDHarvester("DQMGenericClient",
 
 BTVEfficiency_OnlineTrackFake = DQMEDHarvester("DQMGenericClient",
     subDirs        = cms.untracked.vstring(
-        "HLT/BTV/HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_PFDiJet30_PFBtagDeepCSV_1p5*",
-        "HLT/BTV/HLT_DoublePFJets40_CaloBTagDeepCSV_p71*",
-        "HLT/BTV/HLT_Mu12_DoublePFJets40_CaloBTagDeepCSV_p71*",
+        "HLT/BTV/HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_PFDiJet30*",
     ),
     verbose        = cms.untracked.uint32(0),
     resolution     = cms.vstring(),
@@ -262,9 +265,7 @@ BTVEfficiency_OnlineTrackFake = DQMEDHarvester("DQMGenericClient",
 from DQMOffline.Trigger.TrackingMonitoring_Client_cff import TrackToTrackEfficiencies
 
 BJetTrackToTrackEfficiencies = TrackToTrackEfficiencies.clone(
-    subDirs = ["HLT/BTV/HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_PFDiJet30_PFBtagDeepCSV_1p5*",
-               "HLT/BTV/HLT_DoublePFJets40_CaloBTagDeepCSV_p71*",
-               "HLT/BTV/HLT_Mu12_DoublePFJets40_CaloBTagDeepCSV_p71*",
+    subDirs = ["HLT/BTV/HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_PFDiJet30*",
               ]
 )
 
