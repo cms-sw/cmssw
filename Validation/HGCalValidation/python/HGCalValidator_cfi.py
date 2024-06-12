@@ -14,6 +14,7 @@ labelTst = [cms.InputTag("ticlTracksters"+iteration) for iteration in ticlIterLa
 labelTst.extend([cms.InputTag("ticlSimTracksters", "fromCPs"), cms.InputTag("ticlSimTracksters")])
 lcInputMask = [cms.InputTag("ticlTracksters"+iteration) for iteration in ticlIterLabels]
 lcInputMask.extend([cms.InputTag("ticlSimTracksters", "fromCPs"), cms.InputTag("ticlSimTracksters")])
+
 hgcalValidator = DQMEDAnalyzer(
     "HGCalValidator",
 
@@ -52,6 +53,16 @@ hgcalValidator = DQMEDAnalyzer(
     label_TS = cms.string("Morphology"),
     label_TSToCPLinking = cms.string("TSToCP_linking"),
     label_TSToSTSPR = cms.string("TSToSTS_patternRecognition"),
+    #candidates plots
+    doCandidatesPlots = cms.untracked.bool(True),
+    ticlCandidates = cms.string("ticlCandidates"),
+
+    ticlTrackstersMerge = cms.InputTag("ticlTrackstersMerge"),
+    simTiclCandidates = cms.InputTag("ticlSimTracksters"),
+    recoTracks = cms.InputTag("generalTracks"),
+    mergeRecoToSimAssociator = cms.InputTag("tracksterSimTracksterAssociationLinking", "recoToSim"),
+    mergeSimToRecoAssociator = cms.InputTag("tracksterSimTracksterAssociationLinking", "simToReco"),
+    mergeRecoToSimAssociatorPU = cms.InputTag("tracksterSimTracksterAssociationLinkingPU", "recoToSim"),
 
     #The cumulative material budget in front of each layer. To be more specific, it
     #is the material budget just in front of the active material (not including it).
@@ -78,8 +89,9 @@ hgcalValidator = DQMEDAnalyzer(
     histoProducerAlgoBlock = HGVHistoProducerAlgoBlock,
 
     ### output configuration
-    dirName = cms.string('HGCAL/HGCalValidator/')
+    dirName = cms.string('HGCAL/HGCalValidator/'),
 
+    isticlv5 = cms.untracked.bool(False)
 )
 
 from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
@@ -92,3 +104,18 @@ phase2_hgcalV10.toModify(hgcalValidator, totallayers_to_monitor = cms.int32(50))
 
 from Configuration.Eras.Modifier_phase2_hgcalV16_cff import phase2_hgcalV16
 phase2_hgcalV16.toModify(hgcalValidator, totallayers_to_monitor = cms.int32(47))
+
+from Configuration.ProcessModifiers.ticl_v5_cff import ticl_v5
+# labelTst_v5 = ["ticlTrackstersCLUE3DEM", "ticlTrackstersCLUE3DHAD", "ticlTracksterLinks"] # for separate CLUE3D iterations
+labelTst_v5 = ["ticlTrackstersCLUE3DHigh", "ticlTracksterLinks"]
+labelTst_v5.extend([cms.InputTag("ticlSimTracksters", "fromCPs"), cms.InputTag("ticlSimTracksters")])
+# lcInputMask_v5  = ["ticlTrackstersCLUE3DEM", "ticlTrackstersCLUE3DHAD", "ticlTracksterLinks"] # for separate CLUE3D iterations
+lcInputMask_v5  = ["ticlTrackstersCLUE3DHigh", "ticlTracksterLinks"]
+lcInputMask_v5.extend([cms.InputTag("ticlSimTracksters", "fromCPs"), cms.InputTag("ticlSimTracksters")])
+
+ticl_v5.toModify(hgcalValidator,
+    label_tst = cms.VInputTag(labelTst_v5),
+    LayerClustersInputMask = cms.VInputTag(lcInputMask_v5),
+    ticlTrackstersMerge = cms.InputTag("ticlCandidate"),
+    isticlv5 = cms.untracked.bool(True)
+)
