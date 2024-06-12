@@ -77,7 +77,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     private:
       edm::ESGetToken<HGCalMappingModuleIndexer, HGCalElectronicsMappingRcd> indexToken_;
       //edm::ESGetToken<HGCalCondSerializableConfig, HGCalModuleConfigurationRcd> configToken_;
-      const int32_t gain_; // manual override of YAML files
+      int32_t gain_; // manual override of YAML files
 
     };
 
