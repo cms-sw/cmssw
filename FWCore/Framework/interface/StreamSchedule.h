@@ -366,7 +366,6 @@ namespace edm {
     auto const& principal = transitionInfo.principal();
     T::setStreamContext(streamContext_, principal);
 
-    auto id = principal.id();
     ServiceWeakToken weakToken = token;
     auto doneTask = make_waiting_task([this, iHolder = std::move(iHolder), cleaningUpAfterException, weakToken](
                                           std::exception_ptr const* iPtr) mutable {
