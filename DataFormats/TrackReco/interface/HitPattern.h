@@ -35,8 +35,8 @@
 // | mu  = 0    |    RPC = 3    | 4*(stat-1)+2*layer+region |                 | hit type = 0-3 |
 // | mu  = 0    |    GEM = 4    | 1xxx=st0, 0yxx=st y-1 la x|                 | hit type = 0-3 |
 // | mu  = 0    |    ME0 = 5    | roll                      |                 | hit type = 0-3 |
-// | mtd = 2    |    BTL = 1    | moduleType = 1-3          |                 | hit type = 0-3 |
-// | mtd = 2    |    ETL = 2    | ring = 1-12               |                 | hit type = 0-3 |
+// | mtd = 2    |    BTL = 1    | globalReadoutUnit = 1-6   |                 | hit type = 0-3 |
+// | mtd = 2    |    ETL = 2    | encodedSector = 1-14      |                 | hit type = 0-3 |
 // +------------+---------------+---------------------------+-----------------+----------------+
 //
 //  hit type, see DataFormats/TrackingRecHit/interface/TrackingRecHit.h
