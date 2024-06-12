@@ -26,12 +26,17 @@ public:
   explicit HGCalConfigurationESProducer(const edm::ParameterSet& iConfig)
     : //edm::ESProducer(iConfig),
       fedjson_(iConfig.getParameter<std::string>("fedjson")),
-      modjson_(iConfig.getParameter<std::string>("modjson")),
-      passthroughMode_(iConfig.getParameter<int32_t>("passthroughMode")),
-      cbHeaderMarker_(iConfig.getParameter<int32_t>("cbHeaderMarker")),
-      slinkHeaderMarker_(iConfig.getParameter<int32_t>("slinkHeaderMarker")),
-      econdHeaderMarker_(iConfig.getParameter<int32_t>("econdHeaderMarker")),
-      charMode_(iConfig.getParameter<int32_t>("charMode")) {
+      modjson_(iConfig.getParameter<std::string>("modjson")) {
+    if (iConfig.exists("passthroughMode"))
+      passthroughMode_ = iConfig.getParameter<int32_t>("passthroughMode");
+    if (iConfig.exists("cbHeaderMarker"))
+      cbHeaderMarker_ = iConfig.getParameter<int32_t>("cbHeaderMarker");
+    if (iConfig.exists("slinkHeaderMarker"))
+      slinkHeaderMarker_ = iConfig.getParameter<int32_t>("slinkHeaderMarker");
+    if (iConfig.exists("econdHeaderMarker"))
+      econdHeaderMarker_ = iConfig.getParameter<int32_t>("econdHeaderMarker");
+    if (iConfig.exists("charMode"))
+      charMode_ = iConfig.getParameter<int32_t>("charMode");
     auto cc = setWhatProduced(this);
     //findingRecord<HGCalModuleConfigurationRcd>();
     indexToken_ = cc.consumes(iConfig.getParameter<edm::ESInputTag>("indexSource"));

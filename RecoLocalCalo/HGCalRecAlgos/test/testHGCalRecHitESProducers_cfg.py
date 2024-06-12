@@ -96,13 +96,13 @@ process.hgcalConfigESProducer = cms.ESSource( # ESProducer to load configuration
   'HGCalConfigurationESProducer',
   fedjson=cms.string(options.fedconfig), # JSON with FED configuration parameters
   modjson=cms.string(options.modconfig), # JSON with ECON-D configuration parameters
-  passthroughMode=cms.int32(0),          # ignore mismatch
-  cbHeaderMarker=cms.int32(0x7f),        # capture block
-  #cbHeaderMarker=cms.int32(0x5f),        # capture block
-  slinkHeaderMarker=cms.int32(0x55),     # S-link
-  #slinkHeaderMarker=cms.int32(0x2a),     # S-link
-  econdHeaderMarker=cms.int32(0x154),    # ECON-D
-  charMode=cms.int32(1),
+  #passthroughMode=cms.int32(0),          # ignore mismatch
+  #cbHeaderMarker=cms.int32(0x7f),        # capture block
+  ##cbHeaderMarker=cms.int32(0x5f),        # capture block
+  #slinkHeaderMarker=cms.int32(0x55),     # S-link
+  ##slinkHeaderMarker=cms.int32(0x2a),     # S-link
+  #econdHeaderMarker=cms.int32(0x154),    # ECON-D
+  #charMode=cms.int32(1),
   indexSource=cms.ESInputTag('hgCalMappingESProducer','')
 )
 
