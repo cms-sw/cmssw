@@ -1,4 +1,3 @@
-from __future__ import print_function
 import os
 
 import FWCore.ParameterSet.Config as cms
@@ -12,25 +11,15 @@ import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
 import sys
 options = VarParsing.VarParsing ('standard')
-options.register('sample', 'data1', VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "Input sample")
+options.register('workingArea', None, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "Working area")
 options.register('globalTag', "None", VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "Custom global tag")
-options.register('measurementName', "workingArea", VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "Folder in which to store results")
+options.register('measName', None, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "Folder in which to store results")
 options.register('fileNumber', 1, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "Input file number")
-options.register('iterNumber', 0, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "Iteration number")
+options.register('iteration', 0, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "Iteration number")
 options.register('lastIter', False, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.bool, "Last iteration")
-options.register('alignRcd','', VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "AlignmentRcd")
-options.register('conditions',"None", VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "File with conditions")
-options.register('cosmics', False, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.bool, "Cosmic data set")
+options.register('isCosmics', False, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.bool, "Cosmic data set")
 # get and parse the command line arguments
 options.parseArguments()   
-
-print("Input sample: ", options.sample)
-print("Input file number", options.fileNumber)
-print("Iteration number: ", options.iterNumber)
-print("Last iteration: ", options.lastIter)
-print("AlignmentRcd: ", options.alignRcd)
-
-
 
 ##
 ## Process definition
@@ -76,46 +65,6 @@ process.options = cms.untracked.PSet(
 )
 
 
-
-##
-## Input sample definition
-##
-isData1 = isData2 = False
-isData = False
-isQcd = isWlnu = isZmumu = isZtautau = isZmumu10 = isZmumu20 = isZmumu50 = False
-isMc = False
-isParticleGunMuon = isParticleGunPion = False
-isParticleGun = False
-if options.sample == 'data1':
-    isData = True
-elif options.sample == 'data2':
-    isData = True
-elif options.sample == 'data3':
-    isData = True
-elif options.sample == 'data4':
-    isData = True
-elif options.sample == 'qcd':
-    isMc = True
-elif options.sample == 'wlnu':
-    isMc = True
-elif options.sample == 'zmumu':
-    isMc = True
-elif options.sample == 'ztautau':
-    isMc = True
-elif options.sample == 'zmumu10':
-    isMc = True
-elif options.sample == 'zmumu20':
-    isMc = True
-elif options.sample == 'zmumu50':
-    isMc = True
-elif "MC" in options.sample:
-    isMc = True
-    print(options.sample)
-else:
-    print('ERROR --- incorrect data sammple: ', options.sample)
-    exit(8888)
-
-
 ##
 ## Input Files
 ##
@@ -147,42 +96,18 @@ process.source.duplicateCheckMode = cms.untracked.string("checkEachRealDataFile"
 ## Whole Refitter Sequence
 ##
 process.load("Alignment.APEEstimation.TrackRefitter_38T_cff")
+process.GlobalTag = GlobalTag(process.GlobalTag, options.globalTag, '')
 
-if options.globalTag != "None":
-    process.GlobalTag = GlobalTag(process.GlobalTag, options.globalTag, '')
-elif isParticleGun:
-    process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_design', '')
-elif isMc:
-    #~ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2018_design', '')
-    process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2018_realistic', '')
-elif isData:
-    process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
 
-if options.conditions != "None":
-    import importlib
-    mod = importlib.import_module("Alignment.APEEstimation.conditions.{}".format(options.conditions))
-    mod.applyConditions(process)
 
-## Alignment and APE
-##
-## Choose Alignment (w/o touching APE)
-if options.alignRcd=='fromConditions':
-    pass # Alignment is read from the conditions file in this case
-elif options.alignRcd=='design':
-    pass
-elif options.alignRcd == 'globalTag':
-    pass
-elif options.alignRcd == 'useStartGlobalTagForAllConditions':
-    pass
-elif options.alignRcd == '':
-    pass
-else:
-    print('ERROR --- incorrect alignment: ', options.alignRcd)
-    exit(8888)
+import importlib
+mod = importlib.import_module("Alignment.APEEstimation.conditions.measurement_{}_cff".format(options.measName))
+mod.applyConditions(process)
+
 
 ## APE
-if options.iterNumber!=0:
-    CondDBAlignmentError = CondDB.clone(connect = cms.string('sqlite_file:'+os.environ['CMSSW_BASE']+'/src/Alignment/APEEstimation/hists/'+options.measurementName+'/apeObjects/apeIter'+str(options.iterNumber-1)+'.db'))
+if options.iteration!=0:
+    CondDBAlignmentError = CondDB.clone(connect = cms.string('sqlite_file:'+os.path.join(options.workingArea,options.measName)+'/apeObjects/apeIter'+str(options.iteration-1)+'.db'))
     process.myTrackerAlignmentErr = cms.ESSource("PoolDBESSource",
         CondDBAlignmentError,
         timetype = cms.string("runnumber"),
@@ -194,13 +119,6 @@ if options.iterNumber!=0:
         )
     )
     process.es_prefer_trackerAlignmentErr = cms.ESPrefer("PoolDBESSource","myTrackerAlignmentErr")
-
-
-##
-## Beamspot (Use correct Beamspot for simulated Vertex smearing of ParticleGun)
-##
-if isParticleGun:
-    process.load("Alignment.APEEstimation.BeamspotForParticleGun_cff")
 
 
 ##
@@ -225,7 +143,7 @@ process.ApeEstimator3 = process.ApeEstimator2.clone(
 )
 
 process.ApeEstimatorSequence = cms.Sequence(process.ApeEstimator1)
-if options.iterNumber==0:
+if options.iteration==0:
   process.ApeEstimatorSequence *= process.ApeEstimator2
   process.ApeEstimatorSequence *= process.ApeEstimator3
 elif options.lastIter == True:
@@ -237,7 +155,7 @@ elif options.lastIter == True:
 ## Output File Configuration
 ##
 process.TFileService = cms.Service("TFileService",
-    fileName = cms.string(os.environ['CMSSW_BASE'] + '/src/Alignment/APEEstimation/hists/'+options.measurementName+'/'+options.sample+str(options.fileNumber)+'.root'),
+    fileName = cms.string(os.path.join(options.workingArea,options.measName,"out"+str(options.fileNumber)+".root")),
     closeFileFast = cms.untracked.bool(True)
 )
 
@@ -247,7 +165,7 @@ process.TFileService = cms.Service("TFileService",
 ## Path
 ##
 
-if not options.cosmics:
+if not options.isCosmics:
     process.p = cms.Path(
         process.RefitterHighPuritySequence*
         process.ApeEstimatorSequence
