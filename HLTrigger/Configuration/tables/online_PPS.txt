@@ -12,6 +12,8 @@ AlCa_RPCMuonNormalisation_v*
 DQM_PixelReconstruction_v*
 DQM_EcalReconstruction_v*
 DQM_HcalReconstruction_v*
+DQM_Random_v*	# CMSHLT-3233
+DQM_ZeroBias_v*	# CMSHLT-3233
 DST_Physics_v*
 DST_ZeroBias_v*
 HLT_SpecialZeroBias_v*
