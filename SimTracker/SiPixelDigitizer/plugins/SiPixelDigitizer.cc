@@ -93,8 +93,8 @@ namespace cms {
                                          ? iConfig.getParameter<bool>("store_SimHitEntryExitPoints")
                                          : false),
         store_SimHitEntryExitPointsLite_(iConfig.exists("store_SimHitEntryExitPointsLite")
-                                         ? iConfig.getParameter<bool>("store_SimHitEntryExitPointsLite")
-                                         : false),
+                                             ? iConfig.getParameter<bool>("store_SimHitEntryExitPointsLite")
+                                             : false),
         _pixeldigialgo(),
         hitsProducer(iConfig.getParameter<std::string>("hitsProducer")),
         trackerContainers(iConfig.getParameter<std::vector<std::string> >("RoutList")),
@@ -115,8 +115,8 @@ namespace cms {
       producesCollector.produces<edm::DetSetVector<PixelSimHitExtraInfo> >().setBranchAlias(alias +
                                                                                             "siPixelExtraSimHit");
     if (store_SimHitEntryExitPointsLite_)
-      producesCollector.produces<edm::DetSetVector<PixelSimHitExtraInfoLite> >().setBranchAlias(alias +
-                                                                                            "siPixelExtraSimHitLite");
+      producesCollector.produces<edm::DetSetVector<PixelSimHitExtraInfoLite> >().setBranchAlias(
+          alias + "siPixelExtraSimHitLite");
 
     for (auto const& trackerContainer : trackerContainers) {
       edm::InputTag tag(hitsProducer, trackerContainer);
@@ -329,7 +329,7 @@ namespace cms {
             }
 
             bool checkInTheList = false;
-	    // To fill the PixelSimHitExtraInfo temporary collector
+            // To fill the PixelSimHitExtraInfo temporary collector
             if (!checkTwoSimHits) {
               std::vector<PixelSimHitExtraInfo>::iterator loopTempSH;
               for (loopTempSH = tempSHcollector.begin(); loopTempSH != tempSHcollector.end(); ++loopTempSH) {
@@ -347,10 +347,11 @@ namespace cms {
               }
             }
             bool checkInTheListLite = false;
-	    // To fill the PixelSimHitExtraInfoLite temporary collector
+            // To fill the PixelSimHitExtraInfoLite temporary collector
             if (!checkTwoSimHits) {
               std::vector<PixelSimHitExtraInfoLite>::iterator loopTempSHLite;
-              for (loopTempSHLite = tempSHLitecollector.begin(); loopTempSHLite != tempSHLitecollector.end(); ++loopTempSHLite) {
+              for (loopTempSHLite = tempSHLitecollector.begin(); loopTempSHLite != tempSHLitecollector.end();
+                   ++loopTempSHLite) {
                 if (loopNewClass->hitIndex() == loopTempSHLite->hitIndex()) {
                   checkInTheListLite = true;
                   loopTempSHLite->addDigiInfo(loopNewClass->channel());
@@ -358,9 +359,9 @@ namespace cms {
               }
               if (!checkInTheListLite) {
                 PixelSimHitExtraInfoLite newSHLiteEntry(loopNewClass->hitIndex(),
-                                                loopNewClass->entryPoint(),
-                                                loopNewClass->exitPoint(),
-                                                loopNewClass->channel());
+                                                        loopNewClass->entryPoint(),
+                                                        loopNewClass->exitPoint(),
+                                                        loopNewClass->channel());
                 tempSHLitecollector.push_back(newSHLiteEntry);
               }
             }
@@ -369,15 +370,17 @@ namespace cms {
 
         if (applyLateReweighting_) {
           if (!usePixelExtraLiteFormat_) {
-          // if applyLateReweighting_  is true, the charge reweighting has to be applied on top of the digis
-          _pixeldigialgo->lateSignalReweight(
-              dynamic_cast<const PixelGeomDetUnit*>(iu), collector.data, tempSHcollector.data, tTopo, randomEngine_);
+            // if applyLateReweighting_  is true, the charge reweighting has to be applied on top of the digis
+            _pixeldigialgo->lateSignalReweight(
+                dynamic_cast<const PixelGeomDetUnit*>(iu), collector.data, tempSHcollector.data, tTopo, randomEngine_);
+          } else {
+            // if applyLateReweighting_  is true, the charge reweighting has to be applied on top of the digis
+            _pixeldigialgo->lateSignalReweight(dynamic_cast<const PixelGeomDetUnit*>(iu),
+                                               collector.data,
+                                               tempSHLitecollector.data,
+                                               tTopo,
+                                               randomEngine_);
           }
-          else {
-          // if applyLateReweighting_  is true, the charge reweighting has to be applied on top of the digis
-          _pixeldigialgo->lateSignalReweight(
-              dynamic_cast<const PixelGeomDetUnit*>(iu), collector.data, tempSHLitecollector.data, tTopo, randomEngine_);
-	  }
         }
 
         if (!collector.data.empty()) {

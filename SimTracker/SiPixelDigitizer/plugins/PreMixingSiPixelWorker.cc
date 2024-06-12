@@ -51,7 +51,7 @@ private:
   edm::InputTag pixeldigi_collectionSig_;   // secondary name given to collection of SiPixel digis
   edm::InputTag pixeldigi_collectionPile_;  // secondary name given to collection of SiPixel digis
   edm::InputTag pixeldigi_extraInfo_;       // secondary name given to collection of SiPixel digis
-  edm::InputTag pixeldigi_extraInfoLite_;       // secondary name given to collection of SiPixel digis
+  edm::InputTag pixeldigi_extraInfoLite_;   // secondary name given to collection of SiPixel digis
   std::string PixelDigiCollectionDM_;       // secondary name to be given to new SiPixel digis
 
   edm::EDGetTokenT<edm::DetSetVector<PixelDigi>> PixelDigiToken_;   // Token to retrieve information
@@ -80,7 +80,7 @@ private:
 
   SiGlobalIndex SiHitStorage_;
   SiPixelExtraInfo SiHitExtraStorage_;
-  SiPixelExtraInfoLite SiHitExtraLiteStorage_;    // Lite version
+  SiPixelExtraInfoLite SiHitExtraLiteStorage_;  // Lite version
 
   bool firstInitializeEvent_ = true;
   bool firstFinalizeEvent_ = true;
@@ -106,14 +106,15 @@ PreMixingSiPixelWorker::PreMixingSiPixelWorker(const edm::ParameterSet& ps,
   usePixelExtraLiteFormat_ = ps.getParameter<bool>("usePixelExtraLiteFormat");
   LogDebug("PreMixingSiPixelWorker") << "applyLateReweighting_ in PreMixingSiPixelWorker  " << applyLateReweighting_;
 
-
-  LogDebug("PreMixingSiPixelWorker")  << " applyLateReweighting_ in PreMixingSiPixelWorker " << applyLateReweighting_ ;
-  LogDebug("PreMixingSiPixelWorker")  << " usePixelExtraLiteFormat_ in PreMixingSiPixelWorker " << usePixelExtraLiteFormat_ ;
+  LogDebug("PreMixingSiPixelWorker") << " applyLateReweighting_ in PreMixingSiPixelWorker " << applyLateReweighting_;
+  LogDebug("PreMixingSiPixelWorker") << " usePixelExtraLiteFormat_ in PreMixingSiPixelWorker "
+                                     << usePixelExtraLiteFormat_;
 
   PixelDigiToken_ = iC.consumes<edm::DetSetVector<PixelDigi>>(pixeldigi_collectionSig_);
   PixelDigiPToken_ = iC.consumes<edm::DetSetVector<PixelDigi>>(pixeldigi_collectionPile_);
   PixelDigiPExtraToken_ = iC.consumes<edm::DetSetVector<PixelSimHitExtraInfo>>(pixeldigi_extraInfo_);
-  PixelDigiPExtraLiteToken_ = iC.consumes<edm::DetSetVector<PixelSimHitExtraInfoLite>>(pixeldigi_extraInfoLite_); // Lite version
+  PixelDigiPExtraLiteToken_ =
+      iC.consumes<edm::DetSetVector<PixelSimHitExtraInfoLite>>(pixeldigi_extraInfoLite_);  // Lite version
 
   producesCollector.produces<edm::DetSetVector<PixelDigi>>(PixelDigiCollectionDM_);
   producesCollector.produces<PixelFEDChannelCollection>(PixelDigiCollectionDM_);
@@ -177,8 +178,8 @@ void PreMixingSiPixelWorker::addPileups(PileUpEventPrincipal const& pep, edm::Ev
   // added for the Late CR
   edm::Handle<edm::DetSetVector<PixelSimHitExtraInfo>> pixelAddInfo;
   pep.getByLabel(pixeldigi_extraInfo_, pixelAddInfo);
-  edm::Handle<edm::DetSetVector<PixelSimHitExtraInfoLite>> pixelAddInfoLite; // Lite version
-  pep.getByLabel(pixeldigi_extraInfoLite_, pixelAddInfoLite); // Lite version
+  edm::Handle<edm::DetSetVector<PixelSimHitExtraInfoLite>> pixelAddInfoLite;  // Lite version
+  pep.getByLabel(pixeldigi_extraInfoLite_, pixelAddInfoLite);                 // Lite version
   const TrackerTopology* tTopo = &es.getData(tTopoToken_);
   auto const& pDD = es.getData(pDDToken_);
   edm::Service<edm::RandomNumberGenerator> rng;
@@ -190,51 +191,51 @@ void PreMixingSiPixelWorker::addPileups(PileUpEventPrincipal const& pep, edm::Ev
     bool loadExtraInformation = false;
 
     if (!usePixelExtraLiteFormat_) {
-     if (pixelAddInfo.isValid() && applyLateReweighting_) {
-      // access the extra information
-      loadExtraInformation = true;
-      // Iterate on detector units
-      edm::DetSetVector<PixelSimHitExtraInfo>::const_iterator detIdIter;
-      for (detIdIter = pixelAddInfo->begin(); detIdIter != pixelAddInfo->end(); detIdIter++) {
-        uint32_t detid = detIdIter->id;  // = rawid
-        OneExtraInfoMap LocalExtraMap;
-        edm::DetSet<PixelSimHitExtraInfo>::const_iterator di;
-        for (di = detIdIter->data.begin(); di != detIdIter->data.end(); di++) {
-          LocalExtraMap.insert(OneExtraInfoMap::value_type((di->hitIndex()), *di));
-        }
-        SiHitExtraStorage_.insert(SiPixelExtraInfo::value_type(detid, LocalExtraMap));
-      }  // end loop on detIdIter
-     }    // end if applyLateReweighting_
-     else if (!pixelAddInfo.isValid() && applyLateReweighting_) {
-      edm::LogError("PreMixingSiPixelWorker") << " Problem in accessing the Extra Pixel SimHit Collection  !!!! ";
-      edm::LogError("PreMixingSiPixelWorker") << " The Late Charge Reweighting can not be applied ";
-      throw cms::Exception("PreMixingSiPixelWorker")
-          << " Problem in accessing the Extra Pixel SimHit Collection for Late Charge Reweighting \n";
-     }
-    }
-    else {  // Lite version
-     if (pixelAddInfoLite.isValid() && applyLateReweighting_) {
-      // access the extra information
-      loadExtraInformation = true;
-      // Iterate on detector units
-      edm::DetSetVector<PixelSimHitExtraInfoLite>::const_iterator detIdIter;
-      for (detIdIter = pixelAddInfoLite->begin(); detIdIter != pixelAddInfoLite->end(); detIdIter++) {
-        uint32_t detid = detIdIter->id;  // = rawid
-        OneExtraInfoLiteMap LocalExtraMap;
-        edm::DetSet<PixelSimHitExtraInfoLite>::const_iterator di;
-        for (di = detIdIter->data.begin(); di != detIdIter->data.end(); di++) {
-          LocalExtraMap.insert(OneExtraInfoLiteMap::value_type((di->hitIndex()), *di));
-        }
-        SiHitExtraLiteStorage_.insert(SiPixelExtraInfoLite::value_type(detid, LocalExtraMap));
-      }  // end loop on detIdIter
-     }    // end if applyLateReweighting_
-     else if (!pixelAddInfoLite.isValid() && applyLateReweighting_) {
-      edm::LogError("PreMixingSiPixelWorker") << " Problem in accessing the Extra Pixel SimHit Lite Collection  !!!! ";
-      edm::LogError("PreMixingSiPixelWorker") << " The Late Charge Reweighting can not be applied ";
-      throw cms::Exception("PreMixingSiPixelWorker")
-          << " Problem in accessing the Extra Pixel SimHit Lite Collection for Late Charge Reweighting \n";
-     }
-    }	    // end if !usePixelExtraLiteFormat_
+      if (pixelAddInfo.isValid() && applyLateReweighting_) {
+        // access the extra information
+        loadExtraInformation = true;
+        // Iterate on detector units
+        edm::DetSetVector<PixelSimHitExtraInfo>::const_iterator detIdIter;
+        for (detIdIter = pixelAddInfo->begin(); detIdIter != pixelAddInfo->end(); detIdIter++) {
+          uint32_t detid = detIdIter->id;  // = rawid
+          OneExtraInfoMap LocalExtraMap;
+          edm::DetSet<PixelSimHitExtraInfo>::const_iterator di;
+          for (di = detIdIter->data.begin(); di != detIdIter->data.end(); di++) {
+            LocalExtraMap.insert(OneExtraInfoMap::value_type((di->hitIndex()), *di));
+          }
+          SiHitExtraStorage_.insert(SiPixelExtraInfo::value_type(detid, LocalExtraMap));
+        }  // end loop on detIdIter
+      }  // end if applyLateReweighting_
+      else if (!pixelAddInfo.isValid() && applyLateReweighting_) {
+        edm::LogError("PreMixingSiPixelWorker") << " Problem in accessing the Extra Pixel SimHit Collection  !!!! ";
+        edm::LogError("PreMixingSiPixelWorker") << " The Late Charge Reweighting can not be applied ";
+        throw cms::Exception("PreMixingSiPixelWorker")
+            << " Problem in accessing the Extra Pixel SimHit Collection for Late Charge Reweighting \n";
+      }
+    } else {  // Lite version
+      if (pixelAddInfoLite.isValid() && applyLateReweighting_) {
+        // access the extra information
+        loadExtraInformation = true;
+        // Iterate on detector units
+        edm::DetSetVector<PixelSimHitExtraInfoLite>::const_iterator detIdIter;
+        for (detIdIter = pixelAddInfoLite->begin(); detIdIter != pixelAddInfoLite->end(); detIdIter++) {
+          uint32_t detid = detIdIter->id;  // = rawid
+          OneExtraInfoLiteMap LocalExtraMap;
+          edm::DetSet<PixelSimHitExtraInfoLite>::const_iterator di;
+          for (di = detIdIter->data.begin(); di != detIdIter->data.end(); di++) {
+            LocalExtraMap.insert(OneExtraInfoLiteMap::value_type((di->hitIndex()), *di));
+          }
+          SiHitExtraLiteStorage_.insert(SiPixelExtraInfoLite::value_type(detid, LocalExtraMap));
+        }  // end loop on detIdIter
+      }  // end if applyLateReweighting_
+      else if (!pixelAddInfoLite.isValid() && applyLateReweighting_) {
+        edm::LogError("PreMixingSiPixelWorker")
+            << " Problem in accessing the Extra Pixel SimHit Lite Collection  !!!! ";
+        edm::LogError("PreMixingSiPixelWorker") << " The Late Charge Reweighting can not be applied ";
+        throw cms::Exception("PreMixingSiPixelWorker")
+            << " Problem in accessing the Extra Pixel SimHit Lite Collection for Late Charge Reweighting \n";
+      }
+    }  // end if !usePixelExtraLiteFormat_
 
     //loop on all detsets (detectorIDs) inside the input collection
     edm::DetSetVector<PixelDigi>::const_iterator DSViter = input.begin();
@@ -259,48 +260,46 @@ void PreMixingSiPixelWorker::addPileups(PileUpEventPrincipal const& pep, edm::Ev
         TempDigis.push_back(*icopy);
       }
       if (loadExtraInformation) {
-       // apply the Late Charge Reweighthing on Pile-up digi
-       if (!usePixelExtraLiteFormat_) {
-        SiPixelExtraInfo::const_iterator jtest;
-        jtest = SiHitExtraStorage_.find(detID);
-        OneExtraInfoMap LocalSimHitExtraMap = jtest->second;
-        std::vector<PixelSimHitExtraInfo> TempSimExtra;
-        for (auto& iLocal : LocalSimHitExtraMap) {
-          TempSimExtra.push_back(iLocal.second);
-        }
+        // apply the Late Charge Reweighthing on Pile-up digi
+        if (!usePixelExtraLiteFormat_) {
+          SiPixelExtraInfo::const_iterator jtest;
+          jtest = SiHitExtraStorage_.find(detID);
+          OneExtraInfoMap LocalSimHitExtraMap = jtest->second;
+          std::vector<PixelSimHitExtraInfo> TempSimExtra;
+          for (auto& iLocal : LocalSimHitExtraMap) {
+            TempSimExtra.push_back(iLocal.second);
+          }
 
-        for (const auto& iu : pDD.detUnits()) {
-          if (iu->type().isTrackerPixel()) {
-            uint32_t detIDinLoop = iu->geographicalId().rawId();
-            if (detIDinLoop == detID) {
-              digitizer_.lateSignalReweight(
-                  dynamic_cast<const PixelGeomDetUnit*>(iu), TempDigis, TempSimExtra, tTopo, engine);
-              break;
+          for (const auto& iu : pDD.detUnits()) {
+            if (iu->type().isTrackerPixel()) {
+              uint32_t detIDinLoop = iu->geographicalId().rawId();
+              if (detIDinLoop == detID) {
+                digitizer_.lateSignalReweight(
+                    dynamic_cast<const PixelGeomDetUnit*>(iu), TempDigis, TempSimExtra, tTopo, engine);
+                break;
+              }
             }
           }
-        }
-       }
-       else {  // Lite version
-        SiPixelExtraInfoLite::const_iterator jtest;
-        jtest = SiHitExtraLiteStorage_.find(detID);
-        OneExtraInfoLiteMap LocalSimHitExtraMap = jtest->second;
-        std::vector<PixelSimHitExtraInfoLite> TempSimExtra;
-        for (auto& iLocal : LocalSimHitExtraMap) {
-          TempSimExtra.push_back(iLocal.second);
-        }
+        } else {  // Lite version
+          SiPixelExtraInfoLite::const_iterator jtest;
+          jtest = SiHitExtraLiteStorage_.find(detID);
+          OneExtraInfoLiteMap LocalSimHitExtraMap = jtest->second;
+          std::vector<PixelSimHitExtraInfoLite> TempSimExtra;
+          for (auto& iLocal : LocalSimHitExtraMap) {
+            TempSimExtra.push_back(iLocal.second);
+          }
 
-        for (const auto& iu : pDD.detUnits()) {
-          if (iu->type().isTrackerPixel()) {
-            uint32_t detIDinLoop = iu->geographicalId().rawId();
-            if (detIDinLoop == detID) {
-              digitizer_.lateSignalReweight(
-                  dynamic_cast<const PixelGeomDetUnit*>(iu), TempDigis, TempSimExtra, tTopo, engine);
-              break;
+          for (const auto& iu : pDD.detUnits()) {
+            if (iu->type().isTrackerPixel()) {
+              uint32_t detIDinLoop = iu->geographicalId().rawId();
+              if (detIDinLoop == detID) {
+                digitizer_.lateSignalReweight(
+                    dynamic_cast<const PixelGeomDetUnit*>(iu), TempDigis, TempSimExtra, tTopo, engine);
+                break;
+              }
             }
           }
-        }
-       } // end if !usePixelExtraLiteFormat_
-	       
+        }  // end if !usePixelExtraLiteFormat_
       }
 
       if (itest != SiHitStorage_.end()) {  // this detID already has hits, add to existing map

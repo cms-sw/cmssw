@@ -184,8 +184,9 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
       makeDigiSimLinks_(conf.getUntrackedParameter<bool>("makeDigiSimLinks", true)),
       store_SimHitEntryExitPoints_(
           conf.exists("store_SimHitEntryExitPoints") ? conf.getParameter<bool>("store_SimHitEntryExitPoints") : false),
-      store_SimHitEntryExitPointsLite_(
-          conf.exists("store_SimHitEntryExitPointsLite") ? conf.getParameter<bool>("store_SimHitEntryExitPointsLite") : false),
+      store_SimHitEntryExitPointsLite_(conf.exists("store_SimHitEntryExitPointsLite")
+                                           ? conf.getParameter<bool>("store_SimHitEntryExitPointsLite")
+                                           : false),
       use_ineff_from_db_(conf.getParameter<bool>("useDB")),
       use_module_killing_(conf.getParameter<bool>("killModules")),       // boolean to kill or not modules
       use_deadmodule_DB_(conf.getParameter<bool>("DeadModules_DB")),     // boolean to access dead modules from DB
