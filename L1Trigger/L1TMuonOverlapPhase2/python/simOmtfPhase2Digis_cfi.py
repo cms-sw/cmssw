@@ -1,16 +1,19 @@
 import FWCore.ParameterSet.Config as cms
 
-
 ###OMTF emulator configuration
-simOmtfPhase2Digis = cms.EDProducer("L1TMuonOverlapPhase2TrackProducer",
-                              
+simOmtfPhase2Digis = cms.EDProducer("L1TMuonOverlapPhase2TrackProducer",                         
   srcDTPh = cms.InputTag('simDtTriggerPrimitiveDigis'),
   srcDTTh = cms.InputTag('simDtTriggerPrimitiveDigis'),
   srcCSC = cms.InputTag('simCscTriggerPrimitiveDigis','MPCSORTED'),
   srcRPC = cms.InputTag('simMuonRPCDigis'), 
   srcDTPhPhase2 = cms.InputTag('dtTriggerPhase2PrimitiveDigis'),
-  
-  simTracksTag = cms.InputTag('g4SimHits'),                             
+  srcDTThPhase2 = cms.InputTag('dtTriggerPhase2PrimitiveDigis'),
+
+  ##  XML / PATTERNS file:
+  configXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/hwToLogicLayer_0x0209.xml"),
+  patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/Patterns_ExtraplMB1nadMB2DTQualAndEtaFixedP_ValueP1Scale_t20_v1_SingleMu_iPt_and_OneOverPt_classProb17_recalib2_minDP0.xml"),
+  extrapolFactorsFilename = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/ExtrapolationFactors_ExtraplMB1nadMB2DTQual_ValueP1Scale_t20.xml"),
+
   dumpResultToXML = cms.bool(False),
   dumpDetailedResultToXML = cms.bool(False),
   XMLDumpFileName = cms.string("TestEvents.xml"),                                     
@@ -18,7 +21,7 @@ simOmtfPhase2Digis = cms.EDProducer("L1TMuonOverlapPhase2TrackProducer",
   readEventsFromXML = cms.bool(False),
   eventsXMLFiles = cms.vstring("TestEvents.xml"),
   
-  
+
   dropRPCPrimitives = cms.bool(False),                                    
   dropCSCPrimitives = cms.bool(False),
   
@@ -42,13 +45,13 @@ simOmtfPhase2Digis = cms.EDProducer("L1TMuonOverlapPhase2TrackProducer",
     
   stubEtaEncoding = cms.string("valueP1Scale"), #TODO change to valueP1Scale when InputMakerPhase2 is modifiwed
   
-  usePhiBExtrapolationFromMB1 = cms.bool(False),
-  usePhiBExtrapolationFromMB2 = cms.bool(False),
-  useStubQualInExtr  = cms.bool(False),
-  useEndcapStubsRInExtr  = cms.bool(False),
+  usePhiBExtrapolationFromMB1 = cms.bool(True),
+  usePhiBExtrapolationFromMB2 = cms.bool(True),
+  useStubQualInExtr  = cms.bool(True),
+  useEndcapStubsRInExtr  = cms.bool(True),
   useFloatingPointExtrapolation  = cms.bool(False),
-  
+
   sorterType = cms.string("byLLH"),
-  ghostBusterType = cms.string("GhostBusterPreferRefDt"), # byLLH byRefLayer GhostBusterPreferRefDt
-  goldenPatternResultFinalizeFunction = cms.int32(9)
+  ghostBusterType = cms.string("byRefLayer"), # byLLH byRefLayer GhostBusterPreferRefDt
+  goldenPatternResultFinalizeFunction = cms.int32(10)
 )
