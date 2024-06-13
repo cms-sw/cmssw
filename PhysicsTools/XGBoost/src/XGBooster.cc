@@ -1,14 +1,15 @@
-#include "PhysicsTools/PatAlgos/interface/XGBooster.h"
 #include <algorithm>
 #include <cassert>
 #include <cmath>
-#include <stdexcept>
-
-#include <iostream>
+#include <cstdio>  // For std::snprintf
 #include <fstream>
+#include <iostream>
 #include <sstream>
-#include <vector>
 #include <stdexcept>
+#include <stdexcept>
+#include <vector>
+
+#include "PhysicsTools/XGBoost/interface/XGBooster.h"
 
 using namespace pat;
 
@@ -77,7 +78,7 @@ void XGBooster::addFeature(std::string name) {
 
 void XGBooster::set(std::string name, float value) { features_.at(feature_name_to_index_[name]) = value; }
 
-float XGBooster::predict() {
+float XGBooster::predict(const int iterationEnd) {
   float result(-999.);
 
   // check if all feature values are set properly
@@ -99,26 +100,31 @@ float XGBooster::predict() {
   bst_ulong out_len = 0;
   const float* score = nullptr;
 
-  // config json
-  const char* json = R"({
+  char json[256];  // Make sure the buffer is large enough to hold the resulting JSON string
+
+  // Use snprintf to format the JSON string with the external value
+  std::snprintf(json,
+                sizeof(json),
+                R"({
     "type": 0,
     "training": false,
     "iteration_begin": 0,
-    "iteration_end": 0,
+    "iteration_end": %d,
     "strict_shape": false
-   })";
+   })",
+                iterationEnd);
 
   // Shape of output prediction
   bst_ulong const* out_shape = nullptr;
 
   auto ret = XGBoosterPredictFromDMatrix(booster_, dvalues, json, &out_shape, &out_len, &score);
 
-  XGDMatrixFree(dvalues);
-
   if (ret == 0) {
     assert(out_len == 1 && "Unexpected prediction format");
     result = score[0];
   }
+
+  XGDMatrixFree(dvalues);
 
   reset();
 
