@@ -14,12 +14,6 @@
 #include <limits>
 #include "DataFormats/DetId/interface/DetId.h"
 
-#define DEBUG_CLUSTERS_ALPAKA 0
-
-#if DEBUG_CLUSTERS_ALPAKA
-#include "RecoLocalCalo/HGCalRecProducers/interface/DumpClustersDetails.h"
-#endif
-
 using namespace hgcal_clustering;
 
 template <typename T, typename STRATEGY>
@@ -135,7 +129,7 @@ void HGCalCLUEAlgoT<T, STRATEGY>::makeClusters() {
   });
 #if DEBUG_CLUSTERS_ALPAKA
   hgcalUtils::DumpLegacySoA dumperLegacySoA;
-  dumperLegacySoA.dumpInfos(cells_);
+  dumperLegacySoA.dumpInfos(cells_, moduleType_);
 #endif
 }
 

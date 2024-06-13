@@ -15,11 +15,11 @@
 class HGCalLayerClusterHeterogeneousSoADumper : public edm::global::EDAnalyzer<> {
 public:
   HGCalLayerClusterHeterogeneousSoADumper(edm::ParameterSet const& iConfig)
-      : deviceToken_{consumes(iConfig.getParameter<edm::InputTag>("srcDevice"))} {}
+      : deviceToken_{consumes(iConfig.getParameter<edm::InputTag>("src"))} {}
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
-    desc.add<edm::InputTag>("srcDevice", edm::InputTag("hgCalSoALayerClustersProducer"));
+    desc.add<edm::InputTag>("src", edm::InputTag("hltHgcalSoALayerClustersProducer"));
     descriptions.addWithDefaultLabel(desc);
   }
 

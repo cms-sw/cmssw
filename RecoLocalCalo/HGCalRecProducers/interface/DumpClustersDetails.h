@@ -1,6 +1,7 @@
 #ifndef RecoLocalCalo_HGCalRecProducers_DumpClustersDetails_h
 #define RecoLocalCalo_HGCalRecProducers_DumpClustersDetails_h
 
+#include <string>
 #include <vector>
 #include <iostream>
 #include <fstream>
@@ -10,6 +11,7 @@
 #include <cstdlib>
 #include <unistd.h>  // For getpid
 #include <fmt/format.h>
+#include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
 
 namespace hgcalUtils {
 
@@ -19,24 +21,25 @@ namespace hgcalUtils {
 
   class DumpClustersDetails {
   public:
-    DumpClustersDetails(){};
+    DumpClustersDetails() = default;
 
     template <typename T>
-    void dumpInfos(const T& clusters, bool dumpCellsDetId = false) const {
+    void dumpInfos(const T& clusters,
+                   const std::string& moduleLabel,
+                   edm::RunNumber_t run,
+                   edm::LuminosityBlockNumber_t lumi,
+                   edm::EventNumber_t event,
+                   bool dumpCellsDetId = false) const {
       // Get the process ID
       pid_t pid = getpid();
 
       // Create the filename using the PID
       std::ostringstream filename;
-      // Seed the random number generator
-      srand(time(0));
-      // Generate a random number between 100 and 999
-      int random_number = 100 + rand() % 900;
-      filename << "CLUSTERS_" << pid << "_" << random_number << ".txt";
+      filename << "CLUSTERS_" << pid << "_" << moduleLabel << "_" << run << "_" << lumi << "_" << event << ".txt";
       // Open the file
       std::ofstream outfile(filename.str());
       int count = 0;
-      for (auto& i : clusters) {
+      for (auto const& i : clusters) {
         outfile << fmt::format(
             "Seed: {}, Idx: {}, energy: {:.{}f}, x: {:.{}f}, y: {:.{}f}, z: {:.{}f}, eta: {:.{}f}, phi: {:.{}f}",
             i.seed().rawId(),
@@ -70,16 +73,21 @@ namespace hgcalUtils {
 
   class DumpClustersSoADetails {
   public:
-    DumpClustersSoADetails(){};
+    DumpClustersSoADetails() = default;
 
     template <typename T>
-    void dumpInfos(const T& clustersSoA) const {
+    void dumpInfos(const T& clustersSoA,
+                   const std::string& moduleLabel,
+                   edm::RunNumber_t run,
+                   edm::LuminosityBlockNumber_t lumi,
+                   edm::EventNumber_t event) const {
       // Get the process ID
       pid_t pid = getpid();
 
       // Create the filename using the PID
       std::ostringstream filename;
-      filename << "CLUSTERS_UTILS_SOA_" << pid << ".txt";
+      filename << "CLUSTERS_UTILS_SOA_" << pid << "_" << moduleLabel << "_" << run << "_" << lumi << "_" << event
+               << ".txt";
       // Open the file
       std::ofstream outfile(filename.str());
       for (int i = 0; i < clustersSoA->metadata().size(); ++i) {
@@ -101,16 +109,20 @@ namespace hgcalUtils {
 
   class DumpCellsSoADetails {
   public:
-    DumpCellsSoADetails(){};
+    DumpCellsSoADetails() = default;
 
     template <typename T>
-    void dumpInfos(const T& cells) const {
+    void dumpInfos(const T& cells,
+                   const std::string& moduleLabel,
+                   edm::RunNumber_t run,
+                   edm::LuminosityBlockNumber_t lumi,
+                   edm::EventNumber_t event) const {
       // Get the process ID
       pid_t pid = getpid();
 
       // Create the filename using the PID
       std::ostringstream filename;
-      filename << "RECHITS_SOA_" << pid << ".txt";
+      filename << "RECHITS_SOA_" << pid << "_" << moduleLabel << "_" << run << "_" << lumi << "_" << event << ".txt";
       // Open the file
       std::ofstream outfile(filename.str());
       for (int i = 0; i < cells->metadata().size(); ++i) {
@@ -137,16 +149,21 @@ namespace hgcalUtils {
 
   class DumpLegacySoADetails {
   public:
-    DumpLegacySoADetails(){};
+    DumpLegacySoADetails() = default;
 
     template <typename T>
-    void dumpInfos(T& cells) const {
+    void dumpInfos(const T& cells, const std::string& moduleType) const {
       // Get the process ID
       pid_t pid = getpid();
 
       // Create the filename using the PID
       std::ostringstream filename;
-      filename << "RECHITS_LEGACY_" << pid << ".txt";
+      // Seed the random number generator
+      srand(time(0));
+      // Generate a random number between 100 and 999
+      int random_number = 100 + rand() % 900;
+
+      filename << "RECHITS_LEGACY_" << pid << "_" << moduleType << "_" << random_number << ".txt";
       // Open the file
       std::ofstream outfile(filename.str());
       for (unsigned int l = 0; l < cells.size(); l++) {

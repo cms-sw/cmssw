@@ -7,10 +7,6 @@ fragment = cms.ProcessFragment("HLT")
 # One ProcessAccelerator for each accelerator technology
 fragment.load("Configuration.StandardSequences.Accelerators_cff")
 
-# And one ProcessAccelerator for Alpaka
-# (eventually to be absorbed to Accelerators_cff)
-fragment.load("HeterogeneousCore.AlpakaCore.ProcessAcceleratorAlpaka_cfi")
-
 
 ### Non HLT-specific event-setups
 fragment.load("CalibMuon/CSCCalibration/CSCChannelMapper_cfi")

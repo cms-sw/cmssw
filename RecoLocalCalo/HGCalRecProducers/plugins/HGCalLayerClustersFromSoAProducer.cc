@@ -33,6 +33,9 @@ public:
         detector_(config.getParameter<std::string>("detector")),
         hitsTime_(config.getParameter<unsigned int>("nHitsTime")),
         timeClname_(config.getParameter<std::string>("timeClname")) {
+#if DEBUG_CLUSTERS_ALPAKA
+    moduleLabel_ = config.getParameter<std::string>("@module_label");
+#endif
     if (detector_ == "HFNose") {
       algoId_ = reco::CaloCluster::hfnose;
     } else if (detector_ == "EE") {
@@ -95,8 +98,8 @@ public:
         continue;
       }
       times[soaRecHitsExtra_v[i].clusterIndex()].push_back(soaCells_v[i].time());
-      timeErrors[soaRecHitsExtra_v[i].clusterIndex()].push_back(1.f /
-                                                            (soaCells_v[i].timeError() * soaCells_v[i].timeError()));
+      timeErrors[soaRecHitsExtra_v[i].clusterIndex()].push_back(
+          1.f / (soaCells_v[i].timeError() * soaCells_v[i].timeError()));
     }
 
     // Finally, compute and assign the time to each cluster.
@@ -111,14 +114,18 @@ public:
     }
 
 #if DEBUG_CLUSTERS_ALPAKA
-    //      hgcalUtils::DumpCellsSoA dumperCellsSoA;
-    //      dumperCellsSoA.dumpInfos(cells);
+    auto runNumber = iEvent.eventAuxiliary().run();
+    auto lumiNumber = iEvent.eventAuxiliary().luminosityBlock();
+    auto evtNumber = iEvent.eventAuxiliary().id().event();
+
+    hgcalUtils::DumpCellsSoA dumperCellsSoA;
+    dumperCellsSoA.dumpInfos(deviceSoACells, moduleLabel_, runNumber, lumiNumber, evtNumber);
 
     hgcalUtils::DumpClusters dumper;
-    dumper.dumpInfos(*clusters, true);
+    dumper.dumpInfos(*clusters, moduleLabel_, runNumber, lumiNumber, evtNumber, true);
 
-//      hgcalUtils::DumpClustersSoA dumperSoA;
-//      dumperSoA.dumpInfos(clustersSoA);
+    hgcalUtils::DumpClustersSoA dumperSoA;
+    dumperSoA.dumpInfos(deviceSoARecHitsExtra, moduleLabel_, runNumber, lumiNumber, evtNumber);
 #endif
 
     auto clusterHandle = iEvent.put(std::move(clusters));
@@ -160,6 +167,9 @@ private:
   unsigned int hitsTime_;
   std::string timeClname_;
   reco::CaloCluster::AlgoId algoId_;
+#if DEBUG_CLUSTERS_ALPAKA
+  std::string moduleLabel_;
+#endif
 };
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(HGCalLayerClustersFromSoAProducer);

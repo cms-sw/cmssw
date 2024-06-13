@@ -81,6 +81,9 @@ private:
   hgcal::RecHitTools rhtools_;
   edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
   const bool calculatePositionInAlgo_;
+#if DEBUG_CLUSTERS_ALPAKA
+  std::string moduleLabel_;
+#endif
 
   /**
    * @brief Sets algoId accordingly to the detector type
@@ -116,6 +119,9 @@ HGCalLayerClusterProducer::HGCalLayerClusterProducer(const edm::ParameterSet& ps
       hitsTime_(ps.getParameter<unsigned int>("nHitsTime")),
       caloGeomToken_(consumesCollector().esConsumes<CaloGeometry, CaloGeometryRecord>()),
       calculatePositionInAlgo_(ps.getParameter<bool>("calculatePositionInAlgo")) {
+#if DEBUG_CLUSTERS_ALPAKA
+  moduleLabel_ = ps.getParameter<std::string>("@module_label");
+#endif
   setAlgoId();  //sets algo id according to detector type
   hits_token_ = consumes<HGCRecHitCollection>(ps.getParameter<edm::InputTag>("recHits"));
 
@@ -271,8 +277,11 @@ void HGCalLayerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& 
 
 #if DEBUG_CLUSTERS_ALPAKA
   hgcalUtils::DumpClusters dumper;
+  auto runNumber = evt.eventAuxiliary().run();
+  auto lumiNumber = evt.eventAuxiliary().luminosityBlock();
+  auto evtNumber = evt.eventAuxiliary().id().event();
 
-  dumper.dumpInfos(*clusters, true);
+  dumper.dumpInfos(*clusters, moduleLabel_, runNumber, lumiNumber, evtNumber, true);
 #endif
 
   auto clusterHandle = evt.put(std::move(clusters));
