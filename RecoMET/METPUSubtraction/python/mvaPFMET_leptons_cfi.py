@@ -63,7 +63,6 @@ requireDecayMode = cms.PSet(
     )
 )
 
-from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr3Hits
 import RecoTauTag.RecoTau.pfRecoTauDiscriminationAgainstMuon2_cfi as _mod
 
 hpsPFTauDiscriminationAgainstMuon2 = _mod.pfRecoTauDiscriminationAgainstMuon2.clone(
@@ -89,7 +88,7 @@ isotaus = cms.EDFilter(
     discriminators = cms.VPSet(
         cms.PSet( discriminator=cms.InputTag("hpsPFTauDiscriminationByDecayModeFinding"),       selectionCut=cms.double(0.5)),
         #cms.PSet( discriminator=cms.InputTag("hpsPFTauDiscriminationByMVAIsolation"),           selectionCut=cms.double(0.5)),
-        cms.PSet( discriminator=cms.InputTag("hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr3Hits"),           selectionCut=cms.double(0.5)),
+        #cms.PSet( discriminator=cms.InputTag("hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr3Hits"),           selectionCut=cms.double(0.5)),
         cms.PSet( discriminator=cms.InputTag("hpsPFTauDiscriminationByLooseElectronRejection"), selectionCut=cms.double(0.5)),
         cms.PSet( discriminator=cms.InputTag("hpsPFTauDiscriminationAgainstMuon2"),             selectionCut=cms.double(0.5)) 
     ),
@@ -98,11 +97,11 @@ isotaus = cms.EDFilter(
 )
 
 isomuonTask     = cms.Task(isomuons)
-isomuonseq      = cms.Sequence(isomuonsTask)
+isomuonseq      = cms.Sequence(isomuonTask)
 isoelectronTask = cms.Task(isoelectrons)
-isoelectronseq  = cms.Sequence(isoelectronsTask)
+isoelectronseq  = cms.Sequence(isoelectronTask)
 isotauTask      = cms.Task(
-     hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr3Hits,
+     #hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr3Hits,
      #kt6PFJetsForRhoComputationVoronoiMet,
      #hpsPFTauDiscriminationByMVAIsolation,
      hpsPFTauDiscriminationAgainstMuon2,
