@@ -65,7 +65,9 @@ namespace edm {
     k_EventRange = 'R',
     k_VEventRange = 'r',
     k_PSet = 'Q',
-    k_VPSet = 'q'
+    k_VPSet = 'q',
+    k_float = 'H',
+    k_vfloat = 'h'
   };
 
   std::string parameterTypeEnumToString(ParameterTypes iType);
