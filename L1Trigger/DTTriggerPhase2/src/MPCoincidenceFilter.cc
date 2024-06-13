@@ -60,7 +60,7 @@ std::vector<metaPrimitive> MPCoincidenceFilter::filter(std::vector<metaPrimitive
 
     bool PhiMP = 0;
     if (slId.superLayer() != 2)
-      PhiMP = 1;
+     PhiMP = 1;
 
     int sector = chId.sector();
     int wheel = chId.wheel();
@@ -70,8 +70,8 @@ std::vector<metaPrimitive> MPCoincidenceFilter::filter(std::vector<metaPrimitive
     if (sector == 14)
       sector = 10;
 
-    if ((abs(wheel) == 2 && station == 1) || mp.quality > 5 || co_option == -1)
-      outMPs.push_back(mp);  //DM
+    if (co_option == -1 || mp.quality>5) 
+     outMPs.push_back(mp);  
     else {
       int sector_p1 = sector + 1;
       int sector_m1 = sector - 1;
@@ -101,15 +101,14 @@ std::vector<metaPrimitive> MPCoincidenceFilter::filter(std::vector<metaPrimitive
 
         bool PhiMP2 = 0;
         if (slId2.superLayer() != 2)
-          PhiMP2 = 1;
+         PhiMP2 = 1;
 
-        if (co_option == 1 && PhiMP2 == 0)
-          continue;  // Phi Only
-        else if (co_option == 2 && PhiMP2 == 1)
-          continue;  // Theta Only
-
-        if (!(mp2.quality > co_quality))
-          continue;  // MP Quality with Q 0, 1, 5
+        int qcut = co_quality; // Tested for 0,1,5
+        if(mp.quality > qcut) qcut = 0; // Filter High Quality WRT any Quality  
+        if(PhiMP2==0 && qcut > 2) qcut = 2; // For Th TP max quality is 3 (4-hit)
+      
+        if (!(mp2.quality > qcut))
+         continue;  
 
         int sector2 = chId2.sector();
         int wheel2 = chId2.wheel();
@@ -118,9 +117,6 @@ std::vector<metaPrimitive> MPCoincidenceFilter::filter(std::vector<metaPrimitive
           sector2 = 4;
         if (sector2 == 14)
           sector2 = 10;
-
-        if (station2 == station)
-          continue;
 
         bool SectorSearch = 0;
         if (sector2 == sector || sector2 == sector_p1 || sector2 == sector_m1)
@@ -147,7 +143,39 @@ std::vector<metaPrimitive> MPCoincidenceFilter::filter(std::vector<metaPrimitive
         float t02 = (mp2.t0 - shift_back * LHC_CLK_FREQ) * ((float)TIME_TO_TDC_COUNTS / (float)LHC_CLK_FREQ);
         t02 = t02 - t0_mean2;
 
-        float thres = t0_width + t0_width2;
+        float thres = t0_width + t0_width2;   
+
+        bool SameCh = 0; 
+        if(station2 == station && sector2 == sector && wheel2 == wheel)
+         SameCh = 1; 
+
+        bool Wh2Exc = 0; 
+        if(abs(wheel)==2 && station<3 && SameCh==1)
+	 Wh2Exc = 1; // exception for WH2 MB1/2
+                  
+        if(Wh2Exc==1 && PhiMP!=PhiMP2){// pass if Phi-Th(large k) pair in same chamber         
+	 float k = 0;
+         if(PhiMP==0) 
+          k = mp.phiB;
+         else         
+          k = mp2.phiB;
+
+         if(wheel==2 && k>0.9){
+          co_found = 1;
+          break;
+         }else if(wheel==-2 && k<-0.9){
+          co_found = 1;
+          break;
+	 } 
+        }
+
+        if (co_option == 1 && PhiMP2 == 0)
+          continue;  // Phi Only
+        else if (co_option == 2 && PhiMP2 == 1)
+          continue;  // Theta Only 
+
+        if(station2 == station)continue; // Different chambers + not adjacent chambers (standard)   
+        
         if (abs(t02 - t0) < thres) {
           co_found = 1;
           break;
