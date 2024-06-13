@@ -135,7 +135,6 @@ void DDHGCalPassive::execute(DDCompactView& cpv) {
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "==>> Executing DDHGCalPassive...";
 #endif
-
   static constexpr double tol = 0.00001;
 
   // Loop over Layers
@@ -157,18 +156,21 @@ void DDHGCalPassive::execute(DDCompactView& cpv) {
         xM = {rinB * cos(phi1), routF * cos(phi1), routF * cos(phi2), rinB * cos(phi2)};
         yM = {rinB * sin(phi1), routF * sin(phi1), routF * sin(phi2), rinB * sin(phi2)};
       } else {
-        xM = {rinB * cos(phi1),
-              routF * cos(phi1),
-              routF * cos(phi0),
-              routF * cos(phi2),
-              rinB * cos(phi2),
-              rinB * cos(phi0)};
-        yM = {rinB * sin(phi1),
-              routF * sin(phi1),
-              routF * sin(phi0),
-              routF * sin(phi2),
-              rinB * sin(phi2),
-              rinB * sin(phi0)};
+        // workaround for https://github.com/cms-sw/cmssw/issues/44931#issuecomment-2134850535
+        std::vector<double> xTmp = {rinB * cos(phi1),
+                                    routF * cos(phi1),
+                                    routF * cos(phi0),
+                                    routF * cos(phi2),
+                                    rinB * cos(phi2),
+                                    rinB * cos(phi0)};
+        std::vector<double> yTmp = {rinB * sin(phi1),
+                                    routF * sin(phi1),
+                                    routF * sin(phi0),
+                                    routF * sin(phi2),
+                                    rinB * sin(phi2),
+                                    rinB * sin(phi0)};
+        xM = std::move(xTmp);
+        yM = std::move(yTmp);
       }
       std::vector<double> zw = {-0.5 * thick_, 0.5 * thick_};
       std::vector<double> zx(2, 0), zy(2, 0), scale(2, 1.0);
