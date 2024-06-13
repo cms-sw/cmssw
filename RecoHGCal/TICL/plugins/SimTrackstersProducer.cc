@@ -178,7 +178,7 @@ void SimTrackstersProducer::makePUTrackster(const std::vector<float>& inputClust
   Trackster tmpTrackster;
   for (size_t i = 0; i < output_mask.size(); i++) {
     const float remaining_fraction = output_mask[i];
-    if (remaining_fraction > 0.) {
+    if (remaining_fraction > std::numeric_limits<float>::epsilon()) {
       tmpTrackster.vertices().push_back(i);
       tmpTrackster.vertex_multiplicity().push_back(1. / remaining_fraction);
     }
