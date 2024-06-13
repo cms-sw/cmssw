@@ -54,7 +54,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         alpaka::atomicAdd(acc, &outputs_service[cluster_index].total_weight(), input_rechits_soa[hit_index].weight());
         // Read the current seed index, and the associated energy.
         int clusterSeed = outputs_service[cluster_index].maxEnergyIndex();
-        float clusterEnergy = (clusterSeed == -1) ? 0. : input_rechits_soa[clusterSeed].weight();
+        float clusterEnergy = (clusterSeed == -1) ? 0.f : input_rechits_soa[clusterSeed].weight();
 
         while (input_rechits_soa[hit_index].weight() > clusterEnergy) {
           // If output_service[cluster_index].maxEnergyIndex() did not change,
@@ -68,7 +68,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           } else {
             // Update the seed index and re-read the associated energy.
             clusterSeed = seed;
-            clusterEnergy = input_rechits_soa[clusterSeed].weight();
+            clusterEnergy = (clusterSeed == -1) ? 0.f : input_rechits_soa[clusterSeed].weight();
           }
         }  // CAS
       }    // uniform_elements
@@ -90,12 +90,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       // make a strided loop over the kernel grid, covering up to "size" elements
       for (int32_t hit_index : uniform_elements(acc, input_rechits_soa.metadata().size())) {
         const int cluster_index = input_clusters_soa[hit_index].clusterIndex();
-        const int max_energy_index = outputs_service[cluster_index].maxEnergyIndex();
 
         // Bail out if you are not part of any cluster
         if (cluster_index == -1) {
           continue;
         }
+        const int max_energy_index = outputs_service[cluster_index].maxEnergyIndex();
 
         //for silicon only just use 1+6 cells = 1.3cm for all thicknesses
         const float d1 = input_rechits_soa[hit_index].dim1() - input_rechits_soa[max_energy_index].dim1();
