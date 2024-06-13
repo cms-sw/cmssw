@@ -83,6 +83,14 @@ namespace edm {
     Entry(std::string const& name, std::vector<double> const& val, bool is_tracked);
     std::vector<double> getVDouble() const;
 
+    // Float
+    Entry(std::string const& name, float val, bool is_tracked);
+    float getFloat() const;
+
+    // vFloat
+    Entry(std::string const& name, std::vector<float> const& val, bool is_tracked);
+    std::vector<float> getVFloat() const;
+
     // String
     Entry(std::string const& name, std::string const& val, bool is_tracked);
     std::string getString() const;

@@ -1695,6 +1695,15 @@ p = dict(
     CHECK(par->isTracked() == true);
     CHECK(edm::parameterTypeEnumToString(par->type()) == std::string("double"));
 
+    float myfloat = 5;
+    par = psetDesc.addOptional<float>(std::string("floatvalue"), myfloat);
+    pset.addParameter<float>("floatvalue", myfloat);
+    CHECK(par != 0);
+    CHECK(par->label() == std::string("floatvalue"));
+    CHECK(par->type() == edm::k_float);
+    CHECK(par->isTracked() == true);
+    CHECK(edm::parameterTypeEnumToString(par->type()) == std::string("float"));
+
     bool f = true;
     par = psetDesc.addOptional<bool>("bvalue", f);
     pset.addParameter<bool>("bvalue", f);
@@ -1769,6 +1778,13 @@ p = dict(
     pset.addParameter<std::vector<double>>("v5", v5);
     CHECK(par->type() == edm::k_vdouble);
     CHECK(edm::parameterTypeEnumToString(par->type()) == std::string("vdouble"));
+
+    // make the same for std::vector<float>
+    std::vector<float> v5f;
+    par = psetDesc.add<std::vector<float>>("v5f", v5f);
+    pset.addParameter<std::vector<float>>("v5f", v5f);
+    CHECK(par->type() == edm::k_vfloat);
+    CHECK(edm::parameterTypeEnumToString(par->type()) == std::string("vfloat"));
 
     std::vector<std::string> v6;
     par = psetDesc.add<std::vector<std::string>>("v6", v6);
