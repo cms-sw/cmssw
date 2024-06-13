@@ -499,6 +499,78 @@ bool edm::encode(std::string& to, std::vector<double> const& from) {
 }  // encode from vector<double>
 
 // ----------------------------------------------------------------------
+// Float
+// ----------------------------------------------------------------------
+
+bool edm::decode(float& to, std::string_view from) {
+  if (from == "NaN") {
+    to = std::numeric_limits<float>::quiet_NaN();
+  } else if (from == "+inf" || from == "inf") {
+    to = std::numeric_limits<float>::has_infinity ? std::numeric_limits<float>::infinity()
+                                                  : std::numeric_limits<float>::max();
+  } else if (from == "-inf") {
+    to = std::numeric_limits<float>::has_infinity ? -std::numeric_limits<float>::infinity()
+                                                  : -std::numeric_limits<float>::max();
+  }
+
+  else {
+    try {
+      to = std::stof(std::string(from));
+    } catch (const std::exception&) {
+      return false;
+    }
+  }
+  return true;
+}
+
+// ----------------------------------------------------------------------
+
+bool edm::encode(std::string& to, float from) {
+  std::ostringstream ost;
+  ost.precision(std::numeric_limits<float>::max_digits10);
+  ost << from;
+  if (!ost)
+    return false;
+  to = ost.str();
+  return true;
+}
+
+// ----------------------------------------------------------------------
+// vFloat
+// ----------------------------------------------------------------------
+
+bool edm::decode(std::vector<float>& to, std::string_view from) {
+  to.clear();
+  to.reserve(std::count(from.begin(), from.end(), ','));
+  return split(from, '{', ',', '}', [&to](auto t) {
+    float val;
+    if (!decode(val, t))
+      return false;
+    to.push_back(val);
+    return true;
+  });
+}  // decode to vector<float>
+
+// ----------------------------------------------------------------------
+
+bool edm::encode(std::string& to, std::vector<float> const& from) {
+  to = "{";
+
+  std::string converted;
+  for (std::vector<float>::const_iterator b = from.begin(), e = from.end(); b != e; ++b) {
+    if (!encode(converted, *b))
+      return false;
+
+    if (b != from.begin())
+      to += ",";
+    to += converted;
+  }
+
+  to += '}';
+  return true;
+}  // encode from vector<float>
+
+// ----------------------------------------------------------------------
 // String
 // ----------------------------------------------------------------------
 std::optional<std::string_view> edm::decode_string_extent(std::string_view from) {
