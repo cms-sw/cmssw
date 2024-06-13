@@ -347,6 +347,7 @@ void PFBlockProducer::fillDescriptions(edm::ConfigurationDescriptions& descripti
     psd.addOptional<bool>("SuperClusterMatchByRef", false);
     desc.addVPSet("linkDefinitions", psd, vpset);
   }
+  desc.addOptional<bool>("useNuclear", false);
   descriptions.addWithDefaultLabel(desc);
 }
 

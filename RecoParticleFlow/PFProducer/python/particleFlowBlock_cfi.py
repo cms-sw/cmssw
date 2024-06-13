@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoParticleFlow.PFProducer.PFBlockProducer import PFBlockProducer
+from RecoParticleFlow.PFProducer.modules import PFBlockProducer
 particleFlowBlock = PFBlockProducer()
 
 for imp in particleFlowBlock.elementImporters:
