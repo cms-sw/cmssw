@@ -1,3 +1,4 @@
 import FWCore.ParameterSet.Config as cms
 
-generator = cms.EDProducer("HepMCCopy")
+from RecoParticleFlow.Configuration.HepMCCopy import HepMCCopy
+generator = HepMCCopy()

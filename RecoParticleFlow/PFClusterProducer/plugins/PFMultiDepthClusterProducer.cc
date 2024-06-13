@@ -25,6 +25,7 @@ public:
 
   void beginRun(const edm::Run&, const edm::EventSetup&) override;
   void produce(edm::Event&, const edm::EventSetup&) override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   // inputs
@@ -39,6 +40,38 @@ private:
 };
 
 DEFINE_FWK_MODULE(PFMultiDepthClusterProducer);
+
+void PFMultiDepthClusterProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("clustersSource", {});
+  desc.add<edm::ParameterSetDescription>("energyCorrector", {});
+  {
+    edm::ParameterSetDescription pset0;
+    pset0.add<std::string>("algoName", "PFMultiDepthClusterizer");
+    {
+      edm::ParameterSetDescription pset1;
+      pset1.add<std::string>("algoName", "Basic2DGenericPFlowPositionCalc");
+      {
+        edm::ParameterSetDescription psd;
+        psd.add<std::vector<int>>("depths", {});
+        psd.add<std::string>("detector");
+        psd.add<std::vector<double>>("logWeightDenominator", {});
+        pset1.addVPSet("logWeightDenominatorByDetector", psd, {});
+      }
+      pset1.add<double>("minAllowedNormalization", 1e-09);
+      pset1.add<double>("minFractionInCalc", 1e-09);
+      pset1.add<int>("posCalcNCrystals", -1);
+      pset0.add<edm::ParameterSetDescription>("allCellsPositionCalc", pset1);
+    }
+    pset0.add<double>("minFractionToKeep", 1e-07);
+    pset0.add<double>("nSigmaEta", 2.0);
+    pset0.add<double>("nSigmaPhi", 2.0);
+    desc.add<edm::ParameterSetDescription>("pfClusterBuilder", pset0);
+  }
+  desc.add<edm::ParameterSetDescription>("positionReCalc", {});
+  desc.add<bool>("usePFThresholdsFromDB", false);
+  descriptions.addWithDefaultLabel(desc);
+}
 
 #ifdef PFLOW_DEBUG
 #define LOGVERB(x) edm::LogVerbatim(x)

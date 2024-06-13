@@ -16,6 +16,8 @@ public:
   ///Destructor
   ~PFNuclearProducer() override;
 
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
 private:
   void beginRun(const edm::Run&, const edm::EventSetup&) override;
   void endRun(const edm::Run&, const edm::EventSetup&) override;
@@ -26,13 +28,21 @@ private:
   ///PFTrackTransformer
   PFTrackTransformer* pfTransformer_;
   double likelihoodCut_;
-  std::vector<edm::EDGetTokenT<reco::NuclearInteractionCollection> > nuclearContainers_;
+  std::vector<edm::EDGetTokenT<reco::NuclearInteractionCollection>> nuclearContainers_;
 
   const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magneticFieldToken_;
 };
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(PFNuclearProducer);
+
+void PFNuclearProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  // cut on the likelihood of the nuclear interaction
+  desc.add<double>("likelihoodCut", 0.1);
+  desc.add<std::vector<edm::InputTag>>("nuclearColList", {edm::InputTag("firstnuclearInteractionMaker")});
+  descriptions.add("pfNuclear", desc);
+}
 
 using namespace std;
 using namespace edm;
@@ -41,7 +51,7 @@ PFNuclearProducer::PFNuclearProducer(const ParameterSet& iConfig)
   produces<reco::PFRecTrackCollection>();
   produces<reco::PFNuclearInteractionCollection>();
 
-  std::vector<edm::InputTag> tags = iConfig.getParameter<vector<InputTag> >("nuclearColList");
+  std::vector<edm::InputTag> tags = iConfig.getParameter<vector<InputTag>>("nuclearColList");
 
   for (unsigned int i = 0; i < tags.size(); ++i)
     nuclearContainers_.push_back(consumes<reco::NuclearInteractionCollection>(tags[i]));

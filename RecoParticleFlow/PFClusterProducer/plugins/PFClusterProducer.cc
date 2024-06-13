@@ -22,6 +22,7 @@ public:
 
   void beginRun(const edm::Run&, const edm::EventSetup&) override;
   void produce(edm::Event&, const edm::EventSetup&) override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   // inputs
@@ -33,8 +34,8 @@ private:
   // options
   const bool _prodInitClusters;
   // the actual algorithm
-  std::vector<std::unique_ptr<RecHitTopologicalCleanerBase> > _cleaners;
-  std::vector<std::unique_ptr<RecHitTopologicalCleanerBase> > _seedcleaners;
+  std::vector<std::unique_ptr<RecHitTopologicalCleanerBase>> _cleaners;
+  std::vector<std::unique_ptr<RecHitTopologicalCleanerBase>> _seedcleaners;
   std::unique_ptr<SeedFinderBase> _seedFinder;
   std::unique_ptr<InitialClusteringStepBase> _initialClustering;
   std::unique_ptr<PFClusterBuilderBase> _pfClusterBuilder;
@@ -44,6 +45,33 @@ private:
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(PFClusterProducer);
+
+void PFClusterProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("recHitsSource", {});
+  desc.add<bool>("usePFThresholdsFromDB", false);
+  edm::ParameterSetDescription psd;
+  psd.setUnknown();
+  desc.addVPSet("recHitCleaners", psd, {});
+  {
+    edm::ParameterSetDescription psd1;
+    psd1.add<std::vector<std::string>>("RecHitFlagsToBeExcluded", {});
+    psd1.add<std::string>("algoName");
+    desc.addVPSet("seedCleaners", psd1, {});
+  }
+  {
+    edm::ParameterSetDescription pset;
+    pset.add<std::string>("algoName");
+    pset.add<int>("nNeighbours", 0);
+    pset.addVPSet("thresholdsByDetector", psd, {});
+    desc.add<edm::ParameterSetDescription>("seedFinder", pset);
+  }
+  desc.add<edm::ParameterSetDescription>("initialClusteringStep", psd);
+  desc.add<edm::ParameterSetDescription>("pfClusterBuilder", psd);
+  desc.add<edm::ParameterSetDescription>("positionReCalc", psd);
+  desc.add<edm::ParameterSetDescription>("energyCorrector", psd);
+  descriptions.addWithDefaultLabel(desc);
+}
 
 #ifdef PFLOW_DEBUG
 #define LOGVERB(x) edm::LogVerbatim(x)
