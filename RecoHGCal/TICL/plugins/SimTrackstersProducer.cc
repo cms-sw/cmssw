@@ -39,7 +39,7 @@
 
 #include "SimDataFormats/Associations/interface/TrackToTrackingParticleAssociator.h"
 
-#include "DataFormats/HGCalReco/interface/commons.h"
+#include "DataFormats/HGCalReco/interface/Common.h"
 
 #include "TrackstersPCA.h"
 #include <vector>

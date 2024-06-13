@@ -16,7 +16,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "RecoHGCal/TICL/interface/GlobalCache.h"
-#include "DataFormats/HGCalReco/interface/commons.h"
+#include "DataFormats/HGCalReco/interface/Common.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
 #include "CommonTools/RecoAlgos/interface/MultiVectorManager.h"

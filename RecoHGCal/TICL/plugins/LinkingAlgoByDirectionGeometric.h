@@ -4,7 +4,7 @@
 #include <memory>
 #include <array>
 #include "RecoHGCal/TICL/plugins/LinkingAlgoBase.h"
-#include "DataFormats/HGCalReco/interface/commons.h"
+#include "DataFormats/HGCalReco/interface/Common.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
