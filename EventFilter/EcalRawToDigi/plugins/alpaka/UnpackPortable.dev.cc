@@ -202,7 +202,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::raw {
 
           ElectronicsIdGPU eid{fed2dcc(fed), ttid, stripid, xtalid};
           auto const didraw = isBarrel ? compute_ebdetid(eid) : eid2did[eid.linearIndex()].rawid();
-          // FIXME: what kind of channels are these guys
+          // skip channels with an invalid detid
           if (didraw == 0)
             continue;
 
