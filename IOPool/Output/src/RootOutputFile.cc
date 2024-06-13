@@ -761,40 +761,57 @@ namespace edm {
   }
 
   void RootOutputFile::finishEndFile() {
-    metaDataTree_->SetEntries(-1);
-    RootOutputTree::writeTTree(metaDataTree_);
-    RootOutputTree::writeTTree(parameterSetsTree_);
+    std::string_view status = "beginning";
+    std::string_view value = "";
+    try {
+      metaDataTree_->SetEntries(-1);
+      status = "writeTTree() for metadata";
+      RootOutputTree::writeTTree(metaDataTree_);
+      status = "writeTTree() for ParameterSets";
+      RootOutputTree::writeTTree(parameterSetsTree_);
 
-    RootOutputTree::writeTTree(parentageTree_);
+      status = "writeTTree() for parentage";
+      RootOutputTree::writeTTree(parentageTree_);
 
-    // Create branch aliases for all the branches in the
-    // events/lumis/runs/processblock trees. The loop is over
-    // all types of data products.
-    for (unsigned int i = 0; i < treePointers_.size(); ++i) {
-      std::string processName;
-      BranchType branchType = InProcess;
-      if (i < InProcess) {
-        branchType = static_cast<BranchType>(i);
-      } else {
-        processName = om_->outputProcessBlockHelper().processesWithProcessBlockProducts()[i - InProcess];
+      // Create branch aliases for all the branches in the
+      // events/lumis/runs/processblock trees. The loop is over
+      // all types of data products.
+      status = "writeTree() for ";
+      for (unsigned int i = 0; i < treePointers_.size(); ++i) {
+        std::string processName;
+        BranchType branchType = InProcess;
+        if (i < InProcess) {
+          branchType = static_cast<BranchType>(i);
+        } else {
+          processName = om_->outputProcessBlockHelper().processesWithProcessBlockProducts()[i - InProcess];
+        }
+        setBranchAliases(treePointers_[i]->tree(), om_->keptProducts()[branchType], processName);
+        value = treePointers_[i]->tree()->GetName();
+        treePointers_[i]->writeTree();
       }
-      setBranchAliases(treePointers_[i]->tree(), om_->keptProducts()[branchType], processName);
-      treePointers_[i]->writeTree();
-    }
 
-    // close the file -- mfp
-    // Just to play it safe, zero all pointers to objects in the TFile to be closed.
-    metaDataTree_ = parentageTree_ = nullptr;
-    for (auto& treePointer : treePointers_) {
-      treePointer->close();
-      treePointer = nullptr;
-    }
-    filePtr_->Close();
-    filePtr_ = nullptr;  // propagate_const<T> has no reset() function
+      // close the file -- mfp
+      // Just to play it safe, zero all pointers to objects in the TFile to be closed.
+      status = "closing TTrees";
+      value = "";
+      metaDataTree_ = parentageTree_ = nullptr;
+      for (auto& treePointer : treePointers_) {
+        treePointer->close();
+        treePointer = nullptr;
+      }
+      status = "closing TFile";
+      filePtr_->Close();
+      filePtr_ = nullptr;  // propagate_const<T> has no reset() function
 
-    // report that file has been closed
-    Service<JobReport> reportSvc;
-    reportSvc->outputFileClosed(reportToken_);
+      // report that file has been closed
+      status = "reporting to JobReport";
+      Service<JobReport> reportSvc;
+      reportSvc->outputFileClosed(reportToken_);
+    } catch (cms::Exception& e) {
+      e.addContext("Calling RootOutputFile::finishEndFile() while closing " + file_);
+      e.addAdditionalInfo("While calling " + std::string(status) + std::string(value));
+      throw;
+    }
   }
 
   void RootOutputFile::setBranchAliases(TTree* tree,
