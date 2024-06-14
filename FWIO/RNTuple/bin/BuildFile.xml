@@ -1,0 +1,4 @@
+<bin name="edmRntupleStorage" file="edmRntupleStorage.cc">
+  <use name="rootntuple"/>
+  <use name="boost_program_options"/>
+</bin>
