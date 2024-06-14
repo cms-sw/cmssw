@@ -26,6 +26,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         auto clIdx = input_clusters_soa[i].clusterIndex();
         alpaka::atomicAdd(acc, &outputs[clIdx].energy(), input_rechits_soa[i].weight());
         alpaka::atomicAdd(acc, &outputs[clIdx].cells(), 1);
+        if (input_clusters_soa[i].isSeed() == 1) {
+          outputs[clIdx].seed() = input_rechits_soa[i].detid();
+        }
       }
     }
   };
@@ -138,7 +141,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           outputs[cluster_index].y() = input_rechits_soa[max_energy_index].dim2();
         }
         outputs[cluster_index].z() = input_rechits_soa[max_energy_index].dim3();
-        outputs[cluster_index].seed() = input_rechits_soa[max_energy_index].detid();
       }  // uniform_elements
     }    // operator()
   };
