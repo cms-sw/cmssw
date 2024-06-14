@@ -358,7 +358,7 @@ void TracksterLinksProducer::produce(edm::Event &evt, const edm::EventSetup &es)
     energyRegressionAndID(layerClusters, tfSession_, *resultTracksters);
 
   assignPCAtoTracksters(
-      *resultTracksters, layerClusters, layerClustersTimes, rhtools_.getPositionLayer(rhtools_.lastLayerEE()).z(), true);
+      *resultTracksters, layerClusters, layerClustersTimes, rhtools_.getPositionLayer(rhtools_.lastLayerEE()).z(), rhtools_, true);
 
   evt.put(std::move(linkedResultTracksters));
   evt.put(std::move(resultMask));
