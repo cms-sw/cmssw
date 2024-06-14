@@ -186,8 +186,8 @@ steps['lepTrackInfoNANO_data13.0']=merge([{'-s' : 'NANO:@LepTrackInfo,DQM:@nanoA
                                           '-n' : '1000'},
                                          steps['NANO_data13.0']])
 
-steps['jmeNANO_rePuppi_data13.0']=merge([steps['jmeNANO_data13.0']])
-steps['jmeNANO_rePuppi_data13.0']['--customise'] += ',"PhysicsTools/NanoAOD/custom_jme_cff.RecomputePuppiWeightsAndMET"'
+steps['jmeNANO_rePuppi_data13.0']= merge([{'-s':'NANO:@JMErePuppi', '-n' : '1000'},
+                                  steps['NANO_data13.0']])
 
 ###current release cycle workflows : 13.2
 steps['TTBarMINIAOD13.2'] = {'INPUT':InputInfo(location='STD',
@@ -214,8 +214,9 @@ steps['lepTrackInfoNANO_mc13.2']=merge([{'-s' : 'NANO:@LepTrackInfo,DQM:@nanoAOD
                                         '-n' : '1000'},
                                        steps['NANO_mc13.2']])
 
-steps['jmeNANO_rePuppi_mc13.2']=merge([steps['jmeNANO_mc13.2']])
-steps['jmeNANO_rePuppi_mc13.2']['--customise'] += ',"PhysicsTools/NanoAOD/custom_jme_cff.RecomputePuppiWeightsAndMET"'
+steps['jmeNANO_rePuppi_mc13.2']merge([{'-s' : 'NANO:@JMErePuppi ', '-n' : '1000'},
+                                     steps['NANO_mc13.2']])
+
 
 ##13.X INPUT
 steps['ScoutingPFRun32022DRAW13.X']={'INPUT':InputInfo(dataSet='/ScoutingPFRun3/Run2022D-v1/RAW',label='2022D',events=100000,location='STD', ls=Run2022D)}
