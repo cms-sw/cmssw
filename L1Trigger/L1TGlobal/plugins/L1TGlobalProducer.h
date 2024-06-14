@@ -137,6 +137,10 @@ private:
   edm::InputTag m_extInputTag;
   edm::EDGetTokenT<BXVector<GlobalExtBlk>> m_extInputToken;
 
+  // input tag for saving axol1tl scores
+  edm::InputTag m_axoInputTag;
+  edm::EDGetTokenT<BXVector<AXOL1TLScore>> m_axoInputToken;
+  
   /// logical flag to produce the L1 GT DAQ readout record
   bool m_produceL1GtDaqRecord;
 
@@ -197,6 +201,9 @@ private:
 
   // switch to load muon showers in the global board
   bool m_useMuonShowers;
+
+  //switch to save axo scores in global board
+  bool m_saveAxoScore;
 };
 
 #endif  // L1TGlobalProducer_h

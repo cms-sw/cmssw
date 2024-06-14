@@ -76,7 +76,8 @@ l1t::GlobalBoard::GlobalBoard()
       m_currentLumi(0),
       m_isDebugEnabled(edm::isDebugEnabled()) {
   m_uGtAlgBlk.reset();
-
+  m_uGtAXOScore.reset();
+  
   m_gtlAlgorithmOR.reset();
   m_gtlDecisionWord.reset();
 
@@ -492,6 +493,23 @@ void l1t::GlobalBoard::receiveExternalData(const edm::Event& iEvent,
   }        //end if ReceiveExt data
 }
 
+// fill axo score value per bx in event
+void l1t::GlobalBoard::fillAXOScore(int iBxInEvent,
+                                    std::unique_ptr<AXOL1TLScoreBxCollection>& AxoScoreRecord) {
+  m_uGtAXOScore.reset();
+  m_uGtAXOScore.setbxInEventNr((iBxInEvent & 0xF));
+
+  //save stored condition score if Bx is zero, else set to 0
+  float scorevalue = 0.0;
+  if (iBxInEvent == 0){
+    scorevalue = m_storedAXOScore;
+  }
+
+  //set dataformat value
+  m_uGtAXOScore.setAXOScore(scorevalue);
+  AxoScoreRecord->push_back(iBxInEvent, m_uGtAXOScore);
+}
+
 // run GTL
 void l1t::GlobalBoard::runGTL(const edm::Event&,
                               const edm::EventSetup& evSetup,
@@ -654,6 +672,12 @@ void l1t::GlobalBoard::runGTL(const edm::Event&,
           axol1tlCondition->evaluateConditionStoreResult(iBxInEvent);
 
           cMapResults[itCond->first] = axol1tlCondition;
+
+	  //for optional software-only saving of axol1tl score
+	  //m_storedAXOScore < 0.0 ensures only sets once per condition if score not default of -999
+	  if (m_saveAXOScore && m_storedAXOScore < 0.0) {
+	    m_storedAXOScore = axol1tlCondition->getScore();
+	  }
 
           if (m_verbosity && m_isDebugEnabled) {
             std::ostringstream myCout;
@@ -1154,6 +1178,10 @@ void l1t::GlobalBoard::reset() {
 
   m_uGtAlgBlk.reset();
 
+  //reset AXO score
+  m_storedAXOScore = -999.0;
+  m_uGtAXOScore.reset();
+  
   m_gtlDecisionWord.reset();
   m_gtlAlgorithmOR.reset();
 }
