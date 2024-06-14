@@ -91,9 +91,8 @@ namespace l1t {
 
     void receiveExternalData(const edm::Event&, const edm::EDGetTokenT<BXVector<GlobalExtBlk>>&, const bool receiveExt);
 
-    void fillAXOScore(int iBxInEvent,
-                      std::unique_ptr<AXOL1TLScoreBxCollection>& AxoScoreRecord);
-    
+    void fillAXOScore(int iBxInEvent, std::unique_ptr<AXOL1TLScoreBxCollection>& AxoScoreRecord);
+
     /// initialize the class (mainly reserve)
     void init(const int numberPhysTriggers,
               const int nrL1Mu,
@@ -142,7 +141,7 @@ namespace l1t {
     void resetMuonShower();
     void resetCalo();
     void resetExternal();
-    
+
     /// print received Muon dataWord
     void printGmtData(const int iBxInEvent) const;
 
@@ -212,7 +211,7 @@ namespace l1t {
     inline void setVerbosity(const int verbosity) { m_verbosity = verbosity; }
 
     inline void enableAXOScoreSaving(bool savescore) { m_saveAXOScore = savescore; }
-    
+
   private:
     // cached stuff
 
@@ -254,10 +253,10 @@ namespace l1t {
     GlobalAlgBlk m_uGtAlgBlk;
 
     //for optional software-only saving of axol1tl score
-    AXOL1TLScore m_uGtAXOScore; //score dataformat
-    float m_storedAXOScore = -999.0; //score from cond class
+    AXOL1TLScore m_uGtAXOScore;       //score dataformat
+    float m_storedAXOScore = -999.0;  //score from cond class
     bool m_saveAXOScore = false;
-    
+
     // cache of maps
     std::vector<AlgorithmEvaluation::ConditionEvaluationMap> m_conditionResultMaps;
 

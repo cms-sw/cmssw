@@ -140,7 +140,7 @@ private:
   // input tag for saving axol1tl scores
   edm::InputTag m_axoInputTag;
   edm::EDGetTokenT<BXVector<AXOL1TLScore>> m_axoInputToken;
-  
+
   /// logical flag to produce the L1 GT DAQ readout record
   bool m_produceL1GtDaqRecord;
 

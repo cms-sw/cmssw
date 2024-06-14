@@ -16,16 +16,11 @@ void AXOL1TLScore::reset() {
   m_bxInEvent = 0;
 }
 
-AXOL1TLScore::AXOL1TLScore(){
-  reset();
-}
+AXOL1TLScore::AXOL1TLScore() { reset(); }
 
-AXOL1TLScore::AXOL1TLScore(int bxNr, int bxInEvent)
-  : m_bxInEvent(bxInEvent) {
-  axoscore_ = 0.0;
-}
+AXOL1TLScore::AXOL1TLScore(int bxNr, int bxInEvent) : m_bxInEvent(bxInEvent) { axoscore_ = 0.0; }
 
 //destructor
-AXOL1TLScore::~AXOL1TLScore(){
+AXOL1TLScore::~AXOL1TLScore() {
   //empty
 }

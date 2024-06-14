@@ -76,7 +76,7 @@ void L1TGlobalProducer::fillDescriptions(edm::ConfigurationDescriptions& descrip
 
   //switch for saving AXO score
   desc.add<bool>("saveAxoScore", true);
-  
+
   // disables resetting the prescale counters each lumisection (needed for offline)
   //  originally, the L1T firmware applied the reset of prescale counters at the end of every LS;
   //  this reset was disabled in the L1T firmware starting from run-362658 (November 25th, 2022), see
@@ -138,7 +138,7 @@ L1TGlobalProducer::L1TGlobalProducer(const edm::ParameterSet& parSet)
       m_resetPSCountersEachLumiSec(parSet.getParameter<bool>("resetPSCountersEachLumiSec")),
       m_semiRandomInitialPSCounters(parSet.getParameter<bool>("semiRandomInitialPSCounters")),
       m_useMuonShowers(parSet.getParameter<bool>("useMuonShowers")),
-      m_saveAxoScore(parSet.getParameter<bool>("saveAxoScore")){
+      m_saveAxoScore(parSet.getParameter<bool>("saveAxoScore")) {
   m_egInputToken = consumes<BXVector<EGamma>>(m_egInputTag);
   m_tauInputToken = consumes<BXVector<Tau>>(m_tauInputTag);
   m_jetInputToken = consumes<BXVector<Jet>>(m_jetInputTag);
@@ -572,7 +572,7 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
 
   // if (m_saveAxoScore)
   std::unique_ptr<AXOL1TLScoreBxCollection> uGtAXOScoreRecord(new AXOL1TLScoreBxCollection(maxEmulBxInEvent));
-  
+
   // fill the boards not depending on the BxInEvent in the L1 GT DAQ record
   // GMT, PSB and FDL depend on BxInEvent
 
@@ -642,9 +642,8 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
     m_uGtBrd->receiveMuonShowerObjectData(iEvent, m_muShowerInputToken, receiveMuShower, m_nrL1MuShower);
 
   //tell board to save axo scores when running GTL
-  if (m_saveAxoScore){
-    m_uGtBrd->enableAXOScoreSaving(receiveAXOScore); }
-  
+  m_uGtBrd->enableAXOScoreSaving(m_saveAxoScore);
+
   m_uGtBrd->receiveExternalData(iEvent, m_extInputToken, receiveExt);
 
   // loop over BxInEvent
@@ -690,9 +689,10 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
     }
 
     //save scores to score collection
-    if (m_saveAxoScore){
-      m_uGtBrd->fillAXOScore(iBxInEvent, uGtAXOScoreRecord); }
-    
+    if (m_saveAxoScore) {
+      m_uGtBrd->fillAXOScore(iBxInEvent, uGtAXOScoreRecord);
+    }
+
   }  //End Loop over Bx
 
   // Add explicit reset of Board
@@ -736,7 +736,7 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
     iEvent.put(std::move(gtObjectMapRecord));
   }
 
-  if (m_saveAxoScore){
+  if (m_saveAxoScore) {
     iEvent.put(std::move(uGtAXOScoreRecord), "AXOScore");
   }
 }

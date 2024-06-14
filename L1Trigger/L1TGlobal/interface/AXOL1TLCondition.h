@@ -61,8 +61,8 @@ namespace l1t {
 
     /// get/set score value
     void setScore(const float scoreval) const;
-    
-    inline float getScore() const {return m_savedscore;}
+
+    inline float getScore() const { return m_savedscore; }
 
   private:
     /// copy function for copy constructor and operator=
@@ -76,7 +76,6 @@ namespace l1t {
 
     ///axo score for possible score saving
     mutable float m_savedscore;
-    
   };
 
 }  // namespace l1t
