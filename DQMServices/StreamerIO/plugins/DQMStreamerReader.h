@@ -57,6 +57,7 @@ namespace dqmservices {
     bool const flagEndOfRunKills_;
     bool const flagDeleteDatFiles_;
     std::vector<std::string> const hltSel_;
+    bool const unitTest_;
 
     bool acceptAllEvt_ = false;
     bool setAcceptAllEvt();
