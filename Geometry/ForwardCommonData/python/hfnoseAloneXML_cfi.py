@@ -15,6 +15,7 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
         'Geometry/ForwardCommonData/data/hfnose/v4/hfnose.xml',
         'Geometry/ForwardCommonData/data/hfnoseCell/v1/hfnoseCell.xml',
         'Geometry/ForwardCommonData/data/hfnoseWafer/v1/hfnoseWafer.xml',
-        'Geometry/ForwardCommonData/data/hfnoseLayer/v2/hfnoseLayer.xml'),
+        'Geometry/ForwardCommonData/data/hfnoseLayer/v2/hfnoseLayer.xml',
+        'Geometry/ForwardCommonData/data/hfnoseCons/v1m/hfnoseCons.xml'),
     rootNodeName = cms.string('cms:OCMS')
 )
