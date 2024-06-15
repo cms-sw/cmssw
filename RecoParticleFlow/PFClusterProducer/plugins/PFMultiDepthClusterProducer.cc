@@ -61,8 +61,11 @@ void PFMultiDepthClusterProducer::fillDescriptions(edm::ConfigurationDescription
       pset1.add<double>("minAllowedNormalization", 1e-09);
       pset1.add<double>("minFractionInCalc", 1e-09);
       pset1.add<int>("posCalcNCrystals", -1);
+      pset1.add<edm::ParameterSetDescription>("timeResolutionCalcBarrel", {});
+      pset1.add<edm::ParameterSetDescription>("timeResolutionCalcEndcap", {});
       pset0.add<edm::ParameterSetDescription>("allCellsPositionCalc", pset1);
     }
+    pset0.add<edm::ParameterSetDescription>("positionCalc", {});
     pset0.add<double>("minFractionToKeep", 1e-07);
     pset0.add<double>("nSigmaEta", 2.0);
     pset0.add<double>("nSigmaPhi", 2.0);

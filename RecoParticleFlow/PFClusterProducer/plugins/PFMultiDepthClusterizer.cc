@@ -80,8 +80,8 @@ DEFINE_EDM_PLUGIN(PFClusterBuilderFactory, PFMultiDepthClusterizer, "PFMultiDept
 
 PFMultiDepthClusterizer::PFMultiDepthClusterizer(const edm::ParameterSet& conf, edm::ConsumesCollector& cc)
     : PFClusterBuilderBase(conf, cc) {
-  if (conf.exists("allCellsPositionCalc")) {
-    const edm::ParameterSet& acConf = conf.getParameterSet("allCellsPositionCalc");
+  const auto& acConf = conf.getParameterSet("allCellsPositionCalc");
+  if (!acConf.empty()) {
     const std::string& algoac = acConf.getParameter<std::string>("algoName");
     _allCellsPosCalc = PFCPositionCalculatorFactory::get()->create(algoac, acConf, cc);
   }

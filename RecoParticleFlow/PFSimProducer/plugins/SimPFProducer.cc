@@ -95,6 +95,8 @@ void SimPFProducer::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.add<edm::InputTag>("gsfTrackSrc", {"electronGsfTracks"});
 
   // if useTiming_
+  desc.add<bool>("useTiming", false);
+  desc.add<bool>("useTimingQuality", false);
   desc.addOptional<edm::InputTag>("trackTimeValueMap");
   desc.addOptional<edm::InputTag>("trackTimeErrorMap");
   desc.addOptional<edm::InputTag>("trackTimeQualityMap");
@@ -120,8 +122,8 @@ SimPFProducer::SimPFProducer(const edm::ParameterSet& conf)
     : superClusterThreshold_(conf.getParameter<double>("superClusterThreshold")),
       neutralEMThreshold_(conf.getParameter<double>("neutralEMThreshold")),
       neutralHADThreshold_(conf.getParameter<double>("neutralHADThreshold")),
-      useTiming_(conf.existsAs<edm::InputTag>("trackTimeValueMap")),
-      useTimingQuality_(conf.existsAs<edm::InputTag>("trackTimeQualityMap")),
+      useTiming_(conf.getParameter<bool>("useTiming")),
+      useTimingQuality_(conf.getParameter<bool>("useTimingQuality")),
       timingQualityThreshold_(useTimingQuality_ ? conf.getParameter<double>("timingQualityThreshold") : -99.),
       pfRecTracks_(consumes<edm::View<reco::PFRecTrack>>(conf.getParameter<edm::InputTag>("pfRecTrackSrc"))),
       tracks_(consumes<edm::View<reco::Track>>(conf.getParameter<edm::InputTag>("trackSrc"))),

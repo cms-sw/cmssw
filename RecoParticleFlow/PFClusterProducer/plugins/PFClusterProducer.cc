@@ -102,9 +102,8 @@ PFClusterProducer::PFClusterProducer(const edm::ParameterSet& conf)
     _cleaners.emplace_back(RecHitTopologicalCleanerFactory::get()->create(cleanerName, conf, cc));
   }
 
-  if (conf.exists("seedCleaners")) {
-    const edm::VParameterSet& seedcleanerConfs = conf.getParameterSetVector("seedCleaners");
-
+  const auto& seedcleanerConfs = conf.getParameterSetVector("seedCleaners");
+  if (!seedcleanerConfs.empty()) {
     for (const auto& conf : seedcleanerConfs) {
       const std::string& seedcleanerName = conf.getParameter<std::string>("algoName");
       _seedcleaners.emplace_back(RecHitTopologicalCleanerFactory::get()->create(seedcleanerName, conf, cc));

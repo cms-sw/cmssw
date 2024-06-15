@@ -69,6 +69,7 @@ phase2_tracker.toModify(
 from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
 _addTiming = particleFlowBlock.elementImporters.copy()
 _addTiming.append( cms.PSet( importerName = cms.string("TrackTimingImporter"),
+                             useTimeQuality = cms.bool(False),
                              timeValueMap = cms.InputTag("trackTimeValueMapProducer:generalTracksConfigurableFlatResolutionModel"),
                              timeErrorMap = cms.InputTag("trackTimeValueMapProducer:generalTracksConfigurableFlatResolutionModelResolution"),
                              timeValueMapGsf = cms.InputTag("gsfTrackTimeValueMapProducer:electronGsfTracksConfigurableFlatResolutionModel"),
@@ -81,6 +82,7 @@ _addTimingLayer = particleFlowBlock.elementImporters.copy()
 _addTimingLayer.append( cms.PSet( importerName = cms.string("TrackTimingImporter"),
                              timeValueMap = cms.InputTag("tofPID:t0"),
                              timeErrorMap = cms.InputTag("tofPID:sigmat0"),
+                             useTimeQuality = cms.bool(True),
                              timeQualityMap = cms.InputTag("mtdTrackQualityMVA:mtdQualMVA"),
                              timeQualityThreshold = cms.double(0.5),
                              #this will cause no time to be set for gsf tracks

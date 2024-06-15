@@ -55,7 +55,9 @@ hltParticleFlowClusterHBHE = cms.EDProducer("PFClusterProducer",
             ),
             minAllowedNormalization = cms.double(1e-09),
             minFractionInCalc = cms.double(1e-09),
-            posCalcNCrystals = cms.int32(-1)
+            posCalcNCrystals = cms.int32(-1),
+            timeResolutionCalcBarrel = cms.PSet(),
+            timeResolutionCalcEndcap = cms.PSet()
         ),
         clusterTimeResFromSeed = cms.bool(False),
         excludeOtherSeeds = cms.bool(True),
@@ -86,8 +88,11 @@ hltParticleFlowClusterHBHE = cms.EDProducer("PFClusterProducer",
             ),
             minAllowedNormalization = cms.double(1e-09),
             minFractionInCalc = cms.double(1e-09),
-            posCalcNCrystals = cms.int32(5)
+            posCalcNCrystals = cms.int32(5),
+            timeResolutionCalcBarrel = cms.PSet(),
+            timeResolutionCalcEndcap = cms.PSet()
         ),
+        positionCalcForConvergence = cms.PSet(),
         recHitEnergyNorms = cms.VPSet(
             cms.PSet(
                 depths = cms.vint32(1, 2, 3, 4),

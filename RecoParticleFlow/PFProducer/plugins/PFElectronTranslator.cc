@@ -164,6 +164,7 @@ void PFElectronTranslator::fillDescriptions(edm::ConfigurationDescriptions& desc
     pset.add<edm::InputTag>("pfSumPUPt", {"elPFIsoValuePU04PFId"});
     desc.add<edm::ParameterSetDescription>("isolationValues", pset);
   }
+  desc.add<bool>("emptyIsOk", false);
   descriptions.addWithDefaultLabel(desc);
 }
 
@@ -175,10 +176,10 @@ PFElectronTranslator::PFElectronTranslator(const edm::ParameterSet& iConfig) {
 
   bool useIsolationValues = iConfig.getParameter<bool>("useIsolationValues");
   if (useIsolationValues) {
-    if (!iConfig.exists("isolationValues"))
+    const auto& isoVals = iConfig.getParameter<edm::ParameterSet>("isolationValues");
+    if (isoVals.empty())
       throw cms::Exception("PFElectronTranslator|InternalError") << "Missing ParameterSet isolationValues";
     else {
-      edm::ParameterSet isoVals = iConfig.getParameter<edm::ParameterSet>("isolationValues");
       inputTokenIsoVals_.push_back(
           consumes<edm::ValueMap<double>>(isoVals.getParameter<edm::InputTag>("pfSumChargedHadronPt")));
       inputTokenIsoVals_.push_back(
@@ -199,11 +200,7 @@ PFElectronTranslator::PFElectronTranslator(const edm::ParameterSet& iConfig) {
   PFSCValueMap_ = iConfig.getParameter<std::string>("ElectronSC");
   MVACut_ = (iConfig.getParameter<edm::ParameterSet>("MVACutBlock")).getParameter<double>("MVACut");
   checkStatusFlag_ = iConfig.getParameter<bool>("CheckStatusFlag");
-
-  if (iConfig.exists("emptyIsOk"))
-    emptyIsOk_ = iConfig.getParameter<bool>("emptyIsOk");
-  else
-    emptyIsOk_ = false;
+  emptyIsOk_ = iConfig.getParameter<bool>("emptyIsOk");
 
   ecalMustacheSCParametersToken_ = esConsumes<EcalMustacheSCParameters, EcalMustacheSCParametersRcd>();
 

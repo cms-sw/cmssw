@@ -84,8 +84,9 @@ PFRecHitProducerTest::PFRecHitProducerTest(const edm::ParameterSet& conf)
       strictCompare_(conf.getUntrackedParameter<bool>("strictCompare")),
       dumpFirstEvent_(conf.getUntrackedParameter<bool>("dumpFirstEvent")),
       dumpFirstError_(conf.getUntrackedParameter<bool>("dumpFirstError")) {
-  if (conf.existsAs<edm::InputTag>("caloRecHits"))
-    caloRecHitsToken_.emplace(consumes(conf.getUntrackedParameter<edm::InputTag>("caloRecHits")));
+  const auto& caloRecHits = conf.getUntrackedParameter<edm::InputTag>("caloRecHits", {});
+  if (caloRecHits.label() != "")
+    caloRecHitsToken_.emplace(consumes(caloRecHits));
 
   const edm::InputTag input[2] = {conf.getUntrackedParameter<edm::InputTag>("pfRecHitsSource1"),
                                   conf.getUntrackedParameter<edm::InputTag>("pfRecHitsSource2")};

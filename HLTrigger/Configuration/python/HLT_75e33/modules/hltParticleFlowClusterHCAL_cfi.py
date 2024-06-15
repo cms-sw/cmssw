@@ -29,8 +29,11 @@ hltParticleFlowClusterHCAL = cms.EDProducer("PFMultiDepthClusterProducer",
             ),
             minAllowedNormalization = cms.double(1e-09),
             minFractionInCalc = cms.double(1e-09),
-            posCalcNCrystals = cms.int32(-1)
+            posCalcNCrystals = cms.int32(-1),
+            timeResolutionCalcBarrel = cms.PSet(),
+            timeResolutionCalcEndcap = cms.PSet()
         ),
+        positionCalc = cms.PSet(),
         minFractionToKeep = cms.double(1e-07),
         nSigmaEta = cms.double(2.0),
         nSigmaPhi = cms.double(2.0)

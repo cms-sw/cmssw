@@ -190,6 +190,7 @@ void PFBlockProducer::fillDescriptions(edm::ConfigurationDescriptions& descripti
     psd.addOptional<edm::InputTag>("timeValueMapGsf", {});
     psd.addOptional<edm::InputTag>("timeErrorMapGsf", {});
     psd.addOptional<edm::InputTag>("timeQualityMapGsf", {});
+    psd.addOptional<bool>("useTimeQuality", false);
     desc.addVPSet("elementImporters", psd, vpset);
   }
   //linking definitions
@@ -347,7 +348,6 @@ void PFBlockProducer::fillDescriptions(edm::ConfigurationDescriptions& descripti
     psd.addOptional<bool>("SuperClusterMatchByRef", false);
     desc.addVPSet("linkDefinitions", psd, vpset);
   }
-  desc.addOptional<bool>("useNuclear", false);
   descriptions.addWithDefaultLabel(desc);
 }
 

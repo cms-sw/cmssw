@@ -72,7 +72,10 @@ _positionCalcHF_cross_nodepth = cms.PSet(
     minFractionInCalc = cms.double(1e-9),
     posCalcNCrystals = cms.int32(5),
     logWeightDenominator = cms.double(0.8), # same as gathering threshold
-    minAllowedNormalization = cms.double(1e-9)    
+    logWeightDenominatorByDetector = cms.VPSet(),
+    minAllowedNormalization = cms.double(1e-9),
+    timeResolutionCalcBarrel = cms.PSet(),
+    timeResolutionCalcEndcap = cms.PSet()
 )
 
 _positionCalcHF_all_nodepth = _positionCalcHF_cross_nodepth.clone(
@@ -86,6 +89,7 @@ _pfClusterizer_HF = cms.PSet(
     minFractionToKeep = cms.double(1e-7),
     positionCalc = _positionCalcHF_cross_nodepth,
     allCellsPositionCalc = _positionCalcHF_all_nodepth,
+    positionCalcForConvergence = cms.PSet(),
     showerSigma = cms.double(10.0),
     stoppingTolerance = cms.double(1e-8),
     maxIterations = cms.uint32(50),

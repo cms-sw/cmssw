@@ -73,7 +73,9 @@ particleFlowClusterHBHE = cms.EDProducer(
                                  logWeightDenominator = _thresholdsHE,
                                  )
                        ),
-                 minAllowedNormalization = cms.double(1e-9)
+                 minAllowedNormalization = cms.double(1e-9),
+                 timeResolutionCalcBarrel = cms.PSet(),
+                 timeResolutionCalcEndcap = cms.PSet()
            ),
            allCellsPositionCalc =cms.PSet(
                  algoName = cms.string("Basic2DGenericPFlowPositionCalc"),
@@ -89,9 +91,11 @@ particleFlowClusterHBHE = cms.EDProducer(
                                  logWeightDenominator = _thresholdsHE,
                                  )
                        ),
-                 minAllowedNormalization = cms.double(1e-9)
+                 minAllowedNormalization = cms.double(1e-9),
+                 timeResolutionCalcBarrel = cms.PSet(),
+                 timeResolutionCalcEndcap = cms.PSet()
            ),
-           
+           positionCalcForConvergence = cms.PSet(),
 
            timeSigmaEB = cms.double(10.),
            timeSigmaEE = cms.double(10.),
