@@ -42,7 +42,10 @@ HGCalDDDConstants::HGCalDDDConstants(const HGCalParameters* hp, const std::strin
                                                     hgpar_->mouseBite_,
                                                     hgpar_->sensorSizeOffset_);
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "HGCalDDDConstants::rmax_ " << rmax_ << ":" << rmaxT_ << ":" << hexside_ << ":" << hexsideT_ << " CellSize " << 0.5 * HGCalParameters::k_ScaleFromDDD * hgpar_->cellSize_[0] << ":" << 0.5 * HGCalParameters::k_ScaleFromDDD * hgpar_->cellSize_[1];
+    edm::LogVerbatim("HGCalGeom") << "HGCalDDDConstants::rmax_ " << rmax_ << ":" << rmaxT_ << ":" << hexside_ << ":"
+                                  << hexsideT_ << " CellSize "
+                                  << 0.5 * HGCalParameters::k_ScaleFromDDD * hgpar_->cellSize_[0] << ":"
+                                  << 0.5 * HGCalParameters::k_ScaleFromDDD * hgpar_->cellSize_[1];
 #endif
   } else {
     hgcell_.reset();
@@ -52,7 +55,8 @@ HGCalDDDConstants::HGCalDDDConstants(const HGCalParameters* hp, const std::strin
   if (cassetteMode()) {
     hgcassette_.setParameter(hgpar_->cassettes_, hgpar_->cassetteShift_);
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "HGCalDDDConstants::Setup HGCalCassette for " << hgpar_->cassettes_ << " cassettes";
+    edm::LogVerbatim("HGCalGeom") << "HGCalDDDConstants::Setup HGCalCassette for " << hgpar_->cassettes_
+                                  << " cassettes";
 #endif
   }
   // init maps and constants
@@ -67,14 +71,17 @@ HGCalDDDConstants::HGCalDDDConstants(const HGCalParameters* hp, const std::strin
         modHalf_ += max_modules_layer_[simreco][layer];
         maxWafersPerLayer_ = std::max(maxWafersPerLayer_, max_modules_layer_[simreco][layer]);
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("HGCalGeom") << "HGCalDDDConstants::Layer " << layer << " with " << max_modules_layer_[simreco][layer] << ":" << modHalf_ << " modules in RECO";
+        edm::LogVerbatim("HGCalGeom") << "HGCalDDDConstants::Layer " << layer << " with "
+                                      << max_modules_layer_[simreco][layer] << ":" << modHalf_ << " modules in RECO";
       } else {
-        edm::LogVerbatim("HGCalGeom") << "HGCalDDDConstants::Layer " << layer << " with " << max_modules_layer_[simreco][layer] << " modules in SIM";
+        edm::LogVerbatim("HGCalGeom") << "HGCalDDDConstants::Layer " << layer << " with "
+                                      << max_modules_layer_[simreco][layer] << " modules in SIM";
 #endif
       }
     }
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "HGCalDDDConstants::SimReco " << simreco << " with " << tot_layers_[simreco] << " Layers";
+    edm::LogVerbatim("HGCalGeom") << "HGCalDDDConstants::SimReco " << simreco << " with " << tot_layers_[simreco]
+                                  << " Layers";
 #endif
   }
   tot_wafers_ = wafers();

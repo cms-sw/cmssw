@@ -673,7 +673,8 @@ void HGCalTB23Analyzer::analyzeSimHits(int type, std::vector<PCaloHit>& hits, do
 #endif
       HGCSiliconDetId(id).unpack(subdet, zside, layer, sector, subsector, cell, cell2);
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCSim") << "Unpack ID " << subdet << " " << zside << " " << layer << " " << sector << " " << subsector << " " << cell << " " << cell2;
+      edm::LogVerbatim("HGCSim") << "Unpack ID " << subdet << " " << zside << " " << layer << " " << sector << " "
+                                 << subsector << " " << cell << " " << cell2;
 #endif
       depth = hgcons_[type]->simToReco(cell, layer, sector, true).second;
       static constexpr uint32_t mask = 0xFFFFF;
@@ -682,15 +683,16 @@ void HGCalTB23Analyzer::analyzeSimHits(int type, std::vector<PCaloHit>& hits, do
 #ifdef EDM_ML_DEBUG
       std::pair<float, float> xy = hgcons_[type]->locateCell(HGCSiliconDetId(id), false);
       edm::LogVerbatim("HGCSim") << "HGCalTB23Analyzer::detId " << std::hex << id << std::dec << " Layer:Wafer:Cell "
-                                 << layer << ":" << sector << ":" << subsector << ":" << cell << ":" << cell2 << " Position " << xy.first << ":"
-                                 << xy.second << ":" << hgcons_[type]->waferZ(layer, false);
+                                 << layer << ":" << sector << ":" << subsector << ":" << cell << ":" << cell2
+                                 << " Position " << xy.first << ":" << xy.second << ":"
+                                 << hgcons_[type]->waferZ(layer, false);
 #endif
       cell = (idx & maskcell);
       sector = (idx >> 10) & maskcell;
     }
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCSim") << "SimHit:Hit[" << i << "] Id " << subdet << ":" << zside << ":" << layer << ":"
-                               << sector  << ":" << cell << " Energy " << energy << " Time " << time;
+                               << sector << ":" << cell << " Energy " << energy << " Time " << time;
 #endif
     if (map_hits.count(id) != 0) {
       map_hits[id] += energy;

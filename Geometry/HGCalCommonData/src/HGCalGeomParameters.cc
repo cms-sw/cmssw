@@ -910,15 +910,17 @@ void HGCalGeomParameters::loadGeometryHexagonModule(const DDCompactView* cpv,
             php.layer_.emplace_back(lay);
           auto itr = layers.find(lay);
           if (itr == layers.end()) {
-	    double rin(0), rout(0);
-	    if (sol.shape() == DDSolidShape::ddtubs) {
-	      const DDTubs& tube = static_cast<DDTubs>(sol);
-	      rin = HGCalParameters::k_ScaleFromDDD * tube.rIn();
-	      rout = (php.firstMixedLayer_ > 0 && lay >= php.firstMixedLayer_) ? php.radiusMixBoundary_[lay - php.firstMixedLayer_] : HGCalParameters::k_ScaleFromDDD * tube.rOut();
-	    } else {
-	      const DDBox& box = static_cast<DDBox>(sol);
-	      rout = HGCalParameters::k_ScaleFromDDD * box.halfX();
-	    }
+            double rin(0), rout(0);
+            if (sol.shape() == DDSolidShape::ddtubs) {
+              const DDTubs& tube = static_cast<DDTubs>(sol);
+              rin = HGCalParameters::k_ScaleFromDDD * tube.rIn();
+              rout = (php.firstMixedLayer_ > 0 && lay >= php.firstMixedLayer_)
+                         ? php.radiusMixBoundary_[lay - php.firstMixedLayer_]
+                         : HGCalParameters::k_ScaleFromDDD * tube.rOut();
+            } else {
+              const DDBox& box = static_cast<DDBox>(sol);
+              rout = HGCalParameters::k_ScaleFromDDD * box.halfX();
+            }
             double zp = zvals[std::make_pair(lay, 1)];
             HGCalGeomParameters::layerParameters laypar(rin, rout, zp);
             layers[lay] = laypar;
@@ -1049,13 +1051,15 @@ void HGCalGeomParameters::loadGeometryHexagonModule(const cms::DDCompactView* cp
           auto itr = layers.find(lay);
           if (itr == layers.end()) {
             const std::vector<double>& pars = fv2.parameters();
-	    double rin(0), rout(0);
-	    if (dd4hep::isA<dd4hep::Box>(fv2.solid())) {
-	      rout = HGCalParameters::k_ScaleFromDD4hep * pars[0];
-	    } else {
-	      rin = HGCalParameters::k_ScaleFromDD4hep * pars[0];
-	      rout = (php.firstMixedLayer_ > 0 && lay >= php.firstMixedLayer_) ? php.radiusMixBoundary_[lay - php.firstMixedLayer_] : HGCalParameters::k_ScaleFromDD4hep * pars[1];
-	    }
+            double rin(0), rout(0);
+            if (dd4hep::isA<dd4hep::Box>(fv2.solid())) {
+              rout = HGCalParameters::k_ScaleFromDD4hep * pars[0];
+            } else {
+              rin = HGCalParameters::k_ScaleFromDD4hep * pars[0];
+              rout = (php.firstMixedLayer_ > 0 && lay >= php.firstMixedLayer_)
+                         ? php.radiusMixBoundary_[lay - php.firstMixedLayer_]
+                         : HGCalParameters::k_ScaleFromDD4hep * pars[1];
+            }
             double zp = zvals[std::make_pair(lay, 1)];
             HGCalGeomParameters::layerParameters laypar(rin, rout, zp);
             layers[lay] = laypar;
