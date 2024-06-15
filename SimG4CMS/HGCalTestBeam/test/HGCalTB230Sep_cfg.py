@@ -22,7 +22,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('SimG4CMS.HGCalTestBeam.HGCalTB23Analyzer_cfi')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1000)
+    input = cms.untracked.int32(5)
 )
 
 if 'MessageLogger' in process.__dict__:
@@ -125,7 +125,7 @@ process.g4SimHits.Physics.type = 'SimG4Core/Physics/FTFP_BERT_EMN'
 # Schedule definition
 process.schedule = cms.Schedule(process.generation_step,
 				process.simulation_step,
-#        		        process.analysis_step,
+        		        process.analysis_step,
 				process.endjob_step,
 				process.RAWSIMoutput_step,
 				)
