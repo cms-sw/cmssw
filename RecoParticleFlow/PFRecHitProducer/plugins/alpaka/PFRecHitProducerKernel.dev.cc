@@ -99,7 +99,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     pfrh.detId() = rh.detId();
     pfrh.denseId() = HCAL::detId2denseId(rh.detId());
     pfrh.energy() = rh.energy();
-    pfrh.time() = rh.time();
+    pfrh.time() = rh.timeM0();
     pfrh.depth() = HCAL::getDepth(pfrh.detId());
     const uint32_t subdet = getSubdet(pfrh.detId());
     if (subdet == HcalBarrel)
