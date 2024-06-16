@@ -4,10 +4,11 @@
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "PhysicsTools/XGBoost/interface/XGBooster.h"
 
+#include <memory>
+
 class PhotonXGBoostEstimator {
 public:
   PhotonXGBoostEstimator(const edm::FileInPath& weightsFile, int best_ntree_limit);
-  ~PhotonXGBoostEstimator();
 
   float computeMva(float rawEnergyIn,
                    float r9In,
@@ -22,7 +23,6 @@ public:
 private:
   std::unique_ptr<pat::XGBooster> booster_;
   int best_ntree_limit_ = -1;
-  std::string config_;
 };
 
 #endif
