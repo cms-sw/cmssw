@@ -573,6 +573,10 @@ workflows[141.902] = ['',['RunUPC2023','RECODR3_2023_HIN','HARVESTDPROMPTR3']]
 ### run3-2023 (2023 HI data RawPrime with re-HLT)
 workflows[142.0] = ['',['RunHIPhysicsRawPrime2023A','HLTDR3_HI2023ARawprime','RECOHIRUN3_reHLT_2023','HARVESTRUN3_HI2023A']]
 
+### run3-2024 (2024 HI UPC data)
+workflows[142.901] = ['',['RunUPC2023','RECODR3_UPC','HARVESTDPROMPTR3']]
+workflows[142.902] = ['',['RunUPC2023','RECODR3_HIN','HARVESTDPROMPTR3']]
+
 ### fastsim ###
 workflows[5.1] = ['TTbarFS', ['TTbarFS','HARVESTFS']]
 workflows[5.2] = ['SingleMuPt10FS', ['SingleMuPt10FS','HARVESTFS']]

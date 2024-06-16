@@ -16,6 +16,7 @@ dedxHitInfo = cms.EDProducer("DeDxHitInfoProducer",
     useCalibration     = cms.bool(False),
     calibrationPath    = cms.string("file:Gains.root"),
     shapeTest          = cms.bool(True),
+    clusterShapeCache  = cms.InputTag("siPixelClusterShapeCache"),
 
     lowPtTracksPrescalePass = cms.uint32(100),   # prescale factor for low pt tracks above the dEdx cut
     lowPtTracksPrescaleFail = cms.uint32(2000), # prescale factor for low pt tracks below the dEdx cut
@@ -87,3 +88,31 @@ run3_common.toModify(dedxHitInfo,
     lowPtTracksEstimatorParameters = dict(fraction = 0., exponent = -2.0,truncate = False),
     usePixelForPrescales = False
 )
+
+# dEdx for Run-3 UPC
+from Configuration.Eras.Modifier_run3_upc_cff import run3_upc
+run3_upc.toModify(dedxHitInfo, minTrackPt = 0)
+
+from RecoTracker.DeDx.dedxHitCalibrator_cfi import dedxHitCalibrator as _dedxHitCalibrator
+from SimGeneral.MixingModule.SiStripSimParameters_cfi import SiStripSimBlock as _SiStripSimBlock
+from RecoLocalTracker.SiPixelClusterizer.SiPixelClusterizer_cfi import siPixelClusters as _siPixelClusters
+dedxHitCalibrator = _dedxHitCalibrator.clone(
+    MeVPerElectron = 1000*_SiStripSimBlock.GevPerElectron.value(),
+    VCaltoElectronGain = _siPixelClusters.VCaltoElectronGain,
+    VCaltoElectronGain_L1 = _siPixelClusters.VCaltoElectronGain_L1,
+    VCaltoElectronOffset = _siPixelClusters.VCaltoElectronOffset,
+    VCaltoElectronOffset_L1 = _siPixelClusters.VCaltoElectronOffset_L1
+)
+
+dedxAllLikelihood = _mod.DeDxEstimatorProducer.clone(
+    UseStrip = True, UsePixel = True,
+    estimator = 'likelihoodFit',
+    UseDeDxHits = True,
+    pixelDeDxHits = 'dedxHitCalibrator:PixelHits',
+    stripDeDxHits = 'dedxHitCalibrator:StripHits'
+)
+dedxPixelLikelihood = dedxAllLikelihood.clone(UseStrip = False, UsePixel = True)
+dedxStripLikelihood = dedxAllLikelihood.clone(UseStrip = True,  UsePixel = False)
+
+from Configuration.Eras.Modifier_run3_egamma_2023_cff import run3_egamma_2023
+(run3_upc & ~run3_egamma_2023).toReplaceWith(doAlldEdXEstimatorsTask, cms.Task(doAlldEdXEstimatorsTask.copy(), dedxHitCalibrator, dedxStripLikelihood, dedxPixelLikelihood, dedxAllLikelihood))
