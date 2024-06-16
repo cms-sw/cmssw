@@ -25,7 +25,7 @@ DEFINE_FWK_MODULE(PFConcretePFCandidateProducer);
 void PFConcretePFCandidateProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("src", {"particleFlow"});
-  descriptions.add("pfConcretePFCandidateProducer", desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 PFConcretePFCandidateProducer::PFConcretePFCandidateProducer(const edm::ParameterSet& iConfig)

@@ -85,7 +85,7 @@ PFRecHitProducerTest::PFRecHitProducerTest(const edm::ParameterSet& conf)
       dumpFirstEvent_(conf.getUntrackedParameter<bool>("dumpFirstEvent")),
       dumpFirstError_(conf.getUntrackedParameter<bool>("dumpFirstError")) {
   const auto& caloRecHits = conf.getUntrackedParameter<edm::InputTag>("caloRecHits", {});
-  if (caloRecHits.label() != "")
+  if (!caloRecHits.label().empty())
     caloRecHitsToken_.emplace(consumes(caloRecHits));
 
   const edm::InputTag input[2] = {conf.getUntrackedParameter<edm::InputTag>("pfRecHitsSource1"),

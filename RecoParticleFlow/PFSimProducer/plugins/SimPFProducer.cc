@@ -105,7 +105,7 @@ void SimPFProducer::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.addOptional<edm::InputTag>("gsfTrackTimeErrorMap");
   desc.addOptional<edm::InputTag>("gsfTrackTimeQualityMap");
 
-  descriptions.add("simPFProducer", desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 namespace {

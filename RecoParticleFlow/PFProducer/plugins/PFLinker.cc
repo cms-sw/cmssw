@@ -91,7 +91,7 @@ void PFLinker::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   desc.add<std::string>("ValueMapPhotons", "photons");
   desc.add<std::string>("ValueMapMerged", "all");
   desc.add<bool>("forceElectronsInHGCAL", false);
-  descriptions.add("pfLinker", desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 PFLinker::PFLinker(const edm::ParameterSet& iConfig) {

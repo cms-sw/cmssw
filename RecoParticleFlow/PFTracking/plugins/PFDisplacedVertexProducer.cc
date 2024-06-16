@@ -73,7 +73,7 @@ void PFDisplacedVertexProducer::fillDescriptions(edm::ConfigurationDescriptions&
   // minimal radius below which we do not reconstruct interactions
   // typically the position of the first Pixel layer or beam pipe
   desc.add<double>("primaryVertexCut", 1.8);
-  // radius below which we don't wamt to reconstruct displaced
+  // radius below which we don't want to reconstruct displaced
   // vertices
   desc.add<double>("tobCut", 100);
   // z below which we don't want to reconstruct displaced
