@@ -50,26 +50,164 @@ void PFClusterProducer::fillDescriptions(edm::ConfigurationDescriptions& descrip
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("recHitsSource", {});
   desc.add<bool>("usePFThresholdsFromDB", false);
-  edm::ParameterSetDescription psd;
-  psd.setUnknown();
-  desc.addVPSet("recHitCleaners", psd, {});
   {
-    edm::ParameterSetDescription psd1;
-    psd1.add<std::vector<std::string>>("RecHitFlagsToBeExcluded", {});
-    psd1.add<std::string>("algoName");
-    desc.addVPSet("seedCleaners", psd1, {});
+    edm::ParameterSetDescription psd;
+    psd.add<std::string>("algoName", "");
+    desc.addVPSet("recHitCleaners", psd, {});
+  }
+  {
+    edm::ParameterSetDescription psd;
+    psd.add<std::string>("algoName", "");
+    psd.add<std::vector<std::string>>("RecHitFlagsToBeExcluded", {});
+    desc.addVPSet("seedCleaners", psd, {});
   }
   {
     edm::ParameterSetDescription pset;
-    pset.add<std::string>("algoName");
+    pset.add<std::string>("algoName", "");
     pset.add<int>("nNeighbours", 0);
-    pset.addVPSet("thresholdsByDetector", psd, {});
+    {
+      edm::ParameterSetDescription psd;
+      psd.add<std::string>("detector", "");
+      psd.addOptional<double>("seedingThreshold", 0);
+      psd.addOptional<double>("seedingThresholdPt", 0);
+      psd.addOptional<std::vector<int>>("depths", {});
+      psd.addOptional<std::vector<double>>("seedingThresholds", {});
+      psd.addOptional<std::vector<double>>("seedingThresholdsPt", {});
+      pset.addVPSet("thresholdsByDetector", psd, {});
+    }
     desc.add<edm::ParameterSetDescription>("seedFinder", pset);
   }
-  desc.add<edm::ParameterSetDescription>("initialClusteringStep", psd);
-  desc.add<edm::ParameterSetDescription>("pfClusterBuilder", psd);
-  desc.add<edm::ParameterSetDescription>("positionReCalc", psd);
-  desc.add<edm::ParameterSetDescription>("energyCorrector", psd);
+  {
+    edm::ParameterSetDescription pset;
+    pset.add<std::string>("algoName", "");
+    {
+      edm::ParameterSetDescription psd;
+      psd.add<std::string>("detector", "");
+      psd.addOptional<double>("gatheringThreshold", 0);
+      psd.addOptional<double>("gatheringThresholdPt", 0);
+      psd.addOptional<std::vector<int>>("depths", {});
+      psd.addOptional<std::vector<double>>("gatheringThresholds", {});
+      psd.addOptional<std::vector<double>>("gatheringThresholdsPt", {});
+      pset.addVPSet("thresholdsByDetector", psd, {});
+    }
+    pset.addOptional<bool>("useCornerCells", false);
+    pset.addOptional<edm::InputTag>("clusterSrc", {});
+    pset.addOptional<bool>("filterByTracksterIteration", false);
+    pset.addOptional<bool>("filterByTracksterPID", false);
+    pset.addOptional<std::vector<int>>("filter_on_categories", {});
+    pset.addOptional<std::vector<int>>("filter_on_iterations", {});
+    pset.addOptional<double>("pid_threshold", 0);
+    pset.addOptional<edm::InputTag>("tracksterSrc", {});
+    pset.addOptional<double>("exclusiveFraction", 0);
+    pset.addOptional<double>("invisibleFraction", 0);
+    pset.addOptional<bool>("maxDistanceFilter", false);
+    pset.addOptional<double>("maxDistance", 0);
+    pset.addOptional<double>("maxDforTimingSquared", 0);
+    pset.addOptional<double>("timeOffset", 0);
+    pset.addOptional<uint32_t>("minNHitsforTiming", 0);
+    pset.addOptional<bool>("useMCFractionsForExclEnergy", false);
+    pset.addOptional<std::vector<double>>("hadronCalib", {});
+    pset.addOptional<std::vector<double>>("egammaCalib", {});
+    pset.addOptional<double>("calibMinEta", 0);
+    pset.addOptional<double>("calibMaxEta", 0);
+    pset.addOptional<edm::InputTag>("simClusterSrc", {});
+    desc.add<edm::ParameterSetDescription>("initialClusteringStep", pset);
+  }
+  {
+    edm::ParameterSetDescription pset;
+    pset.addOptional<std::string>("algoName");
+    {
+      edm::ParameterSetDescription pset2;
+      pset2.addOptional<std::string>("algoName");
+      pset2.addOptional<double>("minFractionInCalc", 0);
+      pset2.addOptional<int>("posCalcNCrystals", -1);
+      {
+        edm::ParameterSetDescription psd;
+        psd.add<std::string>("detector", "");
+        psd.add<std::vector<int>>("depths", {});
+        psd.add<std::vector<double>>("logWeightDenominator", {});
+        pset2.addVPSetOptional("logWeightDenominatorByDetector", psd, {});
+      }
+      pset2.addOptional<double>("logWeightDenominator", 0);
+      pset2.addOptional<double>("minAllowedNormalization", 0);
+      {
+        edm::ParameterSetDescription pset3;
+        pset3.addOptional<double>("constantTerm", 0);
+        pset3.addOptional<double>("constantTermLowE", 0);
+        pset3.addOptional<double>("corrTermLowE", 0);
+        pset3.addOptional<double>("noiseTerm", 0);
+        pset3.addOptional<double>("noiseTermLowE", 0);
+        pset3.addOptional<double>("threshHighE", 0);
+        pset3.addOptional<double>("threshLowE", 0);
+        pset2.addOptional<edm::ParameterSetDescription>("timeResolutionCalcBarrel", pset3);
+        pset2.addOptional<edm::ParameterSetDescription>("timeResolutionCalcEndcap", pset3);
+      }
+      pset.addOptional<edm::ParameterSetDescription>("allCellsPositionCalc", pset2);
+      pset.addOptional<edm::ParameterSetDescription>("positionCalc", pset2);
+    }
+    pset.addOptional<double>("minFractionToKeep", 0);
+    pset.addOptional<double>("nSigmaEta", 0);
+    pset.addOptional<double>("nSigmaPhi", 0);
+    pset.addOptional<bool>("excludeOtherSeeds", false);
+    pset.addOptional<uint32_t>("maxIterations", 0);
+    pset.addOptional<double>("minFracTot", 0);
+    {
+      edm::ParameterSetDescription pset2;
+      pset2.addOptional<std::string>("algoName");
+      pset2.addOptional<double>("minFractionInCalc", 0);
+      pset2.addOptional<double>("T0_EB", 0);
+      pset2.addOptional<double>("T0_EE", 0);
+      pset2.addOptional<double>("T0_ES", 0);
+      pset2.addOptional<double>("W0", 0);
+      pset2.addOptional<double>("X0", 0);
+      pset2.addOptional<double>("minAllowedNormalization", 0);
+      pset2.addOptional<edm::ParameterSetDescription>("timeResolutionCalc", {});
+      pset.addOptional<edm::ParameterSetDescription>("positionCalcForConvergence", pset2);
+    }
+    {
+      edm::ParameterSetDescription psd;
+      psd.add<std::string>("detector", "");
+      psd.addOptional<double>("recHitEnergyNorm", 0);
+      psd.addOptional<std::vector<int>>("depths", {});
+      psd.addOptional<std::vector<double>>("recHitEnergyNorms", {});
+      pset.addVPSetOptional("recHitEnergyNorms", psd);
+    }
+    pset.addOptional<double>("showerSigma", 1.5);
+    pset.addOptional<double>("stoppingTolerance", 1e-08);
+    pset.addOptional<bool>("clusterTimeResFromSeed", false);
+    pset.addOptional<double>("maxNSigmaTime", 10.0);
+    pset.addOptional<double>("minChi2Prob", 0);
+    {
+      edm::ParameterSetDescription pset2;
+      pset2.add<double>("constantTerm", 0);
+      pset2.add<double>("constantTermLowE", 0);
+      pset2.add<double>("corrTermLowE", 0);
+      pset2.add<double>("noiseTerm", 0);
+      pset2.add<double>("noiseTermLowE", 0);
+      pset2.add<double>("threshHighE", 0);
+      pset2.add<double>("threshLowE", 0);
+      pset.addOptional<edm::ParameterSetDescription>("timeResolutionCalcBarrel", pset2);
+      pset.addOptional<edm::ParameterSetDescription>("timeResolutionCalcEndcap", pset2);
+    }
+    pset.addOptional<double>("timeSigmaEB", 10.0);
+    pset.addOptional<double>("timeSigmaEE", 10.0);
+    desc.add<edm::ParameterSetDescription>("pfClusterBuilder", pset);
+  }
+  {
+    edm::ParameterSetDescription pset;
+    pset.addOptional<std::string>("algoName");
+    pset.addOptional<double>("minFractionInCalc", 0);
+    pset.addOptional<bool>("updateTiming", false);
+    pset.addOptional<double>("T0_EB", 0);
+    pset.addOptional<double>("T0_EE", 0);
+    pset.addOptional<double>("T0_ES", 0);
+    pset.addOptional<double>("W0", 0);
+    pset.addOptional<double>("X0", 0);
+    pset.addOptional<double>("minAllowedNormalization", 0);
+    pset.addOptional<edm::ParameterSetDescription>("timeResolutionCalc", {});
+    desc.add<edm::ParameterSetDescription>("positionReCalc", pset);
+  }
+  desc.add<edm::ParameterSetDescription>("energyCorrector", {});
   descriptions.addWithDefaultLabel(desc);
 }
 

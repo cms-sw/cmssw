@@ -106,7 +106,7 @@ Basic2DGenericPFlowClusterizer::Basic2DGenericPFlowClusterizer(const edm::Parame
 
     if (det == std::string("HCAL_BARREL1") || det == std::string("HCAL_ENDCAP")) {
       depths = pset.getParameter<std::vector<int> >("depths");
-      rhE_norm = pset.getParameter<std::vector<double> >("recHitEnergyNorm");
+      rhE_norm = pset.getParameter<std::vector<double> >("recHitEnergyNorms");
     } else {
       depths.push_back(0);
       rhE_norm.push_back(pset.getParameter<double>("recHitEnergyNorm"));

@@ -67,8 +67,8 @@ LocalMaximumSeedFinder::LocalMaximumSeedFinder(const edm::ParameterSet& conf)
 
     if (det == std::string("HCAL_BARREL1") || det == std::string("HCAL_ENDCAP")) {
       depths = pset.getParameter<std::vector<int> >("depths");
-      thresh_E = pset.getParameter<std::vector<double> >("seedingThreshold");
-      thresh_pT = pset.getParameter<std::vector<double> >("seedingThresholdPt");
+      thresh_E = pset.getParameter<std::vector<double> >("seedingThresholds");
+      thresh_pT = pset.getParameter<std::vector<double> >("seedingThresholdsPt");
       if (thresh_E.size() != depths.size() || thresh_pT.size() != depths.size()) {
         throw cms::Exception("InvalidGatheringThreshold") << "gatheringThresholds mismatch with the numbers of depths";
       }

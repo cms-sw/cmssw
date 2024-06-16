@@ -10,8 +10,8 @@ hltParticleFlowClusterHBHE = cms.EDProducer("PFClusterProducer",
             cms.PSet(
                 depths = cms.vint32(1, 2, 3, 4),
                 detector = cms.string('HCAL_BARREL1'),
-                gatheringThreshold = cms.vdouble(0.1, 0.2, 0.3, 0.3),
-                gatheringThresholdPt = cms.vdouble(0.0, 0.0, 0.0, 0.0)
+                gatheringThresholds = cms.vdouble(0.1, 0.2, 0.3, 0.3),
+                gatheringThresholdsPt = cms.vdouble(0.0, 0.0, 0.0, 0.0)
             ),
             cms.PSet(
                 depths = cms.vint32(
@@ -19,11 +19,11 @@ hltParticleFlowClusterHBHE = cms.EDProducer("PFClusterProducer",
                     6, 7
                 ),
                 detector = cms.string('HCAL_ENDCAP'),
-                gatheringThreshold = cms.vdouble(
+                gatheringThresholds = cms.vdouble(
                     0.1, 0.2, 0.2, 0.2, 0.2,
                     0.2, 0.2
                 ),
-                gatheringThresholdPt = cms.vdouble(
+                gatheringThresholdsPt = cms.vdouble(
                     0.0, 0.0, 0.0, 0.0, 0.0,
                     0.0, 0.0
                 )
@@ -97,7 +97,7 @@ hltParticleFlowClusterHBHE = cms.EDProducer("PFClusterProducer",
             cms.PSet(
                 depths = cms.vint32(1, 2, 3, 4),
                 detector = cms.string('HCAL_BARREL1'),
-                recHitEnergyNorm = cms.vdouble(0.1, 0.2, 0.3, 0.3)
+                recHitEnergyNorms = cms.vdouble(0.1, 0.2, 0.3, 0.3)
             ),
             cms.PSet(
                 depths = cms.vint32(
@@ -105,7 +105,7 @@ hltParticleFlowClusterHBHE = cms.EDProducer("PFClusterProducer",
                     6, 7
                 ),
                 detector = cms.string('HCAL_ENDCAP'),
-                recHitEnergyNorm = cms.vdouble(
+                recHitEnergyNorms = cms.vdouble(
                     0.1, 0.2, 0.2, 0.2, 0.2,
                     0.2, 0.2
                 )
@@ -147,8 +147,8 @@ hltParticleFlowClusterHBHE = cms.EDProducer("PFClusterProducer",
             cms.PSet(
                 depths = cms.vint32(1, 2, 3, 4),
                 detector = cms.string('HCAL_BARREL1'),
-                seedingThreshold = cms.vdouble(0.125, 0.25, 0.35, 0.35),
-                seedingThresholdPt = cms.vdouble(0.0, 0.0, 0.0, 0.0)
+                seedingThresholds = cms.vdouble(0.125, 0.25, 0.35, 0.35),
+                seedingThresholdsPt = cms.vdouble(0.0, 0.0, 0.0, 0.0)
             ),
             cms.PSet(
                 depths = cms.vint32(
@@ -156,11 +156,11 @@ hltParticleFlowClusterHBHE = cms.EDProducer("PFClusterProducer",
                     6, 7
                 ),
                 detector = cms.string('HCAL_ENDCAP'),
-                seedingThreshold = cms.vdouble(
+                seedingThresholds = cms.vdouble(
                     0.1375, 0.275, 0.275, 0.275, 0.275,
                     0.275, 0.275
                 ),
-                seedingThresholdPt = cms.vdouble(
+                seedingThresholdsPt = cms.vdouble(
                     0.0, 0.0, 0.0, 0.0, 0.0,
                     0.0, 0.0
                 )
