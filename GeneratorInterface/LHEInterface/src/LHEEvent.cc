@@ -40,7 +40,8 @@ namespace lhef {
         counted(false),
         readAttemptCounter(0),
         npLO_(-99),
-        npNLO_(-99)
+        npNLO_(-99),
+        evtnum_(-1)
 
   {
     hepeup.NUP = 0;
@@ -106,7 +107,7 @@ namespace lhef {
   }
 
   LHEEvent::LHEEvent(const std::shared_ptr<LHERunInfo> &runInfo, const HEPEUP &hepeup)
-      : runInfo(runInfo), hepeup(hepeup), counted(false), readAttemptCounter(0), npLO_(-99), npNLO_(-99) {}
+      : runInfo(runInfo), hepeup(hepeup), counted(false), readAttemptCounter(0), npLO_(-99), npNLO_(-99), evtnum_(-1) {}
 
   LHEEvent::LHEEvent(const std::shared_ptr<LHERunInfo> &runInfo,
                      const HEPEUP &hepeup,
@@ -119,7 +120,8 @@ namespace lhef {
         counted(false),
         readAttemptCounter(0),
         npLO_(-99),
-        npNLO_(-99) {}
+        npNLO_(-99),
+        evtnum_(-1) {}
 
   LHEEvent::LHEEvent(const std::shared_ptr<LHERunInfo> &runInfo, const LHEEventProduct &product)
       : runInfo(runInfo),
@@ -132,7 +134,8 @@ namespace lhef {
         originalXWGTUP_(product.originalXWGTUP()),
         scales_(product.scales()),
         npLO_(product.npLO()),
-        npNLO_(product.npNLO()) {}
+        npNLO_(product.npNLO()),
+        evtnum_(product.evtnum()) {}
 
   LHEEvent::~LHEEvent() {}
 
