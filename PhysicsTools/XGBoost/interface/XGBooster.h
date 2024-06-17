@@ -23,6 +23,7 @@ namespace pat {
     void set(std::string name, float value);
 
     float predict(const int iterationEnd = 0);
+    float predict(const std::vector<float>& features, const int iterationEnd = 0) const;
 
   private:
     std::vector<float> features_;
