@@ -15,7 +15,7 @@
 class HGCalLayerClusterHeterogeneousDumper : public edm::global::EDAnalyzer<> {
 public:
   HGCalLayerClusterHeterogeneousDumper(edm::ParameterSet const& iConfig)
-      : deviceToken_{consumes(iConfig.getParameter<edm::InputTag>("src"))} {}
+      : token_{consumes(iConfig.getParameter<edm::InputTag>("src"))} {}
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
@@ -24,17 +24,17 @@ public:
   }
 
   void analyze(edm::StreamID iStream, edm::Event const& iEvent, edm::EventSetup const& iSetup) const override {
-    auto const& deviceData = iEvent.get(deviceToken_);
+    auto const& data = iEvent.get(token_);
 
-    auto const deviceView = deviceData.view();
-    std::cout << fmt::format("view.numberOfClusters() = {}", deviceView.numberOfClustersScalar()) << std::endl;
-    for (int i = 0; i < deviceData->metadata().size(); ++i) {
-      std::cout << fmt::format("view[{}].clusterIndex() = {}", i, deviceView.clusterIndex(i)) << std::endl;
+    auto const view = data.view();
+    std::cout << fmt::format("view.numberOfClusters() = {}", view.numberOfClustersScalar()) << std::endl;
+    for (int i = 0; i < data->metadata().size(); ++i) {
+      std::cout << fmt::format("view[{}].clusterIndex() = {}", i, view.clusterIndex(i)) << std::endl;
     }
   }
 
 private:
-  edm::EDGetTokenT<HGCalSoARecHitsExtraHostCollection> const deviceToken_;
+  edm::EDGetTokenT<HGCalSoARecHitsExtraHostCollection> const token_;
 };
 
 #include "FWCore/Framework/interface/MakerMacros.h"

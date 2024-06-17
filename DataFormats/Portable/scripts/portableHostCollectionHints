@@ -29,25 +29,5 @@ if len(layouts) > 1:
   print("")
 print("  <!-- Collection declaration for dictionary -->")
 print("  <class name=\"%s\"/>"% collectionName)
-print()
-print("  <!-- Read streamer declaration for dictionary. It ensures allocation of buffer and data copying to it -->")
-print("  <read")
-print("    sourceClass=\"%s\""% collectionName)
-print("    targetClass=\"%s\""% collectionName)
-print("    version=\"[1-]\"")
-if len(layouts) < 2:
-  print("    source=\"%s layout_;\""% layouts[0])
-  print("    target=\"buffer_,layout_,view_\"")
-else:
-  print("    source=\"%s::Implementation impl_;\""% collectionName)
-  print("    target=\"buffer_,impl_\"")
-print("    embed=\"false\">")
-print("  <![CDATA[")
-if len(layouts) < 2:
-  print("    %s::ROOTReadStreamer(newObj, onfile.layout_);"% collectionName)
-else:
-  print("    %s::ROOTReadStreamer(newObj, onfile.impl_);"% collectionName)
-print("  ]]>")
-print("  </read>\n")
 print("  <class name=\"edm::Wrapper<%s>\" splitLevel=\"0\"/>"% collectionName)
 print("</lcgdict>")

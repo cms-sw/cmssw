@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 hltHgcalSoALayerClustersProducer = cms.EDProducer("HGCalSoALayerClustersProducer@alpaka",
     alpaka = cms.untracked.PSet(
-        backend = cms.untracked.string('cuda_async')
+        backend = cms.untracked.string('')
     ),
     hgcalRecHitsLayerClustersSoA = cms.InputTag("hltHgcalSoARecHitsLayerClustersProducer"),
     hgcalRecHitsSoA = cms.InputTag("hltHgcalSoARecHitsProducer"),

@@ -19,9 +19,9 @@ namespace hgcalUtils {
     return pair1.first < pair2.first;
   }
 
-  class DumpClustersDetails {
+  class DumpClusters {
   public:
-    DumpClustersDetails() = default;
+    DumpClusters() = default;
 
     template <typename T>
     void dumpInfos(const T& clusters,
@@ -71,9 +71,9 @@ namespace hgcalUtils {
     }
   };
 
-  class DumpClustersSoADetails {
+  class DumpClustersSoA {
   public:
-    DumpClustersSoADetails() = default;
+    DumpClustersSoA() = default;
 
     template <typename T>
     void dumpInfos(const T& clustersSoA,
@@ -107,9 +107,9 @@ namespace hgcalUtils {
     }
   };
 
-  class DumpCellsSoADetails {
+  class DumpCellsSoA {
   public:
-    DumpCellsSoADetails() = default;
+    DumpCellsSoA() = default;
 
     template <typename T>
     void dumpInfos(const T& cells,
@@ -147,9 +147,9 @@ namespace hgcalUtils {
     }
   };
 
-  class DumpLegacySoADetails {
+  class DumpLegacySoA {
   public:
-    DumpLegacySoADetails() = default;
+    DumpLegacySoA() = default;
 
     template <typename T>
     void dumpInfos(const T& cells, const std::string& moduleType) const {
@@ -195,11 +195,6 @@ namespace hgcalUtils {
       outfile.close();
     }
   };
-
-  using DumpClusters = DumpClustersDetails;
-  using DumpClustersSoA = DumpClustersSoADetails;
-  using DumpCellsSoA = DumpCellsSoADetails;
-  using DumpLegacySoA = DumpLegacySoADetails;
 }  // namespace hgcalUtils
 
 #endif

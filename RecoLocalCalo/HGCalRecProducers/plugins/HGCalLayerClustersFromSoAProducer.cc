@@ -6,6 +6,7 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/allowedValues.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 
@@ -151,11 +152,13 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
     desc.add<edm::InputTag>("src", edm::InputTag("hltHgcalSoALayerClustersProducer"));
-    desc.add<edm::InputTag>("hgcalRecHitsLayerClustersSoA", edm::InputTag("TO BE DEFINED"));
-    desc.add<edm::InputTag>("hgcalRecHitsSoA", edm::InputTag("TO BE DEFINED"));
+    desc.add<edm::InputTag>("hgcalRecHitsLayerClustersSoA", edm::InputTag("hltHgcalSoARecHitsLayerClustersProducer"));
+    desc.add<edm::InputTag>("hgcalRecHitsSoA", edm::InputTag("hltHgcalSoARecHitsProducer"));
     desc.add<unsigned int>("nHitsTime", 3);
     desc.add<std::string>("timeClname", "timeLayerCluster");
-    desc.add<std::string>("detector", "EE");
+    desc.ifValue(edm::ParameterDescription<std::string>(
+                     "detector", "EE", true, edm::Comment("the HGCAL component used to create clusters.")),
+                 edm::allowedValues<std::string>("EE", "FH"));
     descriptions.addWithDefaultLabel(desc);
   }
 

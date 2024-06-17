@@ -376,16 +376,12 @@ void HGCalCLUEAlgoT<T, STRATEGY>::calculateDistanceToHigher(const T& lt, const u
           bool foundHigher =
               (cellsOnLayer.rho[otherId] > cellsOnLayer.rho[i]) ||
               (cellsOnLayer.rho[otherId] == cellsOnLayer.rho[i] && cellsOnLayer.detid[otherId] > cellsOnLayer.detid[i]);
-          if (foundHigher && dist < i_delta) {
-            rho_max = cellsOnLayer.rho[otherId];
-            i_delta = dist;
-            i_nearestHigher = otherId;
-          } else if (foundHigher && dist == i_delta && cellsOnLayer.rho[otherId] > rho_max) {
-            rho_max = cellsOnLayer.rho[otherId];
-            i_delta = dist;
-            i_nearestHigher = otherId;
-          } else if (foundHigher && dist == i_delta && cellsOnLayer.rho[otherId] == rho_max &&
-                     cellsOnLayer.detid[otherId] > cellsOnLayer.detid[i]) {
+          if (!foundHigher) {
+            continue;
+          }
+          if ((dist < i_delta) || ((dist == i_delta) && (cellsOnLayer.rho[otherId] > rho_max)) ||
+              ((dist == i_delta) && (cellsOnLayer.rho[otherId] == rho_max) &&
+               (cellsOnLayer.detid[otherId] > cellsOnLayer.detid[i]))) {
             rho_max = cellsOnLayer.rho[otherId];
             i_delta = dist;
             i_nearestHigher = otherId;

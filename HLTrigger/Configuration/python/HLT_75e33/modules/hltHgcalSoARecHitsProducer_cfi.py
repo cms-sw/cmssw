@@ -3,7 +3,7 @@ from ..psets.hgcal_reco_constants_cfi import HGCAL_reco_constants as HGCAL_reco_
 
 hltHgcalSoARecHitsProducer = cms.EDProducer("HGCalSoARecHitsProducer@alpaka",
     alpaka = cms.untracked.PSet(
-        backend = cms.untracked.string('cuda_async')
+        backend = cms.untracked.string('')
     ),
     dEdXweights = HGCAL_reco_constants.dEdXweights,
     detector = cms.string('EE'),

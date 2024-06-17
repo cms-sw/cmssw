@@ -22,23 +22,19 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   class HGCalSoARecHitsProducer : public stream::EDProducer<> {
   public:
     HGCalSoARecHitsProducer(edm::ParameterSet const& config)
-        : caloGeomToken_(consumesCollector().esConsumes<CaloGeometry, CaloGeometryRecord>()),
-          detector_(config.getParameter<std::string>("detector")),
-          deviceToken_{produces()},
-          initialized_(false) {
-      hits_token_ = consumes<HGCRecHitCollection>(config.getParameter<edm::InputTag>("recHits"));
-      isNose_ = false;
-      if (detector_ == "HFNose") {
-        isNose_ = true;
-      }
-      maxNumberOfThickIndices_ = config.getParameter<unsigned>("maxNumberOfThickIndices");
-      fcPerEle_ = config.getParameter<double>("fcPerEle");
-      fcPerMip_ = config.getParameter<std::vector<double>>("fcPerMip");
-      nonAgedNoises_ = config.getParameter<std::vector<double>>("noises");
-      ecut_ = config.getParameter<double>("ecut");
-      thicknessCorrection_ = config.getParameter<std::vector<double>>("thicknessCorrection");
-      dEdXweights_ = config.getParameter<std::vector<double>>("dEdXweights");
-    }
+        : detector_(config.getParameter<std::string>("detector")),
+          initialized_(false),
+          isNose_(detector_ == "HFNose"),
+          maxNumberOfThickIndices_(config.getParameter<unsigned>("maxNumberOfThickIndices")),
+          fcPerEle_(config.getParameter<double>("fcPerEle")),
+          ecut_(config.getParameter<double>("ecut")),
+          fcPerMip_(config.getParameter<std::vector<double>>("fcPerMip")),
+          nonAgedNoises_(config.getParameter<std::vector<double>>("noises")),
+          dEdXweights_(config.getParameter<std::vector<double>>("dEdXweights")),
+          thicknessCorrection_(config.getParameter<std::vector<double>>("thicknessCorrection")),
+          caloGeomToken_(consumesCollector().esConsumes<CaloGeometry, CaloGeometryRecord>()),
+          hits_token_(consumes<HGCRecHitCollection>(config.getParameter<edm::InputTag>("recHits"))),
+          deviceToken_{produces()} {}
 
     ~HGCalSoARecHitsProducer() override = default;
 
@@ -73,7 +69,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       }
 
       // Allocate Host SoA will contain one entry for each RecHit above threshold
-      HGCalSoARecHitsHostCollection cells(index, iEvent.queue());  // TO BE VERIFIED
+      HGCalSoARecHitsHostCollection cells(index, iEvent.queue());
       auto cellsView = cells.view();
 
       // loop over all hits and create the Hexel structure, skip energies below ecut
@@ -129,11 +125,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           << " i.e. " << cells->metadata().size() << std::endl;
 #endif
 
-      if constexpr (!std::is_same_v<ALPAKA_ACCELERATOR_NAMESPACE::Device, alpaka_common::DevHost>) {
+      if constexpr (!std::is_same_v<Device, alpaka_common::DevHost>) {
         // Trigger copy async to GPU
         //std::cout << "GPU" << std::endl;
-        HGCalSoARecHitsDeviceCollection deviceProduct{cells->metadata().size(),
-                                                      iEvent.queue()};  // QUEUE TO BE VERIFIED
+        HGCalSoARecHitsDeviceCollection deviceProduct{cells->metadata().size(), iEvent.queue()};
         alpaka::memcpy(iEvent.queue(), deviceProduct.buffer(), cells.const_buffer());
         iEvent.emplace(deviceToken_, std::move(deviceProduct));
       } else {
@@ -157,27 +152,26 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }
 
   private:
-    hgcal::RecHitTools rhtools_;
-    edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
-    bool isNose_;
     std::string detector_;
-    edm::EDGetTokenT<HGCRecHitCollection> hits_token_;
-    device::EDPutToken<ALPAKA_ACCELERATOR_NAMESPACE::PortableCollection<HGCalSoARecHits>> const deviceToken_;
-
     bool initialized_;
-
+    bool isNose_;
     unsigned maxNumberOfThickIndices_;
-    std::vector<std::vector<double>> thresholds_;
-    std::vector<std::vector<double>> v_sigmaNoise_;
     unsigned int maxlayer_;
+    int deltasi_index_regemfac_;
     double sciThicknessCorrection_;
-    std::vector<double> fcPerMip_;
     double fcPerEle_;
-    std::vector<double> nonAgedNoises_;
     double ecut_;
+    std::vector<double> fcPerMip_;
+    std::vector<double> nonAgedNoises_;
     std::vector<double> dEdXweights_;
     std::vector<double> thicknessCorrection_;
-    int deltasi_index_regemfac_;
+    std::vector<std::vector<double>> thresholds_;
+    std::vector<std::vector<double>> v_sigmaNoise_;
+
+    hgcal::RecHitTools rhtools_;
+    edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
+    edm::EDGetTokenT<HGCRecHitCollection> hits_token_;
+    device::EDPutToken<HGCalSoARecHitsDeviceCollection> const deviceToken_;
 
     void computeThreshold() {
       // To support the TDR geometry and also the post-TDR one (v9 onwards), we

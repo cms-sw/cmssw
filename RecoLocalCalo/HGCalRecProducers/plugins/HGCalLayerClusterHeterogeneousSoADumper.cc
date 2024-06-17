@@ -15,7 +15,7 @@
 class HGCalLayerClusterHeterogeneousSoADumper : public edm::global::EDAnalyzer<> {
 public:
   HGCalLayerClusterHeterogeneousSoADumper(edm::ParameterSet const& iConfig)
-      : deviceToken_{consumes(iConfig.getParameter<edm::InputTag>("src"))} {}
+      : token_{consumes(iConfig.getParameter<edm::InputTag>("src"))} {}
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
@@ -24,27 +24,27 @@ public:
   }
 
   void analyze(edm::StreamID iStream, edm::Event const& iEvent, edm::EventSetup const& iSetup) const override {
-    auto const& deviceData = iEvent.get(deviceToken_);
+    auto const& data = iEvent.get(token_);
 
-    auto const deviceView = deviceData.view();
-    std::cout << fmt::format("hgcalSoALayerClustersProducer size = {}", deviceView.metadata().size()) << std::endl;
-    for (int i = 0; i < deviceData->metadata().size(); ++i) {
+    auto const view = data.view();
+    std::cout << fmt::format("hgcalSoALayerClustersProducer size = {}", view.metadata().size()) << std::endl;
+    for (int i = 0; i < data->metadata().size(); ++i) {
       std::cout << fmt::format("CLUSTERS_SOA {}, energy = {:.{}f}, x = {:.{}f}, y = {:.{}f}, z= {:.{}f}",
                                i,
-                               deviceView.energy(i),
+                               view.energy(i),
                                std::numeric_limits<float>::max_digits10,
-                               deviceView.x(i),
+                               view.x(i),
                                std::numeric_limits<float>::max_digits10,
-                               deviceView.y(i),
+                               view.y(i),
                                std::numeric_limits<float>::max_digits10,
-                               deviceView.z(i),
+                               view.z(i),
                                std::numeric_limits<float>::max_digits10)
                 << std::endl;
     }
   }
 
 private:
-  edm::EDGetTokenT<HGCalSoAClustersHostCollection> const deviceToken_;
+  edm::EDGetTokenT<HGCalSoAClustersHostCollection> const token_;
 };
 
 #include "FWCore/Framework/interface/MakerMacros.h"

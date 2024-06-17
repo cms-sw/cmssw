@@ -61,12 +61,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       auto const& deviceInputClusters = iEvent.get(getTokenDeviceClusters_);
       auto const inputClusters_v = deviceInputClusters.view();
 
-      ALPAKA_ACCELERATOR_NAMESPACE::PortableCollection<HGCalSoAClusters> output(num_clusters_, iEvent.queue());
+      HGCalSoAClustersDeviceCollection output(num_clusters_, iEvent.queue());
       auto output_v = output.view();
-      // Allocate service SoA cluster
-      ALPAKA_ACCELERATOR_NAMESPACE::PortableCollection<HGCalSoAClustersExtra> outputService(num_clusters_,
-                                                                                            iEvent.queue());
-      auto output_service_v = outputService.view();
+      // Allocate workspace SoA cluster
+      HGCalSoAClustersExtraDeviceCollection outputWorkspace(num_clusters_, iEvent.queue());
+      auto output_workspace_v = outputWorkspace.view();
 
       algo_.run(iEvent.queue(),
                 num_clusters_,
@@ -75,7 +74,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                 inputRechits_v,
                 inputClusters_v,
                 output_v,
-                output_service_v);
+                output_workspace_v);
       iEvent.emplace(deviceTokenSoAClusters_, std::move(output));
     }
 
@@ -89,10 +88,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }
 
   private:
-    device::EDGetToken<ALPAKA_ACCELERATOR_NAMESPACE::PortableCollection<HGCalSoARecHits>> const getTokenDeviceRecHits_;
-    device::EDGetToken<ALPAKA_ACCELERATOR_NAMESPACE::PortableCollection<HGCalSoARecHitsExtra>> const
-        getTokenDeviceClusters_;
-    device::EDPutToken<ALPAKA_ACCELERATOR_NAMESPACE::PortableCollection<HGCalSoAClusters>> const deviceTokenSoAClusters_;
+    device::EDGetToken<HGCalSoARecHitsDeviceCollection> const getTokenDeviceRecHits_;
+    device::EDGetToken<HGCalSoARecHitsExtraDeviceCollection> const getTokenDeviceClusters_;
+    device::EDPutToken<HGCalSoAClustersDeviceCollection> const deviceTokenSoAClusters_;
     HGCalLayerClustersSoAAlgoWrapper algo_;
     unsigned int num_clusters_;
     float thresholdW0_;

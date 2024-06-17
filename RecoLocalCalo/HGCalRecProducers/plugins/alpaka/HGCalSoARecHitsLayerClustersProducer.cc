@@ -46,8 +46,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       //std::cout << "Size of device collection: " << deviceInput->metadata().size() << std::endl;
       auto const input_v = deviceInput.view();
       // Allocate output SoA
-      ALPAKA_ACCELERATOR_NAMESPACE::PortableCollection<HGCalSoARecHitsExtra> output(deviceInput->metadata().size(),
-                                                                                    iEvent.queue());
+      HGCalSoARecHitsExtraDeviceCollection output(deviceInput->metadata().size(), iEvent.queue());
       auto output_v = output.view();
 
       algo_.run(
@@ -66,8 +65,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   private:
     // use device::EDGetToken<T> to read from device memory space
-    device::EDGetToken<ALPAKA_ACCELERATOR_NAMESPACE::PortableCollection<HGCalSoARecHits>> const getTokenDevice_;
-    device::EDPutToken<ALPAKA_ACCELERATOR_NAMESPACE::PortableCollection<HGCalSoARecHitsExtra>> const deviceToken_;
+    device::EDGetToken<HGCalSoARecHitsDeviceCollection> const getTokenDevice_;
+    device::EDPutToken<HGCalSoARecHitsExtraDeviceCollection> const deviceToken_;
     HGCalLayerClustersAlgoWrapper algo_;
     const float deltac_;
     const float kappa_;

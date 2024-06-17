@@ -1,12 +1,14 @@
 #include "RecoLocalCalo/HGCalRecProducers/interface/HGCalTilesConstants.h"
 
 #include "HGCalLayerClustersSoAAlgoWrapper.h"
+#include "ConstantsForClusters.h"
 
 #include "CLUEAlgoAlpaka.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   using namespace cms::alpakatools;
+  using namespace hgcal::constants;
 
   // Set energy and number of hits in each clusters
   class HGCalLayerClustersSoAAlgoKernelEnergy {
@@ -20,7 +22,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       // make a strided loop over the kernel grid, covering up to "size" elements
       for (int32_t i : uniform_elements(acc, input_rechits_soa.metadata().size())) {
         // Skip unassigned rechits
-        if (input_clusters_soa[i].clusterIndex() == -1) {
+        if (input_clusters_soa[i].clusterIndex() == kInvalidCluster) {
           continue;
         }
         auto clIdx = input_clusters_soa[i].clusterIndex();
@@ -50,14 +52,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         const int cluster_index = input_clusters_soa[hit_index].clusterIndex();
 
         // Bail out if you are not part of any cluster
-        if (cluster_index == -1) {
+        if (cluster_index == kInvalidCluster) {
           continue;
         }
 
         alpaka::atomicAdd(acc, &outputs_service[cluster_index].total_weight(), input_rechits_soa[hit_index].weight());
         // Read the current seed index, and the associated energy.
         int clusterSeed = outputs_service[cluster_index].maxEnergyIndex();
-        float clusterEnergy = (clusterSeed == -1) ? 0.f : input_rechits_soa[clusterSeed].weight();
+        float clusterEnergy = (clusterSeed == kInvalidIndex) ? 0.f : input_rechits_soa[clusterSeed].weight();
 
         while (input_rechits_soa[hit_index].weight() > clusterEnergy) {
           // If output_service[cluster_index].maxEnergyIndex() did not change,
@@ -71,7 +73,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           } else {
             // Update the seed index and re-read the associated energy.
             clusterSeed = seed;
-            clusterEnergy = (clusterSeed == -1) ? 0.f : input_rechits_soa[clusterSeed].weight();
+            clusterEnergy = (clusterSeed == kInvalidIndex) ? 0.f : input_rechits_soa[clusterSeed].weight();
           }
         }  // CAS
       }    // uniform_elements
@@ -95,7 +97,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         const int cluster_index = input_clusters_soa[hit_index].clusterIndex();
 
         // Bail out if you are not part of any cluster
-        if (cluster_index == -1) {
+        if (cluster_index == kInvalidCluster) {
           continue;
         }
         const int max_energy_index = outputs_service[cluster_index].maxEnergyIndex();
@@ -103,7 +105,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         //for silicon only just use 1+6 cells = 1.3cm for all thicknesses
         const float d1 = input_rechits_soa[hit_index].dim1() - input_rechits_soa[max_energy_index].dim1();
         const float d2 = input_rechits_soa[hit_index].dim2() - input_rechits_soa[max_energy_index].dim2();
-        if ((d1 * d1 + d2 * d2) > positionDeltaRho2) {
+        if (std::fmaf(d1, d1, d2 * d2) > positionDeltaRho2) {
           continue;
         }
         float Wi = std::max(thresholdW0 + std::log(input_rechits_soa[hit_index].weight() /
@@ -176,7 +178,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     alpaka::memset(queue, maxEnergyValue, 0x0);
     auto maxEnergyIndex =
         cms::alpakatools::make_device_view<int>(alpaka::getDev(queue), outputs_service.maxEnergyIndex(), size);
-    alpaka::memset(queue, maxEnergyIndex, 0xff);
+    alpaka::memset(queue, maxEnergyIndex, kInvalidIndexByte);
 
     // use 64 items per group (this value is arbitrary, but it's a reasonable starting point)
     uint32_t items = 64;
