@@ -681,7 +681,8 @@ void DeepBoostedJetTagInfoProducer::fillParticleFeatures(DeepBoostedJetFeatures 
         if (use_pvasq_value_map_) {
           pv_ass_quality = (*pvasq_value_map_)[cand];
           pv_ass = (*pvas_)[cand];
-          vtx_ass = vtx_ass_from_pfcand(*reco_cand, pv_ass_quality, pv_ass);
+          if (pv_ass.isNonnull())
+            vtx_ass = vtx_ass_from_pfcand(*reco_cand, pv_ass_quality, pv_ass);
         } else
           throw edm::Exception(edm::errors::InvalidReference) << "Vertex association missing";
       }
