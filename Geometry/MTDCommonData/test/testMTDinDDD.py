@@ -53,7 +53,7 @@ process.MessageLogger.files.mtdCommonDataDDD = cms.untracked.PSet(
     threshold = cms.untracked.string('INFO')
 )
 
-process.load('Configuration.Geometry.GeometryExtended2026D98_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D110_cff')
 
 process.testBTL = cms.EDAnalyzer("TestMTDIdealGeometry",
                                ddTopNodeName = cms.untracked.string('BarrelTimingLayer')

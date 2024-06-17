@@ -50,7 +50,7 @@ process.MessageLogger.files.mtdGeometryDD4hep = cms.untracked.PSet(
     threshold = cms.untracked.string('INFO')
 )
 
-process.load("Configuration.Geometry.GeometryDD4hepExtended2026D98Reco_cff")
+process.load("Configuration.Geometry.GeometryDD4hepExtended2026D110Reco_cff")
 
 process.Timing = cms.Service("Timing")
 
