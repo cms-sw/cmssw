@@ -170,14 +170,30 @@ std::array<ticl::Vector, 3> TracksterLinkingbySkeletons::findSkeletonNodes(
 bool isInCylinder(const std::array<ticl::Vector, 3> &mySkeleton,
                   const std::array<ticl::Vector, 3> &otherSkeleton,
                   const float radius_sqr) {
-  const auto &center = mySkeleton[1];
+  const auto &first = mySkeleton[0];
+  const auto &last = mySkeleton[2];
   const auto &pointToCheck = otherSkeleton[0];
-  const auto distance2_xy = (pointToCheck.x() - center.x()) * (pointToCheck.x() - center.x()) +
-                            (pointToCheck.y() - center.y()) * (pointToCheck.y() - center.y());
-  LogDebug("TracksterLinkingbySkeletons") << " Distance XY " << distance2_xy << std::endl;
-  bool isWithinZ = std::abs(pointToCheck.z()) >= std::abs(mySkeleton[0].z()) and
-                   std::abs(pointToCheck.z()) <= std::abs(mySkeleton[2].z());
-  return (distance2_xy <= radius_sqr) && isWithinZ;
+
+  const auto &cylAxis = last - first;
+  const auto &vecToPoint = pointToCheck - first;
+
+  auto axisNorm = cylAxis.Dot(cylAxis);
+  auto projLength = vecToPoint.Dot(cylAxis) / axisNorm;
+  bool isWithinLength = projLength >= 0 && projLength <= 1;
+
+  if (!isWithinLength)
+    return false;
+
+  const auto &proj = cylAxis * projLength;
+
+  const auto &pointOnAxis = first + proj;
+
+  const auto &distance = pointToCheck - pointOnAxis;
+  auto distance2 = distance.Dot(distance);
+
+  bool isWithinRadius = distance2 <= radius_sqr;
+
+  return isWithinRadius;
 }
 
 bool TracksterLinkingbySkeletons::areCompatible(const ticl::Trackster &myTrackster,
