@@ -54,21 +54,6 @@ phase2_common.toModify(reducedEgamma,
         preshowerEcalHits = "",
 )
 
-from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
-run2_miniAOD_80XLegacy.toModify(
-    reducedEgamma, 
-    photonFloatValueMapSources      = ["photonEcalPFClusterIsolationProducer",
-                                       "photonHcalPFClusterIsolationProducer"],
-    photonFloatValueMapOutput       = ["phoEcalPFClusIso",
-                                       "phoHcalPFClusIso"],
-    ootPhotonFloatValueMapSources   = ["ootPhotonEcalPFClusterIsolationProducer"],
-    ootPhotonFloatValueMapOutput    = ["ootPhoEcalPFClusIso"],
-    gsfElectronFloatValueMapSources = ["electronEcalPFClusterIsolationProducer",
-                                       "electronHcalPFClusterIsolationProducer"],
-    gsfElectronFloatValueMapOutput  = ["eleEcalPFClusIso",
-                                       "eleHcalPFClusIso"]
-)
-
 from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_94XFall17
 run2_miniAOD_94XFall17.toModify(
     reducedEgamma, 
@@ -88,10 +73,9 @@ run2_miniAOD_94XFall17.toModify(
 
 from RecoEgamma.EgammaPhotonProducers.reducedEgamma_tools import calibrateReducedEgamma
 from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_94XFall17
-from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
 from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
 modifyReducedEGammaRun2MiniAOD = (
-    run2_miniAOD_94XFall17 | run2_miniAOD_80XLegacy | run2_miniAOD_UL).makeProcessModifier(calibrateReducedEgamma)
+    run2_miniAOD_94XFall17 | run2_miniAOD_UL).makeProcessModifier(calibrateReducedEgamma)
 
 from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 

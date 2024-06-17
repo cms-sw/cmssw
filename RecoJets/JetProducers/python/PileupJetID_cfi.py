@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
 from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_94XFall17
 from Configuration.Eras.Modifier_run2_jme_2016_cff import run2_jme_2016
 from Configuration.Eras.Modifier_run2_jme_2017_cff import run2_jme_2017
@@ -37,7 +36,6 @@ pileupJetId = cms.EDProducer('PileupJetIdProducer',
 )
 
 # set algos for re-miniAOD campaign
-run2_miniAOD_80XLegacy.toModify(pileupJetId, algos = _chsalgos_81x)
 run2_miniAOD_94XFall17.toModify(pileupJetId, algos = _chsalgos_94x)
 (run2_miniAOD_UL & run2_jme_2017).toModify(pileupJetId, algos = _chsalgos_106X_UL17)
 (run2_miniAOD_UL & run2_jme_2016 & ~tracker_apv_vfp30_2016).toModify(pileupJetId, algos = _chsalgos_106X_UL16)
