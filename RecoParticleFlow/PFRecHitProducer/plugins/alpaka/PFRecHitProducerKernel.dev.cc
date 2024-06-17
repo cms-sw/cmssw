@@ -152,7 +152,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         for (uint32_t n = 0; n < 8; n++) {
           pfRecHits.neighbours(i)(n) = -1;
           const uint32_t denseId_neighbour = topology.neighbours(denseId)(n);
-          if (denseId_neighbour != 0xffffffff) {
+          if (denseId_neighbour != CAL::kInvalidDenseId) {
             const uint32_t pfRecHit_neighbour = denseId2pfRecHit[denseId_neighbour];
             if (pfRecHit_neighbour != 0xffffffff)
               pfRecHits.neighbours(i)(n) = (int32_t)pfRecHit_neighbour;
