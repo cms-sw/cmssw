@@ -214,7 +214,7 @@ steps['lepTrackInfoNANO_mc13.2']=merge([{'-s' : 'NANO:@LepTrackInfo,DQM:@nanoAOD
                                         '-n' : '1000'},
                                        steps['NANO_mc13.2']])
 
-steps['jmeNANO_rePuppi_mc13.2']merge([{'-s' : 'NANO:@JMErePuppi ', '-n' : '1000'},
+steps['jmeNANO_rePuppi_mc13.2']=merge([{'-s' : 'NANO:@JMErePuppi ', '-n' : '1000'},
                                      steps['NANO_mc13.2']])
 
 
