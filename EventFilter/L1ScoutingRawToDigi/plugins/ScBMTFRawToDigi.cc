@@ -3,8 +3,9 @@
 ScBMTFRawToDigi::ScBMTFRawToDigi(const edm::ParameterSet& iConfig) {
   using namespace edm;
   srcInputTag = iConfig.getParameter<InputTag>("srcInputTag");
+  sourceIdList_ = iConfig.getParameter<std::vector<int>>("sourceIdList");
   debug_ = iConfig.getUntrackedParameter<bool>("debug", false);
-
+  
   // initialize orbit buffer for BX 1->3564;
   orbitBuffer_ = std::vector<std::vector<l1ScoutingRun3::BMTFStub>>(3565);
   for (auto& bxVec : orbitBuffer_) {
@@ -26,8 +27,12 @@ void ScBMTFRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   std::unique_ptr<l1ScoutingRun3::BMTFStubOrbitCollection> unpackedStubs(new l1ScoutingRun3::BMTFStubOrbitCollection);
 
-  for (unsigned int sdsId=SDSNumbering::BmtfMinSDSID; sdsId<SDSNumbering::BmtfMaxSDSID; sdsId++) {
-    // get data and orbit size from i^th source
+  //for (unsigned int sdsId=SDSNumbering::BmtfMinSDSID; sdsId<=SDSNumbering::BmtfMaxSDSID; sdsId++) {
+  for (const auto& sdsId: sourceIdList_){
+    if ((sdsId<SDSNumbering::BmtfMinSDSID) || (sdsId>SDSNumbering::BmtfMaxSDSID))
+      edm::LogWarning("ScBMTFRawToDigi::produce") 
+      << "Provided a source ID outside the expected range: " << sdsId
+      << ", expected range [" << SDSNumbering::BmtfMinSDSID << ", " << SDSNumbering::BmtfMaxSDSID;
     const FEDRawData& sourceRawData = ScoutingRawDataCollection->FEDData(sdsId);
     size_t orbitSize = sourceRawData.size();
 
@@ -46,7 +51,7 @@ void ScBMTFRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.put(std::move(unpackedStubs));
 }
 
-void ScBMTFRawToDigi::unpackOrbit(const unsigned char* buf, size_t len, unsigned int sdsId) {
+void ScBMTFRawToDigi::unpackOrbit(const unsigned char* buf, size_t len, int sdsId) {
   using namespace l1ScoutingRun3;
 
   // reset counters
@@ -63,9 +68,11 @@ void ScBMTFRawToDigi::unpackOrbit(const unsigned char* buf, size_t len, unsigned
     unsigned orbit = (bl->orbit) & 0x7FFFFFFF;
     unsigned sCount = (bl->header) & 0xff;
 
-    pos += 12 + sCount*8;
+    size_t pos_increment = 12 + sCount*8;
 
-    assert(pos <= len);
+    assert(pos_increment <= len);
+
+    pos += 12; // header
 
     if (debug_){
       std::cout  << " BMTF #" << sdsId << " Orbit " << orbit << ", BX -> "<< bx << ", nStubs -> " << sCount << std::endl;
@@ -74,18 +81,21 @@ void ScBMTFRawToDigi::unpackOrbit(const unsigned char* buf, size_t len, unsigned
 
     // Unpack stubs for the current pair (BX, sector)
     int32_t phi, phiB, tag, qual, eta, qeta, station, wheel, sector;
-    
+
     // map for station and wheel, to find chambers with 2 stubs
     std::vector<std::vector<bool>> stwh_matrix(4, std::vector<bool>(5,false));
     for (unsigned int i=0; i<sCount; i++) {
 
-      phi      = ((bl->stub[i] >> bmtf::shiftsStubs::phi     ) & bmtf::masksStubs::phi     );
-      phiB     = ((bl->stub[i] >> bmtf::shiftsStubs::phiB    ) & bmtf::masksStubs::phiB    );
-      qual     = ((bl->stub[i] >> bmtf::shiftsStubs::qual    ) & bmtf::masksStubs::qual    );
-      eta      = ((bl->stub[i] >> bmtf::shiftsStubs::eta     ) & bmtf::masksStubs::eta     );
-      qeta     = ((bl->stub[i] >> bmtf::shiftsStubs::qeta    ) & bmtf::masksStubs::qeta    );
-      station  = ((bl->stub[i] >> bmtf::shiftsStubs::station ) & bmtf::masksStubs::station ) + 1;
-      wheel    = ((bl->stub[i] >> bmtf::shiftsStubs::wheel   ) & bmtf::masksStubs::wheel   );
+      uint64_t stub_raw = *(uint64_t*)(buf + pos);
+      pos += 8;
+      
+      phi      = ((stub_raw >> bmtf::shiftsStubs::phi     ) & bmtf::masksStubs::phi     );
+      phiB     = ((stub_raw >> bmtf::shiftsStubs::phiB    ) & bmtf::masksStubs::phiB    );
+      qual     = ((stub_raw >> bmtf::shiftsStubs::qual    ) & bmtf::masksStubs::qual    );
+      eta      = ((stub_raw >> bmtf::shiftsStubs::eta     ) & bmtf::masksStubs::eta     );
+      qeta     = ((stub_raw >> bmtf::shiftsStubs::qeta    ) & bmtf::masksStubs::qeta    );
+      station  = ((stub_raw >> bmtf::shiftsStubs::station ) & bmtf::masksStubs::station ) + 1;
+      wheel    = ((stub_raw >> bmtf::shiftsStubs::wheel   ) & bmtf::masksStubs::wheel   );
       sector   = sdsId - SDSNumbering::BmtfMinSDSID;
       
       if (stwh_matrix[station-1][wheel+2]==false) {
@@ -102,6 +112,19 @@ void ScBMTFRawToDigi::unpackOrbit(const unsigned char* buf, size_t len, unsigned
       BMTFStub stub(phi, phiB, qual, eta, qeta, station, wheel, sector, tag);
       orbitBuffer_[bx].push_back(stub);
       nStubsOrbit_ ++;
+
+      if (debug_){
+        std::cout << "Stub " << i << ", raw: 0x" << std::hex << stub_raw << std::dec << std::endl;
+        std::cout << "\tPhi: " << phi << std::endl;
+        std::cout << "\tPhiB: " << phiB << std::endl;
+        std::cout << "\tQuality: " << qual << std::endl;
+        std::cout << "\tEta: " << eta << std::endl;
+        std::cout << "\tQEta: " << qeta << std::endl;
+        std::cout << "\tStation: " << station << std::endl;
+        std::cout << "\tWheel: " << wheel << std::endl;
+        std::cout << "\tSector: " << sector << std::endl;
+        std::cout << "\tTag: " << tag << std::endl;
+      }
     }
     
 

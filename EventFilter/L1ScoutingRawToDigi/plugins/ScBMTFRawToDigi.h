@@ -31,7 +31,7 @@ public:
 private:
   void produce(edm::Event&, const edm::EventSetup&) override;
 
-  void unpackOrbit(const unsigned char* buf, size_t len, unsigned int sdsId);
+  void unpackOrbit(const unsigned char* buf, size_t len, int sdsId);
 
   // vector holding data for every bunch crossing
   // before  filling the orbit collection
@@ -39,6 +39,7 @@ private:
   int nStubsOrbit_;
 
   bool debug_ = false;
+  std::vector<int> sourceIdList_;
   edm::InputTag srcInputTag;
   edm::EDGetToken rawToken;
 };
