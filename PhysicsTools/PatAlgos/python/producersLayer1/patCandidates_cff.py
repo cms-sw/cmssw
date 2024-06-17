@@ -45,8 +45,7 @@ pp_on_AA.toReplaceWith(patCandidatesTask, _patCandidatesTask)
 pp_on_AA.toModify(patCandidateSummary.candidates, func = lambda list: list.remove(cms.InputTag("patOOTPhotons")) )
 
 from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_94XFall17
-from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
-_mAOD = (run2_miniAOD_94XFall17 | run2_miniAOD_80XLegacy)
+_mAOD = (run2_miniAOD_94XFall17)
 (pp_on_AA | _mAOD).toReplaceWith(patCandidatesTask,
                                  patCandidatesTask.copyAndExclude([makePatLowPtElectronsTask]))
 (pp_on_AA | _mAOD).toModify(patCandidateSummary.candidates,

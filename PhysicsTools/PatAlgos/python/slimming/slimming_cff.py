@@ -77,8 +77,7 @@ pp_on_AA.toReplaceWith(slimmingTask, slimmingTask.copyAndExclude([slimmedOOTPhot
 pp_on_AA.toReplaceWith(slimmingTask, slimmingTask.copyAndExclude([slimmedJPTJets]))
 
 from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_94XFall17
-from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
-_mAOD = (run2_miniAOD_94XFall17 | run2_miniAOD_80XLegacy)
+_mAOD = (run2_miniAOD_94XFall17)
 (pp_on_AA | _mAOD).toReplaceWith(slimmingTask,
                                  slimmingTask.copyAndExclude([slimmedLowPtElectronsTask]))
 

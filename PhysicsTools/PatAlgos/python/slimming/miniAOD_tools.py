@@ -60,12 +60,11 @@ def miniAOD_customizeCommon(process):
     process.patElectrons.pfCandidateMultiMap    = cms.InputTag("reducedEgamma","reducedGsfElectronPfCandMap")
     process.patElectrons.electronIDSources = cms.PSet()
 
-    from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
     from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_94XFall17
-    (run2_miniAOD_80XLegacy | run2_miniAOD_94XFall17).toModify(process.patElectrons,
-                                                               addPFClusterIso = True,
-                                                               ecalPFClusterIsoMap = "reducedEgamma:eleEcalPFClusIso",
-                                                               hcalPFClusterIsoMap = "reducedEgamma:eleHcalPFClusIso")
+    (run2_miniAOD_94XFall17).toModify(process.patElectrons,
+                                      addPFClusterIso = True,
+                                      ecalPFClusterIsoMap = "reducedEgamma:eleEcalPFClusIso",
+                                      hcalPFClusterIsoMap = "reducedEgamma:eleHcalPFClusIso")
 
     #add puppi isolation in miniAOD
     process.patElectrons.addPuppiIsolation = cms.bool(True)
@@ -96,10 +95,10 @@ def miniAOD_customizeCommon(process):
     process.patPhotons.puppiIsolationNeutralHadrons = cms.InputTag("egmPhotonPUPPIIsolation","h0-DR030-")
     process.patPhotons.puppiIsolationPhotons        = cms.InputTag("egmPhotonPUPPIIsolation","gamma-DR030-")
 
-    (run2_miniAOD_80XLegacy | run2_miniAOD_94XFall17).toModify(process.patPhotons,
-                                                               addPFClusterIso = True,
-                                                               ecalPFClusterIsoMap = "reducedEgamma:phoEcalPFClusIso",
-                                                               hcalPFClusterIsoMap = "reducedEgamma:phoHcalPFClusIso")
+    (run2_miniAOD_94XFall17).toModify(process.patPhotons,
+                                      addPFClusterIso = True,
+                                      ecalPFClusterIsoMap = "reducedEgamma:phoEcalPFClusIso",
+                                      hcalPFClusterIsoMap = "reducedEgamma:phoHcalPFClusIso")
     #the 80X legacy customsations are done in ootPhotonProducer for OOT photons
     run2_miniAOD_94XFall17.toModify(process.patOOTPhotons,
                                     addPFClusterIso = True,
@@ -290,12 +289,6 @@ def miniAOD_customizeCommon(process):
 
     # To use older DataFormats, the electronMVAValueMapProducer MUST take a updated electron collection
     # such that the conversion variables are filled correctly.
-    process.load("RecoEgamma.EgammaTools.gedGsfElectronsTo106X_cff")
-    run2_miniAOD_80XLegacy.toModify(task, func=lambda t: t.add(process.gedGsfElectronsFrom80XTo106XTask))
-    run2_miniAOD_80XLegacy.toModify(process.electronMVAValueMapProducer,
-                                     keysForValueMaps = cms.InputTag('reducedEgamma','reducedGedGsfElectrons'),
-                                     src = cms.InputTag("gedGsfElectronsFrom80XTo106X"))
-
     run2_miniAOD_94XFall17.toModify(task, func=lambda t: t.add(process.gedGsfElectronsFrom94XTo106XTask))
     run2_miniAOD_94XFall17.toModify(process.electronMVAValueMapProducer,
                                      keysForValueMaps = cms.InputTag('reducedEgamma','reducedGedGsfElectrons'),
@@ -378,15 +371,15 @@ def miniAOD_customizeCommon(process):
     _makePatTausTaskWithDeadECalVeto.add(
         process.hpsPFTauDiscriminationByDeadECALElectronRejection
     )
-    _run2_miniAOD_ANY = (run2_miniAOD_80XLegacy | run2_miniAOD_94XFall17 | run2_miniAOD_UL)
+    _run2_miniAOD_ANY = (run2_miniAOD_94XFall17 | run2_miniAOD_UL)
     _run2_miniAOD_ANY.toReplaceWith(
         process.makePatTausTask, _makePatTausTaskWithDeadECalVeto
     )
 
-    #-- Adding customization for 80X 2016 legacy reMiniAOD and 2018 heavy ions
+    #-- Adding customization for 2018 heavy ions
     _makePatTausTaskWithTauReReco = process.makePatTausTask.copy()
     _makePatTausTaskWithTauReReco.add(process.PFTauTask)
-    (run2_miniAOD_80XLegacy | pp_on_AA).toReplaceWith(
+    (pp_on_AA).toReplaceWith(
         process.makePatTausTask, _makePatTausTaskWithTauReReco
         )
     
