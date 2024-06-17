@@ -54,28 +54,9 @@ phase2_common.toModify(reducedEgamma,
         preshowerEcalHits = "",
 )
 
-from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_94XFall17
-run2_miniAOD_94XFall17.toModify(
-    reducedEgamma, 
-    photonFloatValueMapSources      = ["photonEcalPFClusterIsolationProducer",
-                                       "photonHcalPFClusterIsolationProducer"],
-    photonFloatValueMapOutput       = ["phoEcalPFClusIso",
-                                       "phoHcalPFClusIso"],
-    ootPhotonFloatValueMapSources   = ["ootPhotonEcalPFClusterIsolationProducer",
-                                       "ootPhotonHcalPFClusterIsolationProducer"],
-    ootPhotonFloatValueMapOutput    = ["ootPhoEcalPFClusIso",
-                                       "ootPhoHcalPFClusIso"],
-    gsfElectronFloatValueMapSources = ["electronEcalPFClusterIsolationProducer",
-                                       "electronHcalPFClusterIsolationProducer"],
-    gsfElectronFloatValueMapOutput  = ["eleEcalPFClusIso",
-                                       "eleHcalPFClusIso"],
-)
-
 from RecoEgamma.EgammaPhotonProducers.reducedEgamma_tools import calibrateReducedEgamma
-from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_94XFall17
 from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
-modifyReducedEGammaRun2MiniAOD = (
-    run2_miniAOD_94XFall17 | run2_miniAOD_UL).makeProcessModifier(calibrateReducedEgamma)
+modifyReducedEGammaRun2MiniAOD = (run2_miniAOD_UL).makeProcessModifier(calibrateReducedEgamma)
 
 from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 

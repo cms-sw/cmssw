@@ -19,9 +19,8 @@ def applySubstructure( process, postfix="" ) :
     setattr(process,'ak8PFJetsPuppiSoftDrop'+postfix, ak8PFJetsPuppiSoftDrop.clone( src = 'ak8PFJetsPuppiConstituents'+postfix+':constituents' ))
     from RecoJets.JetProducers.ak8PFJetsPuppi_groomingValueMaps_cfi import ak8PFJetsPuppiSoftDropMass
     setattr(process,'ak8PFJetsPuppiSoftDropMass'+postfix, ak8PFJetsPuppiSoftDropMass.clone())
-    from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_94XFall17
     from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
-    _run2_miniAOD_ANY = (run2_miniAOD_94XFall17 | run2_miniAOD_UL)
+    _run2_miniAOD_ANY = (run2_miniAOD_UL)
     from Configuration.Eras.Modifier_pA_2016_cff import pA_2016
     from Configuration.Eras.Modifier_run3_miniAOD_12X_cff import run3_miniAOD_12X
     if postfix=='':

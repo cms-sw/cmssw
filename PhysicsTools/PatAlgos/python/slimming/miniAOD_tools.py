@@ -60,12 +60,6 @@ def miniAOD_customizeCommon(process):
     process.patElectrons.pfCandidateMultiMap    = cms.InputTag("reducedEgamma","reducedGsfElectronPfCandMap")
     process.patElectrons.electronIDSources = cms.PSet()
 
-    from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_94XFall17
-    (run2_miniAOD_94XFall17).toModify(process.patElectrons,
-                                      addPFClusterIso = True,
-                                      ecalPFClusterIsoMap = "reducedEgamma:eleEcalPFClusIso",
-                                      hcalPFClusterIsoMap = "reducedEgamma:eleHcalPFClusIso")
-
     #add puppi isolation in miniAOD
     process.patElectrons.addPuppiIsolation = cms.bool(True)
     process.patElectrons.puppiIsolationChargedHadrons = cms.InputTag("egmElectronPUPPIIsolation","h+-DR030-BarVeto000-EndVeto001")
@@ -94,17 +88,6 @@ def miniAOD_customizeCommon(process):
     process.patPhotons.puppiIsolationChargedHadrons = cms.InputTag("egmPhotonPUPPIIsolation","h+-DR030-")
     process.patPhotons.puppiIsolationNeutralHadrons = cms.InputTag("egmPhotonPUPPIIsolation","h0-DR030-")
     process.patPhotons.puppiIsolationPhotons        = cms.InputTag("egmPhotonPUPPIIsolation","gamma-DR030-")
-
-    (run2_miniAOD_94XFall17).toModify(process.patPhotons,
-                                      addPFClusterIso = True,
-                                      ecalPFClusterIsoMap = "reducedEgamma:phoEcalPFClusIso",
-                                      hcalPFClusterIsoMap = "reducedEgamma:phoHcalPFClusIso")
-    #the 80X legacy customsations are done in ootPhotonProducer for OOT photons
-    run2_miniAOD_94XFall17.toModify(process.patOOTPhotons,
-                                    addPFClusterIso = True,
-                                    ecalPFClusterIsoMap = "reducedEgamma:ootPhoEcalPFClusIso",
-                                    hcalPFClusterIsoMap = "reducedEgamma:ootPhoHcalPFClusIso")
-
 
     process.patPhotons.photonSource = cms.InputTag("reducedEgamma","reducedGedPhotons")
     process.patPhotons.electronSource = cms.InputTag("reducedEgamma","reducedGedGsfElectrons")
@@ -289,10 +272,6 @@ def miniAOD_customizeCommon(process):
 
     # To use older DataFormats, the electronMVAValueMapProducer MUST take a updated electron collection
     # such that the conversion variables are filled correctly.
-    run2_miniAOD_94XFall17.toModify(task, func=lambda t: t.add(process.gedGsfElectronsFrom94XTo106XTask))
-    run2_miniAOD_94XFall17.toModify(process.electronMVAValueMapProducer,
-                                     keysForValueMaps = cms.InputTag('reducedEgamma','reducedGedGsfElectrons'),
-                                     src = cms.InputTag("gedGsfElectronsFrom94XTo106X"))
 
     from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
     pp_on_AA_2018.toModify(task, func=lambda t: t.add(process.gedGsfElectronsFrom94XTo106XTask))
@@ -340,7 +319,7 @@ def miniAOD_customizeCommon(process):
                                               process.hpsPFTauDiscriminationByMVA6ElectronRejection,
                                               process.hpsPFTauDiscriminationByMuonRejection3)
     from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
-    (run2_miniAOD_94XFall17 | run2_miniAOD_UL).toReplaceWith(
+    (run2_miniAOD_UL).toReplaceWith(
         process.makePatTausTask, _makePatTausTaskWithRetrainedMVATauID
         )
     #-- Adding DeepTauID
@@ -371,7 +350,7 @@ def miniAOD_customizeCommon(process):
     _makePatTausTaskWithDeadECalVeto.add(
         process.hpsPFTauDiscriminationByDeadECALElectronRejection
     )
-    _run2_miniAOD_ANY = (run2_miniAOD_94XFall17 | run2_miniAOD_UL)
+    _run2_miniAOD_ANY = (run2_miniAOD_UL)
     _run2_miniAOD_ANY.toReplaceWith(
         process.makePatTausTask, _makePatTausTaskWithDeadECalVeto
     )
