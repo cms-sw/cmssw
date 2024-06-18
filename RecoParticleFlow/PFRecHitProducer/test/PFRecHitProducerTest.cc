@@ -214,7 +214,7 @@ void PFRecHitProducerTest::dumpEvent(const edm::Event& event,
 
 void PFRecHitProducerTest::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.addOptionalUntracked<edm::InputTag>("caloRecHits")
+  desc.addUntracked<edm::InputTag>("caloRecHits", {})
       ->setComment("CaloRecHitSoA, if supplied, it is dumped alongside the PFRecHits");
   desc.addUntracked<edm::InputTag>("pfRecHitsSource1")->setComment("First PFRecHit list for comparison");
   desc.addUntracked<edm::InputTag>("pfRecHitsSource2")->setComment("Second PFRecHit list for comparison");

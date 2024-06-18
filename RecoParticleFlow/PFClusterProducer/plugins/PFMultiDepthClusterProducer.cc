@@ -54,7 +54,7 @@ void PFMultiDepthClusterProducer::fillDescriptions(edm::ConfigurationDescription
       {
         edm::ParameterSetDescription psd;
         psd.add<std::vector<int>>("depths", {});
-        psd.add<std::string>("detector");
+        psd.add<std::string>("detector", "");
         psd.add<std::vector<double>>("logWeightDenominator", {});
         pset1.addVPSet("logWeightDenominatorByDetector", psd, {});
       }
@@ -101,13 +101,15 @@ PFMultiDepthClusterProducer::PFMultiDepthClusterProducer(const edm::ParameterSet
 
   if (!pfcConf.empty()) {
     const std::string& pfcName = pfcConf.getParameter<std::string>("algoName");
-    _pfClusterBuilder = PFClusterBuilderFactory::get()->create(pfcName, pfcConf, cc);
+    if (!pfcName.empty())
+      _pfClusterBuilder = PFClusterBuilderFactory::get()->create(pfcName, pfcConf, cc);
   }
   // see if new need to apply corrections, setup if there.
   const edm::ParameterSet& cConf = conf.getParameterSet("energyCorrector");
   if (!cConf.empty()) {
     const std::string& cName = cConf.getParameter<std::string>("algoName");
-    _energyCorrector = PFClusterEnergyCorrectorFactory::get()->create(cName, cConf);
+    if (!cName.empty())
+      _energyCorrector = PFClusterEnergyCorrectorFactory::get()->create(cName, cConf);
   }
 
   produces<reco::PFClusterCollection>();

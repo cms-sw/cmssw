@@ -51,13 +51,15 @@ public:
       const auto& acConf = pfcConf.getParameterSet("positionCalc");
       if (!acConf.empty()) {
         const std::string& algoac = acConf.getParameter<std::string>("algoName");
-        positionCalc_ = PFCPositionCalculatorFactory::get()->create(algoac, acConf, cc);
+        if (!algoac.empty())
+          positionCalc_ = PFCPositionCalculatorFactory::get()->create(algoac, acConf, cc);
       }
 
       const auto& acConf2 = pfcConf.getParameterSet("allCellsPositionCalc");
       if (!acConf2.empty()) {
         const std::string& algoac = acConf2.getParameter<std::string>("algoName");
-        allCellsPositionCalc_ = PFCPositionCalculatorFactory::get()->create(algoac, acConf2, cc);
+        if (!algoac.empty())
+          allCellsPositionCalc_ = PFCPositionCalculatorFactory::get()->create(algoac, acConf2, cc);
       }
     }
   }

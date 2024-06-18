@@ -104,16 +104,16 @@ void PFRecHitProducer::fillDescriptions(edm::ConfigurationDescriptions& descript
   {
     edm::ParameterSetDescription pset;
     pset.add<std::string>("name", "");
-    pset.addOptional<std::vector<int>>("hcalEnums", {});
-    pset.addOptional<edm::ParameterSetDescription>("barrel", {});
-    pset.addOptional<edm::ParameterSetDescription>("endcap", {});
+    pset.add<std::vector<int>>("hcalEnums", {});
+    pset.add<edm::ParameterSetDescription>("barrel", {});
+    pset.add<edm::ParameterSetDescription>("endcap", {});
     {
       edm::ParameterSetDescription pset2;
       pset2.add<std::string>("name", "");
       pset2.add<std::string>("topologySource", "");
-      pset.addOptional<edm::ParameterSetDescription>("hgcee", pset2);
-      pset.addOptional<edm::ParameterSetDescription>("hgcheb", pset2);
-      pset.addOptional<edm::ParameterSetDescription>("hgchef", pset2);
+      pset.add<edm::ParameterSetDescription>("hgcee", pset2);
+      pset.add<edm::ParameterSetDescription>("hgcheb", pset2);
+      pset.add<edm::ParameterSetDescription>("hgchef", pset2);
     }
     desc.add<edm::ParameterSetDescription>("navigator", pset);
   }
@@ -124,38 +124,38 @@ void PFRecHitProducer::fillDescriptions(edm::ConfigurationDescriptions& descript
     {
       edm::ParameterSetDescription psd2;
       psd2.add<std::string>("name", "");
-      psd2.addOptional<std::vector<int>>("maxSeverities", {});
-      psd2.addOptional<std::vector<double>>("cleaningThresholds", {});
-      psd2.addOptional<std::vector<std::string>>("flags", {});
-      psd2.addOptional<bool>("usePFThresholdsFromDB", false);
+      psd2.add<std::vector<int>>("maxSeverities", {});
+      psd2.add<std::vector<double>>("cleaningThresholds", {});
+      psd2.add<std::vector<std::string>>("flags", {});
+      psd2.add<bool>("usePFThresholdsFromDB", false);
       {
         edm::ParameterSetDescription psd3;
         psd3.add<std::vector<int>>("depth", {});
         psd3.add<std::vector<double>>("threshold", {});
         psd3.add<int>("detectorEnum", 0);
-        psd2.addVPSetOptional("cuts", psd3, {});
+        psd2.addVPSet("cuts", psd3, {});
       }
-      psd2.addOptional<double>("thresholdSNR", 0);
-      psd2.addOptional<bool>("applySelectionsToAllCrystals", false);
-      psd2.addOptional<double>("cleaningThreshold", 0);
-      psd2.addOptional<bool>("timingCleaning", false);
-      psd2.addOptional<bool>("topologicalCleaning", false);
-      psd2.addOptional<bool>("skipTTRecoveredHits", false);
-      psd2.addOptional<double>("threshold", 0);
-      psd2.addOptional<double>("threshold_ring0", 0);
-      psd2.addOptional<double>("threshold_ring12", 0);
+      psd2.add<double>("thresholdSNR", 0);
+      psd2.add<bool>("applySelectionsToAllCrystals", false);
+      psd2.add<double>("cleaningThreshold", 0);
+      psd2.add<bool>("timingCleaning", false);
+      psd2.add<bool>("topologicalCleaning", false);
+      psd2.add<bool>("skipTTRecoveredHits", false);
+      psd2.add<double>("threshold", 0);
+      psd2.add<double>("threshold_ring0", 0);
+      psd2.add<double>("threshold_ring12", 0);
       psd.addVPSet("qualityTests", psd2, {});
     }
-    psd.addOptional<double>("EMDepthCorrection", 0);
-    psd.addOptional<double>("HADDepthCorrection", 0);
-    psd.addOptional<double>("thresh_HF", 0);
-    psd.addOptional<double>("ShortFibre_Cut", 0);
-    psd.addOptional<double>("LongFibre_Fraction", 0);
-    psd.addOptional<double>("LongFibre_Cut", 0);
-    psd.addOptional<double>("ShortFibre_Fraction", 0);
-    psd.addOptional<double>("HFCalib29", 0);
-    psd.addOptional<edm::InputTag>("srFlags", {});
-    psd.addOptional<std::string>("geometryInstance");
+    psd.add<double>("EMDepthCorrection", 0);
+    psd.add<double>("HADDepthCorrection", 0);
+    psd.add<double>("thresh_HF", 0);
+    psd.add<double>("ShortFibre_Cut", 0);
+    psd.add<double>("LongFibre_Fraction", 0);
+    psd.add<double>("LongFibre_Cut", 0);
+    psd.add<double>("ShortFibre_Fraction", 0);
+    psd.add<double>("HFCalib29", 0);
+    psd.add<edm::InputTag>("srFlags", {});
+    psd.add<std::string>("geometryInstance", "");
     desc.addVPSet("producers", psd, {});
   }
   descriptions.addWithDefaultLabel(desc);

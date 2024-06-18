@@ -133,13 +133,15 @@ PFlow2DClusterizerWithTime::PFlow2DClusterizerWithTime(const edm::ParameterSet& 
   const auto& acConf = conf.getParameterSet("allCellsPositionCalc");
   if (!acConf.empty()) {
     const std::string& algoac = acConf.getParameter<std::string>("algoName");
-    _allCellsPosCalc = PFCPositionCalculatorFactory::get()->create(algoac, acConf, cc);
+    if (!algoac.empty())
+      _allCellsPosCalc = PFCPositionCalculatorFactory::get()->create(algoac, acConf, cc);
   }
   // if necessary a third pos calc for convergence testing
   const auto& convConf = conf.getParameterSet("positionCalcForConvergence");
   if (!convConf.empty()) {
     const std::string& algoconv = convConf.getParameter<std::string>("algoName");
-    _convergencePosCalc = PFCPositionCalculatorFactory::get()->create(algoconv, convConf, cc);
+    if (!algoconv.empty())
+      _convergencePosCalc = PFCPositionCalculatorFactory::get()->create(algoconv, convConf, cc);
   }
   const auto& timeResConfBarrel = conf.getParameterSet("timeResolutionCalcBarrel");
   if (!timeResConfBarrel.empty())

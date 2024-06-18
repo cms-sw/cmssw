@@ -68,11 +68,11 @@ public:
 
     _timeResolutionCalcBarrel.reset(nullptr);
     const auto& timeResConfBarrel = conf.getParameterSet("timeResolutionCalcBarrel");
-    if (!timeResConfBarrel.empty())
+    if (!timeResConfBarrel.empty() && timeResConfBarrel.getParameter<double>("threshHighE") >= 0)
       _timeResolutionCalcBarrel = std::make_unique<CaloRecHitResolutionProvider>(timeResConfBarrel);
     _timeResolutionCalcEndcap.reset(nullptr);
     const auto& timeResConfEndcap = conf.getParameterSet("timeResolutionCalcEndcap");
-    if (!timeResConfEndcap.empty())
+    if (!timeResConfEndcap.empty() && timeResConfEndcap.getParameter<double>("threshHighE") >= 0)
       _timeResolutionCalcEndcap = std::make_unique<CaloRecHitResolutionProvider>(timeResConfEndcap);
 
     switch (_posCalcNCrystals) {

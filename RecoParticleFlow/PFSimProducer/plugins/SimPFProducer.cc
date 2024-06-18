@@ -97,13 +97,13 @@ void SimPFProducer::fillDescriptions(edm::ConfigurationDescriptions& description
   // if useTiming_
   desc.add<bool>("useTiming", false);
   desc.add<bool>("useTimingQuality", false);
-  desc.addOptional<edm::InputTag>("trackTimeValueMap");
-  desc.addOptional<edm::InputTag>("trackTimeErrorMap");
-  desc.addOptional<edm::InputTag>("trackTimeQualityMap");
-  desc.addOptional<double>("timingQualityThreshold");
-  desc.addOptional<edm::InputTag>("gsfTrackTimeValueMap");
-  desc.addOptional<edm::InputTag>("gsfTrackTimeErrorMap");
-  desc.addOptional<edm::InputTag>("gsfTrackTimeQualityMap");
+  desc.add<edm::InputTag>("trackTimeValueMap", {});
+  desc.add<edm::InputTag>("trackTimeErrorMap", {});
+  desc.add<edm::InputTag>("trackTimeQualityMap", {});
+  desc.add<double>("timingQualityThreshold", 0);
+  desc.add<edm::InputTag>("gsfTrackTimeValueMap", {});
+  desc.add<edm::InputTag>("gsfTrackTimeErrorMap", {});
+  desc.add<edm::InputTag>("gsfTrackTimeQualityMap", {});
 
   descriptions.addWithDefaultLabel(desc);
 }

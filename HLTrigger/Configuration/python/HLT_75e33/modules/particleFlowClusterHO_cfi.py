@@ -25,12 +25,9 @@ particleFlowClusterHO = cms.EDProducer("PFClusterProducer",
         allCellsPositionCalc = cms.PSet(
             algoName = cms.string('Basic2DGenericPFlowPositionCalc'),
             logWeightDenominator = cms.double(0.05),
-            logWeightDenominatorByDetector = cms.VPSet(),
             minAllowedNormalization = cms.double(1e-09),
             minFractionInCalc = cms.double(1e-09),
-            posCalcNCrystals = cms.int32(-1),
-            timeResolutionCalcBarrel = cms.PSet(),
-            timeResolutionCalcEndcap = cms.PSet()
+            posCalcNCrystals = cms.int32(-1)
         ),
         excludeOtherSeeds = cms.bool(True),
         maxIterations = cms.uint32(50),
@@ -39,14 +36,10 @@ particleFlowClusterHO = cms.EDProducer("PFClusterProducer",
         positionCalc = cms.PSet(
             algoName = cms.string('Basic2DGenericPFlowPositionCalc'),
             logWeightDenominator = cms.double(0.05),
-            logWeightDenominatorByDetector = cms.VPSet(),
             minAllowedNormalization = cms.double(1e-09),
             minFractionInCalc = cms.double(1e-09),
-            posCalcNCrystals = cms.int32(5),
-            timeResolutionCalcBarrel = cms.PSet(),
-            timeResolutionCalcEndcap = cms.PSet()
+            posCalcNCrystals = cms.int32(5)
         ),
-        positionCalcForConvergence = cms.PSet(),
         recHitEnergyNorms = cms.VPSet(
             cms.PSet(
                 detector = cms.string('HCAL_BARREL2_RING0'),

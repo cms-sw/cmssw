@@ -316,58 +316,6 @@ def customizeHLTfor45063(process):
     return process
 
 def customizeHLTfor45212(process):
-    # Add missing parameters for Basic2DGenericPFlowPositionCalc
-    for p in ["PFClusterProducer", "LegacyPFClusterProducer", "PFMultiDepthClusterProducer"]:
-        for prod in producers_by_type(process, p):
-            for n in ["positionCalc", "allCellsPositionCalc"]:
-                if hasattr(prod, "pfClusterBuilder") and hasattr(prod.pfClusterBuilder, n) and hasattr(getattr(prod.pfClusterBuilder, n), "algoName") and (getattr(prod.pfClusterBuilder, n).algoName == "Basic2DGenericPFlowPositionCalc"):
-                    if not hasattr(getattr(prod.pfClusterBuilder, n), "logWeightDenominatorByDetector"):
-                        getattr(prod.pfClusterBuilder, n).logWeightDenominatorByDetector = cms.VPSet()
-                    if not hasattr(getattr(prod.pfClusterBuilder, n), "timeResolutionCalcBarrel"):
-                        getattr(prod.pfClusterBuilder, n).timeResolutionCalcBarrel = cms.PSet()
-                    if not hasattr(getattr(prod.pfClusterBuilder, n), "timeResolutionCalcEndcap"):
-                        getattr(prod.pfClusterBuilder, n).timeResolutionCalcEndcap = cms.PSet()
-
-    # Add missing parameters for ECAL2DPositionCalcWithDepthCorr
-    for prod in producers_by_type(process, 'PFClusterProducer'):
-        if hasattr(prod, "pfClusterBuilder") and hasattr(prod.pfClusterBuilder, "positionCalcForConvergence") and hasattr(prod.pfClusterBuilder.positionCalcForConvergence, "algoName") and (prod.pfClusterBuilder.positionCalcForConvergence.algoName == "ECAL2DPositionCalcWithDepthCorr"):
-            if not hasattr(prod.pfClusterBuilder.positionCalcForConvergence, "timeResolutionCalc"):
-                prod.pfClusterBuilder.positionCalcForConvergence.timeResolutionCalc = cms.PSet()
-        if hasattr(prod, "positionReCalc") and hasattr(prod.positionReCalc, "algoName") and (prod.positionReCalc.algoName == "ECAL2DPositionCalcWithDepthCorr"):
-            if not hasattr(prod.positionReCalc, "timeResolutionCalc"):
-                prod.positionReCalc.timeResolutionCalc = cms.PSet()
-
-    # Add missing parameters for Basic2DGenericPFlowClusterizer
-    for p in ["PFClusterProducer", "LegacyPFClusterProducer"]:
-        for prod in producers_by_type(process, p):
-            if hasattr(prod, "pfClusterBuilder") and hasattr(prod.pfClusterBuilder, "algoName") and (prod.pfClusterBuilder.algoName == "Basic2DGenericPFlowClusterizer"):
-                if not hasattr(prod.pfClusterBuilder, "positionCalc"):
-                    prod.pfClusterBuilder.positionCalc = cms.PSet()
-                if not hasattr(prod.pfClusterBuilder, "allCellsPositionCalc"):
-                    prod.pfClusterBuilder.allCellsPositionCalc = cms.PSet()
-                if not hasattr(prod.pfClusterBuilder, "positionCalcForConvergence"):
-                    prod.pfClusterBuilder.positionCalcForConvergence = cms.PSet()
-
-    # Add missing parameters for PFMultiDepthClusterizer
-    for prod in producers_by_type(process, 'PFMultiDepthClusterProducer'):
-        if hasattr(prod, "pfClusterBuilder") and hasattr(prod.pfClusterBuilder, "algoName") and (prod.pfClusterBuilder.algoName == "PFMultiDepthClusterizer"):
-            if not hasattr(prod.pfClusterBuilder, "positionCalc"):
-                prod.pfClusterBuilder.positionCalc = cms.PSet()
-            if not hasattr(prod.pfClusterBuilder, "allCellsPositionCalc"):
-                 prod.pfClusterBuilder.allCellsPositionCalc = cms.PSet()
-
-    # Add missing parameters for PFCandConnector
-    for prod in producers_by_type(process, 'PFProducer'):
-        if hasattr(prod, "iCfgCandConnector"):
-            if not hasattr(prod.iCfgCandConnector, "dptRel_PrimaryTrack"):
-                prod.iCfgCandConnector.dptRel_PrimaryTrack = cms.double(0)
-            if not hasattr(prod.iCfgCandConnector, "dptRel_MergedTrack"):
-                prod.iCfgCandConnector.dptRel_MergedTrack = cms.double(0)
-            if not hasattr(prod.iCfgCandConnector, "ptErrorSecondary"):
-                prod.iCfgCandConnector.ptErrorSecondary = cms.double(0)
-            if not hasattr(prod.iCfgCandConnector, "nuclCalibFactors"):
-                prod.iCfgCandConnector.nuclCalibFactors = cms.vdouble()
-
     # Fix types for gathering and seeding thresholds, and recHitEnergyNorm
     for prod in producers_by_type(process, 'PFClusterProducer'):
         if hasattr(prod, "initialClusteringStep") and hasattr(prod.initialClusteringStep, "thresholdsByDetector"):

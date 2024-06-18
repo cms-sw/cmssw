@@ -25,7 +25,6 @@ hltParticleFlowClusterECALUncorrectedL1Seeded = cms.EDProducer("PFClusterProduce
         allCellsPositionCalc = cms.PSet(
             algoName = cms.string('Basic2DGenericPFlowPositionCalc'),
             logWeightDenominator = cms.double(0.08),
-            logWeightDenominatorByDetector = cms.VPSet(),
             minAllowedNormalization = cms.double(1e-09),
             minFractionInCalc = cms.double(1e-09),
             posCalcNCrystals = cms.int32(-1),
@@ -55,7 +54,6 @@ hltParticleFlowClusterECALUncorrectedL1Seeded = cms.EDProducer("PFClusterProduce
         positionCalc = cms.PSet(
             algoName = cms.string('Basic2DGenericPFlowPositionCalc'),
             logWeightDenominator = cms.double(0.08),
-            logWeightDenominatorByDetector = cms.VPSet(),
             minAllowedNormalization = cms.double(1e-09),
             minFractionInCalc = cms.double(1e-09),
             posCalcNCrystals = cms.int32(9),
@@ -86,8 +84,7 @@ hltParticleFlowClusterECALUncorrectedL1Seeded = cms.EDProducer("PFClusterProduce
             X0 = cms.double(0.89),
             algoName = cms.string('ECAL2DPositionCalcWithDepthCorr'),
             minAllowedNormalization = cms.double(0.0),
-            minFractionInCalc = cms.double(0.0),
-            timeResolutionCalc = cms.PSet()
+            minFractionInCalc = cms.double(0.0)
         ),
         recHitEnergyNorms = cms.VPSet(
             cms.PSet(
@@ -110,8 +107,7 @@ hltParticleFlowClusterECALUncorrectedL1Seeded = cms.EDProducer("PFClusterProduce
         X0 = cms.double(0.89),
         algoName = cms.string('ECAL2DPositionCalcWithDepthCorr'),
         minAllowedNormalization = cms.double(0.0),
-        minFractionInCalc = cms.double(0.0),
-        timeResolutionCalc = cms.PSet()
+        minFractionInCalc = cms.double(0.0)
     ),
     recHitCleaners = cms.VPSet(),
     recHitsSource = cms.InputTag("hltParticleFlowRecHitECALL1Seeded"),

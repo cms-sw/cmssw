@@ -44,19 +44,19 @@ public:
 
   HGCRecHitNavigator(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc) {
     const auto& pset_hgcee = iConfig.getParameter<edm::ParameterSet>("hgcee");
-    if (!pset_hgcee.empty()) {
+    if (!pset_hgcee.empty() && !pset_hgcee.getParameter<std::string>("name").empty()) {
       eeNav_ = new hgcee(pset_hgcee, cc);
     } else {
       eeNav_ = nullptr;
     }
     const auto& pset_hgchef = iConfig.getParameter<edm::ParameterSet>("hgchef");
-    if (!pset_hgchef.empty()) {
+    if (!pset_hgchef.empty() && !pset_hgchef.getParameter<std::string>("name").empty()) {
       hefNav_ = new hgchef(pset_hgchef, cc);
     } else {
       hefNav_ = nullptr;
     }
     const auto& pset_hgcheb = iConfig.getParameter<edm::ParameterSet>("hgcheb");
-    if (!pset_hgcheb.empty()) {
+    if (!pset_hgcheb.empty() && !pset_hgcheb.getParameter<std::string>("name").empty()) {
       hebNav_ = new hgcheb(pset_hgcheb, cc);
     } else {
       hebNav_ = nullptr;
