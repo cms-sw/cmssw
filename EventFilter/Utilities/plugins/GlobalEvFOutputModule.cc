@@ -76,10 +76,11 @@ namespace evf {
       return (discarded_ || edm::Service<evf::EvFDaqDirector>()->lumisectionDiscarded(ls_));
     }
 
-    void doOutputEvent(EventMsgBuilder const& msg) {
+    void doOutputEvent(EventMsgBuilder const& msg, bool inc) {
       EventMsgView eview(msg.startAddress());
       stream_writer_events_->write(eview);
-      incAccepted();
+      if (inc)
+        incAccepted();
     }
 
     void doOutputEventAsync(std::unique_ptr<EventMsgBuilder> msg, edm::WaitingTaskHolder iHolder) {
@@ -97,9 +98,9 @@ namespace evf {
           if (meta_) {
             auto m = std::move(meta_);
             assert(m->builder_);
-            doOutputEvent(*m->builder_);
+            doOutputEvent(*m->builder_, false);
           }
-          doOutputEvent(*msg);  //msg is written and discarded at this point
+          doOutputEvent(*msg, true);  //msg is written and discarded at this point
         } catch (...) {
           auto tmp = holder;
           tmp.doneWaiting(std::current_exception());
