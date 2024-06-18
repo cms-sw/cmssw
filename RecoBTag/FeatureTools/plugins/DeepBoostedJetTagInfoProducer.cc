@@ -683,6 +683,8 @@ void DeepBoostedJetTagInfoProducer::fillParticleFeatures(DeepBoostedJetFeatures 
           pv_ass = (*pvas_)[cand];
           if (pv_ass.isNonnull())
             vtx_ass = vtx_ass_from_pfcand(*reco_cand, pv_ass_quality, pv_ass);
+          else
+            edm::LogWarning("DeepBoostedJetTagInfoProducer") << "Null primary vertex reference";
         } else
           throw edm::Exception(edm::errors::InvalidReference) << "Vertex association missing";
       }
