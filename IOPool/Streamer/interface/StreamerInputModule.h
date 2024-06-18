@@ -32,8 +32,6 @@ namespace edm::streamer {
   private:
     void genuineCloseFile() override {
       if (didArtificialFile_) {
-        didArtificialFile_ = false;
-
         return;
       }
       if (pr_.get() != nullptr)
