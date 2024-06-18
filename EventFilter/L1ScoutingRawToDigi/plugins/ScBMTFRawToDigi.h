@@ -40,6 +40,6 @@ private:
 
   bool debug_ = false;
   std::vector<int> sourceIdList_;
-  edm::InputTag srcInputTag;
-  edm::EDGetToken rawToken;
+  edm::InputTag srcInputTag_;
+  edm::EDGetToken rawToken_;
 };
