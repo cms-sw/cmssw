@@ -8,7 +8,7 @@
 namespace edm {
   class ActivityRegistry;
   namespace service::moduleAlloc {
-    class ThreadAllocInfo;
+    struct ThreadAllocInfo;
 
     class Filter {
     public:
