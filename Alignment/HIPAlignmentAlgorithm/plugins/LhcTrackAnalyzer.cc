@@ -82,6 +82,14 @@ private:
   double qoverp_[nMaxtracks_];
   double dz_[nMaxtracks_];
   double dxy_[nMaxtracks_];
+  double dzPV_[nMaxtracks_];
+  double dxyPV_[nMaxtracks_];
+  double dzSig_[nMaxtracks_];
+  double dxySig_[nMaxtracks_];
+  double dzPVSig_[nMaxtracks_];
+  double dxyPVSig_[nMaxtracks_];
+  double dzError_[nMaxtracks_];
+  double dxyError_[nMaxtracks_];
   double xPCA_[nMaxtracks_];
   double yPCA_[nMaxtracks_];
   double zPCA_[nMaxtracks_];
@@ -170,6 +178,37 @@ void LhcTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     qoverp_[nTracks_] = track.qoverp();
     dz_[nTracks_] = track.dz();
     dxy_[nTracks_] = track.dxy();
+    dzError_[nTracks_] = track.dzError();
+    dxyError_[nTracks_] = track.dxyError();
+    dzSig_[nTracks_] = track.dz() / track.dzError();
+    dxySig_[nTracks_] = track.dxy() / track.dxyError();
+
+    const reco::Vertex* closestVertex = nullptr;
+    float minDz = std::numeric_limits<float>::max();
+
+    // Loop over vertices to find the closest one in dz
+    for (const auto& vertex : vertices) {
+      float dz = fabs(track.dz(vertex.position()));
+      if (dz < minDz) {
+        minDz = dz;
+        closestVertex = &vertex;
+      }
+    }
+
+    float dzPV{-999.};
+    float dxyPV{-999.};
+    if (closestVertex) {
+      // Compute dxy and dz with respect to the closest vertex
+      dzPV = track.dz(closestVertex->position());
+      dxyPV = track.dxy(closestVertex->position());
+    }
+
+    dzPV_[nTracks_] = dzPV;
+    dxyPV_[nTracks_] = dxyPV;
+
+    dzPVSig_[nTracks_] = dzPV / track.dzError();
+    dxyPVSig_[nTracks_] = dxyPV / track.dxyError();
+
     xPCA_[nTracks_] = track.vertex().x();
     yPCA_[nTracks_] = track.vertex().y();
     zPCA_[nTracks_] = track.vertex().z();
@@ -218,7 +257,7 @@ void LhcTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       myalgo = 24;
     } else {
       myalgo = 25;
-      edm::LogWarning("LhcTrackAnalyzer")
+      edm::LogInfo("LhcTrackAnalyzer")
           << "LhcTrackAnalyzer does not support all types of tracks, encountered one from algo "
           << reco::TrackBase::algoName(track.algo());
     }
@@ -276,6 +315,14 @@ void LhcTrackAnalyzer::beginJob()
   rootTree_->Branch("qoverp", &qoverp_, "qoverp[nTracks]/D");
   rootTree_->Branch("dz", &dz_, "dz[nTracks]/D");
   rootTree_->Branch("dxy", &dxy_, "dxy[nTracks]/D");
+  rootTree_->Branch("dzPV", &dzPV_, "dzPV[nTracks]/D");
+  rootTree_->Branch("dxyPV", &dxy_, "dxyPV[nTracks]/D");
+  rootTree_->Branch("dzError", &dzError_, "dzError[nTracks]/D");
+  rootTree_->Branch("dxyError", &dxyError_, "dxyError[nTracks]/D");
+  rootTree_->Branch("dzSig", &dzSig_, "dzSig[nTracks]/D");
+  rootTree_->Branch("dxySig", &dxySig_, "dxySig[nTracks]/D");
+  rootTree_->Branch("dzPVSig", &dzPVSig_, "dzPVSig[nTracks]/D");
+  rootTree_->Branch("dxyPVSig", &dxyPVSig_, "dxyPVSig[nTracks]/D");
   rootTree_->Branch("xPCA", &xPCA_, "xPCA[nTracks]/D");
   rootTree_->Branch("yPCA", &yPCA_, "yPCA[nTracks]/D");
   rootTree_->Branch("zPCA", &zPCA_, "zPCA[nTracks]/D");
