@@ -355,12 +355,12 @@ namespace pixelgpudetails {
       pixelgpudetails::DetIdGPU detId = getRawId(cablingMap, fedId, link, roc);
       uint32_t rawId = detId.rawId;
       uint32_t layer = 0;
-      int side = 0, panel = 0, module = 0;
+      int side = 0, panel = 0, module_ = 0;
       bool barrel = isBarrel(rawId);
       if (barrel) {
         layer = (rawId >> pixelgpudetails::layerStartBit) & pixelgpudetails::layerMask;
-        module = (rawId >> pixelgpudetails::moduleStartBit) & pixelgpudetails::moduleMask;
-        side = (module < 5) ? -1 : 1;
+        module_ = (rawId >> pixelgpudetails::moduleStartBit) & pixelgpudetails::moduleMask;
+        side = (module_ < 5) ? -1 : 1;
       } else {
         // endcap ids
         layer = 0;
