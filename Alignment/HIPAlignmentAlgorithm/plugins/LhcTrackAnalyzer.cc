@@ -158,8 +158,8 @@ void LhcTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
   const auto& tracks = iEvent.get(theTrackCollectionToken);
   if (debug_) {
-    edm::LogInfo("LhcTrackAnalyzer") << "LhcTrackAnalyzer::analyze() looping over " << tracks.size() << "tracks."
-                                     << endl;
+    edm::LogWarning("LhcTrackAnalyzer") << "LhcTrackAnalyzer::analyze() looping over " << tracks.size() << "tracks."
+                                        << endl;
   }
 
   for (const auto& track : tracks) {
@@ -255,9 +255,15 @@ void LhcTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       myalgo = 23;
     } else if (track.algo() == reco::TrackBase::detachedQuadStep) {
       myalgo = 24;
-    } else {
+    } else if (track.algo() == reco::TrackBase::displacedGeneralStep) {
       myalgo = 25;
-      edm::LogInfo("LhcTrackAnalyzer")
+    } else if (track.algo() == reco::TrackBase::displacedRegionalStep) {
+      myalgo = 26;
+    } else if (track.algo() == reco::TrackBase::hltIter0) {
+      myalgo = 31;
+    } else {
+      myalgo = reco::TrackBase::algoSize;
+      edm::LogWarning("LhcTrackAnalyzer")
           << "LhcTrackAnalyzer does not support all types of tracks, encountered one from algo "
           << reco::TrackBase::algoName(track.algo());
     }
