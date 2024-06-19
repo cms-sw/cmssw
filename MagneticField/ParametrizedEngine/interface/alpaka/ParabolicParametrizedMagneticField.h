@@ -5,17 +5,15 @@
 #ifndef MagneticField_ParametrizedEngine_interface_alpaka_ParabolicParametrizedMagneticField_h
 #define MagneticField_ParametrizedEngine_interface_alpaka_ParabolicParametrizedMagneticField_h
 
-#include "MagneticField/ParametrizedEngine/src/ParabolicParametrizedMagneticField.h"
-
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   namespace MagneticFieldParabolicPortable {
 
     struct Parameters {
-      float c1 = parabolicparametrizedmagneticfield::c1;
-      float b0 = parabolicparametrizedmagneticfield::b0;
-      float b1 = parabolicparametrizedmagneticfield::b1;
-      float a = parabolicparametrizedmagneticfield::a;
+      float c1 = 3.8114;
+      float b0 = -3.94991e-06;
+      float b1 = 7.53701e-06;
+      float a = 2.43878e-11;
     };
 
     template <typename V3>
