@@ -122,7 +122,7 @@ class InputInfo(object):
             queries = self.queries(dataset)
             if len(self.run) != 0:
               if self.skimEvents:
-                command = ";".join(["files=$(dasgoclient %s --query '%s' | sort -u ) && das-up-to-nevents.py --list $files --events %d  " % (das_options, query, self.events) for query in queries])
+                command = ";".join(["das-up-to-nevents.py --list $(dasgoclient %s --query '%s' | sort -u ) --events %d  " % (das_options, query, self.events) for query in queries])
               else:
                 command = ";".join(["dasgoclient %s --query '%s'" % (das_options, query) for query in queries])
             else:
@@ -130,7 +130,7 @@ class InputInfo(object):
               commands = []
               while queries:
                 if self.skimEvents:
-                    commands.append("files=$(dasgoclient %s --query 'lumi,%s' --format json | das-selected-lumis.py %s | sort -u ) && das-up-to-nevents.py --list $files --events %d " % (das_options, queries.pop(), lumis.pop(),self.events))
+                    commands.append("das-up-to-nevents.py --list $(dasgoclient %s --query 'lumi,%s' --format json | das-selected-lumis.py %s | sort -u ) --events %d " % (das_options, queries.pop(), lumis.pop(),self.events))
                 else:
                     commands.append("dasgoclient %s --query 'lumi,%s' --format json | das-selected-lumis.py %s " % (das_options, queries.pop(), lumis.pop()))
               command = ";".join(commands)
