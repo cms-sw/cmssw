@@ -14,6 +14,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       float b0 = -3.94991e-06;
       float b1 = 7.53701e-06;
       float a = 2.43878e-11;
+      float tracker_radius2 = 13225.f;
+      float tracker_z = 280.f;
     };
 
     template <typename V3>
@@ -29,8 +31,18 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }
 
     template <typename V3>
+    constexpr bool isDefined(V3 vec) {
+      Parameters p;
+      return ((vec(0)*vec(0) + vec(1)*vec(1)) < p.tracker_radius2  &&  fabs(vec(2) < p.tracker_z));
+    }
+
+    template <typename V3>
     constexpr float MagneticFieldAtPoint(V3 vec) {
-      return B0Z(vec) * Kr(vec);
+      if (isDefined(vec)) {
+        return B0Z(vec) * Kr(vec);
+      } else {
+        return 0;
+      }
     }
 
   }  // namespace MagneticFieldParabolicPortable

@@ -43,5 +43,5 @@ inline float ParabolicParametrizedMagneticField::B0Z(const float z) const { retu
 inline float ParabolicParametrizedMagneticField::Kr(const float R2) const { return a * R2 + 1.; }
 
 inline bool ParabolicParametrizedMagneticField::isDefined(const GlobalPoint& gp) const {
-  return (gp.perp2() < (13225.f) && fabs(gp.z()) < 280.f);
+  return (gp.perp2() < parabolicparametrizedmagneticfield::tracker_radius2 && fabs(gp.z()) < parabolicparametrizedmagneticfield::tacker_z);
 }
