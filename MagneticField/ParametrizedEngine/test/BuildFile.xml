@@ -1,0 +1,3 @@
+<bin file="testParabolicParametrizedMagneticField.cc">
+  <use name="eigen"/>
+</bin>
