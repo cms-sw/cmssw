@@ -14,8 +14,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       float b0 = -3.94991e-06;
       float b1 = 7.53701e-06;
       float a = 2.43878e-11;
-      float max_radius2 = 13225.f;
-      float max_z = 280.f;
+      float max_radius2 = 13225.f;  // tracker radius
+      float max_z = 280.f;          // tracker z
     };
 
     template <typename V3>
@@ -33,7 +33,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     template <typename V3>
     constexpr bool isDefined(V3 vec) {
       Parameters p;
-      return ((vec(0)*vec(0) + vec(1)*vec(1)) < p.max_radius2  &&  fabs(vec(2) < p.max_z));
+      return ((vec(0) * vec(0) + vec(1) * vec(1)) < p.max_radius2 && fabs(vec(2) < p.max_z));
     }
 
     template <typename V3>
