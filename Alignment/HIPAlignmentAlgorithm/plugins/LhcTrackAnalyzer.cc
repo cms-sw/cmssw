@@ -136,7 +136,18 @@ void LhcTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   // Retrieve the Track information
   //=======================================================
 
-  const auto& vertices = iEvent.get(theVertexCollectionToken);
+  // Declare the handle for the vertex collection
+  const auto& vertexHandle = iEvent.getHandle(theVertexCollectionToken);
+
+  // Check if the handle is valid
+  if (!vertexHandle.isValid()) {
+    edm::LogError("LhcTrackAnalyzer") << "Vertex collection not found or invalid.";
+    return;  // Early return if the vertex collection is not valid
+  }
+
+  // Retrieve the actual product from the handle
+  const reco::VertexCollection& vertices = *vertexHandle;
+
   const auto& vtx = vertices.front();
   if (vtx.isFake()) {
     goodvtx_ = false;
@@ -156,10 +167,20 @@ void LhcTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   run_ = iEvent.id().run();
   event_ = iEvent.id().event();
 
-  const auto& tracks = iEvent.get(theTrackCollectionToken);
+  const auto& tracksHandle = iEvent.getHandle(theTrackCollectionToken);
+
+  // Check if the handle is valid
+  if (!tracksHandle.isValid()) {
+    edm::LogError("LhcTrackAnalyzer") << "Tracks collection not found or invalid.";
+    return;  // Early return if the vertex collection is not valid
+  }
+
+  // Retrieve the actual product from the handle
+  const reco::TrackCollection& tracks = *tracksHandle;
+
   if (debug_) {
-    edm::LogWarning("LhcTrackAnalyzer") << "LhcTrackAnalyzer::analyze() looping over " << tracks.size() << "tracks."
-                                        << endl;
+    edm::LogInfo("LhcTrackAnalyzer") << "LhcTrackAnalyzer::analyze() looping over " << tracks.size() << "tracks."
+                                     << endl;
   }
 
   for (const auto& track : tracks) {
