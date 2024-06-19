@@ -14,8 +14,8 @@ unsortedOfflinePrimaryVertices4D = unsortedOfflinePrimaryVertices.clone(
     trackMTDTimeQualityVMapTag = cms.InputTag("mtdTrackQualityMVA:mtdQualMVA"),
     useMVACut = cms.bool(False),
     minTrackTimeQuality = cms.double(0.8),
-    vertexCollections = {0: dict(vertexTimeParameters = cms.PSet( algorithm = cms.string('legacy4D'))),
-                         1: dict(vertexTimeParameters = cms.PSet( algorithm = cms.string('legacy4D')))}
+    vertexCollections = {0: dict(vertexTimeParameters = cms.PSet( algorithm = cms.string('fromTracksPID'))),
+                         1: dict(vertexTimeParameters = cms.PSet( algorithm = cms.string('fromTracksPID')))}
     )
 trackWithVertexRefSelectorBeforeSorting4D = trackWithVertexRefSelector.clone(
     vertexTag = "unsortedOfflinePrimaryVertices4D",
