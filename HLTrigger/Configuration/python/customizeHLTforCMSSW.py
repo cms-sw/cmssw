@@ -52,8 +52,8 @@ def customiseHCALFor2018Input(process):
 
     for producer in producers_by_type(process, "PFClusterProducer"):
         if producer.seedFinder.thresholdsByDetector[0].detector.value() == 'HCAL_BARREL1':
-            producer.seedFinder.thresholdsByDetector[0].seedingThresholds = _seedingThresholdsHB
-            producer.initialClusteringStep.thresholdsByDetector[0].gatheringThresholds = _thresholdsHB
+            producer.seedFinder.thresholdsByDetector[0].seedingThreshold = _seedingThresholdsHB
+            producer.initialClusteringStep.thresholdsByDetector[0].gatheringThreshold = _thresholdsHB
             producer.pfClusterBuilder.recHitEnergyNorms[0].recHitEnergyNorm = _thresholdsHB
             producer.pfClusterBuilder.positionCalc.logWeightDenominatorByDetector = logWeightDenominatorHCAL2018
             producer.pfClusterBuilder.allCellsPositionCalc.logWeightDenominatorByDetector = logWeightDenominatorHCAL2018
@@ -314,30 +314,6 @@ def customizeHLTfor45063(process):
         delattr(prod,"mvaScaleStdEL2")       
                     
     return process
-
-def customizeHLTfor45212(process):
-    # Fix types for gathering and seeding thresholds, and recHitEnergyNorm
-    for prod in producers_by_type(process, 'PFClusterProducer'):
-        if hasattr(prod, "initialClusteringStep") and hasattr(prod.initialClusteringStep, "thresholdsByDetector"):
-            if hasattr(prod.initialClusteringStep.thresholdsByDetector, "gatheringThreshold") and isinstance(prod.initialClusteringStep.thresholdsByDetector.gatheringThreshold, cms.vdouble):
-                prod.initialClusteringStep.thresholdsByDetector.gatheringThresholds = prod.initialClusteringStep.thresholdsByDetector.gatheringThreshold
-                delattr(prod.initialClusteringStep.thresholdsByDetector, "gatheringThreshold")
-            if hasattr(prod.initialClusteringStep.thresholdsByDetector, "gatheringThresholdPt") and isinstance(prod.initialClusteringStep.thresholdsByDetector.gatheringThresholdPt, cms.vdouble):
-                prod.initialClusteringStep.thresholdsByDetector.gatheringThresholdsPt = prod.initialClusteringStep.thresholdsByDetector.gatheringThresholdPt
-                delattr(prod.initialClusteringStep.thresholdsByDetector, "gatheringThresholdPt")
-        if hasattr(prod, "seedFinder") and hasattr(prod.seedFinder, "thresholdsByDetector"):
-            if hasattr(prod.seedFinder.thresholdsByDetector, "seedingThreshold") and isinstance(prod.seedFinder.thresholdsByDetector.seedingThreshold, cms.vdouble):
-                prod.seedFinder.thresholdsByDetector.seedingThresholds = prod.seedFinder.thresholdsByDetector.seedingThreshold
-                delattr(prod.seedFinder.thresholdsByDetector, "seedingThreshold")
-            if hasattr(prod.seedFinder.thresholdsByDetector, "seedingThresholdPt") and isinstance(prod.seedFinder.thresholdsByDetector.seedingThresholdPt, cms.vdouble):
-                prod.seedFinder.thresholdsByDetector.seedingThresholdsPt = prod.seedFinder.thresholdsByDetector.seedingThresholdPt
-                delattr(prod.seedFinder.thresholdsByDetector, "seedingThresholdPt")
-        for n in ["positionCalc", "allCellsPositionCalc"]:
-            if hasattr(prod, "pfClusterBuilder") and hasattr(prod.pfClusterBuilder, n) and hasattr(getattr(prod.pfClusterBuilder, n), "recHitEnergyNorms") and hasattr(getattr(prod.pfClusterBuilder, n).recHitEnergyNorms, "recHitEnergyNorm") and isinstance(getattr(prod.pfClusterBuilder, n).recHitEnergyNorms.recHitEnergyNorm, cms.vdouble):
-                getattr(prod.pfClusterBuilder, n).recHitEnergyNorms.recHitEnergyNorms = getattr(prod.pfClusterBuilder, n).recHitEnergyNorms.recHitEnergyNorm
-                delattr(getattr(prod.pfClusterBuilder, n).recHitEnergyNorms, "recHitEnergyNorm")
-
-    return process
             
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
@@ -350,6 +326,5 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     process = checkHLTfor43774(process)
     process = customizeHLTfor44576(process)
     process = customizeHLTfor45063(process)
-    process = customizeHLTfor45212(process)
 
     return process

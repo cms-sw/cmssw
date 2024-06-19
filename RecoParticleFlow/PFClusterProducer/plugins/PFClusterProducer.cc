@@ -68,11 +68,11 @@ void PFClusterProducer::fillDescriptions(edm::ConfigurationDescriptions& descrip
     {
       edm::ParameterSetDescription psd;
       psd.add<std::string>("detector", "");
-      psd.add<double>("seedingThreshold", 0);
-      psd.add<double>("seedingThresholdPt", 0);
-      psd.add<std::vector<int>>("depths", {});
-      psd.add<std::vector<double>>("seedingThresholds", {});
-      psd.add<std::vector<double>>("seedingThresholdsPt", {});
+      psd.addNode((edm::ParameterDescription<double>("seedingThreshold", 0, true) and
+                   edm::ParameterDescription<double>("seedingThresholdPt", 0, true)) xor
+                  (edm::ParameterDescription<std::vector<int>>("depths", {}, true) and
+                   edm::ParameterDescription<std::vector<double>>("seedingThreshold", {}, true) and
+                   edm::ParameterDescription<std::vector<double>>("seedingThresholdPt", {}, true)));
       pset.addVPSet("thresholdsByDetector", psd, {});
     }
     desc.add<edm::ParameterSetDescription>("seedFinder", pset);
@@ -83,11 +83,11 @@ void PFClusterProducer::fillDescriptions(edm::ConfigurationDescriptions& descrip
     {
       edm::ParameterSetDescription psd;
       psd.add<std::string>("detector", "");
-      psd.add<double>("gatheringThreshold", 0);
-      psd.add<double>("gatheringThresholdPt", 0);
-      psd.add<std::vector<int>>("depths", {});
-      psd.add<std::vector<double>>("gatheringThresholds", {});
-      psd.add<std::vector<double>>("gatheringThresholdsPt", {});
+      psd.addNode((edm::ParameterDescription<double>("gatheringThreshold", 0, true) and
+                   edm::ParameterDescription<double>("gatheringThresholdPt", 0, true)) xor
+                  (edm::ParameterDescription<std::vector<int>>("depths", {}, true) and
+                   edm::ParameterDescription<std::vector<double>>("gatheringThreshold", {}, true) and
+                   edm::ParameterDescription<std::vector<double>>("gatheringThresholdPt", {}, true)));
       pset.addVPSet("thresholdsByDetector", psd, {});
     }
     pset.add<bool>("useCornerCells", false);
@@ -167,9 +167,9 @@ void PFClusterProducer::fillDescriptions(edm::ConfigurationDescriptions& descrip
     {
       edm::ParameterSetDescription psd;
       psd.add<std::string>("detector", "");
-      psd.add<double>("recHitEnergyNorm", 0);
-      psd.add<std::vector<int>>("depths", {});
-      psd.add<std::vector<double>>("recHitEnergyNorms", {});
+      psd.addNode(edm::ParameterDescription<double>("recHitEnergyNorm", 0, true) xor
+                  (edm::ParameterDescription<std::vector<int>>("depths", {}, true) and
+                   edm::ParameterDescription<std::vector<double>>("recHitEnergyNorm", {}, true)));
       pset.addVPSet("recHitEnergyNorms", psd, {});
     }
     pset.add<double>("showerSigma", 1.5);

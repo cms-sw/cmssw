@@ -16,7 +16,6 @@ particleFlowClusterHCAL = cms.EDProducer('PFMultiDepthClusterProducer',
            nSigmaPhi = cms.double(2.),
            #pf clustering parameters
            minFractionToKeep = cms.double(1e-7),
-           positionCalc = cms.PSet(),
            allCellsPositionCalc = cms.PSet(
                algoName = cms.string("Basic2DGenericPFlowPositionCalc"),
                minFractionInCalc = cms.double(1e-9),    
@@ -31,9 +30,7 @@ particleFlowClusterHCAL = cms.EDProducer('PFMultiDepthClusterProducer',
                           logWeightDenominator = _thresholdsHE,
                           )
                 ),
-               minAllowedNormalization = cms.double(1e-9),
-               timeResolutionCalcBarrel = cms.PSet(),
-               timeResolutionCalcEndcap = cms.PSet()
+               minAllowedNormalization = cms.double(1e-9)
            )
        ),
        positionReCalc = cms.PSet(),

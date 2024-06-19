@@ -27,13 +27,13 @@ particleFlowClusterHBHE = cms.EDProducer(
         thresholdsByDetector = cms.VPSet(
               cms.PSet( detector = cms.string("HCAL_BARREL1"),
                         depths = cms.vint32(1, 2, 3, 4),
-                        seedingThresholds = _seedingThresholdsHB,
-                        seedingThresholdsPt = cms.vdouble(0.0, 0.0, 0.0, 0.0)
+                        seedingThreshold = _seedingThresholdsHB,
+                        seedingThresholdPt = cms.vdouble(0.0, 0.0, 0.0, 0.0)
                         ),
               cms.PSet( detector = cms.string("HCAL_ENDCAP"),
                         depths = cms.vint32(1, 2, 3, 4, 5, 6, 7),
-                        seedingThresholds = _seedingThresholdsHE,
-                        seedingThresholdsPt = cms.vdouble(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
+                        seedingThreshold = _seedingThresholdsHE,
+                        seedingThresholdPt = cms.vdouble(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
                         )
               ),
         nNeighbours = cms.int32(4),
@@ -43,13 +43,13 @@ particleFlowClusterHBHE = cms.EDProducer(
         thresholdsByDetector = cms.VPSet(
         cms.PSet( detector = cms.string("HCAL_BARREL1"),
                   depths = cms.vint32(1, 2, 3, 4),
-                  gatheringThresholds = _thresholdsHB,
-                  gatheringThresholdsPt = cms.vdouble(0.0, 0.0, 0.0, 0.0)
+                  gatheringThreshold = _thresholdsHB,
+                  gatheringThresholdPt = cms.vdouble(0.0, 0.0, 0.0, 0.0)
                   ),
         cms.PSet( detector = cms.string("HCAL_ENDCAP"),
                   depths = cms.vint32(1, 2, 3, 4, 5, 6, 7),
-                  gatheringThresholds = _thresholdsHE,
-                  gatheringThresholdsPt = cms.vdouble(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
+                  gatheringThreshold = _thresholdsHE,
+                  gatheringThresholdPt = cms.vdouble(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
                   )
         ),
         useCornerCells = cms.bool(True)
@@ -73,9 +73,7 @@ particleFlowClusterHBHE = cms.EDProducer(
                                  logWeightDenominator = _thresholdsHE,
                                  )
                        ),
-                 minAllowedNormalization = cms.double(1e-9),
-                 timeResolutionCalcBarrel = cms.PSet(),
-                 timeResolutionCalcEndcap = cms.PSet()
+                 minAllowedNormalization = cms.double(1e-9)
            ),
            allCellsPositionCalc =cms.PSet(
                  algoName = cms.string("Basic2DGenericPFlowPositionCalc"),
@@ -91,11 +89,9 @@ particleFlowClusterHBHE = cms.EDProducer(
                                  logWeightDenominator = _thresholdsHE,
                                  )
                        ),
-                 minAllowedNormalization = cms.double(1e-9),
-                 timeResolutionCalcBarrel = cms.PSet(),
-                 timeResolutionCalcEndcap = cms.PSet()
+                 minAllowedNormalization = cms.double(1e-9)
            ),
-           positionCalcForConvergence = cms.PSet(),
+           
 
            timeSigmaEB = cms.double(10.),
            timeSigmaEE = cms.double(10.),
@@ -112,11 +108,11 @@ particleFlowClusterHBHE = cms.EDProducer(
            recHitEnergyNorms = cms.VPSet(
             cms.PSet( detector = cms.string("HCAL_BARREL1"),
                       depths = cms.vint32(1, 2, 3, 4),
-                      recHitEnergyNorms = _thresholdsHB,
+                      recHitEnergyNorm = _thresholdsHB,
                       ),
             cms.PSet( detector = cms.string("HCAL_ENDCAP"),
                       depths = cms.vint32(1, 2, 3, 4, 5, 6, 7),
-                      recHitEnergyNorms = _thresholdsHE,
+                      recHitEnergyNorm = _thresholdsHE,
                       )
             )
     ),
@@ -130,10 +126,10 @@ particleFlowClusterHBHE = cms.EDProducer(
 from Configuration.Eras.Modifier_run2_HE_2018_cff import run2_HE_2018
 from Configuration.ProcessModifiers.run2_HECollapse_2018_cff import run2_HECollapse_2018
 (run2_HE_2018 & ~run2_HECollapse_2018).toModify(particleFlowClusterHBHE,
-    seedFinder = dict(thresholdsByDetector = {1 : dict(seedingThresholds = _seedingThresholdsHEphase1) } ),
-    initialClusteringStep = dict(thresholdsByDetector = {1 : dict(gatheringThresholds = _thresholdsHEphase1) } ),
+    seedFinder = dict(thresholdsByDetector = {1 : dict(seedingThreshold = _seedingThresholdsHEphase1) } ),
+    initialClusteringStep = dict(thresholdsByDetector = {1 : dict(gatheringThreshold = _thresholdsHEphase1) } ),
     pfClusterBuilder = dict(
-        recHitEnergyNorms = {1 : dict(recHitEnergyNorms = _thresholdsHEphase1) },
+        recHitEnergyNorms = {1 : dict(recHitEnergyNorm = _thresholdsHEphase1) },
         positionCalc = dict(logWeightDenominatorByDetector = {1 : dict(logWeightDenominator = _thresholdsHEphase1) } ),
         allCellsPositionCalc = dict(logWeightDenominatorByDetector = {1 : dict(logWeightDenominator = _thresholdsHEphase1) } ),
     ),
@@ -142,10 +138,10 @@ from Configuration.ProcessModifiers.run2_HECollapse_2018_cff import run2_HEColla
 # offline 2019
 from Configuration.Eras.Modifier_run3_HB_cff import run3_HB
 run3_HB.toModify(particleFlowClusterHBHE,
-    seedFinder = dict(thresholdsByDetector = {0 : dict(seedingThresholds = _seedingThresholdsHBphase1) } ),
-    initialClusteringStep = dict(thresholdsByDetector = {0 : dict(gatheringThresholds = _thresholdsHBphase1) } ),
+    seedFinder = dict(thresholdsByDetector = {0 : dict(seedingThreshold = _seedingThresholdsHBphase1) } ),
+    initialClusteringStep = dict(thresholdsByDetector = {0 : dict(gatheringThreshold = _thresholdsHBphase1) } ),
     pfClusterBuilder = dict(
-        recHitEnergyNorms = {0 : dict(recHitEnergyNorms = _thresholdsHBphase1) },
+        recHitEnergyNorms = {0 : dict(recHitEnergyNorm = _thresholdsHBphase1) },
         positionCalc = dict(logWeightDenominatorByDetector = {0 : dict(logWeightDenominator = _thresholdsHBphase1) } ),
         allCellsPositionCalc = dict(logWeightDenominatorByDetector = {0 : dict(logWeightDenominator = _thresholdsHBphase1) } ),
     ),
@@ -154,10 +150,10 @@ run3_HB.toModify(particleFlowClusterHBHE,
 # offline 2023
 from Configuration.Eras.Modifier_run3_egamma_2023_cff import run3_egamma_2023
 run3_egamma_2023.toModify(particleFlowClusterHBHE,
-    seedFinder = dict(thresholdsByDetector = {0 : dict(seedingThresholds = _seedingThresholdsHBphase1_2023) } ),
-    initialClusteringStep = dict(thresholdsByDetector = {0 : dict(gatheringThresholds = _thresholdsHBphase1_2023) } ),
+    seedFinder = dict(thresholdsByDetector = {0 : dict(seedingThreshold = _seedingThresholdsHBphase1_2023) } ),
+    initialClusteringStep = dict(thresholdsByDetector = {0 : dict(gatheringThreshold = _thresholdsHBphase1_2023) } ),
     pfClusterBuilder = dict(
-        recHitEnergyNorms = {0 : dict(recHitEnergyNorms = _thresholdsHBphase1_2023) },
+        recHitEnergyNorms = {0 : dict(recHitEnergyNorm = _thresholdsHBphase1_2023) },
         positionCalc = dict(logWeightDenominatorByDetector = {0 : dict(logWeightDenominator = _thresholdsHBphase1_2023) } ),
         allCellsPositionCalc = dict(logWeightDenominatorByDetector = {0 : dict(logWeightDenominator = _thresholdsHBphase1_2023) } ),
     ),

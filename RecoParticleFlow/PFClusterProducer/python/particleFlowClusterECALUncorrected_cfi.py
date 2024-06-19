@@ -86,7 +86,6 @@ _positionCalcECAL_all_nodepth = cms.PSet(
     minFractionInCalc = cms.double(1e-9),
     posCalcNCrystals = cms.int32(-1),
     logWeightDenominator = cms.double(0.08), # same as gathering threshold
-    logWeightDenominatorByDetector = cms.VPSet(),
     minAllowedNormalization = cms.double(1e-9),
     timeResolutionCalcBarrel = _timeResolutionECALBarrel,
     timeResolutionCalcEndcap = _timeResolutionECALEndcap,
@@ -103,8 +102,7 @@ _positionCalcECAL_all_withdepth = cms.PSet(
     T0_EE = cms.double(3.1),
     T0_ES = cms.double(1.2),
     W0 = cms.double(4.2),
-    X0 = cms.double(0.89),
-    timeResolutionCalc = cms.PSet()
+    X0 = cms.double(0.89)
 )
 
 # pf clustering

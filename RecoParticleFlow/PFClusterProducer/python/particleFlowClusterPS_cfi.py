@@ -44,10 +44,7 @@ _positionCalcPS_all_nodepth = cms.PSet(
     minFractionInCalc = cms.double(1e-9),
     posCalcNCrystals = cms.int32(-1),
     logWeightDenominator = cms.double(6e-5), # same as gathering threshold
-    logWeightDenominatorByDetector = cms.VPSet(),
-    minAllowedNormalization = cms.double(1e-9),
-    timeResolutionCalcBarrel = cms.PSet(),
-    timeResolutionCalcEndcap = cms.PSet()
+    minAllowedNormalization = cms.double(1e-9)
 )
 
 #pf clustering
@@ -56,8 +53,6 @@ _pfClusterizer_PS = cms.PSet(
     #pf clustering parameters
     minFractionToKeep = cms.double(1e-7),
     positionCalc = _positionCalcPS_all_nodepth,
-    allCellsPositionCalc = cms.PSet(),
-    positionCalcForConvergence = cms.PSet(),
     showerSigma = cms.double(0.3),
     stoppingTolerance = cms.double(1e-8),
     maxIterations = cms.uint32(50),
