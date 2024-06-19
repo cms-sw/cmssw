@@ -283,11 +283,6 @@ nanoDQMIO_perLSoutput = cms.PSet(
     "JetMET/Jet/Cleanedak4PFJetsPuppi/Eta",
     "JetMET/Jet/Cleanedak4PFJetsPuppi/Eta_uncor",
     "JetMET/MET/pfMETT1/Cleaned/METSig",
-    "JetMET/MET/pfMETT1/Cleaned/MET",
-    "JetMET/MET/pfMETT1/Cleaned/METPhi",
-    "JetMET/MET/pfMetPuppi/Cleaned/METSig",
-    "JetMET/MET/pfMetPuppi/Cleaned/MET",
-    "JetMET/MET/pfMetPuppi/Cleaned/METPhi",
     "JetMET/vertices",     
 
     "Muons/MuonRecoAnalyzer/GlbMuon_Glb_pt",
