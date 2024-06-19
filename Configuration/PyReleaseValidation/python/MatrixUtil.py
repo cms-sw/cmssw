@@ -103,7 +103,7 @@ def selectedLS(list_runs=[],maxNum=-1,l_json=data_json2015):
 
 InputInfoNDefault=2000000    
 class InputInfo(object):
-    def __init__(self,dataSet,dataSetParent='',label='',run=[],ls={},files=1000,events=InputInfoNDefault,split=10,location='CAF',ib_blacklist=None,ib_block=None) :
+    def __init__(self,dataSet,dataSetParent='',label='',run=[],ls={},files=1000,events=InputInfoNDefault,split=10,location='CAF',ib_blacklist=None,ib_block=None,skimEvents=False) :
         self.run = run
         self.ls = ls
         self.files = files
@@ -115,17 +115,24 @@ class InputInfo(object):
         self.ib_blacklist = ib_blacklist
         self.ib_block = ib_block
         self.dataSetParent = dataSetParent
-        
+        self.skimEvents = skimEvents
+
     def das(self, das_options, dataset):
         if len(self.run) != 0 or self.ls:
             queries = self.queries(dataset)
             if len(self.run) != 0:
-              command = ";".join(["dasgoclient %s --query '%s'" % (das_options, query) for query in queries])
+              if self.skimEvents:
+                command = ";".join(["das-up-to-nevents.py --list $(dasgoclient %s --query '%s' | sort -u ) --events %d  " % (das_options, query, self.events) for query in queries])
+              else:
+                command = ";".join(["dasgoclient %s --query '%s'" % (das_options, query) for query in queries])
             else:
               lumis = self.lumis()
               commands = []
               while queries:
-                commands.append("dasgoclient %s --query 'lumi,%s' --format json | das-selected-lumis.py %s " % (das_options, queries.pop(), lumis.pop()))
+                if self.skimEvents:
+                    commands.append("das-up-to-nevents.py --list $(dasgoclient %s --query 'lumi,%s' --format json | das-selected-lumis.py %s | sort -u ) --events %d " % (das_options, queries.pop(), lumis.pop(),self.events))
+                else:
+                    commands.append("dasgoclient %s --query 'lumi,%s' --format json | das-selected-lumis.py %s " % (das_options, queries.pop(), lumis.pop()))
               command = ";".join(commands)
             command = "({0})".format(command)
         else:
@@ -145,7 +152,7 @@ class InputInfo(object):
         if self.ls :
             return "echo '{\n"+",".join(('"%d" : %s\n'%( int(x),self.ls[x]) for x in self.ls.keys()))+"}'"
         return None
-
+    
     def lumis(self):
       query_lumis = []
       if self.ls:
