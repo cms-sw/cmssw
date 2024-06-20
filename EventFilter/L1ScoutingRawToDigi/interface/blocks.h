@@ -62,6 +62,9 @@ namespace l1ScoutingRun3 {
 
   namespace bmtf {
     struct block {
+      uint32_t header;
+      uint32_t bx;
+      uint32_t orbit;
       uint64_t stub[8];
     };
   }  // namespace bmtf
