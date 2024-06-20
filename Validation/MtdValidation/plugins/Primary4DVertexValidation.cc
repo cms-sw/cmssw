@@ -237,6 +237,7 @@ private:
   void getWosWnt(const reco::Vertex&,
                  const reco::TrackBaseRef&,
                  const edm::ValueMap<float>&,
+                 const edm::ValueMap<float>&,
                  const edm::Handle<reco::BeamSpot>&,
                  double&,
                  double&);
@@ -1529,6 +1530,7 @@ void Primary4DVertexValidation::isParticle(const reco::TrackBaseRef& recoTrack,
 void Primary4DVertexValidation::getWosWnt(const reco::Vertex& recoVtx,
                                           const reco::TrackBaseRef& recoTrk,
                                           const edm::ValueMap<float>& sigmat0,
+                                          const edm::ValueMap<float>& mtdQualMVA,
                                           const edm::Handle<reco::BeamSpot>& BS,
                                           double& wos,
                                           double& wnt) {
@@ -1539,7 +1541,7 @@ void Primary4DVertexValidation::getWosWnt(const reco::Vertex& recoVtx,
   wos = recoVtx.trackWeight(recoTrk) / dz2;
   wnt = recoVtx.trackWeight(recoTrk) * std::min(recoTrk->pt(), 1.0);
 
-  if (sigmat0[recoTrk] > 0) {
+  if (sigmat0[recoTrk] > 0 && mtdQualMVA[recoTrk] > mvaTh_) {
     double sigmaZ = (*BS).sigmaZ();
     double sigmaT = sigmaZ / c_;  // c in cm/ns
     wos = wos / erf(sigmat0[recoTrk] / sigmaT);
@@ -1746,15 +1748,12 @@ void Primary4DVertexValidation::matchReco2Sim(std::vector<recoPrimaryVertex>& re
         if (vertex->trackWeight(*iTrack) < trackweightTh_) {
           continue;
         }
-        if (MVA[(*iTrack)] < mvaTh_) {
-          continue;
-        }
 
         auto tp_info = getMatchedTP(*iTrack, simpv.at(iev).sim_vertex).first;
         int matchCategory = getMatchedTP(*iTrack, simpv.at(iev).sim_vertex).second;
         // matched TP equal to any TP of a given sim vertex
         if (tp_info != nullptr && matchCategory == 0) {
-          getWosWnt(*vertex, *iTrack, sigmat0, BS, wos, wnt);
+          getWosWnt(*vertex, *iTrack, MVA, sigmat0, BS, wos, wnt);
           simpv.at(iev).addTrack(iv, wos, wnt);
           recopv.at(iv).addTrack(iev, wos, wnt);
           evwos += wos;
@@ -2099,7 +2098,7 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
             double mass = PData->mass().value();
             massVector.push_back(mass);
             recotracks.push_back(**iTrack);
-            getWosWnt(*vertex, *iTrack, sigmat0Safe, BeamSpotH, wos, wnt);
+            getWosWnt(*vertex, *iTrack, sigmat0Safe, mtdQualMVA, BeamSpotH, wos, wnt);
             // reco track matched to any TP
             if (tp_info != nullptr) {
 #ifdef EDM_ML_DEBUG
@@ -2734,7 +2733,7 @@ void Primary4DVertexValidation::fillDescriptions(edm::ConfigurationDescriptions&
   desc.addUntracked<bool>("optionalPlots", false);
   desc.add<bool>("use3dNoTime", false);
   desc.add<double>("trackweightTh", 0.5);
-  desc.add<double>("mvaTh", 0.01);
+  desc.add<double>("mvaTh", 0.8);
   desc.add<double>("minProbHeavy", 0.75);
 
   //lineDensity parameters have been obtained by fitting the distribution of the z position of the vertices,
