@@ -52,7 +52,6 @@
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 
 #include "SimDataFormats/Associations/interface/TracksterToSimTracksterHitLCAssociator.h"
-#include "RecoHGCal/TICL/interface/commons.h"
 
 // TFileService
 #include "FWCore/ServiceRegistry/interface/Service.h"
