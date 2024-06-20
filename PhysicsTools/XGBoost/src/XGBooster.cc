@@ -79,8 +79,6 @@ void XGBooster::addFeature(std::string name) {
 void XGBooster::set(std::string name, float value) { features_.at(feature_name_to_index_[name]) = value; }
 
 float XGBooster::predict(const int iterationEnd) {
-  float result(-999.);
-
   // check if all feature values are set properly
   for (unsigned int i = 0; i < features_.size(); ++i)
     if (std::isnan(features_.at(i))) {
@@ -94,8 +92,25 @@ float XGBooster::predict(const int iterationEnd) {
       throw std::runtime_error("Feature is not set: " + feature_name);
     }
 
+  float const ret = predict(features_, iterationEnd);
+
+  reset();
+
+  return ret;
+}
+
+float XGBooster::predict(const std::vector<float>& features, const int iterationEnd) const {
+  float result{-999.};
+
+  if (features.empty()) {
+    throw std::runtime_error("Vector of input features is empty");
+  }
+
+  if (feature_name_to_index_.size() != features.size())
+    throw std::runtime_error("Feature size mismatch");
+
   DMatrixHandle dvalues;
-  XGDMatrixCreateFromMat(&features_[0], 1, features_.size(), 9e99, &dvalues);
+  XGDMatrixCreateFromMat(&features[0], 1, features.size(), 9e99, &dvalues);
 
   bst_ulong out_len = 0;
   const float* score = nullptr;
@@ -125,8 +140,6 @@ float XGBooster::predict(const int iterationEnd) {
   }
 
   XGDMatrixFree(dvalues);
-
-  reset();
 
   return result;
 }
