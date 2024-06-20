@@ -153,17 +153,17 @@ class Primary4DVertexValidation : public DQMEDAnalyzer {
     reco::VertexBaseRef recVtxRef;
     int OriginalIndex = -1;
 
-    std::map<unsigned int, double> wos;  // simevent -> wos
-    std::map<unsigned int, double> wnt;  // simevent -> weighted number of truth matched tracks
-    unsigned int wosmatch;               // index of the simevent providing the largest contribution to wos
-    unsigned int wntmatch;               // index of the simevent providing the highest number of tracks
-    double sumwos = 0;                   // total sum of wos of all truth matched tracks
-    double sumwnt = 0;                   // total weighted number of truth matchted tracks
-    double maxwos = 0;                   // largest wos sum from one sim event (wosmatch)
-    double maxwnt = 0;                   // largest weighted number of tracks from one sim event (ntmatch)
-    int maxwosnt = 0;                    // number of tracks from the simevt with highest wos
-    unsigned int sim = NOT_MATCHED;      // best match (NO_MATCH if not matched)
-    unsigned int matchQuality = 0;       // quality flag
+    std::map<unsigned int, double> wos;   // simevent -> wos
+    std::map<unsigned int, double> wnt;   // simevent -> weighted number of truth matched tracks
+    unsigned int wosmatch = NOT_MATCHED;  // index of the simevent providing the largest contribution to wos
+    unsigned int wntmatch = NOT_MATCHED;  // index of the simevent providing the highest number of tracks
+    double sumwos = 0;                    // total sum of wos of all truth matched tracks
+    double sumwnt = 0;                    // total weighted number of truth matchted tracks
+    double maxwos = 0;                    // largest wos sum from one sim event (wosmatch)
+    double maxwnt = 0;                    // largest weighted number of tracks from one sim event (ntmatch)
+    int maxwosnt = 0;                     // number of tracks from the simevt with highest wos
+    unsigned int sim = NOT_MATCHED;       // best match (NO_MATCH if not matched)
+    unsigned int matchQuality = 0;        // quality flag
 
     bool is_real() { return (matchQuality > 0) && (matchQuality < 99); }
 
@@ -282,7 +282,6 @@ private:
   static constexpr float c_cm_ns = geant_units::operators::convertMmToCm(CLHEP::c_light);  // [mm/ns] -> [cm/ns]
 
   bool use_only_charged_tracks_;
-  bool debug_;
   bool optionalPlots_;
   bool use3dNoTime_;
 
@@ -347,6 +346,7 @@ private:
   MonitorElement* meTimeSignalRes_;
   MonitorElement* meTimeSignalPull_;
   MonitorElement* mePUvsRealV_;
+  MonitorElement* mePUvsFakeV_;
   MonitorElement* mePUvsOtherFakeV_;
   MonitorElement* mePUvsSplitV_;
   MonitorElement* meMatchQual_;
@@ -510,7 +510,6 @@ private:
 Primary4DVertexValidation::Primary4DVertexValidation(const edm::ParameterSet& iConfig)
     : folder_(iConfig.getParameter<std::string>("folder")),
       use_only_charged_tracks_(iConfig.getParameter<bool>("useOnlyChargedTracks")),
-      debug_(iConfig.getUntrackedParameter<bool>("debug")),
       optionalPlots_(iConfig.getUntrackedParameter<bool>("optionalPlots")),
       use3dNoTime_(iConfig.getParameter<bool>("use3dNoTime")),
       minProbHeavy_(iConfig.getParameter<double>("minProbHeavy")),
@@ -704,6 +703,9 @@ void Primary4DVertexValidation::bookHistograms(DQMStore::IBooker& ibook,
       "PUTrackRelSumPt", "Relative Sum of Pt of PU tracks for matched vertices; PUSumPt/SumPt", 50, 0., 1.);
   mePUTrackRelSumPt2_ = ibook.book1D(
       "PUTrackRelSumPt2", "Relative Sum of Pt2 for PU tracks for matched vertices; PUSumPt2/SumPt2", 50, 0., 1.);
+
+  mePUvsFakeV_ =
+      ibook.bookProfile("PUvsFake", "#PU vertices vs #fake matched vertices;#PU;#fake ", 100, 0, 300, 100, 0, 20);
 
   mePUTrackRecLVRelMult_ = ibook.book1D(
       "PUTrackRecLVRelMult", "Relative multiplicity of PU tracks for matched LV; #PUTrks/#Trks", 50, 0., 1.);
@@ -1614,13 +1616,12 @@ std::vector<Primary4DVertexValidation::simPrimaryVertex> Primary4DVertexValidati
         vp->average_match_quality += match_quality;
       }
     }  // End of for loop on daughters sim-particles
-    if (vp->num_matched_reco_tracks)
+    if (vp->num_matched_reco_tracks) {
       vp->average_match_quality /= static_cast<float>(vp->num_matched_reco_tracks);
-    if (debug_) {
-      edm::LogPrint("Primary4DVertexValidation")
-          << "average number of associated tracks: " << vp->num_matched_reco_tracks / static_cast<float>(vp->nGenTrk)
-          << " with average quality: " << vp->average_match_quality;
     }
+    LogTrace("Primary4DVertexValidation")
+        << "average number of associated tracks: " << vp->num_matched_reco_tracks / static_cast<float>(vp->nGenTrk)
+        << " with average quality: " << vp->average_match_quality;
   }  // End of for loop on tracking vertices
 
   // In case of no simulated vertices, break here
@@ -1719,6 +1720,7 @@ void Primary4DVertexValidation::matchReco2Sim(std::vector<recoPrimaryVertex>& re
                                               const edm::ValueMap<float>& sigmat0,
                                               const edm::ValueMap<float>& MVA,
                                               const edm::Handle<reco::BeamSpot>& BS) {
+  // Initialization (clear wos and wnt)
   for (auto vv : simpv) {
     vv.wnt.clear();
     vv.wos.clear();
@@ -1728,8 +1730,10 @@ void Primary4DVertexValidation::matchReco2Sim(std::vector<recoPrimaryVertex>& re
     rv.wos.clear();
   }
 
+  // Filling infos
   for (unsigned int iv = 0; iv < recopv.size(); iv++) {
     const reco::Vertex* vertex = recopv.at(iv).recVtx;
+    LogTrace("Primary4DVertexValidation") << "iv (rec): " << iv;
 
     for (unsigned int iev = 0; iev < simpv.size(); iev++) {
       double wnt = 0;
@@ -1739,10 +1743,12 @@ void Primary4DVertexValidation::matchReco2Sim(std::vector<recoPrimaryVertex>& re
       double evnt = 0;
 
       for (auto iTrack = vertex->tracks_begin(); iTrack != vertex->tracks_end(); ++iTrack) {
-        if (vertex->trackWeight(*iTrack) < trackweightTh_)
+        if (vertex->trackWeight(*iTrack) < trackweightTh_) {
           continue;
-        if (MVA[(*iTrack)] < mvaTh_)
+        }
+        if (MVA[(*iTrack)] < mvaTh_) {
           continue;
+        }
 
         auto tp_info = getMatchedTP(*iTrack, simpv.at(iev).sim_vertex).first;
         int matchCategory = getMatchedTP(*iTrack, simpv.at(iev).sim_vertex).second;
@@ -1762,9 +1768,7 @@ void Primary4DVertexValidation::matchReco2Sim(std::vector<recoPrimaryVertex>& re
         recopv.at(iv).wosmatch = iev;
         recopv.at(iv).maxwos = evwos;
         recopv.at(iv).maxwosnt = evnt;
-
-        simpv.at(iev).wos_dominated_recv.push_back(iv);
-        simpv.at(iev).nwosmatch++;
+        LogTrace("Primary4DVertexValidation") << "dominating sim event (iev): " << iev << " evwos = " << evwos;
       }
 
       // weighted track counting match, require at least one track
@@ -1773,7 +1777,13 @@ void Primary4DVertexValidation::matchReco2Sim(std::vector<recoPrimaryVertex>& re
         recopv.at(iv).maxwnt = evwnt;
       }
     }  // TrackingVertex loop
-
+    if (recopv.at(iv).maxwos > 0) {
+      simpv.at(recopv.at(iv).wosmatch).wos_dominated_recv.push_back(iv);
+      simpv.at(recopv.at(iv).wosmatch).nwosmatch++;  // count the recvertices dominated by a simvertex
+      assert(iv < recopv.size());
+    }
+    LogTrace("Primary4DVertexValidation") << "largest contribution to wos: wosmatch (iev) = " << recopv.at(iv).wosmatch
+                                          << " maxwos = " << recopv.at(iv).maxwos;
   }  // RecoPrimaryVertex
 
   // after filling infos, goes for the sim-reco match
@@ -1783,16 +1793,12 @@ void Primary4DVertexValidation::matchReco2Sim(std::vector<recoPrimaryVertex>& re
   }
   unsigned int iev = 0;
   for (auto& vv : simpv) {
-    if (debug_) {
-      edm::LogPrint("Primary4DVertexValidation") << "iev: " << iev;
-      edm::LogPrint("Primary4DVertexValidation") << "wos_dominated_recv.size: " << vv.wos_dominated_recv.size();
-    }
+    LogTrace("Primary4DVertexValidation") << "iev (sim): " << iev;
+    LogTrace("Primary4DVertexValidation") << "wos_dominated_recv.size: " << vv.wos_dominated_recv.size();
     for (unsigned int i = 0; i < vv.wos_dominated_recv.size(); i++) {
       auto recov = vv.wos_dominated_recv.at(i);
-      if (debug_) {
-        edm::LogPrint("Primary4DVertexValidation")
-            << "index of reco vertex: " << recov << " that has a wos: " << vv.wos.at(recov) << " at position " << i;
-      }
+      LogTrace("Primary4DVertexValidation")
+          << "index of reco vertex: " << recov << " that has a wos: " << vv.wos.at(recov) << " at position " << i;
     }
     vv.rec = NOT_MATCHED;
     vv.matchQuality = 0;
@@ -1801,20 +1807,25 @@ void Primary4DVertexValidation::matchReco2Sim(std::vector<recoPrimaryVertex>& re
   // this tries a one-to-one match, taking simPV with highest wos if there are > 1 simPV candidates
   for (unsigned int rank = 1; rank < maxRank_; rank++) {
     for (unsigned int iev = 0; iev < simpv.size(); iev++) {  //loop on SimPV
-      if (simpv.at(iev).rec != NOT_MATCHED)
+      if (simpv.at(iev).rec != NOT_MATCHED) {
         continue;
-      if (simpv.at(iev).nwosmatch == 0)
+      }
+      if (simpv.at(iev).nwosmatch == 0) {
         continue;
-      if (simpv.at(iev).nwosmatch > rank)
+      }
+      if (simpv.at(iev).nwosmatch > rank) {
         continue;
+      }
       unsigned int iv = NOT_MATCHED;
       for (unsigned int k = 0; k < simpv.at(iev).wos_dominated_recv.size(); k++) {
         unsigned int rec = simpv.at(iev).wos_dominated_recv.at(k);
         auto vrec = recopv.at(rec);
-        if (vrec.sim != NOT_MATCHED)
+        if (vrec.sim != NOT_MATCHED) {
           continue;  // already matched
-        if (std::abs(simpv.at(iev).z - vrec.z) > zWosMatchMax_)
+        }
+        if (std::abs(simpv.at(iev).z - vrec.z) > zWosMatchMax_) {
           continue;  // insanely far away
+        }
         if ((iv == NOT_MATCHED) || simpv.at(iev).wos.at(rec) > simpv.at(iev).wos.at(iv)) {
           iv = rec;
         }
@@ -1826,17 +1837,20 @@ void Primary4DVertexValidation::matchReco2Sim(std::vector<recoPrimaryVertex>& re
         recopv.at(iv).matchQuality = rank;
         simpv.at(iev).matchQuality = rank;
       }
-    }
-  }
-  //give vertices a chance that have a lot of overlap, but are still recognizably
-  //caused by a specific simvertex (without being classified as dominating)
-  //like a small peak sitting on the flank of a larger nearby peak
+    }  // iev
+  }    // rank
+
+  // Reco vertices that are not necessarily dominated by a sim vertex, or whose dominating sim-vertex
+  // has been matched already to another overlapping reco vertex, can still be associated to a specific
+  // sim vertex (without being classified as dominating).
+  // In terms of fitting 1d-distributions, this corresponds to a small peak close to a much larger nearby peak
   unsigned int ntry = 0;
   while (ntry++ < maxTry_) {
     unsigned nmatch = 0;
     for (unsigned int iev = 0; iev < simpv.size(); iev++) {
-      if ((simpv.at(iev).rec != NOT_MATCHED) || (simpv.at(iev).wos.empty()))
+      if ((simpv.at(iev).rec != NOT_MATCHED) || (simpv.at(iev).wos.empty())) {
         continue;
+      }
       // find a rec vertex for the NOT_MATCHED sim vertex
       unsigned int rec = NOT_MATCHED;
       for (auto rv : simpv.at(iev).wos) {
@@ -1853,16 +1867,19 @@ void Primary4DVertexValidation::matchReco2Sim(std::vector<recoPrimaryVertex>& re
         }
       }
 
-      if (rec == NOT_MATCHED)
+      if (rec == NOT_MATCHED) {
         continue;
-      if (recopv.at(rec).sim != NOT_MATCHED)
+      }
+      if (recopv.at(rec).sim != NOT_MATCHED) {
         continue;  // already gone
+      }
 
       // check if the recvertex can be  matched
       unsigned int rec2sim = NOT_MATCHED;
       for (auto sv : recopv.at(rec).wos) {
-        if (simpv.at(sv.first).rec != NOT_MATCHED)
+        if (simpv.at(sv.first).rec != NOT_MATCHED) {
           continue;  // already used
+        }
         if ((rec2sim == NOT_MATCHED) || (sv.second > recopv.at(rec).wos.at(rec2sim))) {
           rec2sim = sv.first;
         }
@@ -1880,6 +1897,44 @@ void Primary4DVertexValidation::matchReco2Sim(std::vector<recoPrimaryVertex>& re
       break;
     }
   }  // ntry
+
+// Debugging
+#ifdef EDM_ML_DEBUG
+  unsigned int nmatch_tot = 0, n_dzgtsz = 0;
+  unsigned int n_rank1 = 0, n_rank2 = 0, n_rank3 = 0, n_rank8 = 0;
+
+  for (unsigned int iev = 0; iev < simpv.size(); iev++) {  //loop on SimPV
+    if (simpv.at(iev).rec != NOT_MATCHED) {
+      unsigned int rec = simpv.at(iev).rec;
+      unsigned int wosmatch = recopv.at(rec).wosmatch;
+      LogTrace("Primary4DVertexValidation")
+          << "Final match: iev (sim) = " << std::setw(4) << iev << "  sim.rec = " << std::setw(4) << rec
+          << "  rec.wosmatch = " << std::setw(5) << wosmatch << "  dZ/sigmaZ = " << std::setw(6) << std::setprecision(2)
+          << std::abs((recopv.at(rec).z - simpv.at(iev).z) / recopv.at(rec).recVtx->zError())
+          << "  match qual = " << std::setw(1) << recopv.at(rec).matchQuality;
+      nmatch_tot++;
+      if (std::abs((recopv.at(rec).z - simpv.at(iev).z) / recopv.at(rec).recVtx->zError()) > 3.) {
+        n_dzgtsz++;
+      }
+      if (recopv.at(rec).matchQuality == 1) {
+        n_rank1++;
+      }
+      if (recopv.at(rec).matchQuality == 2) {
+        n_rank2++;
+      }
+      if (recopv.at(rec).matchQuality == 3) {
+        n_rank3++;
+      }
+      if (recopv.at(rec).matchQuality == 8) {
+        n_rank8++;
+      }
+    }
+  }
+  LogTrace("Primary4DVertexValidation") << "n_sim = " << simpv.size() << " n_rec = " << recopv.size()
+                                        << " nmatch_tot = " << nmatch_tot << " n(dZ>sigmaZ) = " << n_dzgtsz
+                                        << " n_rank1 = " << n_rank1 << " n_rank2 = " << n_rank2
+                                        << " n_rank3 = " << n_rank3 << " n_rank8 = " << n_rank8;
+#endif
 }
 
 void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -1984,9 +2039,11 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
               << "Reco vtx leading match inconsistent: BX/ID " << simpv.at(iev).eventId.bunchCrossing() << " "
               << simpv.at(iev).eventId.event();
         }
-        if (selectedLVMatching && debug_) {
+#ifdef EDM_ML_DEBUG
+        if (selectedLVMatching) {
           printSimVtxRecoVtxInfo(simpv.at(iev), recopv.at(iv));
         }
+#endif
         double vzsim = simpv.at(iev).z;
         double vtsim = simpv.at(iev).t * simUnit_;
 
@@ -2045,9 +2102,11 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
             getWosWnt(*vertex, *iTrack, sigmat0Safe, BeamSpotH, wos, wnt);
             // reco track matched to any TP
             if (tp_info != nullptr) {
-              if (debug_ && selectedLV) {
+#ifdef EDM_ML_DEBUG
+              if (selectedLV) {
                 printMatchedRecoTrackInfo(*vertex, *iTrack, *tp_info, matchCategory);
               }
+#endif
               // matched TP not associated to any daughter track of a given sim vertex but having the same eventID (track from secondary vtx)
               if (matchCategory == 1) {
                 categoryVector.push_back(matchCategory);
@@ -2429,23 +2488,21 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
             meJetsRecLVPURelMetPt_->Fill((metPt - metPtnoPU) / metPt);
             meJetsRecLVPURelSumPz_->Fill((sumPzJets - sumPzJetsnoPU) / sumPzJets);
 
-            if (debug_) {
-              edm::LogPrint("Primary4DVertexValidation")
-                  << "#PUTrks = " << PUnt << " #Trks = " << nt << " PURelMult = " << std::setprecision(3)
-                  << static_cast<double>(PUnt) / nt;
-              edm::LogPrint("Primary4DVertexValidation")
-                  << "PUsumWnt = " << std::setprecision(3) << PUsumWnt << " sumWnt = " << std::setprecision(3) << sumWnt
-                  << " PURelsumWnt = " << std::setprecision(3) << PUsumWnt / sumWnt;
-              edm::LogPrint("Primary4DVertexValidation")
-                  << "PUsumWos = " << std::setprecision(3) << PUsumWos << " sumWos = " << std::setprecision(3) << sumWos
-                  << " PURelsumWos = " << std::setprecision(3) << PUsumWos / sumWos;
-              edm::LogPrint("Primary4DVertexValidation")
-                  << "PuSumPt = " << std::setprecision(3) << PUsumPt << " SumPt = " << std::setprecision(4) << sumPt
-                  << " PURelSumPt = " << std::setprecision(3) << PUsumPt / sumPt;
-              edm::LogPrint("Primary4DVertexValidation")
-                  << "PuSumPt2 = " << std::setprecision(3) << PUsumPt2 << " SumPt2 = " << std::setprecision(4) << sumPt2
-                  << " PURelSumPt2 = " << std::setprecision(3) << PUsumPt2 / sumPt2;
-            }
+            LogTrace("Primary4DVertexValidation")
+                << "#PUTrks = " << PUnt << " #Trks = " << nt << " PURelMult = " << std::setprecision(3)
+                << static_cast<double>(PUnt) / nt;
+            LogTrace("Primary4DVertexValidation")
+                << "PUsumWnt = " << std::setprecision(3) << PUsumWnt << " sumWnt = " << std::setprecision(3) << sumWnt
+                << " PURelsumWnt = " << std::setprecision(3) << PUsumWnt / sumWnt;
+            LogTrace("Primary4DVertexValidation")
+                << "PUsumWos = " << std::setprecision(3) << PUsumWos << " sumWos = " << std::setprecision(3) << sumWos
+                << " PURelsumWos = " << std::setprecision(3) << PUsumWos / sumWos;
+            LogTrace("Primary4DVertexValidation")
+                << "PuSumPt = " << std::setprecision(3) << PUsumPt << " SumPt = " << std::setprecision(4) << sumPt
+                << " PURelSumPt = " << std::setprecision(3) << PUsumPt / sumPt;
+            LogTrace("Primary4DVertexValidation")
+                << "PuSumPt2 = " << std::setprecision(3) << PUsumPt2 << " SumPt2 = " << std::setprecision(4) << sumPt2
+                << " PURelSumPt2 = " << std::setprecision(3) << PUsumPt2 / sumPt2;
             if (optionalPlots_) {
               mePUTrackRecLVMult_->Fill(PUnt);
               mePUTrackRecLVSumWnt_->Fill(log10(std::max(minThrSumWnt_, PUsumWnt)));
@@ -2505,35 +2562,35 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
       if (recopv.at(ir).recVtx->tError() > 0.) {
         meRecPVT_->Fill(recopv.at(ir).recVtx->t());
       }
-      if (debug_) {
-        edm::LogPrint("Primary4DVertexValidation") << "************* IR: " << ir;
-        edm::LogPrint("Primary4DVertexValidation")
-            << "z: " << recopv.at(ir).z << " corresponding to line density: " << puLineDensity(recopv.at(ir).z);
-        edm::LogPrint("Primary4DVertexValidation") << "is_real: " << recopv.at(ir).is_real();
-        edm::LogPrint("Primary4DVertexValidation") << "is_fake: " << recopv.at(ir).is_fake();
-        edm::LogPrint("Primary4DVertexValidation") << "is_signal: " << recopv.at(ir).is_signal();
-        edm::LogPrint("Primary4DVertexValidation") << "split_from: " << recopv.at(ir).split_from();
-        edm::LogPrint("Primary4DVertexValidation") << "other fake: " << recopv.at(ir).other_fake();
-      }
-      if (recopv.at(ir).is_real())
+      LogTrace("Primary4DVertexValidation") << "************* IR: " << ir;
+      LogTrace("Primary4DVertexValidation")
+          << "z: " << recopv.at(ir).z << " corresponding to line density: " << puLineDensity(recopv.at(ir).z);
+      LogTrace("Primary4DVertexValidation") << "is_real: " << recopv.at(ir).is_real();
+      LogTrace("Primary4DVertexValidation") << "is_fake: " << recopv.at(ir).is_fake();
+      LogTrace("Primary4DVertexValidation") << "is_signal: " << recopv.at(ir).is_signal();
+      LogTrace("Primary4DVertexValidation") << "split_from: " << recopv.at(ir).split_from();
+      LogTrace("Primary4DVertexValidation") << "other fake: " << recopv.at(ir).other_fake();
+      if (recopv.at(ir).is_real()) {
         real++;
-      if (recopv.at(ir).is_fake())
+      }
+      if (recopv.at(ir).is_fake()) {
         fake++;
-      if (recopv.at(ir).other_fake())
+      }
+      if (recopv.at(ir).other_fake()) {
         other_fake++;
+      }
       if (recopv.at(ir).split_from() != -1) {
         split++;
       }
     }  // ndof
   }
 
-  if (debug_) {
-    edm::LogPrint("Primary4DVertexValidation") << "is_real: " << real;
-    edm::LogPrint("Primary4DVertexValidation") << "is_fake: " << fake;
-    edm::LogPrint("Primary4DVertexValidation") << "split_from: " << split;
-    edm::LogPrint("Primary4DVertexValidation") << "other fake: " << other_fake;
-  }
+  LogTrace("Primary4DVertexValidation") << "is_real: " << real;
+  LogTrace("Primary4DVertexValidation") << "is_fake: " << fake;
+  LogTrace("Primary4DVertexValidation") << "split_from: " << split;
+  LogTrace("Primary4DVertexValidation") << "other fake: " << other_fake;
   mePUvsRealV_->Fill(simpv.size(), real);
+  mePUvsFakeV_->Fill(simpv.size(), fake);
   mePUvsOtherFakeV_->Fill(simpv.size(), other_fake);
   mePUvsSplitV_->Fill(simpv.size(), split);
 
@@ -2549,9 +2606,7 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
     }
 
     if (simpv.at(is).rec == NOT_MATCHED) {
-      if (debug_) {
-        edm::LogPrint("Primary4DVertexValidation") << "sim vertex: " << is << " is not matched with any reco";
-      }
+      LogTrace("Primary4DVertexValidation") << "sim vertex: " << is << " is not matched with any reco";
       continue;
     }
 
@@ -2583,11 +2638,9 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
                   recopv.at(ir).OriginalIndex);  // position in reco vtx correction associated to sim signal
             }
           }
-          if (debug_) {
-            edm::LogPrint("Primary4DVertexValidation") << "*** Matching RECO: " << ir << "with SIM: " << is << " ***";
-            edm::LogPrint("Primary4DVertexValidation") << "Match Quality is " << recopv.at(ir).matchQuality;
-            edm::LogPrint("Primary4DVertexValidation") << "****";
-          }
+          LogTrace("Primary4DVertexValidation") << "*** Matching RECO: " << ir << "with SIM: " << is << " ***";
+          LogTrace("Primary4DVertexValidation") << "Match Quality is " << recopv.at(ir).matchQuality;
+          LogTrace("Primary4DVertexValidation") << "****";
         }
       }  // ndof
     }
@@ -2678,7 +2731,6 @@ void Primary4DVertexValidation::fillDescriptions(edm::ConfigurationDescriptions&
   desc.add<edm::InputTag>("probK", edm::InputTag("tofPID:probK"));
   desc.add<edm::InputTag>("probP", edm::InputTag("tofPID:probP"));
   desc.add<bool>("useOnlyChargedTracks", true);
-  desc.addUntracked<bool>("debug", false);
   desc.addUntracked<bool>("optionalPlots", false);
   desc.add<bool>("use3dNoTime", false);
   desc.add<double>("trackweightTh", 0.5);
@@ -2711,37 +2763,43 @@ void Primary4DVertexValidation::printMatchedRecoTrackInfo(const reco::Vertex& vt
       strTrk = "PU_RecoTrk:";
       break;
   }
-  edm::LogPrint("Primary4DVertexValidation")
-      << strTrk << " w =" << std::setw(6) << std::setprecision(2) << vtx.trackWeight(trk) << " pt =" << std::setw(6)
-      << std::setprecision(2) << trk->pt() << " eta =" << std::setw(6) << std::setprecision(2) << trk->eta()
-      << "  MatchedTP: Pt =" << std::setw(6) << std::setprecision(2) << tp->pt() << " eta =" << std::setw(6)
-      << std::setprecision(2) << tp->eta() << "  Parent vtx: z =" << std::setw(8) << std::setprecision(4)
-      << tp->parentVertex()->position().z() << " t =" << std::setw(8) << std::setprecision(4)
-      << tp->parentVertex()->position().t() * simUnit_ << " BX =" << tp->parentVertex()->eventId().bunchCrossing()
-      << " ev =" << tp->parentVertex()->eventId().event() << std::endl;
+  LogTrace("Primary4DVertexValidation") << strTrk << " w =" << std::setw(6) << std::setprecision(2)
+                                        << vtx.trackWeight(trk) << " pt =" << std::setw(6) << std::setprecision(2)
+                                        << trk->pt() << " eta =" << std::setw(6) << std::setprecision(2) << trk->eta()
+                                        << "  MatchedTP: Pt =" << std::setw(6) << std::setprecision(2) << tp->pt()
+                                        << " eta =" << std::setw(6) << std::setprecision(2) << tp->eta()
+                                        << "  Parent vtx: z =" << std::setw(8) << std::setprecision(4)
+                                        << tp->parentVertex()->position().z() << " t =" << std::setw(8)
+                                        << std::setprecision(4) << tp->parentVertex()->position().t() * simUnit_
+                                        << " BX =" << tp->parentVertex()->eventId().bunchCrossing()
+                                        << " ev =" << tp->parentVertex()->eventId().event() << std::endl;
 }
 
 void Primary4DVertexValidation::printSimVtxRecoVtxInfo(
     const struct Primary4DVertexValidation::simPrimaryVertex& simpVtx,
     const struct Primary4DVertexValidation::recoPrimaryVertex& recopVtx) {
-  edm::LogPrint("Primary4DVertexValidation")
-      << "Sim vtx (x,y,z,t) = (" << std::setprecision(4) << simpVtx.x << "," << std::setprecision(4) << simpVtx.y << ","
-      << std::setprecision(4) << simpVtx.z << "," << std::setprecision(4) << simpVtx.t * simUnit_ << ")";
-  edm::LogPrint("Primary4DVertexValidation")
-      << "Sim vtx: pt = " << std::setprecision(4) << simpVtx.pt << " ptsq = " << std::setprecision(6) << simpVtx.ptsq
-      << " nGenTrk = " << simpVtx.nGenTrk << " nmatch recotrks = " << simpVtx.num_matched_reco_tracks;
-  edm::LogPrint("Primary4DVertexValidation")
-      << "Reco vtx (x,y,z) = (" << std::setprecision(4) << recopVtx.x << "," << std::setprecision(4) << recopVtx.y
-      << "," << std::setprecision(4) << recopVtx.z << ")";
-  edm::LogPrint("Primary4DVertexValidation")
-      << "Reco vtx: pt = " << std::setprecision(4) << recopVtx.pt << " ptsq = " << std::setprecision(6) << recopVtx.ptsq
-      << " nrecotrks = " << recopVtx.nRecoTrk << " nmatch simtrks = " << recopVtx.num_matched_sim_tracks;
-  edm::LogPrint("Primary4DVertexValidation") << "wnt " << recopVtx.sumwnt << " wos = " << recopVtx.sumwos;
+  LogTrace("Primary4DVertexValidation") << "Sim vtx (x,y,z,t) = (" << std::setprecision(4) << simpVtx.x << ","
+                                        << std::setprecision(4) << simpVtx.y << "," << std::setprecision(4) << simpVtx.z
+                                        << "," << std::setprecision(4) << simpVtx.t * simUnit_ << ")"
+                                        << " Simvtx.rec = " << simpVtx.rec;
+  LogTrace("Primary4DVertexValidation") << "Sim vtx: pt = " << std::setprecision(4) << simpVtx.pt
+                                        << " ptsq = " << std::setprecision(6) << simpVtx.ptsq
+                                        << " nGenTrk = " << simpVtx.nGenTrk
+                                        << " nmatch recotrks = " << simpVtx.num_matched_reco_tracks;
+  LogTrace("Primary4DVertexValidation") << "Reco vtx (x,y,z) = (" << std::setprecision(4) << recopVtx.x << ","
+                                        << std::setprecision(4) << recopVtx.y << "," << std::setprecision(4)
+                                        << recopVtx.z << ")"
+                                        << " Recovtx.sim = " << recopVtx.sim;
+  LogTrace("Primary4DVertexValidation") << "Reco vtx: pt = " << std::setprecision(4) << recopVtx.pt
+                                        << " ptsq = " << std::setprecision(6) << recopVtx.ptsq
+                                        << " nrecotrks = " << recopVtx.nRecoTrk
+                                        << " nmatch simtrks = " << recopVtx.num_matched_sim_tracks;
+  LogTrace("Primary4DVertexValidation") << "wnt " << recopVtx.sumwnt << " wos = " << recopVtx.sumwos;
   for (auto iTP = simpVtx.sim_vertex->daughterTracks_begin(); iTP != simpVtx.sim_vertex->daughterTracks_end(); ++iTP) {
     if (use_only_charged_tracks_ && (**iTP).charge() == 0) {
       continue;
     }
-    edm::LogPrint("Primary4DVertexValidation")
+    LogTrace("Primary4DVertexValidation")
         << "Daughter track of sim vertex: pt =" << std::setw(6) << std::setprecision(2) << (*iTP)->pt()
         << "  eta =" << std::setw(6) << std::setprecision(2) << (*iTP)->eta();
   }
