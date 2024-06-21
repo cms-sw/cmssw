@@ -19,11 +19,8 @@
   <class name="edm::Wrapper<GlobalExtBlkBxCollection>"/>
   <class name="std::vector<GlobalExtBlk>"/>
 
-  <class name="AXOL1TLScore" ClassVersion="17">
-   <version ClassVersion="17" checksum="2400164090"/>
-   <version ClassVersion="16" checksum="1736571921"/>
-   <version ClassVersion="15" checksum="3165857256"/>
-   <version ClassVersion="14" checksum="2589106229"/>
+  <class name="AXOL1TLScore" ClassVersion="18">
+   <version ClassVersion="18" checksum="1744705474"/>
   </class>
   <class name="AXOL1TLScoreBxCollection"/>
   <class name="edm::Wrapper<AXOL1TLScoreBxCollection>"/>

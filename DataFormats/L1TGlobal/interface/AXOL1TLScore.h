@@ -33,7 +33,7 @@ typedef BXVector<AXOL1TLScore> AXOL1TLScoreBxCollection;
 typedef l1t::ObjectRef<AXOL1TLScore> AXOL1TLScoreRef;
 typedef l1t::ObjectRefBxCollection<AXOL1TLScore> AXOL1TLScoreRefBxCollection;
 // typedef l1t::ObjectRefPair<AXOL1TLScore> AXOL1TLScoreRefPair;
-// typedef l1t::ObjectRefPairBxCollection<AXOL1TLScore> AXOL1TLScoreRefPairBxCollection; //not sure if pair part is needed
+// typedef l1t::ObjectRefPairBxCollection<AXOL1TLScore> AXOL1TLScoreRefPairBxCollection; //dont think pair part is needed
 
 // class interface
 class AXOL1TLScore {
@@ -41,7 +41,9 @@ public:
   /// constructors
   AXOL1TLScore();  //empty constructor
 
-  AXOL1TLScore(int bxNr, int bxInEvent);
+  AXOL1TLScore(int bxInEvent);
+
+  AXOL1TLScore(int bxInEvent, float score);
 
   /// destructor
   virtual ~AXOL1TLScore();
@@ -56,11 +58,11 @@ public:
   void reset();
 
 private:
-  //axo score value
-  float axoscore_;
-
   /// bunch cross in the GT event record (E,F,0,1,2)
   int m_bxInEvent;
+
+  //axo score value
+  float axoscore_;
 
   //store version or type of network?
   // std::string nnversion;
