@@ -37,7 +37,7 @@ ticlCandidate = _ticlCandidateProducer.clone()
 mtdSoA = _mtdSoAProducer.clone()
 
 pfTICL = _pfTICLProducer.clone()
-ticl_v5.toModify(pfTICL, ticlCandidateSrc = cms.InputTag('ticlCandidate'), isTICLv5 = cms.bool(True))
+ticl_v5.toModify(pfTICL, ticlCandidateSrc = cms.InputTag('ticlCandidate'), isTICLv5 = cms.bool(True), useTimingAverage=True)
 
 ticlPFTask = cms.Task(pfTICL)
 
