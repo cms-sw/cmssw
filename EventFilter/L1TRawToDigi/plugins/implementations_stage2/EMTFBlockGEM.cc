@@ -108,7 +108,7 @@ namespace l1t {
         sector = (link != 4 ? evt_sector : (evt_sector == 1 ? 6 : evt_sector - 1));
         subsector = (link < 4 ? link : (link == 4 ? 5 : link - 1));
         neighbor = (link == 4 ? 1 : 0);
-        layer = (cluster_id / 4) % 2 + 1;  
+        layer = (cluster_id / 4) % 2 + 1;
       }
 
       /**
