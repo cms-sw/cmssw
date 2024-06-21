@@ -1,15 +1,10 @@
-
-
 import FWCore.ParameterSet.Config as cms
 
 # Digitiser ####
 # SiStrip 
-from EventFilter.SiStripRawToDigi.SiStripDigis_cfi import *
-siStripDigis.ProductLabel = 'source'
+from EventFilter.SiStripRawToDigi.SiStripDigis_cfi import siStripDigis
 # SiPixel
-from EventFilter.SiPixelRawToDigi.SiPixelRawToDigi_cfi import *
-siPixelDigis.InputLabel = 'source'
-
+from EventFilter.SiPixelRawToDigi.SiPixelRawToDigi_cfi import siPixelDigis
 
 # Local Reco Cosmic ####    
 from RecoLocalTracker.Configuration.RecoLocalTracker_Cosmics_cff import *
