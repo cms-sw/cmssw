@@ -11,10 +11,8 @@ from DQMOffline.RecoB.dqmAnalyzer_cff import *
 DQMOfflinePrePOG = cms.Sequence(
     pvMonitor *
     bTagPlotsDATA *
-    dqmPhysics *
-    produceDenomsData *
-    pfTauRunDQMValidation
-    )
+    dqmPhysics
+)
 
 # Fix Jet Corrector in FastSim
 topSingleMuonMediumDQM.setup.jetExtras.jetCorrector = cms.InputTag("ak4PFCHSL1FastL2L3Corrector")

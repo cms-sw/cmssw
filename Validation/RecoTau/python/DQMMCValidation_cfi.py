@@ -23,9 +23,9 @@ from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
 
 produceDenoms = cms.Sequence(
     produceDenominatorQCD+
-    produceDenominatorRealData+
-    produceDenominatorRealElectronsData+
-    produceDenominatorRealMuonsData+
+    #produceDenominatorRealData+
+    #produceDenominatorRealElectronsData+
+    #produceDenominatorRealMuonsData+
     produceDenominatorZEE+
     produceDenominatorZMM+
     produceDenominatorZTT
@@ -34,40 +34,11 @@ from Configuration.Eras.Modifier_fastSim_cff import fastSim
 fastSim.toReplaceWith(produceDenoms,produceDenoms.copyAndExclude([produceDenominatorRealData,produceDenominatorRealElectronsData,produceDenominatorRealMuonsData]))
 
 runTauEff = cms.Sequence(
-    #efficienciesQCD+
-    #efficienciesQCDSummary+
-    #efficienciesRealData+
-    #efficienciesRealDataSummary+
-    #efficienciesRealElectronsData+
-    #efficienciesRealElectronsDataSummary+
-    #efficienciesRealMuonsData+
-    #efficienciesRealMuonsDataSummary+
-    #efficienciesZEE+
-    #efficienciesZEESummary+
-    #efficienciesZMM+
-    #efficienciesZMMSummary+
-    #efficienciesZTT+
-    #efficienciesZTTSummary+
     efficienciesTauValidationMiniAODZTT+
     efficienciesTauValidationMiniAODZEE+
     efficienciesTauValidationMiniAODZMM+
-    efficienciesTauValidationMiniAODQCD+
-    efficienciesTauValidationMiniAODRealData+
-    efficienciesTauValidationMiniAODRealElectronsData+
-    efficienciesTauValidationMiniAODRealMuonsData
+    efficienciesTauValidationMiniAODQCD
     #normalizePlotsZTT
 )
-
-##Full sequences, including normalizations
-## TauEfficienciesQCD+
-## TauEfficienciesRealData+
-## TauEfficienciesRealElectronsData+
-## TauEfficienciesRealMuonsData+
-## TauEfficienciesZEEFastSim+
-## TauEfficienciesZEE+
-## TauEfficienciesZMM+
-## TauEfficienciesZTTFastSim+
-## TauEfficienciesZTT
-
 
 makeBetterPlots = cms.Sequence() #Not used anymore/by now

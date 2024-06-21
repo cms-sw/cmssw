@@ -126,25 +126,25 @@ efficienciesTauValidationMiniAODRealMuonsData = cms.EDProducer("TauDQMHistEffPro
 )
 
 tauValidationSequenceMiniAOD = cms.Sequence(
-    # --ZTT
+    ## --ZTT
     produceDenominatorZTT
     *tauValidationMiniAODZTT
-    # --ZEE
+    ## --ZEE
     *produceDenominatorZEE
     *tauValidationMiniAODZEE
-    # --ZMM
+    ## --ZMM
     *produceDenominatorZMM
     *tauValidationMiniAODZMM
-    # --QCD
+    ## --QCD
     *produceDenominatorQCD
     *tauValidationMiniAODQCD
-    # --RealData
+    ## --RealData
     *produceDenominatorRealData
     *tauValidationMiniAODRealData
-    # --RealElectronData
+    ## --RealElectronData
     *produceDenominatorRealElectronsData
     *tauValidationMiniAODRealElectronsData
-    # --RealMuonData
+    ## --RealMuonData
     *produceDenominatorRealMuonsData
     *tauValidationMiniAODRealMuonsData
 )

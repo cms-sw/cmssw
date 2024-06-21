@@ -211,7 +211,7 @@ void TauValidationMiniAOD::bookHistograms(DQMStore::IBooker &ibooker,
 
   // pt, eta, phi, mass, pileup
   histoInfo ptHinfo = (histoSettings_.exists("pt")) ? histoInfo(histoSettings_.getParameter<edm::ParameterSet>("pt"))
-                                                    : histoInfo(200, 0., 1000.);
+                                                    : histoInfo(300, 0., 1500.);
   histoInfo etaHinfo = (histoSettings_.exists("eta")) ? histoInfo(histoSettings_.getParameter<edm::ParameterSet>("eta"))
                                                       : histoInfo(60, -3, 3.);
   histoInfo phiHinfo = (histoSettings_.exists("phi")) ? histoInfo(histoSettings_.getParameter<edm::ParameterSet>("phi"))
@@ -326,9 +326,6 @@ void TauValidationMiniAOD::bookHistograms(DQMStore::IBooker &ibooker,
   real_data = "JETHT";
   real_eledata = "DoubleElectron";
   real_mudata = "DoubleMuon";
-  //real_data = "RealData";
-  //real_eledata = "RealElectronsData";
-  //real_mudata = "RealMuonsData";
 
   // ---------------------------- /vsJet/ ---------------------------------------------
   if (extensionName_.compare(qcd) == 0 || extensionName_.compare(real_data) == 0 || extensionName_.compare(ztt) == 0) {
