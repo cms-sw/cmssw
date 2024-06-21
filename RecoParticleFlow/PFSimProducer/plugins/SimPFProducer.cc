@@ -95,15 +95,17 @@ void SimPFProducer::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.add<edm::InputTag>("gsfTrackSrc", {"electronGsfTracks"});
 
   // if useTiming_
-  desc.addOptional<edm::InputTag>("trackTimeValueMap");
-  desc.addOptional<edm::InputTag>("trackTimeErrorMap");
-  desc.addOptional<edm::InputTag>("trackTimeQualityMap");
-  desc.addOptional<double>("timingQualityThreshold");
-  desc.addOptional<edm::InputTag>("gsfTrackTimeValueMap");
-  desc.addOptional<edm::InputTag>("gsfTrackTimeErrorMap");
-  desc.addOptional<edm::InputTag>("gsfTrackTimeQualityMap");
+  desc.add<bool>("useTiming", false);
+  desc.add<bool>("useTimingQuality", false);
+  desc.add<edm::InputTag>("trackTimeValueMap", {});
+  desc.add<edm::InputTag>("trackTimeErrorMap", {});
+  desc.add<edm::InputTag>("trackTimeQualityMap", {});
+  desc.add<double>("timingQualityThreshold", 0);
+  desc.add<edm::InputTag>("gsfTrackTimeValueMap", {});
+  desc.add<edm::InputTag>("gsfTrackTimeErrorMap", {});
+  desc.add<edm::InputTag>("gsfTrackTimeQualityMap", {});
 
-  descriptions.add("simPFProducer", desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 namespace {
@@ -120,8 +122,8 @@ SimPFProducer::SimPFProducer(const edm::ParameterSet& conf)
     : superClusterThreshold_(conf.getParameter<double>("superClusterThreshold")),
       neutralEMThreshold_(conf.getParameter<double>("neutralEMThreshold")),
       neutralHADThreshold_(conf.getParameter<double>("neutralHADThreshold")),
-      useTiming_(conf.existsAs<edm::InputTag>("trackTimeValueMap")),
-      useTimingQuality_(conf.existsAs<edm::InputTag>("trackTimeQualityMap")),
+      useTiming_(conf.getParameter<bool>("useTiming")),
+      useTimingQuality_(conf.getParameter<bool>("useTimingQuality")),
       timingQualityThreshold_(useTimingQuality_ ? conf.getParameter<double>("timingQualityThreshold") : -99.),
       pfRecTracks_(consumes<edm::View<reco::PFRecTrack>>(conf.getParameter<edm::InputTag>("pfRecTrackSrc"))),
       tracks_(consumes<edm::View<reco::Track>>(conf.getParameter<edm::InputTag>("trackSrc"))),

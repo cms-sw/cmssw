@@ -28,10 +28,11 @@ public:
         _nClustersFound(0),
         _minFractionToKeep(conf.getParameter<double>("minFractionToKeep")),
         _algoName(conf.getParameter<std::string>("algoName")) {
-    if (conf.exists("positionCalc")) {
-      const edm::ParameterSet& pcConf = conf.getParameterSet("positionCalc");
+    const auto& pcConf = conf.getParameterSet("positionCalc");
+    if (!pcConf.empty()) {
       const std::string& algo = pcConf.getParameter<std::string>("algoName");
-      _positionCalc = PFCPositionCalculatorFactory::get()->create(algo, pcConf, cc);
+      if (!algo.empty())
+        _positionCalc = PFCPositionCalculatorFactory::get()->create(algo, pcConf, cc);
     }
   }
   virtual ~PFClusterBuilderBase() = default;
