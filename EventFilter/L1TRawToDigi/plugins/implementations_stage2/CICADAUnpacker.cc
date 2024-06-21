@@ -27,9 +27,9 @@ namespace l1t {
         return false;
       } else {
         std::vector<uint32_t> cicadaWords = {0, 0, 0, 0};
-        //the first 4 words are CICADA words
-        for (uint32_t i = 0; i < 4; ++i) {
-          cicadaWords.at(i) = ((block.payload().at(i)) >> 28);
+        //the last 4 words are CICADA words
+        for (uint32_t i = 2; i < 6; ++i) {
+          cicadaWords.at(i-2) = ((block.payload().at(i)) >> 28);
         }
 
         float cicadaScore = convertCICADABitsToFloat(cicadaWords);
