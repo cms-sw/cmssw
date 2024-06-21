@@ -87,8 +87,7 @@ elif(offlineTesting):
     #you may need to set manually the GT in the line below
     process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run3_hlt', '')
 
-
-print("Will process with GlobalTag %s",process.GlobalTag.globaltag.value())
+print("Will process with GlobalTag: %s" % process.GlobalTag.globaltag.value())
 
 #--------------------------------------------
 # Patch to avoid using Run Info information in reconstruction

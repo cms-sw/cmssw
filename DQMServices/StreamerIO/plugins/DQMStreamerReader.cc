@@ -27,7 +27,8 @@ namespace dqmservices {
         flagSkipFirstLumis_(pset.getUntrackedParameter<bool>("skipFirstLumis")),
         flagEndOfRunKills_(pset.getUntrackedParameter<bool>("endOfRunKills")),
         flagDeleteDatFiles_(pset.getUntrackedParameter<bool>("deleteDatFiles")),
-        hltSel_(pset.getUntrackedParameter<std::vector<std::string>>("SelectEvents")) {
+        hltSel_(pset.getUntrackedParameter<std::vector<std::string>>("SelectEvents")),
+        unitTest_(pset.getUntrackedParameter<bool>("unitTest", false)) {
     setAcceptAllEvt();
     reset_();
   }
@@ -167,6 +168,12 @@ namespace dqmservices {
         openFileImp_(currentLumi);
         return true;
       } catch (const cms::Exception& e) {
+        if (unitTest_) {
+          throw edm::Exception(edm::errors::FileReadError, "DQMStreamerReader::openNextFileInp")
+              << std::string("Can't deserialize registry data (in open file): ") + e.what()
+              << "\n error: data file corrupted";
+        }
+
         fiterator_.logFileAction(std::string("Can't deserialize registry data (in open file): ") + e.what(), p);
         fiterator_.logLumiState(currentLumi, "error: data file corrupted");
 
@@ -462,6 +469,9 @@ namespace dqmservices {
         ->setComment(
             "Kill the processing as soon as the end-of-run file appears, even if "
             "there are/will be unprocessed lumisections.");
+
+    desc.addUntracked<bool>("unitTest", false)
+        ->setComment("Kill the processing if the input data cannot be deserialized");
 
     // desc.addUntracked<unsigned int>("skipEvents", 0U)
     //    ->setComment("Skip the first 'skipEvents' events that otherwise would "
