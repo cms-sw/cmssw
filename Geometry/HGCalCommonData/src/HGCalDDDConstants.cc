@@ -25,7 +25,7 @@ using namespace geant_units::operators;
 HGCalDDDConstants::HGCalDDDConstants(const HGCalParameters* hp, const std::string& name)
     : hgpar_(hp), sqrt3_(std::sqrt(3.0)), mode_(hgpar_->mode_), fullAndPart_(waferHexagon8File()) {
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "Mode " << mode_ << " FullAndPart " << fullAndPart_;
+  edm::LogVerbatim("HGCalGeom") << "HGCalDDDConstants::Mode " << mode_ << " FullAndPart " << fullAndPart_;
 #endif
   if (waferHexagon6() || waferHexagon8()) {
     rmax_ = (HGCalParameters::k_ScaleFromDDD * (hgpar_->waferR_) * std::cos(30._deg));
@@ -42,8 +42,9 @@ HGCalDDDConstants::HGCalDDDConstants(const HGCalParameters* hp, const std::strin
                                                     hgpar_->mouseBite_,
                                                     hgpar_->sensorSizeOffset_);
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "rmax_ " << rmax_ << ":" << rmaxT_ << ":" << hexside_ << ":" << hexsideT_
-                                  << " CellSize " << 0.5 * HGCalParameters::k_ScaleFromDDD * hgpar_->cellSize_[0] << ":"
+    edm::LogVerbatim("HGCalGeom") << "HGCalDDDConstants::rmax_ " << rmax_ << ":" << rmaxT_ << ":" << hexside_ << ":"
+                                  << hexsideT_ << " CellSize "
+                                  << 0.5 * HGCalParameters::k_ScaleFromDDD * hgpar_->cellSize_[0] << ":"
                                   << 0.5 * HGCalParameters::k_ScaleFromDDD * hgpar_->cellSize_[1];
 #endif
   } else {
@@ -54,7 +55,8 @@ HGCalDDDConstants::HGCalDDDConstants(const HGCalParameters* hp, const std::strin
   if (cassetteMode()) {
     hgcassette_.setParameter(hgpar_->cassettes_, hgpar_->cassetteShift_);
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "Setup HGCalCassette for " << hgpar_->cassettes_ << " cassettes";
+    edm::LogVerbatim("HGCalGeom") << "HGCalDDDConstants::Setup HGCalCassette for " << hgpar_->cassettes_
+                                  << " cassettes";
 #endif
   }
   // init maps and constants
@@ -69,16 +71,17 @@ HGCalDDDConstants::HGCalDDDConstants(const HGCalParameters* hp, const std::strin
         modHalf_ += max_modules_layer_[simreco][layer];
         maxWafersPerLayer_ = std::max(maxWafersPerLayer_, max_modules_layer_[simreco][layer]);
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("HGCalGeom") << "Layer " << layer << " with " << max_modules_layer_[simreco][layer] << ":"
-                                      << modHalf_ << " modules in RECO";
+        edm::LogVerbatim("HGCalGeom") << "HGCalDDDConstants::Layer " << layer << " with "
+                                      << max_modules_layer_[simreco][layer] << ":" << modHalf_ << " modules in RECO";
       } else {
-        edm::LogVerbatim("HGCalGeom") << "Layer " << layer << " with " << max_modules_layer_[simreco][layer]
-                                      << " modules in SIM";
+        edm::LogVerbatim("HGCalGeom") << "HGCalDDDConstants::Layer " << layer << " with "
+                                      << max_modules_layer_[simreco][layer] << " modules in SIM";
 #endif
       }
     }
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "SimReco " << simreco << " with " << tot_layers_[simreco] << " Layers";
+    edm::LogVerbatim("HGCalGeom") << "HGCalDDDConstants::SimReco " << simreco << " with " << tot_layers_[simreco]
+                                  << " Layers";
 #endif
   }
   tot_wafers_ = wafers();

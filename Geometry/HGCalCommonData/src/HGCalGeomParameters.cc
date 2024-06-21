@@ -881,11 +881,12 @@ void HGCalGeomParameters::loadGeometryHexagonModule(const DDCompactView* cpv,
   DDFilteredView fv2(*cpv, filter2);
   dodet = fv2.firstChild();
   while (dodet) {
-#ifdef EDM_ML_DEBUG
-    ++ntot2;
-#endif
     std::vector<int> copy = fv2.copyNumbers();
     int nsiz = static_cast<int>(copy.size());
+#ifdef EDM_ML_DEBUG
+    ++ntot2;
+    edm::LogVerbatim("HGCalGeom") << "loadGeometryHexagonModule:: nsiz " << nsiz << " Ltop " << levelTop;
+#endif
     if (levelTop < nsiz) {
       int lay = copy[levelTop];
       int zside = (nsiz > php.levelZSide_) ? copy[php.levelZSide_] : -1;
@@ -903,17 +904,23 @@ void HGCalGeomParameters::loadGeometryHexagonModule(const DDCompactView* cpv,
       if (lay == 0) {
         throw cms::Exception("DDException")
             << "Funny layer # " << lay << " zp " << zside << " in " << nsiz << " components";
-      } else if (sol.shape() == DDSolidShape::ddtubs) {
+      } else if ((sol.shape() == DDSolidShape::ddtubs) || (sol.shape() == DDSolidShape::ddbox)) {
         if (zvals.find(std::make_pair(lay, zside)) != zvals.end()) {
           if (std::find(php.layer_.begin(), php.layer_.end(), lay) == php.layer_.end())
             php.layer_.emplace_back(lay);
           auto itr = layers.find(lay);
           if (itr == layers.end()) {
-            const DDTubs& tube = static_cast<DDTubs>(sol);
-            double rin = HGCalParameters::k_ScaleFromDDD * tube.rIn();
-            double rout = (php.firstMixedLayer_ > 0 && lay >= php.firstMixedLayer_)
-                              ? php.radiusMixBoundary_[lay - php.firstMixedLayer_]
-                              : HGCalParameters::k_ScaleFromDDD * tube.rOut();
+            double rin(0), rout(0);
+            if (sol.shape() == DDSolidShape::ddtubs) {
+              const DDTubs& tube = static_cast<DDTubs>(sol);
+              rin = HGCalParameters::k_ScaleFromDDD * tube.rIn();
+              rout = (php.firstMixedLayer_ > 0 && lay >= php.firstMixedLayer_)
+                         ? php.radiusMixBoundary_[lay - php.firstMixedLayer_]
+                         : HGCalParameters::k_ScaleFromDDD * tube.rOut();
+            } else {
+              const DDBox& box = static_cast<DDBox>(sol);
+              rout = HGCalParameters::k_ScaleFromDDD * box.halfX();
+            }
             double zp = zvals[std::make_pair(lay, 1)];
             HGCalGeomParameters::layerParameters laypar(rin, rout, zp);
             layers[lay] = laypar;
@@ -1018,6 +1025,7 @@ void HGCalGeomParameters::loadGeometryHexagonModule(const cms::DDCompactView* cp
     int nsiz = static_cast<int>(fv2.level());
 #ifdef EDM_ML_DEBUG
     ++ntot2;
+    edm::LogVerbatim("HGCalGeom") << "loadGeometryHexagonModule:: nsiz " << nsiz << " Ltop " << levelTop;
 #endif
     if (nsiz > levelTop) {
       std::vector<int> copy = fv2.copyNos();
@@ -1043,10 +1051,15 @@ void HGCalGeomParameters::loadGeometryHexagonModule(const cms::DDCompactView* cp
           auto itr = layers.find(lay);
           if (itr == layers.end()) {
             const std::vector<double>& pars = fv2.parameters();
-            double rin = HGCalParameters::k_ScaleFromDD4hep * pars[0];
-            double rout = (php.firstMixedLayer_ > 0 && lay >= php.firstMixedLayer_)
-                              ? php.radiusMixBoundary_[lay - php.firstMixedLayer_]
-                              : HGCalParameters::k_ScaleFromDD4hep * pars[1];
+            double rin(0), rout(0);
+            if (dd4hep::isA<dd4hep::Box>(fv2.solid())) {
+              rout = HGCalParameters::k_ScaleFromDD4hep * pars[0];
+            } else {
+              rin = HGCalParameters::k_ScaleFromDD4hep * pars[0];
+              rout = (php.firstMixedLayer_ > 0 && lay >= php.firstMixedLayer_)
+                         ? php.radiusMixBoundary_[lay - php.firstMixedLayer_]
+                         : HGCalParameters::k_ScaleFromDD4hep * pars[1];
+            }
             double zp = zvals[std::make_pair(lay, 1)];
             HGCalGeomParameters::layerParameters laypar(rin, rout, zp);
             layers[lay] = laypar;
@@ -1515,7 +1528,7 @@ void HGCalGeomParameters::loadSpecParsHexagon8(HGCalParameters& php) {
     edm::LogVerbatim("HGCalGeom") << "HGCalGeomParameters: cell[" << k << "] Thickness " << php.cellThickness_[k];
   edm::LogVerbatim("HGCalGeom") << "HGCalGeomParameters: Polynomial "
                                 << "parameters for 120 to 200 micron "
-                                << "transition with" << php.radius100to200_.size() << " elements";
+                                << "transition with " << php.radius100to200_.size() << " elements";
   for (unsigned int k = 0; k < php.radius100to200_.size(); ++k)
     edm::LogVerbatim("HGCalGeom") << "Element [" << k << "] " << php.radius100to200_[k];
   edm::LogVerbatim("HGCalGeom") << "HGCalGeomParameters: Polynomial "
@@ -1534,8 +1547,10 @@ void HGCalGeomParameters::loadSpecParsHexagon8(HGCalParameters& php) {
   for (unsigned int k = 0; k < php.zFrontTop_.size(); ++k)
     edm::LogVerbatim("HGCalGeom") << "HGCalParameters: Boundary[" << k << "] Top Z = " << php.zFrontTop_[k]
                                   << " Slope = " << php.slopeTop_[k] << " rMax = " << php.rMaxFront_[k];
-  edm::LogVerbatim("HGCalGeom") << "HGCalParameters: Z-Boundary " << php.zRanges_[0] << ":" << php.zRanges_[1] << ":"
-                                << php.zRanges_[2] << ":" << php.zRanges_[3];
+  std::ostringstream st1;
+  for (unsigned int k = 0; k < php.zRanges_.size(); ++k)
+    st1 << ":" << php.zRanges_[k];
+  edm::LogVerbatim("HGCalGeom") << "HGCalParameters: Z-Boundary[" << php.zRanges_.size() << "] " << st1.str();
   edm::LogVerbatim("HGCalGeom") << "HGCalGeomParameters: LayerOffset " << php.layerOffset_ << " in array of size "
                                 << php.layerCenter_.size();
   for (unsigned int k = 0; k < php.layerCenter_.size(); ++k)
@@ -1803,8 +1818,10 @@ void HGCalGeomParameters::loadSpecParsTrapezoid(HGCalParameters& php) {
     edm::LogVerbatim("HGCalGeom") << "HGCalParameters: Boundary[" << k << "] Top Z = " << php.zFrontTop_[k]
                                   << " Slope = " << php.slopeTop_[k] << " rMax = " << php.rMaxFront_[k];
 
-  edm::LogVerbatim("HGCalGeom") << "HGCalParameters: Z-Boundary " << php.zRanges_[0] << ":" << php.zRanges_[1] << ":"
-                                << php.zRanges_[2] << ":" << php.zRanges_[3];
+  std::ostringstream st1;
+  for (unsigned int k = 0; k < php.zRanges_.size(); ++k)
+    st1 << ":" << php.zRanges_[k];
+  edm::LogVerbatim("HGCalGeom") << "HGCalParameters: Z-Boundary[" << php.zRanges_.size() << "] " << st1.str();
 
   edm::LogVerbatim("HGCalGeom") << "HGCalParameters: LayerOffset " << php.layerOffset_ << " in array of size "
                                 << php.layerCenter_.size();
