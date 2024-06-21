@@ -192,12 +192,15 @@ steps['BTVNANO_data13.0']=merge([{'-s' : 'NANO:@BTV',
                                     '-n' : '1000'},
                                     steps['NANO_data13.0']])
 
-steps['jmeNano_data13.0'] = merge([{'-s':'NANO:@JME', '-n' : '1000'},
+steps['jmeNANO_data13.0'] = merge([{'-s':'NANO:@JME', '-n' : '1000'},
                                  steps['NANO_data13.0']])
 
 steps['lepTrackInfoNANO_data13.0']=merge([{'-s' : 'NANO:@LepTrackInfo,DQM:@nanoAODDQM',
                                           '-n' : '1000'},
                                          steps['NANO_data13.0']])
+
+steps['jmeNANO_rePuppi_data13.0']= merge([{'-s':'NANO:@JMErePuppi', '-n' : '1000'},
+                                 steps['NANO_data13.0']])
 
 ###current release cycle workflows : 13.2
 steps['TTBarMINIAOD13.2'] = {'INPUT':InputInfo(location='STD',
@@ -220,10 +223,12 @@ steps['BTVNANO_mc13.2']=merge([{'-s' : 'NANO:@BTV',
 
 steps['lepTrackInfoNANO_mc13.2']=merge([{'-s' : 'NANO:@LepTrackInfo,DQM:@nanoAODDQM', '-n' : '1000'},
                                        steps['NANO_mc13.2']])
-
+ 
 steps['jmeNANO_mc13.2']=merge([{'-s' : 'NANO:@JME ', '-n' : '1000'},
                                     steps['NANO_mc13.2']])
 
+steps['jmeNANO_rePuppi_mc13.2']=merge([{'-s' : 'NANO:@JMErePuppi ', '-n' : '1000'},
+                                    steps['NANO_mc13.2']])
 
 ##13.X INPUT
 steps['ScoutingPFRun32022DRAW13.X']={'INPUT':InputInfo(dataSet='/ScoutingPFRun3/Run2022D-v1/RAW',label='2022D',events=100000,location='STD', ls=Run2022D)}
@@ -282,8 +287,9 @@ workflows[_wfn()] = ['muPOGNANO130Xrun3', ['MuonEG2023MINIAOD13.0', 'muPOGNANO_d
 workflows[_wfn()] = ['l1DPGNANO130Xrun3', ['ZMuSkim2023DRAWRECO13.0', 'l1DPGNANO_data13.0']]
 workflows[_wfn()] = ['EGMNANOdata130Xrun3', ['MuonEG2023MINIAOD13.0', 'EGMNano_data13.0']]
 workflows[_wfn()] = ['BTVNANO_data13.0', ['MuonEG2023MINIAOD13.0', 'BTVNANO_data13.0']]
-workflows[_wfn()] = ['jmeNANOdata130Xrun3', ['MuonEG2023MINIAOD13.0', 'jmeNano_data13.0']]
+workflows[_wfn()] = ['jmeNANOdata130Xrun3', ['MuonEG2023MINIAOD13.0', 'jmeNANO_data13.0']]
 workflows[_wfn()] = ['lepTrackInfoNANOdata130Xrun3', ['MuonEG2023MINIAOD13.0', 'lepTrackInfoNANO_data13.0']]
+workflows[_wfn()] = ['jmeNANOrePuppidata130Xrun3', ['MuonEG2023MINIAOD13.0', 'jmeNANO_rePuppi_data13.0']]
 
 _wfn.next()
 ################
@@ -294,6 +300,7 @@ workflows[_wfn()] = ['EGMNANOmc132X', ['TTBarMINIAOD13.2', 'EGMNano_mc13.2']]
 workflows[_wfn()] = ['BTVNANO_mc13.2', ['TTBarMINIAOD13.2', 'BTVNANO_mc13.2']]
 workflows[_wfn()] = ['jmeNANOmc132X', ['TTBarMINIAOD13.2', 'jmeNANO_mc13.2']]
 workflows[_wfn()] = ['lepTrackInfoNANOmc132X', ['TTBarMINIAOD13.2', 'lepTrackInfoNANO_mc13.2']]
+workflows[_wfn()] = ['jmeNANOrePuppimc132X', ['TTBarMINIAOD13.2', 'jmeNANO_rePuppi_mc13.2']]
 
 _wfn.next()
 ################
