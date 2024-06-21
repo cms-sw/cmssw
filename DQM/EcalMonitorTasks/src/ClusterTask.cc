@@ -364,6 +364,7 @@ namespace ecaldqm {
     MESet& meSCELow(MEs_.at("SCELow"));
     MESet& meSCRawE(MEs_.at("SCRawE"));
     MESet& meSCRawELow(MEs_.at("SCRawELow"));
+    MESet& meSCRawEHigh(MEs_.at("SCRawEHigh"));
     MESet& meSCNBCs(MEs_.at("SCNBCs"));
     MESet& meSCNcrystals(MEs_.at("SCNcrystals"));
     MESet& meTrendSCSize(MEs_.at("TrendSCSize"));
@@ -423,6 +424,7 @@ namespace ecaldqm {
 
       meSCRawE.fill(getEcalDQMSetupObjects(), seedId, rawEnergy);
       meSCRawELow.fill(getEcalDQMSetupObjects(), seedId, rawEnergy);
+      meSCRawEHigh.fill(getEcalDQMSetupObjects(), seedId, rawEnergy);
 
       meSCNBCs.fill(getEcalDQMSetupObjects(), seedId, scItr->clustersSize());
       meSCNcrystals.fill(getEcalDQMSetupObjects(), seedId, size);
