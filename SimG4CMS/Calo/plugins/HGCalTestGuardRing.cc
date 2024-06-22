@@ -62,10 +62,7 @@ HGCalTestGuardRing::HGCalTestGuardRing(const edm::ParameterSet& ps)
                                << " for wafers read from file " << waferFile_;
   if (!waferFile_.empty()) {
     std::string thick[4] = {"h120", "l200", "l300", "h200"};
-    int addType[4] = {HGCalTypes::WaferHD120,
-                      HGCalTypes::WaferLD200,
-                      HGCalTypes::WaferLD300,
-                      HGCalTypes::WaferHD200};
+    int addType[4] = {HGCalTypes::WaferHD120, HGCalTypes::WaferLD200, HGCalTypes::WaferLD300, HGCalTypes::WaferHD200};
     const int partTypeH[6] = {HGCalTypes::WaferFull,
                               HGCalTypes::WaferHalf2,
                               HGCalTypes::WaferChopTwoM,

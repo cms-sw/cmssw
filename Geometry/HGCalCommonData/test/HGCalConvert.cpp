@@ -508,10 +508,7 @@ void ConvertSiliconV1::convert(
     //First read in all records
     char buffer[1024];
     std::string thick[4] = {"h120", "l200", "l300", "h200"};
-    int addType[4] = {HGCalTypes::WaferHD120,
-                      HGCalTypes::WaferLD200,
-                      HGCalTypes::WaferLD300,
-                      HGCalTypes::WaferHD200};
+    int addType[4] = {HGCalTypes::WaferHD120, HGCalTypes::WaferLD200, HGCalTypes::WaferLD300, HGCalTypes::WaferHD200};
     const int partTypeH[6] = {HGCalTypes::WaferFull,
                               HGCalTypes::WaferHalf2,
                               HGCalTypes::WaferChopTwoM,
@@ -713,10 +710,8 @@ void ConvertSiliconV2::convert(
     char buffer[1024];
     const int thksize = 4;
     std::string thick[thksize] = {"h120", "l200", "l300", "h200"};
-    int addType[thksize] = {HGCalTypes::WaferHD120,
-                            HGCalTypes::WaferLD200,
-                            HGCalTypes::WaferLD300,
-                            HGCalTypes::WaferHD200};
+    int addType[thksize] = {
+        HGCalTypes::WaferHD120, HGCalTypes::WaferLD200, HGCalTypes::WaferLD300, HGCalTypes::WaferHD200};
     const int partTypeH[6] = {HGCalTypes::WaferFull,
                               HGCalTypes::WaferHDTop,
                               HGCalTypes::WaferHDBottom,
@@ -1910,10 +1905,8 @@ void ConvertNoseV0::convert(
     char buffer[1024];
     const int thksize = 4;
     std::string thick[thksize] = {"h120", "l200", "l300", "h200"};
-    int addType[thksize] = {HGCalTypes::WaferHD120,
-                            HGCalTypes::WaferLD200,
-                            HGCalTypes::WaferLD300,
-                            HGCalTypes::WaferHD200};
+    int addType[thksize] = {
+        HGCalTypes::WaferHD120, HGCalTypes::WaferLD200, HGCalTypes::WaferLD300, HGCalTypes::WaferHD200};
     const int partTypeH[6] = {HGCalTypes::WaferFull,
                               HGCalTypes::WaferHDTop,
                               HGCalTypes::WaferHDBottom,

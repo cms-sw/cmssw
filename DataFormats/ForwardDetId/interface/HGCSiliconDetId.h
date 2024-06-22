@@ -98,8 +98,7 @@ public:
   constexpr bool lowDensity() const { return ((type() == HGCalLD200) || (type() == HGCalLD300)); }
   constexpr bool highDensity() const { return ((type() == HGCalHD120) || (type() == HGCalHD200)); }
   constexpr int32_t depletion() const {
-    return ((type() == HGCalHD120) ? HGCal0Depletion
-                                  : ((type() == HGCalLD300) ? HGCal2Depletion : HGCal1Depletion));
+    return ((type() == HGCalHD120) ? HGCal0Depletion : ((type() == HGCalLD300) ? HGCal2Depletion : HGCal1Depletion));
   }
 
   /// get the z-side of the cell (1/-1)
