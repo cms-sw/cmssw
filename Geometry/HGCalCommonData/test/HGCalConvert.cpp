@@ -508,10 +508,10 @@ void ConvertSiliconV1::convert(
     //First read in all records
     char buffer[1024];
     std::string thick[4] = {"h120", "l200", "l300", "h200"};
-    int addType[4] = {HGCalTypes::WaferFineThin,
-                      HGCalTypes::WaferCoarseThin,
-                      HGCalTypes::WaferCoarseThick,
-                      HGCalTypes::WaferFineThick};
+    int addType[4] = {HGCalTypes::WaferHD120,
+                      HGCalTypes::WaferLD200,
+                      HGCalTypes::WaferLD300,
+                      HGCalTypes::WaferHD200};
     const int partTypeH[6] = {HGCalTypes::WaferFull,
                               HGCalTypes::WaferHalf2,
                               HGCalTypes::WaferChopTwoM,
@@ -566,7 +566,7 @@ void ConvertSiliconV1::convert(
           int thck = static_cast<int>(std::find(thick, thick + 4, items[2]) - thick);
           int part = std::atoi(items[1].c_str());
           if ((thck < 4) && (part >= 0)) {
-            if ((addType[thck] == HGCalTypes::WaferFineThin) || (addType[thck] == HGCalTypes::WaferFineThick))
+            if ((addType[thck] == HGCalTypes::WaferHD120) || (addType[thck] == HGCalTypes::WaferHD200))
               part = partTypeH[part];
             else
               part = partTypeL[part];
@@ -713,10 +713,10 @@ void ConvertSiliconV2::convert(
     char buffer[1024];
     const int thksize = 4;
     std::string thick[thksize] = {"h120", "l200", "l300", "h200"};
-    int addType[thksize] = {HGCalTypes::WaferFineThin,
-                            HGCalTypes::WaferCoarseThin,
-                            HGCalTypes::WaferCoarseThick,
-                            HGCalTypes::WaferFineThick};
+    int addType[thksize] = {HGCalTypes::WaferHD120,
+                            HGCalTypes::WaferLD200,
+                            HGCalTypes::WaferLD300,
+                            HGCalTypes::WaferHD200};
     const int partTypeH[6] = {HGCalTypes::WaferFull,
                               HGCalTypes::WaferHDTop,
                               HGCalTypes::WaferHDBottom,
@@ -776,7 +776,7 @@ void ConvertSiliconV2::convert(
           int thck = static_cast<int>(std::find(thick, thick + thksize, items[2]) - thick);
           int part = std::atoi(items[1].c_str());
           if ((thck <= thksize) && (part >= 0)) {
-            if ((addType[thck] == HGCalTypes::WaferFineThin) || (addType[thck] == HGCalTypes::WaferFineThick))
+            if ((addType[thck] == HGCalTypes::WaferHD120) || (addType[thck] == HGCalTypes::WaferHD200))
               part = partTypeH[part];
             else
               part = partTypeL[part];
@@ -1910,10 +1910,10 @@ void ConvertNoseV0::convert(
     char buffer[1024];
     const int thksize = 4;
     std::string thick[thksize] = {"h120", "l200", "l300", "h200"};
-    int addType[thksize] = {HGCalTypes::WaferFineThin,
-                            HGCalTypes::WaferCoarseThin,
-                            HGCalTypes::WaferCoarseThick,
-                            HGCalTypes::WaferFineThick};
+    int addType[thksize] = {HGCalTypes::WaferHD120,
+                            HGCalTypes::WaferLD200,
+                            HGCalTypes::WaferLD300,
+                            HGCalTypes::WaferHD200};
     const int partTypeH[6] = {HGCalTypes::WaferFull,
                               HGCalTypes::WaferHDTop,
                               HGCalTypes::WaferHDBottom,
@@ -1975,7 +1975,7 @@ void ConvertNoseV0::convert(
           int thck = static_cast<int>(std::find(thick, thick + thksize, items[2]) - thick);
           int part = std::atoi(items[1].c_str());
           if ((thck <= thksize) && (part >= 0)) {
-            if ((addType[thck] == HGCalTypes::WaferFineThin) || (addType[thck] == HGCalTypes::WaferFineThick))
+            if ((addType[thck] == HGCalTypes::WaferHD120) || (addType[thck] == HGCalTypes::WaferHD200))
               part = partTypeH[part];
             else
               part = partTypeL[part];
