@@ -118,7 +118,7 @@ void TauValidationMiniAOD::bookHistograms(DQMStore::IBooker &ibooker,
   }
   histoInfo pTOverProngHinfo = (histoSettings_.exists("pTOverProng"))
                                    ? histoInfo(histoSettings_.getParameter<edm::ParameterSet>("pTOverProng"))
-                                   : histoInfo(50, 0, 1000);
+                                   : histoInfo(200, 0, 1000);
 
   pTOverProng_dm0 = ibooker.book2D("pTOverProng_dm0",
                                    "pTOverProng: DM = 0",
@@ -213,9 +213,9 @@ void TauValidationMiniAOD::bookHistograms(DQMStore::IBooker &ibooker,
   histoInfo ptHinfo = (histoSettings_.exists("pt")) ? histoInfo(histoSettings_.getParameter<edm::ParameterSet>("pt"))
                                                     : histoInfo(300, 0., 1500.);
   histoInfo etaHinfo = (histoSettings_.exists("eta")) ? histoInfo(histoSettings_.getParameter<edm::ParameterSet>("eta"))
-                                                      : histoInfo(60, -3, 3.);
+                                                      : histoInfo(30, -3, 3.);
   histoInfo phiHinfo = (histoSettings_.exists("phi")) ? histoInfo(histoSettings_.getParameter<edm::ParameterSet>("phi"))
-                                                      : histoInfo(60, -3, 3.);
+                                                      : histoInfo(30, -3, 3.);
   histoInfo massHinfo = (histoSettings_.exists("mass"))
                             ? histoInfo(histoSettings_.getParameter<edm::ParameterSet>("mass"))
                             : histoInfo(200, 0, 10.);
@@ -235,15 +235,15 @@ void TauValidationMiniAOD::bookHistograms(DQMStore::IBooker &ibooker,
   histoInfo byDeepTau2018v2p5VSerawHinfo =
       (histoSettings_.exists("byDeepTau2018v2p5VSeraw"))
           ? histoInfo(histoSettings_.getParameter<edm::ParameterSet>("byDeepTau2018v2p5VSeraw"))
-          : histoInfo(200, 0., 1.);
+          : histoInfo(50, 0., 1.);
   histoInfo byDeepTau2018v2p5VSjetrawHinfo =
       (histoSettings_.exists("byDeepTau2018v2p5VSjetraw"))
           ? histoInfo(histoSettings_.getParameter<edm::ParameterSet>("byDeepTau2018v2p5VSjetraw"))
-          : histoInfo(200, 0., 1.);
+          : histoInfo(50, 0., 1.);
   histoInfo byDeepTau2018v2p5VSmurawHinfo =
       (histoSettings_.exists("byDeepTau2018v2p5VSmuraw"))
           ? histoInfo(histoSettings_.getParameter<edm::ParameterSet>("byDeepTau2018v2p5VSmuraw"))
-          : histoInfo(200, 0., 1.);
+          : histoInfo(50, 0., 1.);
 
   // book the temp histograms
   ptTemp = ibooker.book1D("tau_pt", "tau pt", ptHinfo.nbins, ptHinfo.min, ptHinfo.max);

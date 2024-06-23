@@ -21,7 +21,7 @@ process.load('RecoJets.Configuration.RecoGenJets_cff')
 process.load('RecoJets.Configuration.GenJetParticles_cff')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100), #-1
+    input = cms.untracked.int32(-1), #100
     output = cms.optional.untracked.allowed(cms.int32,cms.PSet)
 )
 
@@ -53,13 +53,13 @@ process_dict ={
         #ttbar_relval_23_v1
         #"/store/relval/CMSSW_13_0_11/RelValTTbar_14TeV/MINIAODSIM/PU_130X_mcRun3_2023_realistic_relvals2023D_v1_RV204-v1/2590000/69c3b054-bd07-4178-9481-14f04f79ca95.root",
         #ttbar_relval_23_v2
-        "/store/relval/CMSSW_13_0_11/RelValTTbar_14TeV/MINIAODSIM/PU_130X_mcRun3_2023_realistic_relvals2023D_v1_RV204-v2/2590000/02c835ae-8352-4759-b908-0aca15feb36d.root",
+        #"/store/relval/CMSSW_13_0_11/RelValTTbar_14TeV/MINIAODSIM/PU_130X_mcRun3_2023_realistic_relvals2023D_v1_RV204-v2/2590000/02c835ae-8352-4759-b908-0aca15feb36d.root",
         #"/store/relval/CMSSW_13_0_11/RelValTTbar_14TeV/MINIAODSIM/PU_130X_mcRun3_2023_realistic_relvals2023D_v1_RV204-v2/2590000/3f2b92d6-3fb1-456b-92db-e1c65ad0d29e.root",
         #"/store/relval/CMSSW_13_0_11/RelValTTbar_14TeV/MINIAODSIM/PU_130X_mcRun3_2023_realistic_relvals2023D_v1_RV204-v2/2590000/9f2d1acd-f33a-4199-b800-92076e327deb.root",
         #"/store/relval/CMSSW_13_0_11/RelValTTbar_14TeV/MINIAODSIM/PU_130X_mcRun3_2023_realistic_relvals2023D_v1_RV204-v2/2590000/d6e551c5-462a-4466-9689-77e665bd25df.root",
         #"/store/relval/CMSSW_13_0_11/RelValTTbar_14TeV/MINIAODSIM/PU_130X_mcRun3_2023_realistic_relvals2023D_v1_RV204-v2/2590000/e24e6546-95b7-4125-90b3-d33b56ffad25.root",
-        ##'/store/relval/CMSSW_13_0_11/RelValZTT_14/MINIAODSIM/PU_130X_mcRun3_2023_realistic_relvals2023D_v1_RV208-v1/2580000/433751c7-b9a1-4036-b1c8-668e679db182.root',
-        ##'/store/relval/CMSSW_13_0_11/RelValZTT_14/MINIAODSIM/PU_130X_mcRun3_2023_realistic_relvals2023D_v1_RV208-v1/2580000/c048525f-000d-4fb5-9694-78d73e9e15f5.root',
+        '/store/relval/CMSSW_13_0_11/RelValZTT_14/MINIAODSIM/PU_130X_mcRun3_2023_realistic_relvals2023D_v1_RV208-v1/2580000/433751c7-b9a1-4036-b1c8-668e679db182.root',
+        '/store/relval/CMSSW_13_0_11/RelValZTT_14/MINIAODSIM/PU_130X_mcRun3_2023_realistic_relvals2023D_v1_RV208-v1/2580000/c048525f-000d-4fb5-9694-78d73e9e15f5.root',
         ##'/store/relval/CMSSW_13_0_11/RelValZTT_14/MINIAODSIM/PU_130X_mcRun3_2023_realistic_relvals2023D_v1_RV208-v2/2580000/2ced95d2-ebcc-4456-abaa-736aade50b0f.root',
         ##'/store/relval/CMSSW_13_0_11/RelValZTT_14/MINIAODSIM/PU_130X_mcRun3_2023_realistic_relvals2023D_v1_RV208-v2/2580000/39aac844-e272-4df6-b354-2e07de7039eb.root',
         ##'/store/relval/CMSSW_13_0_11/RelValZTT_14/MINIAODSIM/PU_130X_mcRun3_2023_realistic_relvals2023D_v1_RV208-v2/2580000/713106b9-62a3-40ea-a541-a2bad98e1171.root',
@@ -69,10 +69,10 @@ process_dict ={
     ],
     'JETHT':[
         "/store/data/Run2023D/Tau/MINIAOD/PromptReco-v2/000/370/775/00000/277b3a14-ab60-49c6-bcb1-81eedf109f5d.root",
-        #"/store/data/Run2023D/Tau/MINIAOD/PromptReco-v2/000/370/775/00000/7ceb4e30-fb58-4de1-823d-0178aca37c46.root",
-        #"/store/data/Run2023D/Tau/MINIAOD/PromptReco-v2/000/370/775/00000/9387a49c-c7f5-4109-9be1-4412b1dcb92f.root",
-        #"/store/data/Run2023D/Tau/MINIAOD/PromptReco-v2/000/370/775/00000/96bb89e2-2cba-4fd3-9141-89796e992f4c.root",
-        #"/store/data/Run2023D/Tau/MINIAOD/PromptReco-v2/000/370/775/00000/e7a4213b-a29b-40ca-8cce-f60bb318caae.root",
+        "/store/data/Run2023D/Tau/MINIAOD/PromptReco-v2/000/370/775/00000/7ceb4e30-fb58-4de1-823d-0178aca37c46.root",
+        "/store/data/Run2023D/Tau/MINIAOD/PromptReco-v2/000/370/775/00000/9387a49c-c7f5-4109-9be1-4412b1dcb92f.root",
+        "/store/data/Run2023D/Tau/MINIAOD/PromptReco-v2/000/370/775/00000/96bb89e2-2cba-4fd3-9141-89796e992f4c.root",
+        "/store/data/Run2023D/Tau/MINIAOD/PromptReco-v2/000/370/775/00000/e7a4213b-a29b-40ca-8cce-f60bb318caae.root",
         #"/store/data/Run2023D/Tau/MINIAOD/PromptReco-v2/000/370/776/00000/24a6b480-1c8d-44f8-b164-6c1aca5747a9.root",
         #"/store/data/Run2023D/Tau/MINIAOD/PromptReco-v2/000/370/776/00000/5d43bdf0-616a-42c6-9453-5450733c9760.root",
         #"/store/data/Run2023D/Tau/MINIAOD/PromptReco-v2/000/370/776/00000/cffa86eb-c969-4115-beaa-d45ffb3ff872.root",
