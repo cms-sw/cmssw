@@ -1,2 +1,8 @@
 <test name="testTrackingDATAMC" command="testTrackingDATAMC.sh"/>
 <test name="testTrackingResolution" command="testTrackingResolution.sh"/>
+<environment>
+  <bin file="testTrackingDQMAnalyzers.cc" name="testTrackingDQMAnalyzers">
+    <use name="FWCore/TestProcessor"/>
+    <use name="catch2"/>
+  </bin>
+</environment>
