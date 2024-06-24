@@ -15,6 +15,9 @@
 #include "RecoParticleFlow/PFRecHitProducer/interface/alpaka/PFRecHitParamsDeviceCollection.h"
 #include "RecoParticleFlow/PFRecHitProducer/interface/alpaka/PFRecHitTopologyDeviceCollection.h"
 
+#include "DataFormats/HcalRecHit/interface/HcalRecHitHostCollection.h"
+#include "DataFormats/HcalRecHit/interface/alpaka/HcalRecHitDeviceCollection.h"
+
 // Forward declaration of EventSetup records, to avoid propagating the dependency on framework headers to device code
 class PFRecHitHCALParamsRecord;
 class PFRecHitHCALTopologyRecord;
@@ -34,8 +37,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::particleFlowRecHitProducer {
 
   struct HCAL {
     using CaloRecHitType = HBHERecHit;
-    using CaloRecHitSoATypeHost = reco::CaloRecHitHostCollection;
-    using CaloRecHitSoATypeDevice = reco::CaloRecHitDeviceCollection;
+    using CaloRecHitSoATypeHost = hcal::RecHitHostCollection;
+    using CaloRecHitSoATypeDevice = hcal::RecHitDeviceCollection;
     using ParameterType = reco::PFRecHitHCALParamsDeviceCollection;
     using ParameterRecordType = PFRecHitHCALParamsRecord;
     using TopologyTypeHost = reco::PFRecHitHCALTopologyHostCollection;
