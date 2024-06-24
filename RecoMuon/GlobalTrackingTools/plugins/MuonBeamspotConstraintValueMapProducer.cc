@@ -14,6 +14,7 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "RecoVertex/KalmanVertexFit/interface/SingleTrackVertexConstraint.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
+#include "RecoVertex/VertexPrimitives/interface/VertexException.h"
 
 class MuonBeamspotConstraintValueMapProducer : public edm::global::EDProducer<> {
 public:
@@ -95,7 +96,7 @@ private:
               chi2s.push_back(std::get<2>(btft));
               tbd = false;
             }
-          } catch (...) {
+          } catch (const VertexException& exc) {
             // Update failed; give up.
           }
         }
