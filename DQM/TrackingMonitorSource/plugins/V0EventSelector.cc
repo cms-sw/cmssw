@@ -37,8 +37,13 @@ V0EventSelector::V0EventSelector(const edm::ParameterSet& iConfig)
 bool V0EventSelector::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle<reco::VertexCompositeCandidateCollection> vccHandle;
   iEvent.getByToken(vccToken_, vccHandle);
-
   auto filteredVCC = std::make_unique<reco::VertexCompositeCandidateCollection>();
+
+  // early return if the input collection is empty
+  if (!vccHandle.isValid()) {
+    iEvent.put(std::move(filteredVCC));
+    return false;
+  }
 
   for (const auto& vcc : *vccHandle) {
     if (vcc.mass() >= massMin_ && vcc.mass() <= massMax_) {
