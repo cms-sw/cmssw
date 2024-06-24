@@ -147,7 +147,6 @@ PAIReDONNXJetTagsProducer::PAIReDONNXJetTagsProducer(const edm::ParameterSet& iC
 
 void PAIReDONNXJetTagsProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  //descriptions.addWithDefaultLabel(desc);
   desc.add<std::string>("name", "PAIReDJets");
   desc.add<std::string>("name_pf", "PAIReDPF");
   desc.add<std::string>("name_sv", "PAIReDSV");
@@ -157,6 +156,7 @@ void PAIReDONNXJetTagsProducer::fillDescriptions(edm::ConfigurationDescriptions&
   desc.add<edm::InputTag>("vertices", edm::InputTag("offlineSlimmedPrimaryVertices"));
   desc.add<edm::InputTag>("secondary_vertices", edm::InputTag("slimmedSecondaryVertices"));
   desc.add<edm::FileInPath>("model_path", edm::FileInPath("RecoBTag/Combined/data/PAIReD/model3.onnx"));
+  descriptions.addWithDefaultLabel(desc);
   //descriptions.add("PAIReDJetTable", desc);
 }
 
