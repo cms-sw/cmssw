@@ -53,16 +53,21 @@ displacedTracking.toModify(_iterations_trackingPhase1, func=lambda x: x.append('
 
 _iterations_trackingPhase1.append('JetCoreRegionalStep')
 
-_iterations_trackingPhase2PU140 = [
+_iterations_trackingPhase2PU140_VS = cms.PSet(names = cms.vstring(
     "InitialStep",
     "HighPtTripletStep",
     "LowPtQuadStep",
     "LowPtTripletStep",
     "DetachedQuadStep",
     "PixelPairStep",
-]
+))
 from Configuration.ProcessModifiers.vectorHits_cff import vectorHits
-vectorHits.toModify(_iterations_trackingPhase2PU140, func=lambda x: x.append('PixelLessStep'))
+vectorHits.toModify(_iterations_trackingPhase2PU140_VS.names, func=lambda x: x.append('PixelLessStep'))
+from Configuration.ProcessModifiers.trackingIters01_cff import trackingIters01
+trackingIters01.toModify(_iterations_trackingPhase2PU140_VS, names = ["InitialStep", "HighPtTripletStep"])
+# apply all procModifiers before this
+_iterations_trackingPhase2PU140 = _iterations_trackingPhase2PU140_VS.names.value()
+
 _iterations_muonSeeded = [
     "MuonSeededStepInOut",
     "MuonSeededStepOutIn",
@@ -72,10 +77,13 @@ _iterations_muonSeeded_trackingPhase1 = [
     "MuonSeededStepOutIn",
 ]
 #Phase2
-_iterations_muonSeeded_trackingPhase2PU140 = [
+_iterations_muonSeeded_trackingPhase2PU140_VS = cms.PSet(names = cms.vstring(
     "MuonSeededStepInOut",
     "MuonSeededStepOutIn",
-]
+))
+trackingIters01.toModify(_iterations_muonSeeded_trackingPhase2PU140_VS, names = [])
+_iterations_muonSeeded_trackingPhase2PU140 = _iterations_muonSeeded_trackingPhase2PU140_VS.names.value()
+
 _multipleSeedProducers = {
     "MixedTripletStep": ["A", "B"],
     "TobTecStep": ["Pair", "Tripl"],

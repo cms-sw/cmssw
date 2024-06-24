@@ -487,7 +487,7 @@ void TrackListMerger::produce(edm::Event& e, const edm::EventSetup& es) {
   }
 
   //DL here
-  if LIKELY (ngood > 1 && collsSize > 1)
+  if LIKELY (ngood > 0 && collsSize > 0)
     for (unsigned int ltm = 0; ltm < listsToMerge_.size(); ltm++) {
       int saveSelected[rSize];
       bool notActive[collsSize];
