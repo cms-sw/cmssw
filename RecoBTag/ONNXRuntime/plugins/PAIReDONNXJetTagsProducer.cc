@@ -147,6 +147,7 @@ PAIReDONNXJetTagsProducer::PAIReDONNXJetTagsProducer(const edm::ParameterSet& iC
 
 void PAIReDONNXJetTagsProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
+  //descriptions.addWithDefaultLabel(desc);
   desc.add<std::string>("name", "PAIReDJets");
   desc.add<std::string>("name_pf", "PAIReDPF");
   desc.add<std::string>("name_sv", "PAIReDSV");
@@ -156,7 +157,7 @@ void PAIReDONNXJetTagsProducer::fillDescriptions(edm::ConfigurationDescriptions&
   desc.add<edm::InputTag>("vertices", edm::InputTag("offlineSlimmedPrimaryVertices"));
   desc.add<edm::InputTag>("secondary_vertices", edm::InputTag("slimmedSecondaryVertices"));
   desc.add<edm::FileInPath>("model_path", edm::FileInPath("RecoBTag/Combined/data/PAIReD/model3.onnx"));
-  descriptions.add("PAIReDJetTable", desc);
+  //descriptions.add("PAIReDJetTable", desc);
 }
 
 std::unique_ptr<ONNXRuntime> PAIReDONNXJetTagsProducer::initializeGlobalCache(const edm::ParameterSet& iConfig) {
@@ -188,7 +189,7 @@ void PAIReDONNXJetTagsProducer::produce(edm::Event& iEvent, const edm::EventSetu
   reco::VertexCompositePtrCandidateCollection svs_sorted = sort_svs(iEvent, iSetup, svs, vtxs);
   bool isMC = !(iEvent.isRealData());  // store MCvsData boolean for adding truth information
   // loop over paired jets and institute pt/eta cuts
-  for (unsigned i_jet = 0; i_jet < jets->size() - 1; ++i_jet) {
+  for (unsigned i_jet = 0; i_jet < jets->size() - 1 && jets->size() > 0; ++i_jet) {
     const auto& jet1 = jets->at(i_jet);
     if (jet1.pt() * jet1.jecFactor("Uncorrected") < jet_pt_cut || abs(jet1.eta()) > jet_eta_cut)
       continue;
