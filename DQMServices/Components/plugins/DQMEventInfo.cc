@@ -266,8 +266,16 @@ void DQMEventInfo::analyzeProvInfo(const edm::Event& event) {
     // Getting parameters for that process
     edm::ParameterSet ps;
     event.getProcessParameterSet(processName, ps);
-    // Getting the global tag
-    globalTag_ = ps.getParameterSet("PoolDBESSource@GlobalTag").getParameter<std::string>("globaltag");
+
+    // Check if the 'PoolDBESSource@GlobalTag' ParameterSet exists
+    if (ps.exists("PoolDBESSource@GlobalTag")) {
+      // Getting the global tag
+      globalTag_ = ps.getParameterSet("PoolDBESSource@GlobalTag").getParameter<std::string>("globaltag");
+    } else {
+      // Handle the case where 'PoolDBESSource@GlobalTag' is missing
+      // You can set a default value or take some other action
+      edm::LogInfo("Configuration") << "ParameterSet 'PoolDBESSource@GlobalTag' not found. Using default global tag.";
+    }
 
     versGlobaltag_->Fill(globalTag_);
     // Finaly: Setting globalTagRetrieved_ to true, since we got it now
