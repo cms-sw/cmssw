@@ -1,5 +1,4 @@
 <library name="GeometryHGCalCommonDataPlugin" file="DD*.cc">
-  <flags CXXFLAGS="-O2" file="DDHGCalPassive.cc"/>
   <use name="DetectorDescription/Core"/>
   <use name="FWCore/Framework"/>
   <use name="FWCore/MessageLogger"/>
@@ -24,7 +23,6 @@
 </library>
 
 <library name="DD4hep_GeometryHGCalCommonDataPlugins" file="dd4hep/*.cc">
-  <flags CXXFLAGS="-O2" file="DDHGCalPassive.cc"/>
   <use name="DetectorDescription/DDCMS"/>
   <use name="Geometry/HGCalCommonData"/>
   <use name="dd4hep"/>
