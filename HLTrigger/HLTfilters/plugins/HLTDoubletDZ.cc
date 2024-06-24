@@ -396,24 +396,26 @@ bool HLTDoubletDZ<l1t::P2GTCandidate, l1t::P2GTCandidate>::getCollections(
     trigger::TriggerFilterObjectWithRefs& filterproduct) const {
   const l1t::P2GTAlgoBlockMap& algos = iEvent.get(algoBlockToken_);
 
-  if (algos.count(l1GTAlgoName1_) > 0 && algos.at(l1GTAlgoName1_).decisionBeforeBxMaskAndPrescale()) {
-    const l1t::P2GTCandidateVectorRef& objects = algos.at(l1GTAlgoName1_).trigObjects();
-    for (const l1t::P2GTCandidateRef& obj : objects) {
-      if ((triggerType1_ == trigger::TriggerObjectType::TriggerL1TkMu && obj->isMuon()) ||
-          (triggerType1_ == trigger::TriggerObjectType::TriggerL1TkEle && obj->isElectron()) ||
-          (triggerType1_ == trigger::TriggerObjectType::TriggerL1TkEm && obj->isPhoton())) {
-        coll1.push_back(obj);
+  if (!algos.empty()) {
+    if (algos.count(l1GTAlgoName1_) > 0 && algos.at(l1GTAlgoName1_).decisionBeforeBxMaskAndPrescale()) {
+      const l1t::P2GTCandidateVectorRef& objects = algos.at(l1GTAlgoName1_).trigObjects();
+      for (const l1t::P2GTCandidateRef& obj : objects) {
+        if ((triggerType1_ == trigger::TriggerObjectType::TriggerL1TkMu && obj->isMuon()) ||
+            (triggerType1_ == trigger::TriggerObjectType::TriggerL1TkEle && obj->isElectron()) ||
+            (triggerType1_ == trigger::TriggerObjectType::TriggerL1TkEm && obj->isPhoton())) {
+          coll1.push_back(obj);
+        }
       }
     }
-  }
 
-  if (algos.count(l1GTAlgoName2_) > 0 && algos.at(l1GTAlgoName2_).decisionBeforeBxMaskAndPrescale()) {
-    const l1t::P2GTCandidateVectorRef& objects = algos.at(l1GTAlgoName2_).trigObjects();
-    for (const l1t::P2GTCandidateRef& obj : objects) {
-      if ((triggerType2_ == trigger::TriggerObjectType::TriggerL1TkMu && obj->isMuon()) ||
-          (triggerType2_ == trigger::TriggerObjectType::TriggerL1TkEle && obj->isElectron()) ||
-          (triggerType2_ == trigger::TriggerObjectType::TriggerL1TkEm && obj->isPhoton())) {
-        coll2.push_back(obj);
+    if (algos.count(l1GTAlgoName2_) > 0 && algos.at(l1GTAlgoName2_).decisionBeforeBxMaskAndPrescale()) {
+      const l1t::P2GTCandidateVectorRef& objects = algos.at(l1GTAlgoName2_).trigObjects();
+      for (const l1t::P2GTCandidateRef& obj : objects) {
+        if ((triggerType2_ == trigger::TriggerObjectType::TriggerL1TkMu && obj->isMuon()) ||
+            (triggerType2_ == trigger::TriggerObjectType::TriggerL1TkEle && obj->isElectron()) ||
+            (triggerType2_ == trigger::TriggerObjectType::TriggerL1TkEm && obj->isPhoton())) {
+          coll2.push_back(obj);
+        }
       }
     }
   }
