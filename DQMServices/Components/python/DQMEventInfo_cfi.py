@@ -10,6 +10,6 @@ dqmEnv = DQMEDAnalyzer('DQMEventInfo',
     # define folder to store event info (default: EventInfo)
     eventInfoFolder = cms.untracked.string('EventInfo'),
     # use the Global Tag of the last (!) HLT processing
-    showHLTGlobalTag = cms.untracked.bool(True)
+    showHLTGlobalTag = cms.untracked.bool(False)
 )
 
