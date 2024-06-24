@@ -1,6 +1,8 @@
 #ifndef RecoParticleFlow_PFRecHitProducer_interface_alpaka_CalorimeterDefinitions_h
 #define RecoParticleFlow_PFRecHitProducer_interface_alpaka_CalorimeterDefinitions_h
 
+#include <limits>
+
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
@@ -97,6 +99,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::particleFlowRecHitProducer {
       return retval + kSizeBarrel;
     }
 
+    static constexpr uint32_t kInvalidDenseId = std::numeric_limits<uint32_t>::max();
+
     static constexpr uint32_t detId2denseId(uint32_t detId) {
       const uint32_t subdet = getSubdet(detId);
       if (subdet == HcalBarrel)
@@ -105,7 +109,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::particleFlowRecHitProducer {
         return detId2denseIdHE(detId);
 
       printf("invalid detId: %u\n", detId);
-      return -1;
+      return kInvalidDenseId;
     }
   };
 
@@ -181,6 +185,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::particleFlowRecHitProducer {
 
     static constexpr bool checkFlag(uint32_t flagBits, int flag) { return flagBits & (0x1 << flag); }
 
+    static constexpr uint32_t kInvalidDenseId = std::numeric_limits<uint32_t>::max();
+
     static constexpr uint32_t detId2denseId(uint32_t detId) {
       const uint32_t subdet = getSubdet(detId);
       if (subdet == EcalBarrel)
@@ -189,7 +195,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::particleFlowRecHitProducer {
         return Barrel::kSize + Endcap::denseIndex(detId);
 
       printf("invalid detId: %u\n", detId);
-      return 0;
+      return kInvalidDenseId;
     }
 
     static constexpr bool detIdInRange(uint32_t detId) {
