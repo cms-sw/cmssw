@@ -88,7 +88,6 @@ class Eras (object):
                            'ctpps', 'ctpps_2016', 'ctpps_2017', 'ctpps_2018', 'ctpps_2022',
                            'trackingPhase2PU140','highBetaStar_2018',
                            'tracker_apv_vfp30_2016', 'pf_badHcalMitigationOff',
-                           'run3_miniAOD_12X',
                            'run2_nanoAOD_106Xv2',
                            'run3_nanoAOD_122', 'run3_nanoAOD_124',
                            'run3_ecal_devel',
