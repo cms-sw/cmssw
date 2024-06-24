@@ -59,11 +59,11 @@ namespace cms::alpakatools {
       }
 
       // use a custom deleter to destroy all objects and deallocate the memory
-      auto deleter = [size](Allocator* ptr) {
+      auto deleter = [size](Allocator* allocPtr) {
         for (size_t i = size; i > 0; --i) {
-          std::destroy_at(ptr + i - 1);
+          std::destroy_at(allocPtr + i - 1);
         }
-        std::allocator<Allocator>().deallocate(ptr, size);
+        std::allocator<Allocator>().deallocate(allocPtr, size);
       };
 
       return std::unique_ptr<Allocator[], decltype(deleter)>(ptr, deleter);
