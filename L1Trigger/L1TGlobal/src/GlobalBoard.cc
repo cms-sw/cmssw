@@ -354,8 +354,8 @@ void l1t::GlobalBoard::receiveCaloObjectData(const edm::Event& iEvent,
         edm::LogWarning("L1Tglobal") << "\nWarning: Input tag for the CICADA score"
                                      << "\nrequested in configuration, but not found in the event.\n"
                                      << "\nSetting score to 0.0";
-        setCICADAScore(0.0);
       }
+      setCICADAScore(0.0);
     } else
       setCICADAScore(cicadaScoreHandle->at(
           0,
