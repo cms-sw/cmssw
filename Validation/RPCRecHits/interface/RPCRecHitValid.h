@@ -62,11 +62,6 @@ private:
   MEP h_recoMuonBarrel_phi, h_recoMuonOverlap_phi, h_recoMuonEndcap_phi, h_recoMuonNoRPC_phi;
   MEP h_simParticleType, h_simParticleTypeBarrel, h_simParticleTypeEndcap;
 
-  MEP h_refPunchOccupancyBarrel_wheel, h_refPunchOccupancyEndcap_disk, h_refPunchOccupancyBarrel_station;
-  MEP h_refPunchOccupancyBarrel_wheel_station, h_refPunchOccupancyEndcap_disk_ring;
-  MEP h_recPunchOccupancyBarrel_wheel, h_recPunchOccupancyEndcap_disk, h_recPunchOccupancyBarrel_station;
-  MEP h_recPunchOccupancyBarrel_wheel_station, h_recPunchOccupancyEndcap_disk_ring;
-
   MEP h_matchOccupancyBarrel_detId;
   MEP h_matchOccupancyEndcap_detId;
   MEP h_refOccupancyBarrel_detId;

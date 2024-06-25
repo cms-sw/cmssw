@@ -166,85 +166,6 @@ void RPCRecHitValid::bookHistograms(DQMStore::IBooker &booker, edm::Run const &r
   }
   h_eventCount->Fill(3);
 
-  h_refPunchOccupancyBarrel_wheel =
-      booker.book1D("RefPunchOccupancyBarrel_wheel", "RefPunchthrough occupancy", 5, -2.5, 2.5);
-  h_refPunchOccupancyEndcap_disk =
-      booker.book1D("RefPunchOccupancyEndcap_disk", "RefPunchthrough occupancy", 9, -4.5, 4.5);
-  h_refPunchOccupancyBarrel_station =
-      booker.book1D("RefPunchOccupancyBarrel_station", "RefPunchthrough occupancy", 4, 0.5, 4.5);
-  h_recPunchOccupancyBarrel_wheel =
-      booker.book1D("RecPunchOccupancyBarrel_wheel", "Punchthrough recHit occupancy", 5, -2.5, 2.5);
-  h_recPunchOccupancyEndcap_disk =
-      booker.book1D("RecPunchOccupancyEndcap_disk", "Punchthrough recHit occupancy", 9, -4.5, 4.5);
-  h_recPunchOccupancyBarrel_station =
-      booker.book1D("RecPunchOccupancyBarrel_station", "Punchthrough recHit occupancy", 4, 0.5, 4.5);
-
-  h_refPunchOccupancyBarrel_wheel->getTH1()->SetMinimum(0);
-  h_refPunchOccupancyEndcap_disk->getTH1()->SetMinimum(0);
-  h_refPunchOccupancyBarrel_station->getTH1()->SetMinimum(0);
-  h_recPunchOccupancyBarrel_wheel->getTH1()->SetMinimum(0);
-  h_recPunchOccupancyEndcap_disk->getTH1()->SetMinimum(0);
-  h_recPunchOccupancyBarrel_station->getTH1()->SetMinimum(0);
-
-  h_refPunchOccupancyBarrel_wheel_station =
-      booker.book2D("RefPunchOccupancyBarrel_wheel_station", "RefPunchthrough occupancy", 5, -2.5, 2.5, 4, 0.5, 4.5);
-  h_refPunchOccupancyEndcap_disk_ring =
-      booker.book2D("RefPunchOccupancyEndcap_disk_ring", "RefPunchthrough occupancy", 9, -4.5, 4.5, 4, 0.5, 4.5);
-  h_recPunchOccupancyBarrel_wheel_station = booker.book2D(
-      "RecPunchOccupancyBarrel_wheel_station", "Punchthrough recHit occupancy", 5, -2.5, 2.5, 4, 0.5, 4.5);
-  h_recPunchOccupancyEndcap_disk_ring =
-      booker.book2D("RecPunchOccupancyEndcap_disk_ring", "Punchthrough recHit occupancy", 9, -4.5, 4.5, 4, 0.5, 4.5);
-
-  h_refPunchOccupancyBarrel_wheel_station->getTH2F()->SetOption("COLZ");
-  h_refPunchOccupancyEndcap_disk_ring->getTH2F()->SetOption("COLZ");
-  h_recPunchOccupancyBarrel_wheel_station->getTH2F()->SetOption("COLZ");
-  h_recPunchOccupancyEndcap_disk_ring->getTH2F()->SetOption("COLZ");
-
-  h_refPunchOccupancyBarrel_wheel_station->getTH2F()->SetContour(10);
-  h_refPunchOccupancyEndcap_disk_ring->getTH2F()->SetContour(10);
-  h_recPunchOccupancyBarrel_wheel_station->getTH2F()->SetContour(10);
-  h_recPunchOccupancyEndcap_disk_ring->getTH2F()->SetContour(10);
-
-  h_refPunchOccupancyBarrel_wheel_station->getTH2F()->SetStats(false);
-  h_refPunchOccupancyEndcap_disk_ring->getTH2F()->SetStats(false);
-  h_recPunchOccupancyBarrel_wheel_station->getTH2F()->SetStats(false);
-  h_recPunchOccupancyEndcap_disk_ring->getTH2F()->SetStats(false);
-
-  h_refPunchOccupancyBarrel_wheel_station->getTH2F()->SetMinimum(0);
-  h_refPunchOccupancyEndcap_disk_ring->getTH2F()->SetMinimum(0);
-  h_recPunchOccupancyBarrel_wheel_station->getTH2F()->SetMinimum(0);
-  h_recPunchOccupancyEndcap_disk_ring->getTH2F()->SetMinimum(0);
-
-  for (int i = 1; i <= 5; ++i) {
-    TString binLabel = Form("Wheel %d", i - 3);
-    h_refPunchOccupancyBarrel_wheel->getTH1()->GetXaxis()->SetBinLabel(i, binLabel);
-    h_refPunchOccupancyBarrel_wheel_station->getTH2F()->GetXaxis()->SetBinLabel(i, binLabel);
-    h_recPunchOccupancyBarrel_wheel->getTH1()->GetXaxis()->SetBinLabel(i, binLabel);
-    h_recPunchOccupancyBarrel_wheel_station->getTH2F()->GetXaxis()->SetBinLabel(i, binLabel);
-  }
-
-  for (int i = 1; i <= 9; ++i) {
-    TString binLabel = Form("Disk %d", i - 5);
-    h_refPunchOccupancyEndcap_disk->getTH1()->GetXaxis()->SetBinLabel(i, binLabel);
-    h_refPunchOccupancyEndcap_disk_ring->getTH2F()->GetXaxis()->SetBinLabel(i, binLabel);
-    h_recPunchOccupancyEndcap_disk->getTH1()->GetXaxis()->SetBinLabel(i, binLabel);
-    h_recPunchOccupancyEndcap_disk_ring->getTH2F()->GetXaxis()->SetBinLabel(i, binLabel);
-  }
-
-  for (int i = 1; i <= 4; ++i) {
-    TString binLabel = Form("Station %d", i);
-    h_refPunchOccupancyBarrel_station->getTH1()->GetXaxis()->SetBinLabel(i, binLabel);
-    h_refPunchOccupancyBarrel_wheel_station->getTH2F()->GetYaxis()->SetBinLabel(i, binLabel);
-    h_recPunchOccupancyBarrel_station->getTH1()->GetXaxis()->SetBinLabel(i, binLabel);
-    h_recPunchOccupancyBarrel_wheel_station->getTH2F()->GetYaxis()->SetBinLabel(i, binLabel);
-  }
-
-  for (int i = 1; i <= 4; ++i) {
-    TString binLabel = Form("Ring %d", i);
-    h_refPunchOccupancyEndcap_disk_ring->getTH2F()->GetYaxis()->SetBinLabel(i, binLabel);
-    h_recPunchOccupancyEndcap_disk_ring->getTH2F()->GetYaxis()->SetBinLabel(i, binLabel);
-  }
-
   // Book roll-by-roll histograms
   auto rpcGeom = eventSetup.getHandle(rpcGeomTokenInRun_);
 
@@ -540,24 +461,12 @@ void RPCRecHitValid::analyze(const edm::Event &event, const edm::EventSetup &eve
     const RPCRoll *roll = dynamic_cast<const RPCRoll *>(rpcGeom->roll(detId()));
 
     const int region = roll->id().region();
-    const int ring = roll->id().ring();
-    // const int sector = roll->id().sector();
-    const int station = roll->id().station();
-    // const int layer = roll->id().layer();
-    // const int subSector = roll->id().subsector();
 
     if (region == 0) {
       ++nRefHitBarrel;
-      h_refPunchOccupancyBarrel_wheel->Fill(ring);
-      h_refPunchOccupancyBarrel_station->Fill(station);
-      h_refPunchOccupancyBarrel_wheel_station->Fill(ring, station);
-
       h_refOccupancyBarrel_detId->Fill(detIdToIndexMapBarrel_[simHit->detUnitId()]);
     } else {
       ++nRefHitEndcap;
-      h_refPunchOccupancyEndcap_disk->Fill(region * station);
-      h_refPunchOccupancyEndcap_disk_ring->Fill(region * station, ring);
-
       h_refOccupancyEndcap_detId->Fill(detIdToIndexMapEndcap_[simHit->detUnitId()]);
     }
   }
@@ -763,52 +672,6 @@ void RPCRecHitValid::analyze(const edm::Event &event, const edm::EventSetup &eve
       h_recoMuonNoRPC_pt->Fill(muon->pt());
       h_recoMuonNoRPC_eta->Fill(muon->eta());
       h_recoMuonNoRPC_phi->Fill(muon->phi());
-    }
-  }
-
-  // Find Non-muon hits
-  for (RecHitIter recHitIter = recHitHandle->begin(); recHitIter != recHitHandle->end(); ++recHitIter) {
-    const RPCDetId detId = static_cast<const RPCDetId>(recHitIter->rpcId());
-    const RPCRoll *roll = dynamic_cast<const RPCRoll *>(rpcGeom->roll(detId));
-
-    const int region = roll->id().region();
-    const int ring = roll->id().ring();
-    // const int sector = roll->id().sector();
-    const int station = roll->id().station();
-    // const int layer = roll->id().layer();
-    // const int subsector = roll->id().subsector();
-
-    bool matched = false;
-    for (const auto &match : simToRecHitMap) {
-      if (recHitIter == match.second) {
-        matched = true;
-        break;
-      }
-    }
-
-    if (!matched) {
-      int nPunchMatched = 0;
-      // Check if this recHit came from non-muon simHit
-      for (const auto &simHit : pthrSimHits) {
-        const int absSimHitPType = abs(simHit->particleType());
-        if (absSimHitPType == 13)
-          continue;
-
-        const RPCDetId simDetId = static_cast<const RPCDetId>(simHit->detUnitId());
-        if (simDetId == detId)
-          ++nPunchMatched;
-      }
-
-      if (nPunchMatched > 0) {
-        if (region == 0) {
-          h_recPunchOccupancyBarrel_wheel->Fill(ring);
-          h_recPunchOccupancyBarrel_station->Fill(station);
-          h_recPunchOccupancyBarrel_wheel_station->Fill(ring, station);
-        } else {
-          h_recPunchOccupancyEndcap_disk->Fill(region * station);
-          h_recPunchOccupancyEndcap_disk_ring->Fill(region * station, ring);
-        }
-      }
     }
   }
 
