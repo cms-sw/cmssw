@@ -19,18 +19,6 @@ void RPCRecHitValidClient::dqmEndJob(DQMStore::IBooker &booker, DQMStore::IGette
       booker.book1D("RollEfficiencyBarrel_eff", "Roll efficiency in Barrel;Efficiency [%]", 50 + 2, -2, 100 + 2);
   MEP me_rollEfficiencyEndcap_eff =
       booker.book1D("RollEfficiencyEndcap_eff", "Roll efficiency in Endcap;Efficiency [%]", 50 + 2, -2, 100 + 2);
-  MEP me_rollEfficiencyStatCutOffBarrel_eff =
-      booker.book1D("RollEfficiencyCutOffBarrel_eff",
-                    "Roll efficiency in Barrel without low stat chamber;Efficiency [%]",
-                    50 + 2,
-                    -2,
-                    100 + 2);
-  MEP me_rollEfficiencyStatCutOffEndcap_eff =
-      booker.book1D("RollEfficiencyCutOffEndcap_eff",
-                    "Roll efficiency in Endcap without low stat chamber;Efficiency [%]",
-                    50 + 2,
-                    -2,
-                    100 + 2);
 
   const double maxNoise = 1e-7;
   MEP me_rollNoiseBarrel_noise = booker.book1D("RollNoiseBarrel_noise",
@@ -60,8 +48,6 @@ void RPCRecHitValidClient::dqmEndJob(DQMStore::IBooker &booker, DQMStore::IGette
       const double eff = nRef ? nRec / nRef * 100 : -1;
 
       me_rollEfficiencyBarrel_eff->Fill(eff);
-      if (nRef >= 20)
-        me_rollEfficiencyStatCutOffBarrel_eff->Fill(eff);
     }
   }
 
@@ -76,8 +62,6 @@ void RPCRecHitValidClient::dqmEndJob(DQMStore::IBooker &booker, DQMStore::IGette
       const double eff = nRef ? nRec / nRef * 100 : -1;
 
       me_rollEfficiencyEndcap_eff->Fill(eff);
-      if (nRef >= 20)
-        me_rollEfficiencyStatCutOffEndcap_eff->Fill(eff);
     }
   }
 
