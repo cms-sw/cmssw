@@ -220,17 +220,17 @@ void RPCRecHitValid::bookHistograms(DQMStore::IBooker &booker, edm::Run const &r
                                              nRPCRollEndcap,
                                              0,
                                              nRPCRollEndcap);
-  h_noiseOccupancyBarrel_detId = booker.book1D(
-      "NoiseOccupancyBarrel_detId", "Noise occupancy;roll index (can be arbitrary)", nRPCRollBarrel, 0, nRPCRollBarrel);
-  h_noiseOccupancyEndcap_detId = booker.book1D(
-      "NoiseOccupancyEndcap_detId", "Noise occupancy;roll index (can be arbitrary)", nRPCRollEndcap, 0, nRPCRollEndcap);
+  h_allOccupancyBarrel_detId = booker.book1D(
+      "OccupancyBarrel_detId", "Occupancy;roll index (can be arbitrary)", nRPCRollBarrel, 0, nRPCRollBarrel);
+  h_allOccupancyEndcap_detId = booker.book1D(
+      "OccupancyEndcap_detId", "Occupancy;roll index (can be arbitrary)", nRPCRollEndcap, 0, nRPCRollEndcap);
 
   h_matchOccupancyBarrel_detId->getTH1()->SetMinimum(0);
   h_matchOccupancyEndcap_detId->getTH1()->SetMinimum(0);
   h_refOccupancyBarrel_detId->getTH1()->SetMinimum(0);
   h_refOccupancyEndcap_detId->getTH1()->SetMinimum(0);
-  h_noiseOccupancyBarrel_detId->getTH1()->SetMinimum(0);
-  h_noiseOccupancyEndcap_detId->getTH1()->SetMinimum(0);
+  h_allOccupancyBarrel_detId->getTH1()->SetMinimum(0);
+  h_allOccupancyEndcap_detId->getTH1()->SetMinimum(0);
 
   h_rollAreaBarrel_detId = booker.bookProfile(
       "RollAreaBarrel_detId", "Roll area;roll index;Area", nRPCRollBarrel, 0., 1. * nRPCRollBarrel, 0., 1e5);
@@ -483,6 +483,8 @@ void RPCRecHitValid::analyze(const edm::Event &event, const edm::EventSetup &eve
       h_.recHitOccupancyBarrel_station->Fill(station);
       h_.recHitOccupancyBarrel_wheel_station->Fill(ring, station);
 
+      h_allOccupancyBarrel_detId->Fill(detIdToIndexMapBarrel_[detId.rawId()]);
+
       h_.timeBarrel->Fill(time);
     } else {
       ++nRecHitEndcap;
@@ -490,6 +492,8 @@ void RPCRecHitValid::analyze(const edm::Event &event, const edm::EventSetup &eve
       h_.clusterSizeEndcap->Fill(recHitIter->clusterSize());
       h_.recHitOccupancyEndcap_disk->Fill(region * station);
       h_.recHitOccupancyEndcap_disk_ring->Fill(region * station, ring);
+
+      h_allOccupancyEndcap_detId->Fill(detIdToIndexMapEndcap_[detId.rawId()]);
 
       h_.timeEndcap->Fill(time);
     }
@@ -654,49 +658,6 @@ void RPCRecHitValid::analyze(const edm::Event &event, const edm::EventSetup &eve
       h_recoMuonNoRPC_pt->Fill(muon->pt());
       h_recoMuonNoRPC_eta->Fill(muon->eta());
       h_recoMuonNoRPC_phi->Fill(muon->phi());
-    }
-  }
-
-  // Find noise recHits : RecHits without SimHit match
-  for (RecHitIter recHitIter = recHitHandle->begin(); recHitIter != recHitHandle->end(); ++recHitIter) {
-    const RPCDetId recDetId = static_cast<const RPCDetId>(recHitIter->rpcId());
-    const RPCRoll *roll = dynamic_cast<const RPCRoll *>(rpcGeom->roll(recDetId));
-
-    const int region = roll->id().region();
-    //    const int ring = roll->id().ring(); // UNUSED VARIABLE
-    // const int sector = roll->id().sector();
-    //    const int station = roll->id().station(); // UNUSED VARIABLE
-    // const int layer = roll->id().layer();
-    // const int subsector = roll->id().subsector();
-
-    const double recX = recHitIter->localPosition().x();
-    const double recErrX = sqrt(recHitIter->localPositionError().xx());
-
-    bool matched = false;
-    for (SimHitIter simHitIter = simHitHandle->begin(); simHitIter != simHitHandle->end(); ++simHitIter) {
-      const RPCDetId simDetId = static_cast<const RPCDetId>(simHitIter->detUnitId());
-      const RPCRoll *simRoll = dynamic_cast<const RPCRoll *>(rpcGeom->roll(simDetId));
-      if (!simRoll)
-        continue;
-
-      if (simDetId != recDetId)
-        continue;
-
-      const double simX = simHitIter->localPosition().x();
-      const double dX = fabs(recX - simX);
-
-      if (dX / recErrX < 5) {
-        matched = true;
-        break;
-      }
-    }
-
-    if (!matched) {
-      if (region == 0) {
-        h_noiseOccupancyBarrel_detId->Fill(detIdToIndexMapBarrel_[recDetId.rawId()]);
-      } else {
-        h_noiseOccupancyEndcap_detId->Fill(detIdToIndexMapEndcap_[recDetId.rawId()]);
-      }
     }
   }
 

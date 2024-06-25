@@ -66,8 +66,8 @@ private:
   MEP h_matchOccupancyEndcap_detId;
   MEP h_refOccupancyBarrel_detId;
   MEP h_refOccupancyEndcap_detId;
-  MEP h_noiseOccupancyBarrel_detId;
-  MEP h_noiseOccupancyEndcap_detId;
+  MEP h_allOccupancyBarrel_detId;
+  MEP h_allOccupancyEndcap_detId;
   MEP h_rollAreaBarrel_detId;
   MEP h_rollAreaEndcap_detId;
 
