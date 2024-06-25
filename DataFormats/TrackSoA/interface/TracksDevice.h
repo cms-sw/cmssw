@@ -31,6 +31,8 @@ namespace pixelTrack {
   template <typename TDev>
   using TracksDevicePhase1 = TracksDevice<pixelTopology::Phase1, TDev>;
   template <typename TDev>
+  using TracksDeviceHIonPhase1 = TracksDevice<pixelTopology::HIonPhase1, TDev>;
+  template <typename TDev>
   using TracksDevicePhase2 = TracksDevice<pixelTopology::Phase2, TDev>;
 
 }  // namespace pixelTrack
