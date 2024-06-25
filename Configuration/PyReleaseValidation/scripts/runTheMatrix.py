@@ -87,7 +87,7 @@ if __name__ == '__main__':
                     12834.7,    # RelValTTbar_14TeV             2024 mkFit
                     14034.0,    # RelValTTbar_14TeV             Run3_2023_FastSim 
                     14234.0,    # RelValTTbar_14TeV             Run3_2023_FastSim   PU = Run3_Flat55To75_PoissonOOTPU
-                    2500.4,     # RelValTTbar_14TeV             NanoAOD from existing MINI
+                    2500.201,   # RelValTTbar_14TeV             NanoAOD from existing MINI
 
                     # Phase2
                     29634.0,    # RelValTTbar_14TeV                     phase2_realistic_T33        Extended2026D110         (Phase-2 baseline)   
