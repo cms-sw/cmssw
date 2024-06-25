@@ -1007,7 +1007,6 @@ class ConfigBuilder(object):
         self.RECOSIMDefaultCFF="Configuration/StandardSequences/RecoSim_cff"
         self.PATDefaultCFF="Configuration/StandardSequences/PAT_cff"
         self.NANODefaultCFF="PhysicsTools/NanoAOD/nano_cff"
-        self.NANOGENDefaultCFF="PhysicsTools/NanoAOD/nanogen_cff"
         self.SKIMDefaultCFF="Configuration/StandardSequences/Skims_cff"
         self.POSTRECODefaultCFF="Configuration/StandardSequences/PostRecoGenerator_cff"
         self.VALIDATIONDefaultCFF="Configuration/StandardSequences/Validation_cff"
@@ -1057,7 +1056,6 @@ class ConfigBuilder(object):
         self.PATDefaultSeq='miniAOD'
         self.PATGENDefaultSeq='miniGEN'
         #TODO: Check based of file input
-        self.NANOGENDefaultSeq='nanogenSequence'
         self.NANODefaultSeq='nanoSequence'
         self.NANODefaultCustom='nanoAOD_customizeCommon'
 
@@ -1843,18 +1841,6 @@ class ConfigBuilder(object):
             if len(self._options.customise_commands) > 1:
                 self._options.customise_commands = self._options.customise_commands + " \n"
             self._options.customise_commands = self._options.customise_commands + "process.unpackedPatTrigger.triggerResults= cms.InputTag( 'TriggerResults::"+self._options.hltProcess+"' )\n"
-
-    def prepare_NANOGEN(self, stepSpec = "nanoAOD"):
-        ''' Enrich the schedule with NANOGEN '''
-        # TODO: Need to modify this based on the input file type
-        fromGen = any([x in self.stepMap for x in ['LHE', 'GEN', 'AOD']])
-        _,_nanogenSeq,_nanogenCff = self.loadDefaultOrSpecifiedCFF(stepSpec,self.NANOGENDefaultCFF)
-        self.scheduleSequence(_nanogenSeq,'nanoAOD_step')
-        custom = "customizeNanoGEN" if fromGen else "customizeNanoGENFromMini"
-        if self._options.runUnscheduled:
-            self._options.customisation_file_unsch.insert(0, '.'.join([_nanogenCff, custom]))
-        else:
-            self._options.customisation_file.insert(0, '.'.join([_nanogenCff, custom]))
 
     def prepare_SKIM(self, stepSpec = "all"):
         ''' Enrich the schedule with skimming fragments'''
