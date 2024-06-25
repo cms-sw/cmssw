@@ -33,8 +33,7 @@ def muDPGNanoCustomize(process) :
           process.load("TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorOpposite_cfi")
 
      for output in ["NANOEDMAODoutput", "NANOAODoutput", "NANOEDMAODSIMoutput", "NANOAODSIMoutput"]:
-          if hasattr(process, output):
-               getattr(process,output).outputCommands.append("keep nanoaodFlatTable_*Table*_*_*")
-               getattr(process,output).outputCommands.append("drop edmTriggerResults_*_*_*")
+          if hasattr(process, output) and "keep edmTriggerResults_*_*_*" in getattr(process,output).outputCommands:
+               getattr(process,output).outputCommands.remove("keep edmTriggerResults_*_*_*")
 
      return process
