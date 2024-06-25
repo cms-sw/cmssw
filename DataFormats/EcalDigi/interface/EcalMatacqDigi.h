@@ -316,12 +316,12 @@ private:
   /** Type of test trigger
    * @return triggerType
    */
-  char triggerType_;
+  int8_t triggerType_;
 
   /**  Logarithmic attenuator setting in -10dB unit. Between 0 and
    *  5*(-10dB), -1 if unknown.
    */
-  char attenuation_dB_;
+  int8_t attenuation_dB_;
 
   /** Bunch crossing Id 
    */
