@@ -356,10 +356,18 @@ void l1t::GlobalBoard::receiveCaloObjectData(const edm::Event& iEvent,
                                      << "\nSetting score to 0.0";
       }
       setCICADAScore(0.0);
-    } else
+    } else if (cicadaScoreHandle->isEmpty(0)) {
+      if (m_verbosity) {
+        edm::LogWarning("L1Tglobal")
+            << "\nWarning: CICADA score had a valid input tag, but an empty BX collection"
+            << "\nThe CICADA score will be filled with 0.0 to prevent any failure of uGT emulation";
+      }
+      setCICADAScore(0.0);
+    } else {
       setCICADAScore(cicadaScoreHandle->at(
           0,
           0));  //CICADA emulation will only provide a central BX, and one value. Unpacking may have more values, but that can't be guaranteed.
+    }
   }
 }
 
