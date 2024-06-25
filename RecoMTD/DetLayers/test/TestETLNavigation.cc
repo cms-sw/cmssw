@@ -17,8 +17,11 @@
 
 #include <sstream>
 
+#include "DataFormats/Math/interface/Rounding.h"
+
 using namespace std;
 using namespace edm;
+using namespace cms_rounding;
 
 class TestETLNavigation : public global::EDAnalyzer<> {
 public:
@@ -27,6 +30,18 @@ public:
   void analyze(edm::StreamID, edm::Event const&, edm::EventSetup const&) const override;
 
 private:
+  inline std::string fround(const double in) const {
+    std::stringstream ss;
+    ss << std::setprecision(3) << std::fixed << std::setw(14) << roundIfNear0(in);
+    return ss.str();
+  }
+
+  inline std::string fvecround(const GlobalPoint vecin) const {
+    std::stringstream ss;
+    ss << std::setprecision(3) << std::fixed << std::setw(14) << roundVecIfNear0(vecin);
+    return ss.str();
+  }
+
   const edm::ESInputTag tag_;
   edm::ESGetToken<MTDDetLayerGeometry, MTDRecoGeometryRecord> geomToken_;
 };
@@ -48,7 +63,7 @@ void TestETLNavigation::analyze(edm::StreamID, edm::Event const&, edm::EventSetu
     const MTDSectorForwardDoubleLayer* layer = static_cast<const MTDSectorForwardDoubleLayer*>(ilay);
 
     LogVerbatim("MTDLayerDump") << std::fixed << "\nETL layer " << std::setw(4) << layer->subDetector()
-                                << " at z = " << std::setw(14) << layer->surface().position().z()
+                                << " at z = " << fround(layer->surface().position().z())
                                 << " sectors = " << std::setw(14) << layer->sectors().size()
                                 << " dets = " << std::setw(14) << layer->basicComponents().size()
                                 << " front dets = " << std::setw(14) << layer->frontLayer()->basicComponents().size()
@@ -67,7 +82,7 @@ void TestETLNavigation::analyze(edm::StreamID, edm::Event const&, edm::EventSetu
                                     << " Disc/Side/Sector = " << std::setw(4) << modId.nDisc() << " " << std::setw(4)
                                     << modId.discSide() << " " << std::setw(4) << modId.sector()
                                     << " mod/type = " << std::setw(4) << modId.module() << " " << std::setw(4)
-                                    << modId.modType() << " pos = " << std::setprecision(4) << imod->position();
+                                    << modId.modType() << " pos = " << fvecround(imod->position());
         for (int iside = -1; iside <= 1; iside += 2) {
           size_t idetNew = isector->hshift(modId, iside);
           if (idetNew >= isector->basicComponents().size()) {
@@ -80,8 +95,8 @@ void TestETLNavigation::analyze(edm::StreamID, edm::Event const&, edm::EventSetu
                                         << " Disc/Side/Sector = " << std::setw(4) << newId.nDisc() << " "
                                         << std::setw(4) << newId.discSide() << " " << std::setw(4) << newId.sector()
                                         << " mod/type = " << std::setw(4) << newId.module() << " " << std::setw(4)
-                                        << newId.modType() << " pos = " << std::setprecision(4)
-                                        << isector->basicComponents()[idetNew]->position();
+                                        << newId.modType()
+                                        << " pos = " << fvecround(isector->basicComponents()[idetNew]->position());
           }
         }
         for (int iside = -1; iside <= 1; iside += 2) {
@@ -96,8 +111,8 @@ void TestETLNavigation::analyze(edm::StreamID, edm::Event const&, edm::EventSetu
                   << std::fixed << ".......closest.vshift= " << std::setw(2) << iside << " side = " << std::setw(4)
                   << newId.mtdSide() << " Disc/Side/Sector = " << std::setw(4) << newId.nDisc() << " " << std::setw(4)
                   << newId.discSide() << " " << std::setw(4) << newId.sector() << " mod/type = " << std::setw(4)
-                  << newId.module() << " " << std::setw(4) << newId.modType() << " pos = " << std::setprecision(4)
-                  << isector->basicComponents()[closest]->position();
+                  << newId.module() << " " << std::setw(4) << newId.modType()
+                  << " pos = " << fvecround(isector->basicComponents()[closest]->position());
             }
           } else {
             ETLDetId newId(isector->basicComponents()[idetNew]->geographicalId().rawId());
@@ -106,8 +121,8 @@ void TestETLNavigation::analyze(edm::StreamID, edm::Event const&, edm::EventSetu
                                         << " Disc/Side/Sector = " << std::setw(4) << newId.nDisc() << " "
                                         << std::setw(4) << newId.discSide() << " " << std::setw(4) << newId.sector()
                                         << " mod/type = " << std::setw(4) << newId.module() << " " << std::setw(4)
-                                        << newId.modType() << " pos = " << std::setprecision(4)
-                                        << isector->basicComponents()[idetNew]->position();
+                                        << newId.modType()
+                                        << " pos = " << fvecround(isector->basicComponents()[idetNew]->position());
           }
         }
       }
