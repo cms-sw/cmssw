@@ -59,8 +59,8 @@ namespace l1t {
     gtExternal = 28,
     gtZDCP = 29,
     gtZDCM = 30,
-    gtHTMHF = 31,
-    ObjNull = 32,
+    ObjNull = 31,
+    gtHTMHF = 32,
   };
 
   const std::vector<std::pair<GlobalObject, std::string>> kGlobalObjectEnumStringPairs = {
@@ -95,8 +95,8 @@ namespace l1t {
       {gtExternal, "External"},        // 28
       {gtZDCP, "ZDCP"},                // 29
       {gtZDCM, "ZDCM"},                // 30
-      {gtHTMHF, "HTMHF"},              // 31
-      {ObjNull, "ObjNull"},            // 32
+      {ObjNull, "ObjNull"},            // 31
+      {gtHTMHF, "HTMHF"},              // 32
   };
 
   // utility functions to convert GlobalObject enum to std::string and viceversa
