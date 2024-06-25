@@ -7,6 +7,7 @@
 #include <iostream>
 #include <fstream>
 
+#include <atomic>
 #include <chrono>
 #include <memory>
 
@@ -325,7 +326,7 @@ cond::TestGTPerf::TestGTPerf() : Utilities("conddb_test_gt_load") {
 // thread helpers
 
 // global counter for dummy thread measurements:
-volatile int fooGlobal = 0;
+std::atomic<int> fooGlobal = 0;
 
 class FetchWorker {
 private:

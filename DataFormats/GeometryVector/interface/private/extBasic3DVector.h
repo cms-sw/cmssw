@@ -7,6 +7,7 @@
 #include "DataFormats/GeometryVector/interface/PreciseFloatType.h"
 #include "DataFormats/GeometryVector/interface/CoordinateSets.h"
 #include "DataFormats/Math/interface/ExtVec.h"
+#include "FWCore/Utilities/interface/Likely.h"
 #include <iosfwd>
 #include <cmath>
 
@@ -44,6 +45,9 @@ public:
 
   /// Copy constructor from same type. Should not be needed but for gcc bug 12685
   Basic3DVector(const Basic3DVector& p) : v(p.v) {}
+
+  /// Assignment operator
+  Basic3DVector& operator=(const Basic3DVector&) = default;
 
   /// Copy constructor and implicit conversion from Basic3DVector of different precision
   template <class U>
@@ -88,7 +92,6 @@ public:
   MathVector& mathVector() { return v; }
 
   T operator[](int i) const { return v[i]; }
-  T& operator[](int i) { return v[i]; }
 
   /// Cartesian x coordinate
   T x() const { return v[0]; }
@@ -150,7 +153,7 @@ public:
    */
   Basic3DVector unit() const {
     T my_mag = mag2();
-    return (0 != my_mag) ? (*this) * (T(1) / std::sqrt(my_mag)) : *this;
+    return LIKELY(0 != my_mag) ? (*this) * (T(1) / std::sqrt(my_mag)) : *this;
   }
 
   /** Operator += with a Basic3DVector of possibly different precision.

@@ -10,14 +10,14 @@
 LCToSimTSAssociatorByEnergyScoreImpl::LCToSimTSAssociatorByEnergyScoreImpl(edm::EDProductGetter const& productGetter)
     : productGetter_(&productGetter) {}
 
-hgcal::RecoToSimTracksterCollection LCToSimTSAssociatorByEnergyScoreImpl::associateRecoToSim(
+ticl::RecoToSimTracksterCollection LCToSimTSAssociatorByEnergyScoreImpl::associateRecoToSim(
     const edm::Handle<reco::CaloClusterCollection>& cCCH,
     const edm::Handle<ticl::TracksterCollection>& sTCH,
     const edm::Handle<CaloParticleCollection>& cPCH,
-    const hgcal::RecoToSimCollection& lCToCPs,
+    const ticl::RecoToSimCollection& lCToCPs,
     const edm::Handle<SimClusterCollection>& sCCH,
-    const hgcal::RecoToSimCollectionWithSimClusters& lCToSCs) const {
-  hgcal::RecoToSimTracksterCollection returnValue(productGetter_);
+    const ticl::RecoToSimCollectionWithSimClusters& lCToSCs) const {
+  ticl::RecoToSimTracksterCollection returnValue(productGetter_);
 
   const auto simTracksters = *sTCH.product();
 
@@ -89,14 +89,14 @@ hgcal::RecoToSimTracksterCollection LCToSimTSAssociatorByEnergyScoreImpl::associ
   return returnValue;
 }
 
-hgcal::SimTracksterToRecoCollection LCToSimTSAssociatorByEnergyScoreImpl::associateSimToReco(
+ticl::SimTracksterToRecoCollection LCToSimTSAssociatorByEnergyScoreImpl::associateSimToReco(
     const edm::Handle<reco::CaloClusterCollection>& cCCH,
     const edm::Handle<ticl::TracksterCollection>& sTCH,
     const edm::Handle<CaloParticleCollection>& cPCH,
-    const hgcal::SimToRecoCollection& cPToLCs,
+    const ticl::SimToRecoCollection& cPToLCs,
     const edm::Handle<SimClusterCollection>& sCCH,
-    const hgcal::SimToRecoCollectionWithSimClusters& sCToLCs) const {
-  hgcal::SimTracksterToRecoCollection returnValue(productGetter_);
+    const ticl::SimToRecoCollectionWithSimClusters& sCToLCs) const {
+  ticl::SimTracksterToRecoCollection returnValue(productGetter_);
 
   const auto simTracksters = *sTCH.product();
   for (size_t tsId = 0; tsId < simTracksters.size(); ++tsId) {

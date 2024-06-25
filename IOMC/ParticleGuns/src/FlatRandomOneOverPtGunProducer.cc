@@ -11,8 +11,8 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
-#include "CLHEP/Random/RandFlat.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include <CLHEP/Random/RandFlat.h>
+#include <CLHEP/Units/SystemOfUnits.h>
 using namespace edm;
 
 FlatRandomOneOverPtGunProducer::FlatRandomOneOverPtGunProducer(const edm::ParameterSet& pset)

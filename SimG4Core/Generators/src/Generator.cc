@@ -13,7 +13,7 @@
 #include "G4Log.hh"
 #include "G4ParticleDefinition.hh"
 #include "G4PhysicalConstants.hh"
-#include "G4SystemOfUnits.hh"
+#include <CLHEP/Units/SystemOfUnits.h>
 #include "G4UnitsTable.hh"
 
 #include <sstream>
@@ -297,8 +297,8 @@ void Generator::HepMC2G4(const HepMC::GenEvent *evt_orig, G4Event *g4evt) {
       if (verbose > 2)
         LogDebug("SimG4CoreGenerator") << "Processing GenParticle barcode= " << (*pitr)->barcode() << " pdg= " << pdg
                                        << " status= " << (*pitr)->status() << " st= " << status
-                                       << " rimpact(cm)= " << std::sqrt(rimpact2) / cm
-                                       << " zimpact(cm)= " << zimpact / cm << " ptot(GeV)= " << ptot
+                                       << " rimpact(cm)= " << std::sqrt(rimpact2) / CLHEP::cm
+                                       << " zimpact(cm)= " << zimpact / CLHEP::cm << " ptot(GeV)= " << ptot
                                        << " pz(GeV)= " << pz;
 
       // Particles of status 1 trasnported along the beam pipe
@@ -373,7 +373,7 @@ void Generator::HepMC2G4(const HepMC::GenEvent *evt_orig, G4Event *g4evt) {
         }
       }
       if (toBeAdded) {
-        G4PrimaryParticle *g4prim = new G4PrimaryParticle(pdg, px * GeV, py * GeV, pz * GeV);
+        G4PrimaryParticle *g4prim = new G4PrimaryParticle(pdg, px * CLHEP::GeV, py * CLHEP::GeV, pz * CLHEP::GeV);
 
         if (g4prim->GetG4code() != nullptr) {
           g4prim->SetMass(g4prim->GetG4code()->GetPDGMass());
@@ -430,7 +430,8 @@ void Generator::HepMC2G4(const HepMC::GenEvent *evt_orig, G4Event *g4evt) {
 void Generator::particleAssignDaughters(G4PrimaryParticle *g4p, HepMC::GenParticle *vp, double decaylength) {
   if (verbose > 1) {
     LogDebug("SimG4CoreGenerator") << "Special case of long decay length \n"
-                                   << "Assign daughters with to mother with decaylength=" << decaylength / cm << " cm";
+                                   << "Assign daughters with to mother with decaylength=" << decaylength / CLHEP::cm
+                                   << " cm";
   }
   math::XYZTLorentzVector p(vp->momentum().px(), vp->momentum().py(), vp->momentum().pz(), vp->momentum().e());
 
@@ -441,7 +442,7 @@ void Generator::particleAssignDaughters(G4PrimaryParticle *g4p, HepMC::GenPartic
   if (verbose > 2) {
     LogDebug("SimG4CoreGenerator") << " px= " << p.px() << " py= " << p.py() << " pz= " << p.pz() << " e= " << p.e()
                                    << " beta= " << p.Beta() << " gamma= " << p.Gamma()
-                                   << " Proper time= " << proper_time / ns << " ns";
+                                   << " Proper time= " << proper_time / CLHEP::ns << " ns";
   }
 
   // the particle will decay after the same length if it
@@ -518,7 +519,7 @@ bool Generator::particlePassesPrimaryCuts(const G4ThreeVector &p) const {
   }
 
   if (verbose > 2)
-    LogDebug("SimG4CoreGenerator") << "Generator ptot(GeV)= " << ptot / GeV << " eta= " << p.eta()
+    LogDebug("SimG4CoreGenerator") << "Generator ptot(GeV)= " << ptot / CLHEP::GeV << " eta= " << p.eta()
                                    << "  phi= " << p.phi() << " Flag= " << flag;
 
   return flag;

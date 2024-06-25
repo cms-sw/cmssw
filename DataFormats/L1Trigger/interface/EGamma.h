@@ -48,10 +48,12 @@ namespace l1t {
     short int shape() const;
     short int towerHoE() const;
 
-    virtual bool operator==(const l1t::EGamma& rhs) const;
-    virtual inline bool operator!=(const l1t::EGamma& rhs) const { return !(operator==(rhs)); };
+    bool operator==(const l1t::EGamma& rhs) const;
+    inline bool operator!=(const l1t::EGamma& rhs) const { return !(operator==(rhs)); };
 
   private:
+    using L1Candidate::operator==;
+    using L1Candidate::operator!=;
     // additional hardware quantities common to L1 global EG
     void clear_extended();
     short int towerIEta_;

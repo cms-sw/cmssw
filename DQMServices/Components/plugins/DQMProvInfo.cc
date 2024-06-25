@@ -102,7 +102,7 @@ private:
 
   // Beam momentum at flat top, used to determine if collisions are
   // occurring with the beams at the energy allowed for physics production.
-  const static int MAX_MOMENTUM = 6500;
+  const static int MAX_MOMENTUM = 6800;
 
   // Beam momentum allowed offset: it is a momentum value subtracted to
   // maximum momentum in order to decrease the threshold for beams going to
@@ -309,7 +309,7 @@ void DQMProvInfo::bookHistogramsEventInfo(DQMStore::IBooker& iBooker) {
   reportSummaryMap_->setBinLabel(VBIN_GEM_P, "GEMp", 2);
   reportSummaryMap_->setBinLabel(VBIN_GEM_M, "GEMm", 2);
   reportSummaryMap_->setBinLabel(VBIN_PHYSICS_DECLARED, "PhysDecl", 2);
-  reportSummaryMap_->setBinLabel(VBIN_MOMENTUM, "13 TeV", 2);
+  reportSummaryMap_->setBinLabel(VBIN_MOMENTUM, "13.6 TeV", 2);
   reportSummaryMap_->setBinLabel(VBIN_STABLE_BEAM, "Stable B", 2);
   reportSummaryMap_->setBinLabel(VBIN_VALID, "Valid", 2);
 
@@ -383,7 +383,7 @@ void DQMProvInfo::analyzeLhcInfo(const edm::Event& event) {
     hIntensity2_->setBinContent(currentLSNumber, intensity2);
 
     // Part3: Using LHC status info, fill in VBIN_MOMENTUM and VBIN_STABLE_BEAM
-    // Fill 13 TeV bit in y bin VBIN_MOMENTUM
+    // Fill 13.6 TeV bit in y bin VBIN_MOMENTUM
     if (momentum >= MAX_MOMENTUM - MOMENTUM_OFFSET) {
       fillSummaryMapBin(currentLSNumber, VBIN_MOMENTUM, 1.);
     } else {

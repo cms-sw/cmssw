@@ -165,7 +165,7 @@ namespace edm {
                              EventSetupRecordImpl const* iRecord,
                              EventSetupImpl const* iEventSetupImpl,
                              ServiceToken const& token,
-                             ESParentContext const& iParent) {
+                             ESParentContext const& iParent) noexcept {
         bool expected = false;
         auto doPrefetch = wasCalledForThisRecord_.compare_exchange_strong(expected, true);
         taskList_.add(iTask);
@@ -221,16 +221,16 @@ namespace edm {
         taskList_.reset();
       }
 
-      unsigned int transitionID() const { return id_; }
-      ESResolverIndex const* getTokenIndices() const { return producer_->getTokenIndices(id_); }
+      unsigned int transitionID() const noexcept { return id_; }
+      ESResolverIndex const* getTokenIndices() const noexcept { return producer_->getTokenIndices(id_); }
 
       std::optional<std::vector<ESResolverIndex>> const& postMayGetResolvers() const { return postMayGetResolvers_; }
-      T* producer() { return producer_.get(); }
-      ESModuleCallingContext& callingContext() { return callingContext_; }
-      WaitingTaskList& taskList() { return taskList_; }
-      std::shared_ptr<TProduceFunc> const& produceFunction() { return produceFunction_; }
-      TDecorator const& decorator() const { return decorator_; }
-      SerialTaskQueueChain& queue() { return producer_->queue(); }
+      T* producer() noexcept { return producer_.get(); }
+      ESModuleCallingContext& callingContext() noexcept { return callingContext_; }
+      WaitingTaskList& taskList() noexcept { return taskList_; }
+      std::shared_ptr<TProduceFunc> const& produceFunction() noexcept { return produceFunction_; }
+      TDecorator const& decorator() const noexcept { return decorator_; }
+      SerialTaskQueueChain& queue() noexcept { return producer_->queue(); }
 
     protected:
       ~CallbackBase() = default;
@@ -244,7 +244,7 @@ namespace edm {
       void prefetchNeededDataAsync(WaitingTaskHolder task,
                                    EventSetupImpl const* iImpl,
                                    ESResolverIndex const* proxies,
-                                   ServiceToken const& token) const {
+                                   ServiceToken const& token) const noexcept {
         auto recs = producer_->getTokenRecordIndices(id_);
         auto n = producer_->numberOfTokenIndices(id_);
         for (size_t i = 0; i != n; ++i) {

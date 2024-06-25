@@ -1182,6 +1182,7 @@ void L1TCorrelatorLayer1Producer::putEgObjects(edm::Event &iEvent,
       tkele.setEgBinaryWord(egele.pack(), l1t::TkElectron::HWEncoding::CT);
       tkele.setIdScore(egele.floatIDScore());
       tkele.setCharge(egele.intCharge());
+      tkele.setTrkzVtx(egele.floatZ0());
       tkeles->push_back(tkele);
       nele_obj.push_back(tkeles->size() - 1);
     }

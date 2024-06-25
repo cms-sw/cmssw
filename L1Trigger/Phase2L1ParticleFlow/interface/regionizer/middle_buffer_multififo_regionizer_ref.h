@@ -85,6 +85,10 @@ namespace l1ct {
 
     void reset();
 
+    static void encode(const l1ct::EmCaloObjEmu& from, l1ct::HadCaloObjEmu& to);
+    static void encode(const l1ct::HadCaloObjEmu& from, l1ct::HadCaloObjEmu& to);
+    static void decode(l1ct::HadCaloObjEmu& had, l1ct::EmCaloObjEmu& em);
+
   protected:
     const unsigned int NTK_SECTORS, NCALO_SECTORS;
     const unsigned int NTK_LINKS, HCAL_LINKS, ECAL_LINKS, NMU_LINKS;
@@ -115,10 +119,6 @@ namespace l1ct {
                              const std::vector<DetectorSector<l1ct::HadCaloObjEmu>>& had_in,
                              std::vector<l1ct::HadCaloObjEmu>& links,
                              std::vector<bool>& valid);
-
-    void encode(const l1ct::EmCaloObjEmu& from, l1ct::HadCaloObjEmu& to);
-    void encode(const l1ct::HadCaloObjEmu& from, l1ct::HadCaloObjEmu& to);
-    void decode(l1ct::HadCaloObjEmu& had, l1ct::EmCaloObjEmu& em);
   };
 }  // namespace l1ct
 

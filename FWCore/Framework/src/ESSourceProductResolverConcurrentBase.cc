@@ -25,7 +25,7 @@ void edm::eventsetup::ESSourceProductResolverConcurrentBase::prefetchAsyncImpl(
     edm::eventsetup::DataKey const& iKey,
     edm::EventSetupImpl const*,
     edm::ServiceToken const&,
-    edm::ESParentContext const& iParent) {
+    edm::ESParentContext const& iParent) noexcept {
   prefetchAsyncImplTemplate([](auto& iGroup, auto iActivity) { iGroup.run(std::move(iActivity)); },
                             []() { return true; },
                             std::move(iTask),

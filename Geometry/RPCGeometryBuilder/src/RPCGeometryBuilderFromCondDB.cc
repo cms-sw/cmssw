@@ -20,10 +20,12 @@
 
 #include "DataFormats/GeometryVector/interface/Basic3DVector.h"
 
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include <CLHEP/Units/SystemOfUnits.h>
 
 #include <iostream>
 #include <algorithm>
+
+using CLHEP::cm;
 
 RPCGeometryBuilderFromCondDB::RPCGeometryBuilderFromCondDB() {}
 

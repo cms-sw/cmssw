@@ -16,6 +16,8 @@
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "FWCore/Framework/interface/GetterOfProducts.h"
 #include "FWCore/Framework/interface/ProcessMatch.h"
+using CLHEP::micrometer;
+using CLHEP::millimeter;
 
 GlobalHitsAnalyzer::GlobalHitsAnalyzer(const edm::ParameterSet &iPSet)
     : fName(""),

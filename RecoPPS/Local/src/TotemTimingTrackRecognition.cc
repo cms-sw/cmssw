@@ -18,7 +18,7 @@ TotemTimingTrackRecognition::TotemTimingTrackRecognition(const edm::ParameterSet
 //----------------------------------------------------------------------------------------------------
 
 void TotemTimingTrackRecognition::addHit(const TotemTimingRecHit& recHit) {
-  if (recHit.time() != TotemTimingRecHit::NO_T_AVAILABLE)
+  if (recHit.time() != static_cast<float>(TotemTimingRecHit::NO_T_AVAILABLE))
     hitVectorMap_[0].emplace_back(recHit);
 }
 

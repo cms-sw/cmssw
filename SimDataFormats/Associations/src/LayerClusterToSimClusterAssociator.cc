@@ -2,6 +2,6 @@
 
 #include "SimDataFormats/Associations/interface/LayerClusterToSimClusterAssociator.h"
 
-hgcal::LayerClusterToSimClusterAssociator::LayerClusterToSimClusterAssociator(
-    std::unique_ptr<hgcal::LayerClusterToSimClusterAssociatorBaseImpl> ptr)
+ticl::LayerClusterToSimClusterAssociator::LayerClusterToSimClusterAssociator(
+    std::unique_ptr<ticl::LayerClusterToSimClusterAssociatorBaseImpl> ptr)
     : m_impl(std::move(ptr)) {}

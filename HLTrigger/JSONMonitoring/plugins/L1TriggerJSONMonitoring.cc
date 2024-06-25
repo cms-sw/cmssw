@@ -31,6 +31,8 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Adler32Calculator.h"
 
+using namespace jsoncollector;
+
 struct L1TriggerJSONMonitoringData {
   // special values for prescale index checks
   static constexpr const int kPrescaleUndefined = -2;
@@ -364,9 +366,9 @@ void L1TriggerJSONMonitoring::globalEndLuminosityBlockSummary(edm::LuminosityBlo
   unsigned int run = lumi.run();
 
   bool writeFiles = true;
-  if (edm::Service<evf::MicroStateService>().isAvailable()) {
+  if (edm::Service<evf::FastMonitoringService>().isAvailable()) {
     evf::FastMonitoringService* fms =
-        (evf::FastMonitoringService*)(edm::Service<evf::MicroStateService>().operator->());
+        (evf::FastMonitoringService*)(edm::Service<evf::FastMonitoringService>().operator->());
     if (fms)
       writeFiles = fms->shouldWriteFiles(ls);
   }

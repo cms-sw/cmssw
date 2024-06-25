@@ -6,7 +6,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 
-#include "G4SystemOfUnits.hh"
+#include <CLHEP/Units/SystemOfUnits.h>
 
 G4ThreadLocal G4Allocator<CaloG4Hit>* fpCaloG4HitAllocator = nullptr;
 
@@ -18,7 +18,7 @@ CaloG4Hit::CaloG4Hit() {
   theIncidentEnergy = 0.;
 }
 
-CaloG4Hit::~CaloG4Hit() {}
+//CaloG4Hit::~CaloG4Hit() {}
 
 CaloG4Hit::CaloG4Hit(const CaloG4Hit& right) {
   entry = right.entry;
@@ -57,7 +57,7 @@ std::ostream& operator<<(std::ostream& os, const CaloG4Hit& hit) {
      << " HitID: " << hit.getID() << "\n"
      << " EnergyDeposit of EM particles = " << hit.getEM() << "\n"
      << " EnergyDeposit of HD particles = " << hit.getHadr() << "\n"
-     << " Energy of primary particle    = " << hit.getIncidentEnergy() / MeV << " (MeV)"
+     << " Energy of primary particle    = " << hit.getIncidentEnergy() / CLHEP::MeV << " (MeV)"
      << "\n"
      << " Entry point in Calorimeter (global) : " << hit.getEntry() << "   (local) " << hit.getEntryLocal() << "\n"
      << " Position of Hit (global) : " << hit.getPosition() << "\n"

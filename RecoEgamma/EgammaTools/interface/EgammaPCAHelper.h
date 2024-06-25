@@ -43,10 +43,13 @@ namespace hgcal {
 
     const TPrincipal &pcaResult();
     /// to set once per event
-    void setHitMap(const std::unordered_map<DetId, const HGCRecHit *> *hitMap);
-    const std::unordered_map<DetId, const HGCRecHit *> *getHitMap() { return hitMap_; }
+    void setHitMap(const std::unordered_map<DetId, const unsigned int> *hitMap);
+    const std::unordered_map<DetId, const unsigned int> *getHitMap() { return hitMap_; }
 
     void setRecHitTools(const hgcal::RecHitTools *recHitTools);
+    void setRecHits(edm::Handle<HGCRecHitCollection> recHitHandleEE,
+                    edm::Handle<HGCRecHitCollection> recHitHandleFH,
+                    edm::Handle<HGCRecHitCollection> recHitHandleBH);
 
     inline void setdEdXWeights(const std::vector<double> &dEdX) { dEdXWeights_ = dEdX; }
 
@@ -85,7 +88,7 @@ namespace hgcal {
     std::vector<double> invThicknessCorrection_;
 
     const reco::CaloCluster *theCluster_;
-    const std::unordered_map<DetId, const HGCRecHit *> *hitMap_;
+    const std::unordered_map<DetId, const unsigned int> *hitMap_;
     std::vector<Spot> theSpots_;
     int pcaIteration_;
     unsigned int maxlayer_;
@@ -101,6 +104,8 @@ namespace hgcal {
     std::unique_ptr<TPrincipal> pca_;
     const hgcal::RecHitTools *recHitTools_;
     ShowerDepth showerDepth_;
+
+    std::vector<const HGCRecHit *> hits_;
   };
 
 }  // namespace hgcal

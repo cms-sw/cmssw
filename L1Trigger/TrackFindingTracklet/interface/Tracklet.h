@@ -221,6 +221,8 @@ namespace trklet {
 
     unsigned int PSseed() const { return ((layer() == 1) || (layer() == 2) || (disk() != 0)) ? 1 : 0; }
 
+    // Seed type:
+    //  L1L2=0,L2L3=1,L3L4=2,L5L6=3,D1D2=4,D3D4=5,L1D1=6,L2D1=7
     unsigned int seedIndex() const { return seedIndex_; }
 
   private:

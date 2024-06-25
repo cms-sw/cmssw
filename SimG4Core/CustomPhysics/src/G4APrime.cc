@@ -1,5 +1,5 @@
 #include "SimG4Core/CustomPhysics/interface/G4APrime.h"
-#include "G4SystemOfUnits.hh"
+#include <CLHEP/Units/SystemOfUnits.h>
 
 G4APrime* G4APrime::theAPrime = nullptr;
 
@@ -43,7 +43,7 @@ G4APrime::~G4APrime() {}
 G4APrime* G4APrime::APrime(double apmass) {
   if (!theAPrime) {
     const G4String& name = "A^1";
-    G4double mass = apmass * MeV;
+    G4double mass = apmass * CLHEP::MeV;
     G4double width = 0.;
     G4double charge = 0;
     G4int iSpin = 0;

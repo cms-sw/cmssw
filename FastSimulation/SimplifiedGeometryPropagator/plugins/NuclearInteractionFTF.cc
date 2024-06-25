@@ -79,7 +79,8 @@
 #include "G4IonTable.hh"
 #include "G4ProcessManager.hh"
 #include "G4PhysicsLogVector.hh"
-#include "G4SystemOfUnits.hh"
+
+#include <CLHEP/Units/SystemOfUnits.h>
 
 ///////////////////////////////////////////////
 // Author: Vladimir Ivanchenko
@@ -368,7 +369,7 @@ fastsim::NuclearInteractionFTF::NuclearInteractionFTF(const std::string& name, c
   });
 
   // local objects
-  vect = new G4PhysicsLogVector(npoints - 1, 100 * MeV, TeV);
+  vect = new G4PhysicsLogVector(npoints - 1, 100 * CLHEP::MeV, CLHEP::TeV);
   intLengthElastic = intLengthInelastic = 0.0;
   currIdx = 0;
   index = 0;

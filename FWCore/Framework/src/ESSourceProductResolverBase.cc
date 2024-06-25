@@ -28,7 +28,7 @@ namespace edm {
 // member functions
 //
 
-bool edm::eventsetup::ESSourceProductResolverBase::needToPrefetch(edm::WaitingTaskHolder iTask) {
+bool edm::eventsetup::ESSourceProductResolverBase::needToPrefetch(edm::WaitingTaskHolder iTask) noexcept {
   m_waitingList.add(std::move(iTask));
   bool expected = false;
   return m_prefetching.compare_exchange_strong(expected, true);

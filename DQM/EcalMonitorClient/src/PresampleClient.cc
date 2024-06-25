@@ -108,7 +108,7 @@ namespace ecaldqm {
 
       // Fill Presample Trend plots:
       // Use PedestalByLS which only contains digis from "current" LS
-      float chStatus(sChStatus.getBinContent(getEcalDQMSetupObjects(), id));
+      int chStatus = static_cast<int>(sChStatus.getBinContent(getEcalDQMSetupObjects(), id));
       if (entriesLS < minChannelEntries_)
         continue;
       if (chStatus != EcalChannelStatusCode::kOk)

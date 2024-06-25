@@ -195,9 +195,6 @@ private:
   // if false, the prescale counters are initialised to zero
   bool m_semiRandomInitialPSCounters;
 
-  //string to store AXOL1TL model version
-  std::string m_AXOL1TLModelVersion;
-
   // switch to load muon showers in the global board
   bool m_useMuonShowers;
 };

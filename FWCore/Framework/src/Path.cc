@@ -133,7 +133,7 @@ namespace edm {
 
   void Path::threadsafe_setFailedModuleInfo(int nwrwue, bool iExcept) {
     bool expected = false;
-    while (stateLock_.compare_exchange_strong(expected, true)) {
+    while (not stateLock_.compare_exchange_strong(expected, true)) {
       expected = false;
     }
     if (iExcept) {
@@ -200,11 +200,11 @@ namespace edm {
     pathStatusInserterWorker_ = pathStatusInserterWorker;
   }
 
-  void Path::processOneOccurrenceAsync(WaitingTaskHolder iTask,
-                                       EventTransitionInfo const& iInfo,
-                                       ServiceToken const& iToken,
-                                       StreamID const& iStreamID,
-                                       StreamContext const* iStreamContext) {
+  void Path::processEventUsingPathAsync(WaitingTaskHolder iTask,
+                                        EventTransitionInfo const& iInfo,
+                                        ServiceToken const& iToken,
+                                        StreamID const& iStreamID,
+                                        StreamContext const* iStreamContext) {
     waitingTasks_.reset();
     modulesToRun_ = workers_.size();
     ++timesRun_;

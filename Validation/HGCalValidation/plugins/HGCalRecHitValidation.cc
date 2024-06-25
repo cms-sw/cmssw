@@ -26,7 +26,7 @@
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include <CLHEP/Units/SystemOfUnits.h>
 #include "TVector3.h"
 
 class HGCalRecHitValidation : public DQMEDAnalyzer {

@@ -24,7 +24,7 @@ EcalFenixTcp::EcalFenixTcp(
   formatter_EB_ = new EcalFenixTcpFormatEB(tcpFormat, debug_, famos, binOfMax);
   formatter_EE_ = new EcalFenixTcpFormatEE(tcpFormat, debug_, famos, binOfMax);
   fgvbEB_ = new EcalFenixFgvbEB(maxNrSamples);
-  fgvbEE_ = new EcalFenixTcpFgvbEE(maxNrSamples);
+  fgvbEE_ = new EcalFenixTcpFgvbEE();
   sfgvbEB_ = new EcalFenixTcpsFgvbEB();
 
   // permanent data structures

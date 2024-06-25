@@ -5,8 +5,8 @@ ecalMultiFitUncalibRecHit = _mod.ecalMultiFitUncalibRecHitProducer.clone()
 
 # use CC timing method for Run3 and Phase 2 (carried over from Run3 era)
 import FWCore.ParameterSet.Config as cms
-from Configuration.Eras.Modifier_run3_ecal_cff import run3_ecal
-run3_ecal.toModify(ecalMultiFitUncalibRecHit,
+from Configuration.ProcessModifiers.ecal_cctiming_cff import ecal_cctiming
+ecal_cctiming.toModify(ecalMultiFitUncalibRecHit,
     algoPSet = dict(timealgo = 'crossCorrelationMethod',
         EBtimeNconst = 25.5,
         EBtimeConstantTerm = 0.85,
@@ -19,7 +19,7 @@ run3_ecal.toModify(ecalMultiFitUncalibRecHit,
     )
 )
 
-# this overrides the modifications made by run3_ecal if both modifiers are active
+# this overrides the modifications made by the ecal_cctiming modifier if both modifiers are active
 from Configuration.ProcessModifiers.gpuValidationEcal_cff import gpuValidationEcal
 gpuValidationEcal.toModify(ecalMultiFitUncalibRecHit,
     algoPSet = dict(timealgo = 'RatioMethod',

@@ -1,5 +1,6 @@
 <use name="alpaka"/>
 <use name="boost_header"/>
+<use name="fmt"/>
 <use name="FWCore/Utilities"/>
 <export>
   <lib name="1"/>

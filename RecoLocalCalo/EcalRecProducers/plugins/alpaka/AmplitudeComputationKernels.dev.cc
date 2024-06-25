@@ -91,7 +91,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::multifit {
       DataType* shrmem = alpaka::getDynSharedMem<DataType>(acc);
 
       // channel
-      for (auto idx : cms::alpakatools::elements_with_stride(acc, nchannels)) {
+      for (auto idx : cms::alpakatools::uniform_elements(acc, nchannels)) {
         if (static_cast<MinimizationState>(acState[idx]) == MinimizationState::Precomputed)
           continue;
 

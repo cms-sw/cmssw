@@ -39,6 +39,8 @@
 //the special paths which are affected
 //a standard path logic goes "trigger type -> l1 seed -> prescale -> other selection"
 
+using namespace jsoncollector;
+
 struct HLTriggerJSONMonitoringData {
   // variables accumulated event by event in each stream
   struct stream {
@@ -428,9 +430,9 @@ void HLTriggerJSONMonitoring::globalEndLuminosityBlockSummary(edm::LuminosityBlo
   unsigned int run = lumi.run();
 
   bool writeFiles = true;
-  if (edm::Service<evf::MicroStateService>().isAvailable()) {
+  if (edm::Service<evf::FastMonitoringService*>().isAvailable()) {
     evf::FastMonitoringService* fms =
-        (evf::FastMonitoringService*)(edm::Service<evf::MicroStateService>().operator->());
+        (evf::FastMonitoringService*)(edm::Service<evf::FastMonitoringService*>().operator->());
     if (fms)
       writeFiles = fms->shouldWriteFiles(ls);
   }

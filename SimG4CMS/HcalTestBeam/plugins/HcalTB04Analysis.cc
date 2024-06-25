@@ -59,10 +59,16 @@
 
 #include <CLHEP/Random/RandGaussQ.h>
 #include <CLHEP/Random/Randomize.h>
-#include <CLHEP/Units/GlobalSystemOfUnits.h>
-#include <CLHEP/Units/GlobalPhysicalConstants.h>
+#include <CLHEP/Units/SystemOfUnits.h>
+#include <CLHEP/Units/PhysicalConstants.h>
 
 #include <cstdint>
+
+using CLHEP::c_light;
+using CLHEP::GeV;
+using CLHEP::mm;
+using CLHEP::ns;
+using CLHEP::twopi;
 
 //#define EDM_ML_DEBUG
 
@@ -1145,7 +1151,7 @@ double HcalTB04Analysis::timeOfFlight(int det, int layer, double eta) {
   double tmp = dist / c_light / ns;
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HcalTBSim") << "HcalTB04Analysis::timeOfFlight " << tmp << " for det/lay " << det << " " << layer
-                                << " eta/theta " << eta << " " << theta / deg << " dist " << dist;
+                                << " eta/theta " << eta << " " << theta / CLHEP::deg << " dist " << dist;
 #endif
   return tmp;
 }

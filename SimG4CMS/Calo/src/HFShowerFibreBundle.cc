@@ -10,8 +10,8 @@
 #include "G4VPhysicalVolume.hh"
 #include "G4Step.hh"
 #include "G4Track.hh"
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include <CLHEP/Units/PhysicalConstants.h>
+#include <CLHEP/Units/SystemOfUnits.h>
 #include <sstream>
 
 //#define EDM_ML_DEBUG
@@ -78,7 +78,7 @@ double HFShowerFibreBundle::getHits(const G4Step* aStep, bool type) {
 #ifdef EDM_ML_DEBUG
   double edep = aStep->GetTotalEnergyDeposit();
   edm::LogVerbatim("HFShower") << "HFShowerFibreBundle: Box " << boxNo << " PMT " << pmtNo << " Mapped Indices "
-                               << indexR << ", " << indexF << " Edeposit " << edep / MeV << " MeV";
+                               << indexR << ", " << indexF << " Edeposit " << edep / CLHEP::MeV << " MeV";
 #endif
 
   double photons = 0;

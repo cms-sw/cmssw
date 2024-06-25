@@ -3,7 +3,7 @@
 #include <cmath>
 #include <string>
 #include <CLHEP/Units/PhysicalConstants.h>
-#include <CLHEP/Units/GlobalSystemOfUnits.h>
+#include <CLHEP/Units/SystemOfUnits.h>
 #include "TLorentzVector.h"
 
 class H_BeamParticle;
@@ -27,7 +27,7 @@ namespace PPSTools {
   };
 
   const double urad = 1. / 1000000.;
-  const double ProtonMass = CLHEP::proton_mass_c2 / GeV;
+  const double ProtonMass = CLHEP::proton_mass_c2 / CLHEP::GeV;
   const double ProtonMassSQ = pow(ProtonMass, 2);
 
   TLorentzVector HectorParticle2LorentzVector(H_BeamParticle hp, int);

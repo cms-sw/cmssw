@@ -284,36 +284,48 @@ namespace l1t {
     }
   }
 
+  namespace {
+    edm::ParameterSetDescription makeDesc(std::vector<int> const& fedIDs,
+                                          unsigned int fwid,
+                                          std::string const& setup,
+                                          edm::InputTag const& label) {
+      edm::ParameterSetDescription desc;
+      // These parameters are part of the L1T/HLT interface, avoid changing if possible:
+      desc.add<std::vector<int>>("FedIds", fedIDs)->setComment("required parameter:  default value is invalid");
+      desc.add<std::string>("Setup", setup)->setComment("required parameter:  default value is invalid");
+      // These parameters have well defined  default values and are not currently
+      // part of the L1T/HLT interface.  They can be cleaned up or updated at will:
+      desc.add<unsigned int>("FWId", fwid)
+          ->setComment(
+              "Ignored unless FWOverride is true.  Calo Stage1:  32 bits: if the first eight bits are 0xff, will read "
+              "the "
+              "74x MC format.\n");
+      desc.add<unsigned int>("DmxFWId", 0)
+          ->setComment(
+              "Ignored unless FWOverride is true.  Calo Stage1:  32 bits: if the first eight bits are 0xff, will read "
+              "the 74x MC format.\n");
+      desc.add<bool>("FWOverride", false)->setComment("Firmware version should be taken as FWId parameters");
+      desc.add<bool>("TMTCheck", true)->setComment("Flag for turning on/off Calo Layer 2 TMT node check");
+      desc.addUntracked<bool>("CTP7", false);
+      desc.addUntracked<bool>("MTF7", false);
+      desc.add<edm::InputTag>("InputLabel", label);
+      desc.addUntracked<int>("lenSlinkHeader", 8);
+      desc.addUntracked<int>("lenSlinkTrailer", 8);
+      desc.addUntracked<int>("lenAMCHeader", 8);
+      desc.addUntracked<int>("lenAMCTrailer", 0);
+      desc.addUntracked<int>("lenAMC13Header", 8);
+      desc.addUntracked<int>("lenAMC13Trailer", 8);
+      desc.addUntracked<bool>("debug", false)->setComment("turn on verbose output");
+      desc.add<unsigned int>("MinFeds", 0)
+          ->setComment("optional parameter:  warn if less than MinFeds non-empty FED ids unpacked.");
+      return desc;
+    }
+  }  // namespace
+
   // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
   void L1TRawToDigi::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-    edm::ParameterSetDescription desc;
-    // These parameters are part of the L1T/HLT interface, avoid changing if possible:
-    desc.add<std::vector<int>>("FedIds", {})->setComment("required parameter:  default value is invalid");
-    desc.add<std::string>("Setup", "")->setComment("required parameter:  default value is invalid");
-    // These parameters have well defined  default values and are not currently
-    // part of the L1T/HLT interface.  They can be cleaned up or updated at will:
-    desc.add<unsigned int>("FWId", 0)->setComment(
-        "Ignored unless FWOverride is true.  Calo Stage1:  32 bits: if the first eight bits are 0xff, will read the "
-        "74x MC format.\n");
-    desc.add<unsigned int>("DmxFWId", 0)
-        ->setComment(
-            "Ignored unless FWOverride is true.  Calo Stage1:  32 bits: if the first eight bits are 0xff, will read "
-            "the 74x MC format.\n");
-    desc.add<bool>("FWOverride", false)->setComment("Firmware version should be taken as FWId parameters");
-    desc.add<bool>("TMTCheck", true)->setComment("Flag for turning on/off Calo Layer 2 TMT node check");
-    desc.addUntracked<bool>("CTP7", false);
-    desc.addUntracked<bool>("MTF7", false);
-    desc.add<edm::InputTag>("InputLabel", edm::InputTag("rawDataCollector"));
-    desc.addUntracked<int>("lenSlinkHeader", 8);
-    desc.addUntracked<int>("lenSlinkTrailer", 8);
-    desc.addUntracked<int>("lenAMCHeader", 8);
-    desc.addUntracked<int>("lenAMCTrailer", 0);
-    desc.addUntracked<int>("lenAMC13Header", 8);
-    desc.addUntracked<int>("lenAMC13Trailer", 8);
-    desc.addUntracked<bool>("debug", false)->setComment("turn on verbose output");
-    desc.add<unsigned int>("MinFeds", 0)
-        ->setComment("optional parameter:  warn if less than MinFeds non-empty FED ids unpacked.");
-    descriptions.add("l1tRawToDigi", desc);
+    descriptions.addDefault(makeDesc({}, 0, "", edm::InputTag("rawDataCollector")));
+    descriptions.add("l1tRawToDigi", makeDesc({1352}, 1, "stage2::CaloSetup", edm::InputTag("l1tDigiToRaw")));
   }
 }  // namespace l1t
 

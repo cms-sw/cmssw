@@ -88,7 +88,7 @@ namespace edm {
         : m_availableQueue(std::move(iOther.m_availableQueue)), m_outstandingObjects(0) {
       assert(0 == iOther.m_outstandingObjects);
     }
-    ~ReusableObjectHolder() {
+    ~ReusableObjectHolder() noexcept {
       assert(0 == m_outstandingObjects);
       std::unique_ptr<T, Deleter> item;
       while (m_availableQueue.try_pop(item)) {

@@ -17,6 +17,7 @@
 #include "IOPool/Streamer/interface/FRDFileHeader.h"
 
 using namespace jsoncollector;
+using namespace edm::streamer;
 
 //TODO:get run directory information from DaqDirector
 
@@ -309,8 +310,8 @@ void RawEventFileWriterForBU::stop() {
 //TODO:get from DaqDirector !
 void RawEventFileWriterForBU::makeRunPrefix(std::string const& destinationDir) {
   //dirty hack: extract run number from destination directory
-  std::string::size_type pos = destinationDir.find("run");
-  std::string run = destinationDir.substr(pos + 3);
+  std::string::size_type pos = destinationDir.rfind("/run");
+  std::string run = destinationDir.substr(pos + 4);
   run_ = atoi(run.c_str());
   std::stringstream ss;
   ss << "run" << std::setfill('0') << std::setw(6) << run_;

@@ -13,7 +13,7 @@
 #include "G4Step.hh"
 #include "G4Track.hh"
 #include "G4Region.hh"
-#include "G4SystemOfUnits.hh"
+#include <CLHEP/Units/SystemOfUnits.h>
 #include "G4TransportationProcessType.hh"
 
 ElectronLimiter::ElectronLimiter(const edm::ParameterSet &p, const G4ParticleDefinition *part)

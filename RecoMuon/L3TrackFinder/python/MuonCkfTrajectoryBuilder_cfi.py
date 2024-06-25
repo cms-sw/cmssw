@@ -19,6 +19,8 @@ MuonCkfTrajectoryBuilder = cms.PSet(
     rescaleErrorIfFail = cms.double(1.0),
     propagatorOpposite = cms.string('PropagatorWithMaterialOpposite'),
     lostHitPenalty = cms.double(30.0),
+    foundHitBonus = cms.double(0.0),
+    minHitForDoubleBonus = cms.int32(9999),
     #this is present in HLT config, appears to be dummy
 #    appendToDataLabel = cms.string( "" ),
     #safety cone size

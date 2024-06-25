@@ -67,6 +67,8 @@ private:
   // ----------member data ---------------------------
   std::vector<edm::EventID> ids_;
   mutable std::atomic<unsigned int> index_;
+  unsigned int minNEvents_ = 0;
+  unsigned int maxNEvents_ = 0;
   bool unorderedEvents_;
 };
 
@@ -84,6 +86,8 @@ private:
 RunLumiEventChecker::RunLumiEventChecker(edm::ParameterSet const& iConfig)
     : ids_(iConfig.getUntrackedParameter<std::vector<edm::EventID>>("eventSequence")),
       index_(0),
+      minNEvents_(iConfig.getUntrackedParameter<unsigned int>("minNumberOfEvents")),
+      maxNEvents_(iConfig.getUntrackedParameter<unsigned int>("maxNumberOfEvents")),
       unorderedEvents_(iConfig.getUntrackedParameter<bool>("unorderedEvents")) {
   //now do what ever initialization is needed
 }
@@ -144,9 +148,16 @@ void RunLumiEventChecker::beginJob() {}
 
 // ------------ method called once each job just after ending the event loop  ------------
 void RunLumiEventChecker::endJob() {
-  if (index_ != ids_.size()) {
+  if (maxNEvents_ == 0 and index_ != ids_.size()) {
     throw cms::Exception("WrongNumberOfEvents")
-        << "Saw " << index_ << " events but was supposed to see " << ids_.size() << "\n";
+        << "Saw " << index_ << " (begin runs)+(begin lumis)+events+(end lumis)+(end runs) but was supposed to see "
+        << ids_.size() << "\n";
+  }
+  if (maxNEvents_ != 0 and (index_ < minNEvents_ or index_ > maxNEvents_)) {
+    throw cms::Exception("WrongNumberOfEvents")
+        << "Saw " << index_
+        << " (begin runs)+(begin lumis)+events+(end lumis)+(end runs) but was supposed to see between " << minNEvents_
+        << " and " << maxNEvents_;
   }
 }
 
@@ -154,7 +165,14 @@ void RunLumiEventChecker::endJob() {
 void RunLumiEventChecker::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.addUntracked<std::vector<edm::EventID>>("eventSequence");
-  desc.addUntracked<bool>("unorderedEvents", false);
+  desc.addUntracked<unsigned int>("minNumberOfEvents", 0)
+      ->setComment(
+          "minimum number of Events that must be seen. If max is 0 then this will be ignored and all Events must be "
+          "present");
+  desc.addUntracked<unsigned int>("maxNumberOfEvents", 0)
+      ->setComment("maximum number of Events that must be seen. If set to 0, min and max are ignored");
+  desc.addUntracked<bool>("unorderedEvents", false)
+      ->setComment("set to true if events are not guaranteed to be in same order as 'eventSequence' specifies.");
   descriptions.add("runLumiEventIDChecker", desc);
 }
 

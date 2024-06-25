@@ -24,7 +24,6 @@ namespace csctf {
     TrackStub() {}
     TrackStub(const CSCCorrelatedLCTDigi &, const DetId &);
     TrackStub(const CSCCorrelatedLCTDigi &, const DetId &, const unsigned &phi, const unsigned &eta);
-    TrackStub(const TrackStub &);
 
     /// set Eta and Phi from integer values.
     void setEtaPacked(const unsigned &eta_) { theEta_ = eta_; }

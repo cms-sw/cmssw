@@ -19,8 +19,8 @@
 #include "G4TransportationManager.hh"
 #include "DD4hep/Filter.h"
 
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include <CLHEP/Units/GlobalPhysicalConstants.h>
+#include <CLHEP/Units/SystemOfUnits.h>
 
 #include <cmath>
 #include <iomanip>

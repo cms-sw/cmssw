@@ -46,6 +46,7 @@ PatternRecognitionbyCA<TILES>::PatternRecognitionbyCA(const edm::ParameterSet &c
       eidMinClusterEnergy_(conf.getParameter<double>("eid_min_cluster_energy")),
       eidNLayers_(conf.getParameter<int>("eid_n_layers")),
       eidNClusters_(conf.getParameter<int>("eid_n_clusters")),
+      computeLocalTime_(conf.getParameter<bool>("computeLocalTime")),
       siblings_maxRSquared_(conf.getParameter<std::vector<double>>("siblings_maxRSquared")){};
 
 template <typename TILES>
@@ -182,7 +183,8 @@ void PatternRecognitionbyCA<TILES>::makeTracksters(
   ticl::assignPCAtoTracksters(tmpTracksters,
                               input.layerClusters,
                               input.layerClustersTime,
-                              rhtools_.getPositionLayer(rhtools_.lastLayerEE(isHFnose), isHFnose).z());
+                              rhtools_.getPositionLayer(rhtools_.lastLayerEE(isHFnose), isHFnose).z(),
+                              computeLocalTime_);
 
   // run energy regression and ID
   energyRegressionAndID(input.layerClusters, input.tfSession, tmpTracksters);
@@ -243,7 +245,8 @@ void PatternRecognitionbyCA<TILES>::makeTracksters(
   ticl::assignPCAtoTracksters(result,
                               input.layerClusters,
                               input.layerClustersTime,
-                              rhtools_.getPositionLayer(rhtools_.lastLayerEE(isHFnose), isHFnose).z());
+                              rhtools_.getPositionLayer(rhtools_.lastLayerEE(isHFnose), isHFnose).z(),
+                              computeLocalTime_);
 
   // run energy regression and ID
   energyRegressionAndID(input.layerClusters, input.tfSession, result);
@@ -509,6 +512,7 @@ void PatternRecognitionbyCA<TILES>::fillPSetDescription(edm::ParameterSetDescrip
   iDesc.add<double>("eid_min_cluster_energy", 1.);
   iDesc.add<int>("eid_n_layers", 50);
   iDesc.add<int>("eid_n_clusters", 10);
+  iDesc.add<bool>("computeLocalTime", false);
   iDesc.add<std::vector<double>>("siblings_maxRSquared", {6e-4, 6e-4, 6e-4});
 }
 

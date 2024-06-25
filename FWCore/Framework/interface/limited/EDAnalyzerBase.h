@@ -62,12 +62,12 @@ namespace edm {
       // Warning: the returned moduleDescription will be invalid during construction
       ModuleDescription const& moduleDescription() const { return moduleDescription_; }
 
-      virtual bool wantsProcessBlocks() const = 0;
-      virtual bool wantsInputProcessBlocks() const = 0;
-      virtual bool wantsGlobalRuns() const = 0;
-      virtual bool wantsGlobalLuminosityBlocks() const = 0;
-      virtual bool wantsStreamRuns() const = 0;
-      virtual bool wantsStreamLuminosityBlocks() const = 0;
+      virtual bool wantsProcessBlocks() const noexcept = 0;
+      virtual bool wantsInputProcessBlocks() const noexcept = 0;
+      virtual bool wantsGlobalRuns() const noexcept = 0;
+      virtual bool wantsGlobalLuminosityBlocks() const noexcept = 0;
+      virtual bool wantsStreamRuns() const noexcept = 0;
+      virtual bool wantsStreamLuminosityBlocks() const noexcept = 0;
 
       void callWhenNewProductsRegistered(std::function<void(BranchDescription const&)> const& func) {
         callWhenNewProductsRegistered_ = func;
@@ -82,7 +82,7 @@ namespace edm {
       //For now this is a placeholder
       /*virtual*/ void preActionBeforeRunEventAsync(WaitingTaskHolder iTask,
                                                     ModuleCallingContext const& iModuleCallingContext,
-                                                    Principal const& iPrincipal) const {}
+                                                    Principal const& iPrincipal) const noexcept {}
 
       void doPreallocate(PreallocationConfiguration const&);
       void doBeginJob();
@@ -144,8 +144,8 @@ namespace edm {
 
       virtual void clearInputProcessBlockCaches();
 
-      bool hasAcquire() const { return false; }
-      bool hasAccumulator() const { return false; }
+      bool hasAcquire() const noexcept { return false; }
+      bool hasAccumulator() const noexcept { return false; }
 
       void setModuleDescription(ModuleDescription const& md) { moduleDescription_ = md; }
       ModuleDescription moduleDescription_;

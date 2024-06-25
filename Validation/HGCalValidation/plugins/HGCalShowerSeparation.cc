@@ -44,15 +44,18 @@ private:
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
-  void fillWithRecHits(std::unordered_map<DetId, const HGCRecHit*>&, DetId, unsigned int, float, int&, float&);
+  void fillWithRecHits(std::unordered_map<DetId, const unsigned int>&, DetId, unsigned int, float, int&, float&);
 
-  edm::EDGetTokenT<std::unordered_map<DetId, const HGCRecHit*>> hitMap_;
+  edm::EDGetTokenT<std::unordered_map<DetId, const unsigned int>> hitMap_;
   edm::EDGetTokenT<std::vector<CaloParticle>> caloParticles_;
   const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
+  std::vector<edm::InputTag> hits_label;
+  std::vector<edm::EDGetTokenT<HGCRecHitCollection>> hits_token_;
 
   int debug_;
   bool filterOnEnergyAndCaloP_;
   hgcal::RecHitTools recHitTools_;
+  std::vector<HGCRecHit> hits_;
 
   MonitorElement* eta1_;
   MonitorElement* eta2_;
@@ -81,8 +84,13 @@ HGCalShowerSeparation::HGCalShowerSeparation(const edm::ParameterSet& iConfig)
       filterOnEnergyAndCaloP_(iConfig.getParameter<bool>("filterOnEnergyAndCaloP")) {
   auto hitMapInputTag = iConfig.getParameter<edm::InputTag>("hitMapTag");
   auto caloParticles = iConfig.getParameter<edm::InputTag>("caloParticles");
-  hitMap_ = consumes<std::unordered_map<DetId, const HGCRecHit*>>(hitMapInputTag);
+  hitMap_ = consumes<std::unordered_map<DetId, const unsigned int>>(hitMapInputTag);
   caloParticles_ = consumes<std::vector<CaloParticle>>(caloParticles);
+  auto hits_label_ = iConfig.getParameter<std::vector<edm::InputTag>>("hits");
+
+  for (auto& label : hits_label_) {
+    hits_token_.push_back(consumes<HGCRecHitCollection>(label));
+  }
 }
 
 void HGCalShowerSeparation::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const&) {
@@ -148,10 +156,16 @@ void HGCalShowerSeparation::bookHistograms(DQMStore::IBooker& ibooker, edm::Run 
 void HGCalShowerSeparation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   recHitTools_.setGeometry(iSetup.getData(tok_geom_));
 
+  for (auto& token : hits_token_) {
+    edm::Handle<HGCRecHitCollection> hits_handle;
+    iEvent.getByToken(token, hits_handle);
+    hits_.insert(hits_.end(), (*hits_handle).begin(), (*hits_handle).end());
+  }
+
   const edm::Handle<std::vector<CaloParticle>>& caloParticleHandle = iEvent.getHandle(caloParticles_);
   const std::vector<CaloParticle>& caloParticles = *(caloParticleHandle.product());
 
-  edm::Handle<std::unordered_map<DetId, const HGCRecHit*>> hitMapHandle;
+  edm::Handle<std::unordered_map<DetId, const unsigned int>> hitMapHandle;
   iEvent.getByToken(hitMap_, hitMapHandle);
   const auto hitmap = *hitMapHandle;
 
@@ -181,8 +195,10 @@ void HGCalShowerSeparation::analyze(const edm::Event& iEvent, const edm::EventSe
         const SimCluster& simCluster = (*(it_sc));
         const std::vector<std::pair<uint32_t, float>>& hits_and_fractions = simCluster.hits_and_fractions();
         for (const auto& it_haf : hits_and_fractions) {
-          if (hitmap.count(it_haf.first))
-            energy += hitmap.at(it_haf.first)->energy() * it_haf.second;
+          if (hitmap.count(it_haf.first)) {
+            const HGCRecHit* hit = &(hits_[hitmap.at(it_haf.first)]);
+            energy += hit->energy() * it_haf.second;
+          }
         }  //hits and fractions
       }    // simcluster
       if (count == 1) {
@@ -236,25 +252,23 @@ void HGCalShowerSeparation::analyze(const edm::Event& iEvent, const edm::EventSe
           distance -= half_point;
           auto idealDistance = sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
           if (hitmap.count(it_haf.first)) {
-            profileOnLayer_[hitlayer]->Fill(10. * (globalx - half_point_x),
-                                            10. * (globaly - half_point_y),
-                                            hitmap.at(it_haf.first)->energy() * it_haf.second);
-            profileOnLayer_[55]->Fill(10. * (globalx - half_point_x),
-                                      10. * (globaly - half_point_y),
-                                      hitmap.at(it_haf.first)->energy() * it_haf.second);
-            globalProfileOnLayer_[hitlayer]->Fill(globalx, globaly, hitmap.at(it_haf.first)->energy() * it_haf.second);
-            globalProfileOnLayer_[55]->Fill(globalx, globaly, hitmap.at(it_haf.first)->energy() * it_haf.second);
-            layerEnergy_->Fill(hitlayer, hitmap.at(it_haf.first)->energy());
-            layerDistance_->Fill(hitlayer, std::abs(10. * distance), hitmap.at(it_haf.first)->energy() * it_haf.second);
+            const HGCRecHit* hit = &(hits_[hitmap.at(it_haf.first)]);
+            profileOnLayer_[hitlayer]->Fill(
+                10. * (globalx - half_point_x), 10. * (globaly - half_point_y), hit->energy() * it_haf.second);
+            profileOnLayer_[55]->Fill(
+                10. * (globalx - half_point_x), 10. * (globaly - half_point_y), hit->energy() * it_haf.second);
+            globalProfileOnLayer_[hitlayer]->Fill(globalx, globaly, hit->energy() * it_haf.second);
+            globalProfileOnLayer_[55]->Fill(globalx, globaly, hit->energy() * it_haf.second);
+            layerEnergy_->Fill(hitlayer, hit->energy());
+            layerDistance_->Fill(hitlayer, std::abs(10. * distance), hit->energy() * it_haf.second);
             etaPhi_->Fill(global.eta(), global.phi());
             distanceOnLayer_[hitlayer]->Fill(10. * distance);                  //,
             idealDistanceOnLayer_[hitlayer]->Fill(10. * idealDistance);        //,
             idealDeltaXY_[hitlayer]->Fill(10. * (x1 - x2), 10. * (y1 - y2));   //,
             centers_[hitlayer]->Fill(10. * half_point_x, 10. * half_point_y);  //,
             IfLogTrace(debug_ > 0, "HGCalShowerSeparation")
-                << ">>> " << distance << " " << hitlayer << " " << hitmap.at(it_haf.first)->energy() * it_haf.second
-                << std::endl;
-            showerProfile_->Fill(10. * distance, hitlayer, hitmap.at(it_haf.first)->energy() * it_haf.second);
+                << ">>> " << distance << " " << hitlayer << " " << hit->energy() * it_haf.second << std::endl;
+            showerProfile_->Fill(10. * distance, hitlayer, hit->energy() * it_haf.second);
           }
         }  // end simHit
       }    // end simCluster
@@ -269,7 +283,11 @@ void HGCalShowerSeparation::fillDescriptions(edm::ConfigurationDescriptions& des
   desc.add<int>("debug", 1);
   desc.add<bool>("filterOnEnergyAndCaloP", false);
   desc.add<edm::InputTag>("caloParticles", edm::InputTag("mix", "MergedCaloTruth"));
-  desc.add<edm::InputTag>("hitMapTag", edm::InputTag("hgcalRecHitMapProducer"));
+  desc.add<edm::InputTag>("hitMapTag", edm::InputTag("recHitMapProducer", "hgcalRecHitMap"));
+  desc.add<std::vector<edm::InputTag>>("hits",
+                                       {edm::InputTag("HGCalRecHit", "HGCEERecHits"),
+                                        edm::InputTag("HGCalRecHit", "HGCHEFRecHits"),
+                                        edm::InputTag("HGCalRecHit", "HGCHEBRecHits")});
   descriptions.add("hgcalShowerSeparationDefault", desc);
 }
 

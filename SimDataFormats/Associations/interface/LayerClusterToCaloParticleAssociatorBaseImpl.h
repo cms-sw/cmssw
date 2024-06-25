@@ -16,7 +16,7 @@
 
 #include "SimDataFormats/CaloAnalysis/interface/CaloParticleFwd.h"
 
-namespace hgcal {
+namespace ticl {
 
   typedef edm::AssociationMap<
       edm::OneToManyWithQualityGeneric<CaloParticleCollection, reco::CaloClusterCollection, std::pair<float, float>>>
@@ -33,13 +33,13 @@ namespace hgcal {
     virtual ~LayerClusterToCaloParticleAssociatorBaseImpl();
 
     /// Associate a LayerCluster to CaloParticles
-    virtual hgcal::RecoToSimCollection associateRecoToSim(const edm::Handle<reco::CaloClusterCollection> &cCH,
-                                                          const edm::Handle<CaloParticleCollection> &cPCH) const;
+    virtual ticl::RecoToSimCollection associateRecoToSim(const edm::Handle<reco::CaloClusterCollection> &cCH,
+                                                         const edm::Handle<CaloParticleCollection> &cPCH) const;
 
     /// Associate a CaloParticle to LayerClusters
-    virtual hgcal::SimToRecoCollection associateSimToReco(const edm::Handle<reco::CaloClusterCollection> &cCH,
-                                                          const edm::Handle<CaloParticleCollection> &cPCH) const;
+    virtual ticl::SimToRecoCollection associateSimToReco(const edm::Handle<reco::CaloClusterCollection> &cCH,
+                                                         const edm::Handle<CaloParticleCollection> &cPCH) const;
   };
-}  // namespace hgcal
+}  // namespace ticl
 
 #endif

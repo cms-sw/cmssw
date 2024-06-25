@@ -11,7 +11,7 @@
 #include <algorithm>
 #include <iostream>
 
-namespace edm {
+namespace edm::streamer {
 
   bool loadCap(std::string const& name, std::vector<std::string>& missingDictionaries) {
     FDEBUG(1) << "Loading dictionary for " << name << "\n";
@@ -64,4 +64,4 @@ namespace edm {
     TypeID const type(ti);
     return getRootClass(type.className());
   }
-}  // namespace edm
+}  // namespace edm::streamer

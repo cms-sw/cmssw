@@ -126,9 +126,9 @@ Ring 0 L0 : Width Tray 6:266.6, 5&4:325.6, 3:330.6, 2:341.6, 1:272.6
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputerRcd.h"
 #include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
 #include "CondFormats/DataRecord/interface/HcalChannelQualityRcd.h"
-#include "CLHEP/Vector/LorentzVector.h"
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include <CLHEP/Vector/LorentzVector.h>
+#include <CLHEP/Units/GlobalPhysicalConstants.h>
+#include <CLHEP/Units/SystemOfUnits.h>
 
 #include "TH2F.h"
 

@@ -121,12 +121,12 @@ from L1Trigger.L1CaloTrigger.l1tNNCaloTauEmulator_cfi import *
 _phase2_siml1emulator.add(l1tNNCaloTauEmulator)
 
 # ---- Produce the emulated CaloJets and Taus
-from L1Trigger.L1CaloTrigger.l1tPhase2CaloJetEmulator_cfi import *
+from L1Trigger.L1CaloTrigger.l1tPhase2CaloJetEmulator_cff import *
 
 _phase2_siml1emulator.add(l1tTowerCalibration)
 _phase2_siml1emulator.add(l1tCaloJet)
 _phase2_siml1emulator.add(l1tCaloJetHTT)
-_phase2_siml1emulator.add(l1tPhase2CaloJetEmulator)
+_phase2_siml1emulator.add(l1tCaloJetsTausTask)
 
 
 # ########################################################################
@@ -201,6 +201,10 @@ _phase2_siml1emulator.add(l1tTrackerEmuEtMiss)
 from L1Trigger.L1TTrackMatch.l1tTrackerEmuHTMiss_cfi import *
 _phase2_siml1emulator.add(l1tTrackerEmuHTMiss)
 _phase2_siml1emulator.add(l1tTrackerEmuHTMissExtended)
+
+from L1Trigger.L1TTrackMatch.l1tTrackTripletEmulation_cfi import *
+_phase2_siml1emulator.add(l1tTrackTripletEmulation)
+
 
 # PF Candidates
 # ########################################################################

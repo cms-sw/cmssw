@@ -90,12 +90,7 @@ const bool l1t::AXOL1TLCondition::evaluateCondition(const int bxEval) const {
   int useBx = bxEval + m_gtAXOL1TLTemplate->condRelativeBx();
 
   //HLS4ML stuff
-  std::string AXOL1TLmodelversion = m_AXOL1TLmodelversion;  //loading from menu
-
-  //if model version is empty, throw exception. Should not ever happen
-  if (AXOL1TLmodelversion == "" || AXOL1TLmodelversion == "GTADModel_") {
-    throw cms::Exception("ModelError") << " Error: AXOL1TL model version not set!";
-  }
+  std::string AXOL1TLmodelversion = "GTADModel_" + m_gtAXOL1TLTemplate->modelVersion();  //loading from menu/template
 
   //otherwise load model (if possible) and run inference
   hls4mlEmulator::ModelLoader loader(AXOL1TLmodelversion);
@@ -106,8 +101,8 @@ const bool l1t::AXOL1TLCondition::evaluateCondition(const int bxEval) const {
   } catch (std::runtime_error& e) {
     // for stopping with exception if model version cannot be loaded
     throw cms::Exception("ModelError")
-        << " ERROR: failed to load AXOL1TL model version " << AXOL1TLmodelversion
-        << " that was specified in menu. Model version not found in cms-hls4ml externals. " << std::endl;
+        << " ERROR: failed to load AXOL1TL model version \"" << AXOL1TLmodelversion
+        << "\" that was specified in menu. Model version not found in cms-hls4ml externals.";
   }
 
   // //pointers to objects
@@ -262,11 +257,6 @@ const bool l1t::AXOL1TLCondition::evaluateCondition(const int bxEval) const {
 
   //return result
   return condResult;
-}
-
-//in order to set model version from menu->triggermenuparser->globalproducer->globalboard->here
-void l1t::AXOL1TLCondition::setModelVersion(const std::string modelversionname) {
-  m_AXOL1TLmodelversion = "GTADModel_" + modelversionname;
 }
 
 void l1t::AXOL1TLCondition::print(std::ostream& myCout) const {

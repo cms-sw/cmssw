@@ -16,7 +16,7 @@
 #include "SimDataFormats/CaloHit/interface/HFShowerLibraryEventInfo.h"
 #include "SimDataFormats/CaloHit/interface/HFShowerPhoton.h"
 
-#include "CLHEP/Units/SystemOfUnits.h"
+#include <CLHEP/Units/SystemOfUnits.h>
 #include "TFile.h"
 #include "TTree.h"
 #include "TBranch.h"

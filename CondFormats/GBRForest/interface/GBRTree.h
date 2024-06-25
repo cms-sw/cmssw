@@ -64,7 +64,8 @@ inline double GBRTree::GetResponse(const float *vector) const {
   do {
     auto r = fRightIndices[index];
     auto l = fLeftIndices[index];
-    index = vector[fCutIndices[index]] > fCutVals[index] ? r : l;
+    unsigned int x = vector[fCutIndices[index]] > fCutVals[index] ? ~0 : 0;
+    index = (x & r) | ((~x) & l);
   } while (index > 0);
   return fResponses[-index];
 }

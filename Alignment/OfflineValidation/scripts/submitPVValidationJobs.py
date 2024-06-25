@@ -73,7 +73,7 @@ def forward_proxy(rundir):
     shutil.copyfile(local_proxy, os.path.join(rundir,".user_proxy"))
 
 ##############################################
-def write_HTCondor_submit_file(path, name, nruns, proxy_path=None):
+def write_HTCondor_submit_file(path, logs, name, nruns, proxy_path=None):
 ##############################################
     """Writes 'job.submit' file in `path`.
     Arguments:
@@ -84,7 +84,7 @@ def write_HTCondor_submit_file(path, name, nruns, proxy_path=None):
         
     job_submit_template="""\
 universe              = vanilla
-requirements          = (OpSysAndVer =?= "CentOS7")
+requirements          = (OpSysAndVer =?= "AlmaLinux9")
 executable            = {script:s}
 output                = {jobm:s}/{out:s}.out
 error                 = {jobm:s}/{out:s}.err
@@ -102,7 +102,7 @@ queue {njobs:s}
     with open(job_submit_file, "w") as f:
         f.write(job_submit_template.format(script = os.path.join(path,name+"_$(ProcId).sh"),
                                            out  = name+"_$(ProcId)",
-                                           jobm = os.path.abspath(path),
+                                           jobm = os.path.abspath(logs),
                                            flavour = "tomorrow",
                                            njobs = str(nruns),
                                            proxy = proxy_path))
@@ -328,21 +328,22 @@ def ConfigSectionMap(config, section):
 
 ###### method to create recursively directories on EOS #############
 def mkdir_eos(out_path):
-    print("creating",out_path)
+    print("============== creating",out_path)
     newpath='/'
     for dir in out_path.split('/'):
         newpath=os.path.join(newpath,dir)
         # do not issue mkdir from very top of the tree
         if newpath.find('test_out') > 0:
             #getCommandOutput("eos mkdir"+newpath)
-            command="/afs/cern.ch/project/eos/installation/cms/bin/eos.select mkdir "+newpath
+            command="eos mkdir "+newpath
             p = subprocess.Popen(command,shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             (out, err) = p.communicate()
+            print("============== created ",out_path)
             #print(out,err)
             p.wait()
 
     # now check that the directory exists
-    command2="/afs/cern.ch/project/eos/installation/cms/bin/eos.select ls "+out_path
+    command2="eos ls "+out_path
     p = subprocess.Popen(command2,shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     (out, err) = p.communicate()
     p.wait()
@@ -543,7 +544,7 @@ class Job:
         fout.close()
 
 
-    def createTheBashFile(self):
+    def createTheBashFile(self, isUnitTest):
 ###############################
 
        # directory to store the BASH to be submitted
@@ -555,10 +556,6 @@ class Job:
         fout=open(os.path.join(self.BASH_dir,self.output_BASH_name),'w')
     
         job_name = self.output_full_name
-
-        log_dir = os.path.join(self.the_dir,"log")
-        if not os.path.exists(log_dir):
-            os.makedirs(log_dir)
 
         fout.write("#!/bin/bash \n")
         #fout.write("export EOS_MGM_URL=root://eoscms.cern.ch \n")
@@ -576,9 +573,11 @@ class Job:
         fout.write("cp "+os.path.join(self.cfg_dir,self.outputCfgName)+" . \n")
         fout.write("echo \"cmsRun "+self.outputCfgName+"\" \n")
         fout.write("cmsRun "+self.outputCfgName+" \n")
-        fout.write("echo \"Content of working dir is \"`ls -lh` \n")
+        fout.write("echo \"Content of working dir is:\" \n")
+        fout.write("ls -lh | sort \n")
         #fout.write("less condor_exec.exe \n")
-        fout.write("for RootOutputFile in $(ls *root ); do xrdcp -f ${RootOutputFile} root://eoscms//eos/cms${OUT_DIR}/${RootOutputFile} ; done \n")
+        if(not isUnitTest):
+            fout.write("for RootOutputFile in $(ls *root ); do xrdcp -f ${RootOutputFile} root://eoscms//eos/cms${OUT_DIR}/${RootOutputFile} ; done \n")
         #fout.write("mv ${JobName}.out ${CMSSW_DIR}/BASH \n")
         fout.write("echo  \"Job ended at \" `date` \n")
         fout.write("exit 0 \n")
@@ -1054,11 +1053,11 @@ def main():
                        vertextype[iConf], tracktype[iConf],
                        refittertype[iConf], ttrhtype[iConf],
                        applyruncontrol[iConf],
-                       ptcut[iConf],input_CMSSW_BASE,'.')
+                       ptcut[iConf],input_CMSSW_BASE,os.getcwd())
             
             aJob.setEOSout(eosdir)
             aJob.createTheCfgFile(theSrcFiles)
-            aJob.createTheBashFile()
+            aJob.createTheBashFile(opts.isUnitTest)
 
             output_file_list1.append("xrdcp root://eoscms//eos/cms"+aJob.getOutputFileName()+" /tmp/$USER/"+opts.taskname+" \n")
             if jobN == 0:
@@ -1069,10 +1068,15 @@ def main():
             output_file_list2.append("/tmp/$USER/"+opts.taskname+"/"+os.path.split(aJob.getOutputFileName())[1]+" ")       
             del aJob
 
-        job_submit_file = write_HTCondor_submit_file(theBashDir,theBaseName,totalJobs,None)
+        ## create the log directory
+        theLogDir = os.path.join(os.getcwd(),"log")
+        if not os.path.exists(theLogDir):
+            os.makedirs(theLogDir)
+
+        job_submit_file = write_HTCondor_submit_file(theBashDir,theLogDir,theBaseName,totalJobs,None)
+        os.system("chmod u+x "+theBashDir+"/*.sh")
 
         if opts.submit:
-            os.system("chmod u+x "+theBashDir+"/*.sh")
             submissionCommand = "condor_submit "+job_submit_file
             submissionOutput = getCommandOutput(submissionCommand)
             print(submissionOutput)

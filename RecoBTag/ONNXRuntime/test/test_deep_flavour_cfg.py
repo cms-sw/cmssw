@@ -71,7 +71,7 @@ updateJetCollection(
 from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValTTbarPileUpMINIAODSIM
 
 process.source.fileNames = filesRelValTTbarPileUpMINIAODSIM
-process.source.fileNames = cms.untracked.vstring('/store/mc/PhaseIFall16MiniAOD/TT_TuneCUETP8M2T4_13TeV-powheg-pythia8/MINIAODSIM/PhaseIFall16PUFlat20to50_PhaseIFall16_81X_upgrade2017_realistic_v26-v1/50000/08358A47-61E3-E611-8B77-001E677928AE.root')
+process.source.fileNames = cms.untracked.vstring('/store/mc/Run3Summer23BPixMiniAODv4/TTtoLNu2Q_TuneCP5_13p6TeV_powheg-pythia8/MINIAODSIM/130X_mcRun3_2023_realistic_postBPix_v2-v3/2520000/00488681-4f49-4bdc-89e6-198da9e42a17.root')
 
 process.maxEvents.input = 10
 

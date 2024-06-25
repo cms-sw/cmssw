@@ -1,6 +1,5 @@
 #include <iostream>
 #include <algorithm>
-#include <strstream>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"

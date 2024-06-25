@@ -42,6 +42,15 @@ namespace tensorflow {
     // NVidia GPU
     else if (backend == Backend::cuda) {
       if (not ri->nvidiaDriverVersion().empty()) {
+        // Check if one GPU device is visible to TF
+        // If not, an exception is raised --> this can happen in case of driver version mismatch
+        // or missing CUDA support in TF compilation
+        if ((*_options.config.mutable_device_count())["GPU"] == 0) {
+          edm::Exception ex(edm::errors::UnavailableAccelerator);
+          ex << "Cuda backend requested, NVIDIA GPU visible to cmssw, but not visible to TensorFlow in the job";
+          ex.addContext("Calling tensorflow::setBackend()");
+          throw ex;
+        }
         // Take only the first GPU in the CUDA_VISIBLE_DEVICE list
         (*_options.config.mutable_device_count())["GPU"] = 1;
         _options.config.mutable_gpu_options()->set_visible_device_list("0");
@@ -256,6 +265,19 @@ namespace tensorflow {
     return state;
   }
 
+  bool checkEmptyInputs(const NamedTensorList& inputs) {
+    // check for empty tensors in the inputs
+    bool isEmpty = false;
+    for (const auto& input : inputs) {
+      // Checking using the shape
+      if (input.second.shape().num_elements() == 0) {
+        isEmpty = true;
+        break;
+      }
+    }
+    return isEmpty;
+  }
+
   void run(Session* session,
            const NamedTensorList& inputs,
            const std::vector<std::string>& outputNames,
@@ -267,6 +289,10 @@ namespace tensorflow {
 
     // create empty run options
     RunOptions runOptions;
+
+    // Check if the inputs are empty
+    if (checkEmptyInputs(inputs))
+      return;
 
     // run and check the status
     Status status = session->Run(runOptions, inputs, outputNames, {}, outputs, nullptr, threadPoolOptions);

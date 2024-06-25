@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from FWCore.ParameterSet.pfnInPath import *
 
 process = cms.Process('RECO')
 
@@ -14,13 +15,8 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run3_data', '')
 
-#dummy = cms.untracked.FileInPath('RecoPPS/Local/data/run364983_ls0001_streamA_StorageManager.dat'),
-
-# raw data source
-process.source = cms.Source("NewEventStreamFileReader",
-fileNames = cms.untracked.vstring('http://cmsrep.cern.ch/cmssw/download/data/RecoPPS/Local/V1/run364983_ls0001_streamA_StorageManager.dat'
-#        '/store/group/dpg_ctpps/comm_ctpps/TotemT2/RecoTest/run364983_ls0001_streamA_StorageManager.dat',
-    )
+process.source = cms.Source('PoolSource',
+    fileNames =  cms.untracked.pfnInPaths('RecoPPS/Local/data/run364983_ls0001_raw.root')
 )
 
 process.maxEvents = cms.untracked.PSet(

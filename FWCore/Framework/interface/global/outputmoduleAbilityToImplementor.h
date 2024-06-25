@@ -139,7 +139,7 @@ namespace edm {
         ~ExternalWork() noexcept(false) override{};
 
       private:
-        bool hasAcquire() const override { return true; }
+        bool hasAcquire() const noexcept override { return true; }
 
         void doAcquire_(StreamID id, EventForOutput const& event, WaitingTaskWithArenaHolder& holder) final {
           acquire(id, event, holder);

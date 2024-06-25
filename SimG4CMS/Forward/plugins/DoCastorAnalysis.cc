@@ -36,7 +36,7 @@
 #include "G4HCofThisEvent.hh"
 #include "G4UserEventAction.hh"
 
-#include <CLHEP/Units/GlobalSystemOfUnits.h>
+#include <CLHEP/Units/SystemOfUnits.h>
 #include <CLHEP/Units/GlobalPhysicalConstants.h>
 #include <CLHEP/Random/Randomize.h>
 
@@ -256,7 +256,7 @@ void DoCastorAnalysis::update(const EndOfEvent *evt) {
 
       theCastorNumScheme->unpackIndex(volumeID, zside, sector, zmodule);
 
-      double energy = aHit->getEnergyDeposit() / GeV;
+      double energy = aHit->getEnergyDeposit() / CLHEP::GeV;
       //double time     = aHit->getTimeSlice();
 
       math::XYZPoint pos = aHit->getPosition();

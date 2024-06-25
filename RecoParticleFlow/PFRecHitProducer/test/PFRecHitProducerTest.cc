@@ -84,8 +84,9 @@ PFRecHitProducerTest::PFRecHitProducerTest(const edm::ParameterSet& conf)
       strictCompare_(conf.getUntrackedParameter<bool>("strictCompare")),
       dumpFirstEvent_(conf.getUntrackedParameter<bool>("dumpFirstEvent")),
       dumpFirstError_(conf.getUntrackedParameter<bool>("dumpFirstError")) {
-  if (conf.existsAs<edm::InputTag>("caloRecHits"))
-    caloRecHitsToken_.emplace(consumes(conf.getUntrackedParameter<edm::InputTag>("caloRecHits")));
+  const auto& caloRecHits = conf.getUntrackedParameter<edm::InputTag>("caloRecHits", {});
+  if (!caloRecHits.label().empty())
+    caloRecHitsToken_.emplace(consumes(caloRecHits));
 
   const edm::InputTag input[2] = {conf.getUntrackedParameter<edm::InputTag>("pfRecHitsSource1"),
                                   conf.getUntrackedParameter<edm::InputTag>("pfRecHitsSource2")};
@@ -213,7 +214,7 @@ void PFRecHitProducerTest::dumpEvent(const edm::Event& event,
 
 void PFRecHitProducerTest::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.addOptionalUntracked<edm::InputTag>("caloRecHits")
+  desc.addUntracked<edm::InputTag>("caloRecHits", {})
       ->setComment("CaloRecHitSoA, if supplied, it is dumped alongside the PFRecHits");
   desc.addUntracked<edm::InputTag>("pfRecHitsSource1")->setComment("First PFRecHit list for comparison");
   desc.addUntracked<edm::InputTag>("pfRecHitsSource2")->setComment("Second PFRecHit list for comparison");

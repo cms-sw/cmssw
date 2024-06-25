@@ -73,6 +73,7 @@ namespace reco {
     const bool doPixelCut_;
     const bool produceTracks_;
     const bool producePixelTracks_;
+    const bool producePF_;
 
     const double midRapidityRange_;
     const double trackPtCut_;
@@ -91,6 +92,7 @@ namespace reco {
     const edm::EDGetTokenT<SiPixelRecHitCollection> srcPixelhits_;
     const edm::EDGetTokenT<TrackCollection> srcTracks_;
     const edm::EDGetTokenT<TrackCollection> srcPixelTracks_;
+    const edm::EDGetTokenT<reco::CandidateView> srcPF_;
     const edm::EDGetTokenT<VertexCollection> srcVertex_;
     const edm::EDGetTokenT<Centrality> reuseTag_;
 
@@ -121,6 +123,7 @@ namespace reco {
         doPixelCut_(iConfig.getParameter<bool>("doPixelCut")),
         produceTracks_(iConfig.getParameter<bool>("produceTracks")),
         producePixelTracks_(iConfig.getParameter<bool>("producePixelTracks")),
+        producePF_(iConfig.getParameter<bool>("producePF")),
         midRapidityRange_(iConfig.getParameter<double>("midRapidityRange")),
         trackPtCut_(iConfig.getParameter<double>("trackPtCut")),
         trackEtaCut_(iConfig.getParameter<double>("trackEtaCut")),
@@ -147,6 +150,8 @@ namespace reco {
         srcPixelTracks_(producePixelTracks_
                             ? consumes<TrackCollection>(iConfig.getParameter<edm::InputTag>("srcPixelTracks"))
                             : edm::EDGetTokenT<TrackCollection>()),
+        srcPF_(producePF_ ? consumes<reco::CandidateView>(iConfig.getParameter<edm::InputTag>("srcPF"))
+                          : edm::EDGetTokenT<reco::CandidateView>()),
         srcVertex_((produceTracks_ || producePixelTracks_)
                        ? consumes<VertexCollection>(iConfig.getParameter<edm::InputTag>("srcVertex"))
                        : edm::EDGetTokenT<VertexCollection>()),
@@ -243,6 +248,22 @@ namespace reco {
         creco->etHFtowerSumECutPlus_ = inputCentrality->EtHFtowerSumECutPlus();
         creco->etMidRapiditySum_ = inputCentrality->EtMidRapiditySum();
       }
+    }
+
+    if (producePF_) {
+      creco->etPFhfSumPlus_ = 0;
+      creco->etPFhfSumMinus_ = 0;
+      for (const auto& pf : iEvent.get(srcPF_)) {
+        if (pf.pdgId() != 1 && pf.pdgId() != 2)
+          continue;
+        if (pf.eta() > 0)
+          creco->etPFhfSumPlus_ += pf.pt();
+        else
+          creco->etPFhfSumMinus_ += pf.pt();
+      }
+    } else if (reuseAny_) {
+      creco->etPFhfSumMinus_ = inputCentrality->EtPFhfSumMinus();
+      creco->etPFhfSumPlus_ = inputCentrality->EtPFhfSumPlus();
     }
 
     if (produceEcalhits_) {
@@ -497,6 +518,7 @@ namespace reco {
     desc.add<bool>("producePixelhits", true);
     desc.add<bool>("produceTracks", true);
     desc.add<bool>("producePixelTracks", true);
+    desc.add<bool>("producePF", true);
     desc.add<bool>("reUseCentrality", false);
     desc.add<edm::InputTag>("srcHFhits", edm::InputTag("hfreco"));
     desc.add<edm::InputTag>("srcTowers", edm::InputTag("towerMaker"));
@@ -508,6 +530,7 @@ namespace reco {
     desc.add<edm::InputTag>("srcVertex", edm::InputTag("hiSelectedVertex"));
     desc.add<edm::InputTag>("srcReUse", edm::InputTag("hiCentrality"));
     desc.add<edm::InputTag>("srcPixelTracks", edm::InputTag("hiPixel3PrimTracks"));
+    desc.add<edm::InputTag>("srcPF", edm::InputTag("particleFlow"));
     desc.add<bool>("doPixelCut", true);
     desc.add<bool>("useQuality", true);
     desc.add<string>("trackQuality", "highPurity");

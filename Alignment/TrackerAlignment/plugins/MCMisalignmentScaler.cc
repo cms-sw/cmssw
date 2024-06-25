@@ -42,6 +42,7 @@
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentRcd.h"
 #include "CondFormats/DataRecord/interface/SiPixelQualityRcd.h"
 #include "CondFormats/GeometryObjects/interface/PTrackerParameters.h"
+#include "CondFormats/GeometryObjects/interface/PTrackerAdditionalParametersPerDet.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelQuality.h"
 
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
@@ -52,6 +53,7 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "Geometry/Records/interface/PTrackerParametersRcd.h"
+#include "Geometry/Records/interface/PTrackerAdditionalParametersPerDetRcd.h"
 
 //
 // class declaration
@@ -69,6 +71,7 @@ private:
   const edm::ESGetToken<SiStripQuality, SiStripQualityRcd> stripQualityToken_;
   const edm::ESGetToken<GeometricDet, IdealGeometryRecord> geomDetToken_;
   const edm::ESGetToken<PTrackerParameters, PTrackerParametersRcd> ptpToken_;
+  const edm::ESGetToken<PTrackerAdditionalParametersPerDet, PTrackerAdditionalParametersPerDetRcd> ptitpToken_;
   const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topoToken_;
   const edm::ESGetToken<Alignments, TrackerAlignmentRcd> aliToken_;
   using ScalerMap = std::unordered_map<unsigned int, std::unordered_map<int, double> >;
@@ -91,6 +94,7 @@ MCMisalignmentScaler::MCMisalignmentScaler(const edm::ParameterSet& iConfig)
       stripQualityToken_(esConsumes()),
       geomDetToken_(esConsumes()),
       ptpToken_(esConsumes()),
+      ptitpToken_(esConsumes()),
       topoToken_(esConsumes()),
       aliToken_(esConsumes()),
       scalers_{decodeSubDetectors(iConfig.getParameter<edm::VParameterSet>("scalers"))},
@@ -114,10 +118,11 @@ void MCMisalignmentScaler::analyze(const edm::Event&, const edm::EventSetup& iSe
   // get the tracker geometry
   const GeometricDet* geometricDet = &iSetup.getData(geomDetToken_);
   const PTrackerParameters& ptp = iSetup.getData(ptpToken_);
+  const PTrackerAdditionalParametersPerDet* ptitp = &iSetup.getData(ptitpToken_);
   const TrackerTopology* topology = &iSetup.getData(topoToken_);
 
   TrackerGeomBuilderFromGeometricDet trackerBuilder;
-  auto tracker = std::unique_ptr<TrackerGeometry>{trackerBuilder.build(geometricDet, ptp, topology)};
+  auto tracker = std::unique_ptr<TrackerGeometry>{trackerBuilder.build(geometricDet, ptitp, ptp, topology)};
 
   auto dets = tracker->dets();
   std::sort(dets.begin(), dets.end(), [](const auto& a, const auto& b) {

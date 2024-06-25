@@ -146,11 +146,11 @@ void TBPositionCalc::computeRotation(int MyCrystal, CLHEP::HepRotation &CMStoTB)
 
   // matrix
   CLHEP::HepRotation *fromCMStoTB = new CLHEP::HepRotation();
-  double angle1 = 90. * deg - myPhi;
+  double angle1 = 90. * CLHEP::deg - myPhi;
   CLHEP::HepRotationZ *r1 = new CLHEP::HepRotationZ(angle1);
   double angle2 = myTheta;
   CLHEP::HepRotationX *r2 = new CLHEP::HepRotationX(angle2);
-  double angle3 = 90. * deg;
+  double angle3 = 90. * CLHEP::deg;
   CLHEP::HepRotationZ *r3 = new CLHEP::HepRotationZ(angle3);
   (*fromCMStoTB) *= (*r3);
   (*fromCMStoTB) *= (*r2);

@@ -1,4 +1,4 @@
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include <CLHEP/Units/SystemOfUnits.h>
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDSolidShapes.h"
 #include "DetectorDescription/Core/interface/Cons.h"
@@ -10,6 +10,9 @@
 #include <string>
 
 using namespace std;
+using CLHEP::cm;
+using CLHEP::cm3;
+using CLHEP::deg;
 
 class testCons : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(testCons);

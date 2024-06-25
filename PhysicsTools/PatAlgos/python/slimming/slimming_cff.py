@@ -125,3 +125,6 @@ _photonDRN.toReplaceWith(slimmingTask, cms.Task(slimmingTask.copy(), patPhotonsD
 
 from Configuration.Eras.Modifier_run3_upc_cff import run3_upc
 run3_upc.toReplaceWith(slimmingTask, cms.Task(slimmingTask.copy(), hiPixelTracks, packedPFCandidateTrackChi2, lostTrackChi2))
+
+from Configuration.Eras.Modifier_ppRef_2024_cff import ppRef_2024
+ppRef_2024.toReplaceWith(slimmingTask, cms.Task(slimmingTask.copy(), packedPFCandidateTrackChi2, lostTrackChi2))

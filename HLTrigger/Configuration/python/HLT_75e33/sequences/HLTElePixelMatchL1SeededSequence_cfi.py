@@ -1,9 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-from ..modules.hltEgammaCandidatesL1Seeded_cfi import *
-from ..modules.hltEgammaClusterShapeL1Seeded_cfi import *
-from ..modules.hltEgammaElectronPixelSeedsL1Seeded_cfi import *
 from ..modules.hltEgammaHoverEL1Seeded_cfi import *
+from ..modules.hltEgammaElectronPixelSeedsL1Seeded_cfi import *
 from ..modules.hltEgammaPixelMatchVarsL1Seeded_cfi import *
 from ..modules.hltEgammaSuperClustersToPixelMatchL1Seeded_cfi import *
 from ..modules.hltElePixelHitDoubletsForTripletsL1Seeded_cfi import *
@@ -20,4 +18,20 @@ from ..modules.MeasurementTrackerEvent_cfi import *
 from ..sequences.HLTDoLocalPixelSequence_cfi import *
 from ..sequences.HLTDoLocalStripSequence_cfi import *
 
-HLTElePixelMatchL1SeededSequence = cms.Sequence(HLTDoLocalPixelSequence+HLTDoLocalStripSequence+(hltEgammaCandidatesL1Seeded+hltEgammaHoverEL1Seeded+hltEgammaClusterShapeL1Seeded+MeasurementTrackerEvent+hltPixelLayerTriplets+hltEgammaSuperClustersToPixelMatchL1Seeded+hltEleSeedsTrackingRegionsL1Seeded+hltElePixelHitDoubletsForTripletsL1Seeded+hltElePixelHitTripletsL1Seeded+hltElePixelSeedsTripletsL1Seeded+hltElePixelHitTripletsClusterRemoverL1Seeded+hltPixelLayerPairsL1Seeded+hltElePixelHitDoubletsL1Seeded+hltElePixelSeedsDoubletsL1Seeded+hltElePixelSeedsCombinedL1Seeded+hltEgammaElectronPixelSeedsL1Seeded+hltEgammaPixelMatchVarsL1Seeded))
+HLTElePixelMatchL1SeededSequence = cms.Sequence(HLTDoLocalPixelSequence
+    +HLTDoLocalStripSequence
+    +(MeasurementTrackerEvent
+    +hltPixelLayerTriplets
+    +hltEgammaHoverEL1Seeded
+    +hltEgammaSuperClustersToPixelMatchL1Seeded
+    +hltEleSeedsTrackingRegionsL1Seeded
+    +hltElePixelHitDoubletsForTripletsL1Seeded
+    +hltElePixelHitTripletsL1Seeded
+    +hltElePixelSeedsTripletsL1Seeded
+    +hltElePixelHitTripletsClusterRemoverL1Seeded
+    +hltPixelLayerPairsL1Seeded
+    +hltElePixelHitDoubletsL1Seeded
+    +hltElePixelSeedsDoubletsL1Seeded
+    +hltElePixelSeedsCombinedL1Seeded
+    +hltEgammaElectronPixelSeedsL1Seeded
+    +hltEgammaPixelMatchVarsL1Seeded))

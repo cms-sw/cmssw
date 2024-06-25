@@ -24,6 +24,8 @@ public:
 
   float getPdfVal() const { return pdfVal; }
 
+  void setPdfVal(float pdfVal) { this->pdfVal = pdfVal; }
+
   bool getValid() const { return valid; }
 
   void setValid(bool valid) { this->valid = valid; }

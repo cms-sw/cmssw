@@ -507,7 +507,7 @@ namespace edm {
       if (useAll || b->second.isTracked()) {
         size += 2;
         size += b->first.size();
-        size += sizeof(ParameterSetID) * b->second.vpset().size();
+        size += sizeof(ParameterSetID) * b->second.size();
       }
     }
 

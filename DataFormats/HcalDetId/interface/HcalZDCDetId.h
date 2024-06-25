@@ -24,7 +24,7 @@
 class HcalZDCDetId : public DetId {
 public:
   static constexpr uint32_t kZDCChannelMask1 = 0xF;
-  static constexpr uint32_t kZDCChannelMask2 = 0x7F;
+  static constexpr uint32_t kZDCChannelMask2 = 0x3F;
   static constexpr uint32_t kZDCSectionMask = 0x3;
   static constexpr uint32_t kZDCSectionOffset = 4;
   static constexpr uint32_t kZDCZsideMask = 0x40;
@@ -200,7 +200,7 @@ private:
 public:
   constexpr static int32_t kSizeForDenseIndexingRun1 = 2 * kDepRun1;
   constexpr static int32_t kSizeForDenseIndexingRun3 = 2 * kDepRun3;
-  enum { kSizeForDenseIndexing = kSizeForDenseIndexingRun1 };
+  constexpr static int32_t kSizeForDenseIndexing = kSizeForDenseIndexingRun1;
 };
 
 std::ostream& operator<<(std::ostream&, const HcalZDCDetId& id);

@@ -1,5 +1,8 @@
 /**----------------------------------------------------------------------
   ----------------------------------------------------------------------*/
+#ifdef __clang__
+#pragma GCC diagnostic ignored "-Wc++20-extensions"
+#endif
 
 #include "FWCore/Framework/interface/Principal.h"
 
@@ -560,7 +563,8 @@ namespace edm {
     return getProductResolverByIndex(index);
   }
 
-  Principal::ConstProductResolverPtr Principal::getProductResolverByIndex(ProductResolverIndex const& index) const {
+  Principal::ConstProductResolverPtr Principal::getProductResolverByIndex(
+      ProductResolverIndex const& index) const noexcept {
     ConstProductResolverPtr const phb = productResolvers_[index].get();
     return phb;
   }
@@ -581,7 +585,7 @@ namespace edm {
 
     ProductData const* result = findProductByLabel(kindOfType, typeID, inputTag, consumer, sra, mcc);
     if (result == nullptr) {
-      return BasicHandle(makeHandleExceptionFactory([=]() -> std::shared_ptr<cms::Exception> {
+      return BasicHandle(makeHandleExceptionFactory([=, this]() -> std::shared_ptr<cms::Exception> {
         return makeNotFoundException(
             "getByLabel",
             kindOfType,

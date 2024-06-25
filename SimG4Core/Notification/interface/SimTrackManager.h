@@ -36,7 +36,7 @@ public:
   typedef std::vector<std::pair<int, math::XYZVectorD> > VertexPositionVector;
   typedef std::map<int, VertexPositionVector> VertexMap;
 
-  explicit SimTrackManager(TmpSimEvent*);
+  explicit SimTrackManager(TmpSimEvent*, int);
   ~SimTrackManager();
 
   const std::vector<TrackWithHistory*>* trackContainer() const { return &m_trackContainer; }

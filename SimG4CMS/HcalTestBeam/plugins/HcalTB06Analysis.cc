@@ -42,13 +42,16 @@
 #include "Randomize.hh"
 #include "globals.hh"
 
-#include <CLHEP/Units/GlobalSystemOfUnits.h>
-#include <CLHEP/Units/GlobalPhysicalConstants.h>
+#include <CLHEP/Units/SystemOfUnits.h>
+#include <CLHEP/Units/PhysicalConstants.h>
 
 // system include files
 #include <memory>
 #include <string>
 #include <vector>
+
+using CLHEP::mm;
+using CLHEP::twopi;
 
 //#define EDM_ML_DEBUG
 

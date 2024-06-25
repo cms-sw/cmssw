@@ -1,5 +1,4 @@
 #include <iomanip>
-#include <strstream>
 
 #include "L1Trigger/L1TMuon/interface/L1TMuonGlobalParamsHelper.h"
 #include "L1Trigger/L1TCommon/interface/ConvertToLUT.h"

@@ -71,10 +71,17 @@
 //   isRealData (bool)         = true/false for data/MC (default true)
 //   truncateFlag    (int)     = Flag to treat different depths differently (0)
 //                               both depths of ieta 15, 16 of HB as depth 1 (1)
-//                               all depths as depth 1 (2), all depths in HE
-//                               with values > 1 as depth 2 (3), all depths in
-//                               HB with values > 1 as depth 2 (4), all depths
-//                               in HB and HE with values > 1 as depth 2 (5)
+//                               all depths as depth 1 (2), ignore all depth
+//                               index in HE (depth index set 1) (3); ignore
+//                               depth index in HB (depth index set 1) (4); all
+//                               all depths in HB and HE with values > 1 as
+//                               depth 2 (5); for depth = 1 and 2, depth = 1,
+//                               else depth = 2 (6); in case of HB, depths 1
+//                               and 2 are set to 1, else depth = 2; for HE
+//                               ignore depth index (7); in case of HE, depths 1
+//                               and 2 are set to 1, else depth =2; for HB
+//                               ignore depth index (8); ignore depth index for
+//                               depth > 1 in HB and all depth index for HE (9).
 //                               (Default 0)
 //   useGen (bool)             = true/false to use generator level momentum
 //                               or reconstruction level momentum (def false)

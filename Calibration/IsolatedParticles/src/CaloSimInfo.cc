@@ -5,8 +5,8 @@
 #include "Calibration/IsolatedParticles/interface/CaloSimInfo.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 
-#include "CLHEP/Units/PhysicalConstants.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include <CLHEP/Units/PhysicalConstants.h>
+#include <CLHEP/Units/SystemOfUnits.h>
 
 #include <sstream>
 

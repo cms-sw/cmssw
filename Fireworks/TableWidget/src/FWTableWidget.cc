@@ -26,8 +26,10 @@
 //
 // constants, enums and typedefs
 //
-static const UInt_t kRowOptions = kLHintsExpandX | kLHintsFillX | kLHintsShrinkX;
-static const UInt_t kColOptions = kLHintsExpandY | kLHintsFillY | kLHintsShrinkY;
+static const UInt_t kRowOptions =
+    static_cast<UInt_t>(kLHintsExpandX) | static_cast<UInt_t>(kLHintsFillX) | static_cast<UInt_t>(kLHintsShrinkX);
+static const UInt_t kColOptions =
+    static_cast<UInt_t>(kLHintsExpandY) | static_cast<UInt_t>(kLHintsFillY) | static_cast<UInt_t>(kLHintsShrinkY);
 
 //
 // static data member definitions

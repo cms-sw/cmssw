@@ -48,7 +48,7 @@
 #include "G4Timer.hh"
 #include "G4Event.hh"
 #include "G4Run.hh"
-#include "G4SystemOfUnits.hh"
+#include <CLHEP/Units/SystemOfUnits.h>
 #include "G4Threading.hh"
 #include "G4UImanager.hh"
 #include "G4WorkerThread.hh"
@@ -301,7 +301,8 @@ void RunManagerMTWorker::initializeG4(RunManagerMT* runManagerMaster, const edm:
   tM->SetWorldForTracking(worldPV);
 
   // we need the track manager now
-  m_tls->trackManager = std::make_unique<SimTrackManager>(&m_simEvent);
+  int verbose = m_p.getParameter<int>("EventVerbose");
+  m_tls->trackManager = std::make_unique<SimTrackManager>(&m_simEvent, verbose);
 
   // setup the magnetic field
   if (m_pUseMagneticField) {
@@ -547,14 +548,10 @@ void RunManagerMTWorker::terminateRun() {
 TmpSimEvent* RunManagerMTWorker::produce(const edm::Event& inpevt,
                                          const edm::EventSetup& es,
                                          RunManagerMT& runManagerMaster) {
-  // The initialization and begin/end run is a bit convoluted due to
-  // - Geant4 deals per-thread
-  // - OscarMTProducer deals per-stream
-  // and framework/TBB is free to schedule work in streams to the
-  // threads as it likes.
-  //
   // We have to do the per-thread initialization, and per-thread
   // per-run initialization here by ourselves.
+
+  edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMTWorker::produce: start EventID=" << inpevt.id().event();
 
   assert(m_tls != nullptr and m_tls->threadInitialized);
   // Initialize run
@@ -563,18 +560,19 @@ TmpSimEvent* RunManagerMTWorker::produce(const edm::Event& inpevt,
         << "RunManagerMTWorker::produce: RunID= " << inpevt.id().run() << "  TLS RunID= " << m_tls->currentRunNumber;
     if (m_tls->currentRunNumber != 0 && !m_tls->runTerminated) {
       // If previous run in this thread was not terminated via endRun() call,
-      // terminate it now
+      // then terminate it now
       terminateRun();
     }
     initializeRun();
     m_tls->currentRunNumber = inpevt.id().run();
   }
 
+  // event and primary
   m_tls->currentEvent.reset(generateEvent(inpevt));
-
   m_simEvent.clear();
-  m_simEvent.hepEvent(m_generator.genEvent());
-  m_simEvent.weight(m_generator.eventWeight());
+  m_simEvent.setHepEvent(m_generator.genEvent());
+  m_simEvent.setWeight(m_generator.eventWeight());
+
   if (m_generator.genVertex() != nullptr) {
     auto genVertex = m_generator.genVertex();
     m_simEvent.collisionPoint(math::XYZTLorentzVectorD(genVertex->x() / CLHEP::cm,
@@ -590,10 +588,10 @@ TmpSimEvent* RunManagerMTWorker::produce(const edm::Event& inpevt,
   } else {
     edm::LogVerbatim("SimG4CoreApplication")
         << "RunManagerMTWorker::produce: start EventID=" << inpevt.id().event() << " StreamID=" << inpevt.streamID()
-        << " threadIndex=" << getThreadIndex() << " weight=" << m_simEvent.weight() << "; "
-        << m_tls->currentEvent->GetNumberOfPrimaryVertex() << " vertices for Geant4; generator produced "
-        << m_simEvent.nGenParts() << " particles.";
-
+        << " threadIndex=" << getThreadIndex() << " weight=" << m_simEvent.weight()
+        << " Nprimary: " << m_tls->currentEvent->GetNumberOfPrimaryVertex() << " vertices and " << m_simEvent.nTracks()
+        << " particles";
+    // process event
     if (m_UseG4EventManager) {
       m_tls->kernel->GetEventManager()->ProcessOneEvent(m_tls->currentEvent.get());
     } else {
@@ -601,12 +599,12 @@ TmpSimEvent* RunManagerMTWorker::produce(const edm::Event& inpevt,
     }
   }
 
-  //remove memory only needed during event processing
+  // remove memory only needed during event processing
   m_tls->currentEvent.reset();
-
   for (auto& sd : m_tls->sensCaloDets) {
     sd->reset();
   }
+
   edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMTWorker::produce: ended Event " << inpevt.id().event();
   return &m_simEvent;
 }
@@ -681,11 +679,11 @@ void RunManagerMTWorker::DumpMagneticField(const G4Field* field, const std::stri
         << "MTWorker::DumpMagneticField: error opening file <" << file << "> for magnetic field";
   } else {
     // CMS magnetic field volume
-    double rmax = 9000 * mm;
-    double zmax = 24000 * mm;
+    double rmax = 9000 * CLHEP::mm;
+    double zmax = 24000 * CLHEP::mm;
 
-    double dr = 1 * cm;
-    double dz = 5 * cm;
+    double dr = 1 * CLHEP::cm;
+    double dz = 5 * CLHEP::cm;
 
     int nr = (int)(rmax / dr);
     int nz = 2 * (int)(zmax / dz);
@@ -709,9 +707,10 @@ void RunManagerMTWorker::DumpMagneticField(const G4Field* field, const std::stri
         point[1] = r * sinf;
         point[2] = z;
         field->GetFieldValue(point, bfield);
-        fout << "R(mm)= " << r / mm << " phi(deg)= " << phi / degree << " Z(mm)= " << z / mm
-             << "   Bz(tesla)= " << bfield[2] / tesla << " Br(tesla)= " << (bfield[0] * cosf + bfield[1] * sinf) / tesla
-             << " Bphi(tesla)= " << (bfield[0] * sinf - bfield[1] * cosf) / tesla << G4endl;
+        fout << "R(mm)= " << r / CLHEP::mm << " phi(deg)= " << phi / CLHEP::degree << " Z(mm)= " << z / CLHEP::mm
+             << "   Bz(tesla)= " << bfield[2] / CLHEP::tesla
+             << " Br(tesla)= " << (bfield[0] * cosf + bfield[1] * sinf) / CLHEP::tesla
+             << " Bphi(tesla)= " << (bfield[0] * sinf - bfield[1] * cosf) / CLHEP::tesla << G4endl;
         z += dz;
       }
       r += dr;

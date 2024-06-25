@@ -23,6 +23,10 @@
   <version ClassVersion="11" checksum="639295444"/>
   <field name="dummy" transient="true"/>
  </class>
+ <class name="edmtest::ATransientIntProduct" ClassVersion="3">
+  <version ClassVersion="3" checksum="2661369959"/>
+  <field name="dummy" transient="true"/>
+ </class>
  <class name="edmtest::Int16_tProduct" ClassVersion="10">
   <version ClassVersion="10" checksum="1443289058"/>
  </class>
@@ -83,6 +87,7 @@
  <class name="edm::Wrapper<std::vector<std::unique_ptr<edmtest::IntProduct>>>"/>
  <class name="edm::Wrapper<edmtest::UInt64Product>"/>
  <class name="edm::Wrapper<edmtest::TransientIntProduct>" persistent="false"/>
+ <class name="edm::Wrapper<edmtest::ATransientIntProduct>" persistent="false"/>
  <class name="edm::Wrapper<edmtest::Int16_tProduct>"/>
  <class name="edm::Wrapper<edmtest::DoubleProduct>"/>
  <class name="edm::Wrapper<edmtest::StringProduct>"/>

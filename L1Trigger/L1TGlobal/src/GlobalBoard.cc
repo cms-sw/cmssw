@@ -112,11 +112,6 @@ void l1t::GlobalBoard::setBxFirst(int bx) { m_bxFirst_ = bx; }
 
 void l1t::GlobalBoard::setBxLast(int bx) { m_bxLast_ = bx; }
 
-// for getting axol1tl version from menu->GlobalProducer->GlobalBoard->condition class
-void l1t::GlobalBoard::setAXOL1TLModelVersion(std::string axol1tlModelVersion) {
-  m_axol1tlModelVersion = axol1tlModelVersion;
-}
-
 void l1t::GlobalBoard::init(const int numberPhysTriggers,
                             const int nrL1Mu,
                             const int nrL1MuShower,
@@ -655,8 +650,6 @@ void l1t::GlobalBoard::runGTL(const edm::Event&,
           AXOL1TLCondition* axol1tlCondition = new AXOL1TLCondition(itCond->second, this);
 
           axol1tlCondition->setVerbosity(m_verbosity);
-
-          axol1tlCondition->setModelVersion(m_axol1tlModelVersion);
 
           axol1tlCondition->evaluateConditionStoreResult(iBxInEvent);
 

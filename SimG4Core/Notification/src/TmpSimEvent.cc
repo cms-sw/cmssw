@@ -1,7 +1,7 @@
 #include "SimG4Core/Notification/interface/TmpSimEvent.h"
 #include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
 
-#include "G4SystemOfUnits.hh"
+#include <CLHEP/Units/SystemOfUnits.h>
 
 class IdSort {
 public:

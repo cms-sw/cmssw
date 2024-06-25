@@ -11,6 +11,9 @@ unsortedOfflinePrimaryVertices4D = unsortedOfflinePrimaryVertices.clone(
     ),
     TrackTimesLabel = cms.InputTag("trackTimeValueMapProducer","generalTracksConfigurableFlatResolutionModel"),
     TrackTimeResosLabel = cms.InputTag("trackTimeValueMapProducer","generalTracksConfigurableFlatResolutionModelResolution"),
+    trackMTDTimeQualityVMapTag = cms.InputTag("mtdTrackQualityMVA:mtdQualMVA"),
+    useMVACut = cms.bool(False),
+    minTrackTimeQuality = cms.double(0.8),
     vertexCollections = {0: dict(vertexTimeParameters = cms.PSet( algorithm = cms.string('legacy4D'))),
                          1: dict(vertexTimeParameters = cms.PSet( algorithm = cms.string('legacy4D')))}
     )
@@ -67,7 +70,3 @@ tofPID3D=tofPIDProducer.clone(vtxsSrc='unsortedOfflinePrimaryVertices')
 from Configuration.Eras.Modifier_phase2_timing_layer_cff import phase2_timing_layer
 phase2_timing_layer.toModify(tofPID, vtxsSrc='unsortedOfflinePrimaryVertices4D', vertexReassignment=False)
 phase2_timing_layer.toModify(tofPID3D, vertexReassignment=False)
-phase2_timing_layer.toModify(unsortedOfflinePrimaryVertices,
-    vertexCollections = {0: dict(vertexTimeParameters = cms.PSet( algorithm = cms.string('fromTracksPID'))),
-                         1: dict(vertexTimeParameters = cms.PSet( algorithm = cms.string('fromTracksPID')))}
-)

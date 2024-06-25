@@ -12,9 +12,7 @@ class TICLLayerTileT {
 public:
   typedef T type;
 
-  void fill(double eta, double phi, unsigned int layerClusterId) {
-    tile_[globalBin(eta, phi)].push_back(layerClusterId);
-  }
+  void fill(float eta, float phi, unsigned int layerClusterId) { tile_[globalBin(eta, phi)].push_back(layerClusterId); }
 
   int etaBin(float eta) const {
     constexpr float etaRange = T::maxEta - T::minEta;
@@ -62,7 +60,7 @@ public:
 
   int globalBin(int etaBin, int phiBin) const { return phiBin + etaBin * T::nPhiBins; }
 
-  int globalBin(double eta, double phi) const { return phiBin(phi) + etaBin(eta) * T::nPhiBins; }
+  int globalBin(float eta, float phi) const { return phiBin(phi) + etaBin(eta) * T::nPhiBins; }
 
   void clear() {
     auto nBins = T::nEtaBins * T::nPhiBins;
@@ -96,7 +94,7 @@ public:
   // numbering is not handled internally. It is the user's responsibility to
   // properly use and consistently access it here.
   const auto& operator[](int index) const { return tiles_[index]; }
-  void fill(int index, double eta, double phi, unsigned int objectId) { tiles_[index].fill(eta, phi, objectId); }
+  void fill(int index, float eta, float phi, unsigned int objectId) { tiles_[index].fill(eta, phi, objectId); }
 
 private:
   T tiles_;

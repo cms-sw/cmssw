@@ -25,7 +25,8 @@ int main(int argc, char** argv) {
     verbosity = std::stoul(argv[2], nullptr, 0);
 
   // init static values
-  uint16_t fedid(0);
+  bool zside(false);
+  uint16_t localfedid(0);
   uint8_t captureblock(0), econdidx(0), econderx(0), halfrocch(0);
 
   // http://www.cplusplus.com/reference/random/linear_congruential_engine/
@@ -35,14 +36,18 @@ int main(int argc, char** argv) {
   // do the trials: time/performance test and exploit randomisation to check
   unsigned long int u = 0;
   for (; u < repetitions; u++) {
-    fedid = myrand() % 576;
+    zside = (bool)myrand() % 2;
+    localfedid = myrand() % 576;
     captureblock = myrand() % 10;
     econdidx = myrand() % 12;
     econderx = myrand() % 12;
     halfrocch = myrand() % 39;
+    bool cmflag = ((halfrocch == 37) || (halfrocch == 38));
 
-    HGCalElectronicsId eid(fedid, captureblock, econdidx, econderx, halfrocch);
-    assert(fedid == eid.fedId());
+    HGCalElectronicsId eid(zside, localfedid, captureblock, econdidx, econderx, halfrocch);
+    assert(zside == eid.zSide());
+    assert(cmflag == eid.isCM());
+    assert(localfedid == eid.localFEDId());
     assert(captureblock == eid.captureBlock());
     assert(econdidx == eid.econdIdx());
     assert(econderx == eid.econdeRx());

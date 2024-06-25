@@ -92,10 +92,10 @@ Phase2L1CaloEGammaEmulator::Phase2L1CaloEGammaEmulator(const edm::ParameterSet& 
       calib_(iConfig.getParameter<edm::ParameterSet>("calib")),
       caloGeometryTag_(esConsumes<CaloGeometry, CaloGeometryRecord>(edm::ESInputTag("", ""))),
       hbTopologyTag_(esConsumes<HcalTopology, HcalRecNumberingRecord>(edm::ESInputTag("", ""))) {
-  produces<l1tp2::CaloCrystalClusterCollection>("RCT");
-  produces<l1tp2::CaloCrystalClusterCollection>("GCT");
-  produces<l1tp2::CaloTowerCollection>("RCT");
-  produces<l1tp2::CaloTowerCollection>("GCT");
+  produces<l1tp2::CaloCrystalClusterCollection>("RCTClusters");
+  produces<l1tp2::CaloCrystalClusterCollection>("GCTClusters");
+  produces<l1tp2::CaloTowerCollection>("RCTTowers");
+  produces<l1tp2::CaloTowerCollection>("GCTTowers");
   produces<l1tp2::CaloTowerCollection>("GCTFullTowers");
   produces<BXVector<l1t::EGamma>>("GCTEGammas");
   produces<l1tp2::DigitizedClusterCorrelatorCollection>("GCTDigitizedClusterToCorrelator");
@@ -498,8 +498,8 @@ void Phase2L1CaloEGammaEmulator::produce(edm::Event& iEvent, const edm::EventSet
     }
   }  // end of loop over cards
 
-  iEvent.put(std::move(L1EGXtalClusters), "RCT");
-  iEvent.put(std::move(L1CaloTowers), "RCT");
+  iEvent.put(std::move(L1EGXtalClusters), "RCTClusters");
+  iEvent.put(std::move(L1CaloTowers), "RCTTowers");
 
   //*******************************************************************
   // Do GCT geometry for inputs
@@ -629,8 +629,8 @@ void Phase2L1CaloEGammaEmulator::produce(edm::Event& iEvent, const edm::EventSet
                    calib_);
   }
 
-  iEvent.put(std::move(L1GCTClusters), "GCT");
-  iEvent.put(std::move(L1GCTTowers), "GCT");
+  iEvent.put(std::move(L1GCTClusters), "GCTClusters");
+  iEvent.put(std::move(L1GCTTowers), "GCTTowers");
   iEvent.put(std::move(L1GCTFullTowers), "GCTFullTowers");
   iEvent.put(std::move(L1GCTEGammas), "GCTEGammas");
   iEvent.put(std::move(L1DigitizedClusterCorrelator), "GCTDigitizedClusterToCorrelator");

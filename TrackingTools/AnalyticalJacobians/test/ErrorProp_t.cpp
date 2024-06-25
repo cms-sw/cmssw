@@ -24,8 +24,18 @@ namespace {
 }  // namespace
 
 #include "FWCore/Utilities/interface/HRRealTime.h"
-void st() {}
-void en() {}
+void st(void* ptr) {
+  asm("" /* no instructions */
+      :  /* no inputs */
+      : /* output */ "rax"(ptr)
+      : /* pretend to clobber */ "memory");
+}
+void en(void const* ptr) {
+  asm("" /* no instructions */
+      :  /* no inputs */
+      : /* output */ "rax"(ptr)
+      : /* pretend to clobber */ "memory");
+}
 
 #include <iostream>
 
@@ -86,10 +96,14 @@ int main(int argc, char** argv) {
       AnalyticalCurvilinearJacobian full;
       AnalyticalCurvilinearJacobian delta;
       edm::HRTimeType sf = edm::hrRealTime();
+      st(&tpg2);
       full.computeFullJacobian(tpg, tpg2.position(), tpg2.momentum(), h, s);
+      en(&full.jacobian());
       timeFull += (edm::hrRealTime() - sf);
       edm::HRTimeType si = edm::hrRealTime();
+      st(&tpg2);
       delta.computeInfinitesimalJacobian(tpg, tpg2.position(), tpg2.momentum(), h, s);
+      en(&delta.jacobian());
       timeInf += (edm::hrRealTime() - si);
       std::cout << full.jacobian() << std::endl;
       std::cout << std::endl;
@@ -113,9 +127,13 @@ int main(int argc, char** argv) {
     AnalyticalCurvilinearJacobian full;
     GlobalVector h = tpg0.magneticFieldInInverseGeV(tpg0.position());
     edm::HRTimeType s = edm::hrRealTime();
-    full.computeFullJacobian(tpg0, tpg.position(), tpg.momentum(), h, totalStep);
+    for (int k = 0; k < 50000; ++k) {
+      st(&tpg0);
+      full.computeFullJacobian(tpg0, tpg.position(), tpg.momentum(), h, totalStep);
+      en(&full.jacobian());
+    }
     edm::HRTimeType e = edm::hrRealTime();
-    std::cout << "one step fullJacobian " << e - s << std::endl;
+    std::cout << "one step fullJacobian " << (e - s) / 50000. << " precise timing" << std::endl;
     std::cout << full.jacobian() << std::endl;
     std::cout << std::endl;
 

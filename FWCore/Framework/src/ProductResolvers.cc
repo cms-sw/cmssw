@@ -273,7 +273,7 @@ namespace edm {
                                                          bool skipCurrentProcess,
                                                          ServiceToken const& token,
                                                          SharedResourcesAcquirer* sra,
-                                                         ModuleCallingContext const* mcc) const {
+                                                         ModuleCallingContext const* mcc) const noexcept {
     //need to try changing m_prefetchRequested before adding to m_waitingTasks
     bool expected = false;
     bool prefetchRequested = m_prefetchRequested.compare_exchange_strong(expected, true);
@@ -373,7 +373,7 @@ namespace edm {
                                                      bool skipCurrentProcess,
                                                      ServiceToken const& token,
                                                      SharedResourcesAcquirer* sra,
-                                                     ModuleCallingContext const* mcc) const {}
+                                                     ModuleCallingContext const* mcc) const noexcept {}
 
   void PutOnReadInputProductResolver::putOrMergeProduct(std::unique_ptr<WrapperBase> edp) const {
     setOrMergeProduct(std::move(edp), nullptr);
@@ -395,7 +395,7 @@ namespace edm {
                                                bool skipCurrentProcess,
                                                ServiceToken const& token,
                                                SharedResourcesAcquirer* sra,
-                                               ModuleCallingContext const* mcc) const {
+                                               ModuleCallingContext const* mcc) const noexcept {
     if (not skipCurrentProcess) {
       if (branchDescription().branchType() == InProcess &&
           mcc->parent().globalContext()->transition() == GlobalContext::Transition::kAccessInputProcessBlock) {
@@ -447,14 +447,11 @@ namespace edm {
                                                   bool skipCurrentProcess,
                                                   ServiceToken const& token,
                                                   SharedResourcesAcquirer* sra,
-                                                  ModuleCallingContext const* mcc) const {
+                                                  ModuleCallingContext const* mcc) const noexcept {
     if (skipCurrentProcess) {
       return;
     }
-    if (worker_ == nullptr) {
-      throw cms::Exception("LogicError") << "UnscheduledProductResolver::prefetchAsync_()  called with null worker_. "
-                                            "This should not happen, please contact framework developers.";
-    }
+    assert(worker_);
     //need to try changing prefetchRequested_ before adding to waitingTasks_
     bool expected = false;
     bool prefetchRequested = prefetchRequested_.compare_exchange_strong(expected, true);
@@ -535,14 +532,11 @@ namespace edm {
                                                    bool skipCurrentProcess,
                                                    ServiceToken const& token,
                                                    SharedResourcesAcquirer* sra,
-                                                   ModuleCallingContext const* mcc) const {
+                                                   ModuleCallingContext const* mcc) const noexcept {
     if (skipCurrentProcess) {
       return;
     }
-    if (worker_ == nullptr) {
-      throw cms::Exception("LogicError") << "TransformingProductResolver::prefetchAsync_()  called with null worker_. "
-                                            "This should not happen, please contact framework developers.";
-    }
+    assert(worker_ != nullptr);
     //need to try changing prefetchRequested_ before adding to waitingTasks_
     bool expected = false;
     bool prefetchRequested = prefetchRequested_.compare_exchange_strong(expected, true);
@@ -786,7 +780,7 @@ namespace edm {
                                                      bool skipCurrentProcess,
                                                      ServiceToken const& token,
                                                      SharedResourcesAcquirer* sra,
-                                                     ModuleCallingContext const* mcc) const {
+                                                     ModuleCallingContext const* mcc) const noexcept {
     if (skipCurrentProcess) {
       return;
     }
@@ -859,7 +853,7 @@ namespace edm {
                                                   bool skipCurrentProcess,
                                                   ServiceToken const& token,
                                                   SharedResourcesAcquirer* sra,
-                                                  ModuleCallingContext const* mcc) const {
+                                                  ModuleCallingContext const* mcc) const noexcept {
     if (skipCurrentProcess) {
       return;
     }
@@ -996,7 +990,7 @@ namespace edm {
                                                 bool skipCurrentProcess,
                                                 ServiceToken const& token,
                                                 SharedResourcesAcquirer* sra,
-                                                ModuleCallingContext const* mcc) const {
+                                                ModuleCallingContext const* mcc) const noexcept {
     bool timeToMakeAtEnd = true;
     if (madeAtEnd_ and mcc) {
       timeToMakeAtEnd = mcc->parent().isAtEndTransition();
@@ -1045,7 +1039,7 @@ namespace edm {
                                  ModuleCallingContext const* iMCC,
                                  bool iSkipCurrentProcess,
                                  ServiceToken iToken,
-                                 oneapi::tbb::task_group* iGroup)
+                                 oneapi::tbb::task_group* iGroup) noexcept
           : resolver_(iResolver),
             principal_(iPrincipal),
             sra_(iSRA),
@@ -1109,7 +1103,7 @@ namespace edm {
                                                           SharedResourcesAcquirer* sra,
                                                           ModuleCallingContext const* mcc,
                                                           ServiceToken token,
-                                                          oneapi::tbb::task_group* group) const {
+                                                          oneapi::tbb::task_group* group) const noexcept {
     std::vector<unsigned int> const& lookupProcessOrder = principal.lookupProcessOrder();
     auto index = iProcessingIndex;
 
@@ -1238,7 +1232,7 @@ namespace edm {
                                                             bool skipCurrentProcess,
                                                             ServiceToken const& token,
                                                             SharedResourcesAcquirer* sra,
-                                                            ModuleCallingContext const* mcc) const {
+                                                            ModuleCallingContext const* mcc) const noexcept {
     principal.getProductResolverByIndex(realResolverIndex_)
         ->prefetchAsync(waitTask, principal, skipCurrentProcess, token, sra, mcc);
   }

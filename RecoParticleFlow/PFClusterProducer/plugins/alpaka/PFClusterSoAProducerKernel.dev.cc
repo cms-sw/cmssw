@@ -1098,7 +1098,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         clusterView.size() = nRH;
       }
 
-      for (auto i : elements_with_stride(acc, nRH)) {
+      for (auto i : uniform_elements(acc, nRH)) {
         // Initialize arrays
         pfClusteringVars[i].pfrh_isSeed() = 0;
         pfClusteringVars[i].rhCount() = 0;
@@ -1176,7 +1176,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         pfClusteringVars.nEdges() = nRH * 8;
         pfClusteringEdgeVars[nRH].pfrh_edgeIdx() = nRH * 8;
       }
-      for (uint32_t i : cms::alpakatools::elements_with_stride(acc, nRH)) {
+      for (uint32_t i : cms::alpakatools::uniform_elements(acc, nRH)) {
         pfClusteringEdgeVars[i].pfrh_edgeIdx() = i * 8;
         pfClusteringVars[i].pfrh_topoId() = 0;
         for (int j = 0; j < 8; j++) {  // checking if neighbours exist and assigning neighbours as edges
@@ -1323,7 +1323,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                   reco::PFRecHitFractionDeviceCollection::View fracView) const {
       const int nRH = pfRecHits.size();
 
-      for (auto index : elements_with_stride_nd(acc, {nRH, nRH})) {
+      for (auto index : uniform_elements_nd(acc, {nRH, nRH})) {
         const int i = index[0u];  // i is a seed index
         const int j = index[1u];  // j is NOT a seed
         int topoId = pfClusteringVars[i].pfrh_topoId();

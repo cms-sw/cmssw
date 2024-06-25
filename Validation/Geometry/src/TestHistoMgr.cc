@@ -2,7 +2,7 @@
 //#define PI121
 
 #include "Validation/Geometry/interface/TestHistoMgr.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include <CLHEP/Units/SystemOfUnits.h>
 #ifdef StatTesting
 #include "Validation/SimG4GeometryValidation/interface/StatisticsComparator.h"
 #include "StatisticsTesting/Chi2ComparisonAlgorithm.h"

@@ -11,10 +11,10 @@
 #include "SimMuon/CSCDigitizer/src/CSCDetectorHit.h"
 #include "SimMuon/CSCDigitizer/src/CSCDriftSim.h"
 
-#include "CLHEP/Random/RandFlat.h"
-#include "CLHEP/Random/RandGaussQ.h"
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include <CLHEP/Random/RandFlat.h>
+#include <CLHEP/Random/RandGaussQ.h>
+#include <CLHEP/Units/GlobalPhysicalConstants.h>
+#include <CLHEP/Units/SystemOfUnits.h>
 
 #include <cmath>
 #include <iostream>
@@ -119,7 +119,7 @@ CSCDetectorHit CSCDriftSim::getWireHit(const Local3DPoint &pos,
   // double charge = avalancheCharge() * f_att * f_collected *
   // gasGain(layer->id()) * e_SI * 1.e15;
   // doing fattachment by random chance of killing
-  double charge = avalancheCharge(engine) * f_collected * gasGain(layer->id()) * e_SI * 1.e15;
+  double charge = avalancheCharge(engine) * f_collected * gasGain(layer->id()) * CLHEP::e_SI * 1.e15;
 
   float t = simHit.tof() + driftTime;
   LogTrace("CSCDriftSim") << "CSCDriftSim: tof = " << simHit.tof() << " driftTime = " << driftTime

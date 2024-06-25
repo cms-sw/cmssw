@@ -11,7 +11,7 @@
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDTranslation.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include <CLHEP/Units/SystemOfUnits.h>
 
 #include <CLHEP/Geometry/Point3D.h>
 #include <CLHEP/Geometry/Vector3D.h>
@@ -26,8 +26,11 @@
 #include "DetectorDescription/Core/interface/DDSplit.h"
 #include "DetectorDescription/Core/interface/DDTransform.h"
 #include "Geometry/CaloGeometry/interface/EcalTrapezoidParameters.h"
-#include "CLHEP/Geometry/Transform3D.h"
+#include <CLHEP/Geometry/Transform3D.h>
 
+using CLHEP::cm;
+using CLHEP::deg;
+using CLHEP::mm;
 //#define EDM_ML_DEBUG
 
 class DDEcalBarrelAlgo : public DDAlgorithm {

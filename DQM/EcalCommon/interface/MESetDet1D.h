@@ -69,6 +69,9 @@ namespace ecaldqm {
     int findBin(EcalDQMSetupObjects const, int, double, double = 0.) const override;
 
     void reset(EcalElectronicsMapping const *, double = 0., double = 0., double = 0.) override;
+
+  private:
+    using ecaldqm::MESetEcal::operator=;
   };
 }  // namespace ecaldqm
 

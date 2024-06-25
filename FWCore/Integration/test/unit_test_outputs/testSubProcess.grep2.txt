@@ -162,14 +162,6 @@
 ++++ finished: begin stream for module: stream = 0 label = 'getInt' id = 10
 ++++ starting: begin stream for module: stream = 0 label = 'noPut' id = 11
 ++++ finished: begin stream for module: stream = 0 label = 'noPut' id = 11
-++++ starting: begin stream for module: stream = 0 label = 'TriggerResults' id = 1
-++++ finished: begin stream for module: stream = 0 label = 'TriggerResults' id = 1
-++++ starting: begin stream for module: stream = 0 label = 'p1' id = 2
-++++ finished: begin stream for module: stream = 0 label = 'p1' id = 2
-++++ starting: begin stream for module: stream = 0 label = 'path1' id = 3
-++++ finished: begin stream for module: stream = 0 label = 'path1' id = 3
-++++ starting: begin stream for module: stream = 0 label = 'path2' id = 4
-++++ finished: begin stream for module: stream = 0 label = 'path2' id = 4
 ++++ starting: begin stream for module: stream = 0 label = 'thingWithMergeProducer' id = 17
 ++++ finished: begin stream for module: stream = 0 label = 'thingWithMergeProducer' id = 17
 ++++ starting: begin stream for module: stream = 0 label = 'test' id = 18
@@ -182,18 +174,8 @@
 ++++ finished: begin stream for module: stream = 0 label = 'getInt' id = 21
 ++++ starting: begin stream for module: stream = 0 label = 'dependsOnNoPut' id = 22
 ++++ finished: begin stream for module: stream = 0 label = 'dependsOnNoPut' id = 22
-++++ starting: begin stream for module: stream = 0 label = 'TriggerResults' id = 12
-++++ finished: begin stream for module: stream = 0 label = 'TriggerResults' id = 12
 ++++ starting: begin stream for module: stream = 0 label = 'out' id = 23
 ++++ finished: begin stream for module: stream = 0 label = 'out' id = 23
-++++ starting: begin stream for module: stream = 0 label = 'path1' id = 13
-++++ finished: begin stream for module: stream = 0 label = 'path1' id = 13
-++++ starting: begin stream for module: stream = 0 label = 'path2' id = 14
-++++ finished: begin stream for module: stream = 0 label = 'path2' id = 14
-++++ starting: begin stream for module: stream = 0 label = 'path3' id = 15
-++++ finished: begin stream for module: stream = 0 label = 'path3' id = 15
-++++ starting: begin stream for module: stream = 0 label = 'path4' id = 16
-++++ finished: begin stream for module: stream = 0 label = 'path4' id = 16
 ++++ starting: begin stream for module: stream = 0 label = 'thingWithMergeProducer' id = 29
 ++++ finished: begin stream for module: stream = 0 label = 'thingWithMergeProducer' id = 29
 ++++ starting: begin stream for module: stream = 0 label = 'test' id = 30
@@ -206,18 +188,8 @@
 ++++ finished: begin stream for module: stream = 0 label = 'getInt' id = 33
 ++++ starting: begin stream for module: stream = 0 label = 'dependsOnNoPut' id = 34
 ++++ finished: begin stream for module: stream = 0 label = 'dependsOnNoPut' id = 34
-++++ starting: begin stream for module: stream = 0 label = 'TriggerResults' id = 24
-++++ finished: begin stream for module: stream = 0 label = 'TriggerResults' id = 24
 ++++ starting: begin stream for module: stream = 0 label = 'out' id = 35
 ++++ finished: begin stream for module: stream = 0 label = 'out' id = 35
-++++ starting: begin stream for module: stream = 0 label = 'path1' id = 25
-++++ finished: begin stream for module: stream = 0 label = 'path1' id = 25
-++++ starting: begin stream for module: stream = 0 label = 'path2' id = 26
-++++ finished: begin stream for module: stream = 0 label = 'path2' id = 26
-++++ starting: begin stream for module: stream = 0 label = 'path3' id = 27
-++++ finished: begin stream for module: stream = 0 label = 'path3' id = 27
-++++ starting: begin stream for module: stream = 0 label = 'path4' id = 28
-++++ finished: begin stream for module: stream = 0 label = 'path4' id = 28
 ++++ starting: begin process block
 ++++ finished: begin process block
 ++++ starting: begin process block
@@ -336,12 +308,12 @@
 ++++ starting: begin run: stream = 0 run = 1 time = 1
 ++++ finished: begin run: stream = 0 run = 1 time = 1
 ++++ starting: begin run: stream = 0 run = 1 time = 1
-++++++ starting: begin run for module: stream = 0 label = 'putInt3' id = 9
-++++++ finished: begin run for module: stream = 0 label = 'putInt3' id = 9
-++++++ starting: begin run for module: stream = 0 label = 'putInt2' id = 8
-++++++ finished: begin run for module: stream = 0 label = 'putInt2' id = 8
 ++++++ starting: begin run for module: stream = 0 label = 'putInt' id = 7
 ++++++ finished: begin run for module: stream = 0 label = 'putInt' id = 7
+++++++ starting: begin run for module: stream = 0 label = 'putInt2' id = 8
+++++++ finished: begin run for module: stream = 0 label = 'putInt2' id = 8
+++++++ starting: begin run for module: stream = 0 label = 'putInt3' id = 9
+++++++ finished: begin run for module: stream = 0 label = 'putInt3' id = 9
 ++++ finished: begin run: stream = 0 run = 1 time = 1
 ++++ starting: begin run: stream = 0 run = 1 time = 1
 ++++ finished: begin run: stream = 0 run = 1 time = 1
@@ -435,12 +407,12 @@
 ++++ starting: begin lumi: stream = 0 run = 1 lumi = 1 time = 1
 ++++ finished: begin lumi: stream = 0 run = 1 lumi = 1 time = 1
 ++++ starting: begin lumi: stream = 0 run = 1 lumi = 1 time = 1
-++++++ starting: begin lumi for module: stream = 0 label = 'putInt3' id = 9
-++++++ finished: begin lumi for module: stream = 0 label = 'putInt3' id = 9
-++++++ starting: begin lumi for module: stream = 0 label = 'putInt2' id = 8
-++++++ finished: begin lumi for module: stream = 0 label = 'putInt2' id = 8
 ++++++ starting: begin lumi for module: stream = 0 label = 'putInt' id = 7
 ++++++ finished: begin lumi for module: stream = 0 label = 'putInt' id = 7
+++++++ starting: begin lumi for module: stream = 0 label = 'putInt2' id = 8
+++++++ finished: begin lumi for module: stream = 0 label = 'putInt2' id = 8
+++++++ starting: begin lumi for module: stream = 0 label = 'putInt3' id = 9
+++++++ finished: begin lumi for module: stream = 0 label = 'putInt3' id = 9
 ++++ finished: begin lumi: stream = 0 run = 1 lumi = 1 time = 1
 ++++ starting: begin lumi: stream = 0 run = 1 lumi = 1 time = 1
 ++++ finished: begin lumi: stream = 0 run = 1 lumi = 1 time = 1
@@ -1064,12 +1036,12 @@
 ++++ starting: end lumi: stream = 0 run = 1 lumi = 1 time = 0
 ++++ finished: end lumi: stream = 0 run = 1 lumi = 1 time = 0
 ++++ starting: end lumi: stream = 0 run = 1 lumi = 1 time = 0
-++++++ starting: end lumi for module: stream = 0 label = 'putInt3' id = 9
-++++++ finished: end lumi for module: stream = 0 label = 'putInt3' id = 9
-++++++ starting: end lumi for module: stream = 0 label = 'putInt2' id = 8
-++++++ finished: end lumi for module: stream = 0 label = 'putInt2' id = 8
 ++++++ starting: end lumi for module: stream = 0 label = 'putInt' id = 7
 ++++++ finished: end lumi for module: stream = 0 label = 'putInt' id = 7
+++++++ starting: end lumi for module: stream = 0 label = 'putInt2' id = 8
+++++++ finished: end lumi for module: stream = 0 label = 'putInt2' id = 8
+++++++ starting: end lumi for module: stream = 0 label = 'putInt3' id = 9
+++++++ finished: end lumi for module: stream = 0 label = 'putInt3' id = 9
 ++++ finished: end lumi: stream = 0 run = 1 lumi = 1 time = 0
 ++++ starting: end lumi: stream = 0 run = 1 lumi = 1 time = 0
 ++++ finished: end lumi: stream = 0 run = 1 lumi = 1 time = 0
@@ -1252,12 +1224,12 @@
 ++++ starting: begin lumi: stream = 0 run = 1 lumi = 2 time = 25000001
 ++++ finished: begin lumi: stream = 0 run = 1 lumi = 2 time = 25000001
 ++++ starting: begin lumi: stream = 0 run = 1 lumi = 2 time = 25000001
-++++++ starting: begin lumi for module: stream = 0 label = 'putInt3' id = 9
-++++++ finished: begin lumi for module: stream = 0 label = 'putInt3' id = 9
-++++++ starting: begin lumi for module: stream = 0 label = 'putInt2' id = 8
-++++++ finished: begin lumi for module: stream = 0 label = 'putInt2' id = 8
 ++++++ starting: begin lumi for module: stream = 0 label = 'putInt' id = 7
 ++++++ finished: begin lumi for module: stream = 0 label = 'putInt' id = 7
+++++++ starting: begin lumi for module: stream = 0 label = 'putInt2' id = 8
+++++++ finished: begin lumi for module: stream = 0 label = 'putInt2' id = 8
+++++++ starting: begin lumi for module: stream = 0 label = 'putInt3' id = 9
+++++++ finished: begin lumi for module: stream = 0 label = 'putInt3' id = 9
 ++++ finished: begin lumi: stream = 0 run = 1 lumi = 2 time = 25000001
 ++++ starting: begin lumi: stream = 0 run = 1 lumi = 2 time = 25000001
 ++++ finished: begin lumi: stream = 0 run = 1 lumi = 2 time = 25000001
@@ -1881,12 +1853,12 @@
 ++++ starting: end lumi: stream = 0 run = 1 lumi = 2 time = 0
 ++++ finished: end lumi: stream = 0 run = 1 lumi = 2 time = 0
 ++++ starting: end lumi: stream = 0 run = 1 lumi = 2 time = 0
-++++++ starting: end lumi for module: stream = 0 label = 'putInt3' id = 9
-++++++ finished: end lumi for module: stream = 0 label = 'putInt3' id = 9
-++++++ starting: end lumi for module: stream = 0 label = 'putInt2' id = 8
-++++++ finished: end lumi for module: stream = 0 label = 'putInt2' id = 8
 ++++++ starting: end lumi for module: stream = 0 label = 'putInt' id = 7
 ++++++ finished: end lumi for module: stream = 0 label = 'putInt' id = 7
+++++++ starting: end lumi for module: stream = 0 label = 'putInt2' id = 8
+++++++ finished: end lumi for module: stream = 0 label = 'putInt2' id = 8
+++++++ starting: end lumi for module: stream = 0 label = 'putInt3' id = 9
+++++++ finished: end lumi for module: stream = 0 label = 'putInt3' id = 9
 ++++ finished: end lumi: stream = 0 run = 1 lumi = 2 time = 0
 ++++ starting: end lumi: stream = 0 run = 1 lumi = 2 time = 0
 ++++ finished: end lumi: stream = 0 run = 1 lumi = 2 time = 0
@@ -2069,12 +2041,12 @@
 ++++ starting: begin lumi: stream = 0 run = 1 lumi = 3 time = 45000001
 ++++ finished: begin lumi: stream = 0 run = 1 lumi = 3 time = 45000001
 ++++ starting: begin lumi: stream = 0 run = 1 lumi = 3 time = 45000001
-++++++ starting: begin lumi for module: stream = 0 label = 'putInt3' id = 9
-++++++ finished: begin lumi for module: stream = 0 label = 'putInt3' id = 9
-++++++ starting: begin lumi for module: stream = 0 label = 'putInt2' id = 8
-++++++ finished: begin lumi for module: stream = 0 label = 'putInt2' id = 8
 ++++++ starting: begin lumi for module: stream = 0 label = 'putInt' id = 7
 ++++++ finished: begin lumi for module: stream = 0 label = 'putInt' id = 7
+++++++ starting: begin lumi for module: stream = 0 label = 'putInt2' id = 8
+++++++ finished: begin lumi for module: stream = 0 label = 'putInt2' id = 8
+++++++ starting: begin lumi for module: stream = 0 label = 'putInt3' id = 9
+++++++ finished: begin lumi for module: stream = 0 label = 'putInt3' id = 9
 ++++ finished: begin lumi: stream = 0 run = 1 lumi = 3 time = 45000001
 ++++ starting: begin lumi: stream = 0 run = 1 lumi = 3 time = 45000001
 ++++ finished: begin lumi: stream = 0 run = 1 lumi = 3 time = 45000001
@@ -2394,12 +2366,12 @@
 ++++ starting: end lumi: stream = 0 run = 1 lumi = 3 time = 0
 ++++ finished: end lumi: stream = 0 run = 1 lumi = 3 time = 0
 ++++ starting: end lumi: stream = 0 run = 1 lumi = 3 time = 0
-++++++ starting: end lumi for module: stream = 0 label = 'putInt3' id = 9
-++++++ finished: end lumi for module: stream = 0 label = 'putInt3' id = 9
-++++++ starting: end lumi for module: stream = 0 label = 'putInt2' id = 8
-++++++ finished: end lumi for module: stream = 0 label = 'putInt2' id = 8
 ++++++ starting: end lumi for module: stream = 0 label = 'putInt' id = 7
 ++++++ finished: end lumi for module: stream = 0 label = 'putInt' id = 7
+++++++ starting: end lumi for module: stream = 0 label = 'putInt2' id = 8
+++++++ finished: end lumi for module: stream = 0 label = 'putInt2' id = 8
+++++++ starting: end lumi for module: stream = 0 label = 'putInt3' id = 9
+++++++ finished: end lumi for module: stream = 0 label = 'putInt3' id = 9
 ++++ finished: end lumi: stream = 0 run = 1 lumi = 3 time = 0
 ++++ starting: end lumi: stream = 0 run = 1 lumi = 3 time = 0
 ++++ finished: end lumi: stream = 0 run = 1 lumi = 3 time = 0
@@ -2507,12 +2479,12 @@
 ++++ starting: end run: stream = 0 run = 1 time = 0
 ++++ finished: end run: stream = 0 run = 1 time = 0
 ++++ starting: end run: stream = 0 run = 1 time = 0
-++++++ starting: end run for module: stream = 0 label = 'putInt3' id = 9
-++++++ finished: end run for module: stream = 0 label = 'putInt3' id = 9
-++++++ starting: end run for module: stream = 0 label = 'putInt2' id = 8
-++++++ finished: end run for module: stream = 0 label = 'putInt2' id = 8
 ++++++ starting: end run for module: stream = 0 label = 'putInt' id = 7
 ++++++ finished: end run for module: stream = 0 label = 'putInt' id = 7
+++++++ starting: end run for module: stream = 0 label = 'putInt2' id = 8
+++++++ finished: end run for module: stream = 0 label = 'putInt2' id = 8
+++++++ starting: end run for module: stream = 0 label = 'putInt3' id = 9
+++++++ finished: end run for module: stream = 0 label = 'putInt3' id = 9
 ++++ finished: end run: stream = 0 run = 1 time = 0
 ++++ starting: end run: stream = 0 run = 1 time = 0
 ++++ finished: end run: stream = 0 run = 1 time = 0
@@ -2695,12 +2667,12 @@
 ++++ starting: begin run: stream = 0 run = 2 time = 55000001
 ++++ finished: begin run: stream = 0 run = 2 time = 55000001
 ++++ starting: begin run: stream = 0 run = 2 time = 55000001
-++++++ starting: begin run for module: stream = 0 label = 'putInt3' id = 9
-++++++ finished: begin run for module: stream = 0 label = 'putInt3' id = 9
-++++++ starting: begin run for module: stream = 0 label = 'putInt2' id = 8
-++++++ finished: begin run for module: stream = 0 label = 'putInt2' id = 8
 ++++++ starting: begin run for module: stream = 0 label = 'putInt' id = 7
 ++++++ finished: begin run for module: stream = 0 label = 'putInt' id = 7
+++++++ starting: begin run for module: stream = 0 label = 'putInt2' id = 8
+++++++ finished: begin run for module: stream = 0 label = 'putInt2' id = 8
+++++++ starting: begin run for module: stream = 0 label = 'putInt3' id = 9
+++++++ finished: begin run for module: stream = 0 label = 'putInt3' id = 9
 ++++ finished: begin run: stream = 0 run = 2 time = 55000001
 ++++ starting: begin run: stream = 0 run = 2 time = 55000001
 ++++ finished: begin run: stream = 0 run = 2 time = 55000001
@@ -2794,12 +2766,12 @@
 ++++ starting: begin lumi: stream = 0 run = 2 lumi = 1 time = 55000001
 ++++ finished: begin lumi: stream = 0 run = 2 lumi = 1 time = 55000001
 ++++ starting: begin lumi: stream = 0 run = 2 lumi = 1 time = 55000001
-++++++ starting: begin lumi for module: stream = 0 label = 'putInt3' id = 9
-++++++ finished: begin lumi for module: stream = 0 label = 'putInt3' id = 9
-++++++ starting: begin lumi for module: stream = 0 label = 'putInt2' id = 8
-++++++ finished: begin lumi for module: stream = 0 label = 'putInt2' id = 8
 ++++++ starting: begin lumi for module: stream = 0 label = 'putInt' id = 7
 ++++++ finished: begin lumi for module: stream = 0 label = 'putInt' id = 7
+++++++ starting: begin lumi for module: stream = 0 label = 'putInt2' id = 8
+++++++ finished: begin lumi for module: stream = 0 label = 'putInt2' id = 8
+++++++ starting: begin lumi for module: stream = 0 label = 'putInt3' id = 9
+++++++ finished: begin lumi for module: stream = 0 label = 'putInt3' id = 9
 ++++ finished: begin lumi: stream = 0 run = 2 lumi = 1 time = 55000001
 ++++ starting: begin lumi: stream = 0 run = 2 lumi = 1 time = 55000001
 ++++ finished: begin lumi: stream = 0 run = 2 lumi = 1 time = 55000001
@@ -3423,12 +3395,12 @@
 ++++ starting: end lumi: stream = 0 run = 2 lumi = 1 time = 0
 ++++ finished: end lumi: stream = 0 run = 2 lumi = 1 time = 0
 ++++ starting: end lumi: stream = 0 run = 2 lumi = 1 time = 0
-++++++ starting: end lumi for module: stream = 0 label = 'putInt3' id = 9
-++++++ finished: end lumi for module: stream = 0 label = 'putInt3' id = 9
-++++++ starting: end lumi for module: stream = 0 label = 'putInt2' id = 8
-++++++ finished: end lumi for module: stream = 0 label = 'putInt2' id = 8
 ++++++ starting: end lumi for module: stream = 0 label = 'putInt' id = 7
 ++++++ finished: end lumi for module: stream = 0 label = 'putInt' id = 7
+++++++ starting: end lumi for module: stream = 0 label = 'putInt2' id = 8
+++++++ finished: end lumi for module: stream = 0 label = 'putInt2' id = 8
+++++++ starting: end lumi for module: stream = 0 label = 'putInt3' id = 9
+++++++ finished: end lumi for module: stream = 0 label = 'putInt3' id = 9
 ++++ finished: end lumi: stream = 0 run = 2 lumi = 1 time = 0
 ++++ starting: end lumi: stream = 0 run = 2 lumi = 1 time = 0
 ++++ finished: end lumi: stream = 0 run = 2 lumi = 1 time = 0
@@ -3611,12 +3583,12 @@
 ++++ starting: begin lumi: stream = 0 run = 2 lumi = 2 time = 75000001
 ++++ finished: begin lumi: stream = 0 run = 2 lumi = 2 time = 75000001
 ++++ starting: begin lumi: stream = 0 run = 2 lumi = 2 time = 75000001
-++++++ starting: begin lumi for module: stream = 0 label = 'putInt3' id = 9
-++++++ finished: begin lumi for module: stream = 0 label = 'putInt3' id = 9
-++++++ starting: begin lumi for module: stream = 0 label = 'putInt2' id = 8
-++++++ finished: begin lumi for module: stream = 0 label = 'putInt2' id = 8
 ++++++ starting: begin lumi for module: stream = 0 label = 'putInt' id = 7
 ++++++ finished: begin lumi for module: stream = 0 label = 'putInt' id = 7
+++++++ starting: begin lumi for module: stream = 0 label = 'putInt2' id = 8
+++++++ finished: begin lumi for module: stream = 0 label = 'putInt2' id = 8
+++++++ starting: begin lumi for module: stream = 0 label = 'putInt3' id = 9
+++++++ finished: begin lumi for module: stream = 0 label = 'putInt3' id = 9
 ++++ finished: begin lumi: stream = 0 run = 2 lumi = 2 time = 75000001
 ++++ starting: begin lumi: stream = 0 run = 2 lumi = 2 time = 75000001
 ++++ finished: begin lumi: stream = 0 run = 2 lumi = 2 time = 75000001
@@ -4240,12 +4212,12 @@
 ++++ starting: end lumi: stream = 0 run = 2 lumi = 2 time = 0
 ++++ finished: end lumi: stream = 0 run = 2 lumi = 2 time = 0
 ++++ starting: end lumi: stream = 0 run = 2 lumi = 2 time = 0
-++++++ starting: end lumi for module: stream = 0 label = 'putInt3' id = 9
-++++++ finished: end lumi for module: stream = 0 label = 'putInt3' id = 9
-++++++ starting: end lumi for module: stream = 0 label = 'putInt2' id = 8
-++++++ finished: end lumi for module: stream = 0 label = 'putInt2' id = 8
 ++++++ starting: end lumi for module: stream = 0 label = 'putInt' id = 7
 ++++++ finished: end lumi for module: stream = 0 label = 'putInt' id = 7
+++++++ starting: end lumi for module: stream = 0 label = 'putInt2' id = 8
+++++++ finished: end lumi for module: stream = 0 label = 'putInt2' id = 8
+++++++ starting: end lumi for module: stream = 0 label = 'putInt3' id = 9
+++++++ finished: end lumi for module: stream = 0 label = 'putInt3' id = 9
 ++++ finished: end lumi: stream = 0 run = 2 lumi = 2 time = 0
 ++++ starting: end lumi: stream = 0 run = 2 lumi = 2 time = 0
 ++++ finished: end lumi: stream = 0 run = 2 lumi = 2 time = 0
@@ -4428,12 +4400,12 @@
 ++++ starting: begin lumi: stream = 0 run = 2 lumi = 3 time = 95000001
 ++++ finished: begin lumi: stream = 0 run = 2 lumi = 3 time = 95000001
 ++++ starting: begin lumi: stream = 0 run = 2 lumi = 3 time = 95000001
-++++++ starting: begin lumi for module: stream = 0 label = 'putInt3' id = 9
-++++++ finished: begin lumi for module: stream = 0 label = 'putInt3' id = 9
-++++++ starting: begin lumi for module: stream = 0 label = 'putInt2' id = 8
-++++++ finished: begin lumi for module: stream = 0 label = 'putInt2' id = 8
 ++++++ starting: begin lumi for module: stream = 0 label = 'putInt' id = 7
 ++++++ finished: begin lumi for module: stream = 0 label = 'putInt' id = 7
+++++++ starting: begin lumi for module: stream = 0 label = 'putInt2' id = 8
+++++++ finished: begin lumi for module: stream = 0 label = 'putInt2' id = 8
+++++++ starting: begin lumi for module: stream = 0 label = 'putInt3' id = 9
+++++++ finished: begin lumi for module: stream = 0 label = 'putInt3' id = 9
 ++++ finished: begin lumi: stream = 0 run = 2 lumi = 3 time = 95000001
 ++++ starting: begin lumi: stream = 0 run = 2 lumi = 3 time = 95000001
 ++++ finished: begin lumi: stream = 0 run = 2 lumi = 3 time = 95000001
@@ -4753,12 +4725,12 @@
 ++++ starting: end lumi: stream = 0 run = 2 lumi = 3 time = 0
 ++++ finished: end lumi: stream = 0 run = 2 lumi = 3 time = 0
 ++++ starting: end lumi: stream = 0 run = 2 lumi = 3 time = 0
-++++++ starting: end lumi for module: stream = 0 label = 'putInt3' id = 9
-++++++ finished: end lumi for module: stream = 0 label = 'putInt3' id = 9
-++++++ starting: end lumi for module: stream = 0 label = 'putInt2' id = 8
-++++++ finished: end lumi for module: stream = 0 label = 'putInt2' id = 8
 ++++++ starting: end lumi for module: stream = 0 label = 'putInt' id = 7
 ++++++ finished: end lumi for module: stream = 0 label = 'putInt' id = 7
+++++++ starting: end lumi for module: stream = 0 label = 'putInt2' id = 8
+++++++ finished: end lumi for module: stream = 0 label = 'putInt2' id = 8
+++++++ starting: end lumi for module: stream = 0 label = 'putInt3' id = 9
+++++++ finished: end lumi for module: stream = 0 label = 'putInt3' id = 9
 ++++ finished: end lumi: stream = 0 run = 2 lumi = 3 time = 0
 ++++ starting: end lumi: stream = 0 run = 2 lumi = 3 time = 0
 ++++ finished: end lumi: stream = 0 run = 2 lumi = 3 time = 0
@@ -4866,12 +4838,12 @@
 ++++ starting: end run: stream = 0 run = 2 time = 0
 ++++ finished: end run: stream = 0 run = 2 time = 0
 ++++ starting: end run: stream = 0 run = 2 time = 0
-++++++ starting: end run for module: stream = 0 label = 'putInt3' id = 9
-++++++ finished: end run for module: stream = 0 label = 'putInt3' id = 9
-++++++ starting: end run for module: stream = 0 label = 'putInt2' id = 8
-++++++ finished: end run for module: stream = 0 label = 'putInt2' id = 8
 ++++++ starting: end run for module: stream = 0 label = 'putInt' id = 7
 ++++++ finished: end run for module: stream = 0 label = 'putInt' id = 7
+++++++ starting: end run for module: stream = 0 label = 'putInt2' id = 8
+++++++ finished: end run for module: stream = 0 label = 'putInt2' id = 8
+++++++ starting: end run for module: stream = 0 label = 'putInt3' id = 9
+++++++ finished: end run for module: stream = 0 label = 'putInt3' id = 9
 ++++ finished: end run: stream = 0 run = 2 time = 0
 ++++ starting: end run: stream = 0 run = 2 time = 0
 ++++ finished: end run: stream = 0 run = 2 time = 0
@@ -5054,12 +5026,12 @@
 ++++ starting: begin run: stream = 0 run = 3 time = 105000001
 ++++ finished: begin run: stream = 0 run = 3 time = 105000001
 ++++ starting: begin run: stream = 0 run = 3 time = 105000001
-++++++ starting: begin run for module: stream = 0 label = 'putInt3' id = 9
-++++++ finished: begin run for module: stream = 0 label = 'putInt3' id = 9
-++++++ starting: begin run for module: stream = 0 label = 'putInt2' id = 8
-++++++ finished: begin run for module: stream = 0 label = 'putInt2' id = 8
 ++++++ starting: begin run for module: stream = 0 label = 'putInt' id = 7
 ++++++ finished: begin run for module: stream = 0 label = 'putInt' id = 7
+++++++ starting: begin run for module: stream = 0 label = 'putInt2' id = 8
+++++++ finished: begin run for module: stream = 0 label = 'putInt2' id = 8
+++++++ starting: begin run for module: stream = 0 label = 'putInt3' id = 9
+++++++ finished: begin run for module: stream = 0 label = 'putInt3' id = 9
 ++++ finished: begin run: stream = 0 run = 3 time = 105000001
 ++++ starting: begin run: stream = 0 run = 3 time = 105000001
 ++++ finished: begin run: stream = 0 run = 3 time = 105000001
@@ -5153,12 +5125,12 @@
 ++++ starting: begin lumi: stream = 0 run = 3 lumi = 1 time = 105000001
 ++++ finished: begin lumi: stream = 0 run = 3 lumi = 1 time = 105000001
 ++++ starting: begin lumi: stream = 0 run = 3 lumi = 1 time = 105000001
-++++++ starting: begin lumi for module: stream = 0 label = 'putInt3' id = 9
-++++++ finished: begin lumi for module: stream = 0 label = 'putInt3' id = 9
-++++++ starting: begin lumi for module: stream = 0 label = 'putInt2' id = 8
-++++++ finished: begin lumi for module: stream = 0 label = 'putInt2' id = 8
 ++++++ starting: begin lumi for module: stream = 0 label = 'putInt' id = 7
 ++++++ finished: begin lumi for module: stream = 0 label = 'putInt' id = 7
+++++++ starting: begin lumi for module: stream = 0 label = 'putInt2' id = 8
+++++++ finished: begin lumi for module: stream = 0 label = 'putInt2' id = 8
+++++++ starting: begin lumi for module: stream = 0 label = 'putInt3' id = 9
+++++++ finished: begin lumi for module: stream = 0 label = 'putInt3' id = 9
 ++++ finished: begin lumi: stream = 0 run = 3 lumi = 1 time = 105000001
 ++++ starting: begin lumi: stream = 0 run = 3 lumi = 1 time = 105000001
 ++++ finished: begin lumi: stream = 0 run = 3 lumi = 1 time = 105000001
@@ -5782,12 +5754,12 @@
 ++++ starting: end lumi: stream = 0 run = 3 lumi = 1 time = 0
 ++++ finished: end lumi: stream = 0 run = 3 lumi = 1 time = 0
 ++++ starting: end lumi: stream = 0 run = 3 lumi = 1 time = 0
-++++++ starting: end lumi for module: stream = 0 label = 'putInt3' id = 9
-++++++ finished: end lumi for module: stream = 0 label = 'putInt3' id = 9
-++++++ starting: end lumi for module: stream = 0 label = 'putInt2' id = 8
-++++++ finished: end lumi for module: stream = 0 label = 'putInt2' id = 8
 ++++++ starting: end lumi for module: stream = 0 label = 'putInt' id = 7
 ++++++ finished: end lumi for module: stream = 0 label = 'putInt' id = 7
+++++++ starting: end lumi for module: stream = 0 label = 'putInt2' id = 8
+++++++ finished: end lumi for module: stream = 0 label = 'putInt2' id = 8
+++++++ starting: end lumi for module: stream = 0 label = 'putInt3' id = 9
+++++++ finished: end lumi for module: stream = 0 label = 'putInt3' id = 9
 ++++ finished: end lumi: stream = 0 run = 3 lumi = 1 time = 0
 ++++ starting: end lumi: stream = 0 run = 3 lumi = 1 time = 0
 ++++ finished: end lumi: stream = 0 run = 3 lumi = 1 time = 0
@@ -5970,12 +5942,12 @@
 ++++ starting: begin lumi: stream = 0 run = 3 lumi = 2 time = 125000001
 ++++ finished: begin lumi: stream = 0 run = 3 lumi = 2 time = 125000001
 ++++ starting: begin lumi: stream = 0 run = 3 lumi = 2 time = 125000001
-++++++ starting: begin lumi for module: stream = 0 label = 'putInt3' id = 9
-++++++ finished: begin lumi for module: stream = 0 label = 'putInt3' id = 9
-++++++ starting: begin lumi for module: stream = 0 label = 'putInt2' id = 8
-++++++ finished: begin lumi for module: stream = 0 label = 'putInt2' id = 8
 ++++++ starting: begin lumi for module: stream = 0 label = 'putInt' id = 7
 ++++++ finished: begin lumi for module: stream = 0 label = 'putInt' id = 7
+++++++ starting: begin lumi for module: stream = 0 label = 'putInt2' id = 8
+++++++ finished: begin lumi for module: stream = 0 label = 'putInt2' id = 8
+++++++ starting: begin lumi for module: stream = 0 label = 'putInt3' id = 9
+++++++ finished: begin lumi for module: stream = 0 label = 'putInt3' id = 9
 ++++ finished: begin lumi: stream = 0 run = 3 lumi = 2 time = 125000001
 ++++ starting: begin lumi: stream = 0 run = 3 lumi = 2 time = 125000001
 ++++ finished: begin lumi: stream = 0 run = 3 lumi = 2 time = 125000001
@@ -6599,12 +6571,12 @@
 ++++ starting: end lumi: stream = 0 run = 3 lumi = 2 time = 0
 ++++ finished: end lumi: stream = 0 run = 3 lumi = 2 time = 0
 ++++ starting: end lumi: stream = 0 run = 3 lumi = 2 time = 0
-++++++ starting: end lumi for module: stream = 0 label = 'putInt3' id = 9
-++++++ finished: end lumi for module: stream = 0 label = 'putInt3' id = 9
-++++++ starting: end lumi for module: stream = 0 label = 'putInt2' id = 8
-++++++ finished: end lumi for module: stream = 0 label = 'putInt2' id = 8
 ++++++ starting: end lumi for module: stream = 0 label = 'putInt' id = 7
 ++++++ finished: end lumi for module: stream = 0 label = 'putInt' id = 7
+++++++ starting: end lumi for module: stream = 0 label = 'putInt2' id = 8
+++++++ finished: end lumi for module: stream = 0 label = 'putInt2' id = 8
+++++++ starting: end lumi for module: stream = 0 label = 'putInt3' id = 9
+++++++ finished: end lumi for module: stream = 0 label = 'putInt3' id = 9
 ++++ finished: end lumi: stream = 0 run = 3 lumi = 2 time = 0
 ++++ starting: end lumi: stream = 0 run = 3 lumi = 2 time = 0
 ++++ finished: end lumi: stream = 0 run = 3 lumi = 2 time = 0
@@ -6787,12 +6759,12 @@
 ++++ starting: begin lumi: stream = 0 run = 3 lumi = 3 time = 145000001
 ++++ finished: begin lumi: stream = 0 run = 3 lumi = 3 time = 145000001
 ++++ starting: begin lumi: stream = 0 run = 3 lumi = 3 time = 145000001
-++++++ starting: begin lumi for module: stream = 0 label = 'putInt3' id = 9
-++++++ finished: begin lumi for module: stream = 0 label = 'putInt3' id = 9
-++++++ starting: begin lumi for module: stream = 0 label = 'putInt2' id = 8
-++++++ finished: begin lumi for module: stream = 0 label = 'putInt2' id = 8
 ++++++ starting: begin lumi for module: stream = 0 label = 'putInt' id = 7
 ++++++ finished: begin lumi for module: stream = 0 label = 'putInt' id = 7
+++++++ starting: begin lumi for module: stream = 0 label = 'putInt2' id = 8
+++++++ finished: begin lumi for module: stream = 0 label = 'putInt2' id = 8
+++++++ starting: begin lumi for module: stream = 0 label = 'putInt3' id = 9
+++++++ finished: begin lumi for module: stream = 0 label = 'putInt3' id = 9
 ++++ finished: begin lumi: stream = 0 run = 3 lumi = 3 time = 145000001
 ++++ starting: begin lumi: stream = 0 run = 3 lumi = 3 time = 145000001
 ++++ finished: begin lumi: stream = 0 run = 3 lumi = 3 time = 145000001
@@ -7112,12 +7084,12 @@
 ++++ starting: end lumi: stream = 0 run = 3 lumi = 3 time = 0
 ++++ finished: end lumi: stream = 0 run = 3 lumi = 3 time = 0
 ++++ starting: end lumi: stream = 0 run = 3 lumi = 3 time = 0
-++++++ starting: end lumi for module: stream = 0 label = 'putInt3' id = 9
-++++++ finished: end lumi for module: stream = 0 label = 'putInt3' id = 9
-++++++ starting: end lumi for module: stream = 0 label = 'putInt2' id = 8
-++++++ finished: end lumi for module: stream = 0 label = 'putInt2' id = 8
 ++++++ starting: end lumi for module: stream = 0 label = 'putInt' id = 7
 ++++++ finished: end lumi for module: stream = 0 label = 'putInt' id = 7
+++++++ starting: end lumi for module: stream = 0 label = 'putInt2' id = 8
+++++++ finished: end lumi for module: stream = 0 label = 'putInt2' id = 8
+++++++ starting: end lumi for module: stream = 0 label = 'putInt3' id = 9
+++++++ finished: end lumi for module: stream = 0 label = 'putInt3' id = 9
 ++++ finished: end lumi: stream = 0 run = 3 lumi = 3 time = 0
 ++++ starting: end lumi: stream = 0 run = 3 lumi = 3 time = 0
 ++++ finished: end lumi: stream = 0 run = 3 lumi = 3 time = 0
@@ -7222,12 +7194,12 @@
 ++++ starting: end run: stream = 0 run = 3 time = 0
 ++++ finished: end run: stream = 0 run = 3 time = 0
 ++++ starting: end run: stream = 0 run = 3 time = 0
-++++++ starting: end run for module: stream = 0 label = 'putInt3' id = 9
-++++++ finished: end run for module: stream = 0 label = 'putInt3' id = 9
-++++++ starting: end run for module: stream = 0 label = 'putInt2' id = 8
-++++++ finished: end run for module: stream = 0 label = 'putInt2' id = 8
 ++++++ starting: end run for module: stream = 0 label = 'putInt' id = 7
 ++++++ finished: end run for module: stream = 0 label = 'putInt' id = 7
+++++++ starting: end run for module: stream = 0 label = 'putInt2' id = 8
+++++++ finished: end run for module: stream = 0 label = 'putInt2' id = 8
+++++++ starting: end run for module: stream = 0 label = 'putInt3' id = 9
+++++++ finished: end run for module: stream = 0 label = 'putInt3' id = 9
 ++++ finished: end run: stream = 0 run = 3 time = 0
 ++++ starting: end run: stream = 0 run = 3 time = 0
 ++++ finished: end run: stream = 0 run = 3 time = 0
@@ -7381,14 +7353,6 @@
 ++++ finished: end stream for module: stream = 0 label = 'getInt' id = 10
 ++++ starting: end stream for module: stream = 0 label = 'noPut' id = 11
 ++++ finished: end stream for module: stream = 0 label = 'noPut' id = 11
-++++ starting: end stream for module: stream = 0 label = 'TriggerResults' id = 1
-++++ finished: end stream for module: stream = 0 label = 'TriggerResults' id = 1
-++++ starting: end stream for module: stream = 0 label = 'p1' id = 2
-++++ finished: end stream for module: stream = 0 label = 'p1' id = 2
-++++ starting: end stream for module: stream = 0 label = 'path1' id = 3
-++++ finished: end stream for module: stream = 0 label = 'path1' id = 3
-++++ starting: end stream for module: stream = 0 label = 'path2' id = 4
-++++ finished: end stream for module: stream = 0 label = 'path2' id = 4
 ++++ starting: end stream for module: stream = 0 label = 'thingWithMergeProducer' id = 17
 ++++ finished: end stream for module: stream = 0 label = 'thingWithMergeProducer' id = 17
 ++++ starting: end stream for module: stream = 0 label = 'test' id = 18
@@ -7401,18 +7365,8 @@
 ++++ finished: end stream for module: stream = 0 label = 'getInt' id = 21
 ++++ starting: end stream for module: stream = 0 label = 'dependsOnNoPut' id = 22
 ++++ finished: end stream for module: stream = 0 label = 'dependsOnNoPut' id = 22
-++++ starting: end stream for module: stream = 0 label = 'TriggerResults' id = 12
-++++ finished: end stream for module: stream = 0 label = 'TriggerResults' id = 12
 ++++ starting: end stream for module: stream = 0 label = 'out' id = 23
 ++++ finished: end stream for module: stream = 0 label = 'out' id = 23
-++++ starting: end stream for module: stream = 0 label = 'path1' id = 13
-++++ finished: end stream for module: stream = 0 label = 'path1' id = 13
-++++ starting: end stream for module: stream = 0 label = 'path2' id = 14
-++++ finished: end stream for module: stream = 0 label = 'path2' id = 14
-++++ starting: end stream for module: stream = 0 label = 'path3' id = 15
-++++ finished: end stream for module: stream = 0 label = 'path3' id = 15
-++++ starting: end stream for module: stream = 0 label = 'path4' id = 16
-++++ finished: end stream for module: stream = 0 label = 'path4' id = 16
 ++++ starting: end stream for module: stream = 0 label = 'thingWithMergeProducer' id = 29
 ++++ finished: end stream for module: stream = 0 label = 'thingWithMergeProducer' id = 29
 ++++ starting: end stream for module: stream = 0 label = 'test' id = 30
@@ -7425,18 +7379,8 @@
 ++++ finished: end stream for module: stream = 0 label = 'getInt' id = 33
 ++++ starting: end stream for module: stream = 0 label = 'dependsOnNoPut' id = 34
 ++++ finished: end stream for module: stream = 0 label = 'dependsOnNoPut' id = 34
-++++ starting: end stream for module: stream = 0 label = 'TriggerResults' id = 24
-++++ finished: end stream for module: stream = 0 label = 'TriggerResults' id = 24
 ++++ starting: end stream for module: stream = 0 label = 'out' id = 35
 ++++ finished: end stream for module: stream = 0 label = 'out' id = 35
-++++ starting: end stream for module: stream = 0 label = 'path1' id = 25
-++++ finished: end stream for module: stream = 0 label = 'path1' id = 25
-++++ starting: end stream for module: stream = 0 label = 'path2' id = 26
-++++ finished: end stream for module: stream = 0 label = 'path2' id = 26
-++++ starting: end stream for module: stream = 0 label = 'path3' id = 27
-++++ finished: end stream for module: stream = 0 label = 'path3' id = 27
-++++ starting: end stream for module: stream = 0 label = 'path4' id = 28
-++++ finished: end stream for module: stream = 0 label = 'path4' id = 28
 ++++ starting: end job for module with label 'thingWithMergeProducer' id = 5
 ++++ finished: end job for module with label 'thingWithMergeProducer' id = 5
 ++++ starting: end job for module with label 'get' id = 6

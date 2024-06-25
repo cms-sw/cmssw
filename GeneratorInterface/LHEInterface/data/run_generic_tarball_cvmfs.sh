@@ -69,8 +69,20 @@ tar -xaf ${path}
 # and fallback to /tmp
 export TMPDIR=${TMPDIR:-${_CONDOR_SCRATCH_DIR:-/tmp}}
 
+# define singularity
+if [ "$use_gridpack_env" != false ]; then
+    if [ -n "$scram_arch_version" ]; then
+        sing=$(echo ${scram_arch_version} | sed -E 's/^[^0-9]*([0-9]{1,2}).*/\1/')
+    elif egrep -q "scram_arch_version=[^$]" runcmsgrid.sh; then
+        sing=$(grep "scram_arch_version=[^$]" runcmsgrid.sh | sed -E 's/^[^0-9]*([0-9]{1,2}).*/\1/')
+    fi
+    if [ -n "${sing}" ]; then
+        sing="cmssw-el"${sing}" --"
+    fi
+fi
+
 #generate events
-./runcmsgrid.sh $nevt $rnum $ncpu ${@:5}
+${sing} ./runcmsgrid.sh $nevt $rnum $ncpu ${@:5}
 
 mv cmsgrid_final.lhe $LHEWORKDIR/
 

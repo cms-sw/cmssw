@@ -28,7 +28,7 @@ from builtins import range
 import sys, os, inspect, copy, struct, dis, imp
 import modulefinder
 
-def packageNameFromFilename(name):
+def packageNameFromFilename(name:str) -> str:
     return ".".join(name.replace("python/","").replace(".py","").split("/")[-3:])
 
 
@@ -59,7 +59,7 @@ class Package(object):
             self.module = None
         else:    
             self.module = __import__(name,[],[],"*")
-    def dump(self,level):
+    def dump(self,level:int):
         indent = "  " * level
         print(indent, "+", Color.info, self.name, Color.none)
         # sort dependencies alphabetically
@@ -284,7 +284,7 @@ def transformIntoGraph(depgraph,toplevel):
     return packageDict[toplevel]
 
 
-def getDependenciesFromPythonFile(filename,toplevelname,path):
+def getDependenciesFromPythonFile(filename:str,toplevelname,path):
     modulefinder = mymf(path)
     modulefinder.run_script(filename)
     globalDependencyDict = modulefinder._depgraph
@@ -292,7 +292,7 @@ def getDependenciesFromPythonFile(filename,toplevelname,path):
     return globalDependencyDict
 
 
-def getImportTree(filename,path):
+def getImportTree(filename:str,path):
     toplevelname = packageNameFromFilename(filename)
     # get dependencies from given file
     globalDependencyDict = getDependenciesFromPythonFile(filename,toplevelname,path)

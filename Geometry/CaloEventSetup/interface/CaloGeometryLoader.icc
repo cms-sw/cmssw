@@ -21,7 +21,7 @@
 #include "DetectorDescription/Core/interface/DDFilter.h"
 
 #include "DD4hep/Filter.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include <CLHEP/Units/SystemOfUnits.h>
 
 #include <boost/algorithm/string/predicate.hpp>
 

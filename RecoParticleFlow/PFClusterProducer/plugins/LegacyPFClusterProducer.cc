@@ -48,16 +48,18 @@ public:
     //setup pf cluster builder if requested
     const edm::ParameterSet& pfcConf = config.getParameterSet("pfClusterBuilder");
     if (!pfcConf.empty()) {
-      if (pfcConf.exists("positionCalc")) {
-        const edm::ParameterSet& acConf = pfcConf.getParameterSet("positionCalc");
+      const auto& acConf = pfcConf.getParameterSet("positionCalc");
+      if (!acConf.empty()) {
         const std::string& algoac = acConf.getParameter<std::string>("algoName");
-        positionCalc_ = PFCPositionCalculatorFactory::get()->create(algoac, acConf, cc);
+        if (!algoac.empty())
+          positionCalc_ = PFCPositionCalculatorFactory::get()->create(algoac, acConf, cc);
       }
 
-      if (pfcConf.exists("allCellsPositionCalc")) {
-        const edm::ParameterSet& acConf = pfcConf.getParameterSet("allCellsPositionCalc");
-        const std::string& algoac = acConf.getParameter<std::string>("algoName");
-        allCellsPositionCalc_ = PFCPositionCalculatorFactory::get()->create(algoac, acConf, cc);
+      const auto& acConf2 = pfcConf.getParameterSet("allCellsPositionCalc");
+      if (!acConf2.empty()) {
+        const std::string& algoac = acConf2.getParameter<std::string>("algoName");
+        if (!algoac.empty())
+          allCellsPositionCalc_ = PFCPositionCalculatorFactory::get()->create(algoac, acConf2, cc);
       }
     }
   }
@@ -82,6 +84,7 @@ public:
       pfClusterBuilder.add<double>("minChi2Prob", 0.);
       pfClusterBuilder.add<bool>("clusterTimeResFromSeed", false);
       pfClusterBuilder.add<std::string>("algoName", "");
+      pfClusterBuilder.add<edm::ParameterSetDescription>("positionCalcForConvergence", {});
       {
         edm::ParameterSetDescription validator;
         validator.add<std::string>("detector", "");
@@ -116,6 +119,8 @@ public:
           bar.addVPSet("logWeightDenominatorByDetector", validator, vDefaults);
         }
         bar.add<double>("minAllowedNormalization", 1e-9);
+        bar.add<edm::ParameterSetDescription>("timeResolutionCalcBarrel", {});
+        bar.add<edm::ParameterSetDescription>("timeResolutionCalcEndcap", {});
         pfClusterBuilder.add("positionCalc", bar);
       }
       {
@@ -138,6 +143,8 @@ public:
           bar.addVPSet("logWeightDenominatorByDetector", validator, vDefaults);
         }
         bar.add<double>("minAllowedNormalization", 1e-9);
+        bar.add<edm::ParameterSetDescription>("timeResolutionCalcBarrel", {});
+        bar.add<edm::ParameterSetDescription>("timeResolutionCalcEndcap", {});
         pfClusterBuilder.add("allCellsPositionCalc", bar);
       }
       {
@@ -197,41 +204,45 @@ void LegacyPFClusterProducer::produce(edm::Event& event, const edm::EventSetup& 
   auto const& pfClusterSoA = event.get(pfClusterSoAToken_).const_view();
   auto const& pfRecHitFractionSoA = event.get(pfRecHitFractionSoAToken_).const_view();
 
-  int nRH = pfRecHits.view().size();
+  int nRH = 0;
+  if (pfRecHits->metadata().size() != 0)
+    nRH = pfRecHits.view().size();
   reco::PFClusterCollection out;
   out.reserve(nRH);
 
   auto const rechitsHandle = event.getHandle(recHitsLabel_);
 
-  // Build PFClusters in legacy format
-  std::vector<int> nTopoSeeds(nRH, 0);
+  if (nRH != 0) {
+    // Build PFClusters in legacy format
+    std::vector<int> nTopoSeeds(nRH, 0);
 
-  for (int i = 0; i < pfClusterSoA.nSeeds(); i++) {
-    nTopoSeeds[pfClusterSoA[i].topoId()]++;
-  }
+    for (int i = 0; i < pfClusterSoA.nSeeds(); i++) {
+      nTopoSeeds[pfClusterSoA[i].topoId()]++;
+    }
 
-  // Looping over SoA PFClusters to produce legacy PFCluster collection
-  for (int i = 0; i < pfClusterSoA.nSeeds(); i++) {
-    unsigned int n = pfClusterSoA[i].seedRHIdx();
-    reco::PFCluster temp;
-    temp.setSeed((*rechitsHandle)[n].detId());  // Pulling the detId of this PFRecHit from the legacy format input
-    int offset = pfClusterSoA[i].rhfracOffset();
-    for (int k = offset; k < (offset + pfClusterSoA[i].rhfracSize()) && k >= 0;
-         k++) {  // Looping over PFRecHits in the same topo cluster
-      if (pfRecHitFractionSoA[k].pfrhIdx() < nRH && pfRecHitFractionSoA[k].pfrhIdx() > -1 &&
-          pfRecHitFractionSoA[k].frac() > 0.0) {
-        const reco::PFRecHitRef& refhit = reco::PFRecHitRef(rechitsHandle, pfRecHitFractionSoA[k].pfrhIdx());
-        temp.addRecHitFraction(reco::PFRecHitFraction(refhit, pfRecHitFractionSoA[k].frac()));
+    // Looping over SoA PFClusters to produce legacy PFCluster collection
+    for (int i = 0; i < pfClusterSoA.nSeeds(); i++) {
+      unsigned int n = pfClusterSoA[i].seedRHIdx();
+      reco::PFCluster temp;
+      temp.setSeed((*rechitsHandle)[n].detId());  // Pulling the detId of this PFRecHit from the legacy format input
+      int offset = pfClusterSoA[i].rhfracOffset();
+      for (int k = offset; k < (offset + pfClusterSoA[i].rhfracSize()) && k >= 0;
+           k++) {  // Looping over PFRecHits in the same topo cluster
+        if (pfRecHitFractionSoA[k].pfrhIdx() < nRH && pfRecHitFractionSoA[k].pfrhIdx() > -1 &&
+            pfRecHitFractionSoA[k].frac() > 0.0) {
+          const reco::PFRecHitRef& refhit = reco::PFRecHitRef(rechitsHandle, pfRecHitFractionSoA[k].pfrhIdx());
+          temp.addRecHitFraction(reco::PFRecHitFraction(refhit, pfRecHitFractionSoA[k].frac()));
+        }
       }
-    }
 
-    // Now PFRecHitFraction of this PFCluster is set. Now compute calculateAndSetPosition (energy, position etc)
-    if (nTopoSeeds[pfClusterSoA[i].topoId()] == 1 && allCellsPositionCalc_) {
-      allCellsPositionCalc_->calculateAndSetPosition(temp, paramPF);
-    } else {
-      positionCalc_->calculateAndSetPosition(temp, paramPF);
+      // Now PFRecHitFraction of this PFCluster is set. Now compute calculateAndSetPosition (energy, position etc)
+      if (nTopoSeeds[pfClusterSoA[i].topoId()] == 1 && allCellsPositionCalc_) {
+        allCellsPositionCalc_->calculateAndSetPosition(temp, paramPF);
+      } else {
+        positionCalc_->calculateAndSetPosition(temp, paramPF);
+      }
+      out.emplace_back(std::move(temp));
     }
-    out.emplace_back(std::move(temp));
   }
 
   event.emplace(legacyPfClustersToken_, std::move(out));

@@ -28,6 +28,8 @@
 
 #include "SimDataFormats/CaloAnalysis/interface/CaloParticle.h"
 #include "SimDataFormats/CaloAnalysis/interface/SimCluster.h"
+#include "SimDataFormats/CaloAnalysis/interface/MtdSimTrackster.h"
+#include "SimDataFormats/CaloAnalysis/interface/MtdSimTracksterFwd.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 
 #include "SimDataFormats/Vertex/interface/SimVertex.h"
@@ -37,7 +39,7 @@
 
 #include "SimDataFormats/Associations/interface/TrackToTrackingParticleAssociator.h"
 
-#include "RecoHGCal/TICL/interface/commons.h"
+#include "DataFormats/HGCalReco/interface/Common.h"
 
 #include "TrackstersPCA.h"
 #include <vector>
@@ -67,7 +69,7 @@ public:
                     const float energy,
                     const int pdgId,
                     const int charge,
-                    float time,
+                    const float time,
                     const edm::ProductID seed,
                     const Trackster::IterationIndex iter,
                     std::vector<float>& output_mask,
@@ -78,15 +80,17 @@ public:
 private:
   std::string detector_;
   const bool doNose_ = false;
+  const bool computeLocalTime_;
   const edm::EDGetTokenT<std::vector<reco::CaloCluster>> clusters_token_;
   const edm::EDGetTokenT<edm::ValueMap<std::pair<float, float>>> clustersTime_token_;
   const edm::EDGetTokenT<std::vector<float>> filtered_layerclusters_mask_token_;
 
   const edm::EDGetTokenT<std::vector<SimCluster>> simclusters_token_;
   const edm::EDGetTokenT<std::vector<CaloParticle>> caloparticles_token_;
+  const edm::EDGetTokenT<MtdSimTracksterCollection> MTDSimTrackstersToken_;
 
-  const edm::EDGetTokenT<hgcal::SimToRecoCollectionWithSimClusters> associatorMapSimClusterToReco_token_;
-  const edm::EDGetTokenT<hgcal::SimToRecoCollection> associatorMapCaloParticleToReco_token_;
+  const edm::EDGetTokenT<ticl::SimToRecoCollectionWithSimClusters> associatorMapSimClusterToReco_token_;
+  const edm::EDGetTokenT<ticl::SimToRecoCollection> associatorMapCaloParticleToReco_token_;
   const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geom_token_;
   hgcal::RecHitTools rhtools_;
   const float fractionCut_;
@@ -107,11 +111,13 @@ DEFINE_FWK_MODULE(SimTrackstersProducer);
 SimTrackstersProducer::SimTrackstersProducer(const edm::ParameterSet& ps)
     : detector_(ps.getParameter<std::string>("detector")),
       doNose_(detector_ == "HFNose"),
+      computeLocalTime_(ps.getParameter<bool>("computeLocalTime")),
       clusters_token_(consumes(ps.getParameter<edm::InputTag>("layer_clusters"))),
       clustersTime_token_(consumes(ps.getParameter<edm::InputTag>("time_layerclusters"))),
       filtered_layerclusters_mask_token_(consumes(ps.getParameter<edm::InputTag>("filtered_mask"))),
       simclusters_token_(consumes(ps.getParameter<edm::InputTag>("simclusters"))),
       caloparticles_token_(consumes(ps.getParameter<edm::InputTag>("caloparticles"))),
+      MTDSimTrackstersToken_(consumes<MtdSimTracksterCollection>(ps.getParameter<edm::InputTag>("MtdSimTracksters"))),
       associatorMapSimClusterToReco_token_(
           consumes(ps.getParameter<edm::InputTag>("layerClusterSimClusterAssociator"))),
       associatorMapCaloParticleToReco_token_(
@@ -138,11 +144,13 @@ SimTrackstersProducer::SimTrackstersProducer(const edm::ParameterSet& ps)
 void SimTrackstersProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<std::string>("detector", "HGCAL");
+  desc.add<bool>("computeLocalTime", "false");
   desc.add<edm::InputTag>("layer_clusters", edm::InputTag("hgcalMergeLayerClusters"));
   desc.add<edm::InputTag>("time_layerclusters", edm::InputTag("hgcalMergeLayerClusters", "timeLayerCluster"));
   desc.add<edm::InputTag>("filtered_mask", edm::InputTag("filteredLayerClustersSimTracksters", "ticlSimTracksters"));
   desc.add<edm::InputTag>("simclusters", edm::InputTag("mix", "MergedCaloTruth"));
   desc.add<edm::InputTag>("caloparticles", edm::InputTag("mix", "MergedCaloTruth"));
+  desc.add<edm::InputTag>("MtdSimTracksters", edm::InputTag("mix", "MergedMtdTruthST"));
   desc.add<edm::InputTag>("layerClusterSimClusterAssociator",
                           edm::InputTag("layerClusterSimClusterAssociationProducer"));
   desc.add<edm::InputTag>("layerClusterCaloParticleAssociator",
@@ -170,7 +178,7 @@ void SimTrackstersProducer::makePUTrackster(const std::vector<float>& inputClust
   Trackster tmpTrackster;
   for (size_t i = 0; i < output_mask.size(); i++) {
     const float remaining_fraction = output_mask[i];
-    if (remaining_fraction > 0.) {
+    if (remaining_fraction > std::numeric_limits<float>::epsilon()) {
       tmpTrackster.vertices().push_back(i);
       tmpTrackster.vertex_multiplicity().push_back(1. / remaining_fraction);
     }
@@ -217,6 +225,7 @@ void SimTrackstersProducer::addTrackster(
   tmpTrackster.setRegressedEnergy(energy);
   tmpTrackster.setIteration(iter);
   tmpTrackster.setSeed(seed, index);
+  tmpTrackster.setBoundaryTime(time * 1e9);
   if (add) {
     result[index] = tmpTrackster;
     loop_index += 1;
@@ -244,6 +253,9 @@ void SimTrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
   edm::Handle<std::vector<CaloParticle>> caloParticles_h;
   evt.getByToken(caloparticles_token_, caloParticles_h);
   const auto& caloparticles = *caloParticles_h;
+
+  edm::Handle<MtdSimTracksterCollection> MTDSimTracksters_h;
+  evt.getByToken(MTDSimTrackstersToken_, MTDSimTracksters_h);
 
   const auto& simClustersToRecoColl = evt.get(associatorMapSimClusterToReco_token_);
   const auto& caloParticlesToRecoColl = evt.get(associatorMapCaloParticleToReco_token_);
@@ -353,11 +365,17 @@ void SimTrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
   }
   // TODO: remove time computation from PCA calculation and
   //       store time from boundary position in simTracksters
-  ticl::assignPCAtoTracksters(
-      *result, layerClusters, layerClustersTimes, rhtools_.getPositionLayer(rhtools_.lastLayerEE(doNose_)).z());
+  ticl::assignPCAtoTracksters(*result,
+                              layerClusters,
+                              layerClustersTimes,
+                              rhtools_.getPositionLayer(rhtools_.lastLayerEE(doNose_)).z(),
+                              computeLocalTime_);
   result->shrink_to_fit();
-  ticl::assignPCAtoTracksters(
-      *result_fromCP, layerClusters, layerClustersTimes, rhtools_.getPositionLayer(rhtools_.lastLayerEE(doNose_)).z());
+  ticl::assignPCAtoTracksters(*result_fromCP,
+                              layerClusters,
+                              layerClustersTimes,
+                              rhtools_.getPositionLayer(rhtools_.lastLayerEE(doNose_)).z(),
+                              computeLocalTime_);
 
   makePUTrackster(inputClusterMask, *output_mask, *resultPU, caloParticles_h.id(), 0);
 
@@ -412,6 +430,13 @@ void SimTrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
 
   edm::OrphanHandle<std::vector<Trackster>> simTracksters_h = evt.put(std::move(result));
 
+  // map between simTrack and Mtd SimTracksters to loop on them only one
+  std::unordered_map<unsigned int, const MtdSimTrackster*> SimTrackToMtdST;
+  for (unsigned int i = 0; i < MTDSimTracksters_h->size(); ++i) {
+    const auto& simTrack = (*MTDSimTracksters_h)[i].g4Tracks()[0];
+    SimTrackToMtdST[simTrack.trackId()] = &((*MTDSimTracksters_h)[i]);
+  }
+
   result_ticlCandidates->resize(result_fromCP->size());
   std::vector<int> toKeep;
   for (size_t i = 0; i < simTracksters_h->size(); ++i) {
@@ -425,10 +450,6 @@ void SimTrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
 
       auto& cand = (*result_ticlCandidates)[cp_index];
       cand.addTrackster(edm::Ptr<Trackster>(simTracksters_h, i));
-      if (trackIndex != -1 and (trackIndex < 0 or trackIndex >= (long int)recoTracks.size())) {
-      }
-      cand.setTime((*result_fromCP)[cp_index].time());
-      cand.setTimeError(0);
       if (trackIndex != -1 && caloparticles[cp_index].charge() != 0)
         cand.setTrackPtr(edm::Ptr<reco::Track>(recoTracks_h, trackIndex));
       toKeep.push_back(cp_index);
@@ -451,6 +472,16 @@ void SimTrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
     float rawEnergy = 0.f;
     float regressedEnergy = 0.f;
 
+    const auto& simTrack = cp.g4Tracks()[0];
+    auto pos = SimTrackToMtdST.find(simTrack.trackId());
+    if (pos != SimTrackToMtdST.end()) {
+      auto MTDst = pos->second;
+      // TODO: once the associators have been implemented check if the MTDst is associated with a reco before adding the MTD time
+      cand.setMTDTime(MTDst->time(), 0);
+    }
+
+    cand.setTime(simVertices[cp.g4Tracks()[0].vertIndex()].position().t() * pow(10, 9), 0);
+
     for (const auto& trackster : cand.tracksters()) {
       rawEnergy += trackster->raw_energy();
       regressedEnergy += trackster->regressed_energy();
@@ -459,9 +490,7 @@ void SimTrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
 
     auto pdgId = cp.pdgId();
     auto charge = cp.charge();
-    if (cand.trackPtr().isNonnull() and charge == 0) {
-    }
-    if (cand.trackPtr().isNonnull() and charge != 0) {
+    if (cand.trackPtr().isNonnull()) {
       auto const& track = cand.trackPtr().get();
       if (std::abs(pdgId) == 13) {
         cand.setPdgId(pdgId);
@@ -475,7 +504,14 @@ void SimTrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
                                  regressedEnergy);
       cand.setP4(p4);
     } else {  // neutral candidates
-      cand.setPdgId(isHad(pdgId) ? 130 : 22);
+      // a neutral candidate with a charged CaloParticle is charged without a reco track associated with it
+      // set the charge = 0, but keep the real pdgId to keep track of that
+      if (charge != 0)
+        cand.setPdgId(isHad(pdgId) ? 211 : 11);
+      else if (pdgId == 111)
+        cand.setPdgId(pdgId);
+      else
+        cand.setPdgId(isHad(pdgId) ? 130 : 22);
       cand.setCharge(0);
 
       auto particleType = tracksterParticleTypeFromPdgId(cand.pdgId(), 1);

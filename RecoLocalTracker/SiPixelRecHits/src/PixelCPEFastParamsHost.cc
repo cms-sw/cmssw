@@ -220,11 +220,20 @@ void PixelCPEFastParamsHost<TrackerTraits>::fillParamsForDevice() {
     // sample x by charge
     int qbin = pixelCPEforDevice::kGenErrorQBins;  // low charge
     int k = 0;
-    for (int qclus = 1000; qclus < 200000; qclus += 1000) {
+    int qClusIncrement = 100;
+    for (int qclus = 1000; k < pixelCPEforDevice::kGenErrorQBins;
+         qclus += qClusIncrement) {  //increase charge until we cover all qBin categories
       errorFromTemplates(p, cp, qclus);
       if (cp.qBin_ == qbin)
         continue;
       qbin = cp.qBin_;
+      //There are two qBin categories with low charge. Their qBins are 5 and 4 (pixelCPEforDevice::kGenErrorQBins, pixelCPEforDevice::kGenErrorQBins-1)
+      //We increment charge until qBin gets switched from 5 and then we start writing detParams as we are not interested in cases with qBin=5
+      //The problem is that with a too large qClusIncrement, we may go directly from 5 to 3, breaking the logic of the for loop
+      //Therefore, we start with lower increment (100) until we get to qBin=4
+      if (qbin < pixelCPEforDevice::kGenErrorQBins) {
+        qClusIncrement = 1000;
+      }
       g.xfact[k] = cp.sigmax;
       g.yfact[k] = cp.sigmay;
       g.minCh[k++] = qclus;
@@ -386,13 +395,6 @@ void PixelCPEFastParamsHost<TrackerTraits>::errorFromTemplates(DetParam const& t
   theClusterParam.sigmay = theClusterParam.sigmay * pixelCPEforDevice::micronsToCm;
   theClusterParam.sy1 = theClusterParam.sy1 * pixelCPEforDevice::micronsToCm;
   theClusterParam.sy2 = theClusterParam.sy2 * pixelCPEforDevice::micronsToCm;
-}
-
-template <>
-void PixelCPEFastParamsHost<pixelTopology::Phase2>::errorFromTemplates(DetParam const& theDetParam,
-                                                                       ClusterParamGeneric& theClusterParam,
-                                                                       float qclus) const {
-  theClusterParam.qBin_ = 0.0f;
 }
 
 //-----------------------------------------------------------------------------

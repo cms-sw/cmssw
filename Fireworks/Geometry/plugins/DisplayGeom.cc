@@ -55,6 +55,8 @@ public:
   explicit DisplayGeom(const edm::ParameterSet&);
   ~DisplayGeom() override;
 
+  static void fillDescriptions(edm::ConfigurationDescriptions&);
+
 protected:
   TEveGeoTopNode* make_node(const TString& path, Int_t vis_level, Bool_t global_cs);
 
@@ -70,7 +72,9 @@ private:
 
   int m_level;
 
-  bool m_MF;
+  typedef std::vector<std::string> vstring;
+  vstring m_nodes;
+
   int m_MF_component;
   std::vector<double> m_MF_plane_d0;
   std::vector<double> m_MF_plane_d1;
@@ -93,14 +97,12 @@ DEFINE_FWK_MODULE(DisplayGeom);
 DisplayGeom::DisplayGeom(const edm::ParameterSet& iConfig)
     : m_eve(),
       m_geomList(nullptr),
+      m_level(iConfig.getUntrackedParameter<int>("level")),
+      m_nodes(iConfig.getUntrackedParameter<vstring>("nodes")),
       m_MF_component(0),
       m_geomWatcher(this, &DisplayGeom::remakeGeometry),
       m_displayGeomToken(esConsumes()) {
-  m_level = iConfig.getUntrackedParameter<int>("level", 2);  // Geometry level to visualize
-
-  m_MF = iConfig.getUntrackedParameter<int>("MF", false);  // Show the MF geometry, instead of detector geometry
-
-  std::string component = iConfig.getUntrackedParameter<std::string>("MF_component", "NONE");
+  std::string component = iConfig.getUntrackedParameter<std::string>("MF_component");
   boost::algorithm::to_upper(component);
 
   if (component == "NONE") {
@@ -121,18 +123,18 @@ DisplayGeom::DisplayGeom(const edm::ParameterSet& iConfig)
 
   if (m_MF_component != -1) {
     m_magFieldToken = esConsumes();
-  }
 
-  if (m_MF_component == 0) {
-    m_MF_plane_d0 = iConfig.getUntrackedParameter<std::vector<double> >("MF_plane_d0", std::vector<double>(3, 0.0));
-    m_MF_plane_d1 = iConfig.getParameter<std::vector<double> >("MF_plane_d1");
-    m_MF_plane_d2 = iConfig.getParameter<std::vector<double> >("MF_plane_d2");
+    m_MF_plane_d0 = iConfig.getUntrackedParameter<std::vector<double> >("MF_plane_d0");
+    m_MF_plane_d1 = iConfig.getUntrackedParameter<std::vector<double> >("MF_plane_d1");
+    m_MF_plane_d2 = iConfig.getUntrackedParameter<std::vector<double> >("MF_plane_d2");
 
-    m_MF_plane_N1 = iConfig.getUntrackedParameter<UInt_t>("MF_plane_N", 100);
-    m_MF_plane_N2 = iConfig.getUntrackedParameter<UInt_t>("MF_plane_N2", m_MF_plane_N1);
+    m_MF_plane_N1 = iConfig.getUntrackedParameter<int>("MF_plane_N");
+    m_MF_plane_N2 = iConfig.getUntrackedParameter<int>("MF_plane_N2");
+    if (m_MF_plane_N2 < 0)
+      m_MF_plane_N2 = m_MF_plane_N1;
 
-    m_MF_plane_draw_dir = iConfig.getUntrackedParameter<int>("MF_plane_draw_dir", true);
-    m_MF_isPickable = iConfig.getUntrackedParameter<bool>("MF_pickable", true);
+    m_MF_plane_draw_dir = iConfig.getUntrackedParameter<int>("MF_plane_draw_dir");
+    m_MF_isPickable = iConfig.getUntrackedParameter<bool>("MF_pickable");
   }
 }
 
@@ -183,7 +185,7 @@ void DisplayGeom::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       } else if (m_MF_component == 4) {  //BR
         minval = -4000, maxval = 4000;
       } else if (m_MF_component == 5) {  //Bphi
-        minval = -1000, maxval = 1000;
+        minval = -200, maxval = 200;
       }
 
       TEveRGBAPalette* pal = new TEveRGBAPalette(minval, maxval);
@@ -276,7 +278,7 @@ void DisplayGeom::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
         }
       }
 
-      TEveScene* eps = gEve->SpawnNewScene("FillStyleScene");
+      TEveScene* eps = gEve->SpawnNewScene("MF Map");
       gEve->GetDefaultViewer()->AddScene(eps);
       eps->GetGLScene()->SetStyle(TGLRnrCtx::kFill);
       eps->AddElement(q);
@@ -304,6 +306,7 @@ void DisplayGeom::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       // 	 m_eve->AddElement(ps);
     }
   }
+  m_eve->getManager()->FullRedraw3D(true, true);
 }
 
 // ------------ method called once each job just before starting event loop  ------------
@@ -324,14 +327,29 @@ void DisplayGeom::remakeGeometry(const DisplayGeomRecord& dgRec) {
 
   TEveGeoManagerHolder _tgeo(const_cast<TGeoManager*>(&dgRec.get(m_displayGeomToken)));
 
-  // To have a full one, all detectors in one top-node:
-  // make_node("/cms:World_1/cms:CMSE_1", 4, kTRUE);
-
-  if (m_MF) {
-    make_node("/cms:World_1", m_level, kTRUE);
-  } else {
-    make_node("/cms:World_1/cms:CMSE_1/tracker:Tracker_1", m_level, kTRUE);
-    make_node("/cms:World_1/cms:CMSE_1/caloBase:CALO_1", m_level, kTRUE);
-    make_node("/cms:World_1/cms:CMSE_1/muonBase:MUON_1", m_level, kTRUE);
+  for (std::string& aNode : m_nodes) {
+    make_node(aNode, m_level, kTRUE);
   }
+}
+
+void DisplayGeom::fillDescriptions(edm::ConfigurationDescriptions& conf) {
+  edm::ParameterSetDescription desc;
+  desc.addUntracked<vstring>("nodes", vstring{"tracker:Tracker_1", "muonBase:MUON_1", "caloBase:CALO_1"})
+      ->setComment("List of nodes to visualize");
+  ;
+  desc.addUntracked<int>("level", 4)->setComment("Levels into the geometry hierarchy visualized at startup");
+  desc.addUntracked<std::string>("MF_component", "None")
+      ->setComment("Component of the MF to show: 'None', 'B', 'AbsBZ', 'AbsBR', 'AbsBphi', 'BR', 'Bphi'");
+  desc.addUntracked<std::vector<double> >("MF_plane_d0", std::vector<double>{0., -900., -2400.})
+      ->setComment("1st corner of MF map");
+  desc.addUntracked<std::vector<double> >("MF_plane_d1", std::vector<double>{0., -900., 2400.})
+      ->setComment("2nd corner of MF map");
+  desc.addUntracked<std::vector<double> >("MF_plane_d2", std::vector<double>{0., 900., -2400.})
+      ->setComment("3rd corner of MF map");
+  desc.addUntracked<int>("MF_plane_N", 200)->setComment("Number of bins for the MF map in 1st coord");
+  desc.addUntracked<int>("MF_plane_N2", -1)->setComment("Number of bins for the MF map in 2nd coord");
+  desc.addUntracked<int>("MF_plane_draw_dir", true)->setComment("Draw MF direction arrows (slow)");
+  desc.addUntracked<bool>("MF_pickable", false)->setComment("MF values are pickable (slow)");
+
+  conf.add("DisplayGeom", desc);
 }

@@ -33,24 +33,24 @@ namespace edmtest {
   class TestInputBlockCacheHolder0
       : public edm::global::impl::InputProcessBlockCacheHolder<edm::global::EDProducerBase> {
   public:
-    bool wantsProcessBlocks() const override { return true; }
-    bool wantsInputProcessBlocks() const override { return true; }
-    bool wantsGlobalRuns() const override { return true; }
-    bool wantsGlobalLuminosityBlocks() const override { return true; }
-    bool wantsStreamRuns() const override { return true; }
-    bool wantsStreamLuminosityBlocks() const override { return true; }
+    bool wantsProcessBlocks() const noexcept override { return true; }
+    bool wantsInputProcessBlocks() const noexcept override { return true; }
+    bool wantsGlobalRuns() const noexcept override { return true; }
+    bool wantsGlobalLuminosityBlocks() const noexcept override { return true; }
+    bool wantsStreamRuns() const noexcept override { return true; }
+    bool wantsStreamLuminosityBlocks() const noexcept override { return true; }
     void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override {}
   };
 
   class TestInputBlockCacheHolder1
       : public edm::global::impl::InputProcessBlockCacheHolder<edm::global::EDProducerBase, TestProcessBlockCacheA> {
   public:
-    bool wantsProcessBlocks() const override { return true; }
-    bool wantsInputProcessBlocks() const override { return true; }
-    bool wantsGlobalRuns() const override { return true; }
-    bool wantsGlobalLuminosityBlocks() const override { return true; }
-    bool wantsStreamRuns() const override { return true; }
-    bool wantsStreamLuminosityBlocks() const override { return true; }
+    bool wantsProcessBlocks() const noexcept override { return true; }
+    bool wantsInputProcessBlocks() const noexcept override { return true; }
+    bool wantsGlobalRuns() const noexcept override { return true; }
+    bool wantsGlobalLuminosityBlocks() const noexcept override { return true; }
+    bool wantsStreamRuns() const noexcept override { return true; }
+    bool wantsStreamLuminosityBlocks() const noexcept override { return true; }
     void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override {}
   };
 
@@ -58,12 +58,12 @@ namespace edmtest {
                                                                                             TestProcessBlockCacheA,
                                                                                             TestProcessBlockCacheB> {
   public:
-    bool wantsProcessBlocks() const override { return true; }
-    bool wantsInputProcessBlocks() const override { return true; }
-    bool wantsGlobalRuns() const override { return true; }
-    bool wantsGlobalLuminosityBlocks() const override { return true; }
-    bool wantsStreamRuns() const override { return true; }
-    bool wantsStreamLuminosityBlocks() const override { return true; }
+    bool wantsProcessBlocks() const noexcept override { return true; }
+    bool wantsInputProcessBlocks() const noexcept override { return true; }
+    bool wantsGlobalRuns() const noexcept override { return true; }
+    bool wantsGlobalLuminosityBlocks() const noexcept override { return true; }
+    bool wantsStreamRuns() const noexcept override { return true; }
+    bool wantsStreamLuminosityBlocks() const noexcept override { return true; }
     void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override {}
   };
 
@@ -72,12 +72,12 @@ namespace edmtest {
                                                                                             TestProcessBlockCacheB,
                                                                                             TestProcessBlockCacheC> {
   public:
-    bool wantsProcessBlocks() const override { return true; }
-    bool wantsInputProcessBlocks() const override { return true; }
-    bool wantsGlobalRuns() const override { return true; }
-    bool wantsGlobalLuminosityBlocks() const override { return true; }
-    bool wantsStreamRuns() const override { return true; }
-    bool wantsStreamLuminosityBlocks() const override { return true; }
+    bool wantsProcessBlocks() const noexcept override { return true; }
+    bool wantsInputProcessBlocks() const noexcept override { return true; }
+    bool wantsGlobalRuns() const noexcept override { return true; }
+    bool wantsGlobalLuminosityBlocks() const noexcept override { return true; }
+    bool wantsStreamRuns() const noexcept override { return true; }
+    bool wantsStreamLuminosityBlocks() const noexcept override { return true; }
     void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override {}
   };
 }  // namespace edmtest

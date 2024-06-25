@@ -1,0 +1,62 @@
+datasets:
+    MinBias2024A:
+        iovs: # if only one IOV is defined, take only that run?
+        - 333333
+        - 333336
+        - 333339
+        lastRun: 333340
+        dataset: /MinimumBias/Run2023C-TkAlMinBias-PromptReco-v1/ALCARECO
+        json: /eos/user/c/cmsdqm/www/CAF/certification/Collisions23/DCSOnly_JSON/Collisions23_13p6TeV_eraBCD_366403_370790_DCSOnly_TkPx.json 
+        
+        redo: False # if data set files already exist, redo skim?
+        
+        targetPath: /some/eos/path # where to transfer the files
+        
+        isCosmics: False
+        maxEvents: -1
+        trackSelection: MinBias # Or SingleMuon, DoubleMuon, etc
+        maxFileSize: 350000
+
+        globalTag: 141X_Whatever_GT
+        conditions: # optional
+            AlignmentRcd:
+                source: prod
+                tag: Alignment
+                
+    somedesignsample:
+        iovs: 
+        - 1
+        fileList: /path/to/fileList_iov{}.py # will be converted to /path/to/fileList_iov1.py
+        redo: False # if data set files already exist, redo skim?
+        
+        targetPath: /some/eos/path # where to transfer the files
+        
+        trackSelection: MinBias # Or SingleMuon, DoubleMuon, etc
+
+        globalTag: 141X_Whatever_GT
+
+
+baselines:
+    Design:
+        dataset: somedesignsample
+        globalTag: 141_design_GT
+        complete: False
+        conditions:
+            AlignmentRcd:
+                source: prod
+                tag: Alignment
+
+
+#~ measurements:
+    #~ testAPE:
+        #~ maxIterations: 15
+        #~ baseline: Design
+        #~ dataset: MinBias2024A
+        #~ globalTag: 141X_Whatever_GT
+        #~ conditions:
+            #~ AlignmentRcd:
+                #~ source: mp4321
+                #~ tag: Alignment
+
+
+

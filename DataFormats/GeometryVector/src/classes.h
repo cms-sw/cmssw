@@ -1,3 +1,5 @@
+#include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/GeometryVector/interface/Phi.h"
 namespace {
   Geom::Phi<double, Geom::MinusPiToPi> dummy;

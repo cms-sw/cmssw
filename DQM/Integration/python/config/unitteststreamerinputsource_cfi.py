@@ -128,5 +128,6 @@ source = cms.Source("DQMStreamerReader",
     skipFirstLumis = cms.untracked.bool(options.skipFirstLumis),
     deleteDatFiles = cms.untracked.bool(False),
     endOfRunKills  = cms.untracked.bool(False),
-    inputFileTransitionsEachEvent = cms.untracked.bool(False)
+    inputFileTransitionsEachEvent = cms.untracked.bool(False),
+    unitTest = cms.untracked.bool(True) # stop processing if the input data cannot be deserialized
 )

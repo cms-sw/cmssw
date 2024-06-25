@@ -11,6 +11,7 @@ namespace l1t {
     public:
       bool unpack(const Block& block, UnpackerCollections* coll) override;
       void setIsKbmtf() { isKbmtf_ = true; }
+      void setUseOmtfDisplacementInfo() { useOmtfDisplacementInfo_ = true; }
       void setUseEmtfDisplacementInfo() { useEmtfDisplacementInfo_ = true; }
       void setUseEmtfNominalTightShowers() { useEmtfNominalTightShowers_ = true; }
       void setUseEmtfLooseShowers() { useEmtfLooseShowers_ = true; }
@@ -20,6 +21,7 @@ namespace l1t {
       static constexpr unsigned bxzs_enable_shift_ = 1;
 
       bool isKbmtf_{false};
+      bool useOmtfDisplacementInfo_{false};
       bool useEmtfDisplacementInfo_{false};
       bool useEmtfNominalTightShowers_{false};
       bool useEmtfLooseShowers_{false};

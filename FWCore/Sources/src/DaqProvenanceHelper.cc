@@ -10,6 +10,7 @@
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/GetPassID.h"
 #include "FWCore/Reflection/interface/TypeWithDict.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
@@ -124,7 +125,12 @@ namespace edm {
             constBranchDescription_.processName(), processParameterSet_.id(), pc.releaseVersion(), pc.passID());
       }
     }
-    assert(!newPCs.empty());
+    if (newPCs.empty()) {
+      throw Exception(errors::LogicError) << "\nFatal error in RootFile constructor. Most likely this is because\n"
+                                          << "the input file contains a FEDRawDataCollection with module label\n"
+                                          << "\"source\". This is against CMS naming conventions.\n"
+                                          << "See GitHub Issue 45137 for related details.\n";
+    }
     pcv.reserve(pcv.size() + newPCs.size());
     pcv.insert(pcv.end(), newPCs.begin(), newPCs.end());
     // update existing process histories

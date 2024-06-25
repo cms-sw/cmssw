@@ -16,6 +16,8 @@
 namespace edm {
   class EventSkipperByID;
   class FileCatalogItem;
+}  // namespace edm
+namespace edm::streamer {
   class StreamerInputFile {
   public:
     /**Reads a Streamer file */
@@ -96,6 +98,6 @@ namespace edm {
 
     bool endOfFile_;
   };
-}  // namespace edm
+}  // namespace edm::streamer
 
 #endif

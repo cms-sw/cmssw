@@ -66,7 +66,7 @@ namespace edm {
   void OutputModuleCommunicatorT<T>::writeProcessBlockAsync(WaitingTaskHolder iTask,
                                                             ProcessBlockPrincipal const& processBlockPrincipal,
                                                             ProcessContext const* processContext,
-                                                            ActivityRegistry* activityRegistry) {
+                                                            ActivityRegistry* activityRegistry) noexcept {
     auto token = ServiceRegistry::instance().presentToken();
     GlobalContext globalContext(GlobalContext::Transition::kWriteProcessBlock,
                                 LuminosityBlockID(),
@@ -102,11 +102,12 @@ namespace edm {
   }
 
   template <typename T>
-  void OutputModuleCommunicatorT<T>::writeRunAsync(WaitingTaskHolder iTask,
-                                                   edm::RunPrincipal const& rp,
-                                                   ProcessContext const* processContext,
-                                                   ActivityRegistry* activityRegistry,
-                                                   MergeableRunProductMetadata const* mergeableRunProductMetadata) {
+  void OutputModuleCommunicatorT<T>::writeRunAsync(
+      WaitingTaskHolder iTask,
+      edm::RunPrincipal const& rp,
+      ProcessContext const* processContext,
+      ActivityRegistry* activityRegistry,
+      MergeableRunProductMetadata const* mergeableRunProductMetadata) noexcept {
     auto token = ServiceRegistry::instance().presentToken();
     GlobalContext globalContext(GlobalContext::Transition::kWriteRun,
                                 LuminosityBlockID(rp.run(), 0),
@@ -146,7 +147,7 @@ namespace edm {
   void OutputModuleCommunicatorT<T>::writeLumiAsync(WaitingTaskHolder iTask,
                                                     edm::LuminosityBlockPrincipal const& lbp,
                                                     ProcessContext const* processContext,
-                                                    ActivityRegistry* activityRegistry) {
+                                                    ActivityRegistry* activityRegistry) noexcept {
     auto token = ServiceRegistry::instance().presentToken();
     GlobalContext globalContext(GlobalContext::Transition::kWriteLuminosityBlock,
                                 lbp.id(),

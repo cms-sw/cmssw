@@ -530,6 +530,7 @@ private:
                       {"outer_all_dropout_4/Identity"},
                       &pred_vector);
     }
+
     return pred_vector.at(0);
   }
 
@@ -547,67 +548,77 @@ private:
                           bool is_inner) {
     if (debug_level >= 2) {
       std::cout << "<DeepTauId::createConvFeatures (is_inner = " << is_inner << ")>:" << std::endl;
+      std::cout << "number of valid cells = " << grid.num_valid_cells() << std::endl;
     }
+
+    const size_t n_valid_cells = grid.num_valid_cells();
+    tensorflow::Tensor predTensor;
     tensorflow::Tensor& convTensor = *convTensor_.at(is_inner);
-    eGammaTensor_[is_inner] = std::make_unique<tensorflow::Tensor>(
-        tensorflow::DT_FLOAT,
-        tensorflow::TensorShape{
-            (long long int)grid.num_valid_cells(), 1, 1, dnn_inputs_v2::EgammaBlockInputs::NumberOfInputs});
-    muonTensor_[is_inner] = std::make_unique<tensorflow::Tensor>(
-        tensorflow::DT_FLOAT,
-        tensorflow::TensorShape{
-            (long long int)grid.num_valid_cells(), 1, 1, dnn_inputs_v2::MuonBlockInputs::NumberOfInputs});
-    hadronsTensor_[is_inner] = std::make_unique<tensorflow::Tensor>(
-        tensorflow::DT_FLOAT,
-        tensorflow::TensorShape{
-            (long long int)grid.num_valid_cells(), 1, 1, dnn_inputs_v2::HadronBlockInputs::NumberOfInputs});
 
-    eGammaTensor_[is_inner]->flat<float>().setZero();
-    muonTensor_[is_inner]->flat<float>().setZero();
-    hadronsTensor_[is_inner]->flat<float>().setZero();
+    //check if at least one input is there to
+    //avoid calling TF with empty grid #TODO understand why the grid is empty
+    if (n_valid_cells > 0) {
+      eGammaTensor_[is_inner] = std::make_unique<tensorflow::Tensor>(
+          tensorflow::DT_FLOAT,
+          tensorflow::TensorShape{
+              (long long int)grid.num_valid_cells(), 1, 1, dnn_inputs_v2::EgammaBlockInputs::NumberOfInputs});
+      muonTensor_[is_inner] = std::make_unique<tensorflow::Tensor>(
+          tensorflow::DT_FLOAT,
+          tensorflow::TensorShape{
+              (long long int)grid.num_valid_cells(), 1, 1, dnn_inputs_v2::MuonBlockInputs::NumberOfInputs});
+      hadronsTensor_[is_inner] = std::make_unique<tensorflow::Tensor>(
+          tensorflow::DT_FLOAT,
+          tensorflow::TensorShape{
+              (long long int)grid.num_valid_cells(), 1, 1, dnn_inputs_v2::HadronBlockInputs::NumberOfInputs});
 
-    unsigned idx = 0;
-    for (int eta = -grid.maxEtaIndex(); eta <= grid.maxEtaIndex(); ++eta) {
-      for (int phi = -grid.maxPhiIndex(); phi <= grid.maxPhiIndex(); ++phi) {
-        if (debug_level >= 2) {
-          std::cout << "processing ( eta = " << eta << ", phi = " << phi << " )" << std::endl;
-        }
-        const CellIndex cell_index{eta, phi};
-        const auto cell_iter = grid.find(cell_index);
-        if (cell_iter != grid.end()) {
+      eGammaTensor_[is_inner]->flat<float>().setZero();
+      muonTensor_[is_inner]->flat<float>().setZero();
+      hadronsTensor_[is_inner]->flat<float>().setZero();
+
+      unsigned idx = 0;
+      for (int eta = -grid.maxEtaIndex(); eta <= grid.maxEtaIndex(); ++eta) {
+        for (int phi = -grid.maxPhiIndex(); phi <= grid.maxPhiIndex(); ++phi) {
           if (debug_level >= 2) {
-            std::cout << " creating inputs for ( eta = " << eta << ", phi = " << phi << " ): idx = " << idx
-                      << std::endl;
+            std::cout << "processing ( eta = " << eta << ", phi = " << phi << " )" << std::endl;
           }
-          const Cell& cell = cell_iter->second;
-          createEgammaBlockInputs<CandidateCastType>(idx,
-                                                     tau,
-                                                     tau_index,
-                                                     tau_ref,
-                                                     pv,
-                                                     rho,
-                                                     electrons,
-                                                     pfCands,
-                                                     cell,
-                                                     tau_funcs,
-                                                     is_inner,
-                                                     *eGammaTensor_[is_inner]);
-          createMuonBlockInputs<CandidateCastType>(
-              idx, tau, tau_index, tau_ref, pv, rho, muons, pfCands, cell, tau_funcs, is_inner, *muonTensor_[is_inner]);
-          createHadronsBlockInputs<CandidateCastType>(
-              idx, tau, tau_index, tau_ref, pv, rho, pfCands, cell, tau_funcs, is_inner, *hadronsTensor_[is_inner]);
-          idx += 1;
-        } else {
-          if (debug_level >= 2) {
-            std::cout << " skipping creation of inputs, because ( eta = " << eta << ", phi = " << phi
-                      << " ) is not in the grid !!" << std::endl;
+          const CellIndex cell_index{eta, phi};
+          const auto cell_iter = grid.find(cell_index);
+          if (cell_iter != grid.end()) {
+            if (debug_level >= 2) {
+              std::cout << " creating inputs for ( eta = " << eta << ", phi = " << phi << " ): idx = " << idx
+                        << std::endl;
+            }
+            const Cell& cell = cell_iter->second;
+            createEgammaBlockInputs<CandidateCastType>(idx,
+                                                       tau,
+                                                       tau_index,
+                                                       tau_ref,
+                                                       pv,
+                                                       rho,
+                                                       electrons,
+                                                       pfCands,
+                                                       cell,
+                                                       tau_funcs,
+                                                       is_inner,
+                                                       *eGammaTensor_[is_inner]);
+            createMuonBlockInputs<CandidateCastType>(
+                idx, tau, tau_index, tau_ref, pv, rho, muons, pfCands, cell, tau_funcs, is_inner, *muonTensor_[is_inner]);
+            createHadronsBlockInputs<CandidateCastType>(
+                idx, tau, tau_index, tau_ref, pv, rho, pfCands, cell, tau_funcs, is_inner, *hadronsTensor_[is_inner]);
+            idx += 1;
+          } else {
+            if (debug_level >= 2) {
+              std::cout << " skipping creation of inputs, because ( eta = " << eta << ", phi = " << phi
+                        << " ) is not in the grid !!" << std::endl;
+            }
           }
         }
       }
+      // Calling TF prediction only if n_valid_cells > 0
+      predTensor = getPartialPredictions(is_inner);
     }
 
-    const auto predTensor = getPartialPredictions(is_inner);
-    idx = 0;
+    unsigned idx = 0;
     for (int eta = -grid.maxEtaIndex(); eta <= grid.maxEtaIndex(); ++eta) {
       for (int phi = -grid.maxPhiIndex(); phi <= grid.maxPhiIndex(); ++phi) {
         const CellIndex cell_index{eta, phi};

@@ -142,7 +142,7 @@ namespace ecaldqm {
       float entriesLS(tLSItr->getBinEntries());
       float meanLS(tLSItr->getBinContent());
       float rmsLS(tLSItr->getBinError() * sqrt(entriesLS));
-      float chStatus(sChStatus.getBinContent(getEcalDQMSetupObjects(), id));
+      int chStatus = static_cast<int>(sChStatus.getBinContent(getEcalDQMSetupObjects(), id));
 
       if (entriesLS < minChannelEntries)
         continue;

@@ -87,8 +87,11 @@ unsigned int ConditionHelper::get_pc_lut_version() const {
   } else if (params_->firmwareVersion_ <
              1687686338) {  // Corresponds to June 25, 2023. The firmware was deployed on June 26, 2023.
     return 3;               // Starting October 6, 2022 with run 359924 (data only, not in MC)
+  } else if (params_->firmwareVersion_ <
+             1716282790) {  // Corresponds to May 21, 2024. The firmware was deployed on May 28, 2024.
+    return 4;               // Starting July 1, 2023 with run 369675 (data only, not in MC)
   } else {
-    return 4;  // Starting July 1, 2023 with run 369675 (data only, not in MC)
+    return 5;  // Starting May 28, 2024 with run 381316 (data only, not in MC)
   }
 }
 

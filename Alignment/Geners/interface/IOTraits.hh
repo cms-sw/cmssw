@@ -20,7 +20,7 @@ namespace gs {
   template <class T>
   struct IOTraits {
     static const bool IsClass = IOIsClassType<T>::value;
-    enum { ISCLASS = 1 };
+    static constexpr int ISCLASS = 1;
 
     // Pointers are not PODs for I/O purposes.
     //
@@ -30,44 +30,44 @@ namespace gs {
     // that we need to avoid.
     static const bool IsPOD =
         (IOIsPOD<T>::value && !IOIsContainer<T>::value && !CPP11_is_pointer<T>::value && !IOIsExternal<T>::value);
-    enum { ISPOD = 2 };
+    static constexpr int ISPOD = 2;
 
     static const bool IsWritable = (IOIsWritable<T>::value && !IOIsExternal<T>::value);
-    enum { ISWRITABLE = 4 };
+    static constexpr int ISWRITABLE = 4;
 
     static const bool IsStdContainer = (IOIsContainer<T>::value && !IOIsWritable<T>::value && !IOIsExternal<T>::value);
-    enum { ISSTDCONTAINER = 8 };
+    static constexpr int ISSTDCONTAINER = 8;
 
     // Readable objects are required to be writable
     static const bool IsPlaceReadable = (IOIsPlaceReadable<T>::value && IOIsWritable<T>::value);
-    enum { ISPLACEREADABLE = 16 };
+    static constexpr int ISPLACEREADABLE = 16;
 
     // Prefer place readability to heap readability
     static const bool IsHeapReadable =
         (IOIsHeapReadable<T>::value && !IOIsPlaceReadable<T>::value && IOIsWritable<T>::value);
-    enum { ISHEAPREADABLE = 32 };
+    static constexpr int ISHEAPREADABLE = 32;
 
     static const bool IsPointer = (CPP11_is_pointer<T>::value && !IOIsExternal<T>::value);
-    enum { ISPOINTER = 64 };
+    static constexpr int ISPOINTER = 64;
 
     static const bool IsSharedPtr = (IOIsSharedPtr<T>::value && !IOIsExternal<T>::value);
-    enum { ISSHAREDPTR = 128 };
+    static constexpr int ISSHAREDPTR = 128;
 
     static const bool IsPair = IOIsPair<T>::value;
-    enum { ISPAIR = 256 };
+    static constexpr int ISPAIR = 256;
 
     static const bool IsString = IOIsString<T>::value;
-    enum { ISSTRING = 512 };
+    static constexpr int ISSTRING = 512;
 
     // The following trait is relevant for containers only
     static const bool IsContiguous = IOIsContiguous<T>::value;
-    enum { ISCONTIGUOUS = 1024 };
+    static constexpr int ISCONTIGUOUS = 1024;
 
     static const bool IsTuple = IOIsTuple<T>::value;
-    enum { ISTUPLE = 2048 };
+    static constexpr int ISTUPLE = 2048;
 
     static const bool IsIOPtr = IOIsIOPtr<T>::value;
-    enum { ISIOPTR = 4096 };
+    static constexpr int ISIOPTR = 4096;
 
     // A catch-all definition for externally defined types which
     // want to use the template-based I/O within this system but
@@ -75,14 +75,14 @@ namespace gs {
     // The user has to declare the external type by modifying the
     // "IOIsExternal" template.
     static const bool IsExternal = IOIsExternal<T>::value;
-    enum { ISEXTERNAL = 8192 };
+    static constexpr int ISEXTERNAL = 8192;
 
     // Special enums for heap-readable objects known
     // to be called with zero pointer as an argument.
     // In this case we will avoid compiling an assignment
     // operator for the object.
-    enum { ISNULLPOINTER = 16384 };
-    enum { ISPUREHEAPREADABLE = 32768 };
+    static constexpr int ISNULLPOINTER = 16384;
+    static constexpr int ISPUREHEAPREADABLE = 32768;
 
     static const int Signature = IsClass * ISCLASS + IsPOD * ISPOD + IsWritable * ISWRITABLE +
                                  IsStdContainer * ISSTDCONTAINER + IsPlaceReadable * ISPLACEREADABLE +

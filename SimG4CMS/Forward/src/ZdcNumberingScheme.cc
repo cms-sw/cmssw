@@ -7,7 +7,7 @@
 #include "SimG4CMS/Forward/interface/ZdcNumberingScheme.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/HcalDetId/interface/HcalZDCDetId.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include <CLHEP/Units/SystemOfUnits.h>
 #include <iostream>
 
 //#define EDM_ML_DEBUG

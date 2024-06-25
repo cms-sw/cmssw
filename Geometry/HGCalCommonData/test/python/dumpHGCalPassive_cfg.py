@@ -1,8 +1,9 @@
 ###############################################################################
 # Way to use this:
-#   cmsRun dumpHGCalPassive_cfg.py type=DDD
+#   cmsRun dumpHGCalPassive_cfg.py geometry=V18 type=DDD
 #
-#   Options for type DDD, DD4hep
+#   Options for geometry V18, V19
+#               type     DDD, DD4hep
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -12,6 +13,11 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 ####################################################################
 ### SETUP OPTIONS
 options = VarParsing.VarParsing('standard')
+options.register('geometry',
+                 "V18",
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.string,
+                  "type of operations: V18, V19")
 options.register('type',
                  "DDD",
                   VarParsing.VarParsing.multiplicity.singleton,
@@ -23,15 +29,14 @@ options.parseArguments()
 
 from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
 process = cms.Process('GeomDump',Phase2C17I13M9)
+fileName = "hgcalPassive" + options.geometry + options.type + ".root"
 if (options.type == "DD4hep"):
-    geomFile = "Geometry/HGCalCommonData/data/dd4hep/testHGCalPassive.xml"
-    fileName = "hgcalPassiveDD4hep.root"
+    geomFile = "Geometry/HGCalCommonData/data/dd4hep/testHGCalPassive" + options.geometry + ".xml"
     process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
                                                 confGeomXMLFiles = cms.FileInPath(geomFile),
     appendToDataLabel = cms.string('DDHGCal'))
 else:
-    geomFile = "Geometry.HGCalCommonData.testHGCalPassiveXML_cfi"
-    fileName = "hgcalPassiveDDD.root"
+    geomFile = "Geometry.HGCalCommonData.testHGCalPassive" + options.geometry + "XML_cfi"
     process.load(geomFile)
 
 print("Geometry file: ", geomFile)

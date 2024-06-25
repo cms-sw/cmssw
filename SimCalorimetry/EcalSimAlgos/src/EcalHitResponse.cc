@@ -13,8 +13,8 @@
 #include "CLHEP/Random/RandPoissonQ.h"
 #include "FWCore/Utilities/interface/isFinite.h"
 
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include <CLHEP/Units/GlobalPhysicalConstants.h>
+#include <CLHEP/Units/SystemOfUnits.h>
 #include <iostream>
 
 EcalHitResponse::EcalHitResponse(const CaloVSimParameterMap* parameterMap, const CaloVShape* shape)
@@ -203,7 +203,7 @@ double EcalHitResponse::analogSignalAmplitude(const DetId& detId, double energy,
 double EcalHitResponse::timeOfFlight(const DetId& detId) const {
   auto cellGeometry(geometry()->getGeometry(detId));
   assert(nullptr != cellGeometry);
-  return cellGeometry->getPosition().mag() * cm / c_light;  // Units of c_light: mm/ns
+  return cellGeometry->getPosition().mag() * CLHEP::cm / c_light;  // Units of c_light: mm/ns
 }
 
 void EcalHitResponse::add(const EcalSamples* pSam) {

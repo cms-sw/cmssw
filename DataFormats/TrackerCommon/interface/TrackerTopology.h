@@ -19,11 +19,11 @@ public:
     unsigned int layerStartBit_;
     unsigned int ladderStartBit_;
     unsigned int moduleStartBit_;
-    unsigned int doubleStartBit_;
+    unsigned int doubleStartBit_ = 0;
     unsigned int layerMask_;
     unsigned int ladderMask_;
     unsigned int moduleMask_;
-    unsigned int doubleMask_;
+    unsigned int doubleMask_ = 0;
   };
 
   struct PixelEndcapValues {

@@ -504,6 +504,7 @@ namespace spu {
     EVP_DigestFinal_ex(mdctx, tmp, &md_len);
     EVP_MD_CTX_free(mdctx);
 
+    assert(result);
     //Convert the result
     for (unsigned int k = 0; k < md_len; ++k) {
       sprintf(result + k * 2, "%02x", tmp[k]);

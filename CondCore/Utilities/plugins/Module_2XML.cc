@@ -46,6 +46,7 @@ PAYLOAD_2XML_MODULE(pluginUtilities_payload2xml) {
   PAYLOAD_2XML_CLASS(CastorRecoParams);
   PAYLOAD_2XML_CLASS(CastorSaturationCorrs);
   PAYLOAD_2XML_CLASS(CentralityTable);
+  PAYLOAD_2XML_CLASS(DeDxCalibration);
   PAYLOAD_2XML_CLASS(DTCCBConfig);
   PAYLOAD_2XML_CLASS(DTDeadFlag);
   PAYLOAD_2XML_CLASS(DTHVStatus);
@@ -127,6 +128,9 @@ PAYLOAD_2XML_MODULE(pluginUtilities_payload2xml) {
   PAYLOAD_2XML_CLASS(FileBlob);
   PAYLOAD_2XML_CLASS(GBRForest);
   PAYLOAD_2XML_CLASS(GBRForestD);
+  PAYLOAD_2XML_CLASS(GEMChMap);
+  PAYLOAD_2XML_CLASS(GEMMaskedStrips);
+  PAYLOAD_2XML_CLASS(GEMDeadStrips);
   //PAYLOAD_2XML_CLASS( HBHENegativeEFilter );
   PAYLOAD_2XML_CLASS(HcalChannelQuality);
   PAYLOAD_2XML_CLASS(HcalDcsValues);

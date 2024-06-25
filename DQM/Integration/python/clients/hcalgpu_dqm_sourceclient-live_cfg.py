@@ -100,8 +100,8 @@ cmssw			= os.getenv("CMSSW_VERSION").split("_")
 #	New Style
 #-------------------------------------
 process.load('DQM.HcalTasks.hcalGPUComparisonTask_cfi')
-process.load('DQM.HcalTasks.HcalOnlineHarvesting')
-process.load('DQM.HcalTasks.HcalQualityTests')
+process.load('DQM.HcalTasks.HcalOnlineHarvesting_cfi')
+process.load('DQM.HcalTasks.HcalQualityTests_cfi')
 
 #-------------------------------------
 #	Some Settings before Finishing up

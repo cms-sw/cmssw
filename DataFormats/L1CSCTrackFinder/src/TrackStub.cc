@@ -16,13 +16,6 @@ namespace csctf {
   TrackStub::TrackStub(const CSCCorrelatedLCTDigi& aDigi, const DetId& aDetId, const unsigned& phi, const unsigned& eta)
       : CSCCorrelatedLCTDigi(aDigi), theDetId_(aDetId.rawId()), thePhi_(phi), theEta_(eta), link_(0) {}
 
-  TrackStub::TrackStub(const TrackStub& aTrackStub)
-      : CSCCorrelatedLCTDigi(aTrackStub),
-        theDetId_(aTrackStub.theDetId_),
-        thePhi_(aTrackStub.thePhi_),
-        theEta_(aTrackStub.theEta_),
-        link_(aTrackStub.link_) {}
-
   unsigned TrackStub::endcap() const {
     int e = 0;
 

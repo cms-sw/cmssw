@@ -1,6 +1,5 @@
 #include <iostream>
 #include <fstream>
-#include <strstream>
 
 #include "CondTools/L1TriggerExt/interface/L1ConfigOnlineProdBaseExt.h"
 #include "CondFormats/L1TObjects/interface/L1TMuonGlobalParams.h"

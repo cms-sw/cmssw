@@ -88,7 +88,7 @@ _endcap_MTDDigitizer = cms.PSet(
         # n bits for the TDC
         tdcNbits             = cms.uint32(11),
         # ADC saturation
-        adcSaturation_MIP  = cms.double(25),
+        adcSaturation_MIP  = cms.double(100),
         # for different thickness
         adcThreshold_MIP   = cms.double(0.025),
         iThreshold_MIP     = cms.double(0.9525),

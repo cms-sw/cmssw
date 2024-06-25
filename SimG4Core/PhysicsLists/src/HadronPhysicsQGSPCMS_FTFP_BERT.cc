@@ -1,5 +1,5 @@
 #include "SimG4Core/PhysicsLists/interface/HadronPhysicsQGSPCMS_FTFP_BERT.h"
-#include "G4SystemOfUnits.hh"
+#include <CLHEP/Units/SystemOfUnits.h>
 #include "G4Threading.hh"
 
 HadronPhysicsQGSPCMS_FTFP_BERT::HadronPhysicsQGSPCMS_FTFP_BERT(G4int)

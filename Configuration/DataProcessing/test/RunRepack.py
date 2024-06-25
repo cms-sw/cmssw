@@ -18,21 +18,28 @@ class RunRepack:
     def __init__(self):
         self.selectEvents = None
         self.inputLFN = None
+        self.dataTier = None
 
     def __call__(self):
         if self.inputLFN == None:
             msg = "No --lfn specified"
             raise RuntimeError(msg)
+        allowedDataTiers = ["RAW", "HLTSCOUT", "L1SCOUT"]
+        if self.dataTier == None: 
+            self.dataTier = "RAW"
+        elif self.dataTier not in allowedDataTiers:
+            msg = f"{self.dataTier} isn't an allowed datatier for repacking. Allowed data tiers: {allowedDataTiers}"
+            raise RuntimeError(msg)
 
         outputs = []
-        outputs.append( { 'moduleLabel' : "write_PrimDS1_RAW" } )
-        outputs.append( { 'moduleLabel' : "write_PrimDS2_RAW" } )
+        outputs.append( { 'moduleLabel' : f"write_PrimDS1_{self.dataTier}" } )
+        outputs.append( { 'moduleLabel' : f"write_PrimDS2_{self.dataTier}" } )
         if self.selectEvents != None:
             outputs[0]['selectEvents'] = self.selectEvents.split(',')
             outputs[1]['selectEvents'] = self.selectEvents.split(',')
 
         try:
-            process = repackProcess(outputs = outputs)
+            process = repackProcess(outputs = outputs, dataTier = self.dataTier)
         except Exception as ex:
             msg = "Error creating process for Repack:\n"
             msg += str(ex)
@@ -54,7 +61,7 @@ class RunRepack:
 
 
 if __name__ == '__main__':
-    valid = ["select-events=", "lfn="]
+    valid = ["select-events=", "lfn=", "data-tier="]
              
     usage = \
 """
@@ -63,9 +70,10 @@ RunRepack.py <options>
 Where options are:
  --select-events (option, event selection based on trigger paths)
  --lfn=/store/input/lfn
+ --data-tier=RAW|HLTSCOUT|L1SCOUT
 
 Example:
-python RunRepack.py --select-events HLT:path1,HLT:path2 --lfn /store/whatever
+python RunRepack.py --select-events HLT:path1,HLT:path2 --lfn /store/whatever --data-tier RAW|HLTSCOUT|L1SCOUT
 
 """
     try:
@@ -83,5 +91,9 @@ python RunRepack.py --select-events HLT:path1,HLT:path2 --lfn /store/whatever
             repackinator.selectEvents = arg
         if opt == "--lfn" :
             repackinator.inputLFN = arg
+        if opt == "--data-tier" :
+            repackinator.dataTier = arg
 
     repackinator()
+
+

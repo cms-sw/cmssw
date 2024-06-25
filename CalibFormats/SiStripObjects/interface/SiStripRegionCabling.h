@@ -23,8 +23,10 @@
 class SiStripRegionCabling {
 public:
   /** enums */
-  enum SubDet { TIB = 0, TOB = 1, TID = 2, TEC = 3, ALLSUBDETS = 4 };
-  enum Layer { TIBLAYERS = 4, TOBLAYERS = 6, TIDLAYERS = 3, TECLAYERS = 9, ALLLAYERS = 10 };
+  typedef int SubDet;
+  static constexpr int TIB = 0, TOB = 1, TID = 2, TEC = 3, ALLSUBDETS = 4;
+  typedef int Layer;
+  static constexpr int TIBLAYERS = 4, TOBLAYERS = 6, TIDLAYERS = 3, TECLAYERS = 9, ALLLAYERS = 10;
 
   /** Cabling typedefs */
   typedef std::pair<uint32_t, std::vector<FedChannelConnection>> Element;

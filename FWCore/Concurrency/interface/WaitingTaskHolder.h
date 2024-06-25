@@ -36,32 +36,32 @@ namespace edm {
 
     WaitingTaskHolder() : m_task(nullptr), m_group(nullptr) {}
 
-    explicit WaitingTaskHolder(oneapi::tbb::task_group& iGroup, edm::WaitingTask* iTask)
+    explicit WaitingTaskHolder(oneapi::tbb::task_group& iGroup, edm::WaitingTask* iTask) noexcept
         : m_task(iTask), m_group(&iGroup) {
       m_task->increment_ref_count();
     }
-    ~WaitingTaskHolder() {
+    ~WaitingTaskHolder() noexcept {
       if (m_task) {
         doneWaiting(std::exception_ptr{});
       }
     }
 
-    WaitingTaskHolder(const WaitingTaskHolder& iHolder) : m_task(iHolder.m_task), m_group(iHolder.m_group) {
+    WaitingTaskHolder(const WaitingTaskHolder& iHolder) noexcept : m_task(iHolder.m_task), m_group(iHolder.m_group) {
       m_task->increment_ref_count();
     }
 
-    WaitingTaskHolder(WaitingTaskHolder&& iOther) : m_task(iOther.m_task), m_group(iOther.m_group) {
+    WaitingTaskHolder(WaitingTaskHolder&& iOther) noexcept : m_task(iOther.m_task), m_group(iOther.m_group) {
       iOther.m_task = nullptr;
     }
 
-    WaitingTaskHolder& operator=(const WaitingTaskHolder& iRHS) {
+    WaitingTaskHolder& operator=(const WaitingTaskHolder& iRHS) noexcept {
       WaitingTaskHolder tmp(iRHS);
       std::swap(m_task, tmp.m_task);
       std::swap(m_group, tmp.m_group);
       return *this;
     }
 
-    WaitingTaskHolder& operator=(WaitingTaskHolder&& iRHS) {
+    WaitingTaskHolder& operator=(WaitingTaskHolder&& iRHS) noexcept {
       WaitingTaskHolder tmp(std::move(iRHS));
       std::swap(m_task, tmp.m_task);
       std::swap(m_group, tmp.m_group);
@@ -85,13 +85,13 @@ namespace edm {
      a different, but related failure. You must later call doneWaiting
      in the same thread passing the same exceptoin.
      */
-    void presetTaskAsFailed(std::exception_ptr iExcept) {
+    void presetTaskAsFailed(std::exception_ptr iExcept) noexcept {
       if (iExcept) {
         m_task->dependentTaskFailed(iExcept);
       }
     }
 
-    void doneWaiting(std::exception_ptr iExcept) {
+    void doneWaiting(std::exception_ptr iExcept) noexcept {
       if (iExcept) {
         m_task->dependentTaskFailed(iExcept);
       }

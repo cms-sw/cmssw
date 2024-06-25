@@ -170,7 +170,7 @@ Also note that the `fillDescription()` function must have the same content for a
 * All Event data products in the host memory space are guaranteed to be accessible for all operations (after the data product has been obtained from the `edm::Event` or `device::Event`).
 * All EventSetup data products in the device memory space are guaranteed to be accessible only for operations enqueued in the `Queue` given by `device::Event::queue()` when accessed via the `device::EventSetup` (ED modules), or by `device::Record<TRecord>::queue()` when accessed via the `device::Record<TRecord>` (ESProducers).
 * The EDM Stream does not proceed to the next Event until after all asynchronous work of the current Event has finished.
-  * **Note**: currently this guarantee does not hold if the job has any EDModule that launches asynchronous work but does not explicitly synchronize or produce any device-side data products.
+  * **Note**: this implies if an EDProducer in its `produce()` function uses the `Event::queue()` or gets a device-side data product, and does not produce any device-side data products, the `produce()` call will be synchronous (i.e. will block the CPU thread until the asynchronous work finishes)
 
 ## Examples
 

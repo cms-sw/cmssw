@@ -6,9 +6,10 @@
 
 #ifndef JSONCPP_DOC_EXCLUDE_IMPLEMENTATION
 
-namespace Json {
+namespace jsoncollector {
+  namespace Json {
 
-  /* Fast memory allocator.
+    /* Fast memory allocator.
  *
  * This memory allocator allocates memory for a batch of object (specified by
  * the page size, the number of object in each page).
@@ -20,92 +21,93 @@ namespace Json {
  * The in-place new operator must be used to construct the object using the pointer
  * returned by allocate.
  */
-  template <typename AllocatedType, const unsigned int objectPerAllocation>
-  class BatchAllocator {
-  public:
-    typedef AllocatedType Type;
+    template <typename AllocatedType, const unsigned int objectPerAllocation>
+    class BatchAllocator {
+    public:
+      typedef AllocatedType Type;
 
-    BatchAllocator(unsigned int objectsPerPage = 255) : freeHead_(0), objectsPerPage_(objectsPerPage) {
-      //      printf( "Size: %d => %s\n", sizeof(AllocatedType), typeid(AllocatedType).name() );
-      assert(sizeof(AllocatedType) * objectPerAllocation >=
-             sizeof(AllocatedType *));  // We must be able to store a slist in the object free space.
-      assert(objectsPerPage >= 16);
-      batches_ = allocateBatch(0);  // allocated a dummy page
-      currentBatch_ = batches_;
-    }
-
-    ~BatchAllocator() {
-      for (BatchInfo *batch = batches_; batch;) {
-        BatchInfo *nextBatch = batch->next_;
-        free(batch);
-        batch = nextBatch;
+      BatchAllocator(unsigned int objectsPerPage = 255) : freeHead_(0), objectsPerPage_(objectsPerPage) {
+        //      printf( "Size: %d => %s\n", sizeof(AllocatedType), typeid(AllocatedType).name() );
+        assert(sizeof(AllocatedType) * objectPerAllocation >=
+               sizeof(AllocatedType *));  // We must be able to store a slist in the object free space.
+        assert(objectsPerPage >= 16);
+        batches_ = allocateBatch(0);  // allocated a dummy page
+        currentBatch_ = batches_;
       }
-    }
 
-    /// allocate space for an array of objectPerAllocation object.
-    /// @warning it is the responsability of the caller to call objects constructors.
-    AllocatedType *allocate() {
-      if (freeHead_)  // returns node from free list.
-      {
-        AllocatedType *object = freeHead_;
-        freeHead_ = *(AllocatedType **)object;
-        return object;
-      }
-      if (currentBatch_->used_ == currentBatch_->end_) {
-        currentBatch_ = currentBatch_->next_;
-        while (currentBatch_ && currentBatch_->used_ == currentBatch_->end_)
-          currentBatch_ = currentBatch_->next_;
-
-        if (!currentBatch_)  // no free batch found, allocate a new one
-        {
-          currentBatch_ = allocateBatch(objectsPerPage_);
-          currentBatch_->next_ = batches_;  // insert at the head of the list
-          batches_ = currentBatch_;
+      ~BatchAllocator() {
+        for (BatchInfo *batch = batches_; batch;) {
+          BatchInfo *nextBatch = batch->next_;
+          free(batch);
+          batch = nextBatch;
         }
       }
-      AllocatedType *allocated = currentBatch_->used_;
-      currentBatch_->used_ += objectPerAllocation;
-      return allocated;
-    }
 
-    /// Release the object.
-    /// @warning it is the responsability of the caller to actually destruct the object.
-    void release(AllocatedType *object) {
-      assert(object != 0);
-      *(AllocatedType **)object = freeHead_;
-      freeHead_ = object;
-    }
+      /// allocate space for an array of objectPerAllocation object.
+      /// @warning it is the responsability of the caller to call objects constructors.
+      AllocatedType *allocate() {
+        if (freeHead_)  // returns node from free list.
+        {
+          AllocatedType *object = freeHead_;
+          freeHead_ = *(AllocatedType **)object;
+          return object;
+        }
+        if (currentBatch_->used_ == currentBatch_->end_) {
+          currentBatch_ = currentBatch_->next_;
+          while (currentBatch_ && currentBatch_->used_ == currentBatch_->end_)
+            currentBatch_ = currentBatch_->next_;
 
-    // disabled copy constructor and assignement operator.
-    BatchAllocator(const BatchAllocator &) = delete;
-    void operator=(const BatchAllocator &) = delete;
+          if (!currentBatch_)  // no free batch found, allocate a new one
+          {
+            currentBatch_ = allocateBatch(objectsPerPage_);
+            currentBatch_->next_ = batches_;  // insert at the head of the list
+            batches_ = currentBatch_;
+          }
+        }
+        AllocatedType *allocated = currentBatch_->used_;
+        currentBatch_->used_ += objectPerAllocation;
+        return allocated;
+      }
 
-  private:
-    struct BatchInfo {
-      BatchInfo *next_;
-      AllocatedType *used_;
-      AllocatedType *end_;
-      AllocatedType buffer_[objectPerAllocation];
+      /// Release the object.
+      /// @warning it is the responsability of the caller to actually destruct the object.
+      void release(AllocatedType *object) {
+        assert(object != 0);
+        *(AllocatedType **)object = freeHead_;
+        freeHead_ = object;
+      }
+
+      // disabled copy constructor and assignement operator.
+      BatchAllocator(const BatchAllocator &) = delete;
+      void operator=(const BatchAllocator &) = delete;
+
+    private:
+      struct BatchInfo {
+        BatchInfo *next_;
+        AllocatedType *used_;
+        AllocatedType *end_;
+        AllocatedType buffer_[objectPerAllocation];
+      };
+
+      static BatchInfo *allocateBatch(unsigned int objectsPerPage) {
+        const unsigned int mallocSize = sizeof(BatchInfo) - sizeof(AllocatedType) * objectPerAllocation +
+                                        sizeof(AllocatedType) * objectPerAllocation * objectsPerPage;
+        BatchInfo *batch = static_cast<BatchInfo *>(malloc(mallocSize));
+        batch->next_ = 0;
+        batch->used_ = batch->buffer_;
+        batch->end_ = batch->buffer_ + objectsPerPage;
+        return batch;
+      }
+
+      BatchInfo *batches_;
+      BatchInfo *currentBatch_;
+      /// Head of a single linked list within the allocated space of freeed object
+      AllocatedType *freeHead_;
+      unsigned int objectsPerPage_;
     };
 
-    static BatchInfo *allocateBatch(unsigned int objectsPerPage) {
-      const unsigned int mallocSize = sizeof(BatchInfo) - sizeof(AllocatedType) * objectPerAllocation +
-                                      sizeof(AllocatedType) * objectPerAllocation * objectsPerPage;
-      BatchInfo *batch = static_cast<BatchInfo *>(malloc(mallocSize));
-      batch->next_ = 0;
-      batch->used_ = batch->buffer_;
-      batch->end_ = batch->buffer_ + objectsPerPage;
-      return batch;
-    }
-
-    BatchInfo *batches_;
-    BatchInfo *currentBatch_;
-    /// Head of a single linked list within the allocated space of freeed object
-    AllocatedType *freeHead_;
-    unsigned int objectsPerPage_;
-  };
-
-}  // namespace Json
+  }  // namespace Json
+}  //namespace jsoncollector
 
 #endif  // ifndef JSONCPP_DOC_INCLUDE_IMPLEMENTATION
 

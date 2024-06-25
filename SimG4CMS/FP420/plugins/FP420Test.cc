@@ -38,7 +38,7 @@
 #include "G4VTouchable.hh"
 
 #include <CLHEP/Random/Randomize.h>
-#include <CLHEP/Units/GlobalSystemOfUnits.h>
+#include <CLHEP/Units/SystemOfUnits.h>
 #include <CLHEP/Units/GlobalPhysicalConstants.h>
 
 //================================================================

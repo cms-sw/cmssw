@@ -47,14 +47,6 @@ namespace cscdqm {
       return out << os.str();
     }
 
-    TempMeasType& operator=(const TempMeasType& m) {
-      adr = m.adr;
-      board = m.board;
-      boardId = m.boardId;
-      value = m.value;
-      return *this;
-    }
-
     COND_SERIALIZABLE;
   };
 
@@ -72,13 +64,6 @@ namespace cscdqm {
       os << "position:" << m.position;
       os << " V = " << m.value << "V";
       return out << os.str();
-    }
-
-    HVVMeasType& operator=(const HVVMeasType& m) {
-      adr = m.adr;
-      position = m.position;
-      value = m.value;
-      return *this;
     }
 
     COND_SERIALIZABLE;
@@ -104,14 +89,6 @@ namespace cscdqm {
       return out << os.str();
     }
 
-    LVVMeasType& operator=(const LVVMeasType& m) {
-      adr = m.adr;
-      board = m.board;
-      boardId = m.boardId;
-      nominal_v = m.nominal_v;
-      return *this;
-    }
-
     COND_SERIALIZABLE;
   };
 
@@ -135,15 +112,6 @@ namespace cscdqm {
       os << " " << m.nominal_v << "V";
       os << " " << m.value << "A";
       return out << os.str();
-    }
-
-    LVIMeasType& operator=(const LVIMeasType& m) {
-      adr = m.adr;
-      board = m.board;
-      boardId = m.boardId;
-      nominal_v = m.nominal_v;
-      value = m.value;
-      return *this;
     }
 
     COND_SERIALIZABLE;

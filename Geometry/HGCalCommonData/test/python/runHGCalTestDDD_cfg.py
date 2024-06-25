@@ -22,13 +22,13 @@ options.register('type',
 options.parseArguments()
 print(options)
 
-if (options.type === "V18"):
+if (options.type == "V18"):
     from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
     process = cms.Process("HGCalTest",Phase2C22I13M9)
-elif (options.type === "V18n"):
+elif (options.type == "V18n"):
     from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
     process = cms.Process("HGCalTest",Phase2C22I13M9)
-elif (options.type === "V18ng"):
+elif (options.type == "V18ng"):
     from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
     process = cms.Process("HGCalTest",Phase2C22I13M9)
 else:
@@ -65,6 +65,7 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 if 'MessageLogger' in process.__dict__:
+    process.MessageLogger.HGCalGeom=dict()
     process.MessageLogger.HGCSim=dict()
 #   process.MessageLogger.CaloSim=dict()
 

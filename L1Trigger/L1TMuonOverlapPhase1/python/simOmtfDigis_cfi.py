@@ -30,4 +30,5 @@ simOmtfDigis = cms.EDProducer("L1TMuonOverlapPhase1TrackProducer",
   bxMin = cms.int32(0),
   bxMax = cms.int32(0),
 
+  extrapolFactorsFilename = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/ExtrapolationFactors_simple.xml"),
 )

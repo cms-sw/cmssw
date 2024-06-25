@@ -2,9 +2,27 @@
 
 function die { echo $1: status $2 ; exit $2; }
 
+check_file_existence() {
+    local file_path="$1"
+
+    if [ -e "$file_path" ]; then
+        # File exists, do nothing
+        :
+    else
+        # Print error message in red
+        echo -e "\e[91mError: File '$file_path' does not exist.\e[0m"
+        exit 1
+    fi
+}
+
 function compare_files() {
     local file1_path="$1"
     local file2_path="$2"
+
+    ## check that the input files exist
+    check_file_existence "$file1_path"
+    check_file_existence "$file2_path"
+
     local exclude_set=("HLTAnalyzerEndpath" "RatesMonitoring" "DQMHistograms")
 
     local lines_file1=()
@@ -56,7 +74,7 @@ function compare_files() {
     file2_name=$(basename "$file2_path")
     
     if [ ${#cleaned_not_in_file2[@]} -eq 0 ]; then
-        echo "All lines from $file1_name are included in $file2_name."
+        echo -e "\033[92mAll lines from $file1_name are included in $file2_name.\033[0m"
         return 0
     else
         echo "Lines present in $file1_name but not in $file2_name (excluding the exclusion set):"

@@ -29,8 +29,8 @@
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
+#include <CLHEP/Units/SystemOfUnits.h>
+#include <CLHEP/Units/GlobalPhysicalConstants.h>
 
 #include "TH1D.h"
 #include "TH2D.h"

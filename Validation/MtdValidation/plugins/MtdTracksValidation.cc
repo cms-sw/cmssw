@@ -1,4 +1,3 @@
-#define EDM_ML_DEBUG
 #include <string>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -90,7 +89,8 @@ private:
       const reco::Track&, const edm::Event&, const edm::EventSetup&, size_t&, float&, float&, float&, float&);
 
   const bool mvaGenSel(const HepMC::GenParticle&, const float&);
-  const bool mvaTPSel(const TrackingParticle&);
+  const bool mvaTPSelLV(const TrackingParticle&);
+  const bool mvaTPSelAll(const TrackingParticle&);
   const bool mvaRecSel(const reco::TrackBase&, const reco::Vertex&, const double&, const double&);
   const bool mvaGenRecMatch(const HepMC::GenParticle&, const double&, const reco::TrackBase&, const bool&);
   const edm::Ref<std::vector<TrackingParticle>>* getMatchedTP(const reco::TrackBaseRef&);
@@ -140,8 +140,6 @@ private:
   edm::EDGetTokenT<reco::SimToRecoCollection> simToRecoAssociationToken_;
   edm::EDGetTokenT<reco::RecoToSimCollection> recoToSimAssociationToken_;
   edm::EDGetTokenT<reco::TPToSimCollectionMtd> tp2SimAssociationMapToken_;
-  edm::EDGetTokenT<CrossingFrame<PSimHit>> btlSimHitsToken_;
-  edm::EDGetTokenT<CrossingFrame<PSimHit>> etlSimHitsToken_;
   edm::EDGetTokenT<FTLRecHitCollection> btlRecHitsToken_;
   edm::EDGetTokenT<FTLRecHitCollection> etlRecHitsToken_;
 
@@ -160,6 +158,7 @@ private:
   edm::EDGetTokenT<edm::ValueMap<float>> SigmaTofKToken_;
   edm::EDGetTokenT<edm::ValueMap<float>> SigmaTofPToken_;
   edm::EDGetTokenT<edm::ValueMap<float>> trackMVAQualToken_;
+  edm::EDGetTokenT<edm::ValueMap<float>> outermostHitPositionToken_;
 
   edm::ESGetToken<MTDGeometry, MTDDigiGeometryRecord> mtdgeoToken_;
   edm::ESGetToken<MTDTopology, MTDTopologyRcd> mtdtopoToken_;
@@ -200,6 +199,8 @@ private:
   MonitorElement* meTrackNumHitsNT_;
   MonitorElement* meTrackMVAQual_;
   MonitorElement* meTrackPathLenghtvsEta_;
+  MonitorElement* meTrackOutermostHitR_;
+  MonitorElement* meTrackOutermostHitZ_;
 
   MonitorElement* meTrackSigmaTof_[3];
   MonitorElement* meTrackSigmaTofvsP_[3];
@@ -276,8 +277,6 @@ MtdTracksValidation::MtdTracksValidation(const edm::ParameterSet& iConfig)
       consumes<reco::RecoToSimCollection>(iConfig.getParameter<edm::InputTag>("TPtoRecoTrackAssoc"));
   tp2SimAssociationMapToken_ =
       consumes<reco::TPToSimCollectionMtd>(iConfig.getParameter<edm::InputTag>("tp2SimAssociationMapTag"));
-  btlSimHitsToken_ = consumes<CrossingFrame<PSimHit>>(iConfig.getParameter<edm::InputTag>("btlSimHits"));
-  etlSimHitsToken_ = consumes<CrossingFrame<PSimHit>>(iConfig.getParameter<edm::InputTag>("etlSimHits"));
   btlRecHitsToken_ = consumes<FTLRecHitCollection>(iConfig.getParameter<edm::InputTag>("btlRecHits"));
   etlRecHitsToken_ = consumes<FTLRecHitCollection>(iConfig.getParameter<edm::InputTag>("etlRecHits"));
   trackAssocToken_ = consumes<edm::ValueMap<int>>(iConfig.getParameter<edm::InputTag>("trackAssocSrc"));
@@ -294,6 +293,8 @@ MtdTracksValidation::MtdTracksValidation(const edm::ParameterSet& iConfig)
   SigmaTofKToken_ = consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("sigmaTofK"));
   SigmaTofPToken_ = consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("sigmaTofP"));
   trackMVAQualToken_ = consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("trackMVAQual"));
+  outermostHitPositionToken_ =
+      consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("outermostHitPositionSrc"));
   mtdgeoToken_ = esConsumes<MTDGeometry, MTDDigiGeometryRecord>();
   mtdtopoToken_ = esConsumes<MTDTopology, MTDTopologyRcd>();
   mtdlayerToken_ = esConsumes<MTDDetLayerGeometry, MTDRecoGeometryRecord>();
@@ -333,6 +334,7 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
   const auto& mtdQualMVA = iEvent.get(trackMVAQualToken_);
   const auto& trackAssoc = iEvent.get(trackAssocToken_);
   const auto& pathLength = iEvent.get(pathLengthToken_);
+  const auto& outermostHitPosition = iEvent.get(outermostHitPositionToken_);
 
   const auto& primRecoVtx = *(RecVertexHandle.product()->begin());
 
@@ -350,35 +352,6 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
 
   auto recoToSimH = makeValid(iEvent.getHandle(recoToSimAssociationToken_));
   r2s_ = recoToSimH.product();
-
-  //Fill maps with simhits accumulated per DetId
-
-  auto btlSimHitsHandle = makeValid(iEvent.getHandle(btlSimHitsToken_));
-  MixCollection<PSimHit> btlSimHits(btlSimHitsHandle.product());
-  for (auto const& simHit : btlSimHits) {
-    if (simHit.tof() < 0 || simHit.tof() > 25.)
-      continue;
-    DetId id = simHit.detUnitId();
-    auto const thisHId = uniqueId(simHit.trackId(), simHit.eventId());
-    m_btlTrkPerCell[id.rawId()].insert(thisHId);
-    auto simHitIt = m_btlHits.emplace(id.rawId(), MTDHit()).first;
-    // --- Accumulate the energy (in MeV) of SIM hits in the same detector cell
-    (simHitIt->second).energy += convertUnitsTo(0.001_MeV, simHit.energyLoss());
-  }
-
-  auto etlSimHitsHandle = makeValid(iEvent.getHandle(etlSimHitsToken_));
-  MixCollection<PSimHit> etlSimHits(etlSimHitsHandle.product());
-  for (auto const& simHit : etlSimHits) {
-    if (simHit.tof() < 0 || simHit.tof() > 25.) {
-      continue;
-    }
-    DetId id = simHit.detUnitId();
-    auto const thisHId = uniqueId(simHit.trackId(), simHit.eventId());
-    m_etlTrkPerCell[id.rawId()].insert(thisHId);
-    auto simHitIt = m_etlHits.emplace(id.rawId(), MTDHit()).first;
-    // --- Accumulate the energy (in MeV) of SIM hits in the same detector cell
-    (simHitIt->second).energy += convertUnitsTo(0.001_MeV, simHit.energyLoss());
-  }
 
   unsigned int index = 0;
 
@@ -549,6 +522,11 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
         }
       }
 
+      if (isBTL)
+        meTrackOutermostHitR_->Fill(outermostHitPosition[trackref]);
+      if (isETL)
+        meTrackOutermostHitZ_->Fill(std::abs(outermostHitPosition[trackref]));
+
       LogDebug("MtdTracksValidation") << "Track p/pt = " << track.p() << " " << track.pt() << " eta " << track.eta()
                                       << " BTL " << isBTL << " ETL " << isETL << " 2disks " << twoETLdiscs;
 
@@ -559,7 +537,7 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
 
       meTrackPtTot_->Fill(trackGen.pt());
       meTrackEtaTot_->Fill(std::abs(trackGen.eta()));
-      if (tp_info != nullptr && mvaTPSel(**tp_info)) {
+      if (tp_info != nullptr && mvaTPSelAll(**tp_info)) {
         if (track.pt() < 12.) {
           if (isBTL) {
             meBTLTrackMatchedTPPtResMtd_->Fill(std::abs(track.pt() - (*tp_info)->pt()) /
@@ -628,6 +606,10 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
           }
         }
 
+        // detailed extrapolation check only on tracks associated to TP from signal event
+        if (!mvaTPSelLV(**tp_info)) {
+          continue;
+        }
         size_t nlayers(0);
         float extrho(0.);
         float exteta(0.);
@@ -974,6 +956,9 @@ void MtdTracksValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
   meTrackPathLenghtvsEta_ = ibook.bookProfile(
       "TrackPathLenghtvsEta", "MTD Track pathlength vs MTD track Eta;|#eta|;Pathlength", 100, 0, 3.2, 100.0, 400.0, "S");
 
+  meTrackOutermostHitR_ = ibook.book1D("TrackOutermostHitR", "Track outermost hit position R; R[cm]", 40, 0, 120.);
+  meTrackOutermostHitZ_ = ibook.book1D("TrackOutermostHitZ", "Track outermost hit position Z; z[cm]", 100, 0, 300.);
+
   meTrackSigmaTof_[0] =
       ibook.book1D("TrackSigmaTof_Pion", "Sigma(TOF) for pion hypothesis; #sigma_{t0} [ps]", 10, 0, 5);
   meTrackSigmaTof_[1] =
@@ -1220,8 +1205,6 @@ void MtdTracksValidation::fillDescriptions(edm::ConfigurationDescriptions& descr
   desc.add<edm::InputTag>("SimTag", edm::InputTag("mix", "MergedTrackTruth"));
   desc.add<edm::InputTag>("TPtoRecoTrackAssoc", edm::InputTag("trackingParticleRecoTrackAsssociation"));
   desc.add<edm::InputTag>("tp2SimAssociationMapTag", edm::InputTag("mtdSimLayerClusterToTPAssociation"));
-  desc.add<edm::InputTag>("btlSimHits", edm::InputTag("mix", "g4SimHitsFastTimerHitsBarrel"));
-  desc.add<edm::InputTag>("etlSimHits", edm::InputTag("mix", "g4SimHitsFastTimerHitsEndcap"));
   desc.add<edm::InputTag>("btlRecHits", edm::InputTag("mtdRecHits", "FTLBarrel"));
   desc.add<edm::InputTag>("etlRecHits", edm::InputTag("mtdRecHits", "FTLEndcap"));
   desc.add<edm::InputTag>("tmtd", edm::InputTag("trackExtenderWithMTD:generalTracktmtd"));
@@ -1239,6 +1222,8 @@ void MtdTracksValidation::fillDescriptions(edm::ConfigurationDescriptions& descr
   desc.add<edm::InputTag>("sigmaTofK", edm::InputTag("trackExtenderWithMTD:generalTrackSigmaTofK"));
   desc.add<edm::InputTag>("sigmaTofP", edm::InputTag("trackExtenderWithMTD:generalTrackSigmaTofP"));
   desc.add<edm::InputTag>("trackMVAQual", edm::InputTag("mtdTrackQualityMVA:mtdQualMVA"));
+  desc.add<edm::InputTag>("outermostHitPositionSrc",
+                          edm::InputTag("trackExtenderWithMTD:generalTrackOutermostHitPosition"));
   desc.add<double>("trackMinimumPt", 0.7);  // [GeV]
   desc.add<double>("trackMaximumBtlEta", 1.5);
   desc.add<double>("trackMinimumEtlEta", 1.6);
@@ -1257,18 +1242,22 @@ const bool MtdTracksValidation::mvaGenSel(const HepMC::GenParticle& gp, const fl
   return match;
 }
 
-const bool MtdTracksValidation::mvaTPSel(const TrackingParticle& tp) {
+const bool MtdTracksValidation::mvaTPSelLV(const TrackingParticle& tp) {
+  bool match = (tp.status() != 1) ? false : true;
+  return match;
+}
+
+const bool MtdTracksValidation::mvaTPSelAll(const TrackingParticle& tp) {
   bool match = false;
-  if (tp.status() != 1) {
-    return match;
-  }
+
   auto x_pv = tp.parentVertex()->position().x();
   auto y_pv = tp.parentVertex()->position().y();
   auto z_pv = tp.parentVertex()->position().z();
 
   auto r_pv = std::sqrt(x_pv * x_pv + y_pv * y_pv);
 
-  match = tp.charge() != 0 && tp.pt() > pTcut_ && std::abs(tp.eta()) < etacutGEN_ && r_pv < rBTL_ && z_pv < zETL_;
+  match =
+      tp.charge() != 0 && tp.pt() > pTcut_ && std::abs(tp.eta()) < etacutGEN_ && r_pv < rBTL_ && std::abs(z_pv) < zETL_;
   return match;
 }
 

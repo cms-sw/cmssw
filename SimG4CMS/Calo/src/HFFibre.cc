@@ -6,8 +6,8 @@
 #include "SimG4CMS/Calo/interface/HFFibre.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
+#include <CLHEP/Units/SystemOfUnits.h>
+#include <CLHEP/Units/PhysicalConstants.h>
 #include <iostream>
 #include <sstream>
 
@@ -31,7 +31,7 @@ HFFibre::HFFibre(const HcalDDDSimConstants* hcons, const HcalSimulationParameter
                      hps)) {}
 
 HFFibre::HFFibre(Params iP)
-    : cFibre_(c_light * iP.fractionOfSpeedOfLightInFibre_),
+    : cFibre_(CLHEP::c_light * iP.fractionOfSpeedOfLightInFibre_),
       gpar_(std::move(iP.gParHF_)),
       radius_(std::move(iP.rTableHF_)),
       shortFL_(std::move(iP.shortFibreLength_)),

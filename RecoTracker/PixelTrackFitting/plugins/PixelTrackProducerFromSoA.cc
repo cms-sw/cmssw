@@ -1,59 +1,63 @@
+#include <algorithm>
+#include <cmath>
+//#include <iostream>
+#include <memory>
+#include <numeric>
+#include <string>
+#include <utility>
+#include <vector>
+
+#include "CUDADataFormats/Common/interface/HostProduct.h"
+#include "CUDADataFormats/SiPixelCluster/interface/gpuClusteringConstants.h"
+#include "CUDADataFormats/Track/interface/PixelTrackUtilities.h"
+#include "CUDADataFormats/Track/interface/TrackSoAHeterogeneousDevice.h"
+#include "CUDADataFormats/Track/interface/TrackSoAHeterogeneousHost.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/Common/interface/OrphanHandle.h"
+#include "DataFormats/GeometrySurface/interface/Plane.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "DataFormats/TrajectoryState/interface/LocalTrajectoryParameters.h"
-#include "DataFormats/GeometrySurface/interface/Plane.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
+#include "DataFormats/TrajectoryState/interface/LocalTrajectoryParameters.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/global/EDProducer.h"
-#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-
-#include "TrackingTools/AnalyticalJacobians/interface/JacobianLocalToCurvilinear.h"
-#include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
-#include "TrackingTools/TrajectoryParametrization/interface/CurvilinearTrajectoryError.h"
 #include "RecoTracker/PixelTrackFitting/interface/FitUtils.h"
-
-#include "CUDADataFormats/Common/interface/HostProduct.h"
-#include "CUDADataFormats/SiPixelCluster/interface/gpuClusteringConstants.h"
-#include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
+#include "TrackingTools/AnalyticalJacobians/interface/JacobianLocalToCurvilinear.h"
+#include "TrackingTools/TrajectoryParametrization/interface/CurvilinearTrajectoryError.h"
+#include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
 
 #include "storeTracks.h"
 
-#include "CUDADataFormats/Track/interface/TrackSoAHeterogeneousHost.h"
-#include "CUDADataFormats/Track/interface/TrackSoAHeterogeneousDevice.h"
-#include "CUDADataFormats/Track/interface/PixelTrackUtilities.h"
-
 /**
- * This class creates "leagcy"  reco::Track
+ * This class creates "legacy" reco::Track
  * objects from the output of SoA CA.
  */
 template <typename TrackerTraits>
 class PixelTrackProducerFromSoAT : public edm::global::EDProducer<> {
   using TrackSoAHost = TrackSoAHeterogeneousHost<TrackerTraits>;
-  using tracksHelpers = TracksUtilities<TrackerTraits>;
-
-public:
+  using TracksHelpers = TracksUtilities<TrackerTraits>;
+  using HMSstorage = HostProduct<uint32_t[]>;
   using IndToEdm = std::vector<uint32_t>;
 
+public:
   explicit PixelTrackProducerFromSoAT(const edm::ParameterSet &iConfig);
   ~PixelTrackProducerFromSoAT() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
-
-  using HMSstorage = HostProduct<uint32_t[]>;
 
 private:
   void produce(edm::StreamID streamID, edm::Event &iEvent, const edm::EventSetup &iSetup) const override;
@@ -140,24 +144,23 @@ void PixelTrackProducerFromSoAT<TrackerTraits>::produce(edm::StreamID streamID,
   auto const &rechits = iEvent.get(cpuHits_);
   std::vector<TrackingRecHit const *> hitmap;
   auto const &rcs = rechits.data();
-  auto nhits = rcs.size();
+  auto const nhits = rcs.size();
 
   hitmap.resize(nhits, nullptr);
 
   auto const *hitsModuleStart = iEvent.get(hmsToken_).get();
-  auto fc = hitsModuleStart;
 
-  for (auto const &h : rcs) {
-    auto const &thit = static_cast<BaseTrackerRecHit const &>(h);
-    auto detI = thit.det()->index();
+  for (auto const &hit : rcs) {
+    auto const &thit = static_cast<BaseTrackerRecHit const &>(hit);
+    auto const detI = thit.det()->index();
     auto const &clus = thit.firstClusterRef();
     assert(clus.isPixel());
-    auto i = fc[detI] + clus.pixelCluster().originalId();
-    if (i >= hitmap.size())
-      hitmap.resize(i + 256, nullptr);  // only in case of hit overflow in one module
+    auto const idx = hitsModuleStart[detI] + clus.pixelCluster().originalId();
+    if (idx >= hitmap.size())
+      hitmap.resize(idx + 256, nullptr);  // only in case of hit overflow in one module
 
-    assert(nullptr == hitmap[i]);
-    hitmap[i] = &h;
+    assert(nullptr == hitmap[idx]);
+    hitmap[idx] = &hit;
   }
 
   std::vector<const TrackingRecHit *> hits;
@@ -172,10 +175,10 @@ void PixelTrackProducerFromSoAT<TrackerTraits>::produce(edm::StreamID streamID,
 
   int32_t nt = 0;
 
-  //sort index by pt
+  // sort index by pt
   std::vector<int32_t> sortIdxs(nTracks);
   std::iota(sortIdxs.begin(), sortIdxs.end(), 0);
-  //sort good-quality tracks by pt, keep bad-quality tracks in the bottom
+  // sort good-quality tracks by pt, keep bad-quality tracks in the bottom
   std::sort(sortIdxs.begin(), sortIdxs.end(), [&](int32_t const i1, int32_t const i2) {
     if (quality[i1] >= minQuality_ && quality[i2] >= minQuality_)
       return tsoa.view()[i1].pt() > tsoa.view()[i2].pt();
@@ -183,16 +186,16 @@ void PixelTrackProducerFromSoAT<TrackerTraits>::produce(edm::StreamID streamID,
       return quality[i1] > quality[i2];
   });
 
-  //store the index of the SoA: indToEdm[index_SoAtrack] -> index_edmTrack (if it exists)
+  // store the index of the SoA: indToEdm[index_SoAtrack] -> index_edmTrack (if it exists)
   indToEdm.resize(sortIdxs.size(), -1);
   for (const auto &it : sortIdxs) {
-    auto nHits = tracksHelpers::nHits(tsoa.view(), it);
+    auto nHits = TracksHelpers::nHits(tsoa.view(), it);
     assert(nHits >= 3);
     auto q = quality[it];
 
     if (q < minQuality_)
       continue;
-    if (nHits < minNumberOfHits_)  //move to nLayers?
+    if (nHits < minNumberOfHits_)  // move to nLayers?
       continue;
     indToEdm[it] = nt;
     ++nt;
@@ -203,13 +206,12 @@ void PixelTrackProducerFromSoAT<TrackerTraits>::produce(edm::StreamID streamID,
       hits[iHit] = hitmap[*(b + iHit)];
 
     // mind: this values are respect the beamspot!
-
     float chi2 = tsoa.view()[it].chi2();
-    float phi = tracksHelpers::phi(tsoa.view(), it);
+    float phi = TracksHelpers::phi(tsoa.view(), it);
 
     riemannFit::Vector5d ipar, opar;
     riemannFit::Matrix5d icov, ocov;
-    tracksHelpers::template copyToDense<riemannFit::Vector5d, riemannFit::Matrix5d>(tsoa.view(), ipar, icov, it);
+    TracksHelpers::template copyToDense<riemannFit::Vector5d, riemannFit::Matrix5d>(tsoa.view(), ipar, icov, it);
     riemannFit::transformToPerigeePlane(ipar, icov, opar, ocov);
 
     LocalTrajectoryParameters lpar(opar(0), opar(1), opar(2), opar(3), opar(4), 1.);

@@ -84,7 +84,7 @@ void CUDATestDeviceAdditionModule::analyze(edm::StreamID, edm::Event const& even
   cudaCheck(cudaMemset(out_d, 0, size_ * sizeof(float)));
 
   // launch the 1-dimensional kernel for vector addition
-  HeterogeneousCoreCUDATestDevicePlugins::wrapper_add_vectors_f(in1_d, in2_d, out_d, size_);
+  HeterogeneousTestCUDADevicePlugins::wrapper_add_vectors_f(in1_d, in2_d, out_d, size_);
 
   // copy the results from the device to the host
   cudaCheck(cudaMemcpy(out_h.data(), out_d, size_ * sizeof(float), cudaMemcpyDeviceToHost));

@@ -2,7 +2,7 @@
 #include "SimG4Core/CustomPhysics/interface/CMSQGSPSIMPBuilder.h"
 #include "SimG4Core/CustomPhysics/interface/CMSSIMPInelasticProcess.h"
 
-#include "G4SystemOfUnits.hh"
+#include <CLHEP/Units/SystemOfUnits.h>
 #include "G4ParticleDefinition.hh"
 #include "G4TheoFSGenerator.hh"
 #include "G4PreCompoundModel.hh"

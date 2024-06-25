@@ -16,11 +16,17 @@
 class PFClusterCollectionMerger : public edm::global::EDProducer<> {
 public:
   PFClusterCollectionMerger(const edm::ParameterSet& conf) {
-    const std::vector<edm::InputTag>& inputs = conf.getParameter<std::vector<edm::InputTag> >("inputs");
+    const std::vector<edm::InputTag>& inputs = conf.getParameter<std::vector<edm::InputTag>>("inputs");
     for (const auto& input : inputs) {
       _inputs.push_back(consumes<reco::PFClusterCollection>(input));
     }
     produces<reco::PFClusterCollection>();
+  }
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+    desc.add<std::vector<edm::InputTag>>("inputs", {});
+    descriptions.addWithDefaultLabel(desc);
   }
 
   void produce(edm::StreamID, edm::Event& e, const edm::EventSetup& es) const override {
@@ -34,7 +40,7 @@ public:
   }
 
 private:
-  std::vector<edm::EDGetTokenT<reco::PFClusterCollection> > _inputs;
+  std::vector<edm::EDGetTokenT<reco::PFClusterCollection>> _inputs;
 };
 
 DEFINE_FWK_MODULE(PFClusterCollectionMerger);
