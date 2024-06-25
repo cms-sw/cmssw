@@ -382,8 +382,6 @@ void RPCRecHitValid::analyze(const edm::Event &event, const edm::EventSetup &eve
         h_simMuonNoRPC_eta->Fill(simParticle->eta());
         h_simMuonNoRPC_phi->Fill(simParticle->phi());
       }
-    } else {
-      pthrSimHits.insert(pthrSimHits.end(), simHitsFromParticle.begin(), simHitsFromParticle.end());
     }
 
     if (hasRPCHit) {
@@ -454,22 +452,6 @@ void RPCRecHitValid::analyze(const edm::Event &event, const edm::EventSetup &eve
     }
   }
 
-  // Loop over punch-through simHits, fill histograms which does not need
-  // associations
-  for (const auto &simHit : pthrSimHits) {
-    const RPCDetId detId = static_cast<const RPCDetId>(simHit->detUnitId());
-    const RPCRoll *roll = dynamic_cast<const RPCRoll *>(rpcGeom->roll(detId()));
-
-    const int region = roll->id().region();
-
-    if (region == 0) {
-      ++nRefHitBarrel;
-      h_refOccupancyBarrel_detId->Fill(detIdToIndexMapBarrel_[simHit->detUnitId()]);
-    } else {
-      ++nRefHitEndcap;
-      h_refOccupancyEndcap_detId->Fill(detIdToIndexMapEndcap_[simHit->detUnitId()]);
-    }
-  }
   h_.nRefHitBarrel->Fill(nRefHitBarrel);
   h_.nRefHitEndcap->Fill(nRefHitEndcap);
 
