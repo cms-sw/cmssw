@@ -113,10 +113,6 @@ namespace HcalObjRepresent {
     }
 
     ////NOTE to be implemented in PayloadInspector classes
-    virtual float getValue(Item* item) {
-      throw cms::Exception("Value definition not found") << "getValue definition not found for " << payload_->myname();
-    };
-
     virtual float getValue(const Item* item) {
       throw cms::Exception("Value definition not found") << "getValue definition not found for " << payload_->myname();
     }
