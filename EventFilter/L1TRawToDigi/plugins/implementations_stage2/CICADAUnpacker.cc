@@ -26,29 +26,17 @@ namespace l1t {
             << amc_slot << std::endl;
         return false;
       } else {
-        std::vector<uint32_t> cicadaWords = {0, 0, 0, 0};
-        //the last 4 words are CICADA words
-        for (uint32_t i = 2; i < 6; ++i) {
-          cicadaWords.at(i - 2) = ((block.payload().at(i)) >> 28);
-        }
-
-        float cicadaScore = convertCICADABitsToFloat(cicadaWords);
-        res->push_back(0, cicadaScore);
+        const uint32_t* base = block.payload().data();
+        //This differs slightly from uGT, in that we grab the first 4 bits
+        //of the last 4 words (still in first to last order) and arrange those
+        uint32_t word = (caloCrateCicadaBitsPattern & base[2]) >> 16 | (caloCrateCicadaBitsPattern & base[3]) >> 20 |
+                        (caloCrateCicadaBitsPattern & base[4]) >> 24 | (caloCrateCicadaBitsPattern & base[5]) >> 28;
+        float score = static_cast<float>(word) / 256.f;
+        res->push_back(0, score);
         return true;
       }
     }
 
-    //convert the 4 CICADA bits/words into a proper number
-    float CICADAUnpacker::convertCICADABitsToFloat(const std::vector<uint32_t>& cicadaBits) {
-      uint32_t tempResult = 0;
-      tempResult |= cicadaBits.at(0) << 12;
-      tempResult |= cicadaBits.at(1) << 8;
-      tempResult |= cicadaBits.at(2) << 4;
-      tempResult |= cicadaBits.at(3);
-      float result = 0.0;
-      result = (float)tempResult * pow(2.0, -8);
-      return result;
-    }
   }  // namespace stage2
 }  // namespace l1t
 
