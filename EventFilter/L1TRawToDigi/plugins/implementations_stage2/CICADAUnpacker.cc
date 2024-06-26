@@ -27,10 +27,9 @@ namespace l1t {
         return false;
       } else {
         const uint32_t* base = block.payload().data();
-        //This differs slightly from uGT, in that we grab the first 4 bits
-        //of the last 4 words (still in first to last order) and arrange those
-        uint32_t word = (caloCrateCicadaBitsPattern & base[2]) >> 16 | (caloCrateCicadaBitsPattern & base[3]) >> 20 |
-                        (caloCrateCicadaBitsPattern & base[4]) >> 24 | (caloCrateCicadaBitsPattern & base[5]) >> 28;
+        //First 4 bits of the first 4 words are CICADA bits
+        uint32_t word = (caloCrateCicadaBitsPattern & base[0]) >> 16 | (caloCrateCicadaBitsPattern & base[1]) >> 20 |
+                        (caloCrateCicadaBitsPattern & base[2]) >> 24 | (caloCrateCicadaBitsPattern & base[3]) >> 28;
         float score = static_cast<float>(word) / 256.f;
         res->push_back(0, score);
         return true;
