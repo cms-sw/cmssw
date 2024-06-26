@@ -1,4 +1,4 @@
-\1;95;0cimport FWCore.ParameterSet.Config as cms
+import FWCore.ParameterSet.Config as cms
 
 from SimG4Core.Application.hectorParameter_cfi import *
 
