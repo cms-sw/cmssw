@@ -92,9 +92,9 @@ void HLLHCEvtVtxGenerator::update(const edm::EventSetup& iEventSetup) {
   if (readDB_ && parameterWatcher_.check(iEventSetup)) {
     edm::ESHandle<SimBeamSpotHLLHCObjects> beamhandle = iEventSetup.getHandle(beamToken_);
     // Read configurable parameters
-    fMeanX = beamhandle->meanX() * cm;
-    fMeanY = beamhandle->meanY() * cm;
-    fMeanZ = beamhandle->meanZ() * cm;
+    fMeanX = beamhandle->meanX() * CLHEP::cm;
+    fMeanY = beamhandle->meanY() * CLHEP::cm;
+    fMeanZ = beamhandle->meanZ() * CLHEP::cm;
     fEProton = beamhandle->eProton() * 1e9;
     fCrossingAngle = beamhandle->crossingAngle() * 1e-6;
     fCrabFrequency = beamhandle->crabFrequency() * 1e6;
@@ -106,7 +106,7 @@ void HLLHCEvtVtxGenerator::update(const edm::EventSetup& iEventSetup) {
     fBunchLength = beamhandle->bunchLenght();
     fCrabbingAngleCrossing = beamhandle->crabbingAngleCrossing() * 1e-6;
     fCrabbingAngleSeparation = beamhandle->crabbingAngleSeparation() * 1e-6;
-    fTimeOffset = beamhandle->timeOffset() * ns * c_light;
+    fTimeOffset = beamhandle->timeOffset() * CLHEP::ns * c_light;
     // Set parameters inferred from configurables
     gamma = fEProton / pmass + 1.0;
     beta = std::sqrt((1.0 - 1.0 / gamma) * ((1.0 + 1.0 / gamma)));
