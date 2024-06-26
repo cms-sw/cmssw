@@ -138,7 +138,7 @@ process.BoardDataInput = cms.EDAnalyzer("L1GTObjectBoardWriter",
     CL2HtSum = cms.InputTag("l1tSC4PFL1PuppiCorrectedEmulatorMHT"),
     filename = cms.string("inputPattern"),
     platform = cms.string("VU13P"),
-    maxLines = cms.uint32(1024),
+    maxFrames = cms.uint32(1024),
     bufferFileType = cms.string("input")
 )
 
@@ -164,7 +164,7 @@ process.BoardDataOutputObjects = cms.EDAnalyzer("L1GTObjectBoardWriter",
     CL2HtSum = cms.InputTag("l1tSC4PFL1PuppiCorrectedEmulatorMHT"),
     filename = cms.string("outputObjectPattern"),
     platform = cms.string("VU13P"),
-    maxLines = cms.uint32(1024),
+    maxFrames = cms.uint32(1024),
     bufferFileType = cms.string("output")
 )
 

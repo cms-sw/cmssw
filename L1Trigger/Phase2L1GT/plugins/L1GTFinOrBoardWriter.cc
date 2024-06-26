@@ -59,7 +59,7 @@ L1GTFinOrBoardWriter::L1GTFinOrBoardWriter(const edm::ParameterSet& config)
                        config.getParameter<std::string>("outputFileExtension"),
                        9,
                        2,
-                       config.getParameter<unsigned int>("maxLines"),
+                       config.getParameter<unsigned int>("maxFrames"),
                        [&]() {
                          l1t::demo::BoardDataWriter::ChannelMap_t channelMap;
                          channelMap.insert({l1t::demo::LinkId{"BeforeBxMaskAndPrescaleLow", channelsLow_[0]},
@@ -188,7 +188,7 @@ void L1GTFinOrBoardWriter::fillDescriptions(edm::ConfigurationDescriptions& desc
   desc.add<std::vector<unsigned int>>("channelsMid");
   desc.add<std::vector<unsigned int>>("channelsHigh");
   desc.add<unsigned int>("channelFinOr");
-  desc.add<unsigned int>("maxLines", 1024);
+  desc.add<unsigned int>("maxFrames", 1024);
   desc.add<std::string>("patternFormat", "EMPv2");
 
   descriptions.addDefault(desc);

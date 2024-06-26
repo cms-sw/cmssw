@@ -84,7 +84,7 @@ L1GTEvaluationProducer::L1GTEvaluationProducer(const edm::ParameterSet &config)
           config.getParameter<std::string>("inputFileExtension"),
           9,
           1,
-          config.getParameter<unsigned int>("maxLines"),
+          config.getParameter<unsigned int>("maxFrames"),
           config.getParameter<std::string>("platform") == "VU13P" ? INPUT_CHANNEL_MAP_VU13P : INPUT_CHANNEL_MAP_VU9P),
       outputChannelDef_(config.getParameter<std::string>("platform") == "VU13P" ? OUTPUT_CHANNELS_VU13P
                                                                                 : OUTPUT_CHANNELS_VU9P),
@@ -93,7 +93,7 @@ L1GTEvaluationProducer::L1GTEvaluationProducer(const edm::ParameterSet &config)
                              config.getParameter<std::string>("outputFileExtension"),
                              9,
                              1,
-                             config.getParameter<unsigned int>("maxLines"),
+                             config.getParameter<unsigned int>("maxFrames"),
                              [&]() {
                                demo::BoardDataWriter::ChannelMap_t channelMap;
                                for (const auto &[name, start, end] : outputChannelDef_) {
@@ -137,7 +137,7 @@ L1GTEvaluationProducer::L1GTEvaluationProducer(const edm::ParameterSet &config)
 void L1GTEvaluationProducer::fillDescriptions(edm::ConfigurationDescriptions &description) {
   edm::ParameterSetDescription desc;
   desc.addOptional<unsigned int>("random_seed");
-  desc.add<unsigned int>("maxLines", 1024);
+  desc.add<unsigned int>("maxFrames", 1024);
   desc.add<std::string>("inputFilename");
   desc.add<std::string>("inputFileExtension", "txt");
   desc.add<std::string>("outputFilename");

@@ -59,6 +59,8 @@ private:
   enum BufferType { INPUT, OUTPUT };
 
   const BufferType bufferFileType_;
+  unsigned int eventCounter_;
+  unsigned int maxEvents_;
   const GTOutputChannelMap_t outputChannelDef_;
   demo::BoardDataWriter boardDataWriter_;
 
@@ -85,6 +87,8 @@ private:
 
 L1GTObjectBoardWriter::L1GTObjectBoardWriter(const edm::ParameterSet& config)
     : bufferFileType_(config.getParameter<std::string>("bufferFileType") == "input" ? INPUT : OUTPUT),
+      eventCounter_(0),
+      maxEvents_(config.getParameter<unsigned int>("maxEvents")),
       outputChannelDef_(config.getParameter<std::string>("platform") == "VU13P" ? OUTPUT_CHANNELS_VU13P
                                                                                 : OUTPUT_CHANNELS_VU9P),
       boardDataWriter_(demo::parseFileFormat(config.getParameter<std::string>("patternFormat")),
@@ -92,7 +96,7 @@ L1GTObjectBoardWriter::L1GTObjectBoardWriter(const edm::ParameterSet& config)
                        config.getParameter<std::string>("fileExtension"),
                        9,
                        1,
-                       config.getParameter<unsigned int>("maxLines"),
+                       config.getParameter<unsigned int>("maxFrames"),
                        [&]() {
                          if (bufferFileType_ == INPUT) {
                            return config.getParameter<std::string>("platform") == "VU13P" ? INPUT_CHANNEL_MAP_VU13P
@@ -315,6 +319,13 @@ void L1GTObjectBoardWriter::analyze(const edm::Event& event, const edm::EventSet
 
     boardDataWriter_.addEvent(eventData);
   }
+
+  eventCounter_++;
+
+  if (maxEvents_ != 0 && eventCounter_ == maxEvents_) {
+    boardDataWriter_.flush();
+    eventCounter_ = 0;
+  }
 }
 
 void L1GTObjectBoardWriter::endJob() { boardDataWriter_.flush(); }
@@ -323,7 +334,8 @@ void L1GTObjectBoardWriter::fillDescriptions(edm::ConfigurationDescriptions& des
   edm::ParameterSetDescription desc;
   desc.add<std::string>("filename");
   desc.add<std::string>("fileExtension", "txt");
-  desc.add<unsigned int>("maxLines", 1024);
+  desc.add<unsigned int>("maxFrames", 1024);
+  desc.add<unsigned int>("maxEvents", 0);
   desc.add<std::string>("patternFormat", "EMPv2");
   desc.ifValue(edm::ParameterDescription<std::string>("platform", "VU13P", true),
                edm::allowedValues<std::string>("VU9P", "VU13P"));

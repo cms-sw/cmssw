@@ -24,7 +24,7 @@ process.l1tGTProducer = cms.EDProducer(
     inputFilename=cms.string("inputPattern"),
     outputFilename=cms.string("outputObjectPattern"),
     random_seed=cms.uint32(0),
-    maxLines=cms.uint32(1024),
+    maxFrames=cms.uint32(1024),
     platform=cms.string(options.platform)
 )
 
@@ -813,14 +813,14 @@ else:
 process.BoardData = cms.EDAnalyzer("L1GTAlgoBoardWriter",
   outputFilename = cms.string("outputPattern"),
   algoBlocksTag = cms.InputTag("l1tGTAlgoBlockProducer"),
-  maxLines = cms.uint32(1024),
+  maxFrames = cms.uint32(1024),
   channels = channels
 )
 
 process.FinOrBoardData = cms.EDAnalyzer("L1GTFinOrBoardWriter",
   outputFilename = cms.string("outputFinOrPattern"),
   algoBlocksTag = cms.InputTag("l1tGTAlgoBlockProducer"),
-  maxLines = cms.uint32(1024),
+  maxFrames = cms.uint32(1024),
   channelsLow = cms.vuint32(4, 5, 6),
   channelsMid = cms.vuint32(40, 41, 42),
   channelsHigh = cms.vuint32(52, 53, 54),
