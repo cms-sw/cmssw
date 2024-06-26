@@ -11,9 +11,6 @@ namespace l1t {
       ~CaloSummaryUnpacker() override = default;
 
       bool unpack(const Block& block, UnpackerCollections* coll) override;
-      float processBitsToScore(const unsigned int[]);
-
-      static constexpr unsigned short numCICADAWords = 4;  // We have 4 words/frames that contain CICADA bits
       static constexpr unsigned int nFramesPerEvent =
           6;  //Calo Summary outputs 6 32 bit words (or frames in uGT parlance) per event.
       static constexpr unsigned int cicadaBitsPattern =
