@@ -3906,6 +3906,12 @@ steps['HARVESTHI2024']=merge([hiDefaults2024,{'-s':'HARVESTING:validationHarvest
                                               '--era' : 'Run3_pp_on_PbPb_2024',
                                               '--filetype':'DQM'}])
 
+steps['HARVESTHI2024S4']=merge([hiDefaults2024,{'-s':'HARVESTING:validationHarvestingNoHLT+dqmHarvestingFakeHLT',
+                                                '--filein':'file:step4_inDQM.root',
+                                                '--mc':'',
+                                                '--era' : 'Run3_pp_on_PbPb_2024',
+                                                '--filetype':'DQM'}])
+
 steps['HARVESTHI2024MINIAOD']=merge([{'-s':'HARVESTING:@miniAODValidation+@miniAODDQM',
                                       '--filein':'file:step2_inDQM.root',
                                       '--mc':'',
