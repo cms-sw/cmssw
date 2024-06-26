@@ -75,6 +75,7 @@ private:
   const std::string calibrationPath_;
   const bool useCalibration_;
   const bool doShapeTest_;
+  const bool usePixelShape_;
 
   const unsigned int lowPtTracksPrescalePass_, lowPtTracksPrescaleFail_;
   GenericTruncatedAverageDeDxEstimator lowPtTracksEstimator_;
@@ -114,6 +115,7 @@ DeDxHitInfoProducer::DeDxHitInfoProducer(const edm::ParameterSet& iConfig)
       calibrationPath_(iConfig.getParameter<string>("calibrationPath")),
       useCalibration_(iConfig.getParameter<bool>("useCalibration")),
       doShapeTest_(iConfig.getParameter<bool>("shapeTest")),
+      usePixelShape_(not iConfig.getParameter<edm::InputTag>("clusterShapeCache").label().empty()),
       lowPtTracksPrescalePass_(iConfig.getParameter<uint32_t>("lowPtTracksPrescalePass")),
       lowPtTracksPrescaleFail_(iConfig.getParameter<uint32_t>("lowPtTracksPrescaleFail")),
       lowPtTracksEstimator_(iConfig.getParameter<edm::ParameterSet>("lowPtTracksEstimatorParameters")),
@@ -150,7 +152,8 @@ void DeDxHitInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   const TrackCollection& trackCollection(*trackCollectionHandle.product());
 
   clShape_ = iSetup.getHandle(clShapeToken_);
-  pixShapeCache_ = iEvent.getHandle(pixShapeCacheToken_);
+  if (usePixelShape_)
+    pixShapeCache_ = iEvent.getHandle(pixShapeCacheToken_);
 
   // creates the output collection
   auto resultdedxHitColl = std::make_unique<reco::DeDxHitInfoCollection>();
@@ -306,7 +309,7 @@ void DeDxHitInfoProducer::processHit(const TrackingRecHit* recHit,
     ClusterShape().determineShape(pixelDet, clus.pixelCluster(), data);
     if (data.isComplete)
       type |= (1 << reco::DeDxHitInfo::Complete);
-    if (clShape_->isCompatible(pixelRecHit, trackDirection, *pixShapeCache_))
+    if (usePixelShape_ && clShape_->isCompatible(pixelRecHit, trackDirection, *pixShapeCache_))
       type |= (1 << reco::DeDxHitInfo::Compatible);
     if (data.isComplete && data.isStraight && data.hasBigPixelsOnlyInside)
       type |= (1 << reco::DeDxHitInfo::Calibration);
