@@ -18,6 +18,13 @@ OutALCARECOTkAlZMuMu_noDrop = cms.PSet(
 	'keep *_offlinePrimaryVertices_*_*')
 )
 
+# add branches for MC truth evaluation
+from GeneratorInterface.Configuration.GeneratorInterface_EventContent_cff import GeneratorInterfaceAOD
+from SimGeneral.Configuration.SimGeneral_EventContent_cff import SimGeneralAOD
+
+OutALCARECOTkAlZMuMu_noDrop.outputCommands.extend(GeneratorInterfaceAOD.outputCommands)
+OutALCARECOTkAlZMuMu_noDrop.outputCommands.extend(SimGeneralAOD.outputCommands)
+
 # in Run3, SCAL digis replaced by onlineMetaDataDigis
 import copy
 _run3_common_removedCommands = OutALCARECOTkAlZMuMu_noDrop.outputCommands.copy()
