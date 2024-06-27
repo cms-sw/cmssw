@@ -38,6 +38,7 @@
 #include "L1Trigger/L1TGlobal/interface/EnergySumTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/EnergySumZdcTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/AXOL1TLTemplate.h"
+#include "L1Trigger/L1TGlobal/interface/CICADATemplate.h"
 #include "L1Trigger/L1TGlobal/interface/CorrelationTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/CorrelationThreeBodyTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/CorrelationWithOverlapRemovalTemplate.h"
@@ -156,6 +157,10 @@ namespace l1t {
     //
     inline const std::vector<std::vector<AXOL1TLTemplate> >& vecAXOL1TLTemplate() const { return m_vecAXOL1TLTemplate; }
     void setVecAXOL1TLTemplate(const std::vector<std::vector<AXOL1TLTemplate> >&);
+
+    //
+    inline const std::vector<std::vector<CICADATemplate> >& vecCICADATemplate() const { return m_vecCICADATemplate; }
+    void setVecCICADATemplate(const std::vector<std::vector<CICADATemplate> >&);
 
     //
     inline const std::vector<std::vector<ExternalTemplate> >& vecExternalTemplate() const {
@@ -309,6 +314,8 @@ namespace l1t {
 
     bool parseAXOL1TL(L1TUtmCondition condAXOL1TL, unsigned int chipNr = 0);
 
+    bool parseCICADA(L1TUtmCondition condCICADA, unsigned int chipNr = 0);
+
     bool parseEnergySumCorr(const L1TUtmObject* corrESum, unsigned int chipNr = 0);
 
     bool parseExternal(L1TUtmCondition condExt, unsigned int chipNr = 0);
@@ -416,6 +423,7 @@ namespace l1t {
     std::vector<std::vector<EnergySumTemplate> > m_vecEnergySumTemplate;
     std::vector<std::vector<EnergySumZdcTemplate> > m_vecEnergySumZdcTemplate;
     std::vector<std::vector<AXOL1TLTemplate> > m_vecAXOL1TLTemplate;
+    std::vector<std::vector<CICADATemplate> > m_vecCICADATemplate;
     std::vector<std::vector<ExternalTemplate> > m_vecExternalTemplate;
 
     std::vector<std::vector<CorrelationTemplate> > m_vecCorrelationTemplate;
