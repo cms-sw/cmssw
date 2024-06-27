@@ -9,6 +9,7 @@
 #include <unistd.h>
 #include <ostream>
 #include <cstring>
+#include <filesystem>
 #if __APPLE__
 #include <crt_externs.h>
 #define environ (*_NSGetEnviron())
@@ -53,27 +54,27 @@ int RemoteFile::local(const std::string &tmpdir, std::string &temp) {
   // likely to have more space, and is more optimised for
   // large files, and is cleaned up after the job.
   if (tmpdir.empty() || tmpdir == ".") {
-    size_t len = pathconf(".", _PC_PATH_MAX);
-    char *buf = (char *)malloc(len);
-    getcwd(buf, len);
-
-    temp.reserve(len + 32);
-    temp = buf;
-    free(buf);
+    fs::path current_path = fs::current_path();
+    temp = current_path.string();
   } else {
-    temp.reserve(tmpdir.size() + 32);
     temp = tmpdir;
   }
-  if (temp[temp.size() - 1] != '/')
+
+  if (temp.back() != '/')
     temp += '/';
 
   temp += "storage-factory-local-XXXXXX";
-  temp.c_str();  // null terminate for mkstemp
 
-  int fd = mkstemp(&temp[0]);
+  // Make the string null-terminated for mkstemp
+  std::vector<char> temp_chars(temp.begin(), temp.end());
+  temp_chars.push_back('\0');
+
+  int fd = mkstemp(temp_chars.data());
+
   if (fd == -1)
     throwStorageError("RemoteFile", "Calling RemoteFile::local()", "mkstemp()", errno);
 
+  temp = std::string(temp_chars.data());
   return fd;
 }
 
