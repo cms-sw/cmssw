@@ -16,6 +16,12 @@ options.register('isStrip',
                  VarParsing.VarParsing.multiplicity.singleton, # singleton or list
                  VarParsing.VarParsing.varType.bool, # string, int, or float
                  "true filters on Strips, false filters on Pixels")
+# Register the option as a list of strings
+options.register('testCombinations',
+                 '',  # Default value as an empty string
+                 VarParsing.VarParsing.multiplicity.list,  # Allows multiple values
+                 VarParsing.VarParsing.varType.string,  # Specifies that the values are strings
+                 "List of combinations of partitions to test")
 options.parseArguments()
 
 # import of standard configurations
@@ -71,7 +77,8 @@ process.SiPixelFilter = detectorStateFilter.clone(DetectorType = 'pixel',
                                                   DebugOn = True)
 
 process.SiStripFilter = detectorStateFilter.clone(DetectorType = 'sistrip',
-                                                  DebugOn = True)
+                                                  DebugOn = True,
+                                                  acceptedCombinations = options.testCombinations)
 
 #process.analysis_step = cms.Path(process.detectorStateFilter)
 if(options.isStrip) :
