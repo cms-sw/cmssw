@@ -23,6 +23,13 @@ OutALCARECOTkAlDiMuonAndVertex_noDrop = cms.PSet(
         'keep *_offlinePrimaryVertices_*_*')
 )
 
+# add branches for MC truth evaluation
+from GeneratorInterface.Configuration.GeneratorInterface_EventContent_cff import GeneratorInterfaceAOD
+from SimGeneral.Configuration.SimGeneral_EventContent_cff import SimGeneralAOD
+
+OutALCARECOTkAlDiMuonAndVertex_noDrop.outputCommands.extend(GeneratorInterfaceAOD.outputCommands)
+OutALCARECOTkAlDiMuonAndVertex_noDrop.outputCommands.extend(SimGeneralAOD.outputCommands)
+
 # in Phase2, remove the SiStrip clusters and keep the OT ones instead
 _phase2_common_removedCommands = OutALCARECOTkAlDiMuonAndVertex_noDrop.outputCommands.copy()
 _phase2_common_removedCommands.remove('keep SiStripClusteredmNewDetSetVector_ALCARECOTkAlDiMuon_*_*')
