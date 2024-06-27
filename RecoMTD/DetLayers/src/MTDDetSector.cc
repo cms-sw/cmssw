@@ -13,7 +13,10 @@
 #include <iomanip>
 #include <vector>
 
+#include "DataFormats/Math/interface/Rounding.h"
+
 using namespace std;
+using namespace cms_rounding;
 
 MTDDetSector::MTDDetSector(vector<const GeomDet*>::const_iterator first,
                            vector<const GeomDet*>::const_iterator last,
@@ -178,14 +181,21 @@ bool MTDDetSector::add(size_t idet,
 }
 
 std::ostream& operator<<(std::ostream& os, const MTDDetSector& id) {
-  os << " MTDDetSector at " << std::fixed << id.specificSurface().position() << std::endl
-     << " L/W/T   : " << std::setw(14) << id.specificSurface().bounds().length() << " / " << std::setw(14)
-     << id.specificSurface().bounds().width() << " / " << std::setw(14) << id.specificSurface().bounds().thickness()
+  auto fround = [&](double in) {
+    std::stringstream ss;
+    ss << std::fixed << std::setprecision(3) << std::setw(14) << roundIfNear0(in);
+    return ss.str();
+  };
+
+  os << " MTDDetSector at " << std::fixed << std::setprecision(3) << roundVecIfNear0(id.specificSurface().position())
      << std::endl
-     << " rmin    : " << std::setw(14) << id.specificSurface().innerRadius() << std::endl
-     << " rmax    : " << std::setw(14) << id.specificSurface().outerRadius() << std::endl
-     << " phi ref : " << std::setw(14) << id.specificSurface().position().phi() << std::endl
-     << " phi w/2 : " << std::setw(14) << id.specificSurface().phiHalfExtension() << std::endl;
+     << " L/W/T   : " << fround(id.specificSurface().bounds().length()) << " / "
+     << fround(id.specificSurface().bounds().width()) << " / " << fround(id.specificSurface().bounds().thickness())
+     << std::endl
+     << " rmin    : " << fround(id.specificSurface().innerRadius()) << std::endl
+     << " rmax    : " << fround(id.specificSurface().outerRadius()) << std::endl
+     << " phi ref : " << fround(id.specificSurface().position().phi()) << std::endl
+     << " phi w/2 : " << fround(id.specificSurface().phiHalfExtension()) << std::endl;
   return os;
 }
 
