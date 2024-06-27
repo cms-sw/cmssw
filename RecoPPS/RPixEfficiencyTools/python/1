@@ -12,8 +12,8 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 # fiducial variables restrict the area to analyze 
 # the current parameters cover the whole possible area
 fiducialXLow = [0,0,0,0]
-fiducialYLow = [-8.5,-8.5,-8.5,-8.5]
-fiducialYHigh = [4.3,4.3,4.3,4.3] #Annalisa, prima era 99.
+fiducialYLow = [-99.,-99.,-99.,-99.]
+fiducialYHigh = [99.,99.,99.,99.]
 
 #SETUP PROCESS
 process = cms.Process("EfficiencyAnalysisDQMWorker", eras.Run3)
@@ -25,7 +25,7 @@ process.options = cms.untracked.PSet(
     )
 options = VarParsing.VarParsing('analysis')
 options.register('outputFileName',
-            'outputEfficiencyAnalysisDQMWorker_provaReduced_56.root',
+                'outputEfficiencyAnalysisDQMWorker_D6.root',
                 VarParsing.VarParsing.multiplicity.singleton,
                 VarParsing.VarParsing.varType.string,
                 "output ROOT file name")

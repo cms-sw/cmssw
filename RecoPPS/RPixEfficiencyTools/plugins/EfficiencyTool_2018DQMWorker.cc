@@ -256,8 +256,11 @@ private:
   std::map<CTPPSPixelDetId, MonitorElement *> h2AuxProtonHitDistributionWithNoMultiRP_;
   std::map<CTPPSPixelDetId, MonitorElement *> h2InterPotEfficiencyMap_;
   std::map<CTPPSPixelDetId, MonitorElement *> h2InterPotEfficiencyMapMultiRP_;
+  std::map<CTPPSPixelDetId, MonitorElement *> h2InterPotEfficiencyMapMultiRPFinal_; //Annalisa
   std::map<CTPPSPixelDetId, MonitorElement *> h1AuxXi_;
   std::map<CTPPSPixelDetId, MonitorElement *> h1InterPotEfficiencyVsXi_;
+  std::map<CTPPSPixelDetId, MonitorElement *> h1AuxXiSingle_;			//Annalisa
+  std::map<CTPPSPixelDetId, MonitorElement *> h1InterPotEfficiencyVsXiSingle_;  //Annalisa
   std::map<CTPPSPixelDetId, MonitorElement *> h1DeltaXiMatch_;
   std::map<CTPPSPixelDetId, MonitorElement *> h1DeltaYMatch_;
   std::map<CTPPSPixelDetId, MonitorElement *> h1TxMatch_;
@@ -278,10 +281,10 @@ private:
   double mapXbinSize_small = (mapXmax_ - mapXmin_) / mapXbins;
   double mapXbinSize_large = (mapXmax_ - mapXmin_) / mapXbins * 2;
 
-  uint32_t maxTracksInTagPot = 99;
-  uint32_t minTracksInTagPot = 0;
-  uint32_t maxTracksInProbePot = 99;
-  uint32_t minTracksInProbePot = 0;
+  uint32_t maxTracksInTagPot = 1; //99; Annalisa
+  uint32_t minTracksInTagPot = 1; //0; Annalisa
+  uint32_t maxTracksInProbePot = 99; //99; Annalisa
+  uint32_t minTracksInProbePot = 0; //0; Annalisa
   double maxChi2Prob_;
   bool debug_ = false;
   bool fancyBinning_ = false;
@@ -757,6 +760,7 @@ void EfficiencyTool_2018DQMWorker::bookHistograms(DQMStore::IBooker &ibooker,
                           mapYmin,
                           mapYmax);
 
+      h2InterPotEfficiencyMapMultiRPFinal_[pixelDetId] =
       ibooker.book2DD(Form("h2InterPotEfficiencyMapMultiRPFinal_arm%i", arm_Probe),
                       Form("h2InterPotEfficiencyMapMultiRPFinal_arm%i;x (mm);y (mm)", arm_Probe),
                       nBinsX_total[pixelDetId],
@@ -831,7 +835,33 @@ void EfficiencyTool_2018DQMWorker::bookHistograms(DQMStore::IBooker &ibooker,
 
     h1AuxXi_[pixelDetId] = ibooker.book1DD(
         Form("h1AuxXi_arm%i", arm_Probe), Form("h1AuxXi_arm%i;#xi;Efficiency", arm_Probe), xiBins, xiMin, xiMax);
+   
+	//inizio Annalisa
+    h1InterPotEfficiencyVsXiSingle_[pixelDetId] =
+        ibooker.book1DD(Form("h1InterPotEfficiencyVsXiSingle_arm%i", arm_Probe),
+                        Form("h1InterPotEfficiencyVsXiSingle_arm%i;#xi;Efficiency", arm_Probe),
+                        xiBins,
+                        xiMin,
+                        xiMax);
+
+    ibooker.book1DD(Form("h1InterPotEfficiencyVsXiFinalSingle_arm%i", arm_Probe),
+                    Form("h1InterPotEfficiencyVsXiFinalSingle_arm%i;#xi;Efficiency", arm_Probe),
+                    xiBins,
+                    xiMin,
+                    xiMax);
+
+    h1AuxXiSingle_[pixelDetId] = ibooker.book1DD(
+        Form("h1AuxXiSingle_arm%i", arm_Probe), Form("h1AuxXiSingle_arm%i;#xi;Efficiency", arm_Probe), xiBins, xiMin, xiMax);
     
+    
+//    ibooker.book1DD(Form("h1InterPotEfficiencyVsXiFinalSingleReduced_arm%i", arm_Probe),
+  //                  Form("h1InterPotEfficiencyVsXiFinalSingleReduced_arm%i;#xi;Efficiency", arm_Probe),		//new, useful to generate the istogram with the cut on XY map, y<4mm
+    //                xiBins,
+      //              xiMin,
+        //            xiMax);
+    	//fine Annalisa
+
+
     h1DeltaXiMatch_[pixelDetId] = ibooker.book1DD(
         Form("h1DeltaXiMatch_arm%i", arm_Probe), Form("h1DeltaXiMatch_arm%i;#Delta_{#xi}", arm_Probe), 100, -0.02, 0.02);
     
@@ -1376,7 +1406,10 @@ void EfficiencyTool_2018DQMWorker::analyze(const edm::Event &iEvent, const edm::
             std::cout << "**MultiRP proton matched to the tag track!**" << std::endl;
           multiRPmatchFound++;
           h2InterPotEfficiencyMapMultiRP_[pixelDetId]->Fill(expectedTrackX0_Probe, expectedTrackY0_Probe, weight);
+          if(multiRPmatchFound == 1){  //Annalisa
+	  h1InterPotEfficiencyVsXiSingle_[pixelDetId]->Fill(xi_Tag, weight); //Annalisa, numeratore 
         }
+	}
       }
     }
     if (multiRPmatchFound > 1) {
@@ -1387,6 +1420,7 @@ void EfficiencyTool_2018DQMWorker::analyze(const edm::Event &iEvent, const edm::
     if (multiRPmatchFound == 0)
       h2AuxProtonHitDistributionWithNoMultiRP_[pixelDetId]->Fill(expectedTrackX0_Probe, expectedTrackY0_Probe, weight);
     h1AuxXi_[pixelDetId]->Fill(xi_Tag, weight);
+    h1AuxXiSingle_[pixelDetId]->Fill(xi_Tag, weight);  //Annalisa
 
     if (matches > 1) {
       overmatches[pixelDetId]++;
@@ -1498,7 +1532,7 @@ void EfficiencyTool_2018DQMWorker::fillDescriptions(edm::ConfigurationDescriptio
     ->setComment("Lower bound of the fiducial region in X");
   desc.addUntracked<std::vector<double>>("fiducialYLow", {-20.0,-20.0,-20.0,-20.0})
     ->setComment("Lower bound of the fiducial region in Y");
-  desc.addUntracked<std::vector<double>>("fiducialYHigh", {20.0,20.0,20.0,20.0})
+  desc.addUntracked<std::vector<double>>("fiducialYHigh", {4.0,4.0,4.0,4.0}) //Annalisa, prima erano tutti 20.0, ora ho sostituito il 20 con il 4
     ->setComment("Upper bound of the fiducial region in Y");
   desc.addUntracked<double>("detectorTiltAngle", 20.)
     ->setComment("Detector tilt angle in degrees");

@@ -1,5 +1,6 @@
 import os
 
+
 import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
 from Configuration.StandardSequences.Eras import eras
@@ -37,7 +38,6 @@ options.register('globalTag',
                 VarParsing.VarParsing.varType.string,
                 'GT to use')
 options.parseArguments()
-
 
 #PREPARE LOGGER
 process.load('FWCore.MessageService.MessageLogger_cfi')
@@ -91,9 +91,9 @@ if len(options.inputFiles) != 0:
     inputFiles = []
     for file_name in options.inputFiles:
         inputFiles.append('file:'+file_name)
-    inputFiles = cms.untracked.vstring(inputFiles) 
+    inputFiles = cms.untracked.vstring(inputFiles)
 else:
-    inputFiles = cms.untracked.vstring('file:outputEfficiencyAnalysisDQMWorker.root')
+    inputFiles = cms.untracked.vstring('file:outputEfficiencyAnalysisDQMWorker_provaReduced_56.root')
 print('Input files:\n',inputFiles, sep='')
 
 process.source = cms.Source('DQMRootSource',
@@ -107,7 +107,7 @@ process.harvester = DQMEDHarvester('EfficiencyTool_2018DQMHarvester')
 #CONFIGURE DQM Saver
 process.dqmEnv.subSystemFolder = 'RolCalPPS'
 process.dqmSaver.convention = 'Offline'
-process.dqmSaver.workflow = '/'+'/'.join(['efficiencyAnalysis', options.run, options.clusterid])
+process.dqmSaver.workflow = '/'+'/'.join(['efficiencyAnalysis_eraReduced_56', options.run, options.clusterid])
 process.dqmSaver.saveByRun = -1
 process.dqmSaver.saveAtJobEnd = True
 process.dqmSaver.forceRunNumber = 999999

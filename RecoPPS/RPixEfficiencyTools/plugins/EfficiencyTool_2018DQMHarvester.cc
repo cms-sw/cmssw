@@ -45,6 +45,7 @@
 #include <fstream>
 #include <memory>
 #include <set>
+#include <TH2.h>
 
 class EfficiencyTool_2018DQMHarvester : public DQMEDHarvester {
 public:
@@ -129,6 +130,21 @@ void EfficiencyTool_2018DQMHarvester::dqmEndJob(DQMStore::IBooker &ibooker, DQMS
       result->divide(numerator, denominator, 1., 1., "B");
     }
 
+    //inizio Annalisa
+    numMonitorName_ = Form("h1InterPotEfficiencyVsXiSingle_arm%i", armId);
+    denMonitorName_ = Form("h1AuxXiSingle_arm%i", armId);
+    resultName_ = Form("h1InterPotEfficiencyVsXiFinalSingle_arm%i", armId);
+
+    numerator = igetter.get(romanPotBinShiftFolderName + "/" + numMonitorName_);
+    denominator = igetter.get(romanPotBinShiftFolderName + "/" + denMonitorName_);
+    result = igetter.get(romanPotBinShiftFolderName + "/" + resultName_);
+
+    if (numerator != NULL && denominator != NULL && result != NULL) {
+      result->divide(numerator, denominator, 1., 1., "B");
+    }
+    //fine Annalisa
+   
+    
     //2
     numMonitorName_ = Form("h2InterPotEfficiencyMap_arm%i", armId);
     denMonitorName_ = Form("h2ProtonHitExpectedDistribution_arm%i", armId);
@@ -173,6 +189,30 @@ void EfficiencyTool_2018DQMHarvester::dqmEndJob(DQMStore::IBooker &ibooker, DQMS
       TH2D *h2ProtonHitExpectedDistribution = denominator->getTH2D();
       TH2D *h2InterPotEfficiencyMapMultiRP_ = result->getTH2D();
 
+      /*inizio Annalisa, seconda parte
+//    TH2D *h2InterPotEfficiencyMapMultiRPFinal_ = result->getTH2D(); //da inserire in modo da poter utilizzare il metodo GetYAxis
+
+    int nBinsY = h2InterPotEfficiencyMapMultiRP_->GetNbinsY();
+    for (int binY = 1; binY <= nBinsY; ++binY) {
+        double lowEdge = h2InterPotEfficiencyMapMultiRP_->GetYaxis()->GetBinLowEdge(binY);
+        double upEdge = h2InterPotEfficiencyMapMultiRP_->GetYaxis()->GetBinUpEdge(binY);
+       if(lowEdge <= 4 || upEdge <= 4){
+        numMonitorName_ = Form("h1InterPotEfficiencyVsXiSingle_arm%i", armId);
+        denMonitorName_ = Form("h1AuxXiSingle_arm%i", armId);
+        resultName_ = Form("h1InterPotEfficiencyVsXiFinalSingleReduced_arm%i", armId);
+
+        numerator = igetter.get(romanPotBinShiftFolderName + "/" + numMonitorName_);
+        denominator = igetter.get(romanPotBinShiftFolderName + "/" + denMonitorName_);
+        result = igetter.get(romanPotBinShiftFolderName + "/" + resultName_);
+
+        if (numerator != NULL && denominator != NULL && result != NULL) {
+                result->divide(numerator, denominator, 1., 1., "B");
+        }
+      }
+   }
+    fine Annalisa, seconda parte */
+
+
       for (auto i = 1; i < h2InterPotEfficiencyMapMultiRP_->GetNbinsX(); i++) {
         for (auto j = 1; j < h2InterPotEfficiencyMapMultiRP_->GetNbinsY(); j++) {
           double efficiency = h2InterPotEfficiencyMapMultiRP_->GetBinContent(i, j);
@@ -184,7 +224,8 @@ void EfficiencyTool_2018DQMHarvester::dqmEndJob(DQMStore::IBooker &ibooker, DQMS
             h2InterPotEfficiencyMapMultiRP_->SetBinError(i, j, 0);
         }
       }
-    }
+    
+   }
   }
 }
 
