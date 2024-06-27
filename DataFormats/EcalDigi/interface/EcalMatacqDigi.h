@@ -276,7 +276,7 @@ public:
 #if (ECAL_MATACQ_DIGI_VERS >= 2)
     bxId_ = -1;
     l1a_ = -1;
-    triggerType_ = -1;
+    triggerType_ = 0;
     orbitId_ = -1;
     trigRec_ = -1;
     postTrig_ = -1;
@@ -284,7 +284,7 @@ public:
     delayA_ = -1;
     emtcDelay_ = -1;
     emtcPhase_ = -1;
-    attenuation_dB_ = -1;
+    attenuation_dB_ = 0;
     laserPower_ = -1;
     tv_sec_ = 0;
     tv_usec_ = 0;
