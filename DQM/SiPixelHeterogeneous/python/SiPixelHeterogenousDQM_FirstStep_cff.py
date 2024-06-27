@@ -49,13 +49,13 @@ from DQM.SiPixelHeterogeneous.siPixelCompareVertexSoA_cfi import *
 from DQM.SiPixelHeterogeneous.siPixelPhase1RawDataErrorComparator_cfi import *
 from DQM.SiPixelPhase1Common.SiPixelPhase1RawData_cfi import *
 #Alpaka
-from DQM.SiPixelHeterogeneous.siPixelPhase1CompareRecHitsSoAAlpaka_cfi import *
-from DQM.SiPixelHeterogeneous.siPixelPhase2CompareRecHitsSoAAlpaka_cfi import *
-from DQM.SiPixelHeterogeneous.siPixelHIonPhase1CompareRecHitsSoAAlpaka_cfi import *
-from DQM.SiPixelHeterogeneous.siPixelPhase1CompareTrackSoAAlpaka_cfi import *
-from DQM.SiPixelHeterogeneous.siPixelPhase2CompareTrackSoAAlpaka_cfi import *
-from DQM.SiPixelHeterogeneous.siPixelHIonPhase1CompareTrackSoAAlpaka_cfi import *
-from DQM.SiPixelHeterogeneous.siPixelCompareVertexSoAAlpaka_cfi import *
+from DQM.SiPixelHeterogeneous.siPixelPhase1CompareRecHits_cfi import *
+from DQM.SiPixelHeterogeneous.siPixelPhase2CompareRecHits_cfi import *
+from DQM.SiPixelHeterogeneous.siPixelHIonPhase1CompareRecHits_cfi import *
+from DQM.SiPixelHeterogeneous.siPixelPhase1CompareTracks_cfi import *
+from DQM.SiPixelHeterogeneous.siPixelPhase2CompareTracks_cfi import *
+from DQM.SiPixelHeterogeneous.siPixelHIonPhase1CompareTracks_cfi import *
+from DQM.SiPixelHeterogeneous.siPixelCompareVertices_cfi import *
 
 # digi errors
 SiPixelPhase1RawDataConfForCPU = copy.deepcopy(SiPixelPhase1RawDataConf)
@@ -151,6 +151,31 @@ siPixelMonitorVertexSoAGPU = siPixelMonitorVertexSoA.clone(
 
 ### Alpaka
 
+# digi errors
+SiPixelPhase1RawDataConfForSerial = copy.deepcopy(SiPixelPhase1RawDataConf)
+for pset in SiPixelPhase1RawDataConfForSerial:
+    pset.topFolderName =  "SiPixelHeterogeneous/PixelErrorsCPU"
+
+siPixelPhase1MonitorRawDataASerial = SiPixelPhase1RawDataAnalyzer.clone(
+    src = "siPixelDigiErrorsAlpakaSerial",
+    histograms = SiPixelPhase1RawDataConfForSerial
+)
+
+SiPixelPhase1RawDataConfForDevice = copy.deepcopy(SiPixelPhase1RawDataConf)
+for pset in SiPixelPhase1RawDataConfForDevice:
+    pset.topFolderName =  "SiPixelHeterogeneous/PixelErrorsGPU"
+
+siPixelPhase1MonitorRawDataADevice = SiPixelPhase1RawDataAnalyzer.clone(
+    src = "siPixelDigiErrorsAlpaka",
+    histograms = SiPixelPhase1RawDataConfForDevice
+)
+
+siPixelPhase1CompareDigiErrorsSoAAlpaka = siPixelPhase1RawDataErrorComparator.clone(
+    pixelErrorSrcGPU = cms.InputTag("siPixelDigiErrorsAlpaka"),
+    pixelErrorSrcCPU = cms.InputTag("siPixelDigiErrorsAlpakaSerial"),
+    topFolderName = cms.string('SiPixelHeterogeneous/PixelErrorCompareGPUvsCPU')
+)
+
 # PixelRecHits: monitor of CPUSerial product (Alpaka backend: 'serial_sync')
 siPixelRecHitsSoAMonitorSerial = siPixelPhase1MonitorRecHitsSoAAlpaka.clone(
     pixelHitsSrc = cms.InputTag( 'siPixelRecHitsPreSplittingAlpakaSerial' ),
@@ -201,15 +226,18 @@ monitorpixelSoACompareSource = cms.Sequence(siPixelPhase1MonitorRawDataACPU *
                                             siPixelPhase1RawDataErrorComparator)
 # and the Alpaka version
 monitorpixelSoACompareSourceAlpaka = cms.Sequence(
+                                            siPixelPhase1MonitorRawDataASerial *
+                                            siPixelPhase1MonitorRawDataADevice *
+                                            siPixelPhase1CompareDigiErrorsSoAAlpaka *
                                             siPixelRecHitsSoAMonitorSerial *
                                             siPixelRecHitsSoAMonitorDevice *
-                                            siPixelPhase1CompareRecHitsSoAAlpaka *
+                                            siPixelPhase1CompareRecHits *
                                             siPixelTrackSoAMonitorSerial *
                                             siPixelTrackSoAMonitorDevice *
-                                            siPixelPhase1CompareTrackSoAAlpaka *
+                                            siPixelPhase1CompareTracks *
                                             siPixelVertexSoAMonitorSerial *
                                             siPixelVertexSoAMonitorDevice *
-                                            siPixelCompareVertexSoAAlpaka )
+                                            siPixelCompareVertices )
 
 # Phase-2 sequence
 _monitorpixelSoACompareSource =  cms.Sequence(siPixelPhase2MonitorRecHitsSoACPU *
