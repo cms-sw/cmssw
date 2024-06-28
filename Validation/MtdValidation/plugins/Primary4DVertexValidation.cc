@@ -646,6 +646,8 @@ void Primary4DVertexValidation::bookHistograms(DQMStore::IBooker& ibook,
       ibook.book1D("TimeSignalPull", "Pull for signal; t_{rec} - t_{sim}/#sigma_{t rec}", 100, -10., 10.);
   mePUvsRealV_ =
       ibook.bookProfile("PUvsReal", "#PU vertices vs #real matched vertices;#PU;#real ", 100, 0, 300, 100, 0, 200);
+  mePUvsFakeV_ =
+      ibook.bookProfile("PUvsFake", "#PU vertices vs #fake matched vertices;#PU;#fake ", 100, 0, 300, 100, 0, 20);
   mePUvsOtherFakeV_ = ibook.bookProfile(
       "PUvsOtherFake", "#PU vertices vs #other fake matched vertices;#PU;#other fake ", 100, 0, 300, 100, 0, 20);
   mePUvsSplitV_ =
@@ -704,10 +706,6 @@ void Primary4DVertexValidation::bookHistograms(DQMStore::IBooker& ibook,
       "PUTrackRelSumPt", "Relative Sum of Pt of PU tracks for matched vertices; PUSumPt/SumPt", 50, 0., 1.);
   mePUTrackRelSumPt2_ = ibook.book1D(
       "PUTrackRelSumPt2", "Relative Sum of Pt2 for PU tracks for matched vertices; PUSumPt2/SumPt2", 50, 0., 1.);
-
-  mePUvsFakeV_ =
-      ibook.bookProfile("PUvsFake", "#PU vertices vs #fake matched vertices;#PU;#fake ", 100, 0, 300, 100, 0, 20);
-
   mePUTrackRecLVRelMult_ = ibook.book1D(
       "PUTrackRecLVRelMult", "Relative multiplicity of PU tracks for matched LV; #PUTrks/#Trks", 50, 0., 1.);
   meFakeTrackRecLVRelMult_ = ibook.book1D(
