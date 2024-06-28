@@ -283,14 +283,14 @@ def main():
             if not dataset["finished"][iov]:
                 skimSubName = os.path.join(workingArea,"skim_{}.sub".format(dataset["iovName"][iov]))
                 with open(skimSubName, "w") as skimSubScript:                  
-                    args = "fileList={fileList} outputName={outputName} trackSelection={trackSelection} globalTag={globalTag} maxEvents={maxEvents} maxFileSize={maxFileSize}".format(
+                    skim_args = "fileList={fileList} outputName={outputName} trackSelection={trackSelection} globalTag={globalTag} maxEvents={maxEvents} maxFileSize={maxFileSize}".format(
                                                                                 fileList=dataset["fileList"].format(iov), 
                                                                                 outputName=dataset["iovName"][iov],
                                                                                 trackSelection=dataset["trackSelection"],
                                                                                 globalTag=dataset["globalTag"],
                                                                                 maxEvents=dataset["maxEvents"],
                                                                                 maxFileSize=dataset["maxFileSize"])
-                    skimSubScript.write(condorTemplates.skimSubTemplate.format(workingArea=workingArea, base=base, args=args, target=dataset["targetPath"], name=dataset["iovName"][iov]))
+                    skimSubScript.write(condorTemplates.skimSubTemplate.format(workingArea=workingArea, base=base, args=skim_args, target=dataset["targetPath"], name=dataset["iovName"][iov]))
                 with open(master_dag_name, "a") as master_dag:
                     master_dag.write("JOB {} {}\n".format("skim_{}".format(dataset["iovName"][iov]), skimSubName))
     
