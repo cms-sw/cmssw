@@ -33,7 +33,7 @@ private:
   void produce(edm::Event&, const edm::EventSetup&) override;
 
   // tokens for scouting data
-  edm::EDGetTokenT<OrbitCollection<l1ScoutingRun3::Muon>>   muonsTokenData_;
+  edm::EDGetTokenT<OrbitCollection<l1ScoutingRun3::Muon>> muonsTokenData_;
 
   // SELECTION THRESHOLDS
   int minNMu_;
@@ -44,26 +44,21 @@ private:
   std::vector<int> minMuHwQual_;
 };
 
-
 MuBxSelector::MuBxSelector(const edm::ParameterSet& iPSet)
-  : muonsTokenData_(consumes(iPSet.getParameter<edm::InputTag>("muonsTag"))),
-    minNMu_(iPSet.getParameter<int>("minNMu")),
-    minMuPt_(iPSet.getParameter<std::vector<double>>("minMuPt")),
-    maxMuEta_(iPSet.getParameter<std::vector<double>>("maxMuEta")),
-    minMuTfIndex_(iPSet.getParameter<std::vector<int>>("minMuTfIndex")),
-    maxMuTfIndex_(iPSet.getParameter<std::vector<int>>("maxMuTfIndex")),
-    minMuHwQual_(iPSet.getParameter<std::vector<int>>("minMuHwQual"))
+    : muonsTokenData_(consumes(iPSet.getParameter<edm::InputTag>("muonsTag"))),
+      minNMu_(iPSet.getParameter<int>("minNMu")),
+      minMuPt_(iPSet.getParameter<std::vector<double>>("minMuPt")),
+      maxMuEta_(iPSet.getParameter<std::vector<double>>("maxMuEta")),
+      minMuTfIndex_(iPSet.getParameter<std::vector<int>>("minMuTfIndex")),
+      maxMuTfIndex_(iPSet.getParameter<std::vector<int>>("maxMuTfIndex")),
+      minMuHwQual_(iPSet.getParameter<std::vector<int>>("minMuHwQual"))
 
-  {
-
-    produces<std::vector<unsigned>>("SelBx").setBranchAlias("MuSelectedBx");
-
-  }
-
+{
+  produces<std::vector<unsigned>>("SelBx").setBranchAlias("MuSelectedBx");
+}
 
 // ------------ method called for each ORBIT  ------------
 void MuBxSelector::produce(edm::Event& iEvent, const edm::EventSetup&) {
-
   edm::Handle<OrbitCollection<l1ScoutingRun3::Muon>> muonsCollection;
 
   iEvent.getByToken(muonsTokenData_, muonsCollection);
@@ -72,29 +67,31 @@ void MuBxSelector::produce(edm::Event& iEvent, const edm::EventSetup&) {
 
   // loop over valid bunch crossings
   for (const unsigned& bx : muonsCollection->getFilledBxs()) {
-
     const auto& muons = muonsCollection->bxIterator(bx);
 
     // we have at least a muon
-    if (muons.size()<minNMu_) continue;
+    if (muons.size() < minNMu_)
+      continue;
 
     // it must be in a certain eta region with an pT and quality threshold
     bool muCond = false;
     int nAccMus = 0;
     for (const auto& muon : muons) {
-      muCond = ( std::abs(ugmt::fEta(muon.hwEta()))<maxMuEta_[nAccMus] ) &&
-               ( muon.tfMuonIndex()<=maxMuTfIndex_[nAccMus] ) && ( muon.tfMuonIndex()>=minMuTfIndex_[nAccMus] ) &&
-               ( ugmt::fPt(muon.hwPt())>=minMuPt_[nAccMus] ) &&
-               ( muon.hwQual()>=minMuHwQual_[nAccMus] );
-      if (muCond) nAccMus++; // found muon meeting requirements
-      if (nAccMus==minNMu_) break; // found all requested muons
+      muCond = (std::abs(ugmt::fEta(muon.hwEta())) < maxMuEta_[nAccMus]) &&
+               (muon.tfMuonIndex() <= maxMuTfIndex_[nAccMus]) && (muon.tfMuonIndex() >= minMuTfIndex_[nAccMus]) &&
+               (ugmt::fPt(muon.hwPt()) >= minMuPt_[nAccMus]) && (muon.hwQual() >= minMuHwQual_[nAccMus]);
+      if (muCond)
+        nAccMus++;  // found muon meeting requirements
+      if (nAccMus == minNMu_)
+        break;  // found all requested muons
     }
 
-    if (nAccMus<minNMu_) continue;
+    if (nAccMus < minNMu_)
+      continue;
 
     muBx->push_back(bx);
 
-   } // end orbit loop
+  }  // end orbit loop
 
   iEvent.put(std::move(muBx), "SelBx");
 }

@@ -38,8 +38,8 @@ private:
   void produce(edm::Event&, const edm::EventSetup&) override;
 
   // tokens for scouting data
-  edm::EDGetTokenT<OrbitCollection<l1ScoutingRun3::Muon>>   muonsTokenData_;
-  edm::EDGetTokenT<OrbitCollection<l1ScoutingRun3::Jet>>    jetsTokenData_;
+  edm::EDGetTokenT<OrbitCollection<l1ScoutingRun3::Muon>> muonsTokenData_;
+  edm::EDGetTokenT<OrbitCollection<l1ScoutingRun3::Jet>> jetsTokenData_;
 
   // SELECTION THRESHOLDS
   int minNJet_;
@@ -53,31 +53,25 @@ private:
   std::vector<double> maxDR_;
 };
 
-
 MuTagJetBxSelector::MuTagJetBxSelector(const edm::ParameterSet& iPSet)
-  : muonsTokenData_(consumes(iPSet.getParameter<edm::InputTag>("muonsTag"))),
-    jetsTokenData_(consumes(iPSet.getParameter<edm::InputTag>("jetsTag"))),
-    minNJet_(iPSet.getParameter<int>("minNJet")),
-    minJetEt_(iPSet.getParameter<std::vector<double>>("minJetEt")),
-    maxJetEta_(iPSet.getParameter<std::vector<double>>("maxJetEta")),
-    minMuPt_(iPSet.getParameter<std::vector<double>>("minMuPt")),
-    maxMuEta_(iPSet.getParameter<std::vector<double>>("maxMuEta")),
-    minMuTfIndex_(iPSet.getParameter<std::vector<int>>("minMuTfIndex")),
-    maxMuTfIndex_(iPSet.getParameter<std::vector<int>>("maxMuTfIndex")),
-    minMuHwQual_(iPSet.getParameter<std::vector<int>>("minMuHwQual")),
-    maxDR_(iPSet.getParameter<std::vector<double>>("maxDR"))
-  {
-
-    produces<std::vector<unsigned>>("SelBx").setBranchAlias("MuTagJetSelectedBx");
-
-  }
-
+    : muonsTokenData_(consumes(iPSet.getParameter<edm::InputTag>("muonsTag"))),
+      jetsTokenData_(consumes(iPSet.getParameter<edm::InputTag>("jetsTag"))),
+      minNJet_(iPSet.getParameter<int>("minNJet")),
+      minJetEt_(iPSet.getParameter<std::vector<double>>("minJetEt")),
+      maxJetEta_(iPSet.getParameter<std::vector<double>>("maxJetEta")),
+      minMuPt_(iPSet.getParameter<std::vector<double>>("minMuPt")),
+      maxMuEta_(iPSet.getParameter<std::vector<double>>("maxMuEta")),
+      minMuTfIndex_(iPSet.getParameter<std::vector<int>>("minMuTfIndex")),
+      maxMuTfIndex_(iPSet.getParameter<std::vector<int>>("maxMuTfIndex")),
+      minMuHwQual_(iPSet.getParameter<std::vector<int>>("minMuHwQual")),
+      maxDR_(iPSet.getParameter<std::vector<double>>("maxDR")) {
+  produces<std::vector<unsigned>>("SelBx").setBranchAlias("MuTagJetSelectedBx");
+}
 
 // ------------ method called for each ORBIT  ------------
 void MuTagJetBxSelector::produce(edm::Event& iEvent, const edm::EventSetup&) {
-
   edm::Handle<OrbitCollection<l1ScoutingRun3::Muon>> muonsCollection;
-  edm::Handle<OrbitCollection<l1ScoutingRun3::Jet>>  jetsCollection;
+  edm::Handle<OrbitCollection<l1ScoutingRun3::Jet>> jetsCollection;
 
   iEvent.getByToken(muonsTokenData_, muonsCollection);
   iEvent.getByToken(jetsTokenData_, jetsCollection);
@@ -86,45 +80,50 @@ void MuTagJetBxSelector::produce(edm::Event& iEvent, const edm::EventSetup&) {
 
   // loop over valid bunch crossings
   for (const unsigned& bx : jetsCollection->getFilledBxs()) {
-
     const auto& jets = jetsCollection->bxIterator(bx);
     const auto& muons = muonsCollection->bxIterator(bx);
 
     // we have at least N jets and N muons
-    if (jets.size()<minNJet_ && muons.size()<minNJet_) continue;
+    if (jets.size() < minNJet_ && muons.size() < minNJet_)
+      continue;
 
     // it must satisfy certain requirements
     bool jetCond = false;
     bool muCond = false;
     int nAccJets = 0;
     for (const auto& jet : jets) {
-      jetCond = ( std::abs(demux::fEta(jet.hwEta()))<maxJetEta_[nAccJets] ) &&
-                ( demux::fEt(jet.hwEt())>=minJetEt_[nAccJets] );
-      if (!jetCond) continue; // jet does not satisfy requirements, next one
+      jetCond = (std::abs(demux::fEta(jet.hwEta())) < maxJetEta_[nAccJets]) &&
+                (demux::fEt(jet.hwEt()) >= minJetEt_[nAccJets]);
+      if (!jetCond)
+        continue;  // jet does not satisfy requirements, next one
       ROOT::Math::PtEtaPhiMVector jetLV(demux::fEt(jet.hwEt()), demux::fEta(jet.hwEta()), demux::fPhi(jet.hwPhi()), 0);
 
       for (const auto& muon : muons) {
-        muCond = ( std::abs(ugmt::fEta(muon.hwEta()))<maxMuEta_[nAccJets] ) &&
-                 ( muon.tfMuonIndex()<=maxMuTfIndex_[nAccJets] ) && ( muon.tfMuonIndex()>=minMuTfIndex_[nAccJets] ) &&
-                 ( ugmt::fPt(muon.hwPt())>=minMuPt_[nAccJets] ) && ( muon.hwQual()>=minMuHwQual_[nAccJets] );
-        if (!muCond) continue; // muon does not satisfy requirements, next one
-        ROOT::Math::PtEtaPhiMVector muLV(ugmt::fPt(muon.hwPt()), ugmt::fEta(muon.hwEta()), ugmt::fPhi(muon.hwPhi()), 0.1057);
+        muCond = (std::abs(ugmt::fEta(muon.hwEta())) < maxMuEta_[nAccJets]) &&
+                 (muon.tfMuonIndex() <= maxMuTfIndex_[nAccJets]) && (muon.tfMuonIndex() >= minMuTfIndex_[nAccJets]) &&
+                 (ugmt::fPt(muon.hwPt()) >= minMuPt_[nAccJets]) && (muon.hwQual() >= minMuHwQual_[nAccJets]);
+        if (!muCond)
+          continue;  // muon does not satisfy requirements, next one
+        ROOT::Math::PtEtaPhiMVector muLV(
+            ugmt::fPt(muon.hwPt()), ugmt::fEta(muon.hwEta()), ugmt::fPhi(muon.hwPhi()), 0.1057);
 
         float dr = ROOT::Math::VectorUtil::DeltaR(jetLV, muLV);
         if (dr < maxDR_[nAccJets]) {
-          nAccJets++; // found mu-tag for current jet, end muon loop
+          nAccJets++;  // found mu-tag for current jet, end muon loop
           break;
         }
       }
 
-      if (nAccJets==minNJet_) break; // found all requested mu-tagged jets
+      if (nAccJets == minNJet_)
+        break;  // found all requested mu-tagged jets
     }
 
-    if (nAccJets<minNJet_) continue;
+    if (nAccJets < minNJet_)
+      continue;
 
     muTagJetBx->push_back(bx);
 
-   } // end orbit loop
+  }  // end orbit loop
 
   iEvent.put(std::move(muTagJetBx), "SelBx");
 }
