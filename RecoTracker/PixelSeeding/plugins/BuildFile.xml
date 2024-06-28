@@ -22,7 +22,7 @@
 </library>
 
 <library file="alpaka/*.cc" name="RecoTrackerPixelSeedingPortable">
- <use name="alpaka"/>
+  <use name="alpaka"/>
   <use name="DataFormats/Portable"/>
   <use name="DataFormats/TrackSoA"/>
   <use name="DataFormats/TrackingRecHitSoA"/>
@@ -31,6 +31,8 @@
   <use name="HeterogeneousCore/AlpakaInterface"/>
   <use name="RecoLocalTracker/Records"/>
   <use name="RecoLocalTracker/SiPixelRecHits"/>
+  <!-- suppress array-bounds warning/error: https://github.com/cms-sw/cmssw/issues/45179 -->
+  <flags CXXFLAGS="-Wno-error=array-bounds -Wno-array-bounds"/>
   <flags ALPAKA_BACKENDS="1"/>
   <flags EDM_PLUGIN="1"/>
 </library>
