@@ -99,12 +99,12 @@ class Primary4DVertexValidation : public DQMEDAnalyzer {
     TrackingVertexRef sim_vertex;
     int OriginalIndex = -1;
 
-    unsigned int nwosmatch = 0;                    // number of recvertices dominated by this simevt (by wos)
-    unsigned int nwntmatch = 0;                    // number of recvertices dominated by this simevt  (by nt)
-    std::vector<unsigned int> wos_dominated_recv;  // list of dominated recv (by wos, size==nwosmatch)
+    unsigned int nwosmatch = 0;                    // number of rec vertices dominated by this sim evt (by wos)
+    unsigned int nwntmatch = 0;                    // number of rec vertices dominated by this sim evt  (by wnt)
+    std::vector<unsigned int> wos_dominated_recv;  // list of dominated rec vertices (by wos, size==nwosmatch)
 
     std::map<unsigned int, double> wnt;  // weighted number of tracks in recvtx (by index)
-    std::map<unsigned int, double> wos;  // sum of wos in recvtx (by index) // oops -> this was int before 04-22
+    std::map<unsigned int, double> wos;  // weight over sigma**2 in recvtx (by index)
     double sumwos = 0;                   // sum of wos in any recvtx
     double sumwnt = 0;                   // sum of weighted tracks
     unsigned int rec = NOT_MATCHED;      // best match (NO_MATCH if not matched)
@@ -153,15 +153,15 @@ class Primary4DVertexValidation : public DQMEDAnalyzer {
     reco::VertexBaseRef recVtxRef;
     int OriginalIndex = -1;
 
-    std::map<unsigned int, double> wos;   // simevent -> wos
-    std::map<unsigned int, double> wnt;   // simevent -> weighted number of truth matched tracks
-    unsigned int wosmatch = NOT_MATCHED;  // index of the simevent providing the largest contribution to wos
-    unsigned int wntmatch = NOT_MATCHED;  // index of the simevent providing the highest number of tracks
+    std::map<unsigned int, double> wos;   // sim event -> wos
+    std::map<unsigned int, double> wnt;   // sim event -> weighted number of truth matched tracks
+    unsigned int wosmatch = NOT_MATCHED;  // index of the sim event providing the largest contribution to wos
+    unsigned int wntmatch = NOT_MATCHED;  // index of the sim event providing the highest number of tracks
     double sumwos = 0;                    // total sum of wos of all truth matched tracks
     double sumwnt = 0;                    // total weighted number of truth matchted tracks
     double maxwos = 0;                    // largest wos sum from one sim event (wosmatch)
     double maxwnt = 0;                    // largest weighted number of tracks from one sim event (ntmatch)
-    int maxwosnt = 0;                     // number of tracks from the simevt with highest wos
+    unsigned int maxwosnt = 0;            // number of tracks from the sim event with highest wos
     unsigned int sim = NOT_MATCHED;       // best match (NO_MATCH if not matched)
     unsigned int matchQuality = 0;        // quality flag
 
@@ -1539,8 +1539,10 @@ void Primary4DVertexValidation::getWosWnt(const reco::Vertex& recoVtx,
   double dz2 =
       pow(recoTrk->dzError(), 2) + dz2_beam + pow(0.0020, 2);  // added 20 um, some tracks have crazy small resolutions
   wos = recoVtx.trackWeight(recoTrk) / dz2;
-  wnt = recoVtx.trackWeight(recoTrk) * std::min(recoTrk->pt(), 1.0);
+  wnt = recoVtx.trackWeight(recoTrk) *
+        std::min(recoTrk->pt(), 1.0);  // pt-weighted number of tracks (downweights pt < 1 GeV tracks)
 
+  // If tracks have time information, give more weight to tracks with good resolution
   if (sigmat0[recoTrk] > 0 && mtdQualMVA[recoTrk] > mvaTh_) {
     double sigmaZ = (*BS).sigmaZ();
     double sigmaT = sigmaZ / c_;  // c in cm/ns
@@ -1651,7 +1653,7 @@ std::vector<Primary4DVertexValidation::simPrimaryVertex> Primary4DVertexValidati
   return simpv;
 }
 
-/* Extract information form recoVertex and fill the helper class
+/* Extract information form reco Vertex and fill the helper class
  * recoPrimaryVertex with proper reco-level information */
 std::vector<Primary4DVertexValidation::recoPrimaryVertex> Primary4DVertexValidation::getRecoPVs(
     const edm::Handle<edm::View<reco::Vertex>>& tVC) {
@@ -1732,7 +1734,7 @@ void Primary4DVertexValidation::matchReco2Sim(std::vector<recoPrimaryVertex>& re
     rv.wos.clear();
   }
 
-  // Filling infos
+  // Filling infos for matching rec and sim vertices
   for (unsigned int iv = 0; iv < recopv.size(); iv++) {
     const reco::Vertex* vertex = recopv.at(iv).recVtx;
     LogTrace("Primary4DVertexValidation") << "iv (rec): " << iv;
@@ -1740,9 +1742,9 @@ void Primary4DVertexValidation::matchReco2Sim(std::vector<recoPrimaryVertex>& re
     for (unsigned int iev = 0; iev < simpv.size(); iev++) {
       double wnt = 0;
       double wos = 0;
-      double evwnt = 0;
-      double evwos = 0;
-      double evnt = 0;
+      double evwnt = 0;       // weighted number of tracks from sim event iev in the current recvtx
+      double evwos = 0;       // weight over sigma**2 of sim event iev in the current recvtx
+      unsigned int evnt = 0;  // number of tracks from sim event iev in the current recvtx
 
       for (auto iTrack = vertex->tracks_begin(); iTrack != vertex->tracks_end(); ++iTrack) {
         if (vertex->trackWeight(*iTrack) < trackweightTh_) {
@@ -1778,14 +1780,17 @@ void Primary4DVertexValidation::matchReco2Sim(std::vector<recoPrimaryVertex>& re
     }  // TrackingVertex loop
     if (recopv.at(iv).maxwos > 0) {
       simpv.at(recopv.at(iv).wosmatch).wos_dominated_recv.push_back(iv);
-      simpv.at(recopv.at(iv).wosmatch).nwosmatch++;  // count the recvertices dominated by a simvertex
+      simpv.at(recopv.at(iv).wosmatch).nwosmatch++;  // count the rec vertices dominated by a sim vertex using wos
       assert(iv < recopv.size());
     }
     LogTrace("Primary4DVertexValidation") << "largest contribution to wos: wosmatch (iev) = " << recopv.at(iv).wosmatch
                                           << " maxwos = " << recopv.at(iv).maxwos;
+    if (recopv.at(iv).maxwnt > 0) {
+      simpv.at(recopv.at(iv).wntmatch).nwntmatch++;  // count the rec vertices dominated by a sim vertex using wnt
+    }
   }  // RecoPrimaryVertex
 
-  // after filling infos, goes for the sim-reco match
+  // reset
   for (auto& vrec : recopv) {
     vrec.sim = NOT_MATCHED;
     vrec.matchQuality = 0;
@@ -1803,21 +1808,22 @@ void Primary4DVertexValidation::matchReco2Sim(std::vector<recoPrimaryVertex>& re
     vv.matchQuality = 0;
     iev++;
   }
+  // after filling infos, goes for the sim-reco match
   // this tries a one-to-one match, taking simPV with highest wos if there are > 1 simPV candidates
   for (unsigned int rank = 1; rank < maxRank_; rank++) {
     for (unsigned int iev = 0; iev < simpv.size(); iev++) {  //loop on SimPV
       if (simpv.at(iev).rec != NOT_MATCHED) {
-        continue;
+        continue;  // only sim vertices not already matched
       }
       if (simpv.at(iev).nwosmatch == 0) {
-        continue;
+        continue;  // the sim vertex does not dominate any reco vertex
       }
       if (simpv.at(iev).nwosmatch > rank) {
-        continue;
+        continue;  // start with sim vertices dominating one rec vertex (rank 1), then go with the ones dominating more
       }
-      unsigned int iv = NOT_MATCHED;
+      unsigned int iv = NOT_MATCHED;  // select a rec vertex index
       for (unsigned int k = 0; k < simpv.at(iev).wos_dominated_recv.size(); k++) {
-        unsigned int rec = simpv.at(iev).wos_dominated_recv.at(k);
+        unsigned int rec = simpv.at(iev).wos_dominated_recv.at(k);  //candidate rec vertex index
         auto vrec = recopv.at(rec);
         if (vrec.sim != NOT_MATCHED) {
           continue;  // already matched
@@ -1829,6 +1835,7 @@ void Primary4DVertexValidation::matchReco2Sim(std::vector<recoPrimaryVertex>& re
           iv = rec;
         }
       }
+      // if a viable candidate was found, make the link
       if (iv !=
           NOT_MATCHED) {  // if the rec vertex has already been associated is possible that iv remains NOT_MATCHED at this point
         recopv.at(iv).sim = iev;
@@ -1867,13 +1874,13 @@ void Primary4DVertexValidation::matchReco2Sim(std::vector<recoPrimaryVertex>& re
       }
 
       if (rec == NOT_MATCHED) {
-        continue;
+        continue;  // should not happen
       }
       if (recopv.at(rec).sim != NOT_MATCHED) {
         continue;  // already gone
       }
 
-      // check if the recvertex can be  matched
+      // check if the rec vertex can be matched
       unsigned int rec2sim = NOT_MATCHED;
       for (auto sv : recopv.at(rec).wos) {
         if (simpv.at(sv.first).rec != NOT_MATCHED) {
