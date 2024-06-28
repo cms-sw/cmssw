@@ -54,6 +54,12 @@ MuBxSelector::MuBxSelector(const edm::ParameterSet& iPSet)
       minMuHwQual_(iPSet.getParameter<std::vector<int>>("minMuHwQual"))
 
 {
+  if ((minMuPt_.size() != (size_t)(size_t)minNMu_) || (maxMuEta_.size() != (size_t)minNMu_) ||
+      (minMuTfIndex_.size() != (size_t)minNMu_) || (maxMuTfIndex_.size() != (size_t)minNMu_) ||
+      (minMuHwQual_.size() != (size_t)minNMu_))
+    throw cms::Exception("MuBxSelector::MuBxSelector")
+        << "size mismatch: size of minMuPt or maxMuEta or minMuTfIndex or maxMuTfIndex or minMuHwQual  != minNMu.";
+
   produces<std::vector<unsigned>>("SelBx").setBranchAlias("MuSelectedBx");
 }
 

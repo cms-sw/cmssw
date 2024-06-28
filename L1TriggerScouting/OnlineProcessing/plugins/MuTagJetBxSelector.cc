@@ -65,6 +65,14 @@ MuTagJetBxSelector::MuTagJetBxSelector(const edm::ParameterSet& iPSet)
       maxMuTfIndex_(iPSet.getParameter<std::vector<int>>("maxMuTfIndex")),
       minMuHwQual_(iPSet.getParameter<std::vector<int>>("minMuHwQual")),
       maxDR_(iPSet.getParameter<std::vector<double>>("maxDR")) {
+  if ((minJetEt_.size() != (size_t)minNJet_) || (maxJetEta_.size() != (size_t)minNJet_) ||
+      (minMuPt_.size() != (size_t)minNJet_) || (maxMuEta_.size() != (size_t)minNJet_) ||
+      (minMuTfIndex_.size() != (size_t)minNJet_) || (maxMuTfIndex_.size() != (size_t)minNJet_) ||
+      (minMuHwQual_.size() != (size_t)minNJet_) || (maxDR_.size() != (size_t)minNJet_))
+    throw cms::Exception("MuTagJetBxSelector::MuTagJetBxSelector")
+        << "size mismatch: size of minJetEt or maxJetEta or  minMuPt or maxMuEta or minMuTfIndex or maxMuTfIndex or "
+           "minMuHwQual or maxDR != minNMu.";
+
   produces<std::vector<unsigned>>("SelBx").setBranchAlias("MuTagJetSelectedBx");
 }
 

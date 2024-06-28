@@ -48,6 +48,9 @@ JetBxSelector::JetBxSelector(const edm::ParameterSet& iPSet)
       maxJetEta_(iPSet.getParameter<std::vector<double>>("maxJetEta"))
 
 {
+  if ((minJetEt_.size() != (size_t)minNJet_) || (maxJetEta_.size() != (size_t)minNJet_))
+    throw cms::Exception("JetBxSelector::JetBxSelector") << "size mismatch: size of minJetEt or maxJetEta != minNJet.";
+
   produces<std::vector<unsigned>>("SelBx").setBranchAlias("JetSelectedBx");
 }
 
