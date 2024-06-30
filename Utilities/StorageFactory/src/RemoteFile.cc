@@ -58,8 +58,11 @@ int RemoteFile::local(const std::string &tmpdir, std::string &temp) {
 
   if (tmpdir.empty() || tmpdir == ".") {
     std::filesystem::path current_path = std::filesystem::current_path();
-    temp_chars.assign(current_path.string().begin(), current_path.string().end());
+    auto spath = current_path.string();
+    temp_chars.reserve(spath.size() + 30);
+    temp_chars.assign(spath.begin(), spath.end());
   } else {
+    temp_chars.reserve(tmpdir.size() + 30);
     temp_chars.assign(tmpdir.begin(), tmpdir.end());
   }
 
@@ -74,8 +77,7 @@ int RemoteFile::local(const std::string &tmpdir, std::string &temp) {
 
   int fd = mkstemp(temp_chars.data());
   if (fd == -1)
-    throw std::system_error(errno, std::generic_category(), "mkstemp failed");
-
+    throwStorageError("RemoteFile", "Calling RemoteFile::local()", "mkstemp()", errno);
   // Copy temp_chars to temp
   temp.assign(temp_chars.begin(), temp_chars.end() - 1);  // Exclude the null terminator
 
