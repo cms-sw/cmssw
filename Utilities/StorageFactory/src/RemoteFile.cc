@@ -10,6 +10,7 @@
 #include <ostream>
 #include <cstring>
 #include <filesystem>
+#include <vector>
 #if __APPLE__
 #include <crt_externs.h>
 #define environ (*_NSGetEnviron())
@@ -53,28 +54,31 @@ int RemoteFile::local(const std::string &tmpdir, std::string &temp) {
   // This is better for grid jobs as the current directory is
   // likely to have more space, and is more optimised for
   // large files, and is cleaned up after the job.
+  std::vector<char> temp_chars;
+
   if (tmpdir.empty() || tmpdir == ".") {
-    fs::path current_path = fs::current_path();
-    temp = current_path.string();
+    std::filesystem::path current_path = std::filesystem::current_path();
+    temp_chars.assign(current_path.string().begin(), current_path.string().end());
   } else {
-    temp = tmpdir;
+    temp_chars.assign(tmpdir.begin(), tmpdir.end());
   }
 
-  if (temp.back() != '/')
-    temp += '/';
+  if (temp_chars.back() != '/')
+    temp_chars.push_back('/');
 
-  temp += "storage-factory-local-XXXXXX";
+  std::string suffix = "storage-factory-local-XXXXXX";
+  temp_chars.insert(temp_chars.end(), suffix.begin(), suffix.end());
 
-  // Make the string null-terminated for mkstemp
-  std::vector<char> temp_chars(temp.begin(), temp.end());
+  // Ensure the vector is null-terminated
   temp_chars.push_back('\0');
 
   int fd = mkstemp(temp_chars.data());
-
   if (fd == -1)
-    throwStorageError("RemoteFile", "Calling RemoteFile::local()", "mkstemp()", errno);
+    throw std::system_error(errno, std::generic_category(), "mkstemp failed");
 
-  temp = std::string(temp_chars.data());
+  // Copy temp_chars to temp
+  temp.assign(temp_chars.begin(), temp_chars.end() - 1);  // Exclude the null terminator
+
   return fd;
 }
 
