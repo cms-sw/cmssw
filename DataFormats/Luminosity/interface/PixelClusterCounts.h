@@ -33,12 +33,12 @@ namespace reco {
 
     void incrementRoc(int rD, int count) {
       size_t rocIndex = std::distance(m_RocID.begin(), std::find(m_RocID.begin(), m_RocID.end(), rD));
-            
+
       if (rocIndex == m_RocID.size()) {
         m_RocID.push_back(rD);
         m_countsRoc.push_back(0);
       }
-    
+
       m_countsRoc.at(rocIndex) += count;
     }
 
