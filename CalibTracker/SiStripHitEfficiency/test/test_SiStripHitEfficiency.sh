@@ -1,6 +1,8 @@
 #!/bin/bash
 function die { echo $1: status $2; exit $2; }
 
+#export MALLOC_CONF=junk:true
+
 if [ "${SCRAM_TEST_NAME}" != "" ] ; then
   mkdir ${SCRAM_TEST_NAME}
   cd ${SCRAM_TEST_NAME}
