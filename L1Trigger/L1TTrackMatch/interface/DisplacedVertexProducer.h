@@ -136,7 +136,9 @@ std::valarray<float> calcPVec(Track_Parameters a, double_t v_x, double_t v_y)
   if(a.charge>0){
     p_vec *= -1;
   }
-  p_vec /= TMath::Sqrt(pow(p_vec[0],2)+pow(p_vec[1],2));
+  if((p_vec[0]!=0.0) || (p_vec[1]!=0.0)){
+    p_vec /= TMath::Sqrt(pow(p_vec[0],2)+pow(p_vec[1],2));
+  }
   p_vec *= a.pt;
   return p_vec;
 }
@@ -155,10 +157,10 @@ public:
   std::vector<Track_Parameters> tracks = {};
   float p_mag;
   float p2_mag;
-  float openingAngle;
+  float openingAngle = -999.0;
   float R_T;
-  float cos_T;
-  float alpha_T;
+  float cos_T = -999.0;
+  float alpha_T = -999.0;
   float d_T;
   float chi2rphidofSum;
   float chi2rzdofSum;
@@ -184,10 +186,14 @@ public:
     std::valarray<float> p_trk_2 = calcPVec(b_in,x_dv_in,y_dv_in);
     std::valarray<float> p_tot = p_trk_1+p_trk_2;
     p_mag = TMath::Sqrt(pow(p_tot[0],2)+pow(p_tot[1],2));
-    openingAngle = (p_trk_1[0]*p_trk_2[0]+p_trk_1[1]*p_trk_2[1]) / (TMath::Sqrt(pow(p_trk_1[0],2)+pow(p_trk_1[1],2))*TMath::Sqrt(pow(p_trk_2[0],2)+pow(p_trk_2[1],2)));
+    if(((p_trk_1[0]!=0.0) || (p_trk_2[1]!=0.0)) && ((p_trk_2[0]!=0.0) || (p_trk_2[1]!=0.0))){
+      openingAngle = (p_trk_1[0]*p_trk_2[0]+p_trk_1[1]*p_trk_2[1]) / (TMath::Sqrt(pow(p_trk_1[0],2)+pow(p_trk_1[1],2))*TMath::Sqrt(pow(p_trk_2[0],2)+pow(p_trk_2[1],2)));
+    }
     R_T = TMath::Sqrt(pow(x_dv_in,2)+pow(y_dv_in,2));
-    cos_T = (p_tot[0]*x_dv_in+p_tot[1]*y_dv_in)/(R_T*TMath::Sqrt(pow(p_tot[0],2)+pow(p_tot[1],2)));
-    alpha_T = acos(cos_T);
+    if((R_T!=0.0) && ((p_tot[0]!=0.0) || (p_tot[1]!=0.0))){
+      cos_T = (p_tot[0]*x_dv_in+p_tot[1]*y_dv_in)/(R_T*TMath::Sqrt(pow(p_tot[0],2)+pow(p_tot[1],2)));
+      alpha_T = acos(cos_T);
+    }
     phi = atan2(p_tot[1],p_tot[0]);
     d_T = fabs(cos(phi)*y_dv_in-sin(phi)*x_dv_in);
     int ndof_1 = 2 * a_in.nstubs - 5;
@@ -209,30 +215,6 @@ public:
     delta_eta = fabs(a_in.eta-b_in.eta);
   }
 
-  void addTrack(Track_Parameters trk){
-    tracks.push_back(trk);
-    std::valarray<float> p_tot = {0,0};
-    for(auto track : tracks){
-      p_tot+= calcPVec(track,x_dv,y_dv);
-    }
-    p_mag = TMath::Sqrt(pow(p_tot[0],2)+pow(p_tot[1],2));
-    cos_T = (p_tot[0]*x_dv+p_tot[1]*y_dv)/(R_T*TMath::Sqrt(pow(p_tot[0],2)+pow(p_tot[1],2)));
-    alpha_T = acos(cos_T);
-    phi = atan2(p_tot[1],p_tot[0]);
-    d_T = fabs(cos(phi)*y_dv-sin(phi)*x_dv);
-    int ndof = 2 * trk.nstubs - 5;
-    float chi2rphidof = trk.chi2rphi / ndof;
-    float chi2rzdof = trk.chi2rz / ndof;
-    float bendchi2 = trk.bendchi2;
-    chi2rphidofSum+= chi2rphidof;
-    chi2rzdofSum+= chi2rzdof;
-    bendchi2Sum+= bendchi2;
-    numStubsSum+= trk.nstubs;
-    p2_mag+= pow(trk.pt,2);
-    MVA1Sum+= trk.MVA1;
-    MVA2Sum+= trk.MVA2;
-  }
-
   Vertex_Parameters(){};
   ~Vertex_Parameters(){};
 };
@@ -245,20 +227,24 @@ constexpr bool operator==(const Vertex_Parameters& lhs, const Vertex_Parameters&
 class DisplacedVertexProducer : public edm::global::EDProducer<> {
  public:
   explicit DisplacedVertexProducer(const edm::ParameterSet&);
-  ~DisplacedVertexProducer() override {}
+  ~DisplacedVertexProducer() override = default;
 
  private:
   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
  private:
+  typedef TTTrack<Ref_Phase2TrackerDigi_> L1Track;
+  typedef std::vector<L1Track> TTTrackCollection;
+  typedef edm::Ref<TTTrackCollection> TTTrackRef;
+  typedef edm::RefVector<TTTrackCollection> TTTrackRefCollection;  
   const edm::EDGetTokenT<TTTrackAssociationMap<Ref_Phase2TrackerDigi_>> ttTrackMCTruthToken_;
-  const edm::EDGetTokenT<std::vector<TTTrack<Ref_Phase2TrackerDigi_> >> trackToken_;
+  const edm::EDGetTokenT<TTTrackRefCollection> trackToken_;
   const std::string outputTrackCollectionName_;
   const std::string qualityAlgorithm_;
   const std::string ONNXmodel_;
   const std::string ONNXInputName_;
-  const std::vector<std::string> featureNames_;
   std::unique_ptr<cms::Ort::ONNXRuntime> runTime_;
+  
 };
 
 #endif
