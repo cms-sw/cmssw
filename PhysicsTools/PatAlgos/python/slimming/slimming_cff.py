@@ -76,15 +76,12 @@ from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 pp_on_AA.toReplaceWith(slimmingTask, slimmingTask.copyAndExclude([slimmedOOTPhotons]))
 pp_on_AA.toReplaceWith(slimmingTask, slimmingTask.copyAndExclude([slimmedJPTJets]))
 
-from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_94XFall17
-from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
-_mAOD = (run2_miniAOD_94XFall17 | run2_miniAOD_80XLegacy)
-(pp_on_AA | _mAOD).toReplaceWith(slimmingTask,
-                                 slimmingTask.copyAndExclude([slimmedLowPtElectronsTask]))
+(pp_on_AA).toReplaceWith(slimmingTask,
+                         slimmingTask.copyAndExclude([slimmedLowPtElectronsTask]))
 
 from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
 from Configuration.Eras.Era_Run2_2016_HIPM_cff import Run2_2016_HIPM
-(pp_on_AA | _mAOD | run2_miniAOD_UL | Run2_2016_HIPM).toReplaceWith(slimmingTask,
+(pp_on_AA | run2_miniAOD_UL | Run2_2016_HIPM).toReplaceWith(slimmingTask,
                                                    slimmingTask.copyAndExclude([slimmedDisplacedMuons, slimmedDisplacedMuonTrackExtras]))
 
 from PhysicsTools.PatAlgos.slimming.hiPixelTracks_cfi import hiPixelTracks
