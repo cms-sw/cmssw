@@ -544,7 +544,8 @@ namespace l1t {
                    << std::setfill('0') << etsum->hwPt() << ")";
               if (etsum->getType() == l1t::EtSum::EtSumType::kMissingEt ||
                   etsum->getType() == l1t::EtSum::EtSumType::kMissingHt ||
-                  etsum->getType() == l1t::EtSum::EtSumType::kMissingEtHF)
+                  etsum->getType() == l1t::EtSum::EtSumType::kMissingEtHF ||
+                  etsum->getType() == l1t::EtSum::EtSumType::kMissingHtHF)
                 cout << " Phi " << std::dec << std::setw(3) << etsum->hwPhi() << " (0x" << std::hex << std::setw(2)
                      << std::setfill('0') << etsum->hwPhi() << ")";
               cout << endl;

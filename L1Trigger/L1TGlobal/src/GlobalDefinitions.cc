@@ -62,6 +62,7 @@ namespace {
       {"l1t::TypeHTT", l1t::TypeHTT},
       {"l1t::TypeHTM", l1t::TypeHTM},
       {"l1t::TypeETMHF", l1t::TypeETMHF},
+      {"l1t::TypeHTMHF", l1t::TypeHTMHF},
       {"l1t::TypeTowerCount", l1t::TypeTowerCount},
       {"l1t::TypeMinBiasHFP0", l1t::TypeMinBiasHFP0},
       {"l1t::TypeMinBiasHFM0", l1t::TypeMinBiasHFM0},
