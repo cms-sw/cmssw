@@ -46,7 +46,7 @@ public:
       : var_(std::move(func)), varName_(std::move(varName)), rangeCuts_(std::move(rangeCuts)), hist_(hist) {}
 
   void fill(const HLTGenValObject& obj) override {
-    if (rangeCuts_(obj,varName_))
+    if (rangeCuts_(obj, varName_))
       hist_->Fill(var_(obj));
   }
 
@@ -74,8 +74,9 @@ public:
         varNameX_(std::move(varNameX)),
         varNameY_(std::move(varNameY)),
         rangeCuts_(rangeCuts),
-        hist_(hist), histProf_(nullptr) {}
-  
+        hist_(hist),
+        histProf_(nullptr) {}
+
   HLTGenValHist2D(TH2* hist,
                   TProfile* histProf,
                   std::string varNameX,
@@ -91,10 +92,11 @@ public:
         hist_(hist),
         histProf_(histProf) {}
 
-  void fill(const HLTGenValObject& obj) override { 
-    if (rangeCuts_(obj,{varNameX_,varNameY_})){
-        hist_->Fill(varX_(obj), varY_(obj)); 
-        if(histProf_) histProf_->Fill(varX_(obj), varY_(obj));
+  void fill(const HLTGenValObject& obj) override {
+    if (rangeCuts_(obj, {varNameX_, varNameY_})) {
+      hist_->Fill(varX_(obj), varY_(obj));
+      if (histProf_)
+        histProf_->Fill(varX_(obj), varY_(obj));
     }
   }
 
@@ -104,7 +106,7 @@ private:
   std::string varNameX_;
   std::string varNameY_;
   VarRangeCutColl<HLTGenValObject> rangeCuts_;
-  TH2* hist_;  //we do not own this
+  TH2* hist_;           //we do not own this
   TProfile* histProf_;  //we do not own this
 };
 

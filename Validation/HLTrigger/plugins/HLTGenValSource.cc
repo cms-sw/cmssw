@@ -84,7 +84,7 @@ private:
 
   bool initalised_;
   bool booked_;
-  
+
   // config strings/Psets
   std::string objType_;
   std::string dirName_;
@@ -92,12 +92,11 @@ private:
   std::vector<edm::ParameterSet> histConfigs2D_;
   std::vector<edm::ParameterSet> binnings_;
   std::string hltProcessName_;
-  std::string sampleLabel_; //this if set is the label in the legend
+  std::string sampleLabel_;  //this if set is the label in the legend
 
   // constructing the info string, which will be written to the output file for display of information in the GUI
   // the string will have a JSON formating, thus starting here with the opening bracket, which will be close directly before saving to the root file
   std::string infoString_ = "{";
-  
 
   // histogram collection per path
   std::vector<HLTGenValHistCollPath> collectionPath_;
@@ -114,14 +113,13 @@ private:
 
   //some jet id
 
-  //max fraction of pt a prompt particles can contribute to jets 
+  //max fraction of pt a prompt particles can contribute to jets
   //basically we would prefer not to lump high pt prompt muons reconstructed as jets
   //in the the category of hadronic jets
-  float maxPromptGenJetFrac_; 
+  float maxPromptGenJetFrac_;
 
   float minPtForGenHT_;
   float maxAbsEtaForGenHT_;
-
 };
 
 HLTGenValSource::HLTGenValSource(const edm::ParameterSet& iConfig)
@@ -134,8 +132,9 @@ HLTGenValSource::HLTGenValSource(const edm::ParameterSet& iConfig)
       ak8genJetToken_(consumes<reco::GenJetCollection>(
           iConfig.getParameterSet("inputCollections").getParameter<edm::InputTag>("ak8GenJets"))),
       trigEventToken_(consumes<trigger::TriggerEvent>(
-	  iConfig.getParameterSet("inputCollections").getParameter<edm::InputTag>("TrigEvent"))),
-      initalised_(false),booked_(false)
+          iConfig.getParameterSet("inputCollections").getParameter<edm::InputTag>("TrigEvent"))),
+      initalised_(false),
+      booked_(false)
 
 {
   // getting the histogram configurations
@@ -154,7 +153,6 @@ HLTGenValSource::HLTGenValSource(const edm::ParameterSet& iConfig)
   maxPromptGenJetFrac_ = iConfig.getParameter<double>("maxPromptGenJetFrac");
   minPtForGenHT_ = iConfig.getParameter<double>("minPtForGenHT");
   maxAbsEtaForGenHT_ = iConfig.getParameter<double>("maxAbsEtaForGenHT");
-
 }
 
 void HLTGenValSource::initCfgs(const edm::Run& iRun, const edm::EventSetup& iSetup) {
@@ -170,16 +168,16 @@ void HLTGenValSource::initCfgs(const edm::Run& iRun, const edm::EventSetup& iSet
 
   std::string cmsswVersion;
   const edm::ProcessHistory& processHistory = iRun.processHistory();
-  for(const auto& process : processHistory){
+  for (const auto& process : processHistory) {
     if (process.processName() == hltProcessName_) {
-      cmsswVersion = process.releaseVersion();//this has quotes around it
+      cmsswVersion = process.releaseVersion();  //this has quotes around it
       break;
     }
-    
-  }  
-  if (cmsswVersion.empty()){
-    cmsswVersion = "\""+std::string(std::getenv("CMSSW_VERSION"))+"\""; //using convention it already has quotes on it
-  }  
+  }
+  if (cmsswVersion.empty()) {
+    cmsswVersion =
+        "\"" + std::string(std::getenv("CMSSW_VERSION")) + "\"";  //using convention it already has quotes on it
+  }
   infoString_ += std::string("\"CMSSW release\":") + cmsswVersion + ",";
   infoString_ += std::string("\"sample label\":\"") + sampleLabel_ + "\",";
 
@@ -254,7 +252,6 @@ void HLTGenValSource::initCfgs(const edm::Run& iRun, const edm::EventSetup& iSet
                                      << notFoundPathsMessage << std::endl;
   }
 
-
   // before creating the collections for each path, we'll store the needed configurations in a pset
   // we'll copy this base multiple times and add the respective path
   // most of these options are not needed in the pathColl, but in the filterColls created in the pathColl
@@ -273,8 +270,9 @@ void HLTGenValSource::initCfgs(const edm::Run& iRun, const edm::EventSetup& iSet
   initalised_ = true;
 }
 
-void HLTGenValSource::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {    
-  if(!initalised_) initCfgs(iRun,iSetup);
+void HLTGenValSource::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
+  if (!initalised_)
+    initCfgs(iRun, iSetup);
 }
 
 // ------------ method called for each event  ------------
@@ -296,13 +294,11 @@ void HLTGenValSource::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
 // ------------ method called once each job just before starting event loop  ------------
 void HLTGenValSource::bookHistograms(DQMStore::IBooker& iBooker, const edm::Run& run, const edm::EventSetup& setup) {
-    
   iBooker.setCurrentFolder(dirName_);
   iBooker.bookString("HLTGenValInfo", infoString_);
-  if(infoString_=="{}" || infoString_==""){
-    std::cout <<"infostr" <<infoString_<<std::endl;
+  if (infoString_ == "{}" || infoString_ == "") {
+    std::cout << "infostr" << infoString_ << std::endl;
   }
-
 
   // booking all histograms
   for (long unsigned int i = 0; i < collectionPath_.size(); i++) {
@@ -329,13 +325,12 @@ void HLTGenValSource::fillDescriptions(edm::ConfigurationDescriptions& descripti
       "hltPathsToCheck");  // this for the moment also has no default: maybe there can be some way to handle this later?
   desc.add<std::string>("dqmDirName", "HLTGenVal");
   desc.add<std::string>("hltProcessName", "HLT");
-  desc.add<std::string>("sampleLabel", ""); //this is the label in the legend
+  desc.add<std::string>("sampleLabel", "");  //this is the label in the legend
   desc.add<double>("dR2limit", 0.1);
   desc.add<bool>("doOnlyLastFilter", false);
-  desc.add<double>("maxPromptGenJetFrac",0.1);
-  desc.add<double>("minPtForGenHT",30);
-  desc.add<double>("maxAbsEtaForGenHT",2.5);
-
+  desc.add<double>("maxPromptGenJetFrac", 0.1);
+  desc.add<double>("minPtForGenHT", 30);
+  desc.add<double>("maxAbsEtaForGenHT", 2.5);
 
   // input collections, a PSet
   edm::ParameterSetDescription inputCollections;
@@ -381,8 +376,7 @@ void HLTGenValSource::fillDescriptions(edm::ConfigurationDescriptions& descripti
   histConfig2D.add<std::vector<double>>("binLowEdgesX");
   histConfig2D.add<std::vector<double>>("binLowEdgesY");
   histConfig2D.addVPSet(
-      "rangeCuts", VarRangeCut<HLTGenValObject>::makePSetDescription(), std::vector<edm::ParameterSet>()
-			);
+      "rangeCuts", VarRangeCut<HLTGenValObject>::makePSetDescription(), std::vector<edm::ParameterSet>());
   // default set of histConfigs
   std::vector<edm::ParameterSet> histConfigDefaults2D;
 
@@ -390,8 +384,7 @@ void HLTGenValSource::fillDescriptions(edm::ConfigurationDescriptions& descripti
   histConfigDefault2D0.addParameter<std::string>("vsVarX", "pt");
   histConfigDefault2D0.addParameter<std::string>("vsVarY", "eta");
   histConfigDefault2D0.addParameter<std::vector<double>>("binLowEdgesX", defaultPtBinning);
-  histConfigDefault2D0.addParameter<std::vector<double>>("binLowEdgesY", defaultetaBinning); 
- 
+  histConfigDefault2D0.addParameter<std::vector<double>>("binLowEdgesY", defaultetaBinning);
 
   histConfigDefaults2D.push_back(histConfigDefault2D0);
 
@@ -425,16 +418,16 @@ std::vector<HLTGenValObject> HLTGenValSource::getObjectCollection(const edm::Eve
     const auto& genJets = iEvent.getHandle(ak4genJetToken_);
     for (size_t i = 0; i < genJets->size(); i++) {
       const reco::GenJet p = (*genJets)[i];
-      if(passGenJetID(p)) {
-	objects.emplace_back(p);
+      if (passGenJetID(p)) {
+        objects.emplace_back(p);
       }
     }
   } else if (objType_ == "AK8jet") {  // ak8 jets, using the ak8GenJets collection
     const auto& genJets = iEvent.getHandle(ak8genJetToken_);
     for (size_t i = 0; i < genJets->size(); i++) {
       const reco::GenJet p = (*genJets)[i];
-      if(passGenJetID(p)) {
-	objects.emplace_back(p);
+      if (passGenJetID(p)) {
+        objects.emplace_back(p);
       }
     }
   } else if (objType_ == "AK4HT") {  // ak4-based HT, using the ak4GenJets collection
@@ -442,10 +435,9 @@ std::vector<HLTGenValObject> HLTGenValSource::getObjectCollection(const edm::Eve
     if (!genJets->empty()) {
       double HTsum = 0.;
       for (const auto& genJet : *genJets) {
-
-        if (genJet.pt() > minPtForGenHT_ && std::abs(genJet.eta()) < maxAbsEtaForGenHT_  && passGenJetID(genJet)){
+        if (genJet.pt() > minPtForGenHT_ && std::abs(genJet.eta()) < maxAbsEtaForGenHT_ && passGenJetID(genJet)) {
           HTsum += genJet.pt();
-	}
+        }
       }
       if (HTsum > 0)
         objects.emplace_back(reco::Candidate::PolarLorentzVector(HTsum, 0, 0, 0));
@@ -455,9 +447,9 @@ std::vector<HLTGenValObject> HLTGenValSource::getObjectCollection(const edm::Eve
     if (!genJets->empty()) {
       double HTsum = 0.;
       for (const auto& genJet : *genJets) {
-        if (genJet.pt() > minPtForGenHT_ && std::abs(genJet.eta())<maxAbsEtaForGenHT_  && passGenJetID(genJet) ){
+        if (genJet.pt() > minPtForGenHT_ && std::abs(genJet.eta()) < maxAbsEtaForGenHT_ && passGenJetID(genJet)) {
           HTsum += genJet.pt();
-	}
+        }
       }
       if (HTsum > 0)
         objects.emplace_back(reco::Candidate::PolarLorentzVector(HTsum, 0, 0, 0));
@@ -532,16 +524,14 @@ reco::GenParticle HLTGenValSource::getLastCopy(reco::GenParticle part) {
 }
 
 bool HLTGenValSource::passGenJetID(const reco::GenJet& jet) {
-  
   float promptPt = 0;
-  for(const auto& genPart : jet.getGenConstituents()){
-    if(genPart->fromHardProcessFinalState()){
-      promptPt+=genPart->pt();
+  for (const auto& genPart : jet.getGenConstituents()) {
+    if (genPart->fromHardProcessFinalState()) {
+      promptPt += genPart->pt();
     }
   }
-  return promptPt < jet.pt()*maxPromptGenJetFrac_;
-
+  return promptPt < jet.pt() * maxPromptGenJetFrac_;
 }
- 
+
 //define this as a framework plug-in
 DEFINE_FWK_MODULE(HLTGenValSource);

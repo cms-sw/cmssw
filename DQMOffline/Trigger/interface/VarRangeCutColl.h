@@ -24,7 +24,7 @@
 template <typename ObjType>
 class VarRangeCutColl {
 public:
-  VarRangeCutColl(){}
+  VarRangeCutColl() {}
   explicit VarRangeCutColl(const std::vector<edm::ParameterSet>& configs) {
     for (const auto& cutConfig : configs)
       rangeCuts_.emplace_back(VarRangeCut<ObjType>(cutConfig));

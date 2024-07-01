@@ -86,35 +86,31 @@ private:
   std::vector<edm::ParameterSet> binnings_;
   std::string hltProcessName_;
   HLTConfigProvider hltConfig_;
- 
+
   // constructing the info string, which will be written to the output file for display of information in the GUI
   // the string will have a JSON formating, thus starting here with the opening bracket, which will be close directly before saving to the root file
   std::string infoString_ = "{";
 
   // histogram collection per path
   std::vector<HLTGenResHistColl> collections_;
-
- 
-
 };
 
 HLTGenResSource::HLTGenResSource(const edm::ParameterSet& iConfig)
-    : genObjMgr_(iConfig.getParameter<edm::ParameterSet>("genConfig"),consumesCollector()),
-    
-      trigEventToken_(consumes<trigger::TriggerEvent>(
-	  iConfig.getParameter<edm::InputTag>("trigEvent"))),
-      initalised_(false),booked_(false)
+    : genObjMgr_(iConfig.getParameter<edm::ParameterSet>("genConfig"), consumesCollector()),
+
+      trigEventToken_(consumes<trigger::TriggerEvent>(iConfig.getParameter<edm::InputTag>("trigEvent"))),
+      initalised_(false),
+      booked_(false)
 
 {
   // getting all other configurations
   dirName_ = iConfig.getParameter<std::string>("dqmDirName");
   hltProcessName_ = iConfig.getParameter<std::string>("hltProcessName");
-  
+
   auto resCollections = iConfig.getParameter<std::vector<edm::ParameterSet>>("resCollConfigs");
   for (auto resCollConfig : resCollections) {
-    collections_.emplace_back(HLTGenResHistColl(resCollConfig,hltProcessName_));
+    collections_.emplace_back(HLTGenResHistColl(resCollConfig, hltProcessName_));
   }
-
 }
 
 void HLTGenResSource::initCfgs(const edm::Run& iRun, const edm::EventSetup& iSetup) {
@@ -149,13 +145,14 @@ void HLTGenResSource::initCfgs(const edm::Run& iRun, const edm::EventSetup& iSet
 }
 
 void HLTGenResSource::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
-  if(!initalised_) initCfgs(iRun,iSetup);
+  if (!initalised_)
+    initCfgs(iRun, iSetup);
 }
 
 // ------------ method called for each event  ------------
 void HLTGenResSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // creating the collection of HLTGenValObjects
-  
+
   // init triggerEvent, which is always needed
   edm::Handle<trigger::TriggerEvent> triggerEvent;
   iEvent.getByToken(trigEventToken_, triggerEvent);
@@ -171,15 +168,16 @@ void HLTGenResSource::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
 // ------------ method called once each job just before starting event loop  ------------
 void HLTGenResSource::bookHistograms(DQMStore::IBooker& iBooker, const edm::Run& run, const edm::EventSetup& setup) {
-  if(booked_) return;
+  if (booked_)
+    return;
   iBooker.setCurrentFolder(dirName_);
 
   iBooker.bookString("HLTGenResInfo", infoString_);
 
-  for (long unsigned int collNr = 0; collNr < collections_.size(); collNr++) {    
+  for (long unsigned int collNr = 0; collNr < collections_.size(); collNr++) {
     collections_[collNr].bookHists(iBooker);
   }
-  booked_=true;
+  booked_ = true;
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
@@ -188,13 +186,12 @@ void HLTGenResSource::fillDescriptions(edm::ConfigurationDescriptions& descripti
 
   desc.add<std::string>("dqmDirName", "HLTGenVal");
   desc.add<std::string>("hltProcessName", "HLT");
-  desc.add<edm::InputTag>("trigEvent", edm::InputTag("hltTriggerSummaryAOD"));  
+  desc.add<edm::InputTag>("trigEvent", edm::InputTag("hltTriggerSummaryAOD"));
   desc.add<edm::ParameterSetDescription>("genConfig", HLTGenValObjectMgr::makePSetDescription());
-  desc.addVPSet("resCollConfigs", HLTGenResHistColl::makePSetDescription(),std::vector<edm::ParameterSet>());
-    
+  desc.addVPSet("resCollConfigs", HLTGenResHistColl::makePSetDescription(), std::vector<edm::ParameterSet>());
+
   descriptions.addDefault(desc);
 }
 
 //define this as a framework plug-in
 DEFINE_FWK_MODULE(HLTGenResSource);
-

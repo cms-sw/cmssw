@@ -22,17 +22,17 @@ std::function<float(const reco::Photon&)> hltdqm::getUnaryFuncExtraFloat<reco::P
 }
 
 template <>
-std::function<float(const HLTGenValObject&)> hltdqm::getUnaryFuncExtraFloat<HLTGenValObject>(const std::string& varName){
-    std::function<float(const HLTGenValObject&)> varFunc;
-    
-    if (varName == "ptRes")
-      varFunc = &HLTGenValObject::ptRes;
-    else if (varName == "etaRes")
-      varFunc = &HLTGenValObject::etaRes;
-    else if (varName == "phiRes")
-      varFunc = &HLTGenValObject::phiRes;
-    else if (varName == "massRes")
-      varFunc = &HLTGenValObject::massRes;
-    return varFunc;
+std::function<float(const HLTGenValObject&)> hltdqm::getUnaryFuncExtraFloat<HLTGenValObject>(
+    const std::string& varName) {
+  std::function<float(const HLTGenValObject&)> varFunc;
 
+  if (varName == "ptRes")
+    varFunc = &HLTGenValObject::ptRes;
+  else if (varName == "etaRes")
+    varFunc = &HLTGenValObject::etaRes;
+  else if (varName == "phiRes")
+    varFunc = &HLTGenValObject::phiRes;
+  else if (varName == "massRes")
+    varFunc = &HLTGenValObject::massRes;
+  return varFunc;
 }

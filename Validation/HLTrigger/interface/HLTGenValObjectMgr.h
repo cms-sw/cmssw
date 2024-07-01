@@ -35,13 +35,11 @@ private:
   const edm::EDGetTokenT<reco::GenJetCollection> ak8genJetToken_;
 
   //some jet id
-  //max fraction of pt a prompt particles can contribute to jets 
+  //max fraction of pt a prompt particles can contribute to jets
   //basically we would prefer not to lump high pt prompt muons reconstructed as jets
   //in the the category of hadronic jets
-  float maxPromptGenJetFrac_; 
+  float maxPromptGenJetFrac_;
 
   float minPtForGenHT_;
   float maxAbsEtaForGenHT_;
-
-
 };

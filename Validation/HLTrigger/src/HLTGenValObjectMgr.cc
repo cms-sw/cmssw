@@ -1,38 +1,29 @@
 #include "Validation/HLTrigger/interface/HLTGenValObjectMgr.h"
 
-HLTGenValObjectMgr::HLTGenValObjectMgr(const edm::ParameterSet& iConfig, edm::ConsumesCollector cc):
-  genParticleToken_(cc.consumes<reco::GenParticleCollection>(  
-    iConfig.getParameter<edm::InputTag>("genParticles"))),
-  genMETToken_(cc.consumes<reco::GenMETCollection>(
-    iConfig.getParameter<edm::InputTag>("genMET"))),
-  ak4genJetToken_(cc.consumes<reco::GenJetCollection>(
-    iConfig.getParameter<edm::InputTag>("ak4GenJets"))),
-  ak8genJetToken_(cc.consumes<reco::GenJetCollection>(
-    iConfig.getParameter<edm::InputTag>("ak8GenJets"))
-  ),
-  maxPromptGenJetFrac_(iConfig.getParameter<double>("maxPromptGenJetFrac")),
-  minPtForGenHT_(iConfig.getParameter<double>("minPtForGenHT")),
-  maxAbsEtaForGenHT_(iConfig.getParameter<double>("maxAbsEtaForGenHT"))
-{
+HLTGenValObjectMgr::HLTGenValObjectMgr(const edm::ParameterSet& iConfig, edm::ConsumesCollector cc)
+    : genParticleToken_(cc.consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("genParticles"))),
+      genMETToken_(cc.consumes<reco::GenMETCollection>(iConfig.getParameter<edm::InputTag>("genMET"))),
+      ak4genJetToken_(cc.consumes<reco::GenJetCollection>(iConfig.getParameter<edm::InputTag>("ak4GenJets"))),
+      ak8genJetToken_(cc.consumes<reco::GenJetCollection>(iConfig.getParameter<edm::InputTag>("ak8GenJets"))),
+      maxPromptGenJetFrac_(iConfig.getParameter<double>("maxPromptGenJetFrac")),
+      minPtForGenHT_(iConfig.getParameter<double>("minPtForGenHT")),
+      maxAbsEtaForGenHT_(iConfig.getParameter<double>("maxAbsEtaForGenHT")) {}
 
-
-}
-
-edm::ParameterSetDescription HLTGenValObjectMgr::makePSetDescription(){
+edm::ParameterSetDescription HLTGenValObjectMgr::makePSetDescription() {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("genParticles", edm::InputTag("genParticles"));
   desc.add<edm::InputTag>("genMET", edm::InputTag("genMetTrue"));
   desc.add<edm::InputTag>("ak4GenJets", edm::InputTag("ak4GenJetsNoNu"));
   desc.add<edm::InputTag>("ak8GenJets", edm::InputTag("ak8GenJetsNoNu"));
-  desc.add<double>("maxPromptGenJetFrac",0.1);
-  desc.add<double>("minPtForGenHT",30);
-  desc.add<double>("maxAbsEtaForGenHT",2.5);
+  desc.add<double>("maxPromptGenJetFrac", 0.1);
+  desc.add<double>("minPtForGenHT", 30);
+  desc.add<double>("maxAbsEtaForGenHT", 2.5);
   return desc;
 }
 
-
 // this method handles the different object types and collections that can be used for efficiency calculation
-std::vector<HLTGenValObject> HLTGenValObjectMgr::getGenValObjects(const edm::Event& iEvent,const std::string &objType) {
+std::vector<HLTGenValObject> HLTGenValObjectMgr::getGenValObjects(const edm::Event& iEvent,
+                                                                  const std::string& objType) {
   std::vector<HLTGenValObject> objects;  // the vector of objects to be filled
 
   // handle object type

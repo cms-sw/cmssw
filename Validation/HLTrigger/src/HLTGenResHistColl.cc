@@ -14,7 +14,7 @@ namespace {
           //begin = triggerEvent.collectionKey(collNr);
           if (collNr == 0) {
             begin = 0;
-          }else{
+          } else {
             begin = triggerEvent.collectionKey(collNr - 1);
           }
           end = triggerEvent.collectionKey(collNr);
@@ -25,32 +25,33 @@ namespace {
     return std::make_pair(begin, end);
   }
 
-  bool passesFilter(trigger::size_type objKey, const trigger::TriggerEvent& trigEvent,
-    const std::string& filterName,const std::string &hltProcessName  ) {
-      edm::InputTag filterTag(filterName,"",hltProcessName); 
-      trigger::size_type filterIndex = trigEvent.filterIndex(filterTag); 
-      if(filterIndex<trigEvent.sizeFilters()){ //check that filter is in triggerEvent
-        const trigger::Keys& trigKeys = trigEvent.filterKeys(filterIndex); 
-        return std::find(trigKeys.begin(),trigKeys.end(),objKey) != trigKeys.end();
-      }else{
-        return false;
-      }
-
+  bool passesFilter(trigger::size_type objKey,
+                    const trigger::TriggerEvent& trigEvent,
+                    const std::string& filterName,
+                    const std::string& hltProcessName) {
+    edm::InputTag filterTag(filterName, "", hltProcessName);
+    trigger::size_type filterIndex = trigEvent.filterIndex(filterTag);
+    if (filterIndex < trigEvent.sizeFilters()) {  //check that filter is in triggerEvent
+      const trigger::Keys& trigKeys = trigEvent.filterKeys(filterIndex);
+      return std::find(trigKeys.begin(), trigKeys.end(), objKey) != trigKeys.end();
+    } else {
+      return false;
+    }
   }
-  template <typename InType,typename OutType> 
-  std::vector<OutType> convertVec(const std::vector<InType>& inVec ){
+  template <typename InType, typename OutType>
+  std::vector<OutType> convertVec(const std::vector<InType>& inVec) {
     std::vector<OutType> outVec;
     outVec.reserve(inVec.size());
-    for(const auto& inVal : inVec){
+    for (const auto& inVal : inVec) {
       outVec.push_back(static_cast<OutType>(inVal));
     }
     return outVec;
   }
-}
+}  // namespace
 
 // constructor
-HLTGenResHistColl::HLTGenResHistColl(edm::ParameterSet filterCollConfig,std::string hltProcessName)
-    : hltProcessName_(hltProcessName){
+HLTGenResHistColl::HLTGenResHistColl(edm::ParameterSet filterCollConfig, std::string hltProcessName)
+    : hltProcessName_(hltProcessName) {
   objType_ = filterCollConfig.getParameter<std::string>("objType");
   isEventLevelVariable_ = objType_ == "MET" || objType_ == "AK4HT" || objType_ == "AK8HT";
   filters_ = filterCollConfig.getParameter<std::vector<std::string>>("filterNames");
@@ -67,7 +68,7 @@ edm::ParameterSetDescription HLTGenResHistColl::makePSetDescription() {
   edm::ParameterSetDescription desc;
   desc.add<std::string>("objType", "");
   desc.add<std::vector<std::string>>("filterNames", {});
-  desc.add<bool>("andFilters", true);  
+  desc.add<bool>("andFilters", true);
   desc.add<std::string>("collectionName", "");
   desc.add<double>("dR2limit", 0.1);
   std::vector<edm::ParameterSet> histConfigDefaults;
@@ -87,11 +88,11 @@ edm::ParameterSetDescription HLTGenResHistColl::makePSetDescription() {
                                        45, 50, 60, 80,   100, 150,  200, 250,  300, 350, 400};
   histConfigDefault0.addParameter<std::vector<double>>("vsBinLowEdges", defaultPtBinning);
   std::vector<double> defaultResBinning;
-  for (int i=0;i<151;i++){
-    defaultResBinning.push_back(i*0.01);
+  for (int i = 0; i < 151; i++) {
+    defaultResBinning.push_back(i * 0.01);
   }
   histConfigDefault0.addParameter<std::vector<double>>("resBinLowEdges", defaultResBinning);
-  
+
   histConfigDefaults.push_back(histConfigDefault0);
   desc.addVPSet("histConfigs", histConfig, histConfigDefaults);
 
@@ -102,8 +103,7 @@ edm::ParameterSetDescription HLTGenResHistColl::makePSetDescription() {
   histConfig2D.add<std::vector<double>>("binLowEdgesX");
   histConfig2D.add<std::vector<double>>("binLowEdgesY");
   histConfig2D.addVPSet(
-      "rangeCuts", VarRangeCut<HLTGenValObject>::makePSetDescription(), std::vector<edm::ParameterSet>()
-			);
+      "rangeCuts", VarRangeCut<HLTGenValObject>::makePSetDescription(), std::vector<edm::ParameterSet>());
   // default set of histConfigs
   std::vector<edm::ParameterSet> histConfigDefaults2D;
   desc.addVPSet("histConfigs2D", histConfig2D, histConfigDefaults2D);
@@ -111,17 +111,18 @@ edm::ParameterSetDescription HLTGenResHistColl::makePSetDescription() {
   return desc;
 }
 
-bool HLTGenResHistColl::passFilterSelection(trigger::size_type objKey, const trigger::TriggerEvent& triggerEvent)const {
+bool HLTGenResHistColl::passFilterSelection(trigger::size_type objKey,
+                                            const trigger::TriggerEvent& triggerEvent) const {
   if (andFilters_) {
     for (const auto& filter : filters_) {
-      if (!passesFilter(objKey, triggerEvent, filter, hltProcessName_)){
+      if (!passesFilter(objKey, triggerEvent, filter, hltProcessName_)) {
         return false;
       }
     }
     return true;
   } else {
     for (const auto& filter : filters_) {
-      if (passesFilter(objKey, triggerEvent, filter, hltProcessName_)){
+      if (passesFilter(objKey, triggerEvent, filter, hltProcessName_)) {
         return true;
       }
     }
@@ -130,7 +131,7 @@ bool HLTGenResHistColl::passFilterSelection(trigger::size_type objKey, const tri
 }
 
 // general hist booking function, receiving configurations for 1D and 2D hists and calling the respective functions
-void HLTGenResHistColl::bookHists(DQMStore::IBooker& iBooker){
+void HLTGenResHistColl::bookHists(DQMStore::IBooker& iBooker) {
   for (const auto& histConfig : histConfigs_)
     book1D(iBooker, histConfig);
   for (const auto& histConfig : histConfigs2D_)
@@ -139,20 +140,19 @@ void HLTGenResHistColl::bookHists(DQMStore::IBooker& iBooker){
 
 // histogram filling routine
 void HLTGenResHistColl::fillHists(const HLTGenValObject& obj, edm::Handle<trigger::TriggerEvent>& triggerEvent) {
-  
   // get the trigger objects of the collection
-  auto keyRange = getTrigObjIndicesOfCollection(*triggerEvent, collectionName_, hltProcessName_);  
+  auto keyRange = getTrigObjIndicesOfCollection(*triggerEvent, collectionName_, hltProcessName_);
   const trigger::TriggerObject* bestMatch = nullptr;
   float bestDR2 = dR2limit_;
-  for (trigger::size_type key = keyRange.first; key < keyRange.second; ++key) {        
-    if (passFilterSelection(key, *triggerEvent)){
-      const trigger::TriggerObject objTrig = triggerEvent->getObjects().at(key);     
-      if(isEventLevelVariable_){
+  for (trigger::size_type key = keyRange.first; key < keyRange.second; ++key) {
+    if (passFilterSelection(key, *triggerEvent)) {
+      const trigger::TriggerObject objTrig = triggerEvent->getObjects().at(key);
+      if (isEventLevelVariable_) {
         bestDR2 = 0;
         bestMatch = &objTrig;
         break;
-      }else{
-        float dR2 = reco::deltaR2(obj, objTrig);      
+      } else {
+        float dR2 = reco::deltaR2(obj, objTrig);
         if (dR2 < bestDR2) {
           bestDR2 = dR2;
           bestMatch = &objTrig;
@@ -160,14 +160,13 @@ void HLTGenResHistColl::fillHists(const HLTGenValObject& obj, edm::Handle<trigge
       }
     }
   }
- // if(objType_=="ele") std::cout <<"objType "<<objType_<<" "<<obj.pt()<<" best "<<bestMatch<<std::endl;
+  // if(objType_=="ele") std::cout <<"objType "<<objType_<<" "<<obj.pt()<<" best "<<bestMatch<<std::endl;
   HLTGenValObject objWithTrig(obj);
   if (bestMatch) {
-    
-    objWithTrig.setTrigObject(*bestMatch);    
+    objWithTrig.setTrigObject(*bestMatch);
     for (auto& hist : hists_)
       hist->fill(objWithTrig);
-  } 
+  }
 }
 
 // booker function for 1D hists
@@ -196,47 +195,53 @@ void HLTGenResHistColl::book1D(DQMStore::IBooker& iBooker, const edm::ParameterS
   }
 
   // converting bin edges to float
-  std::vector<float> vsBinLowEdges = convertVec<double,float>(vsBinLowEdgesDouble);
-  std::vector<float> resBinLowEdges = convertVec<double,float>(resBinLowEdgesDouble);
-  
+  std::vector<float> vsBinLowEdges = convertVec<double, float>(vsBinLowEdgesDouble);
+  std::vector<float> resBinLowEdges = convertVec<double, float>(resBinLowEdgesDouble);
+
   std::string histNameInc = getHistName(resVar);
   std::string histTitleInc = collectionName_ + "to " + objType_ + " " + resVar;
   if (!tag.empty()) {
-      histNameInc += separator_ + tag;
-      histTitleInc += " " + tag;
+    histNameInc += separator_ + tag;
+    histTitleInc += " " + tag;
   }
-  std::string histNameVsBase = getHistName(resVar,vsVar);
-  std::string histName2D = histNameVsBase +separator_ + "2D";
-  std::string histNameProfile = histNameVsBase +separator_+"profile";
-  
+  std::string histNameVsBase = getHistName(resVar, vsVar);
+  std::string histName2D = histNameVsBase + separator_ + "2D";
+  std::string histNameProfile = histNameVsBase + separator_ + "profile";
+
   std::string histTitle2D = collectionName_ + "to " + objType_ + " " + resVar + " vs " + vsVar;
   std::string histTitleProfile = histTitle2D;
   if (!tag.empty()) {
-      histName2D += separator_ + tag;
-      histTitle2D += " " + tag;
-      histNameProfile += separator_ + tag;
-      histTitleProfile += " " + tag;
+    histName2D += separator_ + tag;
+    histTitle2D += " " + tag;
+    histNameProfile += separator_ + tag;
+    histTitleProfile += " " + tag;
   }
 
-  auto resInc = iBooker.book1D(
-      histNameInc.c_str(), histTitleInc.c_str(), resBinLowEdges.size()-1,resBinLowEdges.data());  
+  auto resInc =
+      iBooker.book1D(histNameInc.c_str(), histTitleInc.c_str(), resBinLowEdges.size() - 1, resBinLowEdges.data());
 
-  auto res2D = iBooker.book2D(
-      histName2D.c_str(), histTitle2D.c_str(), vsBinLowEdges.size() - 1, vsBinLowEdges.data(), resBinLowEdges.size()-1,resBinLowEdges.data());  
+  auto res2D = iBooker.book2D(histName2D.c_str(),
+                              histTitle2D.c_str(),
+                              vsBinLowEdges.size() - 1,
+                              vsBinLowEdges.data(),
+                              resBinLowEdges.size() - 1,
+                              resBinLowEdges.data());
 
   //so bookProfile requires double bin edges, not float like book2D...
-  auto resProf = iBooker.bookProfile(
-      histNameProfile.c_str(), histTitleProfile.c_str(), vsBinLowEdgesDouble.size() - 1, vsBinLowEdgesDouble.data(), 0.2, 5 );  
+  auto resProf = iBooker.bookProfile(histNameProfile.c_str(),
+                                     histTitleProfile.c_str(),
+                                     vsBinLowEdgesDouble.size() - 1,
+                                     vsBinLowEdgesDouble.data(),
+                                     0.2,
+                                     5);
 
-  std::unique_ptr<HLTGenValHist> hist;  
+  std::unique_ptr<HLTGenValHist> hist;
 
-  hist = std::make_unique<HLTGenValHist2D>(res2D->getTH2F(), resProf->getTProfile(), vsVar, resVar, vsVarFunc,resVarFunc,rangeCuts);
+  hist = std::make_unique<HLTGenValHist2D>(
+      res2D->getTH2F(), resProf->getTProfile(), vsVar, resVar, vsVarFunc, resVarFunc, rangeCuts);
   hists_.emplace_back(std::move(hist));
-  hist = std::make_unique<HLTGenValHist1D>(resInc->getTH1(), resVar,resVarFunc,rangeCuts);
-  hists_.emplace_back(std::move(hist));    
-  
-  
-
+  hist = std::make_unique<HLTGenValHist1D>(resInc->getTH1(), resVar, resVarFunc, rangeCuts);
+  hists_.emplace_back(std::move(hist));
 }
 
 // booker function for 2D hists
@@ -270,9 +275,10 @@ void HLTGenResHistColl::book2D(DQMStore::IBooker& iBooker, const edm::ParameterS
     binLowEdgesY.push_back(lowEdge);
 
   // name and t
-  std::string histName = objType_ + separator_ + separator_ + "GEN" + separator_ + "2Dvs" + vsVarX + separator_ + vsVarY;
+  std::string histName =
+      objType_ + separator_ + separator_ + "GEN" + separator_ + "2Dvs" + vsVarX + separator_ + vsVarY;
   std::string histTitle = objType_ + " GEN 2D vs " + vsVarX + " " + vsVarY;
-  
+
   auto me = iBooker.book2D(histName.c_str(),
                            histTitle.c_str(),
                            binLowEdgesX.size() - 1,
@@ -287,10 +293,10 @@ void HLTGenResHistColl::book2D(DQMStore::IBooker& iBooker, const edm::ParameterS
   hists_.emplace_back(std::move(hist));
 }
 
-std::string HLTGenResHistColl::getHistName(const std::string& resVar, const std::string& vsVar)const {
-  std::string histName =  histNamePrefix_ + separator_ + collectionName_ + separator_ + objType_ + separator_ + resVar;
-  if(!vsVar.empty()){
-    histName+= separator_ + "vs" + separator_ + vsVar;
+std::string HLTGenResHistColl::getHistName(const std::string& resVar, const std::string& vsVar) const {
+  std::string histName = histNamePrefix_ + separator_ + collectionName_ + separator_ + objType_ + separator_ + resVar;
+  if (!vsVar.empty()) {
+    histName += separator_ + "vs" + separator_ + vsVar;
   }
   return histName;
 }

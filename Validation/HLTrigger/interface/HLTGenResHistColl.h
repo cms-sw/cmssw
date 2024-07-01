@@ -37,23 +37,22 @@ public:
   using MonitorElement = dqm::legacy::MonitorElement;
   using DQMStore = dqm::legacy::DQMStore;
 
-  explicit HLTGenResHistColl(edm::ParameterSet filterCollConfig,std::string hltProcessName);
+  explicit HLTGenResHistColl(edm::ParameterSet filterCollConfig, std::string hltProcessName);
 
   static edm::ParameterSetDescription makePSetDescription();
 
   void bookHists(DQMStore::IBooker& iBooker);
   void fillHists(const HLTGenValObject& obj, edm::Handle<trigger::TriggerEvent>& triggerEvent);
-  
-  const std::string& objType()const{return objType_;}
 
+  const std::string& objType() const { return objType_; }
 
 private:
   void book1D(DQMStore::IBooker& iBooker, const edm::ParameterSet& histConfig);
   void book2D(DQMStore::IBooker& iBooker, const edm::ParameterSet& histConfig2D);
-  bool passFilterSelection(trigger::size_type key, const trigger::TriggerEvent& triggerEvent)const;
-  std::string getHistName(const std::string& resVar, const std::string& vsVar="")const;
+  bool passFilterSelection(trigger::size_type key, const trigger::TriggerEvent& triggerEvent) const;
+  std::string getHistName(const std::string& resVar, const std::string& vsVar = "") const;
 
-  std::vector<std::unique_ptr<HLTGenValHist>> hists_;  
+  std::vector<std::unique_ptr<HLTGenValHist>> hists_;
   std::string objType_;
   bool isEventLevelVariable_;
   std::string tag_;
