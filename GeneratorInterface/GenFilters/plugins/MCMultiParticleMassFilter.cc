@@ -10,7 +10,6 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include <vector>
 #include <iostream>
 
@@ -81,21 +80,13 @@ bool MCMultiParticleMassFilter::filter(edm::StreamID, edm::Event& iEvent, const 
     }
   }
   int nIterables = particlesThatPassCuts.size();
-  // cout << "The number of iterables for this event is=" << nIterables << endl;
   if (nIterables < nParticles) {
-    // cout << "too few particles!" << endl;
     return false;
   } else {
-    // cout << "Running Loop" << endl;
     int i = 0;
     while ((nIterables - i) >= nParticles) {
-      // for(int i = 0; i < nIterables; i++){
-      // if((nIterables - i) < nParticles){
-      //     continue;
-      // }
       vector<int> indices;
       indices.push_back(i);
-      // cout << "running recursion starting from index " << i << endl;
       bool success = recurseLoop(particlesThatPassCuts, indices, 1);
       if (success) {
         return true;
@@ -134,11 +125,8 @@ bool MCMultiParticleMassFilter::recurseLoop(std::vector<HepMC::GenParticle*>& pa
     double invMassSq = e * e - px * px - py * py - pz * pz;
     if ((invMassSq >= minTotalMassSq) &&  //taking the root is computationally expensive!
         (invMassSq <= maxTotalMassSq)) {
-      // cout << "passed: m=" << sqrt(invMassSq) << endl;
-      // cout << "summed vector is " << px << ", " << py << ", " << pz << ", " << e << endl;
       return true;
     }
-    // cout << "filtered out: m=" << invMassSq << endl;
     return false;
   } else {
     indices.push_back(lastIndex + 1);
