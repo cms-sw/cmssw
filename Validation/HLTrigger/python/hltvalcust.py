@@ -15,6 +15,10 @@ def add_hlt_validation(process,hltProcessName=None,sampleLabel=""):
         rangeVar=cms.string("eta"),
         allowedRanges=cms.vstring("-2.4:2.4")
     )
+    eta2p1Cut=cms.PSet(
+        rangeVar=cms.string("eta"),
+        allowedRanges=cms.vstring("-2.1:2.1")
+    )
     eleEtaCut = cms.PSet(
      rangeVar=cms.string("eta"),
         allowedRanges=cms.vstring("-1.4442:1.4442","1.566:2.5","-2.5:-1.566")
@@ -32,7 +36,10 @@ def add_hlt_validation(process,hltProcessName=None,sampleLabel=""):
         rangeVar=cms.string("pt"),
         allowedRanges=cms.vstring("200:9999")
     )
-
+    tauPtCut=cms.PSet(
+        rangeVar=cms.string("pt"),
+        allowedRanges=cms.vstring("50:9999")
+    )
 
 
     process.HLTGenValSourceHT = cms.EDProducer('HLTGenValSource',
@@ -95,12 +102,13 @@ def add_hlt_validation(process,hltProcessName=None,sampleLabel=""):
         histConfigs = cms.VPSet(
             cms.PSet(
                 vsVar = cms.string("pt"),
-                binLowEdges = ptBins,
-                rangeCuts = cms.VPSet(etaCut)
+                binLowEdges = ptBins,                
+                rangeCuts = cms.VPSet(eta2p1Cut)
             ),
             cms.PSet(
                 vsVar = cms.string("eta"),
-                binLowEdges = etaBins
+                binLowEdges = etaBins,
+                rangeCuts = cms.VPSet(tauPtCut)
             ),
         ),
     )
