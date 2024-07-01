@@ -66,9 +66,9 @@ void L1TStage2uGTTiming::dqmBeginRun(edm::Run const& iRun, edm::EventSetup const
     if (gtUtil_->getAlgBitFromName(unprescaledAlgoShortList_.at(i), algoBitUnpre_)) {
       unprescaledAlgoBitName_.emplace_back(unprescaledAlgoShortList_.at(i), algoBitUnpre_);
     } else {
-      edm::LogWarning("L1TStage2uGTTiming")
-          << "Algo \"" << unprescaledAlgoShortList_.at(i) << "\" not found in the trigger menu "
-          << gtUtil_->gtTriggerMenuName() << ". Could not retrieve algo bit number.";
+      LogDebug("L1TStage2uGTTiming") << "Algo \"" << unprescaledAlgoShortList_.at(i)
+                                     << "\" not found in the trigger menu " << gtUtil_->gtTriggerMenuName()
+                                     << ". Could not retrieve algo bit number.";
     }
   }
 
@@ -77,9 +77,9 @@ void L1TStage2uGTTiming::dqmBeginRun(edm::Run const& iRun, edm::EventSetup const
     if ((gtUtil_->getAlgBitFromName(prescaledAlgoShortList_.at(i), algoBitPre_))) {
       prescaledAlgoBitName_.emplace_back(prescaledAlgoShortList_.at(i), algoBitPre_);
     } else {
-      edm::LogWarning("L1TStage2uGTTiming")
-          << "Algo \"" << prescaledAlgoShortList_.at(i) << "\" not found in the trigger menu "
-          << gtUtil_->gtTriggerMenuName() << ". Could not retrieve algo bit number.";
+      LogDebug("L1TStage2uGTTiming") << "Algo \"" << prescaledAlgoShortList_.at(i)
+                                     << "\" not found in the trigger menu " << gtUtil_->gtTriggerMenuName()
+                                     << ". Could not retrieve algo bit number.";
     }
   }
 }
