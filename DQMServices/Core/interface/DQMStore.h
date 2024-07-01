@@ -163,7 +163,7 @@ namespace dqm {
       template <typename FUNC = NOOP, std::enable_if_t<not std::is_arithmetic<FUNC>::value, int> = 0>
       MonitorElement* book1DD(
           TString const& name, TString const& title, int nchX, float const* xbinsize, FUNC onbooking = NOOP()) {
-        return bookME(name, MonitorElementData::Kind::TH1F, [=]() {
+        return bookME(name, MonitorElementData::Kind::TH1D, [=]() {
           auto th1 = new TH1D(name, title, nchX, xbinsize);
           onbooking(th1);
           return th1;
