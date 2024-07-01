@@ -80,7 +80,7 @@ std::vector<HLTGenValObject> HLTGenValObjectMgr::getGenValObjects(const edm::Eve
       auto genMETpt = (*genMET)[0].pt();
       objects.emplace_back(reco::Candidate::PolarLorentzVector(genMETpt, 0, 0, 0));
     }
-  } else if (objType == "tau-had") {
+  } else if (objType == "tauHAD") {
     const auto& tauJets = iEvent.getHandle(tauGenJetToken_);
     for (const auto& tauJet : *tauJets){
       const std::string& decayMode = JetMCTagUtils::genTauDecayMode(tauJet);

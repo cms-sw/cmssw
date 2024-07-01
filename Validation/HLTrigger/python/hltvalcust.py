@@ -86,7 +86,7 @@ def add_hlt_validation(process,hltProcessName=None,sampleLabel=""):
     )
     process.HLTGenValSourceTAU = cms.EDProducer('HLTGenValSource',
 #     these are the only one the user needs to specify
-        objType = cms.string("tau-had"),
+        objType = cms.string("tauHAD"),
         hltProcessName = cms.string(hltProcessName),
         trigEvent = cms.InputTag(f"hltTriggerSummaryAOD::{hltProcessName}"),
         sampleLabel = cms.string(sampleLabel),
