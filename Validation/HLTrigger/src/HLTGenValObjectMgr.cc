@@ -1,10 +1,12 @@
 #include "Validation/HLTrigger/interface/HLTGenValObjectMgr.h"
+#include "PhysicsTools/JetMCUtils/interface/JetMCTag.h"
 
 HLTGenValObjectMgr::HLTGenValObjectMgr(const edm::ParameterSet& iConfig, edm::ConsumesCollector cc)
     : genParticleToken_(cc.consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("genParticles"))),
       genMETToken_(cc.consumes<reco::GenMETCollection>(iConfig.getParameter<edm::InputTag>("genMET"))),
-      ak4genJetToken_(cc.consumes<reco::GenJetCollection>(iConfig.getParameter<edm::InputTag>("ak4GenJets"))),
-      ak8genJetToken_(cc.consumes<reco::GenJetCollection>(iConfig.getParameter<edm::InputTag>("ak8GenJets"))),
+      ak4GenJetToken_(cc.consumes<reco::GenJetCollection>(iConfig.getParameter<edm::InputTag>("ak4GenJets"))),
+      ak8GenJetToken_(cc.consumes<reco::GenJetCollection>(iConfig.getParameter<edm::InputTag>("ak8GenJets"))),
+      tauGenJetToken_(cc.consumes<reco::GenJetCollection>(iConfig.getParameter<edm::InputTag>("tauGenJets"))),
       maxPromptGenJetFrac_(iConfig.getParameter<double>("maxPromptGenJetFrac")),
       minPtForGenHT_(iConfig.getParameter<double>("minPtForGenHT")),
       maxAbsEtaForGenHT_(iConfig.getParameter<double>("maxAbsEtaForGenHT")) {}
@@ -15,6 +17,7 @@ edm::ParameterSetDescription HLTGenValObjectMgr::makePSetDescription() {
   desc.add<edm::InputTag>("genMET", edm::InputTag("genMetTrue"));
   desc.add<edm::InputTag>("ak4GenJets", edm::InputTag("ak4GenJetsNoNu"));
   desc.add<edm::InputTag>("ak8GenJets", edm::InputTag("ak8GenJetsNoNu"));
+  desc.add<edm::InputTag>("tauGenJets", edm::InputTag("tauGenJets"));
   desc.add<double>("maxPromptGenJetFrac", 0.1);
   desc.add<double>("minPtForGenHT", 30);
   desc.add<double>("maxAbsEtaForGenHT", 2.5);
@@ -32,7 +35,7 @@ std::vector<HLTGenValObject> HLTGenValObjectMgr::getGenValObjects(const edm::Eve
       implementedGenParticles.end()) {
     objects = getGenParticles(iEvent, objType);
   } else if (objType == "AK4jet") {  // ak4 jets, using the ak4GenJets collection
-    const auto& genJets = iEvent.getHandle(ak4genJetToken_);
+    const auto& genJets = iEvent.getHandle(ak4GenJetToken_);
     for (size_t i = 0; i < genJets->size(); i++) {
       const reco::GenJet p = (*genJets)[i];
       if (passGenJetID(p)) {
@@ -40,7 +43,7 @@ std::vector<HLTGenValObject> HLTGenValObjectMgr::getGenValObjects(const edm::Eve
       }
     }
   } else if (objType == "AK8jet") {  // ak8 jets, using the ak8GenJets collection
-    const auto& genJets = iEvent.getHandle(ak8genJetToken_);
+    const auto& genJets = iEvent.getHandle(ak8GenJetToken_);
     for (size_t i = 0; i < genJets->size(); i++) {
       const reco::GenJet p = (*genJets)[i];
       if (passGenJetID(p)) {
@@ -48,7 +51,7 @@ std::vector<HLTGenValObject> HLTGenValObjectMgr::getGenValObjects(const edm::Eve
       }
     }
   } else if (objType == "AK4HT") {  // ak4-based HT, using the ak4GenJets collection
-    const auto& genJets = iEvent.getHandle(ak4genJetToken_);
+    const auto& genJets = iEvent.getHandle(ak4GenJetToken_);
     if (!genJets->empty()) {
       double HTsum = 0.;
       for (const auto& genJet : *genJets) {
@@ -60,7 +63,7 @@ std::vector<HLTGenValObject> HLTGenValObjectMgr::getGenValObjects(const edm::Eve
         objects.emplace_back(reco::Candidate::PolarLorentzVector(HTsum, 0, 0, 0));
     }
   } else if (objType == "AK8HT") {  // ak8-based HT, using the ak8GenJets collection
-    const auto& genJets = iEvent.getHandle(ak8genJetToken_);
+    const auto& genJets = iEvent.getHandle(ak8GenJetToken_);
     if (!genJets->empty()) {
       double HTsum = 0.;
       for (const auto& genJet : *genJets) {
@@ -76,6 +79,14 @@ std::vector<HLTGenValObject> HLTGenValObjectMgr::getGenValObjects(const edm::Eve
     if (!genMET->empty()) {
       auto genMETpt = (*genMET)[0].pt();
       objects.emplace_back(reco::Candidate::PolarLorentzVector(genMETpt, 0, 0, 0));
+    }
+  } else if (objType == "tau-had") {
+    const auto& tauJets = iEvent.getHandle(tauGenJetToken_);
+    for (const auto& tauJet : *tauJets){
+      const std::string& decayMode = JetMCTagUtils::genTauDecayMode(tauJet);
+      if(decayMode!="electron" && decayMode!="muon"){
+        objects.emplace_back(tauJet);
+      }
     }
   } else
     throw cms::Exception("InputError") << "Generator-level validation is not available for type " << objType << ".\n"

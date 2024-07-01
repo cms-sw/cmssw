@@ -31,8 +31,9 @@ public:
 private:
   const edm::EDGetTokenT<reco::GenParticleCollection> genParticleToken_;
   const edm::EDGetTokenT<reco::GenMETCollection> genMETToken_;
-  const edm::EDGetTokenT<reco::GenJetCollection> ak4genJetToken_;
-  const edm::EDGetTokenT<reco::GenJetCollection> ak8genJetToken_;
+  const edm::EDGetTokenT<reco::GenJetCollection> ak4GenJetToken_;
+  const edm::EDGetTokenT<reco::GenJetCollection> ak8GenJetToken_;
+  const edm::EDGetTokenT<reco::GenJetCollection> tauGenJetToken_;
 
   //some jet id
   //max fraction of pt a prompt particles can contribute to jets

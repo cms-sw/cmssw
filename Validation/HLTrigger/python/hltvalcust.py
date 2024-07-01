@@ -234,8 +234,10 @@ def add_hlt_validation(process,hltProcessName=None,sampleLabel=""):
 
     process.load("RecoMET.Configuration.RecoGenMET_cff")
     process.load("RecoMET.Configuration.GenMETParticles_cff")
+    process.load("PhysicsTools.​JetMCAlgos.TauGenJets_cfi")
     process.HLTValidationPath.associate(process.recoGenMETTask)
     process.HLTValidationPath.associate(process.genMETParticlesTask)
+    process.HLTValidationPath.associate(process.tauGenJets)
 
     if process.schedule is not None:
         process.schedule.append(process.HLTValidationPath)
