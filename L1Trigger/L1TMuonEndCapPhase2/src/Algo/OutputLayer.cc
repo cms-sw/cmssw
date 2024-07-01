@@ -69,6 +69,7 @@ void OutputLayer::apply(const int& endcap,
     // Find EMTF/GMT variables
     const int emtf_mode_v1 = findEMTFModeV1(track.site_mask);
     const int emtf_mode_v2 = findEMTFModeV2(track.site_mask);
+    const int emtf_quality = findEMTFQuality(track, emtf_mode_v1, emtf_mode_v2);
 
     // Init Parameters
     auto& out_trk = out_tracks.emplace_back();
@@ -96,6 +97,7 @@ void OutputLayer::apply(const int& endcap,
     out_trk.setEmtfBeta(0);  // not yet implemented
     out_trk.setEmtfModeV1(emtf_mode_v1);
     out_trk.setEmtfModeV2(emtf_mode_v2);
+    out_trk.setEmtfQuality(emtf_quality);
 
     out_trk.setSiteHits(site_hits);
     out_trk.setSiteSegs(site_segs);
@@ -220,4 +222,85 @@ int OutputLayer::findEMTFModeV2(const track_t::site_mask_t& x) const {
   }
 
   return mode;
+}
+
+int OutputLayer::findEMTFQuality(const track_t& track, const int& mode_v1, const int& mode_v2) const {
+  // Short-Circuit: Invalid track
+  if (track.valid == 0) {
+    return 0;
+  }
+
+  // Short-Circuit: Single Station
+  bool is_single_station = (mode_v1 == 0);
+  is_single_station |= (mode_v1 == 1);
+  is_single_station |= (mode_v1 == 2);
+  is_single_station |= (mode_v1 == 4);
+  is_single_station |= (mode_v1 == 8);
+
+  if (is_single_station) {
+    return 0;
+  }
+
+  // Calculate Quality Based on ModeV2
+  if (mode_v2 == 0) {
+    // Single Hit
+    if ((0 <= track.quality) && (track.quality <= 3)) {
+      return 1;
+    } else if ((4 <= track.quality) && (track.quality <= 7)) {
+      return 2;
+    } else if (7 < track.quality) {
+      return 3;
+    }
+
+    return 0;
+  } else if (mode_v2 == 4) {
+    // Triple Muon Quality
+    if ((8 <= track.quality) && (track.quality <= 11)) {
+      return 5;
+    } else if ((12 <= track.quality) && (track.quality <= 15)) {
+      return 6;
+    } else if (15 < track.quality) {
+      return 7;
+    }
+
+    return 4;
+  } else if (mode_v2 == 8) {
+    // Double Muon Quality
+    bool valid_mode = (mode_v1 == 9);
+    valid_mode |= (mode_v1 == 10);
+    valid_mode |= (mode_v1 == 12);
+
+    if (valid_mode) {
+      if ((16 <= track.quality) && (track.quality <= 23)) {
+        return 9;
+      } else if ((24 <= track.quality) && (track.quality <= 31)) {
+        return 10;
+      } else if (31 < track.quality) {
+        return 11;
+      }
+    }
+
+    return 8;
+  } else if (mode_v2 == 12) {
+    // Single Muon Quality
+    bool valid_mode = (mode_v1 == 11);
+    valid_mode |= (mode_v1 == 13);
+    valid_mode |= (mode_v1 == 14);
+    valid_mode |= (mode_v1 == 15);
+
+    if (valid_mode) {
+      if ((32 <= track.quality) && (track.quality <= 39)) {
+        return 13;
+      } else if ((40 <= track.quality) && (track.quality <= 51)) {
+        return 14;
+      } else if (51 < track.quality) {
+        return 15;
+      }
+    }
+
+    return 12;
+  }
+
+  // Invalid track
+  return 0;
 }
