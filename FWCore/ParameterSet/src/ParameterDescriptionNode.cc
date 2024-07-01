@@ -42,6 +42,8 @@ namespace edm {
   TYPE_TO_ENUM(std::vector<unsigned long long>, k_vuint64)
   TYPE_TO_ENUM(double, k_double)
   TYPE_TO_ENUM(std::vector<double>, k_vdouble)
+  TYPE_TO_ENUM(float, k_float)
+  TYPE_TO_ENUM(std::vector<float>, k_vfloat)
   TYPE_TO_ENUM(bool, k_bool)
   TYPE_TO_ENUM(std::string, k_stringRaw)
   TYPE_TO_ENUM(std::vector<std::string>, k_vstringRaw)
@@ -76,6 +78,8 @@ namespace edm {
       TYPE_TO_NAME(vuint64);
       TYPE_TO_NAME(double);
       TYPE_TO_NAME(vdouble);
+      TYPE_TO_NAME(float);
+      TYPE_TO_NAME(vfloat);
       TYPE_TO_NAME(bool);
       TYPE_TO_NAME2(k_stringRaw, string);
       TYPE_TO_NAME2(k_vstringRaw, vstring);

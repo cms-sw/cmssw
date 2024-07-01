@@ -685,6 +685,14 @@ namespace edm {
       writeVector<double>(os, indentation, value_, format);
     }
 
+    void writeValue(std::ostream& os, int, float const& value_, ValueFormat format) {
+      writeValue<float>(os, value_, format);
+    }
+
+    void writeValue(std::ostream& os, int indentation, std::vector<float> const& value_, ValueFormat format) {
+      writeVector<float>(os, indentation, value_, format);
+    }
+
     void writeValue(std::ostream& os, int, bool const& value_, ValueFormat format) {
       writeValue<bool>(os, value_, format);
     }
@@ -765,6 +773,8 @@ namespace edm {
     bool hasNestedContent(std::vector<unsigned long long> const& value) { return value.size() > 5U; }
     bool hasNestedContent(double const&) { return false; }
     bool hasNestedContent(std::vector<double> const& value) { return value.size() > 5U; }
+    bool hasNestedContent(float const&) { return false; }
+    bool hasNestedContent(std::vector<float> const& value) { return value.size() > 5U; }
     bool hasNestedContent(bool const&) { return false; }
     bool hasNestedContent(std::string const&) { return false; }
     bool hasNestedContent(std::vector<std::string> const& value) { return value.size() > 5U; }
