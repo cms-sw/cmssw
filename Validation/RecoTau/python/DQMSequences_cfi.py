@@ -9,7 +9,6 @@ dqmInfoTauV = DQMEDAnalyzer(
     subSystemFolder = cms.untracked.string('RecoTauV')
 )
 
-
 produceDenomsData = cms.Sequence(
     produceDenominatorRealData+
     produceDenominatorRealElectronsData+
@@ -27,19 +26,11 @@ TauValNumeratorAndDenominatorRealMuonsData.visit(seqModifier)
 
 # Standard validation is not required anymore
 pfTauRunDQMValidation = cms.Sequence(
-    #TauValNumeratorAndDenominatorRealData+
-    #TauValNumeratorAndDenominatorRealElectronsData+
-    #TauValNumeratorAndDenominatorRealMuonsData+
+    tauValidationSequenceMiniAODonDATA
     #dqmInfoTauV
 )
 
 runTauEff = cms.Sequence(
-    #efficienciesRealData+
-    #efficienciesRealDataSummary+
-    #efficienciesRealElectronsData+
-    #efficienciesRealElectronsDataSummary+
-    #efficienciesRealMuonsData+
-    #efficienciesRealMuonsDataSummary+
     efficienciesTauValidationMiniAODRealData
     +efficienciesTauValidationMiniAODRealElectronsData
     +efficienciesTauValidationMiniAODRealMuonsData
@@ -53,6 +44,7 @@ runTauEff = cms.Sequence(
 ##     produceDenominatorRealData+
 ##     produceDenominatorRealMuonsData
 ##     )
+"""
 produceDenomsSingleMu = cms.Sequence(
     produceDenominatorRealData+
     produceDenominatorRealMuonsData
@@ -62,12 +54,12 @@ produceDenomsMultiJet = cms.Sequence(produceDenomsJet)
 
 produceDenomsDoubleElectron = cms.Sequence(produceDenominatorRealElectronsData)
 produceDenomsTauPlusX = cms.Sequence(produceDenomsDoubleElectron)
-
+"""
 #----------------------------------------------------------------------------------------------------------------------------------------
 #                                                  Main modules according to dataset
 #----------------------------------------------------------------------------------------------------------------------------------------
 
-proc.GeneralMuSequence = cms.Sequence( proc.TauValNumeratorAndDenominatorRealData * proc.TauValNumeratorAndDenominatorRealMuonsData )
+#proc.GeneralMuSequence = cms.Sequence( proc.TauValNumeratorAndDenominatorRealData * proc.TauValNumeratorAndDenominatorRealMuonsData )
 
 #Mu Dataset
 ## procAttributes = dir(proc) #Takes a snapshot of what there in the process
@@ -85,7 +77,7 @@ proc.GeneralMuSequence = cms.Sequence( proc.TauValNumeratorAndDenominatorRealDat
 ##     TauValNumeratorAndDenominatorRealMuonsDataAtMu+
 ##     dqmInfoTauV
 ##     )
-
+"""
 #SingleMu Dataset
 procAttributes = dir(proc) #Takes a snapshot of what there in the process
 helpers.cloneProcessingSnippet( proc, proc.GeneralMuSequence, 'AtSingleMu') #clones the sequence inside the process with AtSingleMu postfix
@@ -190,3 +182,4 @@ runTauEffTauPlusX = cms.Sequence(runTauEffDoubleElectron)
 ## TauEfficienciesRealData+
 ## TauEfficienciesRealElectronsData+
 ## TauEfficienciesRealMuonsData
+"""
