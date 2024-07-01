@@ -2,6 +2,7 @@
 
 using namespace edm;
 using namespace cmsdt;
+using namespace std;
 
 // ============================================================================
 // Constructors and destructor
@@ -36,6 +37,18 @@ GlobalCoordsObtainer::GlobalCoordsObtainer(const ParameterSet& pset) {
       global_constants.push_back({ChId.rawId(), sl1_constants, sl3_constants});
     }
   }
+
+  int maxdrift;
+  maxdrift_filename_ = pset.getParameter<edm::FileInPath>("maxdrift_filename");
+  std::ifstream ifind(maxdrift_filename_.fullPath());
+  if (ifind.fail()) {
+    throw cms::Exception("Missing Input File")
+        << "MPSLFilter::MPSLFilter() -  Cannot find " << maxdrift_filename_.fullPath();
+  }
+  while (ifind.good()) {
+    ifind >> wh >> st >> se >> maxdrift;
+    maxdriftinfo_[wh][st][se] = maxdrift;
+  }
 }
 
 GlobalCoordsObtainer::~GlobalCoordsObtainer() {}
@@ -49,47 +62,28 @@ void GlobalCoordsObtainer::generate_luts() {
       sgn = -1;
     }
 
-    auto phi1 = calc_atan_lut(12,
-                              6,
-                              (1. / 16) / (global_constant.sl1.perp * 10),
-                              global_constant.sl1.x_phi0 / global_constant.sl1.perp,
-                              1. / std::pow(2, 17),
-                              10,
-                              3,
-                              12,
-                              20,
-                              sgn);
+    max_drift_tdc = maxdriftinfo_[ChId.wheel() + 2][ChId.station() - 1][ChId.sector() - 1];
+    int SEMICELL_IN_TDC_COUNTS = max_drift_tdc;  //495 en un mundo peor y mas oscuro
+    int SL1_SEMICELL_OFFSET = 96;
 
-    auto phi3 = calc_atan_lut(12,
-                              6,
-                              (1. / 16) / (global_constant.sl3.perp * 10),
-                              global_constant.sl3.x_phi0 / global_constant.sl3.perp,
-                              1. / std::pow(2, 17),
-                              10,
-                              3,
-                              12,
-                              20,
-                              sgn);
+    //Read atan function from LUTs
+    auto phi =
+        calc_atan_lut(11,
+                      6,
+                      21. / SEMICELL_IN_TDC_COUNTS / ((global_constant.sl1.perp + global_constant.sl3.perp) / .2),
+                      (global_constant.sl1.x_phi0 - 2.1 * SL1_SEMICELL_OFFSET) /
+                          ((global_constant.sl1.perp + global_constant.sl3.perp) / 2),
+                      1. / std::pow(2, 17),
+                      9,
+                      4,
+                      11,
+                      21,
+                      sgn);
 
-    double max_x_phi0 = global_constant.sl1.x_phi0;
-    if (global_constant.sl3.x_phi0 > max_x_phi0) {
-      max_x_phi0 = global_constant.sl3.x_phi0;
-    }
+    auto phib =
+        calc_atan_lut(9, 5, 21. / SEMICELL_IN_TDC_COUNTS / (6.5 * 16), 0., 4. / std::pow(2, 13), 9, 3, 10, 16, sgn);
 
-    auto phic = calc_atan_lut(12,
-                              6,
-                              (1. / 16) / ((global_constant.sl1.perp + global_constant.sl3.perp) / .2),
-                              max_x_phi0 / ((global_constant.sl1.perp + global_constant.sl3.perp) / 2),
-                              1. / std::pow(2, 17),
-                              10,
-                              3,
-                              12,
-                              20,
-                              sgn);
-
-    auto phib = calc_atan_lut(9, 6, 1. / 4096, 0., 4. / std::pow(2, 13), 10, 3, 10, 16, sgn);
-
-    luts[global_constant.chid] = {phic, phi1, phi3, phib};
+    luts[global_constant.chid] = {phi, phib};
   }
 }
 
@@ -198,13 +192,8 @@ std::vector<double> GlobalCoordsObtainer::get_global_coordinates(uint32_t chid, 
   // Depending on the type of primitive (SL1, SL3 or correlated), choose the
   // appropriate input data (x, tanpsi) from the input primitive data structure
   // and the corresponding phi-lut from the 3 available options
-  auto phi_lut = &luts[chid].phic;
-  if (sl == 1) {
-    phi_lut = &luts[chid].phi1;
-  } else if (sl == 3) {
-    phi_lut = &luts[chid].phi3;
-  }
 
+  auto phi_lut = &luts[chid].phi;  //One parameter to rule them all
   auto phib_lut = &luts[chid].phib;
 
   // x and slope are given in two's complement in fw
@@ -251,8 +240,8 @@ std::vector<double> GlobalCoordsObtainer::get_global_coordinates(uint32_t chid, 
   int phib_uncut = psi_uncut - (phi_uncut >> (PHI_PHIB_RES_DIFF_BITS + PHI_MULT_SHR_BITS - PHIB_MULT_SHR_BITS));
   int phib = (phib_uncut >> PHIB_MULT_SHR_BITS);
 
-  double phi_f = (double)phi / pow(2, PHI_SIZE);
-  double phib_f = (double)phib / pow(2, PHIB_SIZE);
+  double phi_f = (double)phi * PHI_SIZE;
+  double phib_f = (double)phib * PHIB_SIZE;
 
   return std::vector({phi_f, phib_f});
 }

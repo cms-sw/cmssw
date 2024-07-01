@@ -424,20 +424,20 @@ namespace cmsdt {
    * Local to global coordinates transformation
    */
 
-  constexpr int X_SIZE = 18;
-  constexpr int TANPSI_SIZE = 15;
-  constexpr int PHI_SIZE = 17;   // (1 / 2 ** 17)
-  constexpr int PHIB_SIZE = 11;  // (2 ** 2) / (2 ** 13)
+  constexpr int X_SIZE = 17;
+  constexpr int TANPSI_SIZE = 14;
+  constexpr double PHI_SIZE = 1. / 131072;  //pow(2,17)   //1 rad range, 17 bits
+  constexpr double PHIB_SIZE = 4. / 8192;   //pow(2,13)  //4 rad range, 13 bits
 
-  constexpr int PHI_LUT_ADDR_WIDTH = 12;
-  constexpr int PHI_B_SHL_BITS = 7;
-  constexpr int PHI_MULT_SHR_BITS = 10;
-  constexpr int PHI_LUT_A_BITS = 12;
-  constexpr int PHI_LUT_B_BITS = 20;
+  constexpr int PHI_LUT_ADDR_WIDTH = 11;
+  constexpr int PHI_B_SHL_BITS = 5;
+  constexpr int PHI_MULT_SHR_BITS = 9;
+  constexpr int PHI_LUT_A_BITS = 11;
+  constexpr int PHI_LUT_B_BITS = 21;
 
   constexpr int PHIB_LUT_ADDR_WIDTH = 9;
-  constexpr int PHIB_B_SHL_BITS = 7;
-  constexpr int PHIB_MULT_SHR_BITS = 10;
+  constexpr int PHIB_B_SHL_BITS = 6;
+  constexpr int PHIB_MULT_SHR_BITS = 9;
   constexpr int PHIB_LUT_A_BITS = 10;
   constexpr int PHIB_LUT_B_BITS = 16;
 
