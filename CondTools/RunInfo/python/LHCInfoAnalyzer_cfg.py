@@ -1,23 +1,24 @@
-import FWCore.ParameterSet.Config as cms
+import sys
 
+import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
 process = cms.Process('test')
 
 options = VarParsing.VarParsing()
-options.register( 'db'
-                , 'sqlite_file:lhcinfoperfill_pop_test.db' #default value
+options.register( 'source'
+                , 'sqlite_file:lhcinfo_pop_test.db' #default value
                 , VarParsing.VarParsing.multiplicity.singleton
                 , VarParsing.VarParsing.varType.string
                 , "Connection string to the DB where payloads are going to be read from"
                   )
 options.register( 'tag'
-                , 'LHCInfoPerFill_PopCon_test'
+                , 'LHCInfo_PopCon_test'
                 , VarParsing.VarParsing.multiplicity.singleton
                 , VarParsing.VarParsing.varType.string
-                , "Tag to read from in source db"
+                , "Tag to read from in source"
                   )
 options.register( 'timestamp'
-                , 1
+                , 7133428598295232512
                 , VarParsing.VarParsing.multiplicity.singleton
                 , VarParsing.VarParsing.varType.int
                 , "Timestamp to which payload with relavant IOV will be read"
@@ -41,23 +42,24 @@ process.source = cms.Source('EmptyIOVSource',
     lastValue = cms.uint64(options.timestamp),
     interval = cms.uint64(1)
 )
+
 # load info from database
 process.load('CondCore.CondDB.CondDB_cfi')
-process.CondDB.connect= options.db # SQLite input
+process.CondDB.connect= options.source # SQLite input
 
 process.PoolDBESSource = cms.ESSource('PoolDBESSource',
     process.CondDB,
     DumpStats = cms.untracked.bool(True),
     toGet = cms.VPSet(
         cms.PSet(
-            record = cms.string('LHCInfoPerFillRcd'),
+            record = cms.string('LHCInfoRcd'),
             tag = cms.string(options.tag)
         )
     )
 )
 
-process.LHCInfoPerFillAnalyzer = cms.EDAnalyzer('LHCInfoPerFillAnalyzer')
+process.LHCInfoAnalyzer = cms.EDAnalyzer('LHCInfoAnalyzer')
 
 process.path = cms.Path(
-    process.LHCInfoPerFillAnalyzer
+    process.LHCInfoAnalyzer
 )
