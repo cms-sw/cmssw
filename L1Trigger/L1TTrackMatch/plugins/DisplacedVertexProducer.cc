@@ -105,11 +105,10 @@ Int_t calcVertex(Track_Parameters a, Track_Parameters b, Double_t &x_vtx, Double
 
 DisplacedVertexProducer::DisplacedVertexProducer(const edm::ParameterSet& iConfig)
   : ttTrackMCTruthToken_(consumes<TTTrackAssociationMap<Ref_Phase2TrackerDigi_> >(iConfig.getParameter<edm::InputTag>("mcTruthTrackInputTag"))),
-    trackToken_(consumes<std::vector<TTTrack<Ref_Phase2TrackerDigi_> > >(iConfig.getParameter<edm::InputTag>("l1TracksInputTag"))),
+    trackToken_(consumes<TTTrackRefCollection>(iConfig.getParameter<edm::InputTag>("l1TracksInputTag"))),
     outputTrackCollectionName_(iConfig.getParameter<std::string>("l1TrackVertexCollectionName")),
     ONNXmodel_(iConfig.getParameter<std::string>("ONNXmodel")),
-    ONNXInputName_(iConfig.getParameter<std::string>("ONNXInputName")),
-    featureNames_(iConfig.getParameter<std::vector<std::string>>("featureNames"))
+    ONNXInputName_(iConfig.getParameter<std::string>("ONNXInputName"))
 {
   //--- Define EDM output to be written to file (if required)
   produces<l1t::DisplacedTrackVertexCollection>(outputTrackCollectionName_);
@@ -119,9 +118,9 @@ DisplacedVertexProducer::DisplacedVertexProducer(const edm::ParameterSet& iConfi
 void DisplacedVertexProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   edm::Handle<TTTrackAssociationMap<Ref_Phase2TrackerDigi_> > MCTruthTTTrackHandle;
   iEvent.getByToken(ttTrackMCTruthToken_, MCTruthTTTrackHandle);
-  edm::Handle<std::vector<TTTrack<Ref_Phase2TrackerDigi_> > > TTTrackHandle;
+  edm::Handle<TTTrackRefCollection> TTTrackHandle;
   iEvent.getByToken(trackToken_, TTTrackHandle);
-  std::vector<TTTrack<Ref_Phase2TrackerDigi_> >::const_iterator iterL1Track;
+  TTTrackRefCollection::const_iterator iterL1Track;
   int this_l1track = 0;
   std::vector<Track_Parameters> selectedTracks;
   std::vector<edm::Ptr<TrackingParticle>> selectedTPs;
@@ -129,44 +128,29 @@ void DisplacedVertexProducer::produce(edm::StreamID, edm::Event& iEvent, const e
   for (iterL1Track = TTTrackHandle->begin(); iterL1Track != TTTrackHandle->end(); iterL1Track++) {
     edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_> > l1track_ptr(TTTrackHandle, this_l1track);
     this_l1track++;
-    float pt = iterL1Track->momentum().perp();
-    float eta = iterL1Track->momentum().eta();
-    float phi = iterL1Track->momentum().phi();
-    float z0 = iterL1Track->z0();  //cm
-    float x0 = iterL1Track->POCA().x();
-    float y0 = iterL1Track->POCA().y();
+    float pt = l1track_ptr->momentum().perp();
+    float eta = l1track_ptr->momentum().eta();
+    float phi = l1track_ptr->momentum().phi();
+    float z0 = l1track_ptr->z0();  //cm
+    float x0 = l1track_ptr->POCA().x();
+    float y0 = l1track_ptr->POCA().y();
     float d0 = -x0 * sin(phi) + y0 * cos(phi);
-    float rinv = iterL1Track->rInv();
-    float chi2 = iterL1Track->chi2Red();
-    float chi2rphi = iterL1Track->chi2XYRed();
-    float chi2rz = iterL1Track->chi2ZRed();
-    float bendchi2 = iterL1Track->stubPtConsistency();
-    float MVA1 = iterL1Track->trkMVA1();
-    float MVA2 = iterL1Track->trkMVA2();
-    std::vector<edm::Ref<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_> >, TTStub<Ref_Phase2TrackerDigi_> > > stubRefs = iterL1Track->getStubRefs();
+    float rinv = l1track_ptr->rInv();
+    float chi2 = l1track_ptr->chi2Red();
+    float chi2rphi = l1track_ptr->chi2XYRed();
+    float chi2rz = l1track_ptr->chi2ZRed();
+    float bendchi2 = l1track_ptr->stubPtConsistency();
+    float MVA1 = l1track_ptr->trkMVA1();
+    float MVA2 = l1track_ptr->trkMVA2();
+    std::vector<edm::Ref<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_> >, TTStub<Ref_Phase2TrackerDigi_> > > stubRefs = l1track_ptr->getStubRefs();
     int nstub = (int)stubRefs.size();
-    if( chi2rz<3.0 && MVA2>0.2 && MVA1>0.2 && pt>3.0 && fabs(eta)<2.4){
-
-      if(fabs(d0)>1.0){
-	if(MVA1<=0.5) continue;
-      }
-      if(fabs(eta)>1.1 && fabs(eta)<1.7){
-	if(nstub<=4) continue;
-      }
-      if(fabs(eta)>0.95){
-	if(fabs(d0)<=0.08) continue;
-      }
-      if(fabs(eta)<=0.95){
-	if(fabs(d0)<=0.06) continue;
-      }
-
-      //std::cout<<"track params: "<<pt<<" "<<-d0<<" "<<z0<<" "<<eta<<" "<<phi<<" "<<rinv<<" "<<this_l1track<<" "<<nstub<<" "<<chi2rphi<<" "<<chi2rz<<" "<<bendchi2<<" "<<MVA1<<" "<<MVA2<<std::endl;
-      Track_Parameters track = Track_Parameters(pt, -d0, z0, eta, phi, -99999, -999, -999, -999, rinv, (this_l1track - 1), nullptr, nstub, chi2rphi, chi2rz, bendchi2, MVA1, MVA2);
-      selectedTracks.push_back(track);
-      edm::Ptr<TrackingParticle> my_tp = MCTruthTTTrackHandle->findTrackingParticlePtr(l1track_ptr);
-      selectedTPs.push_back(my_tp);
-    }
+    //std::cout<<"track params: "<<pt<<" "<<-d0<<" "<<z0<<" "<<eta<<" "<<phi<<" "<<rinv<<" "<<this_l1track<<" "<<nstub<<" "<<chi2rphi<<" "<<chi2rz<<" "<<bendchi2<<" "<<MVA1<<" "<<MVA2<<std::endl;
+    Track_Parameters track = Track_Parameters(pt, -d0, z0, eta, phi, -99999, -999, -999, -999, rinv, (this_l1track - 1), nullptr, nstub, chi2rphi, chi2rz, bendchi2, MVA1, MVA2);
+    selectedTracks.push_back(track);
+    edm::Ptr<TrackingParticle> my_tp = MCTruthTTTrackHandle->findTrackingParticlePtr(l1track_ptr);
+    selectedTPs.push_back(my_tp);
   }
+  
   //std::cout<<"num selected tracks: "<<selectedTracks.size()<<std::endl;
   sort(selectedTracks.begin(), selectedTracks.end(), ComparePtTrack); 
   std::unique_ptr<l1t::DisplacedTrackVertexCollection> product(new std::vector<l1t::DisplacedTrackVertex>());
@@ -201,9 +185,7 @@ void DisplacedVertexProducer::produce(edm::StreamID, edm::Event& iEvent, const e
       cms::Ort::FloatArrays ortoutputs;
       float minD0 = vertex.a.d0;
       if(fabs(vertex.b.d0)<fabs(minD0)) minD0 = vertex.b.d0;
-      //std::vector<float> Transformed_features = {vertex.delta_z, vertex.R_T, vertex.cos_T, vertex.d_T, vertex.chi2rzdofSum, float(vertex.numStubsSum), vertex.chi2rphidofSum, minD0, vertex.a.pt+vertex.b.pt};
       std::vector<float> Transformed_features = {selectedTracks[i].pt, selectedTracks[j].pt, selectedTracks[i].eta, selectedTracks[j].eta, selectedTracks[i].phi, selectedTracks[j].phi, selectedTracks[i].d0, selectedTracks[j].d0, selectedTracks[i].z0, selectedTracks[j].z0, selectedTracks[i].chi2rz, selectedTracks[j].chi2rz, selectedTracks[i].bendchi2, selectedTracks[j].bendchi2, selectedTracks[i].MVA1, selectedTracks[j].MVA1, selectedTracks[i].MVA2, selectedTracks[j].MVA2, vertex.d_T, vertex.R_T, vertex.cos_T, vertex.delta_z};
-      //cms::Ort::ONNXRuntime Runtime(this->ONNXmodel_);  //Setup ONNX runtime
       ortinput_names.push_back(this->ONNXInputName_);
       ortoutput_names = runTime_->getOutputNames();
       ortinput.push_back(Transformed_features);
