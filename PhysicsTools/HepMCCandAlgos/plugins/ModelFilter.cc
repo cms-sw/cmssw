@@ -91,7 +91,7 @@ void ModelFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
   desc.add<vector<double> >("parameterMins");
   desc.add<vector<double> >("parameterMaxs");
 
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 vector<string> ModelFilter::split(string const& fstring, string const& splitter) {
   vector<string> returnVector;

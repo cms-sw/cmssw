@@ -111,7 +111,7 @@ void RemovePileUpDominatedEventsGen::fillDescriptions(edm::ConfigurationDescript
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("pileupSummaryInfos", edm::InputTag("addPileupInfo"));
   desc.add<edm::InputTag>("generatorInfo", edm::InputTag("generator"));
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 DEFINE_FWK_MODULE(RemovePileUpDominatedEventsGen);

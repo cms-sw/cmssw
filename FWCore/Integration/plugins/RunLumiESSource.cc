@@ -68,7 +68,7 @@ namespace edmtest {
 
   void RunLumiESSource::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
-    descriptions.addDefault(desc);
+    descriptions.addWithDefaultLabel(desc);
   }
 
   void RunLumiESSource::setIntervalFor(edm::eventsetup::EventSetupRecordKey const&,

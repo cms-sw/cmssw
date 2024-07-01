@@ -78,7 +78,7 @@ namespace edmtest {
     edm::ParameterSetDescription desc;
     desc.add<unsigned int>("expectedTestValue");
     desc.add<edm::InputTag>("collectionTag");
-    descriptions.addDefault(desc);
+    descriptions.addWithDefaultLabel(desc);
   }
 }  // namespace edmtest
 

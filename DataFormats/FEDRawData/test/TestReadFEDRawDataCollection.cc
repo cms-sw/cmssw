@@ -87,7 +87,7 @@ namespace edmtest {
     desc.add<std::vector<unsigned int>>("expectedFEDData0");
     desc.add<std::vector<unsigned int>>("expectedFEDData3");
     desc.add<edm::InputTag>("fedRawDataCollectionTag");
-    descriptions.addDefault(desc);
+    descriptions.addWithDefaultLabel(desc);
   }
 }  // namespace edmtest
 

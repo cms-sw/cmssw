@@ -595,7 +595,7 @@ void DQMRootOutputModule::fillDescriptions(edm::ConfigurationDescriptions& descr
   desc.addUntracked<edm::ParameterSetDescription>("dataset", dataSet)
       ->setComment("PSet is only used by Data Operations and not by this module.");
 
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 DEFINE_FWK_MODULE(DQMRootOutputModule);

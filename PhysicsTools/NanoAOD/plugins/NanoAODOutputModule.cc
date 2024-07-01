@@ -439,7 +439,7 @@ void NanoAODOutputModule::fillDescriptions(edm::ConfigurationDescriptions& descr
   branchSet.setAllowAnything();
   desc.add<edm::ParameterSetDescription>("branches", branchSet);
 
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 DEFINE_FWK_MODULE(NanoAODOutputModule);

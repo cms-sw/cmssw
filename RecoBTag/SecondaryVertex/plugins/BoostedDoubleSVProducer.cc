@@ -802,7 +802,7 @@ void BoostedDoubleSVProducer::fillDescriptions(edm::ConfigurationDescriptions& d
   }
   desc.add<edm::InputTag>("svTagInfos", edm::InputTag("pfInclusiveSecondaryVertexFinderAK8TagInfos"));
   desc.add<edm::InputTag>("weights", edm::InputTag(""));
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 //define this as a plug-in

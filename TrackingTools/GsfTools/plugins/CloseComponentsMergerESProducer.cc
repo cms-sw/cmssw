@@ -70,5 +70,5 @@ void CloseComponentsMergerESProducer<N>::fillDescriptions(edm::ConfigurationDesc
   desc.add<int>("MaxComponents");
   desc.add<std::string>("DistanceMeasure");
 
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }

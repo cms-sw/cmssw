@@ -548,7 +548,7 @@ namespace edmtest {
         desc.add<edm::InputTag>("consumesProcessBlockNotFound2", defaultInputTag);
         desc.add<edm::InputTag>("consumesProcessBlockNotFound3", defaultInputTag);
         desc.add<edm::InputTag>("consumesProcessBlockNotFound4", defaultInputTag);
-        descriptions.addDefault(desc);
+        descriptions.addWithDefaultLabel(desc);
       }
 
     private:

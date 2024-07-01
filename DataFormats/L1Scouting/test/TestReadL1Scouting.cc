@@ -377,8 +377,7 @@ namespace edmtest {
     desc.add<int>("bmtfStubClassVersion");
     desc.add<std::vector<int>>("expectedBmtfStubValues");
     desc.add<edm::InputTag>("bmtfStubTag");
-
-    descriptions.addDefault(desc);
+    descriptions.addWithDefaultLabel(desc);
   }
 
   void TestReadL1Scouting::throwWithMessageFromConstructor(const char* msg) const {

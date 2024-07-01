@@ -80,7 +80,7 @@ void EcalUncalibRecHitProducer::fillDescriptions(edm::ConfigurationDescriptions&
     }
     desc.ifValue(edm::ParameterDescription<std::string>("algo", "EcalUncalibRecHitWorkerMultiFit", true), std::move(s));
 
-    descriptions.addDefault(desc);
+    descriptions.addWithDefaultLabel(desc);
   }
 
   for (std::vector<edmplugin::PluginInfo>::const_iterator itInfos = infos.begin(); itInfos != infos.end(); itInfos++) {

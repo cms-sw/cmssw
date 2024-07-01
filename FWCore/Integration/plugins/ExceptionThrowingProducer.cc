@@ -588,20 +588,17 @@ namespace edmtest {
     desc.addUntracked<edm::EventID>("eventIDThrowOnStreamBeginLumi", invalidEventID);
     desc.addUntracked<edm::EventID>("eventIDThrowOnStreamEndRun", invalidEventID);
     desc.addUntracked<edm::EventID>("eventIDThrowOnStreamEndLumi", invalidEventID);
-
     desc.addUntracked<unsigned int>("expectedStreamBeginLumi", kUnset);
     desc.addUntracked<unsigned int>("expectedOffsetNoStreamEndLumi", 0);
     desc.addUntracked<unsigned int>("expectedGlobalBeginLumi", 0);
     desc.addUntracked<unsigned int>("expectedOffsetNoGlobalEndLumi", 0);
     desc.addUntracked<unsigned int>("expectedOffsetNoWriteLumi", 0);
-
     desc.addUntracked<unsigned int>("expectedStreamBeginRun", kUnset);
     desc.addUntracked<unsigned int>("expectedOffsetNoStreamEndRun", 0);
     desc.addUntracked<unsigned int>("expectedGlobalBeginRun", 0);
     desc.addUntracked<unsigned int>("expectedOffsetNoGlobalEndRun", 0);
     desc.addUntracked<unsigned int>("expectedOffsetNoWriteRun", 0);
-
-    descriptions.addDefault(desc);
+    descriptions.addWithDefaultLabel(desc);
   }
 
 }  // namespace edmtest

@@ -110,7 +110,7 @@ namespace edm {
             "Sets the beginning point of an IOV. The end point is assumed to be the next entry in the list. If there "
             "are no further entries than 'end of time' is used.");
 
-    descriptions.addDefault(desc);
+    descriptions.addWithDefaultLabel(desc);
   }
 
 }  // namespace edm

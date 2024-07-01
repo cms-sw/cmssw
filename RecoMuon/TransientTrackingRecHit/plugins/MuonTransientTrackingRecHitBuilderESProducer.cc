@@ -52,7 +52,7 @@ std::unique_ptr<TransientTrackingRecHitBuilder> MuonTransientTrackingRecHitBuild
 void MuonTransientTrackingRecHitBuilderESProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<string>("ComponentName");
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 DEFINE_FWK_EVENTSETUP_MODULE(MuonTransientTrackingRecHitBuilderESProducer);

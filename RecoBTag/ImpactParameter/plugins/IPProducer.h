@@ -457,7 +457,7 @@ inline void IPProducer<reco::TrackRefVector, reco::JTATagInfo, IPProducerHelpers
   desc.add<bool>("computeProbabilities", true);
   desc.add<bool>("useTrackQuality", false);
   desc.add<double>("maximumChiSquared", 5.0);
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 template <>
@@ -482,7 +482,7 @@ IPProducer<std::vector<reco::CandidatePtr>, reco::JetTagInfo, IPProducerHelpers:
   desc.add<double>("ghostTrackPriorDeltaR", 0.03);
   desc.add<double>("maximumChiSquared", 5.0);
   desc.addOptional<bool>("explicitJTA", false);
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 #endif

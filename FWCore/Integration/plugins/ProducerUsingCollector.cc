@@ -136,7 +136,7 @@ namespace edmtest {
 
   void ProducerUsingCollector::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
-    descriptions.addDefault(desc);
+    descriptions.addWithDefaultLabel(desc);
   }
 
 }  // namespace edmtest

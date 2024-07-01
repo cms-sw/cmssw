@@ -222,7 +222,7 @@ void BTagProbabilityToDiscriminator::fillDescriptions(edm::ConfigurationDescript
     }
     desc.addVPSet("discriminators", vpsd1, temp1);
   }
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 // define this as a plug-in

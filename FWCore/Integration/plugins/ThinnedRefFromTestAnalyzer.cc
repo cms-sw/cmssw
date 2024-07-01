@@ -62,7 +62,7 @@ namespace edmtest {
     desc.add<edm::InputTag>("thinnedTag");
     desc.add<edm::InputTag>("unrelatedTag");
     desc.add<edm::InputTag>("trackTag");
-    descriptions.addDefault(desc);
+    descriptions.addWithDefaultLabel(desc);
   }
 
   void ThinnedRefFromTestAnalyzer::analyze(edm::StreamID streamID,

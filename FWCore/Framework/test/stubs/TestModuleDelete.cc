@@ -54,7 +54,7 @@ namespace edmtest {
       desc.addUntracked<std::vector<edm::InputTag>>("srcBeginRun", std::vector<edm::InputTag>{});
       desc.addUntracked<std::vector<edm::InputTag>>("srcBeginLumi", std::vector<edm::InputTag>{});
       desc.addUntracked<std::vector<edm::InputTag>>("srcEvent", std::vector<edm::InputTag>{});
-      descriptions.addDefault(desc);
+      descriptions.addWithDefaultLabel(desc);
     }
     void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override {
       throw edm::Exception(edm::errors::NotFound) << "Intentional 'NotFound' exception for testing purposes\n";
@@ -90,7 +90,7 @@ namespace edmtest {
       desc.addUntracked<std::vector<edm::InputTag>>("srcBeginRun", std::vector<edm::InputTag>{});
       desc.addUntracked<std::vector<edm::InputTag>>("srcBeginLumi", std::vector<edm::InputTag>{});
       desc.addUntracked<std::vector<edm::InputTag>>("srcEvent", std::vector<edm::InputTag>{});
-      descriptions.addDefault(desc);
+      descriptions.addWithDefaultLabel(desc);
     }
     void globalBeginLuminosityBlockProduce(edm::LuminosityBlock&, edm::EventSetup const&) const override {
       throw edm::Exception(edm::errors::NotFound) << "Intentional 'NotFound' exception for testing purposes\n";
@@ -129,7 +129,7 @@ namespace edmtest {
       desc.addUntracked<std::vector<edm::InputTag>>("srcBeginRun", std::vector<edm::InputTag>{});
       desc.addUntracked<std::vector<edm::InputTag>>("srcBeginLumi", std::vector<edm::InputTag>{});
       desc.addUntracked<std::vector<edm::InputTag>>("srcEvent", std::vector<edm::InputTag>{});
-      descriptions.addDefault(desc);
+      descriptions.addWithDefaultLabel(desc);
     }
     void globalBeginRunProduce(edm::Run&, edm::EventSetup const&) const override {
       throw edm::Exception(edm::errors::NotFound) << "Intentional 'NotFound' exception for testing purposes\n";
@@ -164,7 +164,7 @@ namespace edmtest {
       desc.addUntracked<std::vector<edm::InputTag>>("srcBeginRun", std::vector<edm::InputTag>{});
       desc.addUntracked<std::vector<edm::InputTag>>("srcBeginLumi", std::vector<edm::InputTag>{});
       desc.addUntracked<std::vector<edm::InputTag>>("srcEvent", std::vector<edm::InputTag>{});
-      descriptions.addDefault(desc);
+      descriptions.addWithDefaultLabel(desc);
     }
     void beginProcessBlockProduce(edm::ProcessBlock&) override {
       throw edm::Exception(edm::errors::NotFound) << "Intentional 'NotFound' exception for testing purposes\n";

@@ -105,7 +105,7 @@ void MagFieldConfigTestESProducer::fillDescriptions(edm::ConfigurationDescriptio
 
     desc.addVPSet("configs", entryDesc, {});
   }
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 //define this as a plug-in

@@ -65,7 +65,7 @@ namespace edmtest {
     desc.add<std::vector<unsigned int>>("expectedSDSData1");
     desc.add<std::vector<unsigned int>>("expectedSDSData2");
     desc.add<edm::InputTag>("sdsRawDataCollectionTag");
-    descriptions.addDefault(desc);
+    descriptions.addWithDefaultLabel(desc);
   }
 }  // namespace edmtest
 

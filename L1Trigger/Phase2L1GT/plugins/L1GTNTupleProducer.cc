@@ -96,7 +96,7 @@ void L1GTNTupleProducer::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.add<std::string>("producerName");
   desc.add<unsigned>("maxNTuples");
 
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 void L1GTNTupleProducer::fillData(const l1t::P2GTCandidateCollection& collection, const std::string& instanceName) {

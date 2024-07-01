@@ -180,7 +180,7 @@ void JetTagProducer::fillDescriptions(edm::ConfigurationDescriptions &descriptio
     tagInfos.push_back(edm::InputTag("softPFElectronsTagInfos"));
     desc.add<std::vector<edm::InputTag> >("tagInfos", tagInfos);
   }
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 // define it as plugin

@@ -540,7 +540,7 @@ namespace reco {
     desc.add<double>("midRapidityRange", 1);
     desc.add<bool>("lowGainZDC", true);
 
-    descriptions.addDefault(desc);
+    descriptions.addWithDefaultLabel(desc);
   }
 
   // ------------ method called once each job just before starting event loop  ------------

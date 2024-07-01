@@ -102,7 +102,7 @@ void TestLumiProducerFromBrilcalc::fillDescriptions(edm::ConfigurationDescriptio
   // Allowed parameters
   edm::ParameterSetDescription desc;
   desc.addUntracked<edm::InputTag>("inputTag");
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 //define this as a plug-in

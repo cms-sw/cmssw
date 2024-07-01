@@ -54,7 +54,7 @@ void XMLIdealGeometryESProducer::fillDescriptions(edm::ConfigurationDescriptions
   desc.add<std::string>("rootDDName")->setComment("The value must be of the form 'namespace:name'");
   desc.add<std::string>("label")->setComment("product label used to get the FileBlob");
 
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 //define this as a plug-in

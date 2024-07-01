@@ -289,7 +289,7 @@ void NanoAODRNTupleOutputModule::fillDescriptions(edm::ConfigurationDescriptions
   branchSet.setAllowAnything();
   desc.add<edm::ParameterSetDescription>("branches", branchSet);
 
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 DEFINE_FWK_MODULE(NanoAODRNTupleOutputModule);

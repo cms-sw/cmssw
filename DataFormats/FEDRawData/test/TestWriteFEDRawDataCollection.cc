@@ -72,7 +72,7 @@ namespace edmtest {
     edm::ParameterSetDescription desc;
     desc.add<std::vector<unsigned int>>("FEDData0");
     desc.add<std::vector<unsigned int>>("FEDData3");
-    descriptions.addDefault(desc);
+    descriptions.addWithDefaultLabel(desc);
   }
 }  // namespace edmtest
 

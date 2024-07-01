@@ -82,7 +82,7 @@ void GsfTrajectoryFitterESProducer::fillDescriptions(edm::ConfigurationDescripti
   desc.add<std::string>("GeometricalPropagator");
   desc.add<std::string>("Merger");
   desc.add<std::string>("RecoGeometry");
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 DEFINE_FWK_EVENTSETUP_MODULE(GsfTrajectoryFitterESProducer);

@@ -68,7 +68,7 @@ namespace edmtest {
     edm::ParameterSetDescription desc;
     desc.add<std::vector<int>>("expectedVectorVectorIntegralValues");
     desc.add<edm::InputTag>("vectorVectorTag");
-    descriptions.addDefault(desc);
+    descriptions.addWithDefaultLabel(desc);
   }
 
   void SchemaEvolutionTestRead::analyzeVectorVector(edm::Event const& iEvent) const {

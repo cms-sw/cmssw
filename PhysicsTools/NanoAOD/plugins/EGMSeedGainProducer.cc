@@ -106,7 +106,7 @@ void EGMSeedGainProducer<T>::fillDescriptions(edm::ConfigurationDescriptions& de
       ->setComment("EB rechit collection");
   desc.add<edm::InputTag>("recHitsEE", edm::InputTag("reducedEgamma", "reducedEERecHits"))
       ->setComment("EE rechit collection");
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 typedef EGMSeedGainProducer<pat::Electron> ElectronSeedGainProducer;

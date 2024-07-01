@@ -97,7 +97,7 @@ void SoftPFMuonTagInfoProducer::fillDescriptions(edm::ConfigurationDescriptions&
   desc.add<double>("filterRatio1");
   desc.add<double>("filterRatio2");
   desc.add<bool>("filterPromptMuons");
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 void SoftPFMuonTagInfoProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {

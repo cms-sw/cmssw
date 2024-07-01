@@ -26,7 +26,7 @@ namespace {
 
 void DummyServiceBase::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 DummyServiceE0::DummyServiceE0(edm::ParameterSet const&, edm::ActivityRegistry& iAR) {

@@ -213,7 +213,7 @@ void VolumeBasedMagneticFieldESProducerFromDB::fillDescriptions(edm::Configurati
   desc.add<int>("valueOverride", -1)->setComment("Force value of current (in A); take the value from DB if < 0.");
   desc.addUntracked<std::string>("label", "");
 
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 DEFINE_FWK_EVENTSETUP_MODULE(VolumeBasedMagneticFieldESProducerFromDB);

@@ -195,7 +195,7 @@ namespace edmtest {
 
   void TestConcurrentIOVsCondCore::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
-    descriptions.addDefault(desc);
+    descriptions.addWithDefaultLabel(desc);
   }
 
   DEFINE_FWK_MODULE(TestConcurrentIOVsCondCore);

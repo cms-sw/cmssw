@@ -195,7 +195,7 @@ void PF_PU_FirstVertexTracks::fillDescriptions(edm::ConfigurationDescriptions& d
   desc.add<InputTag>("VertexCollection");
   desc.add<int>("MinQuality");
 
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 //define this as a plug-in

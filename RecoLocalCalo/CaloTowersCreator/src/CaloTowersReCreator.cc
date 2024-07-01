@@ -201,5 +201,5 @@ void CaloTowersReCreator::fillDescriptions(edm::ConfigurationDescriptions& descr
   desc.add<int>("MomConstrMethod", 1);
   desc.add<int>("HcalPhase", 0);
 
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }

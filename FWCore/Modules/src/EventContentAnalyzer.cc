@@ -482,7 +482,7 @@ namespace edm {
     desc.addUntracked<bool>("listPathStatus", false)
         ->setComment("If true, also show PathStatus/EndPathStatus data products.");
     descriptions.add("printContent", desc);
-    descriptions.addDefault(desc);
+    descriptions.addWithDefaultLabel(desc);
   }
 }  // namespace edm
 

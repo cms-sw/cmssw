@@ -92,7 +92,7 @@ namespace edmtest {
     desc.add<std::vector<unsigned int>>("expectedHLTStates");
     desc.add<std::vector<unsigned int>>("expectedModuleIndexes");
     desc.add<edm::InputTag>("triggerResultsTag");
-    descriptions.addDefault(desc);
+    descriptions.addWithDefaultLabel(desc);
   }
 }  // namespace edmtest
 

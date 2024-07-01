@@ -146,7 +146,7 @@ namespace edmtest {
     desc.add<bool>("findForRecordA", false);
     desc.add<std::vector<unsigned int>>("firstValidLumis", emptyVector);
     desc.add<std::vector<unsigned int>>("invalidLumis", emptyVector);
-    descriptions.addDefault(desc);
+    descriptions.addWithDefaultLabel(desc);
   }
 
   void ConcurrentIOVESSource::setIntervalFor(edm::eventsetup::EventSetupRecordKey const& key,

@@ -67,7 +67,7 @@ void HcalTimeSlewEP::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   std::vector<edm::ParameterSet> default_M3(1);
   desc.addVPSet("timeSlewParametersM3", desc_M3, default_M3);
 
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 // ------------ method called to produce the data  ------------

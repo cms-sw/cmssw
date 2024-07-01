@@ -58,7 +58,7 @@ void HBHEDarkeningEP::fillDescriptions(edm::ConfigurationDescriptions& descripti
   std::vector<edm::ParameterSet> default_year(1);
   desc.addVPSet("years", desc_years, default_year);
 
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 // ------------ method called to produce the data  ------------

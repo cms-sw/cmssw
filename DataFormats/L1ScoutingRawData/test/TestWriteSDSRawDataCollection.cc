@@ -55,7 +55,7 @@ namespace edmtest {
     edm::ParameterSetDescription desc;
     desc.add<std::vector<unsigned int>>("SDSData1");
     desc.add<std::vector<unsigned int>>("SDSData2");
-    descriptions.addDefault(desc);
+    descriptions.addWithDefaultLabel(desc);
   }
 }  // namespace edmtest
 

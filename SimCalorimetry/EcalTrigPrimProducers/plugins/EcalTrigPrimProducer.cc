@@ -403,7 +403,7 @@ void EcalTrigPrimProducer::fillDescriptions(edm::ConfigurationDescriptions &desc
   // 'binOfMaximum' was missing. This replicates that behavior.
   desc.add<int>("binOfMaximum", -1)->setComment(kComment);
   desc.add<bool>("TPinfoPrintout", false);
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 DEFINE_FWK_MODULE(EcalTrigPrimProducer);

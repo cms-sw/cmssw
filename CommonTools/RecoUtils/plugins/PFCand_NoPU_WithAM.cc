@@ -174,7 +174,7 @@ void PFCand_NoPU_WithAM::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.add<InputTag>("VertexCollection");
   desc.add<int>("MinQuality");
 
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 //define this as a plug-in

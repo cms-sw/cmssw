@@ -127,7 +127,7 @@ namespace edmtest {
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
       edm::ParameterSetDescription desc;
       desc.add<int>("ivalue");
-      descriptions.addDefault(desc);
+      descriptions.addWithDefaultLabel(desc);
     }
 
   private:
@@ -220,7 +220,7 @@ namespace edmtest {
     desc.add<int>("ivalue");
     desc.add<unsigned int>("iterations");
     desc.add<unsigned int>("lumiNumberToThrow", 0);
-    descriptions.addDefault(desc);
+    descriptions.addWithDefaultLabel(desc);
   }
 
   //--------------------------------------------------------------------
@@ -465,7 +465,7 @@ namespace edmtest {
       edm::ParameterSetDescription desc;
       desc.addUntracked<unsigned int>("onlyGetOnEvent", 0u);
       desc.add<std::vector<edm::InputTag>>("labels");
-      descriptions.addDefault(desc);
+      descriptions.addWithDefaultLabel(desc);
     }
 
   private:
@@ -502,7 +502,7 @@ namespace edmtest {
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
       edm::ParameterSetDescription desc;
-      descriptions.addDefault(desc);
+      descriptions.addWithDefaultLabel(desc);
     }
 
   private:
@@ -571,7 +571,7 @@ namespace edmtest {
         desc.addVPSet("transientValues", pset, std::vector<edm::ParameterSet>{});
       }
 
-      descriptions.addDefault(desc);
+      descriptions.addWithDefaultLabel(desc);
     }
 
     void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
@@ -632,7 +632,7 @@ namespace edmtest {
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
       edm::ParameterSetDescription desc;
       desc.add<std::string>("src");
-      descriptions.addDefault(desc);
+      descriptions.addWithDefaultLabel(desc);
     }
 
     void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
@@ -949,7 +949,7 @@ namespace edmtest {
           ->setComment(
               "If set to false, the endJob() is still required to be called to check that the module was not deleted "
               "early on");
-      descriptions.addDefault(desc);
+      descriptions.addWithDefaultLabel(desc);
     }
     void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override {
       wasRunEvent_ = true;

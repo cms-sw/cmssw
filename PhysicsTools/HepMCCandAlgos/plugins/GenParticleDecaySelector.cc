@@ -65,7 +65,7 @@ void GenParticleDecaySelector::fillDescriptions(edm::ConfigurationDescriptions& 
       ->setComment("the PdtEntry can be specified as either an 'int' or via its name using a 'string'");
   desc.add<int>("status");
 
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 void GenParticleDecaySelector::produce(edm::Event& evt, const edm::EventSetup& es) {

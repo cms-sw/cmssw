@@ -62,7 +62,7 @@ DDVectorRegistryESProducer::~DDVectorRegistryESProducer() {}
 
 void DDVectorRegistryESProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 DDVectorRegistryESProducer::ReturnType DDVectorRegistryESProducer::produce(const DDVectorRegistryRcd& iRecord) {

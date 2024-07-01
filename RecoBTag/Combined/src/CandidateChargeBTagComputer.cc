@@ -254,5 +254,5 @@ void CandidateChargeBTagComputer::fillDescriptions(edm::ConfigurationDescription
   desc.add<bool>("useAdaBoost", true);
   desc.add<double>("jetChargeExp", 0.8);
   desc.add<double>("svChargeExp", 0.5);
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }

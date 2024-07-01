@@ -393,7 +393,7 @@ void ElectronMVANtuplizer::fillDescriptions(edm::ConfigurationDescriptions& desc
   desc.add<std::vector<std::string>>("eleMVAValMapLabels", {});
   desc.add<std::vector<std::string>>("eleMVACats", {});
   desc.add<std::vector<std::string>>("eleMVACatLabels", {});
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 //define this as a plug-in

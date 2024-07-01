@@ -173,7 +173,7 @@ namespace edmtest {
     desc.add<int>("firstElement");
     desc.add<int>("elementDelta");
 
-    descriptions.addDefault(desc);
+    descriptions.addWithDefaultLabel(desc);
   }
 }  // namespace edmtest
 

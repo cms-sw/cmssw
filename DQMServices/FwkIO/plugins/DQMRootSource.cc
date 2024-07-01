@@ -420,7 +420,7 @@ void DQMRootSource::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.addUntracked<std::vector<edm::LuminosityBlockRange>>("lumisToProcess", defaultLumis)
       ->setComment("Skip any lumi inside the specified run:lumi range.");
 
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 //

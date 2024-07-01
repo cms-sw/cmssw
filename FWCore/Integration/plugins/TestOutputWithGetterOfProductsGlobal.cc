@@ -72,7 +72,7 @@ namespace edm {
     ParameterSetDescription desc;
     OutputModule::fillDescription(desc);
     desc.addUntracked<unsigned int>("expectedSum", 0);
-    descriptions.addDefault(desc);
+    descriptions.addWithDefaultLabel(desc);
   }
 
   void TestOutputWithGetterOfProductsGlobal::write(EventForOutput const& event) {
