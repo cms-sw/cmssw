@@ -38,6 +38,7 @@
 #include "L1Trigger/L1TGlobal/interface/EnergySumTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/EnergySumZdcTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/AXOL1TLTemplate.h"
+#include "L1Trigger/L1TGlobal/interface/CICADATemplate.h"
 #include "L1Trigger/L1TGlobal/interface/ExternalTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/CorrelationTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/CorrelationThreeBodyTemplate.h"
@@ -55,6 +56,7 @@
 #include "L1Trigger/L1TGlobal/interface/EnergySumCondition.h"
 #include "L1Trigger/L1TGlobal/interface/EnergySumZdcCondition.h"
 #include "L1Trigger/L1TGlobal/interface/AXOL1TLCondition.h"
+#include "L1Trigger/L1TGlobal/interface/CICADACondition.h"
 #include "L1Trigger/L1TGlobal/interface/ExternalCondition.h"
 #include "L1Trigger/L1TGlobal/interface/CorrCondition.h"
 #include "L1Trigger/L1TGlobal/interface/CorrThreeBodyCondition.h"
@@ -144,6 +146,7 @@ void l1t::GlobalBoard::receiveCaloObjectData(const edm::Event& iEvent,
                                              const edm::EDGetTokenT<BXVector<l1t::Jet>>& jetInputToken,
                                              const edm::EDGetTokenT<BXVector<l1t::EtSum>>& sumInputToken,
                                              const edm::EDGetTokenT<BXVector<l1t::EtSum>>& sumZdcInputToken,
+                                             const edm::EDGetTokenT<BXVector<float>>& CICADAInputToken,
                                              const bool receiveEG,
                                              const int nrL1EG,
                                              const bool receiveTau,
@@ -151,7 +154,8 @@ void l1t::GlobalBoard::receiveCaloObjectData(const edm::Event& iEvent,
                                              const bool receiveJet,
                                              const int nrL1Jet,
                                              const bool receiveEtSums,
-                                             const bool receiveEtSumsZdc) {
+                                             const bool receiveEtSumsZdc,
+                                             const bool receiveCICADA) {
   if (m_verbosity) {
     LogDebug("L1TGlobal") << "\n**** Board receiving Calo Data ";
   }
@@ -340,6 +344,29 @@ void l1t::GlobalBoard::receiveCaloObjectData(const edm::Event& iEvent,
           (*m_candL1EtSumZdc).push_back(i, &(*etsum));
         }
       }  //end loop over Bx
+    }
+  }
+  if (receiveCICADA) {
+    edm::Handle<BXVector<float>> cicadaScoreHandle;
+    iEvent.getByToken(CICADAInputToken, cicadaScoreHandle);
+    if (not cicadaScoreHandle.isValid()) {
+      if (m_verbosity) {
+        edm::LogWarning("L1Tglobal") << "\nWarning: Input tag for the CICADA score"
+                                     << "\nrequested in configuration, but not found in the event.\n"
+                                     << "\nSetting score to 0.0";
+      }
+      setCICADAScore(0.0);
+    } else if (cicadaScoreHandle->isEmpty(0)) {
+      if (m_verbosity) {
+        edm::LogWarning("L1Tglobal")
+            << "\nWarning: CICADA score had a valid input tag, but an empty BX collection"
+            << "\nThe CICADA score will be filled with 0.0 to prevent any failure of uGT emulation";
+      }
+      setCICADAScore(0.0);
+    } else {
+      setCICADAScore(cicadaScoreHandle->at(
+          0,
+          0));  //CICADA emulation will only provide a central BX, and one value. Unpacking may have more values, but that can't be guaranteed.
     }
   }
 }
@@ -663,6 +690,21 @@ void l1t::GlobalBoard::runGTL(const edm::Event&,
           }
           //delete axol1tlCCondition;
 
+        } break;
+        case CondCICADA: {
+          CICADACondition* cicadaCondition = new CICADACondition(itCond->second, this);
+
+          cicadaCondition->setVerbosity(m_verbosity);
+          cicadaCondition->evaluateConditionStoreResult(iBxInEvent);
+
+          cMapResults[itCond->first] = cicadaCondition;
+
+          if (m_verbosity && m_isDebugEnabled) {
+            std::ostringstream myCout;
+            cicadaCondition->print(myCout);
+
+            edm::LogWarning("L1TGlobal") << "cicadaCondition " << myCout.str();
+          }
         } break;
 
         case CondExternal: {
@@ -1177,6 +1219,7 @@ void l1t::GlobalBoard::resetCalo() {
   m_candL1Jet->clear();
   m_candL1EtSum->clear();
   m_candL1EtSumZdc->clear();
+  m_cicadaScore = 0.0;
 
   m_candL1EG->setBXRange(m_bxFirst_, m_bxLast_);
   m_candL1Tau->setBXRange(m_bxFirst_, m_bxLast_);
