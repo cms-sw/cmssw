@@ -82,9 +82,9 @@ std::vector<HLTGenValObject> HLTGenValObjectMgr::getGenValObjects(const edm::Eve
     }
   } else if (objType == "tauHAD") {
     const auto& tauJets = iEvent.getHandle(tauGenJetToken_);
-    for (const auto& tauJet : *tauJets){
+    for (const auto& tauJet : *tauJets) {
       const std::string& decayMode = JetMCTagUtils::genTauDecayMode(tauJet);
-      if(decayMode!="electron" && decayMode!="muon"){
+      if (decayMode != "electron" && decayMode != "muon") {
         objects.emplace_back(tauJet);
       }
     }
