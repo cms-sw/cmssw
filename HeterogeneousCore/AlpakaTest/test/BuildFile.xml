@@ -13,3 +13,9 @@
   <!-- dependence only to trigger the unit test when AMD GPU is (expected to be) present -->
   <use name="rocm"/>
 </test>
+
+<bin name="alpakaTestPrintAnswer" file="alpaka/printAnswer.cpp">
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <use name='HeterogeneousCore/AlpakaTest'/>
+  <flags ALPAKA_BACKENDS="1"/>
+</bin>
