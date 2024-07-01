@@ -24,6 +24,8 @@
 #include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
 #include "DataFormats/EgammaReco/interface/ClusterShape.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/EgammaReco/interface/SlimmedSuperCluster.h"
+#include "DataFormats/EgammaReco/interface/SlimmedSuperClusterFwd.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -37,6 +39,7 @@
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EGHcalRecHitSelector.h"
+#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaHLTTrackIsolation.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 
@@ -147,6 +150,8 @@ private:
                                 const edm::ValueMap<float>& ecalEnergyMap,
                                 const edm::ValueMap<float>& ecalEnergyErrMap);
 
+  std::unique_ptr<reco::SlimmedSuperClusterCollection> produceSlimmedSuperClusters(const edm::Event& event) const;
+
   template <typename T>
   void setToken(edm::EDGetTokenT<T>& token, const edm::ParameterSet& config, const std::string& name) {
     token = consumes<T>(config.getParameter<edm::InputTag>(name));
@@ -189,6 +194,9 @@ private:
   edm::EDGetTokenT<edm::ValueMap<float>> gsfElectronCalibEcalEnergyT_;
   edm::EDGetTokenT<edm::ValueMap<float>> gsfElectronCalibEcalEnergyErrT_;
 
+  std::vector<edm::EDGetTokenT<reco::SuperClusterCollection>> superClustersToSaveTs_;
+  const edm::EDGetTokenT<reco::TrackCollection> trksForSCIso_;
+
   edm::ESGetToken<CaloTopology, CaloTopologyRecord> caloTopology_;
   //names for output collections
   const edm::EDPutTokenT<reco::PhotonCollection> outPhotons_;
@@ -217,6 +225,7 @@ private:
   const std::vector<edm::EDPutTokenT<edm::ValueMap<float>>> outPhotonFloatValueMaps_;
   std::vector<edm::EDPutTokenT<edm::ValueMap<float>>> outOOTPhotonFloatValueMaps_;
   const std::vector<edm::EDPutTokenT<edm::ValueMap<float>>> outGsfElectronFloatValueMaps_;
+  const edm::EDPutTokenT<reco::SlimmedSuperClusterCollection> outSlimmedSuperClusters_;
 
   const StringCutObjectSelector<reco::Photon> keepPhotonSel_;
   const StringCutObjectSelector<reco::Photon> slimRelinkPhotonSel_;
@@ -229,6 +238,7 @@ private:
   const StringCutObjectSelector<reco::GsfElectron> relinkGsfElectronSel_;
 
   EGHcalRecHitSelector hcalHitSel_;
+  EgammaHLTTrackIsolation trkIsoCalc_;
 };
 
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -285,6 +295,7 @@ ReducedEGProducer::ReducedEGProducer(const edm::ParameterSet& config)
       applyPhotonCalibOnMC_(config.getParameter<bool>("applyPhotonCalibOnMC")),
       applyGsfElectronCalibOnData_(config.getParameter<bool>("applyGsfElectronCalibOnData")),
       applyGsfElectronCalibOnMC_(config.getParameter<bool>("applyGsfElectronCalibOnMC")),
+      trksForSCIso_(consumes<reco::TrackCollection>(config.getParameter<edm::InputTag>("trksForSCIso"))),
       //output collections
       outPhotons_{produces<reco::PhotonCollection>("reducedGedPhotons")},
       outPhotonCores_{produces<reco::PhotonCoreCollection>("reducedGedPhotonCores")},
@@ -309,6 +320,7 @@ ReducedEGProducer::ReducedEGProducer(const edm::ParameterSet& config)
           vproduces<edm::ValueMap<float>>(config.getParameter<std::vector<std::string>>("photonFloatValueMapOutput"))},
       outGsfElectronFloatValueMaps_{vproduces<edm::ValueMap<float>>(
           config.getParameter<std::vector<std::string>>("gsfElectronFloatValueMapOutput"))},
+      outSlimmedSuperClusters_{produces<reco::SlimmedSuperClusterCollection>("slimmedSuperClusters")},
       keepPhotonSel_(config.getParameter<std::string>("keepPhotons")),
       slimRelinkPhotonSel_(config.getParameter<std::string>("slimRelinkPhotons")),
       relinkPhotonSel_(config.getParameter<std::string>("relinkPhotons")),
@@ -318,7 +330,8 @@ ReducedEGProducer::ReducedEGProducer(const edm::ParameterSet& config)
       keepGsfElectronSel_(config.getParameter<std::string>("keepGsfElectrons")),
       slimRelinkGsfElectronSel_(config.getParameter<std::string>("slimRelinkGsfElectrons")),
       relinkGsfElectronSel_(config.getParameter<std::string>("relinkGsfElectrons")),
-      hcalHitSel_(config.getParameter<edm::ParameterSet>("hcalHitSel"), consumesCollector()) {
+      hcalHitSel_(config.getParameter<edm::ParameterSet>("hcalHitSel"), consumesCollector()),
+      trkIsoCalc_(config.getParameter<edm::ParameterSet>("scTrkIsol")) {
   const auto& aTag = config.getParameter<edm::InputTag>("ootPhotons");
   caloTopology_ = esConsumes();
   if (not aTag.label().empty())
@@ -353,6 +366,10 @@ ReducedEGProducer::ReducedEGProducer(const edm::ParameterSet& config)
     setToken(gsfElectronCalibEnergyErrT_, config, "gsfElectronCalibEnergyErrSource");
     setToken(gsfElectronCalibEcalEnergyT_, config, "gsfElectronCalibEcalEnergySource");
     setToken(gsfElectronCalibEcalEnergyErrT_, config, "gsfElectronCalibEcalEnergyErrSource");
+  }
+
+  for (const auto& tag : config.getParameter<std::vector<edm::InputTag>>("superClustersToSlim")) {
+    superClustersToSaveTs_.emplace_back(consumes<reco::SuperClusterCollection>(tag));
   }
 
   if (!ootPhotonT_.isUninitialized()) {
@@ -447,6 +464,7 @@ void ReducedEGProducer::produce(edm::Event& event, const edm::EventSetup& eventS
   EcalRecHitCollection eeRecHits;
   EcalRecHitCollection esRecHits;
   HBHERecHitCollection hbheRecHits;
+  reco::SlimmedSuperClusterCollection slimmedMustacheSuperClusters;
   edm::ValueMap<std::vector<reco::PFCandidateRef>> photonPfCandMap;
   edm::ValueMap<std::vector<reco::PFCandidateRef>> gsfElectronPfCandMap;
 
@@ -944,6 +962,8 @@ void ReducedEGProducer::produce(edm::Event& event, const edm::EventSetup& eventS
   for (auto const& vals : gsfElectronFloatValueMapVals) {
     emplaceValueMap(outGsfElectronHandle, vals, event, outGsfElectronFloatValueMaps_[index++]);
   }
+
+  event.put(outSlimmedSuperClusters_, std::move(produceSlimmedSuperClusters(event)));
 }
 
 template <typename T, typename U>
@@ -1221,4 +1241,24 @@ void ReducedEGProducer::calibrateElectron(reco::GsfElectron& electron,
 
   math::XYZTLorentzVector newP4{oldP4.x() * corr, oldP4.y() * corr, oldP4.z() * corr, newEnergy};
   electron.correctMomentum(newP4, electron.trackMomentumError(), newEnergyErr);
+}
+
+std::unique_ptr<reco::SlimmedSuperClusterCollection> ReducedEGProducer::produceSlimmedSuperClusters(
+    const edm::Event& event) const {
+  auto outputSCs = std::make_unique<reco::SlimmedSuperClusterCollection>();
+  for (const auto& inputSCToken : superClustersToSaveTs_) {
+    auto inputSCs = event.get(inputSCToken);
+    for (const auto& inputSC : inputSCs) {
+      outputSCs->emplace_back(inputSC);
+    }
+  }
+
+  auto tracks = event.get(trksForSCIso_);
+
+  for (auto& sc : *outputSCs) {
+    float trkIso = trkIsoCalc_.photonIsolation(sc.position(), &tracks).second;
+    sc.setTrkIso(trkIso);
+  }
+
+  return outputSCs;
 }
