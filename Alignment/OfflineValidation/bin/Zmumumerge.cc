@@ -39,7 +39,7 @@
 #include <boost/range/adaptor/indexed.hpp>
 
 #include "Alignment/OfflineValidation/interface/FitWithRooFit.h"
-#include "Alignment/OfflineValidation/macros/CMS_lumi.h"
+#include "Alignment/OfflineValidation/interface/CMS_lumi.h"
 
 using namespace RooFit;
 using namespace std;

@@ -24,7 +24,7 @@
 #include <unordered_map>
 #define PLOTTING_MACRO  // to remove message logger
 #include "Alignment/OfflineValidation/interface/PVValidationHelpers.h"
-#include "Alignment/OfflineValidation/macros/CMS_lumi.h"
+#include "Alignment/OfflineValidation/interface/CMS_lumi.h"
 
 /* 
    Store here the globals binning settings

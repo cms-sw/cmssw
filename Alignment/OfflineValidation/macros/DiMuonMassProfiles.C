@@ -31,7 +31,7 @@
 
 // CMSSW classes / style
 #include "Alignment/OfflineValidation/interface/FitWithRooFit.h"
-#include "Alignment/OfflineValidation/macros/CMS_lumi.h"
+#include "Alignment/OfflineValidation/interface/CMS_lumi.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
 
 bool debugMode_{false};

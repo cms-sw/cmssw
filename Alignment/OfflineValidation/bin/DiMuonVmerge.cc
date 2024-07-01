@@ -17,7 +17,7 @@
 #include "TASImage.h"
 #include "TGraph.h"
 
-#include "Alignment/OfflineValidation/macros/loopAndPlot.C"
+#include "Alignment/OfflineValidation/bin/loopAndPlot.C"
 #include "Alignment/OfflineValidation/interface/TkAlStyle.h"
 
 using namespace std;

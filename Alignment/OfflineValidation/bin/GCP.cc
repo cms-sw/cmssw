@@ -16,8 +16,8 @@
 #include "boost/property_tree/json_parser.hpp"
 
 #include "Alignment/OfflineValidation/interface/GeometryComparisonPlotter.h"
-#include "Alignment/OfflineValidation/scripts/visualizationTracker.C"
-#include "Alignment/OfflineValidation/macros/makeArrowPlots.C"
+#include "Alignment/OfflineValidation/bin/visualizationTracker.C"
+#include "Alignment/OfflineValidation/bin/makeArrowPlots.C"
 
 // for debugging
 #include "TObject.h"

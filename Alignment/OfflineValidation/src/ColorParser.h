@@ -1,3 +1,5 @@
+#ifndef Alignment_OfflineValidation_ColorParser_C
+#define Alignment_OfflineValidation_ColorParser_C
 #include <iostream>
 #include <map>
 #include "TROOT.h"
@@ -54,3 +56,4 @@ Color_t parser(TString input) {
 }
 
 Color_t ColorParser(TString input) { return parser(input); }
+#endif

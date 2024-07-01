@@ -1,8 +1,8 @@
 #include <iostream>
 #include <sstream>
 #include <TSystem.h>
-#include "Alignment/OfflineValidation/macros/momentumBiasValidation.C"
-#include "Alignment/OfflineValidation/macros/momentumElectronBiasValidation.C"
+#include "Alignment/OfflineValidation/test/momentumBiasValidation.C"
+#include "Alignment/OfflineValidation/test/momentumElectronBiasValidation.C"
 
 int main(int argc, char** argv) {
   //std::cout << "\n==== Executing pion analysis plotting \n" << std::endl;

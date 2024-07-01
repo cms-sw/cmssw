@@ -16,8 +16,8 @@
 #include "TString.h"
 #include "TASImage.h"
 
-#include "Alignment/OfflineValidation/macros/trackSplitPlot.h"
-#include "Alignment/OfflineValidation/macros/trackSplitPlot.C"
+#include "Alignment/OfflineValidation/bin/trackSplitPlot.h"
+#include "Alignment/OfflineValidation/bin/trackSplitPlot.C"
 #include "Alignment/OfflineValidation/interface/TkAlStyle.h"
 
 using namespace std;

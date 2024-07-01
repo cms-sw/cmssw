@@ -17,7 +17,7 @@
 #include "TASImage.h"
 
 #include "Alignment/OfflineValidation/interface/CompareAlignments.h"
-#include "Alignment/OfflineValidation/macros/FitPVResolution.C"
+#include "Alignment/OfflineValidation/interface/FitPVResolution.h"
 #include "Alignment/OfflineValidation/interface/TkAlStyle.h"
 
 using namespace std;

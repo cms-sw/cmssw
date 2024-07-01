@@ -1,3 +1,5 @@
+#ifndef Alignment_OfflineValidation_StyleParser_C
+#define Alignment_OfflineValidation_StyleParser_C
 #include <iostream>
 #include <map>
 #include "TROOT.h"
@@ -5,6 +7,7 @@
 #include <cassert>
 #include <cstdlib>
 #include "TString.h"
+#include "TStyle.h"
 
 using namespace std;
 
@@ -29,3 +32,4 @@ Style_t StyleParser(TString input) {
 
   return stylemap.at(input);
 }
+#endif

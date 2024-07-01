@@ -12,8 +12,8 @@
 #include "TGraphErrors.h"
 #include "TH1.h"
 
-#include "Alignment/OfflineValidation/plugins/ColorParser.C"
-#include "Alignment/OfflineValidation/plugins/StyleParser.C"
+#include "Alignment/OfflineValidation/src/ColorParser.h"
+#include "Alignment/OfflineValidation/src/StyleParser.h"
 #include "Alignment/OfflineValidation/interface/Trend.h"
 
 using namespace std;

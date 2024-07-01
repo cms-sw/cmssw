@@ -19,7 +19,7 @@
 #include <iostream>
 
 // style
-#include "Alignment/OfflineValidation/macros/CMS_lumi.h"
+#include "Alignment/OfflineValidation/interface/CMS_lumi.h"
 
 // 2 file case
 TFile *sourceFile1, *sourceFile2;
