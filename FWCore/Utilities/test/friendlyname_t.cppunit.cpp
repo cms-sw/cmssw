@@ -184,6 +184,10 @@ void testfriendlyName::test() {
              ">,edm::ClonePolicy<SiPixelRecHit> > >",
              "DetIdSiPixelRecHitsOwnedRangeMaps"));
   classToFriendly.insert(
+      Values("edm::RangeMap<CSCDetId,std::vector<CSCSegment>"
+             ",edm::CopyPolicy<CSCSegment> >",
+             "CSCDetIdCSCSegmentsRangeMap"));
+  classToFriendly.insert(
       Values("edm::RefVector< edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> >,reco::Candidate, "
              "edm::refhelper::FindUsingAdvance<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> >, "
              "reco::Candidate> >",

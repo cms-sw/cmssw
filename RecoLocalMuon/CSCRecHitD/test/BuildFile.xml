@@ -1,0 +1,5 @@
+<bin file="test_catch2_*.cc" name="testRecoLocalMuonCSCRecHitD">
+  <use name="FWCore/TestProcessor"/>
+  <use name="DataFormats/CSCRecHit"/>
+  <use name="catch2"/>
+</bin>
