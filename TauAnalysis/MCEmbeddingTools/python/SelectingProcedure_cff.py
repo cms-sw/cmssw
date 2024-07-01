@@ -3,7 +3,7 @@ from Configuration.StandardSequences.PAT_cff import *
 
 from PhysicsTools.PatAlgos.producersLayer1.muonProducer_cfi import patMuons
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import *
-
+from Configuration.Eras.Modifier_run2_HLTconditions_2016_cff import run2_HLTconditions_2016
 
 ## Trigger requirements
 doubleMuonHLTTrigger = cms.EDFilter("TriggerResultsFilter",
@@ -11,10 +11,10 @@ doubleMuonHLTTrigger = cms.EDFilter("TriggerResultsFilter",
     l1tResults = cms.InputTag(""),
     throw = cms.bool(False),
     triggerConditions = cms.vstring("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v* OR HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8_v*") # from 2017 on (up to Run 3, it seems)
-    # triggerConditions = cms.vstring("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v* OR HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v*") # for 2016
 )
 
-
+run2_HLTconditions_2016.toModify(doubleMuonHLTTrigger,
+                                 triggerConditions = ["HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v* OR HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v*"])
 
 ## Muon selection
 patMuonsAfterKinCuts = cms.EDFilter("PATMuonSelector",
