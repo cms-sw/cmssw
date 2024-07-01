@@ -605,7 +605,10 @@ void CTPPSProtonReconstructionPlotter::analyze(const edm::Event &event, const ed
 
   // make single-RP-reco plots
   for (const auto &proton : *hRecoProtonsSingleRP) {
-    CTPPSDetId rpId((*proton.contributingLocalTracks().begin())->rpId());
+    // workaround for https://github.com/cms-sw/cmssw/issues/44931#issuecomment-2142898754
+    const auto &pcLTiter = *proton.contributingLocalTracks().begin();
+    assert(pcLTiter.isNonnull());
+    CTPPSDetId rpId(pcLTiter->rpId());
     unsigned int decRPId = rpId.arm() * 100 + rpId.station() * 10 + rpId.rp();
 
     const bool n1f1 = (armTrackCounter_N[rpId.arm()] == 1 && armTrackCounter_F[rpId.arm()] == 1);
