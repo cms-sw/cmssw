@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 
 #script to run generic lhe generation tarballs
 #kept as simply as possible to minimize need
@@ -82,6 +82,7 @@ if [ "$use_gridpack_env" != false ]; then
 fi
 
 #generate events
+env
 ${sing} ./runcmsgrid.sh $nevt $rnum $ncpu ${@:5}
 
 mv cmsgrid_final.lhe $LHEWORKDIR/
