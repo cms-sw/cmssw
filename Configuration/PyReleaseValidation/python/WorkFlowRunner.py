@@ -164,8 +164,10 @@ class WorkFlowRunner(Thread):
                             cmd+=' --filein  file:step%s.root '%(istep-1,)
                         elif "ALCA" in steps and "RECO" in steps:
                             cmd+=' --filein  file:step%s.root '%(istep-1,)
-                        else:
+                        elif self.recoOutput:
                             cmd+=' --filein %s'%(self.recoOutput)
+                        else:
+                            cmd+=' --filein  file:step%s.root '%(istep-1,)
                     if not '--fileout' in com:
                         cmd+=' --fileout file:step%s.root '%(istep,)
                         if "RECO" in cmd:
