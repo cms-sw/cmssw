@@ -51,6 +51,7 @@
 
 // object that can be a GenJet, GenParticle or energy sum
 #include "Validation/HLTrigger/interface/HLTGenValObject.h"
+#include "Validation/HLTrigger/interface/HLTGenValObjectMgr.h"
 
 class HLTGenValSource : public DQMEDAnalyzer {
 public:
@@ -75,11 +76,8 @@ private:
   bool passGenJetID(const reco::GenJet& jet);
   // ----------member data ---------------------------
 
-  // tokens to get collections
-  const edm::EDGetTokenT<reco::GenParticleCollection> genParticleToken_;
-  const edm::EDGetTokenT<reco::GenMETCollection> genMETToken_;
-  const edm::EDGetTokenT<reco::GenJetCollection> ak4genJetToken_;
-  const edm::EDGetTokenT<reco::GenJetCollection> ak8genJetToken_;
+  HLTGenValObjectMgr genObjMgr_;
+
   const edm::EDGetTokenT<trigger::TriggerEvent> trigEventToken_;
 
   bool initalised_;
@@ -110,29 +108,11 @@ private:
   std::vector<std::string> hltPathSpecificCuts_;
   double dR2limit_;
   bool doOnlyLastFilter_;
-
-  //some jet id
-
-  //max fraction of pt a prompt particles can contribute to jets
-  //basically we would prefer not to lump high pt prompt muons reconstructed as jets
-  //in the the category of hadronic jets
-  float maxPromptGenJetFrac_;
-
-  float minPtForGenHT_;
-  float maxAbsEtaForGenHT_;
 };
 
 HLTGenValSource::HLTGenValSource(const edm::ParameterSet& iConfig)
-    : genParticleToken_(consumes<reco::GenParticleCollection>(
-          iConfig.getParameterSet("inputCollections").getParameter<edm::InputTag>("genParticles"))),
-      genMETToken_(consumes<reco::GenMETCollection>(
-          iConfig.getParameterSet("inputCollections").getParameter<edm::InputTag>("genMET"))),
-      ak4genJetToken_(consumes<reco::GenJetCollection>(
-          iConfig.getParameterSet("inputCollections").getParameter<edm::InputTag>("ak4GenJets"))),
-      ak8genJetToken_(consumes<reco::GenJetCollection>(
-          iConfig.getParameterSet("inputCollections").getParameter<edm::InputTag>("ak8GenJets"))),
-      trigEventToken_(consumes<trigger::TriggerEvent>(
-          iConfig.getParameterSet("inputCollections").getParameter<edm::InputTag>("TrigEvent"))),
+    : genObjMgr_(iConfig.getParameter<edm::ParameterSet>("genConfig"), consumesCollector()),
+      trigEventToken_(consumes<trigger::TriggerEvent>(iConfig.getParameter<edm::InputTag>("trigEvent"))),
       initalised_(false),
       booked_(false)
 
@@ -150,9 +130,6 @@ HLTGenValSource::HLTGenValSource(const edm::ParameterSet& iConfig)
   hltProcessName_ = iConfig.getParameter<std::string>("hltProcessName");
   sampleLabel_ = iConfig.getParameter<std::string>("sampleLabel");
   hltPathsToCheck_ = iConfig.getParameter<std::vector<std::string>>("hltPathsToCheck");
-  maxPromptGenJetFrac_ = iConfig.getParameter<double>("maxPromptGenJetFrac");
-  minPtForGenHT_ = iConfig.getParameter<double>("minPtForGenHT");
-  maxAbsEtaForGenHT_ = iConfig.getParameter<double>("maxAbsEtaForGenHT");
 }
 
 void HLTGenValSource::initCfgs(const edm::Run& iRun, const edm::EventSetup& iSetup) {
@@ -278,7 +255,7 @@ void HLTGenValSource::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& i
 // ------------ method called for each event  ------------
 void HLTGenValSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // creating the collection of HLTGenValObjects
-  const std::vector<HLTGenValObject> objects = getObjectCollection(iEvent);
+  const std::vector<HLTGenValObject> objects = genObjMgr_.getGenValObjects(iEvent, objType_);
 
   // init triggerEvent, which is always needed
   edm::Handle<trigger::TriggerEvent> triggerEvent;
@@ -328,18 +305,9 @@ void HLTGenValSource::fillDescriptions(edm::ConfigurationDescriptions& descripti
   desc.add<std::string>("sampleLabel", "");  //this is the label in the legend
   desc.add<double>("dR2limit", 0.1);
   desc.add<bool>("doOnlyLastFilter", false);
-  desc.add<double>("maxPromptGenJetFrac", 0.1);
-  desc.add<double>("minPtForGenHT", 30);
-  desc.add<double>("maxAbsEtaForGenHT", 2.5);
 
-  // input collections, a PSet
-  edm::ParameterSetDescription inputCollections;
-  inputCollections.add<edm::InputTag>("genParticles", edm::InputTag("genParticles"));
-  inputCollections.add<edm::InputTag>("genMET", edm::InputTag("genMetTrue"));
-  inputCollections.add<edm::InputTag>("ak4GenJets", edm::InputTag("ak4GenJetsNoNu"));
-  inputCollections.add<edm::InputTag>("ak8GenJets", edm::InputTag("ak8GenJetsNoNu"));
-  inputCollections.add<edm::InputTag>("TrigEvent", edm::InputTag("hltTriggerSummaryAOD"));
-  desc.add<edm::ParameterSetDescription>("inputCollections", inputCollections);
+  desc.add<edm::ParameterSetDescription>("genConfig", HLTGenValObjectMgr::makePSetDescription());
+  desc.add<edm::InputTag>("trigEvent", edm::InputTag("hltTriggerSummaryAOD"));
 
   // hist descriptors, which are a vector of PSets
 
@@ -403,134 +371,6 @@ void HLTGenValSource::fillDescriptions(edm::ConfigurationDescriptions& descripti
   desc.addVPSet("binnings", binningConfig, binningConfigDefaults);
 
   descriptions.addDefault(desc);
-}
-
-// this method handles the different object types and collections that can be used for efficiency calculation
-std::vector<HLTGenValObject> HLTGenValSource::getObjectCollection(const edm::Event& iEvent) {
-  std::vector<HLTGenValObject> objects;  // the vector of objects to be filled
-
-  // handle object type
-  std::vector<std::string> implementedGenParticles = {"ele", "pho", "mu", "tau"};
-  if (std::find(implementedGenParticles.begin(), implementedGenParticles.end(), objType_) !=
-      implementedGenParticles.end()) {
-    objects = getGenParticles(iEvent);
-  } else if (objType_ == "AK4jet") {  // ak4 jets, using the ak4GenJets collection
-    const auto& genJets = iEvent.getHandle(ak4genJetToken_);
-    for (size_t i = 0; i < genJets->size(); i++) {
-      const reco::GenJet p = (*genJets)[i];
-      if (passGenJetID(p)) {
-        objects.emplace_back(p);
-      }
-    }
-  } else if (objType_ == "AK8jet") {  // ak8 jets, using the ak8GenJets collection
-    const auto& genJets = iEvent.getHandle(ak8genJetToken_);
-    for (size_t i = 0; i < genJets->size(); i++) {
-      const reco::GenJet p = (*genJets)[i];
-      if (passGenJetID(p)) {
-        objects.emplace_back(p);
-      }
-    }
-  } else if (objType_ == "AK4HT") {  // ak4-based HT, using the ak4GenJets collection
-    const auto& genJets = iEvent.getHandle(ak4genJetToken_);
-    if (!genJets->empty()) {
-      double HTsum = 0.;
-      for (const auto& genJet : *genJets) {
-        if (genJet.pt() > minPtForGenHT_ && std::abs(genJet.eta()) < maxAbsEtaForGenHT_ && passGenJetID(genJet)) {
-          HTsum += genJet.pt();
-        }
-      }
-      if (HTsum > 0)
-        objects.emplace_back(reco::Candidate::PolarLorentzVector(HTsum, 0, 0, 0));
-    }
-  } else if (objType_ == "AK8HT") {  // ak8-based HT, using the ak8GenJets collection
-    const auto& genJets = iEvent.getHandle(ak8genJetToken_);
-    if (!genJets->empty()) {
-      double HTsum = 0.;
-      for (const auto& genJet : *genJets) {
-        if (genJet.pt() > minPtForGenHT_ && std::abs(genJet.eta()) < maxAbsEtaForGenHT_ && passGenJetID(genJet)) {
-          HTsum += genJet.pt();
-        }
-      }
-      if (HTsum > 0)
-        objects.emplace_back(reco::Candidate::PolarLorentzVector(HTsum, 0, 0, 0));
-    }
-  } else if (objType_ == "MET") {  // MET, using genMET
-    const auto& genMET = iEvent.getHandle(genMETToken_);
-    if (!genMET->empty()) {
-      auto genMETpt = (*genMET)[0].pt();
-      objects.emplace_back(reco::Candidate::PolarLorentzVector(genMETpt, 0, 0, 0));
-    }
-  } else
-    throw cms::Exception("InputError") << "Generator-level validation is not available for type " << objType_ << ".\n"
-                                       << "Please check for a potential spelling error.\n";
-
-  return objects;
-}
-
-// in case of GenParticles, a subset of the entire collection needs to be chosen
-std::vector<HLTGenValObject> HLTGenValSource::getGenParticles(const edm::Event& iEvent) {
-  std::vector<HLTGenValObject> objects;  // vector to be filled
-
-  const auto& genParticles = iEvent.getHandle(genParticleToken_);  // getting all GenParticles
-
-  // we need to ge the ID corresponding to the desired GenParticle type
-  int pdgID = -1;  // setting to -1 should not be needed, but prevents the compiler warning :)
-  if (objType_ == "ele")
-    pdgID = 11;
-  else if (objType_ == "pho")
-    pdgID = 22;
-  else if (objType_ == "mu")
-    pdgID = 13;
-  else if (objType_ == "tau")
-    pdgID = 15;
-
-  // main loop over GenParticles
-  for (size_t i = 0; i < genParticles->size(); ++i) {
-    const reco::GenParticle p = (*genParticles)[i];
-
-    // only GenParticles with correct ID
-    if (std::abs(p.pdgId()) != pdgID)
-      continue;
-
-    // checking if particle comes from "hard process"
-    if (p.isHardProcess()) {
-      // depending on the particle type, last particle before or after FSR is chosen
-      if ((objType_ == "ele") || (objType_ == "pho"))
-        objects.emplace_back(getLastCopyPreFSR(p));
-      else if ((objType_ == "mu") || (objType_ == "tau"))
-        objects.emplace_back(getLastCopy(p));
-    }
-  }
-
-  return objects;
-}
-
-// function returning the last GenParticle in a decay chain before FSR
-reco::GenParticle HLTGenValSource::getLastCopyPreFSR(reco::GenParticle part) {
-  const auto& daughters = part.daughterRefVector();
-  if (daughters.size() == 1 && daughters.at(0)->pdgId() == part.pdgId())
-    return getLastCopyPreFSR(*daughters.at(0).get());  // recursion, whooo
-  else
-    return part;
-}
-
-// function returning the last GenParticle in a decay chain
-reco::GenParticle HLTGenValSource::getLastCopy(reco::GenParticle part) {
-  for (const auto& daughter : part.daughterRefVector()) {
-    if (daughter->pdgId() == part.pdgId())
-      return getLastCopy(*daughter.get());
-  }
-  return part;
-}
-
-bool HLTGenValSource::passGenJetID(const reco::GenJet& jet) {
-  float promptPt = 0;
-  for (const auto& genPart : jet.getGenConstituents()) {
-    if (genPart->fromHardProcessFinalState()) {
-      promptPt += genPart->pt();
-    }
-  }
-  return promptPt < jet.pt() * maxPromptGenJetFrac_;
 }
 
 //define this as a framework plug-in

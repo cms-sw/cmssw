@@ -39,6 +39,7 @@ def add_hlt_validation(process,hltProcessName=None,sampleLabel=""):
         # these are the only one the user needs to specify
         objType = cms.string("AK4HT"),
         hltProcessName = cms.string(hltProcessName),
+        trigEvent = cms.InputTag(f"hltTriggerSummaryAOD::{hltProcessName}"),
         sampleLabel = cms.string(sampleLabel),
         hltPathsToCheck = cms.vstring(
         "HLT_PFHT1050_v",
@@ -57,6 +58,7 @@ def add_hlt_validation(process,hltProcessName=None,sampleLabel=""):
         objType = cms.string("mu"),
         hltProcessName = cms.string(hltProcessName),
         sampleLabel = cms.string(sampleLabel),
+        trigEvent = cms.InputTag(f"hltTriggerSummaryAOD::{hltProcessName}"),
         hltPathsToCheck = cms.vstring(
         "HLT_Mu50_v:absEtaCut=1.2,tag=centralbarrel",
         "HLT_Mu50_v:bins=ptBinsHighPt,tag=highpt_bins",
@@ -86,6 +88,7 @@ def add_hlt_validation(process,hltProcessName=None,sampleLabel=""):
 #     these are the only one the user needs to specify
         objType = cms.string("tau"),
         hltProcessName = cms.string(hltProcessName),
+        trigEvent = cms.InputTag(f"hltTriggerSummaryAOD::{hltProcessName}"),
         sampleLabel = cms.string(sampleLabel),
         hltPathsToCheck = cms.vstring(),
         doOnlyLastFilter = cms.bool(False),
@@ -107,9 +110,7 @@ def add_hlt_validation(process,hltProcessName=None,sampleLabel=""):
         objType = cms.string("ele"),
         hltProcessName = cms.string(hltProcessName), 
         sampleLabel = cms.string(sampleLabel),
-        inputCollections = cms.PSet(
-            TrigEvent = cms.InputTag(f"hltTriggerSummaryAOD::{hltProcessName}"),
-        ),
+        trigEvent = cms.InputTag(f"hltTriggerSummaryAOD::{hltProcessName}"),
         hltPathsToCheck = cms.vstring(
         "HLT_Ele35_WPTight_Gsf_v",
         "HLT_Ele35_WPTight_Gsf_v:region=EB,tag=barrel",
@@ -155,6 +156,7 @@ def add_hlt_validation(process,hltProcessName=None,sampleLabel=""):
         # these are the only one the user needs to specify
         objType = cms.string("AK4jet"),
         hltProcessName = cms.string(hltProcessName),
+        trigEvent = cms.InputTag(f"hltTriggerSummaryAOD::{hltProcessName}"),
         sampleLabel = cms.string(sampleLabel),
         hltPathsToCheck = cms.vstring(
         "HLT_PFJet500",
@@ -178,6 +180,7 @@ def add_hlt_validation(process,hltProcessName=None,sampleLabel=""):
         # these are the only one the user needs to specify
         objType = cms.string("AK8jet"),
         hltProcessName = cms.string(hltProcessName),
+        trigEvent = cms.InputTag(f"hltTriggerSummaryAOD::{hltProcessName}"),
         sampleLabel = cms.string(sampleLabel),
         hltPathsToCheck = cms.vstring(
         "HLT_AK8PFJet500",
@@ -202,6 +205,7 @@ def add_hlt_validation(process,hltProcessName=None,sampleLabel=""):
         # these are the only one the user needs to specify
         objType = cms.string("MET"),
         hltProcessName = cms.string(hltProcessName),
+        trigEvent = cms.InputTag(f"hltTriggerSummaryAOD::{hltProcessName}"),
         sampleLabel = cms.string(sampleLabel),
         hltPathsToCheck = cms.vstring(
         "HLT_PFMET120_PFMHT120_IDTight", 
