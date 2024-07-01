@@ -86,7 +86,7 @@ def add_hlt_validation(process,hltProcessName=None,sampleLabel=""):
     )
     process.HLTGenValSourceTAU = cms.EDProducer('HLTGenValSource',
 #     these are the only one the user needs to specify
-        objType = cms.string("tau"),
+        objType = cms.string("tau-had"),
         hltProcessName = cms.string(hltProcessName),
         trigEvent = cms.InputTag(f"hltTriggerSummaryAOD::{hltProcessName}"),
         sampleLabel = cms.string(sampleLabel),
@@ -234,10 +234,11 @@ def add_hlt_validation(process,hltProcessName=None,sampleLabel=""):
 
     process.load("RecoMET.Configuration.RecoGenMET_cff")
     process.load("RecoMET.Configuration.GenMETParticles_cff")
-    process.load("PhysicsTools.​JetMCAlgos.TauGenJets_cfi")
+    process.load("PhysicsTools.JetMCAlgos.TauGenJets_cfi")
     process.HLTValidationPath.associate(process.recoGenMETTask)
     process.HLTValidationPath.associate(process.genMETParticlesTask)
-    process.HLTValidationPath.associate(process.tauGenJets)
+    process.HLTValidationTauGenJetsTask = cms.Task(process.tauGenJets)
+    process.HLTValidationPath.associate(process.HLTValidationTauGenJetsTask)
 
     if process.schedule is not None:
         process.schedule.append(process.HLTValidationPath)
