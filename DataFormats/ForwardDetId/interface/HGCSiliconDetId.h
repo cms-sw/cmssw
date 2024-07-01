@@ -15,15 +15,15 @@
    [19:19] sign of v (0:+v; 1:-v) (v=0 is at the center of beam line)
    [20:24] layer number 
    [25:25] z-side (0 for +z; 1 for -z)
-   [26:27] Type (0 fine divisions of wafer with 120 mum thick silicon
-                 1 coarse divisions of wafer with 200 mum thick silicon
-                 2 coarse divisions of wafer with 300 mum thick silicon
-                 3 fine divisions of wafer with 200 mum thick silicon)
+   [26:27] Type (0 high density wafer with depltetion thickness of 120 mum
+                 1 low density wafer with depletion thickness of 200 mum
+                 2 low density wafer with depletion thickness of 300 mum
+                 3 high density wafer with depletion thickness of 200 mum)
    [28:31] Detector type (HGCalEE or HGCalHSi)
 */
 class HGCSiliconDetId : public DetId {
 public:
-  enum waferType { HGCalFine = 0, HGCalCoarseThin = 1, HGCalCoarseThick = 2, HGCalFineThick = 3 };
+  enum waferType { HGCalHD120 = 0, HGCalLD200 = 1, HGCalLD300 = 2, HGCalHD200 = 3 };
   static constexpr int32_t HGCalHighDensityN = 12;
   static constexpr int32_t HGCalLowDensityN = 8;
   static constexpr int32_t HGCalFineTrigger = 3;
@@ -95,11 +95,10 @@ public:
 
   /// get the type
   constexpr int32_t type() const { return (id_ >> kHGCalTypeOffset) & kHGCalTypeMask; }
-  constexpr bool lowDensity() const { return ((type() == HGCalCoarseThin) || (type() == HGCalCoarseThick)); }
-  constexpr bool highDensity() const { return ((type() == HGCalFine) || (type() == HGCalFineThick)); }
+  constexpr bool lowDensity() const { return ((type() == HGCalLD200) || (type() == HGCalLD300)); }
+  constexpr bool highDensity() const { return ((type() == HGCalHD120) || (type() == HGCalHD200)); }
   constexpr int32_t depletion() const {
-    return ((type() == HGCalFine) ? HGCal0Depletion
-                                  : ((type() == HGCalCoarseThick) ? HGCal2Depletion : HGCal1Depletion));
+    return ((type() == HGCalHD120) ? HGCal0Depletion : ((type() == HGCalLD300) ? HGCal2Depletion : HGCal1Depletion));
   }
 
   /// get the z-side of the cell (1/-1)
@@ -113,11 +112,11 @@ public:
   constexpr int32_t cellV() const { return (id_ >> kHGCalCellVOffset) & kHGCalCellVMask; }
   constexpr std::pair<int32_t, int32_t> cellUV() const { return std::pair<int32_t, int32_t>(cellU(), cellV()); }
   constexpr int32_t cellX() const {
-    int32_t N = ((type() == HGCalFine) || (type() == HGCalFineThick)) ? HGCalHighDensityN : HGCalLowDensityN;
+    int32_t N = ((type() == HGCalHD120) || (type() == HGCalHD200)) ? HGCalHighDensityN : HGCalLowDensityN;
     return (3 * (cellV() - N) + 2);
   }
   constexpr int32_t cellY() const {
-    int32_t N = ((type() == HGCalFine) || (type() == HGCalFineThick)) ? HGCalHighDensityN : HGCalLowDensityN;
+    int32_t N = ((type() == HGCalHD120) || (type() == HGCalHD200)) ? HGCalHighDensityN : HGCalLowDensityN;
     return (2 * cellU() - (N + cellV()));
   }
   constexpr std::pair<int32_t, int32_t> cellXY() const { return std::pair<int32_t, int32_t>(cellX(), cellY()); }
@@ -148,15 +147,15 @@ public:
 
   // get trigger cell u,v
   constexpr int32_t triggerCellU() const {
-    int32_t N = ((type() == HGCalFine) || (type() == HGCalFineThick)) ? HGCalHighDensityN : HGCalLowDensityN;
-    int32_t NT = ((type() == HGCalFine) || (type() == HGCalFineThick)) ? HGCalFineTrigger : HGCalCoarseTrigger;
+    int32_t N = ((type() == HGCalHD120) || (type() == HGCalHD200)) ? HGCalHighDensityN : HGCalLowDensityN;
+    int32_t NT = ((type() == HGCalHD120) || (type() == HGCalHD200)) ? HGCalFineTrigger : HGCalCoarseTrigger;
     return (cellU() >= N && cellV() >= N)
                ? cellU() / NT
                : ((cellU() < N && cellU() <= cellV()) ? cellU() / NT : (1 + (cellU() - (cellV() % NT + 1)) / NT));
   }
   constexpr int32_t triggerCellV() const {
-    int32_t N = ((type() == HGCalFine) || (type() == HGCalFineThick)) ? HGCalHighDensityN : HGCalLowDensityN;
-    int32_t NT = ((type() == HGCalFine) || (type() == HGCalFineThick)) ? HGCalFineTrigger : HGCalCoarseTrigger;
+    int32_t N = ((type() == HGCalHD120) || (type() == HGCalHD200)) ? HGCalHighDensityN : HGCalLowDensityN;
+    int32_t NT = ((type() == HGCalHD120) || (type() == HGCalHD200)) ? HGCalFineTrigger : HGCalCoarseTrigger;
     return (cellU() >= N && cellV() >= N)
                ? cellV() / NT
                : ((cellU() < N && cellU() <= cellV()) ? ((cellV() - cellU()) / NT + cellU() / NT) : cellV() / NT);
