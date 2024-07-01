@@ -129,7 +129,7 @@ double L1TrackQuality::getL1TrackQuality(TTTrack<Ref_Phase2TrackerDigi_>& aTrack
     // collect features and classify using bdt
     std::vector<float> inputs = featureTransform(aTrack, this->featureNames_);
     std::vector<float> output = bdt.decision_function(inputs);
-    return (1. / (1. + exp(-output.at(0)))); // need logistic sigmoid fcn applied to xgb output
+    return (1. / (1. + exp(-output.at(0))));  // need logistic sigmoid fcn applied to xgb output
   }
 
   else if ((this->qualityAlgorithm_ == QualityAlgorithm::NN) || (this->qualityAlgorithm_ == QualityAlgorithm::GBDT)) {

@@ -9,9 +9,10 @@ namespace l1t {
 
   class DisplacedTrueVertex {
   public:
-    DisplacedTrueVertex(float d_T, float R_T, float cos_T, float x, float y, float z, float openingAngle, float parentPt): d_T_(d_T), R_T_(R_T), cos_T_(cos_T), x_(x), y_(y), z_(z), openingAngle_(openingAngle), parentPt_(parentPt){}
-    DisplacedTrueVertex(){}
-    ~DisplacedTrueVertex(){}
+    DisplacedTrueVertex(float d_T, float R_T, float cos_T, float x, float y, float z, float openingAngle, float parentPt)
+        : d_T_(d_T), R_T_(R_T), cos_T_(cos_T), x_(x), y_(y), z_(z), openingAngle_(openingAngle), parentPt_(parentPt) {}
+    DisplacedTrueVertex() {}
+    ~DisplacedTrueVertex() {}
     float d_T() const { return d_T_; }
     float R_T() const { return R_T_; }
     float cos_T() const { return cos_T_; }
@@ -35,10 +36,41 @@ namespace l1t {
 
   class DisplacedTrackVertex {
   public:
-    DisplacedTrackVertex(int firstIndexTrk, int secondIndexTrk, int firstIndexPt, int secondIndexPt, int inTraj, float d_T, float R_T, float cos_T, float del_Z, float x, float y, float z, float openingAngle, float parentPt, int delIndexPt, bool isReal): firstIndexTrk_(firstIndexTrk), secondIndexTrk_(secondIndexTrk), firstIndexPt_(firstIndexPt), secondIndexPt_(secondIndexPt), inTraj_(inTraj), d_T_(d_T), R_T_(R_T), cos_T_(cos_T), del_Z_(del_Z), x_(x), y_(y), z_(z), openingAngle_(openingAngle), parentPt_(parentPt), delIndexPt_(delIndexPt), isReal_(isReal){}
-    DisplacedTrackVertex(){}
-    ~DisplacedTrackVertex(){}
-    void setScore(float score){ score_ = score; }
+    DisplacedTrackVertex(int firstIndexTrk,
+                         int secondIndexTrk,
+                         int firstIndexPt,
+                         int secondIndexPt,
+                         int inTraj,
+                         float d_T,
+                         float R_T,
+                         float cos_T,
+                         float del_Z,
+                         float x,
+                         float y,
+                         float z,
+                         float openingAngle,
+                         float parentPt,
+                         int delIndexPt,
+                         bool isReal)
+        : firstIndexTrk_(firstIndexTrk),
+          secondIndexTrk_(secondIndexTrk),
+          firstIndexPt_(firstIndexPt),
+          secondIndexPt_(secondIndexPt),
+          inTraj_(inTraj),
+          d_T_(d_T),
+          R_T_(R_T),
+          cos_T_(cos_T),
+          del_Z_(del_Z),
+          x_(x),
+          y_(y),
+          z_(z),
+          openingAngle_(openingAngle),
+          parentPt_(parentPt),
+          delIndexPt_(delIndexPt),
+          isReal_(isReal) {}
+    DisplacedTrackVertex() {}
+    ~DisplacedTrackVertex() {}
+    void setScore(float score) { score_ = score; }
     float d_T() const { return d_T_; }
     float R_T() const { return R_T_; }
     float cos_T() const { return cos_T_; }
@@ -56,6 +88,7 @@ namespace l1t {
     int delIndexPt() const { return delIndexPt_; }
     bool isReal() const { return isReal_; }
     float score() const { return score_; }
+
   private:
     int firstIndexTrk_;
     int secondIndexTrk_;
@@ -77,6 +110,6 @@ namespace l1t {
   };
 
   typedef std::vector<DisplacedTrackVertex> DisplacedTrackVertexCollection;
-}
+}  // namespace l1t
 
 #endif
