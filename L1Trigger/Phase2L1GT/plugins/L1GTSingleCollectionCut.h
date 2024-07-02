@@ -3,6 +3,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/L1Trigger/interface/P2GTCandidate.h"
 
 #include "L1Trigger/Phase2L1GT/interface/L1GTScales.h"
@@ -11,6 +12,7 @@
 
 #include <functional>
 #include <optional>
+#include <cstdint>
 
 namespace l1t {
 
@@ -34,65 +36,58 @@ namespace l1t {
         : scales_(scales),
           tag_(config.getParameter<edm::InputTag>("tag")),
           minPt_(getOptionalParam<int, double>(
-              "minPt", config, [&scales](double value) { return scales.to_hw_pT(value); })),
+              "minPt", config, [&scales](double value) { return scales.to_hw_pT_floor(value); })),
           maxPt_(getOptionalParam<int, double>(
-              "maxPt", config, [&scales](double value) { return scales.to_hw_pT(value); })),
+              "maxPt", config, [&scales](double value) { return scales.to_hw_pT_ceil(value); })),
           minEta_(getOptionalParam<int, double>(
-              "minEta", config, [&scales](double value) { return scales.to_hw_eta(value); })),
+              "minEta", config, [&scales](double value) { return scales.to_hw_eta_floor(value); })),
           maxEta_(getOptionalParam<int, double>(
-              "maxEta", config, [&scales](double value) { return scales.to_hw_eta(value); })),
+              "maxEta", config, [&scales](double value) { return scales.to_hw_eta_ceil(value); })),
           minPhi_(getOptionalParam<int, double>(
-              "minPhi", config, [&scales](double value) { return scales.to_hw_phi(value); })),
+              "minPhi", config, [&scales](double value) { return scales.to_hw_phi_floor(value); })),
           maxPhi_(getOptionalParam<int, double>(
-              "maxPhi", config, [&scales](double value) { return scales.to_hw_phi(value); })),
+              "maxPhi", config, [&scales](double value) { return scales.to_hw_phi_ceil(value); })),
           minZ0_(getOptionalParam<int, double>(
-              "minZ0", config, [&scales](double value) { return scales.to_hw_z0(value); })),
+              "minZ0", config, [&scales](double value) { return scales.to_hw_z0_floor(value); })),
           maxZ0_(getOptionalParam<int, double>(
-              "maxZ0", config, [&scales](double value) { return scales.to_hw_z0(value); })),
+              "maxZ0", config, [&scales](double value) { return scales.to_hw_z0_ceil(value); })),
           minScalarSumPt_(getOptionalParam<int, double>(
-              "minScalarSumPt", config, [&scales](double value) { return scales.to_hw_pT(value); })),
+              "minScalarSumPt", config, [&scales](double value) { return scales.to_hw_pT_floor(value); })),
           maxScalarSumPt_(getOptionalParam<int, double>(
-              "maxScalarSumPt", config, [&scales](double value) { return scales.to_hw_pT(value); })),
-          qual_(config.getParameter<std::vector<unsigned int>>("qual")),
+              "maxScalarSumPt", config, [&scales](double value) { return scales.to_hw_pT_ceil(value); })),
+          minQualityScore_(getOptionalParam<unsigned int>("minQualityScore", config)),
+          maxQualityScore_(getOptionalParam<unsigned int>("maxQualityScore", config)),
+          qualityFlags_(getOptionalParam<unsigned int>("qualityFlags", config)),
           minAbsEta_(getOptionalParam<int, double>(
-              "minAbsEta", config, [&scales](double value) { return scales.to_hw_eta(value); })),
+              "minAbsEta", config, [&scales](double value) { return scales.to_hw_eta_floor(value); })),
           maxAbsEta_(getOptionalParam<int, double>(
-              "maxAbsEta", config, [&scales](double value) { return scales.to_hw_eta(value); })),
-          maxIso_(getOptionalParam<int, double>(
-              "maxIso", config, [&scales](double value) { return scales.to_hw_isolation(value); })),
-          minHwIso_(getOptionalParam<int>("minHwIso", config)),
+              "maxAbsEta", config, [&scales](double value) { return scales.to_hw_eta_ceil(value); })),
+          minIsolationPt_(getOptionalParam<int, double>(
+              "minRelIsolationPt", config, [&scales](double value) { return scales.to_hw_isolationPT_floor(value); })),
+          maxIsolationPt_(getOptionalParam<int, double>(
+              "maxRelIsolationPt", config, [&scales](double value) { return scales.to_hw_isolationPT_ceil(value); })),
+          minRelIsolationPt_(getOptionalParam<int, double>(
+              "minRelIsolationPt",
+              config,
+              [&scales](double value) { return scales.to_hw_relative_isolationPT_floor(value); })),
+          maxRelIsolationPt_(getOptionalParam<int, double>(
+              "maxRelIsolationPt",
+              config,
+              [&scales](double value) { return scales.to_hw_relative_isolationPT_ceil(value); })),
           regionsAbsEtaLowerBounds_(getParamVector<int, double>(
-              "regionsAbsEtaLowerBounds", config, [&scales](double value) { return scales.to_hw_eta(value); })),
+              "regionsAbsEtaLowerBounds", config, [&scales](double value) { return scales.to_hw_eta_ceil(value); })),
           regionsMinPt_(getParamVector<int, double>(
-              "regionsMinPt", config, [&scales](double value) { return scales.to_hw_pT(value); })),
-          regionsMaxIso_(getParamVector<int, double>(
-              "regionsMaxIso", config, [&scales](double value) { return scales.to_hw_isolation(value); })),
-          regionsQual_(config.getParameter<std::vector<unsigned int>>("regionsQual")) {}
-
-    bool checkEtadependentcuts(const P2GTCandidate& obj) const {
-      bool res = true;
-
-      unsigned int index;
-      index = atIndex(obj.hwEta());
-      res &= regionsMinPt_.empty() ? true : obj.hwPT() > regionsMinPt_[index];
-      res &= regionsMaxIso_.empty()
-                 ? true
-                 : obj.hwIso().to_int() << scales_.isolation_shift() < regionsMaxIso_[index] * obj.hwPT().to_int();
-      res &= regionsQual_.empty() ? true : (obj.hwQual().to_uint() & regionsQual_[index]) == regionsQual_[index];
-      return res;
-    }
-
-    unsigned int atIndex(int objeta) const {
-      // Function that checks at which index the eta of the object is
-      // If object abs(eta) < regionsAbsEtaLowerBounds_[0] the function returns the last index,
-      // Might be undesired behaviour
-      for (unsigned int i = 0; i < regionsAbsEtaLowerBounds_.size() - 1; i++) {
-        if (std::abs(objeta) >= regionsAbsEtaLowerBounds_[i] && std::abs(objeta) < regionsAbsEtaLowerBounds_[i + 1]) {
-          return i;
-        }
-      }
-      return regionsAbsEtaLowerBounds_.size() - 1;
-    }
+              "regionsMinPt", config, [&scales](double value) { return scales.to_hw_pT_floor(value); })),
+          regionsMaxRelIsolationPt_(getParamVector<int, double>(
+              "regionsMaxRelIsolationPt",
+              config,
+              [&scales](double value) { return scales.to_hw_relative_isolationPT_ceil(value); })),
+          regionsQualityFlags_(config.getParameter<std::vector<unsigned int>>("regionsQualityFlags")),
+          minPrimVertDz_(getOptionalParam<int, double>(
+              "minPrimVertDz", config, [&scales](double value) { return scales.to_hw_z0_floor(value); })),
+          maxPrimVertDz_(getOptionalParam<int, double>(
+              "maxPrimVertDz", config, [&scales](double value) { return scales.to_hw_z0_ceil(value); })),
+          primVertex_(getOptionalParam<unsigned int>("primVertex", config)) {}
 
     bool checkObject(const P2GTCandidate& obj) const {
       bool result = true;
@@ -112,16 +107,47 @@ namespace l1t {
       result &= minAbsEta_ ? (abs(obj.hwEta()) > minAbsEta_) : true;
       result &= maxAbsEta_ ? (abs(obj.hwEta()) < maxAbsEta_) : true;
 
-      result &= minScalarSumPt_ ? (obj.hwSca_sum() > minScalarSumPt_) : true;
-      result &= maxScalarSumPt_ ? (obj.hwSca_sum() < minScalarSumPt_) : true;
+      result &= minScalarSumPt_ ? (obj.hwScalarSumPT() > minScalarSumPt_) : true;
+      result &= maxScalarSumPt_ ? (obj.hwScalarSumPT() < maxScalarSumPt_) : true;
 
-      result &= qual_.empty() ? true : std::find(qual_.begin(), qual_.end(), obj.hwQual().to_uint()) != qual_.end();
-      result &=
-          maxIso_ ? obj.hwIso().to_int() << scales_.isolation_shift() < maxIso_.value() * obj.hwPT().to_int() : true;
+      result &= minQualityScore_ ? (obj.hwQualityScore() > minQualityScore_) : true;
+      result &= maxQualityScore_ ? (obj.hwQualityScore() < maxQualityScore_) : true;
+      result &= qualityFlags_ ? (obj.hwQualityFlags().to_uint() & qualityFlags_.value()) == qualityFlags_ : true;
 
-      result &= minHwIso_ ? (obj.hwIso() > minHwIso_) : true;
-      result &= regionsAbsEtaLowerBounds_.empty() ? true : checkEtadependentcuts(obj);
+      result &= minIsolationPt_ ? (obj.hwIsolationPT() > minIsolationPt_) : true;
+      result &= maxIsolationPt_ ? (obj.hwIsolationPT() < maxIsolationPt_) : true;
+
+      result &= minRelIsolationPt_ ? obj.hwIsolationPT().to_int64() << L1GTScales::RELATIVE_ISOLATION_RESOLUTION >
+                                         static_cast<int64_t>(minRelIsolationPt_.value()) * obj.hwPT().to_int64()
+                                   : true;
+      result &= maxRelIsolationPt_ ? obj.hwIsolationPT().to_int64() << L1GTScales::RELATIVE_ISOLATION_RESOLUTION <
+                                         static_cast<int64_t>(maxRelIsolationPt_.value()) * obj.hwPT().to_int64()
+                                   : true;
+
+      result &= regionsAbsEtaLowerBounds_.empty() ? true : checkEtaDependentCuts(obj);
       return result;
+    }
+
+    bool checkPrimaryVertices(const P2GTCandidate& obj, const P2GTCandidateCollection& primVertCol) const {
+      if (!minPrimVertDz_ && !maxPrimVertDz_) {
+        return true;
+      } else {
+        if (!primVertex_) {
+          throw cms::Exception("Configuration")
+              << "When a min/max primary vertex cut is set the primary vertex to cut\n"
+              << "on has to be specified with with config parameter \'primVertex\'. ";
+        }
+        if (primVertex_ < primVertCol.size()) {
+          uint32_t dZ = abs(obj.hwZ0() - primVertCol[primVertex_.value()].hwZ0());
+
+          bool result = true;
+          result &= minPrimVertDz_ ? dZ > minPrimVertDz_ : true;
+          result &= maxPrimVertDz_ ? dZ < maxPrimVertDz_ : true;
+          return result;
+        } else {
+          return false;
+        }
+      }
     }
 
     static void fillPSetDescription(edm::ParameterSetDescription& desc) {
@@ -136,18 +162,55 @@ namespace l1t {
       desc.addOptional<double>("maxZ0");
       desc.addOptional<double>("minScalarSumPt");
       desc.addOptional<double>("maxScalarSumPt");
-      desc.add<std::vector<unsigned int>>("qual", {});
+      desc.addOptional<unsigned int>("minQualityScore");
+      desc.addOptional<unsigned int>("maxQualityScore");
+      desc.addOptional<unsigned int>("qualityFlags");
+      desc.add<std::vector<unsigned int>>("regions", {});
       desc.addOptional<double>("minAbsEta");
       desc.addOptional<double>("maxAbsEta");
-      desc.addOptional<double>("maxIso");
-      desc.addOptional<int>("minHwIso");
+      desc.addOptional<double>("minIsolationPt");
+      desc.addOptional<double>("maxIsolationPt");
+      desc.addOptional<double>("minRelIsolationPt");
+      desc.addOptional<double>("maxRelIsolationPt");
       desc.add<std::vector<double>>("regionsAbsEtaLowerBounds", {});
       desc.add<std::vector<double>>("regionsMinPt", {});
-      desc.add<std::vector<double>>("regionsMaxIso", {});
-      desc.add<std::vector<unsigned int>>("regionsQual", {});
+      desc.add<std::vector<double>>("regionsMaxRelIsolationPt", {});
+      desc.add<std::vector<unsigned int>>("regionsQualityFlags", {});
+      desc.addOptional<double>("minPrimVertDz");
+      desc.addOptional<double>("maxPrimVertDz");
+      desc.addOptional<unsigned int>("primVertex");
     }
 
     const edm::InputTag& tag() const { return tag_; }
+
+  private:
+    bool checkEtaDependentCuts(const P2GTCandidate& obj) const {
+      bool res = true;
+
+      unsigned int index;
+      index = atIndex(obj.hwEta());
+      res &= regionsMinPt_.empty() ? true : obj.hwPT() > regionsMinPt_[index];
+      res &= regionsMaxRelIsolationPt_.empty()
+                 ? true
+                 : obj.hwIsolationPT().to_int64() << L1GTScales::RELATIVE_ISOLATION_RESOLUTION <
+                       static_cast<int64_t>(regionsMaxRelIsolationPt_[index]) * obj.hwPT().to_int64();
+      res &= regionsQualityFlags_.empty()
+                 ? true
+                 : (obj.hwQualityFlags().to_uint() & regionsQualityFlags_[index]) == regionsQualityFlags_[index];
+      return res;
+    }
+
+    unsigned int atIndex(int objeta) const {
+      // Function that checks at which index the eta of the object is
+      // If object abs(eta) < regionsAbsEtaLowerBounds_[0] the function returns the last index,
+      // Might be undesired behaviour
+      for (unsigned int i = 0; i < regionsAbsEtaLowerBounds_.size() - 1; i++) {
+        if (std::abs(objeta) >= regionsAbsEtaLowerBounds_[i] && std::abs(objeta) < regionsAbsEtaLowerBounds_[i + 1]) {
+          return i;
+        }
+      }
+      return regionsAbsEtaLowerBounds_.size() - 1;
+    }
 
   private:
     const L1GTScales scales_;
@@ -162,15 +225,22 @@ namespace l1t {
     const std::optional<int> maxZ0_;
     const std::optional<int> minScalarSumPt_;
     const std::optional<int> maxScalarSumPt_;
-    const std::vector<unsigned int> qual_;
+    const std::optional<unsigned int> minQualityScore_;
+    const std::optional<unsigned int> maxQualityScore_;
+    const std::optional<unsigned int> qualityFlags_;
     const std::optional<int> minAbsEta_;
     const std::optional<int> maxAbsEta_;
-    const std::optional<int> maxIso_;
-    const std::optional<int> minHwIso_;
+    const std::optional<int> minIsolationPt_;
+    const std::optional<int> maxIsolationPt_;
+    const std::optional<int> minRelIsolationPt_;
+    const std::optional<int> maxRelIsolationPt_;
     const std::vector<int> regionsAbsEtaLowerBounds_;
     const std::vector<int> regionsMinPt_;
-    const std::vector<int> regionsMaxIso_;
-    const std::vector<unsigned int> regionsQual_;
+    const std::vector<int> regionsMaxRelIsolationPt_;
+    const std::vector<unsigned int> regionsQualityFlags_;
+    const std::optional<int> minPrimVertDz_;
+    const std::optional<int> maxPrimVertDz_;
+    const std::optional<unsigned int> primVertex_;
   };
 
 }  // namespace l1t

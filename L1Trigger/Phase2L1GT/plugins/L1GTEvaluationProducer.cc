@@ -129,11 +129,14 @@ L1GTEvaluationProducer::L1GTEvaluationProducer(const edm::ParameterSet &config)
   produces<P2GTCandidateCollection>("GTTRhoCandidates");
   produces<P2GTCandidateCollection>("GTTBsCandidates");
   produces<P2GTCandidateCollection>("GTTHadronicTaus");
+  produces<P2GTCandidateCollection>("GTTPromptTracks");
+  produces<P2GTCandidateCollection>("GTTDisplacedTracks");
   produces<P2GTCandidateCollection>("GTTPrimaryVert");
   produces<P2GTCandidateCollection>("GTTPromptHtSum");
   produces<P2GTCandidateCollection>("GTTDisplacedHtSum");
   produces<P2GTCandidateCollection>("GTTEtSum");
-  produces<P2GTCandidateCollection>("CL2Jets");
+  produces<P2GTCandidateCollection>("CL2JetsSC4");
+  produces<P2GTCandidateCollection>("CL2JetsSC8");
   produces<P2GTCandidateCollection>("CL2Taus");
   produces<P2GTCandidateCollection>("CL2Electrons");
   produces<P2GTCandidateCollection>("CL2Photons");
@@ -202,34 +205,41 @@ static std::vector<ap_uint<64>> vpack(const Args &...vobjects) {
 
 void L1GTEvaluationProducer::writeInputPatterns(
     const std::unordered_map<std::string, std::vector<std::unique_ptr<l1t::L1TGT_BaseInterface>>> &inputObjects) {
-  boardDataWriter_.addEvent(l1t::demo::EventData{
-      {{{"GTT", 0},
-        vpack(inputObjects.at("GTTPromptJets"),
-              inputObjects.at("GTTDisplacedJets"),
-              inputObjects.at("GTTPromptHtSum"),
-              inputObjects.at("GTTDisplacedHtSum"),
-              inputObjects.at("GTTEtSum"))},
-       {{"GTT", 1}, vpack(inputObjects.at("GTTHadronicTaus"))},
-       {{"CL2", 0}, vpack(inputObjects.at("CL2Jets"), inputObjects.at("CL2HtSum"), inputObjects.at("CL2EtSum"))},
-       {{"CL2", 1}, vpack(inputObjects.at("CL2Taus"))},
-       {{"GCT", 0},
-        vpack(inputObjects.at("GCTNonIsoEg"),
-              inputObjects.at("GCTIsoEg"),
-              inputObjects.at("GCTJets"),
-              inputObjects.at("GCTTaus"),
-              inputObjects.at("GCTHtSum"),
-              inputObjects.at("GCTEtSum"))},
-       {{"GMT", 0},
-        vpack(inputObjects.at("GMTSaPromptMuons"),
-              inputObjects.at("GMTSaDisplacedMuons"),
-              inputObjects.at("GMTTkMuons"),
-              inputObjects.at("GMTTopo"))},
-       {{"CL2", 2}, vpack(inputObjects.at("CL2Electrons"), inputObjects.at("CL2Photons"))},
-       {{"GTT", 2},
-        vpack(inputObjects.at("GTTPhiCandidates"),
-              inputObjects.at("GTTRhoCandidates"),
-              inputObjects.at("GTTBsCandidates"))},
-       {{"GTT", 3}, vpack(inputObjects.at("GTTPrimaryVert"))}}});
+  boardDataWriter_.addEvent(
+      l1t::demo::EventData{{{{"GTT", 0},
+                             vpack(inputObjects.at("GTTPromptJets"),
+                                   inputObjects.at("GTTDisplacedJets"),
+                                   inputObjects.at("GTTPromptHtSum"),
+                                   inputObjects.at("GTTDisplacedHtSum"),
+                                   inputObjects.at("GTTEtSum"))},
+                            {{"GTT", 1}, vpack(inputObjects.at("GTTHadronicTaus"))},
+                            {{"CL2", 0},
+                             vpack(inputObjects.at("CL2JetsSC4"),
+                                   inputObjects.at("CL2HtSum"),
+                                   inputObjects.at("CL2EtSum"),
+                                   inputObjects.at("CL2JetsSC8"))},
+                            {{"CL2", 1}, vpack(inputObjects.at("CL2Taus"))},
+                            {{"GCT", 0},
+                             vpack(inputObjects.at("GCTNonIsoEg"),
+                                   inputObjects.at("GCTIsoEg"),
+                                   inputObjects.at("GCTJets"),
+                                   inputObjects.at("GCTTaus"),
+                                   inputObjects.at("GCTEtSum"),
+                                   inputObjects.at("GCTHtSum"))},
+                            {{"GMT", 0},
+                             vpack(inputObjects.at("GMTSaPromptMuons"),
+                                   inputObjects.at("GMTSaDisplacedMuons"),
+                                   inputObjects.at("GMTTkMuons"),
+                                   inputObjects.at("GMTTopo"))},
+                            {{"CL2", 2}, vpack(inputObjects.at("CL2Electrons"), inputObjects.at("CL2Photons"))},
+                            {{"GTT", 2},
+                             vpack(inputObjects.at("GTTPhiCandidates"),
+                                   inputObjects.at("GTTRhoCandidates"),
+                                   inputObjects.at("GTTBsCandidates"))},
+                            {{"GTT", 3},
+                             vpack(inputObjects.at("GTTPromptTracks"),
+                                   inputObjects.at("GTTDisplacedTracks"),
+                                   inputObjects.at("GTTPrimaryVert"))}}});
 }
 
 void L1GTEvaluationProducer::produce(edm::Event &event, const edm::EventSetup &setup) {
@@ -265,6 +275,8 @@ void L1GTEvaluationProducer::produce(edm::Event &event, const edm::EventSetup &s
         std::make_unique<l1t::L1TGT_GCT_tau6p6>(true, nextPt(), nextEta(), nextPhi(), nextValue()));
 
     // Global Track Trigger
+    inputObjects["GTTPromptTracks"].emplace_back(std::make_unique<l1t::L1TGT_GTT_Track>());
+    inputObjects["GTTDisplacedTracks"].emplace_back(std::make_unique<l1t::L1TGT_GTT_Track>());
     inputObjects["GTTPrimaryVert"].emplace_back(
         std::make_unique<l1t::L1TGT_GTT_PrimaryVert>(true, nextPt(), nextEta(), nextPhi(), nextValue(), nextValue()));
     inputObjects["GTTPromptJets"].emplace_back(
@@ -281,7 +293,9 @@ void L1GTEvaluationProducer::produce(edm::Event &event, const edm::EventSetup &s
         std::make_unique<l1t::L1TGT_GTT_LightMeson>(true, nextPt(), nextEta(), nextPhi(), nextValue()));
 
     // Correlator Layer-2
-    inputObjects["CL2Jets"].emplace_back(
+    inputObjects["CL2JetsSC4"].emplace_back(
+        std::make_unique<l1t::L1TGT_CL2_Jet>(true, nextPt(), nextEta(), nextPhi(), nextValue()));
+    inputObjects["CL2JetsSC8"].emplace_back(
         std::make_unique<l1t::L1TGT_CL2_Jet>(true, nextPt(), nextEta(), nextPhi(), nextValue()));
     inputObjects["CL2Electrons"].emplace_back(std::make_unique<l1t::L1TGT_CL2_Electron>(
         true, nextPt(), nextEta(), nextPhi(), nextValue(), nextValue(), nextValue(), nextValue()));

@@ -53,7 +53,8 @@ namespace l1t {
     void produceGMTSaDisplacedMuons(edm::Event &event) const;
     void produceGMTTkMuons(edm::Event &event) const;
 
-    void produceCL2Jets(edm::Event &event) const;
+    void produceCL2JetsSC4(edm::Event &event) const;
+    void produceCL2JetsSC8(edm::Event &event) const;
     void produceCL2Photons(edm::Event &event) const;
     void produceCL2Electrons(edm::Event &event) const;
     void produceCL2Taus(edm::Event &event) const;
@@ -72,7 +73,8 @@ namespace l1t {
     const edm::EDGetTokenT<SAMuonCollection> gmtSaDisplacedMuonToken_;
     const edm::EDGetTokenT<TrackerMuonCollection> gmtTkMuonToken_;
 
-    const edm::EDGetTokenT<PFJetCollection> cl2JetToken_;
+    const edm::EDGetTokenT<PFJetCollection> cl2JetSC4Token_;
+    const edm::EDGetTokenT<PFJetCollection> cl2JetSC8Token_;
     const edm::EDGetTokenT<TkEmCollection> cl2PhotonToken_;
     const edm::EDGetTokenT<TkElectronCollection> cl2ElectronToken_;
     const edm::EDGetTokenT<PFTauCollection> cl2TauToken_;
@@ -88,7 +90,8 @@ namespace l1t {
         gmtSaPromptMuonToken_(consumes<SAMuonCollection>(config.getParameter<edm::InputTag>("GMTSaPromptMuons"))),
         gmtSaDisplacedMuonToken_(consumes<SAMuonCollection>(config.getParameter<edm::InputTag>("GMTSaDisplacedMuons"))),
         gmtTkMuonToken_(consumes<TrackerMuonCollection>(config.getParameter<edm::InputTag>("GMTTkMuons"))),
-        cl2JetToken_(consumes<PFJetCollection>(config.getParameter<edm::InputTag>("CL2Jets"))),
+        cl2JetSC4Token_(consumes<PFJetCollection>(config.getParameter<edm::InputTag>("CL2JetsSC4"))),
+        cl2JetSC8Token_(consumes<PFJetCollection>(config.getParameter<edm::InputTag>("CL2JetsSC8"))),
         cl2PhotonToken_(consumes<TkEmCollection>(config.getParameter<edm::InputTag>("CL2Photons"))),
         cl2ElectronToken_(consumes<TkElectronCollection>(config.getParameter<edm::InputTag>("CL2Electrons"))),
         cl2TauToken_(consumes<PFTauCollection>(config.getParameter<edm::InputTag>("CL2Taus"))),
@@ -102,7 +105,8 @@ namespace l1t {
     produces<P2GTCandidateCollection>("GMTSaDisplacedMuons");
     produces<P2GTCandidateCollection>("GMTTkMuons");
 
-    produces<P2GTCandidateCollection>("CL2Jets");
+    produces<P2GTCandidateCollection>("CL2JetsSC4");
+    produces<P2GTCandidateCollection>("CL2JetsSC8");
     produces<P2GTCandidateCollection>("CL2Photons");
     produces<P2GTCandidateCollection>("CL2Electrons");
     produces<P2GTCandidateCollection>("CL2Taus");
@@ -125,7 +129,8 @@ namespace l1t {
     desc.add<edm::InputTag>("GMTSaDisplacedMuons");
     desc.add<edm::InputTag>("GMTTkMuons");
 
-    desc.add<edm::InputTag>("CL2Jets");
+    desc.add<edm::InputTag>("CL2JetsSC4");
+    desc.add<edm::InputTag>("CL2JetsSC8");
     desc.add<edm::InputTag>("CL2Photons");
     desc.add<edm::InputTag>("CL2Electrons");
     desc.add<edm::InputTag>("CL2Taus");
@@ -144,7 +149,7 @@ namespace l1t {
       P2GTCandidate gtObj(
           0, reco::ParticleState::PolarLorentzVector(), reco::ParticleState::Point(0, 0, scales_.to_z0(hwZ0)));
       gtObj.hwZ0_ = hwZ0;
-      gtObj.hwQual_ = obj.qualityWord().V.to_int();
+      gtObj.hwQualityScore_ = obj.qualityWord().V.to_int();
       gtObj.hwSum_pT_pv_ = obj.multiplicityWord().V.to_int();
       gtObj.hwNumber_of_tracks_in_pv_ = obj.multiplicityWord().V.to_int();
       gtObj.hwNumber_of_tracks_not_in_pv_ = obj.inverseMultiplicityWord().V.to_int();
@@ -219,7 +224,7 @@ namespace l1t {
       gtObj.hwPhi_ = obj.apPhi().to_int();
       gtObj.hwEta_ = obj.apEta().to_int();
       gtObj.hwZ0_ = hwZ0;
-      gtObj.hwQual_ = obj.apQual().to_int();
+      gtObj.hwQualityScore_ = obj.hwQual();  // TODO move to quality flags after GMT PR
       gtObj.hwCharge_ = obj.apCharge().to_int();
       gtObj.hwD0_ = obj.apD0().to_int();
       gtObj.objectType_ = P2GTCandidate::GMTSaPromptMuons;
@@ -245,7 +250,7 @@ namespace l1t {
       gtObj.hwPhi_ = obj.apPhi().to_int();
       gtObj.hwEta_ = obj.apEta().to_int();
       gtObj.hwZ0_ = hwZ0;
-      gtObj.hwQual_ = obj.apQual().to_int();
+      gtObj.hwQualityScore_ = obj.hwQual();  // TODO move to quality flags after GMT PR
       gtObj.hwCharge_ = obj.apCharge().to_int();
       gtObj.hwD0_ = obj.apD0().to_int();
       gtObj.objectType_ = P2GTCandidate::GMTSaDisplacedMuons;
@@ -271,8 +276,8 @@ namespace l1t {
       gtObj.hwPhi_ = obj.apPhi().to_int();
       gtObj.hwEta_ = obj.apEta().to_int();
       gtObj.hwZ0_ = hwZ0;
-      gtObj.hwIso_ = obj.apIso().to_int();
-      gtObj.hwQual_ = obj.apQual().to_int();
+      gtObj.hwQualityScore_ = obj.hwQual();  // TODO move to quality flags after GMT PR
+      gtObj.hwIsolationPT_ = obj.apIso().to_int();
       gtObj.hwCharge_ = obj.apCharge().to_int();
       gtObj.hwD0_ = obj.apD0().to_int();
       gtObj.hwBeta_ = obj.apBeta().to_int();
@@ -283,9 +288,9 @@ namespace l1t {
     event.put(std::move(outputCollection), "GMTTkMuons");
   }
 
-  void L1GTProducer::produceCL2Jets(edm::Event &event) const {
+  void L1GTProducer::produceCL2JetsSC4(edm::Event &event) const {
     std::unique_ptr<P2GTCandidateCollection> outputCollection = std::make_unique<P2GTCandidateCollection>();
-    const PFJetCollection &collection = event.get(cl2JetToken_);
+    const PFJetCollection &collection = event.get(cl2JetSC4Token_);
     for (size_t i = 0; i < collection.size() && i < 12; i++) {
       l1gt::Jet gtJet = l1gt::Jet::unpack(collection[i].getHWJetGT());
       int hwZ0 = gtJet.z0.V.to_int() << 7;
@@ -299,11 +304,34 @@ namespace l1t {
       gtObj.hwPhi_ = gtJet.v3.phi.V.to_int();
       gtObj.hwEta_ = gtJet.v3.eta.V.to_int();
       gtObj.hwZ0_ = hwZ0;
-      gtObj.objectType_ = P2GTCandidate::CL2Jets;
+      gtObj.objectType_ = P2GTCandidate::CL2JetsSC4;
 
       outputCollection->push_back(gtObj);
     }
-    event.put(std::move(outputCollection), "CL2Jets");
+    event.put(std::move(outputCollection), "CL2JetsSC4");
+  }
+
+  void L1GTProducer::produceCL2JetsSC8(edm::Event &event) const {
+    std::unique_ptr<P2GTCandidateCollection> outputCollection = std::make_unique<P2GTCandidateCollection>();
+    const PFJetCollection &collection = event.get(cl2JetSC8Token_);
+    for (size_t i = 0; i < collection.size() && i < 12; i++) {
+      l1gt::Jet gtJet = l1gt::Jet::unpack(collection[i].getHWJetGT());
+      int hwZ0 = gtJet.z0.V.to_int() << 7;
+      P2GTCandidate gtObj(0,
+                          reco::ParticleState::PolarLorentzVector(scales_.to_pT(gtJet.v3.pt.V.to_int()),
+                                                                  scales_.to_eta(gtJet.v3.eta.V.to_int()),
+                                                                  scales_.to_phi(gtJet.v3.phi.V.to_int()),
+                                                                  0),
+                          reco::ParticleState::Point(0, 0, scales_.to_z0(hwZ0)));
+      gtObj.hwPT_ = gtJet.v3.pt.V.to_int();
+      gtObj.hwPhi_ = gtJet.v3.phi.V.to_int();
+      gtObj.hwEta_ = gtJet.v3.eta.V.to_int();
+      gtObj.hwZ0_ = hwZ0;
+      gtObj.objectType_ = P2GTCandidate::CL2JetsSC8;
+
+      outputCollection->push_back(gtObj);
+    }
+    event.put(std::move(outputCollection), "CL2JetsSC8");
   }
 
   void L1GTProducer::produceCL2Photons(edm::Event &event) const {
@@ -319,8 +347,8 @@ namespace l1t {
       gtObj.hwPT_ = gtPhoton.v3.pt.V.to_int();
       gtObj.hwPhi_ = gtPhoton.v3.phi.V.to_int();
       gtObj.hwEta_ = gtPhoton.v3.eta.V.to_int();
-      gtObj.hwIso_ = gtPhoton.isolationPT.V.to_int();
-      gtObj.hwQual_ = gtPhoton.qualityFlags.V.to_int();
+      gtObj.hwIsolationPT_ = gtPhoton.isolationPT.V.to_int();
+      gtObj.hwQualityFlags_ = gtPhoton.qualityFlags.V.to_int();
       gtObj.objectType_ = P2GTCandidate::CL2Photons;
 
       outputCollection->push_back(gtObj);
@@ -344,8 +372,8 @@ namespace l1t {
       gtObj.hwPhi_ = gtElectron.v3.phi.V.to_int();
       gtObj.hwEta_ = gtElectron.v3.eta.V.to_int();
       gtObj.hwZ0_ = hwZ0;
-      gtObj.hwIso_ = gtElectron.isolationPT.V.to_int();
-      gtObj.hwQual_ = gtElectron.qualityFlags.V.to_int();
+      gtObj.hwIsolationPT_ = gtElectron.isolationPT.V.to_int();
+      gtObj.hwQualityFlags_ = gtElectron.qualityFlags.V.to_int();
       gtObj.hwCharge_ = gtElectron.charge.V.to_int();
       gtObj.objectType_ = P2GTCandidate::CL2Electrons;
 
@@ -371,7 +399,7 @@ namespace l1t {
       gtObj.hwSeed_z0_ = gtTau.seed_z0.V.to_int();
       gtObj.hwCharge_ = gtTau.charge.V.to_int();
       gtObj.hwType_ = gtTau.type.V.to_int();
-      gtObj.hwIso_ = gtTau.quality.V.to_int();
+      gtObj.hwQualityScore_ = gtTau.quality.V.to_int();
       gtObj.objectType_ = P2GTCandidate::CL2Taus;
 
       outputCollection->push_back(gtObj);
@@ -391,7 +419,7 @@ namespace l1t {
                             scales_.to_pT(sum.vector_pt.V.to_int()), 0, scales_.to_phi(sum.vector_phi.V.to_int()), 0));
     gtObj.hwPT_ = sum.vector_pt.V.to_int();
     gtObj.hwPhi_ = sum.vector_phi.V.to_int();
-    gtObj.hwSca_sum_ = sum.scalar_pt.V.to_int();
+    gtObj.hwScalarSumPT_ = sum.scalar_pt.V.to_int();
     gtObj.objectType_ = P2GTCandidate::CL2EtSum;
 
     outputCollection->push_back(gtObj);
@@ -408,7 +436,7 @@ namespace l1t {
         0, reco::ParticleState::PolarLorentzVector(scales_.to_pT(mht.hwPt()), 0, scales_.to_phi(mht.hwPhi()), 0));
     gtObj.hwPT_ = mht.hwPt();
     gtObj.hwPhi_ = mht.hwPhi();
-    gtObj.hwSca_sum_ = ht.hwPt();
+    gtObj.hwScalarSumPT_ = ht.hwPt();
     gtObj.objectType_ = P2GTCandidate::CL2HtSum;
 
     outputCollection->push_back(gtObj);
@@ -424,7 +452,8 @@ namespace l1t {
     produceGMTSaDisplacedMuons(event);
     produceGMTTkMuons(event);
 
-    produceCL2Jets(event);
+    produceCL2JetsSC4(event);
+    produceCL2JetsSC8(event);
     produceCL2Photons(event);
     produceCL2Electrons(event);
     produceCL2Taus(event);

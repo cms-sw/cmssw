@@ -3,5 +3,6 @@ from L1Trigger.Phase2L1GT.l1tGTScales import scale_parameter
 
 l1tGTSingleObjectCond = cms.EDFilter(
     "L1GTSingleObjectCond",
-    scales=scale_parameter
+    scales=scale_parameter,
+    primVertTag = cms.InputTag("l1tGTProducer", "GTTPrimaryVert")
 )
