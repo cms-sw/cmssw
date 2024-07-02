@@ -13,7 +13,7 @@ ScBMTFRawToDigi::ScBMTFRawToDigi(const edm::ParameterSet& iConfig) {
   }
   nStubsOrbit_ = 0;
 
-  produces<l1ScoutingRun3::BMTFStubOrbitCollection>().setBranchAlias("BMTFStubOrbitCollection");
+  produces<l1ScoutingRun3::BMTFStubOrbitCollection>("BMTFStub").setBranchAlias("BMTFStubOrbitCollection");
   rawToken_ = consumes<SDSRawDataCollection>(srcInputTag_);
 }
 
@@ -47,7 +47,7 @@ void ScBMTFRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   unpackedStubs->fillAndClear(orbitBuffer_, nStubsOrbit_);
 
   // store collection in the event
-  iEvent.put(std::move(unpackedStubs));
+  iEvent.put(std::move(unpackedStubs), "BMTFStub");
 }
 
 void ScBMTFRawToDigi::unpackOrbit(const unsigned char* buf, size_t len, int sdsId) {
