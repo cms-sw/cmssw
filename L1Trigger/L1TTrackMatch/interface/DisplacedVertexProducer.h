@@ -46,33 +46,6 @@ public:
   float MVA1;
   float MVA2;
 
-  float dist_calc(float x_dv, float y_dv, float x, float y) {
-    dxy = TMath::Sqrt((x_dv - x) * (x_dv - x) + (y_dv - y) * (y_dv - y));
-    return dxy;
-  }
-  float x(float phi_T = 0) {
-    return (-charge * rho * TMath::Sin(phi - charge * phi_T) + (d0 + charge * rho) * TMath::Sin(phi));
-  }
-  float y(float phi_T = 0) {
-    return (charge * rho * TMath::Cos(phi - charge * phi_T) - (d0 + charge * rho) * TMath::Cos(phi));
-  }
-  float z(float phi_T = 0) {
-    float theta = 2 * TMath::ATan(TMath::Exp(-eta));
-    return (z0 + rho * phi_T / TMath::Tan(theta));
-  }
-  float deltaPhi_T(Double_t phi1, Double_t phi2) {
-    Double_t dPhi = phi1 - phi2;
-    if (dPhi >= TMath::Pi())
-      dPhi -= 2. * TMath::Pi();
-    if (dPhi <= -TMath::Pi())
-      dPhi += 2. * TMath::Pi();
-    return dPhi;
-  }
-  float phi_T(float x, float y) {
-    float num = x - (d0 + charge * rho) * TMath::Sin(phi);
-    float den = y + (d0 + charge * rho) * TMath::Cos(phi);
-    return ((phi - TMath::ATan2(num, -den)) / charge);
-  }
   float z(float x, float y) {
     float t = std::sinh(eta);
     float r = TMath::Sqrt(pow(x, 2) + pow(y, 2));
@@ -130,16 +103,6 @@ public:
   Track_Parameters(){};
   ~Track_Parameters(){};
 };
-
-constexpr bool operator==(const Track_Parameters* lhs, const Track_Parameters& rhs) {
-  return (lhs->pt == rhs.pt && lhs->d0 == rhs.d0 && lhs->z0 == rhs.z0 && lhs->eta == rhs.eta && lhs->phi == rhs.phi);
-}
-constexpr bool operator==(const Track_Parameters& lhs, const Track_Parameters* rhs) {
-  return (lhs.pt == rhs->pt && lhs.d0 == rhs->d0 && lhs.z0 == rhs->z0 && lhs.eta == rhs->eta && lhs.phi == rhs->phi);
-}
-constexpr bool operator==(const Track_Parameters& lhs, const Track_Parameters& rhs) {
-  return (lhs.pt == rhs.pt && lhs.d0 == rhs.d0 && lhs.z0 == rhs.z0 && lhs.eta == rhs.eta && lhs.phi == rhs.phi);
-}
 
 inline std::valarray<float> calcPVec(Track_Parameters a, double_t v_x, double_t v_y) {
   std::valarray<float> r_vec = {float(v_x) - a.x0, float(v_y) - a.y0};
@@ -234,10 +197,6 @@ public:
   Vertex_Parameters(){};
   ~Vertex_Parameters(){};
 };
-
-constexpr bool operator==(const Vertex_Parameters& lhs, const Vertex_Parameters& rhs) {
-  return (lhs.x_dv == rhs.x_dv && lhs.y_dv == rhs.y_dv && lhs.z_dv == rhs.z_dv);
-}
 
 class DisplacedVertexProducer : public edm::global::EDProducer<> {
 public:
