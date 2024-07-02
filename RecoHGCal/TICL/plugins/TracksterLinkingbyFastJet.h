@@ -13,7 +13,9 @@ namespace ticl {
 
   class TracksterLinkingbyFastJet : public TracksterLinkingAlgoBase {
   public:
-    TracksterLinkingbyFastJet(const edm::ParameterSet& conf, edm::ConsumesCollector iC)
+    TracksterLinkingbyFastJet(const edm::ParameterSet& conf,
+                              edm::ConsumesCollector iC,
+                              cms::Ort::ONNXRuntime const* onnxRuntime = nullptr)
         : TracksterLinkingAlgoBase(conf, iC), radius_(conf.getParameter<double>("radius")) {
       // Cluster tracksters into jets using FastJet with configurable algorithm
       auto algo = conf.getParameter<int>("jet_algorithm");

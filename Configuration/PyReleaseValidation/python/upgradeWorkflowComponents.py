@@ -716,6 +716,44 @@ upgradeWFs['ticl_v5'] = UpgradeWorkflow_ticl_v5(
 upgradeWFs['ticl_v5'].step3 = {'--procModifiers': 'ticl_v5'}
 upgradeWFs['ticl_v5'].step4 = {'--procModifiers': 'ticl_v5'}
 
+class UpgradeWorkflow_ticl_v5_superclustering(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        if 'RecoGlobal' in step:
+            stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
+        if 'HARVESTGlobal' in step:
+            stepDict[stepName][k] = merge([self.step4, stepDict[step][k]])
+    def condition(self, fragment, stepList, key, hasHarvest):
+        return (fragment=="ZEE_14" or 'Eta1p7_2p7' in fragment) and '2026' in key
+upgradeWFs['ticl_v5_superclustering_mustache_ticl'] = UpgradeWorkflow_ticl_v5_superclustering(
+    steps = [
+        'RecoGlobal',
+        'HARVESTGlobal'
+    ],
+    PU = [
+        'RecoGlobal',
+        'HARVESTGlobal'
+    ],
+    suffix = '_ticl_v5_mustache',
+    offset = 0.204,
+)
+upgradeWFs['ticl_v5_superclustering_mustache_ticl'].step3 = {'--procModifiers': 'ticl_v5,ticl_superclustering_mustache_ticl'}
+upgradeWFs['ticl_v5_superclustering_mustache_ticl'].step4 = {'--procModifiers': 'ticl_v5,ticl_superclustering_mustache_ticl'}
+
+upgradeWFs['ticl_v5_superclustering_mustache_pf'] = UpgradeWorkflow_ticl_v5_superclustering(
+    steps = [
+        'RecoGlobal',
+        'HARVESTGlobal'
+    ],
+    PU = [
+        'RecoGlobal',
+        'HARVESTGlobal'
+    ],
+    suffix = '_ticl_v5_mustache_pf',
+    offset = 0.205,
+)
+upgradeWFs['ticl_v5_superclustering_mustache_pf'].step3 = {'--procModifiers': 'ticl_v5,ticl_superclustering_mustache_pf'}
+upgradeWFs['ticl_v5_superclustering_mustache_pf'].step4 = {'--procModifiers': 'ticl_v5,ticl_superclustering_mustache_pf'}
+
 # Track DNN workflows
 class UpgradeWorkflow_trackdnn(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):

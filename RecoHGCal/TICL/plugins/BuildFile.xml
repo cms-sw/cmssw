@@ -23,6 +23,8 @@
 <use name="MagneticField/Records"/>
 <use name="PhysicsTools/TensorFlow"/>
 <use name="PhysicsTools/UtilAlgos"/>
+<use name="PhysicsTools/ONNXRuntime" />
+<use name="RecoEcal/EgammaCoreTools" />
 <use name="RecoLocalCalo/HGCalRecAlgos"/>
 <use name="RecoLocalCalo/HGCalRecProducers"/>
 <use name="RecoHGCal/TICL"/>

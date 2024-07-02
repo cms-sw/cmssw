@@ -141,6 +141,7 @@ namespace ticl {
     const int eidNLayers_;
     const int eidNClusters_;
     const bool computeLocalTime_;
+    const bool usePCACleaning_;
 
     hgcal::RecHitTools rhtools_;
     tensorflow::Session* eidSession_;

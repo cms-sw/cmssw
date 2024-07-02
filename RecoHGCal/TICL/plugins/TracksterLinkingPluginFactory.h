@@ -6,7 +6,13 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "RecoHGCal/TICL/interface/TracksterLinkingAlgoBase.h"
 
-using TracksterLinkingPluginFactory =
-    edmplugin::PluginFactory<ticl::TracksterLinkingAlgoBase*(const edm::ParameterSet&, edm::ConsumesCollector)>;
+namespace cms {
+  namespace Ort {
+    class ONNXRuntime;
+  }
+}  // namespace cms
+
+using TracksterLinkingPluginFactory = edmplugin::PluginFactory<ticl::TracksterLinkingAlgoBase*(
+    const edm::ParameterSet&, edm::ConsumesCollector, cms::Ort::ONNXRuntime const*)>;
 
 #endif
