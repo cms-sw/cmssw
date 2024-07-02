@@ -20,6 +20,8 @@ rawTask.ptype = 1
 recHitPreRecoTask.ptype = 1
 hcalGPUComparisonTask.ptype = 1
 
+hcalAlpakaComparisonTask = hcalGPUComparisonTask.clone()
+
 #   set the label for Emulator TP Task
 tpTask.tagEmul = "valHcalTriggerPrimitiveDigis"
 
@@ -40,6 +42,13 @@ hcalOnlyOfflineSourceSequenceGPU = cms.Sequence(
     rawTask +
     hcalGPUComparisonTask
 )
+hcalOnlyOfflineSourceSequenceAlpaka = cms.Sequence(
+    digiTask +
+    recHitTask +
+    rawTask +
+    hcalAlpakaComparisonTask
+)
+
 
 from Configuration.ProcessModifiers.gpuValidationHcal_cff import gpuValidationHcal
 gpuValidationHcal.toReplaceWith(hcalOnlyOfflineSourceSequence, hcalOnlyOfflineSourceSequenceGPU)
@@ -54,6 +63,7 @@ run2_HCAL_2018.toModify(recHitTask,
 )
 
 from Configuration.Eras.Modifier_run3_HB_cff import run3_HB
+from Configuration.ProcessModifiers.alpaka_cff import alpaka
 ### reverting the reco tag setting that inherited from run2
 run3_HB.toModify(hcalGPUComparisonTask,
     tagHBHE_ref = "hbhereco@cpu",
@@ -62,6 +72,15 @@ run3_HB.toModify(hcalGPUComparisonTask,
 run3_HB.toModify(recHitTask,
     tagHBHE = "hbhereco"
 )
+(alpaka & run3_HB).toModify(hcalGPUComparisonTask,
+    tagHBHE_ref = "hbherecoSerial",
+    tagHBHE_target = "hbhereco"
+)
+run3_HB.toModify(hcalAlpakaComparisonTask,
+    tagHBHE_ref = "hbherecoLegacy",
+    tagHBHE_target = "hbhereco"
+)
+
 _phase1_hcalOnlyOfflineSourceSequence = hcalOnlyOfflineSourceSequence.copy()
 _phase1_hcalOnlyOfflineSourceSequence.replace(recHitPreRecoTask, recHitTask)
 run3_HB.toReplaceWith(hcalOnlyOfflineSourceSequence, _phase1_hcalOnlyOfflineSourceSequence)
