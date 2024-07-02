@@ -42,8 +42,6 @@ VtxSmeared = {
     'HGCALCloseBy'  :                'IOMC.EventVertexGenerators.VtxSmearedHGCALCloseBy_cfi',
     'HLLHC'  :                       'IOMC.EventVertexGenerators.VtxSmearedHLLHC_cfi',
     'HLLHC14TeV'  :                  'IOMC.EventVertexGenerators.VtxSmearedHLLHC14TeV_cfi',
-    'HLLHC_CK'  :                    'IOMC.EventVertexGenerators.VtxSmearedHLLHCCrabKissing_cfi',
-    'HLLHC_CK14TeV'  :               'IOMC.EventVertexGenerators.VtxSmearedHLLHCCrabKissing14TeV_cfi',
     'ShiftedCollision2015'  :        'IOMC.EventVertexGenerators.VtxSmearedShiftedCollision2015_cfi',
     'Shifted5mmCollision2015'  :     'IOMC.EventVertexGenerators.VtxSmearedShifted5mmCollision2015_cfi',
     'Shifted15mmCollision2015'  :    'IOMC.EventVertexGenerators.VtxSmearedShifted15mmCollision2015_cfi',
