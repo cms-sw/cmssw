@@ -111,7 +111,11 @@ modifyConfigurationCalibTrackerAlpakaES_ = alpaka.makeProcessModifier(_addProces
 
 # reconstruct the pixel digis and clusters with alpaka on the device
 from RecoLocalTracker.SiPixelClusterizer.siPixelRawToClusterPhase1_cfi import siPixelRawToClusterPhase1 as _siPixelRawToClusterAlpaka
+from RecoLocalTracker.SiPixelClusterizer.siPixelRawToClusterHIonPhase1_cfi import siPixelRawToClusterHIonPhase1 as _siPixelRawToClusterAlpakaHIonPhase1
+
 siPixelClustersPreSplittingAlpaka = _siPixelRawToClusterAlpaka.clone()
+
+(alpaka & pp_on_AA & ~phase2_tracker).toReplaceWith(siPixelClustersPreSplittingAlpaka,_siPixelRawToClusterAlpakaHIonPhase1.clone())
 
 (alpaka & run3_common).toModify(siPixelClustersPreSplittingAlpaka,
     # use the pixel channel calibrations scheme for Run 3
@@ -135,8 +139,13 @@ siPixelClustersPreSplittingAlpakaSerial = makeSerialClone(siPixelClustersPreSpli
 
 from RecoLocalTracker.SiPixelClusterizer.siPixelDigisClustersFromSoAAlpakaPhase1_cfi import siPixelDigisClustersFromSoAAlpakaPhase1 as _siPixelDigisClustersFromSoAAlpakaPhase1
 from RecoLocalTracker.SiPixelClusterizer.siPixelDigisClustersFromSoAAlpakaPhase2_cfi import siPixelDigisClustersFromSoAAlpakaPhase2 as _siPixelDigisClustersFromSoAAlpakaPhase2
+from RecoLocalTracker.SiPixelClusterizer.siPixelDigisClustersFromSoAAlpakaHIonPhase1_cfi import siPixelDigisClustersFromSoAAlpakaHIonPhase1 as _siPixelDigisClustersFromSoAAlpakaHIonPhase1
 
 (alpaka & ~phase2_tracker).toReplaceWith(siPixelDigisClustersPreSplitting,_siPixelDigisClustersFromSoAAlpakaPhase1.clone(
+    src = "siPixelClustersPreSplittingAlpaka"
+))
+
+(alpaka & pp_on_AA & ~phase2_tracker).toReplaceWith(siPixelDigisClustersPreSplitting,_siPixelDigisClustersFromSoAAlpakaHIonPhase1.clone(
     src = "siPixelClustersPreSplittingAlpaka"
 ))
 
@@ -147,9 +156,6 @@ from RecoLocalTracker.SiPixelClusterizer.siPixelDigisClustersFromSoAAlpakaPhase2
     storeDigis = False,
     produceDigis = False
 ))
-
-from RecoLocalTracker.SiPixelClusterizer.siPixelDigisClustersFromSoAAlpakaPhase1_cfi import siPixelDigisClustersFromSoAAlpakaPhase1 as _siPixelDigisClustersFromSoAAlpakaPhase1
-from RecoLocalTracker.SiPixelClusterizer.siPixelDigisClustersFromSoAAlpakaPhase2_cfi import siPixelDigisClustersFromSoAAlpakaPhase2 as _siPixelDigisClustersFromSoAAlpakaPhase2
 
 alpaka.toModify(siPixelClustersPreSplitting,
     cpu = cms.EDAlias(
