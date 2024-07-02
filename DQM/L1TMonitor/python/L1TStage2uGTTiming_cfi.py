@@ -20,7 +20,9 @@ l1tStage2uGTTiming = DQMEDAnalyzer('L1TStage2uGTTiming',
         "L1_SingleJet180",
         "L1_ETMHF130",
         "L1_HTT360er",
-        "L1_ETT2000"
+        "L1_ETT2000",
+        "L1_AXO_Nominal",
+        "L1_AXO_VTight"
     ),
     prescaledAlgoShortList = cms.untracked.vstring(
         "L1_FirstCollisionInTrain",
