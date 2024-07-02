@@ -88,6 +88,8 @@ void EnergySumTemplate::print(std::ostream& myCout) const {
       myCout << "    phi               = " << std::hex << m_objectParameter[i].phiRange0Word << std::endl;
     } else if (m_condType == l1t::TypeETMHF) {
       myCout << "    phi               = " << std::hex << m_objectParameter[i].phiRange0Word << std::endl;
+    } else if (m_condType == l1t::TypeHTMHF) {
+      myCout << "    phi               = " << std::hex << m_objectParameter[i].phiRange0Word << std::endl;
     }
   }
 

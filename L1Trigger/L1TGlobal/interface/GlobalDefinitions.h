@@ -44,7 +44,7 @@ namespace l1t {
   /// Type2cor : two particles, different type, with spatial correlations among them
   /// Type3s : three particles, same type
   /// Type4s : four particles, same type
-  /// TypeETM, TypeETT, TypeHTT, TypeHTM  : ETM, ETT, HTT, HTM
+  /// TypeETM, TypeETT, TypeHTT, TypeHTM, TypeETMHF, TypeHTMHF: ETM, ETT, HTT, HTM, ETMHF, HTMHF
   /// TypeExternal: external conditions (logical result only; definition in L1 GT external systems)
   enum GtConditionType {
     TypeNull,
@@ -59,6 +59,7 @@ namespace l1t {
     TypeHTT,
     TypeHTM,
     TypeETMHF,
+    TypeHTMHF,
     TypeTowerCount,
     TypeMinBiasHFP0,
     TypeMinBiasHFM0,
