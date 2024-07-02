@@ -15,6 +15,8 @@ from Configuration.DataProcessing.Scenario import *
 from Configuration.DataProcessing.Utils import stepSKIMPRODUCER, addMonitoring, dictIO, nanoFlavours, gtNameAndConnect
 import FWCore.ParameterSet.Config as cms
 
+import warnings
+
 class hltScouting(Scenario):
     def __init__(self):
         Scenario.__init__(self)
@@ -41,6 +43,7 @@ class hltScouting(Scenario):
         options = Options()
         options.__dict__.update(defaultOptions.__dict__)
         options.scenario = self.cbSc
+        
         if 'nThreads' in args:
             options.nThreads = args['nThreads']
 
@@ -52,15 +55,23 @@ class hltScouting(Scenario):
         nanoAODStep = ''
         
         if 'outputs' in args:
-            print(args['outputs'])
+            outputs = []
             for a in args['outputs']:
-                if a['dataTier'] == 'MINIAOD':
-                    miniAODStep = ',PAT'
                 if a['dataTier'] in ['NANOAOD', 'NANOEDMAOD']:
-                    if "nanoFlavours" in args:
+                    if 'nanoFlavours' in args:
+                        for nanoFlavour in args['nanoFlavours']:
+                            if nanoFlavour != '@Scout':
+                                warnings.warn('nanoFlavour: ' + nanoFlavour + 'is currently not supported and will be removed from outputs. Only supported nanoFlavour is @Scout')
+                        args['nanoFlavours'] = ['@Scout']
                         nanoAODStep = ',NANO' + nanoFlavours(args['nanoFlavours'])
                     else:
-                        nanoAODStep = ',NANO:@PHYS+@L1'        
+                        nanoAODStep = ',NANO:@Scout' # default to Scouting NANO
+                    outputs.append(a)
+                else:
+                    warnings.warn('dataTier:' + str(a['dataTier']) + ' is currently not supported and will be removed from outputs')
+            if {output['dataTier'] for output in outputs} != {a['dataTier'] for a in args['outputs']}:
+                warnings.warn('The outputs will be changed from ' + str(args['outputs']) + ' to' + str(outputs))
+                args['outputs'] = outputs
 
         if not 'customs' in args:
             args['customs'] = []
@@ -74,12 +85,11 @@ class hltScouting(Scenario):
         options.step = ''
         options.step += self.recoSeq + PhysicsSkimStep
         options.step += miniAODStep + nanoAODStep
-        options.step += ',ENDJOB'
 
         dictIO(options, args)
         options.conditions = gtNameAndConnect(globalTag, args)
         
-        process = cms.Process('RECO', cms.ModifierChain(self.eras, self.promptModifiers) )
+        process = cms.Process('HLTSCOUT', cms.ModifierChain(self.eras, self.promptModifiers))
         cb = ConfigBuilder(options, process = process, with_output = True)
 
         # Input source

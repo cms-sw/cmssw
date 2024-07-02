@@ -10,7 +10,7 @@ function die { echo $1: status $2 ;  exit $2; }
 
 function runTest { echo $1 ; python3 $1 || die "Failure for configuration: $1" $?; }
 
-declare -a arr=("ppEra_Run3" "ppEra_Run3_2023" "ppEra_Run3_2023_repacked" "ppEra_Run3_2024")
+declare -a arr=("ppEra_Run3" "ppEra_Run3_2023" "ppEra_Run3_2023_repacked" "ppEra_Run3_2024" "hltScoutingEra_Run3_2024")
 for scenario in "${arr[@]}"
 do
      runTest "${SCRAM_TEST_PATH}/RunPromptReco.py --scenario $scenario --reco --aod --miniaod --nanoaod --dqmio --global-tag GLOBALTAG --lfn=/store/whatever  --alcareco TkAlMinBias+SiStripCalMinBias"
