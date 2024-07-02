@@ -2,6 +2,12 @@ import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment("HLT")
 
+### ACCELERATORS, in case they are needed
+## Load explicitly
+# One ProcessAccelerator for each accelerator technology
+fragment.load("Configuration.StandardSequences.Accelerators_cff")
+
+
 ### Non HLT-specific event-setups
 fragment.load("CalibMuon/CSCCalibration/CSCChannelMapper_cfi")
 fragment.load("CalibMuon/CSCCalibration/CSCIndexer_cfi")

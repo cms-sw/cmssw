@@ -2,6 +2,8 @@
 // Date: 03/2023
 // @file create layer clusters
 
+#define DEBUG_CLUSTERS_ALPAKA 0
+
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
@@ -32,27 +34,31 @@
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
+#if DEBUG_CLUSTERS_ALPAKA
+#include "RecoLocalCalo/HGCalRecProducers/interface/DumpClustersDetails.h"
+#endif
+
 class HGCalLayerClusterProducer : public edm::stream::EDProducer<> {
 public:
   /**
    * @brief Constructor with parameter settings - which can be changed in hgcalLayerCluster_cff.py.
-   * Constructor will set all variables by input param ps. 
+   * Constructor will set all variables by input param ps.
    * algoID variables will be set accordingly to the detector type.
-   * 
+   *
    * @param[in] ps parametr set to set variables
   */
   HGCalLayerClusterProducer(const edm::ParameterSet&);
   ~HGCalLayerClusterProducer() override {}
   /**
    * @brief Method fill description which will be used in pyhton file.
-   * 
+   *
    * @param[out] description to be fill
   */
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   /**
    * @brief Method run the algoritm to get clusters.
-   * 
+   *
    * @param[in, out] evt from get info and put result
    * @param[in] es to get event setup info
   */
@@ -75,6 +81,9 @@ private:
   hgcal::RecHitTools rhtools_;
   edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
   const bool calculatePositionInAlgo_;
+#if DEBUG_CLUSTERS_ALPAKA
+  std::string moduleLabel_;
+#endif
 
   /**
    * @brief Sets algoId accordingly to the detector type
@@ -83,7 +92,7 @@ private:
 
   /**
    * @brief Counts position for all points in the cluster
-   * 
+   *
    * @param[in] hitmap hitmap to find correct RecHit
    * @param[in] hitsAndFraction all hits in the cluster
    * @return counted position
@@ -93,7 +102,7 @@ private:
 
   /**
    * @brief Counts time for all points in the cluster
-   * 
+   *
    * @param[in] hitmap hitmap to find correct RecHit only for silicon (not for BH-HSci)
    * @param[in] hitsAndFraction all hits in the cluster
    * @return counted time
@@ -110,6 +119,9 @@ HGCalLayerClusterProducer::HGCalLayerClusterProducer(const edm::ParameterSet& ps
       hitsTime_(ps.getParameter<unsigned int>("nHitsTime")),
       caloGeomToken_(consumesCollector().esConsumes<CaloGeometry, CaloGeometryRecord>()),
       calculatePositionInAlgo_(ps.getParameter<bool>("calculatePositionInAlgo")) {
+#if DEBUG_CLUSTERS_ALPAKA
+  moduleLabel_ = ps.getParameter<std::string>("@module_label");
+#endif
   setAlgoId();  //sets algo id according to detector type
   hits_token_ = consumes<HGCRecHitCollection>(ps.getParameter<edm::InputTag>("recHits"));
 
@@ -195,7 +207,7 @@ math::XYZPoint HGCalLayerClusterProducer::calculatePosition(
     float inv_tot_weight = 1.f / total_weight;
     return math::XYZPoint(x * inv_tot_weight, y * inv_tot_weight, positionMaxEnergy.z());
   } else {
-    return math::XYZPoint(0.f, 0.f, 0.f);
+    return {positionMaxEnergy.x(), positionMaxEnergy.y(), positionMaxEnergy.z()};
   }
 }
 
@@ -262,6 +274,15 @@ void HGCalLayerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& 
       times.push_back(std::pair<float, float>(-99.f, -1.f));
     }
   }
+
+#if DEBUG_CLUSTERS_ALPAKA
+  hgcalUtils::DumpClusters dumper;
+  auto runNumber = evt.eventAuxiliary().run();
+  auto lumiNumber = evt.eventAuxiliary().luminosityBlock();
+  auto evtNumber = evt.eventAuxiliary().id().event();
+
+  dumper.dumpInfos(*clusters, moduleLabel_, runNumber, lumiNumber, evtNumber, true);
+#endif
 
   auto clusterHandle = evt.put(std::move(clusters));
 

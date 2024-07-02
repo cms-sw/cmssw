@@ -127,6 +127,10 @@ void HGCalCLUEAlgoT<T, STRATEGY>::makeClusters() {
       numberOfClustersPerLayer_[i] = findAndAssignClusters(i, delta);
     });
   });
+#if DEBUG_CLUSTERS_ALPAKA
+  hgcalUtils::DumpLegacySoA dumperLegacySoA;
+  dumperLegacySoA.dumpInfos(cells_, moduleType_);
+#endif
 }
 
 template <typename T, typename STRATEGY>
@@ -215,7 +219,8 @@ std::vector<reco::BasicCluster> HGCalCLUEAlgoT<T, STRATEGY>::getClusters(bool) {
         x *= inv_tot_weight;
         y *= inv_tot_weight;
       } else {
-        x = y = 0.f;
+        x = cellsOnLayer.dim1[maxEnergyCellIndex];
+        y = cellsOnLayer.dim2[maxEnergyCellIndex];
       }
       math::XYZPoint position = math::XYZPoint(x, y, z);
 
@@ -348,6 +353,7 @@ void HGCalCLUEAlgoT<T, STRATEGY>::calculateDistanceToHigher(const T& lt, const u
     float maxDelta = std::numeric_limits<float>::max();
     float i_delta = maxDelta;
     int i_nearestHigher = -1;
+    float rho_max = 0.f;
     auto range = outlierDeltaFactor_ * delta;
     std::array<int, 4> search_box = lt.searchBox(cellsOnLayer.dim1[i] - range,
                                                  cellsOnLayer.dim1[i] + range,
@@ -366,14 +372,18 @@ void HGCalCLUEAlgoT<T, STRATEGY>::calculateDistanceToHigher(const T& lt, const u
         // loop over all hits in this bin
         for (unsigned int j = 0; j < binSize; j++) {
           unsigned int otherId = lt[binId][j];
-          float dist = distance(lt, i, otherId, layerId);
+          float dist = distance2(lt, i, otherId, layerId);
           bool foundHigher =
               (cellsOnLayer.rho[otherId] > cellsOnLayer.rho[i]) ||
               (cellsOnLayer.rho[otherId] == cellsOnLayer.rho[i] && cellsOnLayer.detid[otherId] > cellsOnLayer.detid[i]);
-          if (foundHigher && dist <= i_delta) {
-            // update i_delta
+          if (!foundHigher) {
+            continue;
+          }
+          if ((dist < i_delta) || ((dist == i_delta) && (cellsOnLayer.rho[otherId] > rho_max)) ||
+              ((dist == i_delta) && (cellsOnLayer.rho[otherId] == rho_max) &&
+               (cellsOnLayer.detid[otherId] > cellsOnLayer.detid[i]))) {
+            rho_max = cellsOnLayer.rho[otherId];
             i_delta = dist;
-            // update i_nearestHigher
             i_nearestHigher = otherId;
           }
         }
@@ -381,7 +391,7 @@ void HGCalCLUEAlgoT<T, STRATEGY>::calculateDistanceToHigher(const T& lt, const u
     }
     bool foundNearestHigherInSearchBox = (i_delta != maxDelta);
     if (foundNearestHigherInSearchBox) {
-      cellsOnLayer.delta[i] = i_delta;
+      cellsOnLayer.delta[i] = std::sqrt(i_delta);
       cellsOnLayer.nearestHigher[i] = i_nearestHigher;
     } else {
       // otherwise delta is guaranteed to be larger outlierDeltaFactor_*delta_c

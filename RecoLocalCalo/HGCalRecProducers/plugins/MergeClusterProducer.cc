@@ -16,22 +16,22 @@ class MergeClusterProducer : public edm::stream::EDProducer<> {
 public:
   /**
    * @brief Constructor with parameter settings - which can be changed in  ...todo.
-   * Constructor will set all variables by input param ps. 
-   * 
+   * Constructor will set all variables by input param ps.
+   *
    * @param[in] ps parametr set to set variables
   */
   MergeClusterProducer(const edm::ParameterSet &);
   ~MergeClusterProducer() override {}
   /**
    * @brief Method fill description which will be used in pyhton file.
-   * 
+   *
    * @param[out] description to be fill
   */
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
   /**
    * @brief Method will merge the producers and put them back to event
-   * 
+   *
    * @param[in, out] evt from get info and put result
    * @param[in] es to get event setup info
   */
@@ -49,7 +49,7 @@ private:
 
   /**
    * @brief method merge three vectors of reco::CaloCluster to one
-   * 
+   *
    * @param[out] merge the vector into which others vectors will be merge
    * @param[in] EE vector for Electromagnetic silicon
    * @param[in] HSi vector for Hardon silicon
@@ -62,7 +62,7 @@ private:
 
   /**
    * @brief copy all values from vm to to
-   * 
+   *
    * @param[in] vm Value map with values
    * @param[out] to vector to will be copy value map
   */
@@ -74,7 +74,7 @@ private:
   }
   /**
    * @brief Merge value map of time for all parts of detector together  to vector times
-   * 
+   *
    * @param[in] evt Event to get time value maps
    * @param[in] size of all 3 value maps
    * @param[out] times vector of merged time vectors
@@ -93,9 +93,9 @@ private:
   }
   /**
    * @brief get info form event and then call merge
-   * 
+   *
    * it is used for merge and clusters and time
-   * 
+   *
    * @param[in] evt Event
    * @param[in] EE_token token for Electromagnetic silicon
    * @param[in] HSi_token token for Hardon silicon
