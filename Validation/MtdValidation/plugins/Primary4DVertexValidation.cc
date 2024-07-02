@@ -229,6 +229,8 @@ private:
                   const edm::ValueMap<float>&,
                   const edm::ValueMap<float>&,
                   const edm::ValueMap<float>&,
+                  const edm::ValueMap<float>&,
+                  const edm::ValueMap<float>&,
                   unsigned int&,
                   bool&,
                   bool&,
@@ -310,6 +312,7 @@ private:
   edm::EDGetTokenT<edm::ValueMap<float>> timeToken_;
 
   edm::EDGetTokenT<edm::ValueMap<float>> t0PidToken_;
+  edm::EDGetTokenT<edm::ValueMap<float>> sigmat0PidToken_;
   edm::EDGetTokenT<edm::ValueMap<float>> t0SafePidToken_;
   edm::EDGetTokenT<edm::ValueMap<float>> sigmat0SafePidToken_;
   edm::EDGetTokenT<edm::ValueMap<float>> trackMVAQualToken_;
@@ -534,6 +537,7 @@ Primary4DVertexValidation::Primary4DVertexValidation(const edm::ParameterSet& iC
   momentumToken_ = consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("momentumSrc"));
   timeToken_ = consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("timeSrc"));
   t0PidToken_ = consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("t0PID"));
+  sigmat0PidToken_ = consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("sigmat0PID"));
   t0SafePidToken_ = consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("t0SafePID"));
   sigmat0SafePidToken_ = consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("sigmat0SafePID"));
   trackMVAQualToken_ = consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("trackMVAQual"));
@@ -1498,6 +1502,8 @@ void Primary4DVertexValidation::observablesFromJets(const std::vector<reco::Trac
 }
 
 void Primary4DVertexValidation::isParticle(const reco::TrackBaseRef& recoTrack,
+                                           const edm::ValueMap<float>& sigmat0,
+                                           const edm::ValueMap<float>& sigmat0Safe,
                                            const edm::ValueMap<float>& probPi,
                                            const edm::ValueMap<float>& probK,
                                            const edm::ValueMap<float>& probP,
@@ -1515,7 +1521,8 @@ void Primary4DVertexValidation::isParticle(const reco::TrackBaseRef& recoTrack,
     no_PIDtype = 1;
   } else if (edm::isNotFinite(probPi[recoTrack])) {
     no_PIDtype = 2;
-  } else if (probPi[recoTrack] == 1 && probK[recoTrack] == 0 && probP[recoTrack] == 0) {
+  } else if (probPi[recoTrack] == 1 && probK[recoTrack] == 0 && probP[recoTrack] == 0 &&
+             sigmat0[recoTrack] < sigmat0Safe[recoTrack]) {
     no_PIDtype = 3;
   }
   no_PID = no_PIDtype > 0;
@@ -1952,6 +1959,7 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
   const auto& momentum = iEvent.get(momentumToken_);
   const auto& time = iEvent.get(timeToken_);
   const auto& t0Pid = iEvent.get(t0PidToken_);
+  const auto& sigmat0 = iEvent.get(sigmat0PidToken_);
   const auto& t0Safe = iEvent.get(t0SafePidToken_);
   const auto& sigmat0Safe = iEvent.get(sigmat0SafePidToken_);
   const auto& mtdQualMVA = iEvent.get(trackMVAQualToken_);
@@ -2028,7 +2036,7 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
             unsigned int no_PIDtype = 0;
             bool no_PID, is_Pi, is_K, is_P;
             int PartID = 211;  // pion
-            isParticle(*iTrack, probPi, probK, probP, no_PIDtype, no_PID, is_Pi, is_K, is_P);
+            isParticle(*iTrack, sigmat0, sigmat0Safe, probPi, probK, probP, no_PIDtype, no_PID, is_Pi, is_K, is_P);
             if (!use3dNoTime_) {
               if (no_PID || is_Pi) {
                 PartID = 211;
@@ -2128,7 +2136,7 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
 
               unsigned int noPIDtype = 0;
               bool noPID = false, isPi = false, isK = false, isP = false;
-              isParticle(*iTrack, probPi, probK, probP, noPIDtype, noPID, isPi, isK, isP);
+              isParticle(*iTrack, sigmat0, sigmat0Safe, probPi, probK, probP, noPIDtype, noPID, isPi, isK, isP);
 
               if ((isPi && std::abs(tMtd[*iTrack] - tofPi[*iTrack] - t0Pid[*iTrack]) > tol_) ||
                   (isK && std::abs(tMtd[*iTrack] - tofK[*iTrack] - t0Pid[*iTrack]) > tol_) ||
@@ -2668,6 +2676,7 @@ void Primary4DVertexValidation::fillDescriptions(edm::ConfigurationDescriptions&
   desc.add<edm::InputTag>("timeSrc", edm::InputTag("trackExtenderWithMTD:generalTracktmtd"));
   desc.add<edm::InputTag>("sigmaSrc", edm::InputTag("trackExtenderWithMTD:generalTracksigmatmtd"));
   desc.add<edm::InputTag>("t0PID", edm::InputTag("tofPID:t0"));
+  desc.add<edm::InputTag>("sigmat0PID", edm::InputTag("tofPID:sigmat0"));
   desc.add<edm::InputTag>("t0SafePID", edm::InputTag("tofPID:t0safe"));
   desc.add<edm::InputTag>("sigmat0SafePID", edm::InputTag("tofPID:sigmat0safe"));
   desc.add<edm::InputTag>("trackMVAQual", edm::InputTag("mtdTrackQualityMVA:mtdQualMVA"));
