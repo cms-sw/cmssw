@@ -11,16 +11,21 @@
 #include "SimDataFormats/GeneratorProducts/interface/LHEXMLStringProduct.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMC3Product.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/GenRunInfoProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenFilterInfo.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct3.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenLumiInfoProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenLumiInfoHeader.h"
 #include "SimDataFormats/GeneratorProducts/interface/ExternalGeneratorLumiInfo.h"
 #include "SimDataFormats/GeneratorProducts/interface/ExternalGeneratorEventInfo.h"
 
 #include <HepMC/GenRanges.h>
+#include <HepMC3/GenVertex.h>
+#include <HepMC3/GenParticle.h>
+#include <HepMC3/Attribute.h>
 
 //needed for backward compatibility between HepMC 2.06.xx and 2.05.yy
 namespace hepmc_rootio {
