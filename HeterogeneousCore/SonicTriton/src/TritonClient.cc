@@ -66,8 +66,7 @@ TritonClient::TritonClient(const edm::ParameterSet& params, const std::string& d
   const auto& server =
       ts->serverInfo(options_[0].model_name_, params.getUntrackedParameter<std::string>("preferredServer"));
   serverType_ = server.type;
-  if (verbose_)
-    edm::LogInfo(fullDebugName_) << "Using server: " << server.url;
+  edm::LogInfo("TritonDiscovery") << debugName_ << " assigned server: " << server.url;
   //enforce sync mode for fallback CPU server to avoid contention
   //todo: could enforce async mode otherwise (unless mode was specified by user?)
   if (serverType_ == TritonServerType::LocalCPU)
