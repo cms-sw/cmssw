@@ -9,3 +9,4 @@
 <test name="TestConfigDP_10" command="run_CfgTest_10.sh"/>
 <test name="TestConfigDP_11" command="run_CfgTest_11.sh"/>
 <test name="TestConfigDP_12" command="run_CfgTest_12.sh"/>
+<test name="TestConfigDP_13" command="run_CfgTest_13.sh"/> 
