@@ -59,6 +59,11 @@ namespace l1t {
 
     void setuGtB(const GlobalBoard*);
 
+    /// get/set score value
+    void setScore(const float scoreval) const;
+
+    inline float getScore() const { return m_savedscore; }
+
   private:
     /// copy function for copy constructor and operator=
     void copy(const AXOL1TLCondition& cp);
@@ -68,6 +73,9 @@ namespace l1t {
 
     /// pointer to uGt GlobalBoard, to be able to get the trigger objects
     const GlobalBoard* m_gtGTB;
+
+    ///axo score for possible score saving
+    mutable float m_savedscore;
   };
 
 }  // namespace l1t
