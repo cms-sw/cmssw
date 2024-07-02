@@ -23,12 +23,6 @@ siPixelDigiErrorsSoA = _siPixelDigiErrorsSoAFromCUDA.clone(
 from EventFilter.SiPixelRawToDigi.siPixelDigiErrorsFromSoA_cfi import siPixelDigiErrorsFromSoA as _siPixelDigiErrorsFromSoA
 siPixelDigiErrors = _siPixelDigiErrorsFromSoA.clone()
 
-# Alpaka modifier
-from Configuration.ProcessModifiers.alpaka_cff import alpaka
-from EventFilter.SiPixelRawToDigi.siPixelDigiErrorsFromSoAAlpaka_cfi import siPixelDigiErrorsFromSoAAlpaka as _siPixelDigiErrorsFromSoAAlpaka
-
-alpaka.toReplaceWith(siPixelDigiErrors, _siPixelDigiErrorsFromSoAAlpaka.clone())
-
 # use the Phase 1 settings
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
 phase1Pixel.toModify(siPixelDigiErrors,
