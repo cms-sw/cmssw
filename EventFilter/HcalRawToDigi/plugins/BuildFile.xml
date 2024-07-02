@@ -25,3 +25,12 @@
   <use name="HeterogeneousCore/CUDAUtilities"/>
 </library>
 </iftool>
+
+<library file="alpaka/*.cc" name="EventFilterHcalRawToDigiPluginsPortable">
+  <use name="alpaka"/>    
+  <use name="DataFormats/DetId"/>
+  <use name="HeterogeneousCore/AlpakaCore"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <flags ALPAKA_BACKENDS="1"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
