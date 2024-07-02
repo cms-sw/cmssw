@@ -23,6 +23,11 @@ from GeneratorInterface.Configuration.GeneratorInterface_EventContent_cff import
 from SimGeneral.Configuration.SimGeneral_EventContent_cff import SimGeneralAOD
 
 OutALCARECOTkAlUpsilonMuMu_noDrop.outputCommands.extend(GeneratorInterfaceAOD.outputCommands)
+_modifiedCommandsForGEN =  OutALCARECOTkAlUpsilonMuMu_noDrop.outputCommands.copy()
+_modifiedCommandsForGEN.remove('keep *_genParticles_*_*')    # full genParticles list is too heavy
+_modifiedCommandsForGEN.append('keep *_TkAlUpsilonMuMuGenMuonSelector_*_*') # Keep only the filtered gen muons
+OutALCARECOTkAlUpsilonMuMu_noDrop.outputCommands = _modifiedCommandsForGEN
+
 OutALCARECOTkAlUpsilonMuMu_noDrop.outputCommands.extend(SimGeneralAOD.outputCommands)
 
 # in Run3, SCAL digis replaced by onlineMetaDataDigis
