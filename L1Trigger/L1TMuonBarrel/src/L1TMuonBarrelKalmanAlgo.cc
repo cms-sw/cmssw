@@ -39,7 +39,8 @@ L1TMuonBarrelKalmanAlgo::L1TMuonBarrelKalmanAlgo(const edm::ParameterSet& settin
       pointResolutionPhiB_(settings.getParameter<double>("pointResolutionPhiB")),
       pointResolutionPhiBH_(settings.getParameter<std::vector<double> >("pointResolutionPhiBH")),
       pointResolutionPhiBL_(settings.getParameter<std::vector<double> >("pointResolutionPhiBL")),
-      pointResolutionVertex_(settings.getParameter<double>("pointResolutionVertex"))
+      pointResolutionVertex_(settings.getParameter<double>("pointResolutionVertex")),
+      useNewQualityCalculation_(settings.getParameter<bool>("useNewQualityCalculation"))
 
 {}
 
@@ -99,16 +100,20 @@ l1t::RegionalMuonCand L1TMuonBarrelKalmanAlgo::convertToBMTF(const L1MuKBMTrack&
   int processor = track.sector();
   int HF = track.hasFineEta();
 
-  int quality;
-  int r = rank(track);
-  if (r < 192)
-    quality = 12;
-  else if (r < 204)
-    quality = 13;
-  else if (r < 220)
-    quality = 14;
-  else
-    quality = 15;
+  int quality = 0;
+  if (useNewQualityCalculation_) {
+    int r = rank(track);
+    if (r < 192)
+      quality = 12;
+    else if (r < 204)
+      quality = 13;
+    else if (r < 220)
+      quality = 14;
+    else
+      quality = 15;
+  } else {
+    quality = 12 | (rank(track) >> 6);
+  }
 
   int dxy = abs(track.dxy()) >> 8;
   if (dxy > 3)
