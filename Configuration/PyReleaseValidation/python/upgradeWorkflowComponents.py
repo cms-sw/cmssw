@@ -2676,7 +2676,7 @@ upgradeWFs['DD4hepDB'].allowReuse = False
 class UpgradeWorkflow_DDDDB(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
         the_era = stepDict[step][k]['--era']
-        if 'Run3' in the_era  and '2023' not in the_era and 'Fast' not in the_era and "Pb" not in the_era:
+        if 'Run3' in the_era and '2023' not in the_era and '2024' not in the_era and 'Fast' not in the_era and "Pb" not in the_era:
             # retain any other eras
             tmp_eras = the_era.split(',')
             tmp_eras[tmp_eras.index("Run3")] = 'Run3_DDD'
@@ -2825,7 +2825,7 @@ upgradeProperties[2017] = {
         'Geom' : 'DB:Extended',
         'GT' : 'auto:phase1_2024_realistic',
         'HLTmenu': '@relval2024',
-        'Era' : 'Run3',
+        'Era' : 'Run3_2024',
         'BeamSpot': 'DBrealistic',
         'ScenToRun' : ['GenSim','Digi','RecoNano','HARVESTNano','ALCA'],
     },
