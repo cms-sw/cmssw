@@ -146,6 +146,12 @@ public:
   std::vector<int> numberCells(int lay, bool reco) const;
   int numberCellsHexagon(int wafer) const;
   int numberCellsHexagon(int lay, int waferU, int waferV, bool flag) const;
+  inline int partialWaferType(int lay, int waferU, int waferV) const {
+    int indx = HGCalWaferIndex::waferIndex(lay, waferU, waferV);
+    auto ktr = hgpar_->waferInfoMap_.find(indx);
+    int part = (ktr != hgpar_->waferInfoMap_.end()) ? (ktr->second).part : HGCalTypes::WaferFull;
+    return part;
+  }
   std::pair<double, double> rangeR(double z, bool reco) const;
   std::pair<double, double> rangeRLayer(int lay, bool reco) const;
   std::pair<double, double> rangeZ(bool reco) const;

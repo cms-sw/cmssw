@@ -867,7 +867,8 @@ std::pair<float, float> HGCalDDDConstants::locateCell(int zside,
       if (ktr != hgpar_->waferInfoMap_.end())
         place = HGCalCell::cellPlacementIndex(1, HGCalTypes::layerFrontBack(layertype), (ktr->second).orient);
     }
-    auto xy = (waferHexagon8Fine() || cog) ? cellOffset_->cellOffsetUV2XY1(cellU, cellV, place, type)
+    int part = partialWaferType(lay, waferU, waferV);
+    auto xy = (waferHexagon8Fine() || cog) ? cellOffset_->cellOffsetUV2XY1(cellU, cellV, place, type, part)
                                            : hgcell_->cellUV2XY2(cellU, cellV, place, type);
     x = xy.first;
     y = xy.second;
