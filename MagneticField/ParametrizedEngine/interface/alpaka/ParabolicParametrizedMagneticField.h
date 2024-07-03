@@ -10,30 +10,29 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   namespace MagneticFieldParabolicPortable {
 
     struct Parameters {
-      float c1 = 3.8114;
-      float b0 = -3.94991e-06;
-      float b1 = 7.53701e-06;
-      float a = 2.43878e-11;
-      float max_radius2 = 13225.f;  // tracker radius
-      float max_z = 280.f;          // tracker z
+      // These parameters are the best fit of 3.8T to the OAEParametrizedMagneticField parametrization.
+      // See MagneticField/ParametrizedEngine/src/ParabolicParametrizedMagneticField.cc
+      static constexpr float c1 = 3.8114;
+      static constexpr float b0 = -3.94991e-06;
+      static constexpr float b1 = 7.53701e-06;
+      static constexpr float a = 2.43878e-11;
+      static constexpr float max_radius2 = 13225.f;  // tracker radius
+      static constexpr float max_z = 280.f;          // tracker z
     };
 
     template <typename V3>
     constexpr float Kr(V3 vec) {
-      Parameters p;
-      return p.a * (vec(0) * vec(0) + vec(1) * vec(1)) + 1.;
+      return Parameters::a * (vec(0) * vec(0) + vec(1) * vec(1)) + 1.;
     }
 
     template <typename V3>
     constexpr float B0Z(V3 vec) {
-      Parameters p;
-      return p.b0 * vec(2) * vec(2) + p.b1 * vec(2) + p.c1;
+      return Parameters::b0 * vec(2) * vec(2) + Parameters::b1 * vec(2) + Parameters::c1;
     }
 
     template <typename V3>
     constexpr bool isDefined(V3 vec) {
-      Parameters p;
-      return ((vec(0) * vec(0) + vec(1) * vec(1)) < p.max_radius2 && fabs(vec(2) < p.max_z));
+      return ((vec(0) * vec(0) + vec(1) * vec(1)) < Parameters::max_radius2 && fabs(vec(2) < Parameters::max_z));
     }
 
     template <typename V3>
