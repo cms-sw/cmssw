@@ -12,9 +12,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     using HGCalMappingModuleParamDevice = PortableCollection<::hgcal::HGCalMappingModuleParamSoA>;
     using HGCalMappingCellParamDevice = PortableCollection<::hgcal::HGCalMappingCellParamSoA>;
+    using HGCalDenseIndexInfoDevice = PortableCollection<::hgcal::HGCalDenseIndexInfoSoA>;
 
     using HGCalMappingModuleParamHost = ::hgcal::HGCalMappingModuleParamHost;
     using HGCalMappingCellParamHost = ::hgcal::HGCalMappingCellParamHost;
+    using HGCalDenseIndexInfoHost = ::hgcal::HGCalDenseIndexInfoHost;
 
   }  // namespace hgcal
 

@@ -3,3 +3,4 @@
 
 TYPELOOKUP_DATA_REG(hgcal::HGCalMappingModuleParamHost);
 TYPELOOKUP_DATA_REG(hgcal::HGCalMappingCellParamHost);
+TYPELOOKUP_DATA_REG(hgcal::HGCalDenseIndexInfoHost);

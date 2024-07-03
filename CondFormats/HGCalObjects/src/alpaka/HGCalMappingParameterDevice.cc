@@ -3,3 +3,4 @@
 
 TYPELOOKUP_ALPAKA_DATA_REG(hgcal::HGCalMappingModuleParamDevice);
 TYPELOOKUP_ALPAKA_DATA_REG(hgcal::HGCalMappingCellParamDevice);
+TYPELOOKUP_ALPAKA_DATA_REG(hgcal::HGCalDenseIndexInfoDevice);

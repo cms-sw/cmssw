@@ -12,6 +12,9 @@ namespace hgcal {
   // SoA with channel-level cell mapping parameters in host memory for both Si and SiPM channels:
   using HGCalMappingCellParamHost = PortableHostCollection<HGCalMappingCellParamSoA>;
 
+  //SoA with detailed indices corresponding to the dense index in use
+  using HGCalDenseIndexInfoHost = PortableHostCollection<HGCalDenseIndexInfoSoA>;
+
 }  // namespace hgcal
 
 #endif  // CondFormats_HGCalObjects_interface_HGCalMappingParameterHost_h

@@ -32,7 +32,12 @@ process.hgCalMappingCellESProducer = cms.ESProducer('hgcal::HGCalMappingCellESPr
 process.hgCalMappingModuleESProducer = cms.ESProducer('hgcal::HGCalMappingModuleESProducer@alpaka',
                                                       filename=cms.FileInPath(options.modules),
                                                       moduleindexer=cms.ESInputTag('') )
+process.hgCalDenseIndexInfoESProducer = cms.ESProducer('hgcal::HGCalDenseIndexInfoESProducer@alpaka',
+                                                       moduleindexer=cms.ESInputTag('') )
 
+#Geometry
+process.load('Configuration.Geometry.GeometryExtended2026D99Reco_cff')
+#process.load('Configuration.Geometry.GeometryExtended2026D99_cff')
 
 #tester
 process.tester = cms.EDAnalyzer('HGCalMappingESSourceTester')
