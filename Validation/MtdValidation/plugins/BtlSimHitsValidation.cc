@@ -58,6 +58,8 @@ private:
   const std::string folder_;
   const float hitMinEnergy_;
 
+  static constexpr float BXTime_ = 25.;  // [ns]
+
   edm::EDGetTokenT<CrossingFrame<PSimHit> > btlSimHitsToken_;
 
   edm::ESGetToken<MTDGeometry, MTDDigiGeometryRecord> mtdgeoToken_;
@@ -99,7 +101,22 @@ private:
   MonitorElement* meHitTrkID3_;
   MonitorElement* meHitTrkID4_;
 
-  MonitorElement* meHitDeltaT_;
+  MonitorElement* meHitDeltaT2_;
+  MonitorElement* meHitDeltaT3_;
+  MonitorElement* meHitDeltaT4_;
+
+  MonitorElement* meHitDeltaE12vsE1_;
+
+  static constexpr float cellEneCut_ = 10.;  // [MeV]
+
+  MonitorElement* meHitE1overEcellBulk1_;
+  MonitorElement* meHitE1overEcellBulk2_;
+  MonitorElement* meHitE1overEcellBulk3_;
+  MonitorElement* meHitE1overEcellBulk4_;
+  MonitorElement* meHitE1overEcellTail1_;
+  MonitorElement* meHitE1overEcellTail2_;
+  MonitorElement* meHitE1overEcellTail3_;
+  MonitorElement* meHitE1overEcellTail4_;
 };
 
 // ------------ constructor and destructor --------------
@@ -132,8 +149,9 @@ void BtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
   // --- Loop over the BLT SIM hits and accumulate the hits with the same track ID in each cell
   for (auto const& simHit : btlSimHits) {
     // --- Use only SIM hits compatible with the in-time bunch-crossing
-    if (simHit.tof() < 0 || simHit.tof() > 25.)
+    if (simHit.tof() < 0. || simHit.tof() > BXTime_) {
       continue;
+    }
 
     DetId id = simHit.detUnitId();
 
@@ -141,7 +159,7 @@ void BtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
     uint64_t globalTrkID = ((uint64_t)simHit.eventId().rawId() << 32) | simHit.trackId();
 
     // --- Sum the energies of SIM hits with the same track ID in the same cell
-    m_btlHitsPerCell[id.rawId()][globalTrkID].energy += convertUnitsTo(0.001_MeV, simHit.energyLoss());
+    m_btlHitsPerCell[id.rawId()][globalTrkID].energy += convertGeVToMeV(simHit.energyLoss());
 
     // --- Assign the time and position of the first SIM hit in time to the accumulated hit
     if (m_btlHitsPerCell[id.rawId()][globalTrkID].time == 0. ||
@@ -160,8 +178,9 @@ void BtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
   //  Histogram filling
   // ==============================================================================
 
-  if (!m_btlHitsPerCell.empty())
+  if (!m_btlHitsPerCell.empty()) {
     meNhits_->Fill(log10(m_btlHitsPerCell.size()));
+  }
 
   // --- Loop over the BTL cells
   for (auto const& cell : m_btlHitsPerCell) {
@@ -169,8 +188,9 @@ void BtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
     const auto& m_hits = cell.second;
 
     // --- Skip cells with no hits
-    if (m_hits.empty())
+    if (m_hits.empty()) {
       continue;
+    }
 
     // --- Loop over the hits in the cell, sum the hit energies and store the hit IDs in a vector
     std::vector<uint64_t> v_hitID;
@@ -184,8 +204,9 @@ void BtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
     meHitLogEnergy_->Fill(log10(ene_tot_cell));
 
     // --- Skip cells with a total anergy less than hitMinEnergy_
-    if (ene_tot_cell < hitMinEnergy_)
+    if (ene_tot_cell < hitMinEnergy_) {
       continue;
+    }
 
     // --- Order the hits in time
     bool swapped;
@@ -197,18 +218,29 @@ void BtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
           swapped = true;
         }
       }
-      if (swapped == false)
+      if (swapped == false) {
         break;
+      }
+    }
+
+    // --- Get the longer time interval between the hits in the cell
+    float deltaT_max = 0.;
+    for (unsigned int ihit = 0; ihit < v_hitID.size() - 1; ++ihit) {
+      float deltaT = m_hits.at(v_hitID[ihit + 1]).time - m_hits.at(v_hitID[ihit]).time;
+
+      if (deltaT > deltaT_max) {
+        deltaT_max = deltaT;
+      }
     }
 
     // --- Get the hit global position
-
     BTLDetId detId(cell.first);
     DetId geoId = detId.geographicalId(MTDTopologyMode::crysLayoutFromTopoMode(topology->getMTDTopologyMode()));
     const MTDGeomDet* thedet = geom->idToDet(geoId);
-    if (thedet == nullptr)
+    if (thedet == nullptr) {
       throw cms::Exception("BtlSimHitsValidation") << "GeographicalID: " << std::hex << geoId.rawId() << " ("
                                                    << detId.rawId() << ") is invalid!" << std::dec << std::endl;
+    }
     const ProxyMTDTopology& topoproxy = static_cast<const ProxyMTDTopology&>(thedet->topology());
     const RectangularMTDTopology& topo = static_cast<const RectangularMTDTopology&>(topoproxy.specificTopology());
 
@@ -246,38 +278,73 @@ void BtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
 
     meNtrkPerCell_->Fill(v_hitID.size());
 
-    // first hit in the cell
+    // --- First hit in the cell
     int trackID = (int)(v_hitID[0] & 0xFFFFFFFF) / 100000000;
     meHitTrkID1_->Fill(trackID);
 
-    // second hit in the cell
-    if (v_hitID.size() == 2) {
-      float deltaT = m_hits.at(v_hitID[1]).time - m_hits.at(v_hitID[0]).time;
-      meHitDeltaT_->Fill(deltaT);
+    // cells in the bulk of energy distribution
+    if (ene_tot_cell < cellEneCut_) {
+      meHitE1overEcellBulk1_->Fill(m_hits.at(v_hitID[0]).energy / ene_tot_cell);
+    }
+    // cells in the tail of energy distribution
+    else {
+      meHitE1overEcellTail1_->Fill(m_hits.at(v_hitID[0]).energy / ene_tot_cell);
+    }
 
+    // --- Second hit in the cell
+    if (v_hitID.size() == 2) {
       trackID = (int)(v_hitID[1] & 0xFFFFFFFF) / 100000000;
       meHitTrkID2_->Fill(trackID);
 
-    }
-    // third hit in the cell
-    else if (v_hitID.size() == 3) {
-      float deltaT = std::max(m_hits.at(v_hitID[1]).time - m_hits.at(v_hitID[0]).time,
-                              m_hits.at(v_hitID[2]).time - m_hits.at(v_hitID[1]).time);
-      meHitDeltaT_->Fill(deltaT);
+      meHitDeltaT2_->Fill(deltaT_max);
 
+      // cells in the bulk of energy distribution
+      if (ene_tot_cell < cellEneCut_) {
+        meHitE1overEcellBulk2_->Fill(m_hits.at(v_hitID[1]).energy / ene_tot_cell);
+      }
+      // cells in the tail of energy distribution
+      else {
+        meHitE1overEcellTail2_->Fill(m_hits.at(v_hitID[1]).energy / ene_tot_cell);
+      }
+
+      meHitDeltaE12vsE1_->Fill(m_hits.at(v_hitID[0]).energy,
+                               m_hits.at(v_hitID[0]).energy - m_hits.at(v_hitID[1]).energy);
+
+    }
+    // --- Third hit in the cell
+    else if (v_hitID.size() == 3) {
       trackID = (int)(v_hitID[2] & 0xFFFFFFFF) / 100000000;
       meHitTrkID3_->Fill(trackID);
 
-    }
-    // fourth hit in the cell
-    else if (v_hitID.size() == 4) {
-      float deltaT = std::max(std::max(m_hits.at(v_hitID[1]).time - m_hits.at(v_hitID[0]).time,
-                                       m_hits.at(v_hitID[2]).time - m_hits.at(v_hitID[1]).time),
-                              m_hits.at(v_hitID[3]).time - m_hits.at(v_hitID[2]).time);
-      meHitDeltaT_->Fill(deltaT);
+      meHitDeltaT3_->Fill(deltaT_max);
 
-      trackID = (int)(v_hitID[3] & 0xFFFFFFFF) / 100000000;
-      meHitTrkID4_->Fill(trackID);
+      // cells in the bulk of energy distribution
+      if (ene_tot_cell < cellEneCut_) {
+        meHitE1overEcellBulk3_->Fill(m_hits.at(v_hitID[2]).energy / ene_tot_cell);
+      }
+      // cells in the tail of energy distribution
+      else {
+        meHitE1overEcellTail3_->Fill(m_hits.at(v_hitID[2]).energy / ene_tot_cell);
+      }
+
+    }
+    // --- Fourth hit in the cell and next ones
+    else if (v_hitID.size() >= 4) {
+      for (unsigned int ihit = 3; ihit < v_hitID.size(); ++ihit) {
+        trackID = (int)(v_hitID[ihit] & 0xFFFFFFFF) / 100000000;
+        meHitTrkID4_->Fill(trackID);
+
+        // cells in the bulk of energy distribution
+        if (ene_tot_cell < cellEneCut_) {
+          meHitE1overEcellBulk4_->Fill(m_hits.at(v_hitID[ihit]).energy / ene_tot_cell);
+        }
+        // cells in the tail of energy distribution
+        else {
+          meHitE1overEcellTail4_->Fill(m_hits.at(v_hitID[ihit]).energy / ene_tot_cell);
+        }
+      }
+
+      meHitDeltaT4_->Fill(deltaT_max);
     }
 
   }  // cell loop
@@ -331,12 +398,66 @@ void BtlSimHitsValidation::bookHistograms(DQMStore::IBooker& ibook,
   meHitTvsZ_ =
       ibook.bookProfile("BtlHitTvsZ", "BTL SIM time vs Z;Z_{SIM} [cm];T_{SIM} [ns]", 50, -260., 260., 0., 100.);
 
-  meHitTrkID1_ = ibook.book1I("BtlHitTrkID1", "Track ID of the first hit;trackID", 10, 0, 10);
-  meHitTrkID2_ = ibook.book1I("BtlHitTrkID2", "Track ID of the second hit;trackID", 10, 0, 10);
-  meHitTrkID3_ = ibook.book1I("BtlHitTrkID3", "Track ID of the third hit;trackID", 10, 0, 10);
-  meHitTrkID4_ = ibook.book1I("BtlHitTrkID4", "Track ID of the fourth hit;trackID", 10, 0, 10);
+  meHitTrkID1_ = ibook.book1I("BtlHitTrkID1", "Category of the 1^{st} hit in time;Hit category", 8, 0, 8);
+  meHitTrkID2_ = ibook.book1I("BtlHitTrkID2", "Category of the 2^{nd} hit in time;Hit category", 8, 0, 8);
+  meHitTrkID3_ = ibook.book1I("BtlHitTrkID3", "Category of the 3^{rd} hit in time;Hit category", 8, 0, 8);
+  meHitTrkID4_ = ibook.book1I("BtlHitTrkID4", "Category of the #geq4^{th} hit in time;Hit category", 8, 0, 8);
 
-  meHitDeltaT_ = ibook.book1D("BtlHitDeltaT", "Time difference between hits in the same cell", 100., 0., 25.);
+  meHitDeltaT2_ = ibook.book1D(
+      "BtlHitDeltaT2", "Time interval between hits in the same cell (2 hits);#DeltaT_{2} [ns]", 100., 0., 25.);
+  meHitDeltaT3_ = ibook.book1D(
+      "BtlHitDeltaT3", "Max time interval between hits in the same cell (3 hits);#DeltaT_{3} [ns]", 100., 0., 25.);
+  meHitDeltaT4_ = ibook.book1D("BtlHitDeltaT4",
+                               "Max time interval between hits in the same cell (#geq4 hits);#DeltaT_{#geq4} [ns]",
+                               100.,
+                               0.,
+                               25.);
+
+  meHitDeltaE12vsE1_ = ibook.bookProfile(
+      "BtlHitDeltaE12vsE", "E_{1}-E_{2} vs E_{1};E_{1} [MeV];E_{1}-E_{2} [MeV]", 100, 0., 100., 0., 100.);
+
+  meHitE1overEcellBulk1_ = ibook.book1D("BtlHitE1overEtotBulk1",
+                                        "Energy fraction of the 1^{st} hit in time (E_{cell}<10 MeV);E_{1} / E_{cell}",
+                                        100,
+                                        0.,
+                                        1.);
+  meHitE1overEcellBulk2_ = ibook.book1D("BtlHitE1overEtotBulk2",
+                                        "Energy fraction of the 2^{nd} hit in time (E_{cell}<10 MeV);E_{2} / E_{cell}",
+                                        100,
+                                        0.,
+                                        1.);
+  meHitE1overEcellBulk3_ = ibook.book1D("BtlHitE1overEtotBulk3",
+                                        "Energy fraction of the 3^{rd} hit in time (E_{cell}<10 MeV);E_{3} / E_{cell}",
+                                        100,
+                                        0.,
+                                        1.);
+  meHitE1overEcellBulk4_ =
+      ibook.book1D("BtlHitE1overEtotBulk4",
+                   "Energy fraction of the #geq4^{th} hit in time (E_{cell}<10 MeV);E_{#geq4} / E_{cell}",
+                   100,
+                   0.,
+                   1.);
+  meHitE1overEcellTail1_ = ibook.book1D("BtlHitE1overEtotTail1",
+                                        "Energy fraction of the 1^{st} hit in time (E_{cell}>10 MeV);E_{1} / E_{cell}",
+                                        100,
+                                        0.,
+                                        1.);
+  meHitE1overEcellTail2_ = ibook.book1D("BtlHitE1overEtotTail2",
+                                        "Energy fraction of the 2^{nd} hit in time (E_{cell}>10 MeV);E_{2} / E_{cell}",
+                                        100,
+                                        0.,
+                                        1.);
+  meHitE1overEcellTail3_ = ibook.book1D("BtlHitE1overEtotTail3",
+                                        "Energy fraction of the 3^{rd} hit in time (E_{cell}>10 MeV);E_{3} / E_{cell}",
+                                        100,
+                                        0.,
+                                        1.);
+  meHitE1overEcellTail4_ =
+      ibook.book1D("BtlHitE1overEtotTail4",
+                   "Energy fraction of the #geq4^{th} hit in time (E_{cell}>10 MeV);E_{#geq4} / E_{cell}",
+                   100,
+                   0.,
+                   1.);
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
