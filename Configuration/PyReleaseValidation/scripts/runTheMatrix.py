@@ -106,9 +106,6 @@ if __name__ == '__main__':
                     1001,       # Run2011A  MinimumBias                 Data+Express
                     ## Run2
                     136.731,    # Run2016B SinglePhoton  
-                    136.7611,   # Run2016E JetHT (reMINIAOD)            Run2_2016_HIPM + run2_miniAOD_80XLegacy
-                    136.8311,   # Run2017F JetHT (reMINIAOD)            run2_miniAOD_94XFall17
-                    136.88811,  # Run2018D JetHT (reMINIAOD)            run2_miniAOD_UL_preSummer20 (UL MINI)
                     136.793,    # Run2017C DoubleEG                      
                     136.874,    # Run2018C EGamma
                      
