@@ -128,7 +128,6 @@ if __name__ == '__main__':
                     # Run2   
                     140.56,    # HIRun2018A HIHardProbes                    Run2_2018_pp_on_AA 
                     ## MC
-                    158.01,    # RelValHydjetQ_B12_5020GeV_2018_ppReco      (reMINIAOD) (HI MC with pp-like reco)
                     312.0,     # Pyquen_ZeemumuJets_pt10_2760GeV            PU : HiMixGEN 
 
                      ],
