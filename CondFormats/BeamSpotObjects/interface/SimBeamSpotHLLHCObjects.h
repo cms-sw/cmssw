@@ -1,5 +1,5 @@
-#ifndef SIMBEAMSPOTHLLHCOBJECTS_H
-#define SIMBEAMSPOTHLLHCOBJECTS_H
+#ifndef CondFormats_BeamSpotObjects_SimBeamSpotHLLHCObjects_h
+#define CondFormats_BeamSpotObjects_SimBeamSpotHLLHCObjects_h
 
 /** \class SimBeamSpotHLLHCObjects
  *

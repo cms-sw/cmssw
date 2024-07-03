@@ -54,7 +54,7 @@ HLLHCEvtVtxGenerator::HLLHCEvtVtxGenerator(const edm::ParameterSet& p) : BaseEvt
     fMeanX = p.getParameter<double>("MeanXIncm") * CLHEP::cm;
     fMeanY = p.getParameter<double>("MeanYIncm") * CLHEP::cm;
     fMeanZ = p.getParameter<double>("MeanZIncm") * CLHEP::cm;
-    fTimeOffset = p.getParameter<double>("TimeOffsetInns") * CLHEP::ns * c_light;
+    fTimeOffset = p.getParameter<double>("TimeOffsetInns") * CLHEP::ns * CLHEP::c_light;
     fEProton = p.getParameter<double>("EprotonInGeV") * 1e9;
     fCrossingAngle = p.getParameter<double>("CrossingAngleInurad") * 1e-6;
     fCrabFrequency = p.getParameter<double>("CrabFrequencyInMHz") * 1e6;
@@ -106,7 +106,7 @@ void HLLHCEvtVtxGenerator::update(const edm::EventSetup& iEventSetup) {
     fBunchLength = beamhandle->bunchLenght();
     fCrabbingAngleCrossing = beamhandle->crabbingAngleCrossing() * 1e-6;
     fCrabbingAngleSeparation = beamhandle->crabbingAngleSeparation() * 1e-6;
-    fTimeOffset = beamhandle->timeOffset() * CLHEP::ns * c_light;
+    fTimeOffset = beamhandle->timeOffset() * CLHEP::ns * CLHEP::c_light;
     // Set parameters inferred from configurables
     gamma = fEProton / pmass + 1.0;
     beta = std::sqrt((1.0 - 1.0 / gamma) * ((1.0 + 1.0 / gamma)));
