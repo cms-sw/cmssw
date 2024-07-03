@@ -58,8 +58,6 @@ void L1TGlobalProducer::fillDescriptions(edm::ConfigurationDescriptions& descrip
       ->setComment(
           "InputTag for unpacked Algblk (required only if GetPrescaleColumnFromData orRequireMenuToMatchAlgoBlkInput "
           "set to true)");
-  desc.add<edm::InputTag>("AxoScoreInputTag", edm::InputTag(""))
-      ->setComment("InputTag for saving AXOL1TL NN scores (not required)");
   desc.add<bool>("GetPrescaleColumnFromData", false)
       ->setComment("Get prescale column from unpacked GlobalAlgBck. Otherwise use value specified in PrescaleSet");
   desc.add<bool>("AlgorithmTriggersUnprescaled", false)
@@ -75,7 +73,7 @@ void L1TGlobalProducer::fillDescriptions(edm::ConfigurationDescriptions& descrip
   desc.add<bool>("useMuonShowers", false);
 
   //switch for saving AXO score
-  desc.add<bool>("saveAxoScore", true);
+  desc.add<bool>("produceAXOL1TLScore", true);
 
   // disables resetting the prescale counters each lumisection (needed for offline)
   //  originally, the L1T firmware applied the reset of prescale counters at the end of every LS;
@@ -138,7 +136,7 @@ L1TGlobalProducer::L1TGlobalProducer(const edm::ParameterSet& parSet)
       m_resetPSCountersEachLumiSec(parSet.getParameter<bool>("resetPSCountersEachLumiSec")),
       m_semiRandomInitialPSCounters(parSet.getParameter<bool>("semiRandomInitialPSCounters")),
       m_useMuonShowers(parSet.getParameter<bool>("useMuonShowers")),
-      m_saveAxoScore(parSet.getParameter<bool>("saveAxoScore")) {
+      m_produceAXOL1TLScore(parSet.getParameter<bool>("produceAXOL1TLScore")) {
   m_egInputToken = consumes<BXVector<EGamma>>(m_egInputTag);
   m_tauInputToken = consumes<BXVector<Tau>>(m_tauInputTag);
   m_jetInputToken = consumes<BXVector<Jet>>(m_jetInputTag);
@@ -147,8 +145,6 @@ L1TGlobalProducer::L1TGlobalProducer(const edm::ParameterSet& parSet)
   m_muInputToken = consumes<BXVector<Muon>>(m_muInputTag);
   if (m_useMuonShowers)
     m_muShowerInputToken = consumes<BXVector<MuonShower>>(m_muShowerInputTag);
-  if (m_saveAxoScore)
-    m_axoInputToken = consumes<BXVector<AXOL1TLScore>>(m_axoInputTag);
   m_extInputToken = consumes<BXVector<GlobalExtBlk>>(m_extInputTag);
   m_l1GtStableParToken = esConsumes<L1TGlobalParameters, L1TGlobalParametersRcd>();
   m_l1GtMenuToken = esConsumes<L1TUtmTriggerMenu, L1TUtmTriggerMenuRcd>();
@@ -218,7 +214,7 @@ L1TGlobalProducer::L1TGlobalProducer(const edm::ParameterSet& parSet)
     produces<GlobalObjectMapRecord>();
   }
 
-  if (m_saveAxoScore) {
+  if (m_produceAXOL1TLScore) {
     produces<AXOL1TLScoreBxCollection>("AXOScore");
   }
 
@@ -570,7 +566,7 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
   // * produce the GlobalObjectMapRecord
   std::unique_ptr<GlobalObjectMapRecord> gtObjectMapRecord(new GlobalObjectMapRecord());
 
-  // if (m_saveAxoScore)
+  // if (m_produceAXOL1TLScore)
   std::unique_ptr<AXOL1TLScoreBxCollection> uGtAXOScoreRecord(new AXOL1TLScoreBxCollection());
 
   // fill the boards not depending on the BxInEvent in the L1 GT DAQ record
@@ -642,7 +638,7 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
     m_uGtBrd->receiveMuonShowerObjectData(iEvent, m_muShowerInputToken, receiveMuShower, m_nrL1MuShower);
 
   //tell board to save axo scores when running GTL
-  m_uGtBrd->enableAXOScoreSaving(m_saveAxoScore);
+  m_uGtBrd->enableAXOScoreSaving(m_produceAXOL1TLScore);
 
   m_uGtBrd->receiveExternalData(iEvent, m_extInputToken, receiveExt);
 
@@ -689,7 +685,7 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
     }
 
     //save scores to score collection
-    if (m_saveAxoScore) {
+    if (m_produceAXOL1TLScore) {
       m_uGtBrd->fillAXOScore(iBxInEvent, uGtAXOScoreRecord);
     }
 
@@ -736,7 +732,7 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
     iEvent.put(std::move(gtObjectMapRecord));
   }
 
-  if (m_saveAxoScore) {
+  if (m_produceAXOL1TLScore) {
     iEvent.put(std::move(uGtAXOScoreRecord), "AXOScore");
   }
 }

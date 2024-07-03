@@ -203,7 +203,7 @@ private:
   bool m_useMuonShowers;
 
   //switch to save axo scores in global board
-  bool m_saveAxoScore;
+  bool m_produceAXOL1TLScore;
 };
 
 #endif  // L1TGlobalProducer_h
