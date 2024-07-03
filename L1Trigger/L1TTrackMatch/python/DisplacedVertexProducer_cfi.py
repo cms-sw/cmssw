@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 DisplacedVertexProducer = cms.EDProducer('DisplacedVertexProducer',
-  l1TracksInputTag = cms.InputTag("l1tTrackSelectionProducerExtendedForDispVert", "Level1TTTracksExtendedSelected"),
+  l1TracksInputTag = cms.InputTag("l1tTrackSelectionProducerExtendedForDispVert", "Level1TTTracksSelected"),
   l1TrackVertexCollectionName = cms.string("dispVertices"),
   mcTruthTrackInputTag = cms.InputTag("TTTrackAssociatorFromPixelDigisExtended", "Level1TTTracks"),
   ONNXmodel = cms.string("/afs/cern.ch/user/r/rmccarth/private/dispVert/l1tOfflinePR/CMSSW_14_0_0_pre3/src/L1Trigger/L1TTrackMatch/test/dispVertSlim_model.onnx"),

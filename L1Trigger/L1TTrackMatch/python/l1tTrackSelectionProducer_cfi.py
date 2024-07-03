@@ -108,6 +108,8 @@ l1tTrackSelectionProducerForEtMiss = l1tTrackSelectionProducer.clone()
 l1tTrackSelectionProducerExtendedForEtMiss = l1tTrackSelectionProducerExtended.clone()
 
 l1tTrackSelectionProducerExtendedForDispVert = l1tTrackSelectionProducerExtended.clone(
+    l1TracksInputTag = ("l1tTTTracksFromExtendedTrackletEmulation", "Level1TTTracks"),
+    outputCollectionName = "Level1TTTracksSelected",
     cutSet = dict(
                     ptMin = 3.0, # pt must be greater than this value, [GeV]
                     absEtaMax = 2.4, # absolute value of eta must be less than this value
