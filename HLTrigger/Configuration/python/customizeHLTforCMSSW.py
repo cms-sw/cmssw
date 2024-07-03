@@ -345,6 +345,13 @@ def customizeHLTfor45302(process):
     return process
 
     
+def customizeHLTfor44746(process):
+    for modLabel in ['hltDoubleEle10Mass50PPOnAAFilter', 'hltDoubleEle15Mass50PPOnAAFilter']:
+        if hasattr(process, modLabel):
+            mod = getattr(process, modLabel)
+            mod.l1EGCand = cms.InputTag('hltEgammaCandidatesPPOnAA')
+    return process
+
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
@@ -355,5 +362,6 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
 
     process = checkHLTfor43774(process)
     process = customizeHLTfor45302(process)
+    process = customizeHLTfor44746(process)
 
     return process
