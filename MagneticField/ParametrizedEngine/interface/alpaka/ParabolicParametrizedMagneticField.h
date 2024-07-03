@@ -20,23 +20,23 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       static constexpr float max_z = 280.f;          // tracker z
     };
 
-    template <typename V3>
-    constexpr float Kr(V3 vec) {
+    template <typename Vec3>
+    constexpr float Kr(Vec3 const& vec) {
       return Parameters::a * (vec(0) * vec(0) + vec(1) * vec(1)) + 1.;
     }
 
-    template <typename V3>
-    constexpr float B0Z(V3 vec) {
+    template <typename Vec3>
+    constexpr float B0Z(Vec3 const& vec) {
       return Parameters::b0 * vec(2) * vec(2) + Parameters::b1 * vec(2) + Parameters::c1;
     }
 
-    template <typename V3>
-    constexpr bool isDefined(V3 vec) {
+    template <typename Vec3>
+    constexpr bool isDefined(Vec3 const& vec) {
       return ((vec(0) * vec(0) + vec(1) * vec(1)) < Parameters::max_radius2 && fabs(vec(2) < Parameters::max_z));
     }
 
-    template <typename V3>
-    constexpr float MagneticFieldAtPoint(V3 vec) {
+    template <typename Vec3>
+    constexpr float MagneticFieldAtPoint(Vec3 const& vec) {
       if (isDefined(vec)) {
         return B0Z(vec) * Kr(vec);
       } else {
