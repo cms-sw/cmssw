@@ -34,9 +34,9 @@
 //#define EDM_ML_DEBUG
 
 class HGCalTBPassive : public SimProducer,
-		       public Observer<const BeginOfRun *>,
-		       public Observer<const BeginOfEvent *>,
-		       public Observer<const G4Step *> {
+                       public Observer<const BeginOfRun *>,
+                       public Observer<const BeginOfEvent *>,
+                       public Observer<const G4Step *> {
 public:
   HGCalTBPassive(const edm::ParameterSet &p);
   HGCalTBPassive(const HGCalTBPassive &) = delete;  // stop default
@@ -256,11 +256,11 @@ HGCalTBPassive::volumeIterator HGCalTBPassive::findLV(G4LogicalVolume *plv) {
 }
 
 void HGCalTBPassive::storeInfo(const HGCalTBPassive::volumeIterator it,
-			       G4LogicalVolume *plv,
-			       unsigned int copy,
-			       double time,
-			       double energy,
-			       bool flag) {
+                               G4LogicalVolume *plv,
+                               unsigned int copy,
+                               double time,
+                               double energy,
+                               bool flag) {
   std::pair<G4LogicalVolume *, unsigned int> key(plv, copy);
   auto itr = store_.find(key);
   double ee = (flag) ? energy : 0;
