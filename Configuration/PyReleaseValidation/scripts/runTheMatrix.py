@@ -95,7 +95,7 @@ if __name__ == '__main__':
                     29834.999,  # RelValTTbar_14TeV (PREMIX)            phase2_realistic_T33        Extended2026D110         AVE_50_BX_25ns_m3p3     
                     29696.0,    # RelValCloseByPGun_CE_E_Front_120um    phase2_realistic_T33        Extended2026D110
                     29700.0,    # RelValCloseByPGun_CE_H_Coarse_Scint   phase2_realistic_T33        Extended2026D110  
-                    23234.0,    # TTbar_14TeV_TuneCP5                   phase2_realistic_T21        Extended2026D94         (exercise with HFNose) 
+                    #23234.0,   # Need new workflow with HFNose
                     
 
                     ###### pp Data

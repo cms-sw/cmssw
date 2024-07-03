@@ -15,15 +15,8 @@ prefixDet = 29600 #update this line when change the default version
 
 #2026 WFs to run in IB (TTbar)
 numWFIB = []
-numWFIB.extend([20034.0]) #2026D86
-numWFIB.extend([20834.0]) #2026D88
-numWFIB.extend([22034.0]) #2026D91
-numWFIB.extend([22434.0]) #2026D92
-numWFIB.extend([22834.0]) #2026D93
-numWFIB.extend([23234.0]) #2026D94
 numWFIB.extend([23634.0]) #2026D95
 numWFIB.extend([24034.0]) #2026D96
-numWFIB.extend([24434.0]) #2026D97
 numWFIB.extend([24834.0]) #2026D98
 numWFIB.extend([25234.0]) #2026D99
 numWFIB.extend([25634.0]) #2026D100
