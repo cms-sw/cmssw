@@ -122,8 +122,10 @@ namespace cms::alpakatools {
     explicit CachingAllocator(
         Device const& device,
         AllocatorConfig const& config,
-        bool reuseSameQueueAllocations,  // reuse non-ready allocations if they are in the same queue as the new one;
-                                         // this is safe only if all memory operations are scheduled in the same queue
+        bool reuseSameQueueAllocations,  // Reuse non-ready allocations if they are in the same queue as the new one;
+                                         // this is safe only if all memory operations are scheduled in the same queue.
+                                         // In particular, this is not safe if the memory will be accessed without using
+                                         // any queue, like host memory accessed directly or with immediate operations.
         bool debug = false)
         : device_(device),
           binGrowth_(config.binGrowth),
@@ -175,6 +177,22 @@ namespace cms::alpakatools {
       return cachedBytes_;
     }
 
+    // Fill a memory buffer with the specified bye value.
+    // If the underlying device is the host and the allocator is configured to support immediate
+    // (non queue-ordered) operations, fill the memory synchronously using std::memset.
+    // Otherwise, let the alpaka queue schedule the operation.
+    //
+    // This is not used for deallocation/caching, because the memory may still be in use until the
+    // corresponding event is reached.
+    void immediateOrAsyncMemset(Queue queue, Buffer buffer, uint8_t value) {
+      // host-only
+      if (std::is_same_v<Device, alpaka::DevCpu> and not reuseSameQueueAllocations_) {
+        std::memset(buffer.data(), value, alpaka::getExtentProduct(buffer) * sizeof(alpaka::Elem<Buffer>));
+      } else {
+        alpaka::memset(queue, buffer, value);
+      }
+    }
+
     // Allocate given number of bytes on the current device associated to given queue
     void* allocate(size_t bytes, Queue queue) {
       // create a block descriptor for the requested allocation
@@ -187,15 +205,15 @@ namespace cms::alpakatools {
       if (tryReuseCachedBlock(block)) {
         // fill the re-used memory block with a pattern
         if (fillReallocations_) {
-          alpaka::memset(*block.queue, *block.buffer, fillReallocationValue_);
+          immediateOrAsyncMemset(*block.queue, *block.buffer, fillReallocationValue_);
         } else if (fillAllocations_) {
-          alpaka::memset(*block.queue, *block.buffer, fillAllocationValue_);
+          immediateOrAsyncMemset(*block.queue, *block.buffer, fillAllocationValue_);
         }
       } else {
         allocateNewBlock(block);
         // fill the newly allocated memory block with a pattern
         if (fillAllocations_) {
-          alpaka::memset(*block.queue, *block.buffer, fillAllocationValue_);
+          immediateOrAsyncMemset(*block.queue, *block.buffer, fillAllocationValue_);
         }
       }
 
