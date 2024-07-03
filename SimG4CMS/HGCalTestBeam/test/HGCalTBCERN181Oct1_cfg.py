@@ -13,6 +13,7 @@ process.load('SimG4CMS.HGCalTestBeam.HGCalTB181Oct1XML_cfi')
 process.load('Geometry.HGCalTBCommonData.hgcalTBNumberingInitialization_cfi')
 process.load('Geometry.HGCalTBCommonData.hgcalTBParametersInitialization_cfi')
 process.load('Geometry.HcalTestBeamData.hcalTB06Parameters_cff')
+process.load('Geometry.HcalCommonData.caloSimulationParameters_cff')
 process.load('Geometry.CaloEventSetup.HGCalTBTopology_cfi')
 process.load('Geometry.HGCalGeometry.HGCalTBGeometryESProducer_cfi')
 process.load('Configuration.StandardSequences.MagneticField_0T_cff')
@@ -101,12 +102,12 @@ process.g4SimHits.G4CheckOverlap.OutputBaseName = "2018"
 process.g4SimHits.G4CheckOverlap.gdmlFlag       = True
 process.g4SimHits.FileNameGDML                  = "TBHGCal181Oct.gdml"
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
-		HGCPassive = cms.PSet(
+		HGCalTBPassive = cms.PSet(
                     LVNames = cms.vstring('HGCalEE','HGCalHE','HGCalAH', 'HGCalBeam', 'CMSE'),
                     MotherName = cms.string('OCMS'),
                     IfDD4hep = cms.bool(False),
                 ),
-		type = cms.string('HGCPassive'),
+		type = cms.string('HGCalTBPassive'),
 		)
 				       )
 process.HGCalTBAnalyzer.doDigis         = False

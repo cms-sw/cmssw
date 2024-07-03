@@ -99,12 +99,12 @@ process.g4SimHits.HGCSD.RotatedWafer    = True
 process.DDDetectorESProducer.confGeomXMLFiles = cms.FileInPath("SimG4CMS/HGCalTestBeam/data/dd4hep/HGCalTB181Oct1.xml")
 
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
-		HGCPassive = cms.PSet(
+		HGCalTBPassive = cms.PSet(
                     LVNames = cms.vstring('HGCalEE','HGCalHE','HGCalAH', 'HGCalBeam', 'CMSE'),
                     MotherName = cms.string('OCMS'),
                     IfDD4hep = cms.bool(True),
                 ),
-		type = cms.string('HGCPassive'),
+		type = cms.string('HGCalTBPassive'),
 		)
 				       )
 process.HGCalTBAnalyzer.doDigis         = False
