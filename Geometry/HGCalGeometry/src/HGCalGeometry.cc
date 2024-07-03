@@ -204,7 +204,7 @@ bool HGCalGeometry::present(const DetId& detId) const {
 GlobalPoint HGCalGeometry::getPosition(const DetId& detid, bool debug) const {
   return getPosition(detid, false, debug);
 }
-  
+
 GlobalPoint HGCalGeometry::getPosition(const DetId& detid, bool cog, bool debug) const {
   unsigned int cellIndex = indexFor(detid);
   GlobalPoint glob;
@@ -236,7 +236,8 @@ GlobalPoint HGCalGeometry::getPosition(const DetId& detid, bool cog, bool debug)
                                         << " Wafer " << id.iSec1 << ":" << id.iSec2 << " Cell " << id.iCell1 << ":"
                                         << id.iCell2;
       }
-      xy = m_topology.dddConstants().locateCell(id.zSide, id.iLay, id.iSec1, id.iSec2, id.iCell1, id.iCell2, true, true, true, cog, debug);
+      xy = m_topology.dddConstants().locateCell(
+          id.zSide, id.iLay, id.iSec1, id.iSec2, id.iCell1, id.iCell2, true, true, true, cog, debug);
       double xx = id.zSide * xy.first;
       double zz = id.zSide * m_topology.dddConstants().waferZ(id.iLay, true);
       glob = GlobalPoint(xx, xy.second, zz);
@@ -322,7 +323,8 @@ HGCalGeometry::CornersVec HGCalGeometry::getCorners(const DetId& detid) const {
         co[i] = m_cellVec[cellIndex].getPosition(lcoord);
       }
     } else {
-      xy = m_topology.dddConstants().locateCell(id.zSide, id.iLay, id.iSec1, id.iSec2, id.iCell1, id.iCell2, true, false, true, false, debugLocate);
+      xy = m_topology.dddConstants().locateCell(
+          id.zSide, id.iLay, id.iSec1, id.iSec2, id.iCell1, id.iCell2, true, false, true, false, debugLocate);
       float zz = m_topology.dddConstants().waferZ(id.iLay, true);
       float dx = k_fac2 * m_cellVec[cellIndex].param()[FlatHexagon::k_r];
       float dy = k_fac1 * m_cellVec[cellIndex].param()[FlatHexagon::k_R];
@@ -378,7 +380,8 @@ HGCalGeometry::CornersVec HGCalGeometry::get8Corners(const DetId& detid) const {
         co[i] = m_cellVec[cellIndex].getPosition(lcoord);
       }
     } else {
-      xy = m_topology.dddConstants().locateCell(id.zSide, id.iLay, id.iSec1, id.iSec2, id.iCell1, id.iCell2, true, false, true, false, debugLocate);
+      xy = m_topology.dddConstants().locateCell(
+          id.zSide, id.iLay, id.iSec1, id.iSec2, id.iCell1, id.iCell2, true, false, true, false, debugLocate);
       dx = k_fac2 * m_cellVec[cellIndex].param()[FlatHexagon::k_r];
       float dy = k_fac1 * m_cellVec[cellIndex].param()[FlatHexagon::k_R];
       float dz = -id.zSide * m_cellVec[cellIndex].param()[FlatHexagon::k_dZ];
@@ -438,7 +441,8 @@ HGCalGeometry::CornersVec HGCalGeometry::getNewCorners(const DetId& detid, bool 
         co[i] = m_cellVec[cellIndex].getPosition(lcoord);
       }
     } else {
-      xy = m_topology.dddConstants().locateCell(id.zSide, id.iLay, id.iSec1, id.iSec2, id.iCell1, id.iCell2, true, false, true, false, debug);
+      xy = m_topology.dddConstants().locateCell(
+          id.zSide, id.iLay, id.iSec1, id.iSec2, id.iCell1, id.iCell2, true, false, true, false, debug);
       float zz = m_topology.dddConstants().waferZ(id.iLay, true);
       for (unsigned int i = 0; i < ncorner; ++i) {
         double xloc = xy.first + signx[i] * dx;
