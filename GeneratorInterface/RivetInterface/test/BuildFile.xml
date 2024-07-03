@@ -12,4 +12,5 @@
 <test name="test-particleLevel_fromHepMC3" command="cmsRun ${LOCALTOP}/src/GeneratorInterface/RivetInterface/test/particleLevel_fromHepMC3_cfg.py"/>
 <test name="test-particleLevel_fromGenParticles" command="cmsRun ${LOCALTOP}/src/GeneratorInterface/RivetInterface/test/particleLevel_fromGenParticles_cfg.py"/>
 <test name="test-particleLevel_fromMiniAod" command="cmsRun ${LOCALTOP}/src/GeneratorInterface/RivetInterface/test/particleLevel_cfg.py"/>
+<test name="test-particleLevel_fromPtGun" command="cmsRun ${LOCALTOP}/src/GeneratorInterface/RivetInterface/test/particleLevel_fromPtGun_cfg.py"/>
 <test name="test-HTXS" command="cmsRun ${LOCALTOP}/src/GeneratorInterface/RivetInterface/test/runRivetHTXS_cfg.py"/>
