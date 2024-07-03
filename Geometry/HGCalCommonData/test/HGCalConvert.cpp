@@ -1471,7 +1471,7 @@ void ConvertScintillatorV1::convert(const char* infile, const char* outfile1, co
     fOut << "\n  </Vector>\n";
     fOut << "  <Vector name=" << apost << "TileRMax6" << apost << " type=" << apost << "numeric" << apost
          << " nEntries=" << apost << ringR6.size() << apost << ">";
-    for (it1 = ringR.begin(); it1 != ringR.end(); ++it1) {
+    for (it1 = ringR6.begin(); it1 != ringR6.end(); ++it1) {
       std::string last = ((l4 + 1) == ringR6.size()) ? " " : ",";
       if (l4 % 6 == 0)
         fOut << "\n    " << std::setw(8) << std::setprecision(6) << (it1->second).second << "*mm" << last;
