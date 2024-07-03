@@ -111,7 +111,6 @@ L1TGlobalProducer::L1TGlobalProducer(const edm::ParameterSet& parSet)
       m_sumInputTag(parSet.getParameter<edm::InputTag>("EtSumInputTag")),
       m_sumZdcInputTag(parSet.getParameter<edm::InputTag>("EtSumZdcInputTag")),
       m_extInputTag(parSet.getParameter<edm::InputTag>("ExtInputTag")),
-      m_axoInputTag(parSet.getParameter<edm::InputTag>("AxoScoreInputTag")),
 
       m_produceL1GtDaqRecord(parSet.getParameter<bool>("ProduceL1GtDaqRecord")),
       m_produceL1GtObjectMapRecord(parSet.getParameter<bool>("ProduceL1GtObjectMapRecord")),
