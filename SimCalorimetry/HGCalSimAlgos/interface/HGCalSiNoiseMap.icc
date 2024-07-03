@@ -167,6 +167,7 @@ typename HGCalSiNoiseMap<T>::SiCellOpCharacteristics HGCalSiNoiseMap<T>::getSiCe
                                    true,
                                    true,
                                    false,
+                                   false,
                                    false));
   double radius = sqrt(std::pow(xy.first, 2) + std::pow(xy.second, 2));  //in cm
 

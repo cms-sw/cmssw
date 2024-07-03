@@ -325,7 +325,7 @@ bool HGCalDDDConstants::cellInLayer(int waferU, int waferV, int cellU, int cellV
       return HGCalWaferMask::goodCell(cellU, cellV, ncell, part, rotn);
     } else if (waferHexagon8() || waferHexagon6()) {
       const auto& xy =
-          ((waferHexagon8()) ? locateCell(zside, lay, waferU, waferV, cellU, cellV, reco, true, false, false)
+	((waferHexagon8()) ? locateCell(zside, lay, waferU, waferV, cellU, cellV, reco, true, false, false, false)
                              : locateCell(cellU, lay, waferU, reco));
       double rpos = sqrt(xy.first * xy.first + xy.second * xy.second);
       return ((rpos >= hgpar_->rMinLayHex_[indx.first]) && (rpos <= hgpar_->rMaxLayHex_[indx.first]));
@@ -836,8 +836,7 @@ std::pair<float, float> HGCalDDDConstants::locateCell(int cell, int lay, int typ
   return std::make_pair(x, y);
 }
 
-std::pair<float, float> HGCalDDDConstants::locateCell(
-    int zside, int lay, int waferU, int waferV, int cellU, int cellV, bool reco, bool all, bool norot, bool debug)
+std::pair<float, float> HGCalDDDConstants::locateCell(int zside, int lay, int waferU, int waferV, int cellU, int cellV, bool reco, bool all, bool norot, bool cog, bool debug)
     const {
   double x(0), y(0);
   int indx = HGCalWaferIndex::waferIndex(lay, waferU, waferV);
@@ -859,7 +858,7 @@ std::pair<float, float> HGCalDDDConstants::locateCell(
       if (ktr != hgpar_->waferInfoMap_.end())
         place = HGCalCell::cellPlacementIndex(1, HGCalTypes::layerFrontBack(layertype), (ktr->second).orient);
     }
-    auto xy = hgcell_->cellUV2XY2(cellU, cellV, place, type);
+    auto xy = (waferHexagon8Fine() || cog) ? cellOffset_->cellOffsetUV2XY1(cellU, cellV, place, type) : hgcell_->cellUV2XY2(cellU, cellV, place, type);
     x = xy.first;
     y = xy.second;
     if (debug)
@@ -919,8 +918,8 @@ std::pair<float, float> HGCalDDDConstants::locateCell(
   return (rotx ? getXY(lay, x, y, false) : std::make_pair(x, y));
 }
 
-std::pair<float, float> HGCalDDDConstants::locateCell(const HGCSiliconDetId& id, bool debug) const {
-  return locateCell(id.zside(), id.layer(), id.waferU(), id.waferV(), id.cellU(), id.cellV(), true, true, false, debug);
+std::pair<float, float> HGCalDDDConstants::locateCell(const HGCSiliconDetId& id, bool cog, bool debug) const {
+  return locateCell(id.zside(), id.layer(), id.waferU(), id.waferV(), id.cellU(), id.cellV(), true, true, false, cog, debug);
 }
 
 std::pair<float, float> HGCalDDDConstants::locateCell(const HGCScintillatorDetId& id, bool debug) const {

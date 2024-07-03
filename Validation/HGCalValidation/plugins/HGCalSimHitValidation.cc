@@ -206,7 +206,7 @@ void HGCalSimHitValidation::analyzeHits(std::vector<PCaloHit>& hits) {
     HepGeom::Point3D<float> gcoord;
     std::pair<float, float> xy;
     if (hgcons_->waferHexagon8()) {
-      xy = hgcons_->locateCell(zside, layer, sector, subsector, cell, cell2, false, true, false, false);
+      xy = hgcons_->locateCell(zside, layer, sector, subsector, cell, cell2, false, true, false, false, false);
     } else {
       xy = hgcons_->locateCellTrap(zside, layer, sector, cell, false, false);
     }

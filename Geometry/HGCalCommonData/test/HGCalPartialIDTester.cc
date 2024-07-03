@@ -154,7 +154,7 @@ void HGCalPartialIDTester::beginRun(edm::Run const &iRun, edm::EventSetup const 
       double dR(0);
       if ((waferU_[i] != 0) || (waferV_[i] != 0)) {
         std::pair<float, float> xy =
-            hgcCons_->locateCell(zside_[i], layer_[i], waferU, waferV, cellU, cellV, false, true, false, false);
+	  hgcCons_->locateCell(zside_[i], layer_[i], waferU, waferV, cellU, cellV, false, true, false, false, false);
         double dx = (xpos_[i] - xy.first);
         double dy = (ypos_[i] - xy.second);
         dR = std::sqrt(dx * dx + dy * dy);
@@ -174,7 +174,7 @@ void HGCalPartialIDTester::beginRun(edm::Run const &iRun, edm::EventSetup const 
         info = hgcCons_->waferInfo(layer_[i], waferU, waferV);
         if ((waferU_[i] != 0) || (waferV_[i] != 0)) {
           std::pair<float, float> xy =
-              hgcCons_->locateCell(zside_[i], layer_[i], waferU, waferV, cellU, cellV, false, true, false, false);
+	    hgcCons_->locateCell(zside_[i], layer_[i], waferU, waferV, cellU, cellV, false, true, false, false, false);
           double dx = (xpos_[i] - xy.first);
           double dy = (ypos_[i] - xy.second);
           dR = std::sqrt(dx * dx + dy * dy);
