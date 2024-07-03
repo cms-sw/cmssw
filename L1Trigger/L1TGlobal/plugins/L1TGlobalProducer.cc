@@ -73,7 +73,7 @@ void L1TGlobalProducer::fillDescriptions(edm::ConfigurationDescriptions& descrip
   desc.add<bool>("useMuonShowers", false);
 
   //switch for saving AXO score
-  desc.add<bool>("produceAXOL1TLScore", true);
+  desc.add<bool>("produceAXOL1TLScore", false);
 
   // disables resetting the prescale counters each lumisection (needed for offline)
   //  originally, the L1T firmware applied the reset of prescale counters at the end of every LS;
@@ -565,8 +565,10 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
   // * produce the GlobalObjectMapRecord
   std::unique_ptr<GlobalObjectMapRecord> gtObjectMapRecord(new GlobalObjectMapRecord());
 
-  // if (m_produceAXOL1TLScore)
-  std::unique_ptr<AXOL1TLScoreBxCollection> uGtAXOScoreRecord(new AXOL1TLScoreBxCollection());
+  std::unique_ptr<AXOL1TLScoreBxCollection> uGtAXOScoreRecord(nullptr);
+  if (m_saveAxoScore) {
+    uGtAXOScoreRecord = std::make_unique<AXOL1TLScoreBxCollection>();
+  }
 
   // fill the boards not depending on the BxInEvent in the L1 GT DAQ record
   // GMT, PSB and FDL depend on BxInEvent
