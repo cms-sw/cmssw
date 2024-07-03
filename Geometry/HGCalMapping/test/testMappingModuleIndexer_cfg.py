@@ -17,27 +17,13 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 
-#ESSources/Producers for the logical mapping
-#indexers
-process.load('Geometry.HGCalMapping.hgCalMappingESProducer_cfi')
-process.hgCalMappingESProducer.modules = cms.FileInPath(options.modules)
-process.hgCalMappingESProducer.si = cms.FileInPath(options.sicells)
-process.hgCalMappingESProducer.sipm = cms.FileInPath(options.sipmcells)
-
-#cells and modules info
+#electronics mapping
 process.load('Configuration.StandardSequences.Accelerators_cff')
-process.hgCalMappingCellESProducer = cms.ESProducer('hgcal::HGCalMappingCellESProducer@alpaka',
-                                                      filelist=cms.vstring(options.sicells,options.sipmcells),
-                                                      cellindexer=cms.ESInputTag('') )
-process.hgCalMappingModuleESProducer = cms.ESProducer('hgcal::HGCalMappingModuleESProducer@alpaka',
-                                                      filename=cms.FileInPath(options.modules),
-                                                      moduleindexer=cms.ESInputTag('') )
-process.hgCalDenseIndexInfoESProducer = cms.ESProducer('hgcal::HGCalDenseIndexInfoESProducer@alpaka',
-                                                       moduleindexer=cms.ESInputTag('') )
+from Geometry.HGCalMapping.hgcalmapping_cff import customise_hgcalmapper
+process = customise_hgcalmapper(process)
 
 #Geometry
 process.load('Configuration.Geometry.GeometryExtended2026D99Reco_cff')
-#process.load('Configuration.Geometry.GeometryExtended2026D99_cff')
 
 #tester
 process.tester = cms.EDAnalyzer('HGCalMappingESSourceTester')
