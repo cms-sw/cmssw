@@ -2241,7 +2241,7 @@ void PlotHistCorrFactor(char* infile,
       sprintf(name, "hdf%d", j + 1);
       TObject* ob = gROOT->FindObject(name);
       if (ob)
-	ob->Delete();
+        ob->Delete();
       TF1* func = new TF1(name, "pol0", etamin, etamax);
       h->Fit(func, "+QWLR", "");
     }
@@ -2641,9 +2641,9 @@ void PlotHistCorrFactors(char* infile1,
       for (int ih = 1; ih < nfile; ++ih) {
         for (int j = 0; j < maxdepth; ++j) {
           sprintf(name, "h%dd%d", ih, j + 1);
-	  TObject* ob = gROOT->FindObject(name);
-	  if (ob)
-	    ob->Delete();
+          TObject* ob = gROOT->FindObject(name);
+          if (ob)
+            ob->Delete();
           TH1D* h = new TH1D(name, name, nbin, etamin, etamax);
           double sumNum(0), sumDen(0);
           std::map<int, cfactors>::const_iterator ktr = cfacs[ih].begin();
@@ -2693,9 +2693,9 @@ void PlotHistCorrFactors(char* infile1,
       for (int k1 = 0; k1 < nfile; ++k1) {
         for (int j = 0; j < maxdepth; ++j) {
           sprintf(name, "h%dd%d", k1, j + 1);
-	  TObject* ob = gROOT->FindObject(name);
-	  if (ob)
-	    ob->Delete();
+          TObject* ob = gROOT->FindObject(name);
+          if (ob)
+            ob->Delete();
           TH1D* h = new TH1D(name, name, nbin, etamin, etamax);
           int nent(0);
           for (std::map<int, cfactors>::const_iterator itr = cfacs[k1].begin(); itr != cfacs[k1].end(); ++itr) {
@@ -2715,9 +2715,9 @@ void PlotHistCorrFactors(char* infile1,
             if (drawStatBox)
               dy += 0.025;
             sprintf(name, "h%ddf%d", k1, j + 1);
-	    TObject* ob = gROOT->FindObject(name);
-	    if (ob)
-	      ob->Delete();
+            TObject* ob = gROOT->FindObject(name);
+            if (ob)
+              ob->Delete();
             TF1* func = new TF1(name, "pol0", etamin, etamax);
             h->Fit(func, "+QWLR", "");
           }
@@ -2869,9 +2869,9 @@ void PlotHistCorr2Factors(char* infile1,
     if (ratio) {
       for (int ih = 1; ih < nfile; ++ih) {
         sprintf(name, "h%dd%d", ih, depth);
-	TObject* ob = gROOT->FindObject(name);
-	if (ob)
-	  ob->Delete();
+        TObject* ob = gROOT->FindObject(name);
+        if (ob)
+          ob->Delete();
         TH1D* h = new TH1D(name, name, nbin, etamin, etamax);
         double sumNum(0), sumDen(0);
         std::map<int, cfactors>::const_iterator ktr = cfacs[ih].begin();
@@ -2911,9 +2911,9 @@ void PlotHistCorr2Factors(char* infile1,
     } else {
       for (int k1 = 0; k1 < nfile; ++k1) {
         sprintf(name, "h%dd%d", k1, depth);
-	TObject* ob = gROOT->FindObject(name);
-	if (ob)
-	  ob->Delete();
+        TObject* ob = gROOT->FindObject(name);
+        if (ob)
+          ob->Delete();
         TH1D* h = new TH1D(name, name, nbin, etamin, etamax);
         int nent(0);
         for (std::map<int, cfactors>::const_iterator itr = cfacs[k1].begin(); itr != cfacs[k1].end(); ++itr) {
@@ -2933,9 +2933,9 @@ void PlotHistCorr2Factors(char* infile1,
           if (drawStatBox)
             dy += 0.025;
           sprintf(name, "h%ddf%d", k1, depth);
-	  TObject* ob = gROOT->FindObject(name);
-	  if (ob)
-	    ob->Delete();
+          TObject* ob = gROOT->FindObject(name);
+          if (ob)
+            ob->Delete();
           TF1* func = new TF1(name, "pol0", etamin, etamax);
           h->Fit(func, "+QWLR", "");
         }
@@ -3079,7 +3079,7 @@ void PlotHistCorrSys(std::string infilec, int conds, std::string text, int save 
       sprintf(name, "hd%d", j + 1);
       TObject* ob = gROOT->FindObject(name);
       if (ob)
-	ob->Delete();
+        ob->Delete();
       TH1D* h = new TH1D(name, name, nbin, etamin, etamax);
       h->SetLineColor(colors[j]);
       h->SetMarkerColor(colors[j]);
@@ -3165,9 +3165,9 @@ void PlotHistCorrLumis(std::string infilec, int conds, double lumi, int save = 0
       int ih = (int)(hists.size());
       for (int j = 0; j < maxdepth; ++j) {
         sprintf(name, "hd%d%d", j + 1, i);
-	TObject* ob = gROOT->FindObject(name);
-	if (ob)
-	  ob->Delete();
+        TObject* ob = gROOT->FindObject(name);
+        if (ob)
+          ob->Delete();
         TH1D* h = new TH1D(name, name, nbin, etamin, etamax);
         h->SetLineColor(colors[j]);
         h->SetMarkerColor(colors[j]);
@@ -3279,9 +3279,9 @@ void PlotHistCorrRel(char* infile1,
       for (int j = 0; j < maxdepth; ++j) {
         int j1 = (i == 0) ? j : maxdepth + j;
         sprintf(name, "hd%d%d", i, j + 1);
-	TObject* ob = gROOT->FindObject(name);
-	if (ob)
-	  ob->Delete();
+        TObject* ob = gROOT->FindObject(name);
+        if (ob)
+          ob->Delete();
         TH1D* h = new TH1D(name, name, nbin, etamin, etamax);
         h->SetLineColor(colors[j1]);
         h->SetMarkerColor(colors[j1]);
@@ -4562,7 +4562,7 @@ void PlotHistCorrRatio(char* infile1,
       sprintf(name, "h%d", ih);
       TObject* ob = gROOT->FindObject(name);
       if (ob)
-	ob->Delete();
+        ob->Delete();
       TH1D* h = new TH1D(name, name, nbin, etamin, etamax);
       double sumNum(0), sumDen(0);
       int npt(0);
@@ -4603,9 +4603,9 @@ void PlotHistCorrRatio(char* infile1,
       h->GetYaxis()->SetTitleOffset(1.20);
       h->GetYaxis()->SetRangeUser(0.0, 3.0);
       if (doFit) {
-	TObject* ob = gROOT->FindObject(name);
-	if (ob)
-	  ob->Delete();
+        TObject* ob = gROOT->FindObject(name);
+        if (ob)
+          ob->Delete();
         TF1* func = new TF1(name, "pol0", etamin, etamax);
         func->SetLineColor(colors[ih]);
         func->SetLineStyle(styles[ih]);
