@@ -50,18 +50,18 @@ public:
 
 private:
   // Configurable parameters
-  double fMeanX, fMeanY, fMeanZ, fTimeOffset;  //spatial and time offset for mean collision
-  double fEProton;                             // proton beam energy
-  double fCrossingAngle;                       // crossing angle
-  double fCrabFrequency;                       // crab cavity frequency
-  bool fRF800;                                 // 800 MHz RF?
-  double fBetaCrossingPlane;                   // beta crossing plane (m)
-  double fBetaSeparationPlane;                 // beta separation plane (m)
-  double fHorizontalEmittance;                 // horizontal emittance
-  double fVerticalEmittance;                   // vertical emittance
-  double fBunchLength;                         // bunch length
-  double fCrabbingAngleCrossing;               // crabbing angle crossing
-  double fCrabbingAngleSeparation;             // crabbing angle separation
+  double fMeanX, fMeanY, fMeanZ, fTimeOffset_c_light;  //spatial and time offset for mean collision
+  double fEProton;                                     // proton beam energy
+  double fCrossingAngle;                               // crossing angle
+  double fCrabFrequency;                               // crab cavity frequency
+  bool fRF800;                                         // 800 MHz RF?
+  double fBetaCrossingPlane;                           // beta crossing plane (m)
+  double fBetaSeparationPlane;                         // beta separation plane (m)
+  double fHorizontalEmittance;                         // horizontal emittance
+  double fVerticalEmittance;                           // vertical emittance
+  double fBunchLength;                                 // bunch length
+  double fCrabbingAngleCrossing;                       // crabbing angle crossing
+  double fCrabbingAngleSeparation;                     // crabbing angle separation
 
   // Parameters inferred from configurables
   double gamma;  // beam configurations

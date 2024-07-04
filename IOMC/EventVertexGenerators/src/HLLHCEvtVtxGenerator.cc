@@ -54,7 +54,7 @@ HLLHCEvtVtxGenerator::HLLHCEvtVtxGenerator(const edm::ParameterSet& p) : BaseEvt
     fMeanX = p.getParameter<double>("MeanXIncm") * CLHEP::cm;
     fMeanY = p.getParameter<double>("MeanYIncm") * CLHEP::cm;
     fMeanZ = p.getParameter<double>("MeanZIncm") * CLHEP::cm;
-    fTimeOffset = p.getParameter<double>("TimeOffsetInns") * CLHEP::ns * CLHEP::c_light;
+    fTimeOffset_c_light = p.getParameter<double>("TimeOffsetInns") * CLHEP::ns * CLHEP::c_light;
     fEProton = p.getParameter<double>("EprotonInGeV") * 1e9;
     fCrossingAngle = p.getParameter<double>("CrossingAngleInurad") * 1e-6;
     fCrabFrequency = p.getParameter<double>("CrabFrequencyInMHz") * 1e6;
@@ -67,7 +67,7 @@ HLLHCEvtVtxGenerator::HLLHCEvtVtxGenerator(const edm::ParameterSet& p) : BaseEvt
     fCrabbingAngleCrossing = p.getParameter<double>("CrabbingAngleCrossingInurad") * 1e-6;
     fCrabbingAngleSeparation = p.getParameter<double>("CrabbingAngleSeparationInurad") * 1e-6;
     // Set parameters inferred from configurables
-    gamma = fEProton / pmass + 1.0;
+    gamma = fEProton / pmass;
     beta = std::sqrt((1.0 - 1.0 / gamma) * ((1.0 + 1.0 / gamma)));
     betagamma = beta * gamma;
     oncc = fCrabbingAngleCrossing / fCrossingAngle;
@@ -106,9 +106,9 @@ void HLLHCEvtVtxGenerator::update(const edm::EventSetup& iEventSetup) {
     fBunchLength = beamhandle->bunchLenght();
     fCrabbingAngleCrossing = beamhandle->crabbingAngleCrossing() * 1e-6;
     fCrabbingAngleSeparation = beamhandle->crabbingAngleSeparation() * 1e-6;
-    fTimeOffset = beamhandle->timeOffset() * CLHEP::ns * CLHEP::c_light;
+    fTimeOffset_c_light = beamhandle->timeOffset() * CLHEP::ns * CLHEP::c_light;
     // Set parameters inferred from configurables
-    gamma = fEProton / pmass + 1.0;
+    gamma = fEProton / pmass;
     beta = std::sqrt((1.0 - 1.0 / gamma) * ((1.0 + 1.0 / gamma)));
     betagamma = beta * gamma;
     oncc = fCrabbingAngleCrossing / fCrossingAngle;
@@ -153,7 +153,7 @@ HepMC::FourVector HLLHCEvtVtxGenerator::newVertex(CLHEP::HepRandomEngine* engine
   x += fMeanX;
   y += fMeanY;
   z += fMeanZ;
-  t += fTimeOffset;
+  t += fTimeOffset_c_light;
 
   return HepMC::FourVector(x, y, z, t);
 }
