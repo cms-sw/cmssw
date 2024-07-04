@@ -31,13 +31,15 @@ namespace reco {
       m_counts.at(LumiConstants::numBX * modIndex + bxID - 1) += count;
     }
 
-    void incrementRoc(int rD, unsigned int bxID, int count) {
+    void incrementRoc(int rD, int count) {
       size_t rocIndex = std::distance(m_RocID.begin(), std::find(m_RocID.begin(), m_RocID.end(), rD));
+
       if (rocIndex == m_RocID.size()) {
         m_RocID.push_back(rD);
-        m_countsRoc.resize(m_countsRoc.size() + LumiConstants::numBX, 0);
+        m_countsRoc.push_back(0);
       }
-      m_countsRoc.at(LumiConstants::numBX * rocIndex + bxID - 1) += count;
+
+      m_countsRoc.at(rocIndex) += count;
     }
 
     void eventCounter(unsigned int bxID) { m_events.at(bxID - 1)++; }
@@ -48,11 +50,12 @@ namespace reco {
       std::vector<int> const& modIDInEvent = pccInEvent.modID();
       std::vector<int> const& rocIDInEvent = pccInEvent.rocID();
       int bxIDInEvent = pccInEvent.bxID();
+
       for (unsigned int i = 0; i < modIDInEvent.size(); i++) {
         increment(modIDInEvent[i], bxIDInEvent, countsInEvent.at(i));
       }
       for (unsigned int i = 0; i < rocIDInEvent.size(); i++) {
-        incrementRoc(rocIDInEvent[i], bxIDInEvent, rocCountsInEvent.at(i));
+        incrementRoc(rocIDInEvent[i], rocCountsInEvent.at(i));
       }
     }
 
@@ -62,15 +65,14 @@ namespace reco {
       std::vector<int> const& modIDs = pcc.readModID();
       std::vector<int> const& rocIDs = pcc.readRocID();
       std::vector<int> const& events = pcc.readEvents();
+
       for (unsigned int i = 0; i < modIDs.size(); i++) {
         for (unsigned int bxID = 0; bxID < LumiConstants::numBX; ++bxID) {
           increment(modIDs[i], bxID + 1, counts.at(i * LumiConstants::numBX + bxID));
         }
       }
       for (unsigned int i = 0; i < rocIDs.size(); i++) {
-        for (unsigned int bxID = 0; bxID < LumiConstants::numBX; ++bxID) {
-          incrementRoc(rocIDs[i], bxID + 1, countsRoc.at(i * LumiConstants::numBX + bxID));
-        }
+        incrementRoc(rocIDs[i], countsRoc.at(i));
       }
       for (unsigned int i = 0; i < LumiConstants::numBX; ++i) {
         m_events[i] += events[i];
