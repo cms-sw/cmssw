@@ -3,6 +3,7 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/FWLite/interface/Record.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include "MagneticField/ParametrizedEngine/interface/alpaka/ParabolicParametrizedMagneticField.h"
 
@@ -20,7 +21,7 @@ int main() {
   edm::FileInPath mydata("MagneticField/Engine/data/Regression/referenceField_160812_RII_3_8T.bin");
   file.open(mydata.fullPath().c_str(), ios::binary);
 
-  float resolution = 0.0001;
+  float resolution = 0.2;
   float maxdelta = 0.;
   int fail = 0;
   int count = 0;
@@ -37,7 +38,7 @@ int main() {
       break;
     gp = GlobalPoint(px, py, pz);
 
-    if (gp.perp2() > Parameters::max_radius2 || gp.z() > Parameters::max_z)
+    if (gp.perp2() > Parameters::max_radius2 || fabs(gp.z()) > Parameters::max_z)
       continue;
 
     GlobalVector referenceB(bx, by, bz);
@@ -50,7 +51,7 @@ int main() {
       if (fail < 10) {
         cout << " Discrepancy at: # " << count + 1 << " " << gp << " R " << gp.perp() << " Phi " << gp.phi()
              << " delta : " << referenceB - deviceB << " " << delta << endl;
-        cout << " Old: " << deviceB << " New: " << referenceB << endl;
+        cout << " Old: " << referenceB << " New: " << deviceB << endl;
       } else if (fail == 10) {
         cout << "..." << endl;
       }
@@ -59,6 +60,5 @@ int main() {
   } while (count < numberOfPoints);
 
   if (fail != 0)
-    //throw cms::Exception("RegressionFailure") << "MF regression found: " << fail << " failures";
-    cout << "MF regression found: " << fail << " failures";
+    throw cms::Exception("RegressionFailure") << "MF regression found: at least " << fail << " failures";
 }

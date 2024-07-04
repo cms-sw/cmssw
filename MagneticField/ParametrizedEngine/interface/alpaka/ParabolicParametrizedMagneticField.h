@@ -22,7 +22,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     template <typename Vec3>
     constexpr float Kr(Vec3 const& vec) {
-      return Parameters::a * (vec(0) * vec(0) + vec(1) * vec(1)) + 1.;
+      return Parameters::a * (vec(0) * vec(0) + vec(1) * vec(1)) + 1.f;
     }
 
     template <typename Vec3>
