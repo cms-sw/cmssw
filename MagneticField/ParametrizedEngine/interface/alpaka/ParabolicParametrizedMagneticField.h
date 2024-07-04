@@ -7,7 +7,7 @@
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
-  namespace MagneticFieldParabolicPortable {
+  namespace magneticFieldParabolicPortable {
 
     struct Parameters {
       // These parameters are the best fit of 3.8T to the OAEParametrizedMagneticField parametrization.
@@ -36,7 +36,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }
 
     template <typename Vec3>
-    constexpr float MagneticFieldAtPoint(Vec3 const& vec) {
+    constexpr float magneticFieldAtPoint(Vec3 const& vec) {
       if (isDefined(vec)) {
         return B0Z(vec) * Kr(vec);
       } else {
@@ -44,7 +44,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       }
     }
 
-  }  // namespace MagneticFieldParabolicPortable
+  }  // namespace magneticFieldParabolicPortable
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
 

@@ -13,7 +13,7 @@
 
 using namespace edm;
 using namespace std;
-using namespace ALPAKA_ACCELERATOR_NAMESPACE::MagneticFieldParabolicPortable;
+using namespace ALPAKA_ACCELERATOR_NAMESPACE::magneticFieldParabolicPortable;
 using Vector3f = Eigen::Matrix<float, 3, 1>;
 
 int main() {
@@ -42,16 +42,16 @@ int main() {
       continue;
 
     GlobalVector referenceB(bx, by, bz);
-    GlobalVector deviceB(0, 0, MagneticFieldAtPoint(Vector3f(px, py, pz)));
+    GlobalVector deviceB(0, 0, magneticFieldAtPoint(Vector3f(px, py, pz)));
     if ((referenceB - deviceB).mag() > resolution) {
       ++fail;
       float delta = (referenceB - deviceB).mag();
       if (delta > maxdelta)
         maxdelta = delta;
       if (fail < 10) {
-        cout << " Discrepancy at: # " << count + 1 << " " << gp << " R " << gp.perp() << " Phi " << gp.phi()
-             << " delta : " << referenceB - deviceB << " " << delta << endl;
-        cout << " Old: " << referenceB << " New: " << deviceB << endl;
+        cout << " Discrepancy at point  # " << count + 1 << ": " << gp << ", R " << gp.perp() << ", Phi " << gp.phi()
+             << ", delta: " << referenceB - deviceB << " " << delta << endl;
+        cout << " Old: " << referenceB << ", New: " << deviceB << endl;
       } else if (fail == 10) {
         cout << "..." << endl;
       }
