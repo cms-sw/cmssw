@@ -10,6 +10,10 @@ def customise_hgcalmapper(process,
     process.hgCalMappingESProducer.si = cms.FileInPath(sicells)
     process.hgCalMappingESProducer.sipm = cms.FileInPath(sipmcells)
 
+    if not hasattr(process, 'ProcessAcceleratorCUDA'):
+        print('Looks like Configuration.StandardSequences.Accelerators_cff was not yet loaded...loading')
+        process.load('Configuration.StandardSequences.Accelerators_cff')
+        
     process.hgCalMappingCellESProducer = cms.ESProducer('hgcal::HGCalMappingCellESProducer@alpaka',
                                                         filelist=cms.vstring(sicells, sipmcells),
                                                         cellindexer=cms.ESInputTag(''))
