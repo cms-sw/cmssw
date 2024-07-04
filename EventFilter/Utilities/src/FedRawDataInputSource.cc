@@ -211,6 +211,7 @@ FedRawDataInputSource::~FedRawDataInputSource() {
       std::unique_lock<std::mutex> lk(mReader_);
       thread_quit_signal[i] = true;
       cvReader_[i]->notify_one();
+      lk.unlock();
       workerThreads_[i]->join();
       delete workerThreads_[i];
     }
@@ -439,6 +440,7 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent() {
     setMonState(inReadCleanup);
     if (!daqDirector_->isSingleStreamThread() && !fileListMode_) {
       //put the file in pending delete list;
+      std::unique_lock<std::mutex> lkw(fileDeleteLock_);
       filesToDelete_.push_back(std::pair<int, std::unique_ptr<InputFile>>(currentFileIndex_, std::move(currentFile_)));
     } else {
       //in single-thread and stream jobs, events are already processed
@@ -480,10 +482,6 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent() {
     setMonState(inWaitChunk);
     {
       IdleSourceSentry ids(fms_);
-      assert(currentFile_->status_ == evf::EvFDaqDirector::newFile);
-      assert(currentFile_->currentChunk_ == 0);
-      assert(currentFile_->chunks_.size() > currentFile_->currentChunk_);
-
       while (!currentFile_->waitForChunk(currentFile_->currentChunk_)) {
         std::unique_lock<std::mutex> lkw(mWakeup_);
         cvWakeupAll_.wait_for(lkw, std::chrono::milliseconds(100));
@@ -632,15 +630,13 @@ void FedRawDataInputSource::read(edm::EventPrincipal& eventPrincipal) {
   setMonState(inReadCleanup);
 
   //resize vector if needed
-  {
+  while (streamFileTracker_.size() <= eventPrincipal.streamID()) {
     std::unique_lock<std::mutex> lkw(fileDeleteLock_);
-    while (streamFileTracker_.size() <= eventPrincipal.streamID())
-      streamFileTracker_.push_back(-1);
+    streamFileTracker_.push_back(-1);
   }
 
   streamFileTracker_[eventPrincipal.streamID()] = currentFileIndex_;
 
-  //this old file check runs no more often than every 10 events
   setMonState(inNoRequest);
   if (chunkIsFree_)
     freeChunks_.push(currentFile_->chunks_[currentFile_->currentChunk_ - 1]);
@@ -1370,7 +1366,7 @@ void FedRawDataInputSource::readWorker(unsigned int tid) {
 
     //wakeup for chunk
     cvWakeupAll_.notify_all();
-    lkw.unlock();
+    //lkw.unlock();
 
     //timeval ts_copyend;
     //gettimeofday(&ts_copyend, nullptr);
@@ -1418,47 +1414,6 @@ inline bool InputFile::advance(std::mutex &m, std::condition_variable &cv, unsig
 
       std::unique_lock<std::mutex> lk(m);
       cv.wait_for(lk, std::chrono::milliseconds(100));
-      if (parent_->exceptionState())
-        parent_->threadError();
-    }
-    parent_->setMonState(inChunkReceived);
-    //copy everything to beginning of the first chunk
-    dataPosition -= chunkPosition_;
-    assert(dataPosition == chunks_[currentChunk_]->buf_);
-    memmove(chunks_[currentChunk_]->buf_, chunks_[currentChunk_]->buf_ + chunkPosition_, currentLeft);
-    memcpy(chunks_[currentChunk_]->buf_ + currentLeft, chunks_[currentChunk_ + 1]->buf_, size - currentLeft);
-    //set pointers at the end of the old data position
-    bufferPosition_ += size;
-    chunkPosition_ = size - currentLeft;
-    currentChunk_++;
-    return true;
-  } else {
-    chunkPosition_ += size;
-    bufferPosition_ += size;
-    return false;
-  }
-}
-
-inline bool InputFile::advance(unsigned char*& dataPosition, const size_t size) {
-  //wait for chunk
-
-  parent_->setMonState(inWaitChunk);
-  while (!waitForChunk(currentChunk_)) {
-    usleep(100000);
-    if (parent_->exceptionState())
-      parent_->threadError();
-  }
-  parent_->setMonState(inChunkReceived);
-
-  dataPosition = chunks_[currentChunk_]->buf_ + chunkPosition_;
-  size_t currentLeft = chunks_[currentChunk_]->size_ - chunkPosition_;
-
-  if (currentLeft < size) {
-    //we need next chunk
-    assert(chunks_.size() > currentChunk_ + 1);
-    parent_->setMonState(inWaitChunk);
-    while (!waitForChunk(currentChunk_ + 1)) {
-      usleep(100000);
       if (parent_->exceptionState())
         parent_->threadError();
     }

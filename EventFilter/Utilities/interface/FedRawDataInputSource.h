@@ -65,6 +65,7 @@ private:
   edm::Timestamp fillFEDRawDataCollection(FEDRawDataCollection& rawData, bool& tcdsInRange);
 
   void readSupervisor();
+  void fileDeleter();
   void readWorker(unsigned int tid);
   void threadError();
   bool exceptionState() { return setExceptionState_; }
@@ -90,10 +91,11 @@ private:
   unsigned int eventChunkSize_;   // for buffered read-ahead
   unsigned int eventChunkBlock_;  // how much read(2) asks at the time
   unsigned int readBlocks_;
+  int numConcurrentReads_;
   unsigned int numBuffers_;
   unsigned int maxBufferedFiles_;
-  unsigned int numConcurrentReads_;
   std::atomic<unsigned int> readingFilesCount_;
+  std::atomic<unsigned int> heldFilesCount_;
 
   // get LS from filename instead of event header
   const bool getLSFromFilename_;
@@ -145,6 +147,7 @@ private:
 
   bool startedSupervisorThread_ = false;
   std::unique_ptr<std::thread> readSupervisorThread_;
+  std::unique_ptr<std::thread> fileDeleterThread_;
   std::vector<std::thread*> workerThreads_;
 
   tbb::concurrent_queue<unsigned int> workerPool_;
@@ -154,6 +157,7 @@ private:
   tbb::concurrent_queue<std::unique_ptr<InputFile>> fileQueue_;
 
   std::mutex mReader_;
+  std::vector<std::unique_ptr<std::mutex>> mReaderNotify_;
   std::vector<std::unique_ptr<std::condition_variable>> cvReader_;
   std::vector<unsigned int> tid_active_;
 
@@ -165,7 +169,6 @@ private:
 
   int currentFileIndex_ = -1;
   std::list<std::pair<int, std::unique_ptr<InputFile>>> filesToDelete_;
-  std::list<std::pair<int, std::string>> fileNamesToDelete_;
   std::mutex fileDeleteLock_;
   std::vector<int> streamFileTracker_;
   unsigned int checkEvery_ = 10;
@@ -173,6 +176,7 @@ private:
   //supervisor thread wakeup
   std::mutex mWakeup_;
   std::condition_variable cvWakeup_;
+  std::condition_variable cvWakeupAll_;
 
   int fileDescriptor_ = -1;
   uint32_t bufferInputRead_ = 0;
@@ -181,6 +185,8 @@ private:
 
   std::map<unsigned int, unsigned int> sourceEventsReport_;
   std::mutex monlock_;
+
+
 };
 
 struct InputChunk {
@@ -301,7 +307,7 @@ public:
     //some atomics to make sure everything is cache synchronized for the main thread
     return chunks_[chunkid] != nullptr && chunks_[chunkid]->readComplete_;
   }
-  bool advance(unsigned char*& dataPosition, const size_t size);
+  bool advance(std::mutex &m, std::condition_variable &cv, unsigned char*& dataPosition, const size_t size);
   void moveToPreviousChunk(const size_t size, const size_t offset);
   void rewindChunk(const size_t size);
   void unsetDeleteFile() { deleteFile_ = false; }

@@ -72,6 +72,7 @@ private:
   void maybeOpenNewLumiSection(const uint32_t lumiSection);
 
   void readSupervisor();
+  void fileDeleter();
   void dataArranger();
   void readWorker(unsigned int tid);
   void threadError();
@@ -92,10 +93,11 @@ private:
   uint64_t maxChunkSize_;     // for buffered read-ahead
   uint64_t eventChunkBlock_;  // how much read(2) asks at the time
   unsigned int readBlocks_;
+  int numConcurrentReads_;
   unsigned int numBuffers_;
   unsigned int maxBufferedFiles_;
-  unsigned int numConcurrentReads_;
   std::atomic<unsigned int> readingFilesCount_;
+  std::atomic<unsigned int> heldFilesCount_;
 
   // get LS from filename instead of event header
   const bool alwaysStartFromFirstLS_;
@@ -136,6 +138,7 @@ private:
 
   bool startedSupervisorThread_ = false;
   std::unique_ptr<std::thread> readSupervisorThread_;
+  std::unique_ptr<std::thread> fileDeleterThread_;
   std::unique_ptr<std::thread> dataArrangerThread_;
   std::vector<std::thread*> workerThreads_;
 
@@ -146,6 +149,7 @@ private:
   tbb::concurrent_queue<std::unique_ptr<RawInputFile>> fileQueue_;
 
   std::mutex mReader_;
+  std::vector<std::unique_ptr<std::mutex>> mReaderNotify_;
   std::vector<std::unique_ptr<std::condition_variable>> cvReader_;
   std::vector<unsigned int> tid_active_;
 
@@ -164,6 +168,7 @@ private:
   //supervisor thread wakeup
   std::mutex mWakeup_;
   std::condition_variable cvWakeup_;
+  std::condition_variable cvWakeupAll_;
 
   //variables for the single buffered mode
   int fileDescriptor_ = -1;
@@ -190,7 +195,7 @@ public:
                DAQSource* parent = nullptr)
       : InputFile(status, lumi, name, deleteFile, rawFd, fileSize, rawHeaderSize, nChunks, nEvents, nullptr),
         sourceParent_(parent) {}
-  bool advance(unsigned char*& dataPosition, const size_t size);
+  bool advance(std::mutex &m, std::condition_variable &cv, unsigned char*& dataPosition, const size_t size);
   void advance(const size_t size) {
     chunkPosition_ += size;
     bufferPosition_ += size;
