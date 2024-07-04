@@ -179,11 +179,6 @@ namespace evf {
     int readLastLSEntry(std::string const& file);
     unsigned int getLumisectionToStart() const;
     unsigned int getStartLumisectionFromEnv() const { return startFromLS_; }
-    void setDeleteTracking(std::mutex* fileDeleteLock,
-                           std::list<std::pair<int, std::unique_ptr<InputFile>>>* filesToDelete) {
-      fileDeleteLockPtr_ = fileDeleteLock;
-      filesToDeletePtr_ = filesToDelete;
-    }
 
     std::string getStreamDestinations(std::string const&) const { return std::string(""); }
     std::string getStreamMergeType(std::string const&, MergeType defaultType) const {
@@ -266,9 +261,6 @@ namespace evf {
     struct flock fu_rw_fulk;
 
     evf::FastMonitoringService* fms_ = nullptr;
-
-    std::mutex* fileDeleteLockPtr_ = nullptr;
-    std::list<std::pair<int, std::unique_ptr<InputFile>>>* filesToDeletePtr_ = nullptr;
 
     pthread_mutex_t init_lock_ = PTHREAD_MUTEX_INITIALIZER;
 

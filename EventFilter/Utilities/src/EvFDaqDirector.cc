@@ -433,21 +433,6 @@ namespace evf {
   }
 
   void EvFDaqDirector::preGlobalEndLumi(edm::GlobalContext const& globalContext) {
-    //delete all files belonging to just closed lumi
-    unsigned int ls = globalContext.luminosityBlockID().luminosityBlock();
-    if (!fileDeleteLockPtr_ || !filesToDeletePtr_) {
-      edm::LogWarning("EvFDaqDirector") << " Handles to check for files to delete were not set by the input source...";
-      return;
-    }
-
-    std::unique_lock<std::mutex> lkw(*fileDeleteLockPtr_);
-    auto it = filesToDeletePtr_->begin();
-    while (it != filesToDeletePtr_->end()) {
-      if (it->second->lumi_ == ls && (!fms_ || !fms_->isExceptionOnData(it->second->lumi_))) {
-        it = filesToDeletePtr_->erase(it);
-      } else
-        it++;
-    }
   }
 
   std::string EvFDaqDirector::getInputJsonFilePath(const unsigned int ls, const unsigned int index) const {
