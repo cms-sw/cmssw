@@ -273,6 +273,7 @@ def miniAOD_customizeCommon(process):
     # To use older DataFormats, the electronMVAValueMapProducer MUST take a updated electron collection
     # such that the conversion variables are filled correctly.
 
+    process.load("RecoEgamma.EgammaTools.gedGsfElectronsTo106X_cff")
     from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
     pp_on_AA_2018.toModify(task, func=lambda t: t.add(process.gedGsfElectronsFrom94XTo106XTask))
     pp_on_AA_2018.toModify(process.electronMVAValueMapProducer,
