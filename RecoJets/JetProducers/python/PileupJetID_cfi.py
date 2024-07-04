@@ -7,7 +7,6 @@ from Configuration.Eras.Modifier_tracker_apv_vfp30_2016_cff import tracker_apv_v
 
 from RecoJets.JetProducers.PileupJetIDParams_cfi import *
 
-_chsalgos_102x = cms.VPSet(full_102x_chs,cutbased)
 _chsalgos_106X_UL17 = cms.VPSet(full_106x_UL17_chs,cutbased)
 _chsalgos_106X_UL18 = cms.VPSet(full_106x_UL18_chs,cutbased)
 _chsalgos_106X_UL16 = cms.VPSet(full_106x_UL16_chs,cutbased)

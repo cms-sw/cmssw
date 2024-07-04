@@ -380,7 +380,7 @@ qgtagger=QGTagger.clone(srcJets="updatedJets",srcVertexCollection="offlineSlimme
 #
 # PileUp ID
 #
-from RecoJets.JetProducers.PileupJetID_cfi import pileupJetId, _chsalgos_102x, _chsalgos_106X_UL16, _chsalgos_106X_UL16APV, _chsalgos_106X_UL17, _chsalgos_106X_UL18
+from RecoJets.JetProducers.PileupJetID_cfi import pileupJetId, _chsalgos_106X_UL16, _chsalgos_106X_UL16APV, _chsalgos_106X_UL17, _chsalgos_106X_UL18
 pileupJetIdNano=pileupJetId.clone(jets="updatedJets",algos = cms.VPSet(_chsalgos_106X_UL18),inputIsCorrected=True,applyJec=False,vertexes="offlineSlimmedPrimaryVertices")
 run2_jme_2017.toModify(
     pileupJetIdNano, algos = _chsalgos_106X_UL17
