@@ -97,6 +97,8 @@ upgradeKeys[2026] = [
     '2026D114PU',
     '2026D110GenOnly',
     '2026D110SimOnGen',
+    '2026D115',
+    '2026D115PU',
 ]
 
 # pre-generation of WF numbers
@@ -3165,6 +3167,13 @@ upgradeProperties[2026] = {
         'GT' : 'auto:phase2_realistic_T33',
         'Era' : 'Phase2C17I13M9',
         'ScenToRun' : ['Gen','Sim','DigiTrigger','RecoGlobal', 'HARVESTGlobal', 'ALCAPhase2'],
+    },
+    '2026D115' : {
+        'Geom' : 'Extended2026D115',
+        'HLTmenu': '@relval2026',
+        'GT' : 'auto:phase2_realistic_T33',
+        'Era' : 'Phase2C20I13M9',
+        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal', 'ALCAPhase2'],
     },
 }
 
