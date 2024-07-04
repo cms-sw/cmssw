@@ -98,10 +98,16 @@ void GenParticles2HepMCConverter::produce(edm::Event& event, const edm::EventSet
   hepmc_event->add_attribute("alphaQED", std::make_shared<HepMC3::DoubleAttribute>(genEventInfoHandle->alphaQED()));
 
   hepmc_event->weights() = genEventInfoHandle->weights();
+  // add dummy weight if necessary
+  if (hepmc_event->weights().size() == 0) {
+    hepmc_event->weights().push_back(1.);
+  }
 
   // resize cross section to number of weights
-  xsec_->set_cross_section(std::vector<double>(hepmc_event->weights().size(), xsec_->xsec(0)),
-                           std::vector<double>(hepmc_event->weights().size(), xsec_->xsec_err(0)));
+  if (xsec_->xsecs().size() < hepmc_event->weights().size()) {
+    xsec_->set_cross_section(std::vector<double>(hepmc_event->weights().size(), xsec_->xsec(0)),
+                             std::vector<double>(hepmc_event->weights().size(), xsec_->xsec_err(0)));
+  }
   hepmc_event->set_cross_section(xsec_);
 
   // Set PDF
