@@ -358,13 +358,8 @@ There are a few different options for using Alpaka-based modules in the CMSSW co
 In all cases the configuration must load the necessary `ProcessAccelerator` objects (see below) For accelerators used in production, these are aggregated in `Configuration.StandardSequences.Accelerators_cff`. The `runTheMatrix.py` handles the loading of this `Accelerators_cff` automatically. The HLT menus also load the necessary `ProcessAccelerator`s.
 ```python
 ## Load explicitly
-# One ProcessAccelerator for each accelerator technology
+# One ProcessAccelerator for each accelerator technology, plus a generic one for Alpaka
 process.load("Configuration.StandardSequences.Accelerators_cff")
-
-# And one ProcessAccelerator for Alpaka
-# (eventually to be absorbed to Accelerators_cff)
-process.load("HeterogeneousCore.AlpakaCore.ProcessAcceleratorAlpaka_cfi")
-
 ```
 
 ### Explicit module type (non-portable)
