@@ -17,11 +17,8 @@ double EcalUncalibRecHitTimingCCAlgo::computeTimeCC(const EcalDataFrame& dataFra
   double maxamplitude = -std::numeric_limits<double>::max();
   float pulsenorm = 0.;
 
-  bool doOOTAmpCorrection(correctForOOT);
   std::vector<float> pedSubSamples(nsample);
   std::vector<float> weights(nsample,1.f);
-  float minADC = (dataFrame.sample(0)).adc();
-  for (unsigned int iSample = 1; iSample < nsample; iSample++) { if( (dataFrame.sample(iSample)).adc() < minADC ) minADC = (dataFrame.sample(iSample)).adc(); }
   for (unsigned int iSample = 0; iSample < nsample; iSample++) {
     const EcalMGPASample& sample = dataFrame.sample(iSample);
 
@@ -51,6 +48,8 @@ double EcalUncalibRecHitTimingCCAlgo::computeTimeCC(const EcalDataFrame& dataFra
 
     pedSubSamples[iSample] = amplitude;
 
+    pulsenorm += fullpulse(iSample);
+
     if (amplitude > maxamplitude) {
       maxamplitude = amplitude;
     }
@@ -64,7 +63,7 @@ double EcalUncalibRecHitTimingCCAlgo::computeTimeCC(const EcalDataFrame& dataFra
 
   }
 
-  if( doOOTAmpCorrection ){
+  if( correctForOOT ){
     int ipulse = -1;
     for (auto const& amplit : amplitudes) {
       ipulse++;
@@ -112,8 +111,7 @@ double EcalUncalibRecHitTimingCCAlgo::computeTimeCC(const EcalDataFrame& dataFra
 
   float tM = (t3 + t0) / 2 - GLOBAL_TIME_SHIFT;
   if (counter < MIN_NUM_OF_ITERATIONS || counter > MAX_NUM_OF_ITERATIONS - 1) { tM = TIME_WHEN_NOT_CONVERGING * ecalPh1::Samp_Period; }
-  float cct = -tM / ecalPh1::Samp_Period;
-  return cct;
+  return -tM / ecalPh1::Samp_Period;
 }
 
 FullSampleVector EcalUncalibRecHitTimingCCAlgo::interpolatePulse(const FullSampleVector& fullpulse,

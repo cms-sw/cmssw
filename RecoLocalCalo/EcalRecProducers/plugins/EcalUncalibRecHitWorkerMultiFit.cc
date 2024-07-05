@@ -522,7 +522,6 @@ void EcalUncalibRecHitWorkerMultiFit::run(const edm::Event& evt,
       // === time computation ===
       if (timealgo_ == ratioMethod) {
         // ratio method
-        //std::cout << " Using Ratio method !!!!!!!!!!! " << std::endl;
         constexpr float clockToNsConstant = 25.;
         constexpr float invClockToNs = 1. / clockToNsConstant;
         if (not barrel) {
@@ -770,8 +769,8 @@ edm::ParameterSetDescription EcalUncalibRecHitWorkerMultiFit::getAlgoDescription
                                                              true) and
               edm::ParameterDescription<std::vector<double>>("EBamplitudeFitParameters", {1.138, 1.652}, true) and
               edm::ParameterDescription<std::vector<double>>("EEamplitudeFitParameters", {1.890, 1.400}, true) and
-              edm::ParameterDescription<edm::ESInputTag>("timeCalibTag", edm::ESInputTag(":CC"), true) and
-              edm::ParameterDescription<edm::ESInputTag>("timeOffsetTag", edm::ESInputTag(":CC"), true) and
+              edm::ParameterDescription<edm::ESInputTag>("timeCalibTag", edm::ESInputTag(), true) and
+              edm::ParameterDescription<edm::ESInputTag>("timeOffsetTag", edm::ESInputTag(), true) and
               edm::ParameterDescription<double>("EBtimeFitLimits_Lower", 0.2, true) and
               edm::ParameterDescription<double>("EBtimeFitLimits_Upper", 1.4, true) and
               edm::ParameterDescription<double>("EEtimeFitLimits_Lower", 0.2, true) and
