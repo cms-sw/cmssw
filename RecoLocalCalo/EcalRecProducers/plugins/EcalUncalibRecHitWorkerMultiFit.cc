@@ -644,7 +644,8 @@ void EcalUncalibRecHitWorkerMultiFit::run(const edm::Event& evt,
         for (unsigned int ibx = 0; ibx < activeBX.size(); ++ibx)
           amplitudes[ibx] = uncalibRecHit.outOfTimeAmplitude(ibx);
 
-        bool const doSlewCorrection = barrel ? crossCorrelationUseSlewCorrectionEB_ : crossCorrelationUseSlewCorrectionEE_;
+        bool const doSlewCorrection =
+            barrel ? crossCorrelationUseSlewCorrectionEB_ : crossCorrelationUseSlewCorrectionEE_;
 
         float jitter = computeCC_->computeTimeCC(
                            *itdg, amplitudes, aped, aGain, fullpulse, CCtargetTimePrecision_, true, doSlewCorrection) +
