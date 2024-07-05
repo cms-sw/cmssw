@@ -232,6 +232,7 @@ private:
   MonitorElement* meETLTrackMatchedTP2DPtvsPtMtd_;
 
   MonitorElement* meTrackMatchedTPEffPtTot_;
+  MonitorElement* meTrackMatchedTPEffPtTotLV_;
   MonitorElement* meTrackMatchedTPEffPtMtd_;
   MonitorElement* meTrackMatchedTPEffPtEtl2Mtd_;
   MonitorElement* meTrackMatchedTPmtdEffPtTot_;
@@ -243,6 +244,7 @@ private:
   MonitorElement* meExtraEtaMtd_;
   MonitorElement* meExtraEtaEtl2Mtd_;
   MonitorElement* meTrackMatchedTPEffEtaTot_;
+  MonitorElement* meTrackMatchedTPEffEtaTotLV_;
   MonitorElement* meTrackMatchedTPEffEtaMtd_;
   MonitorElement* meTrackMatchedTPEffEtaEtl2Mtd_;
   MonitorElement* meTrackMatchedTPmtdEffEtaTot_;
@@ -579,11 +581,17 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
         const bool withMTD = (simClustersRefs != tp2SimAssociationMap.end());
         if (noCrack) {
           meTrackMatchedTPEffPtTot_->Fill(trackGen.pt());
+          if (mvaTPSelLV(**tp_info)) {
+            meTrackMatchedTPEffPtTotLV_->Fill(trackGen.pt());
+          }
           if (withMTD) {
             meTrackMatchedTPmtdEffPtTot_->Fill(trackGen.pt());
           }
         }
         meTrackMatchedTPEffEtaTot_->Fill(std::abs(trackGen.eta()));
+        if (mvaTPSelLV(**tp_info)) {
+          meTrackMatchedTPEffEtaTotLV_->Fill(std::abs(trackGen.eta()));
+        }
         if (withMTD) {
           meTrackMatchedTPmtdEffEtaTot_->Fill(std::abs(trackGen.eta()));
         }
@@ -997,13 +1005,19 @@ void MtdTracksValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
   meMVATrackMatchedEffPtMtd_ = ibook.book1D(
       "MVAMatchedEffPtMtd", "Pt of tracks associated to LV matched to GEN with time; track pt [GeV] ", 110, 0., 11.);
 
-  meExtraPtMtd_ = ibook.book1D("ExtraPtMtd", "Pt of tracks extrapolated to hits; track pt [GeV] ", 110, 0., 11.);
-  meExtraPtEtl2Mtd_ =
-      ibook.book1D("ExtraPtEtl2Mtd", "Pt of tracks extrapolated to hits, 2 ETL layers; track pt [GeV] ", 110, 0., 11.);
+  meExtraPtMtd_ =
+      ibook.book1D("ExtraPtMtd", "Pt of tracks associated to LV extrapolated to hits; track pt [GeV] ", 110, 0., 11.);
+  meExtraPtEtl2Mtd_ = ibook.book1D("ExtraPtEtl2Mtd",
+                                   "Pt of tracks associated to LV extrapolated to hits, 2 ETL layers; track pt [GeV] ",
+                                   110,
+                                   0.,
+                                   11.);
 
   meTrackPtTot_ = ibook.book1D("TrackPtTot", "Pt of tracks ; track pt [GeV] ", 110, 0., 11.);
   meTrackMatchedTPEffPtTot_ =
-      ibook.book1D("MatchedTPEffPtTot", "Pt of tracks  matched to TP; track pt [GeV] ", 110, 0., 11.);
+      ibook.book1D("MatchedTPEffPtTot", "Pt of tracks matched to TP; track pt [GeV] ", 110, 0., 11.);
+  meTrackMatchedTPEffPtTotLV_ =
+      ibook.book1D("MatchedTPEffPtTotLV", "Pt of tracks associated to LV matched to TP; track pt [GeV] ", 110, 0., 11.);
   meTrackMatchedTPEffPtMtd_ =
       ibook.book1D("MatchedTPEffPtMtd", "Pt of tracks  matched to TP with time; track pt [GeV] ", 110, 0., 11.);
   meTrackMatchedTPEffPtEtl2Mtd_ = ibook.book1D(
@@ -1143,13 +1157,16 @@ void MtdTracksValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
   meMVATrackMatchedEffEtaMtd_ = ibook.book1D(
       "MVAMatchedEffEtaMtd", "Eta of tracks associated to LV matched to GEN with time; track eta ", 66, 0., 3.3);
 
-  meExtraEtaMtd_ = ibook.book1D("ExtraEtaMtd", "Eta of tracks extrapolated to hits; track eta ", 66, 0., 3.3);
-  meExtraEtaEtl2Mtd_ =
-      ibook.book1D("ExtraEtaEtl2Mtd", "Eta of tracks extrapolated to hits, 2 ETL layers; track eta ", 66, 0., 3.3);
+  meExtraEtaMtd_ =
+      ibook.book1D("ExtraEtaMtd", "Eta of tracks associated to LV extrapolated to hits; track eta ", 66, 0., 3.3);
+  meExtraEtaEtl2Mtd_ = ibook.book1D(
+      "ExtraEtaEtl2Mtd", "Eta of tracks associated to LV extrapolated to hits, 2 ETL layers; track eta ", 66, 0., 3.3);
 
   meTrackEtaTot_ = ibook.book1D("TrackEtaTot", "Eta of tracks ; track eta ", 66, 0., 3.3);
   meTrackMatchedTPEffEtaTot_ =
-      ibook.book1D("MatchedTPEffEtaTot", "Eta of tracks  matched to TP; track eta ", 66, 0., 3.3);
+      ibook.book1D("MatchedTPEffEtaTot", "Eta of tracks matched to TP; track eta ", 66, 0., 3.3);
+  meTrackMatchedTPEffEtaTotLV_ =
+      ibook.book1D("MatchedTPEffEtaTotLV", "Eta of tracks associated to LV matched to TP; track eta ", 66, 0., 3.3);
   meMVATrackEffEtaTot_ = ibook.book1D("MVAEffEtaTot", "Eta of tracks ; track eta ", 66, 0., 3.3);
   meTrackMatchedTPEffEtaMtd_ =
       ibook.book1D("MatchedTPEffEtaMtd", "Eta of tracks  matched to TP with time; track eta ", 66, 0., 3.3);
@@ -1168,28 +1185,33 @@ void MtdTracksValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
   meMVATrackZposResTot_ = ibook.book1D(
       "MVATrackZposResTot", "Z_{PCA} - Z_{sim} for associated tracks;Z_{PCA} - Z_{sim} [cm] ", 100, -0.1, 0.1);
 
-  meExtraPhiAtBTL_ =
-      ibook.book1D("ExtraPhiAtBTL", "Phi at BTL surface of extrapolated tracks; phi [deg]", 720, -180., 180.);
-  meExtraPhiAtBTLmatched_ = ibook.book1D("ExtraPhiAtBTLmatched",
-                                         "Phi at BTL surface of extrapolated tracksi matched with BTL hits; phi [deg]",
-                                         720,
-                                         -180.,
-                                         180.);
-  meExtraBTLeneInCone_ = ibook.book1D(
-      "ExtraBTLeneInCone", "BTL reconstructed energy in cone arounnd extrapolated track; E [MeV]", 100, 0., 50.);
+  meExtraPhiAtBTL_ = ibook.book1D(
+      "ExtraPhiAtBTL", "Phi at BTL surface of extrapolated tracks associated to LV; phi [deg]", 720, -180., 180.);
+  meExtraPhiAtBTLmatched_ =
+      ibook.book1D("ExtraPhiAtBTLmatched",
+                   "Phi at BTL surface of extrapolated tracks associated to LV matched with BTL hits; phi [deg]",
+                   720,
+                   -180.,
+                   180.);
+  meExtraBTLeneInCone_ =
+      ibook.book1D("ExtraBTLeneInCone",
+                   "BTL reconstructed energy in cone arounnd extrapolated track associated to LV; E [MeV]",
+                   100,
+                   0.,
+                   50.);
   meExtraMTDfailExtenderEta_ =
       ibook.book1D("ExtraMTDfailExtenderEta",
-                   "Eta of tracks extrapolated to MTD with no track extender match to hits; track eta",
+                   "Eta of tracks associated to LV extrapolated to MTD with no track extender match to hits; track eta",
                    66,
                    0.,
                    3.3);
   ;
-  meExtraMTDfailExtenderPt_ =
-      ibook.book1D("ExtraMTDfailExtenderPt",
-                   "Pt of tracks extrapolated to MTD with no track extender match to hits; track pt [GeV] ",
-                   110,
-                   0.,
-                   11.);
+  meExtraMTDfailExtenderPt_ = ibook.book1D(
+      "ExtraMTDfailExtenderPt",
+      "Pt of tracks associated to lV extrapolated to MTD with no track extender match to hits; track pt [GeV] ",
+      110,
+      0.,
+      11.);
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
