@@ -566,7 +566,7 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
   std::unique_ptr<GlobalObjectMapRecord> gtObjectMapRecord(new GlobalObjectMapRecord());
 
   std::unique_ptr<AXOL1TLScoreBxCollection> uGtAXOScoreRecord(nullptr);
-  if (m_saveAxoScore) {
+  if (m_produceAXOL1TLScore) {
     uGtAXOScoreRecord = std::make_unique<AXOL1TLScoreBxCollection>();
   }
 
