@@ -45,8 +45,7 @@ process.MessageLogger.cerr.INFO.limit = cms.untracked.int32(0) # default: 0
 
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(20))
 
-readFiles = cms.untracked.vstring('file:/eos/cms/store/cmst3/group/l1tr/gpetrucc/prod125X/WTo3Pion_pythia8_PU200/WTo3Pion_pythia8_PU200.batch3.job99.root'
-#                                      '/store/relval/CMSSW_13_0_0/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/130X_mcRun4_realistic_v2_2026D95noPU-v1/00000/16f6615d-f98c-475f-ad33-0e89934b6c7f.root'
+readFiles = cms.untracked.vstring('file:/eos/cms/store/cmst3/group/l1tr/gpetrucc/prod125X/WTo3Pion_pythia8_PU200/WTo3Pion_pythia8_PU200.batch3.job99.root'                                                     -#                                      '/store/relval/CMSSW_13_0_0/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/130X_mcRun4_realistic_v2_2026D95noPU-v1/00000/16f6615d-f98c-475f-ad33-0e89934b6c7f.root'
 )
 secFiles = cms.untracked.vstring()
 
@@ -157,10 +156,17 @@ if (L1TRKALGO == 'HYBRID'):
 elif (L1TRKALGO == 'HYBRID_DISPLACED'):
     process.TTTracksEmu = cms.Path(process.L1TExtendedHybridTracks)
     process.TTTracksEmuWithTruth = cms.Path(process.L1TExtendedHybridTracksWithAssociators)
-    process.pL1TrackSelection = cms.Path(process.l1tTrackSelectionProducer *
-                                         process.l1tTrackSelectionProducerExtended *
-                                         process.l1tTrackSelectionProducerExtendedForJets *
-                                         process.l1tTrackSelectionProducerExtendedForEtMiss)
+    if(runDispVert):
+        process.pL1TrackSelection = cms.Path(process.l1tTrackSelectionProducer *
+                                             process.l1tTrackSelectionProducerExtended *
+                                             process.l1tTrackSelectionProducerExtendedForJets *
+                                             process.l1tTrackSelectionProducerExtendedForEtMiss *
+                                             process.l1tTrackSelectionProducerExtendedForDispVert)
+    else:
+        process.pL1TrackSelection = cms.Path(process.l1tTrackSelectionProducer *
+                                             process.l1tTrackSelectionProducerExtended *
+                                             process.l1tTrackSelectionProducerExtendedForJets *
+                                             process.l1tTrackSelectionProducerExtendedForEtMiss)
     process.pL1TrackVertexAssociation = cms.Path(process.l1tTrackVertexAssociationProducerExtended *
                                                  process.l1tTrackVertexAssociationProducerExtendedForJets *
                                                  process.l1tTrackVertexAssociationProducerExtendedForEtMiss)
@@ -171,16 +177,23 @@ elif (L1TRKALGO == 'HYBRID_DISPLACED'):
     process.pTkMET = cms.Path(process.l1tTrackerEtMissExtended)
     process.pTkMHT = cms.Path(process.l1tTrackerHTMissExtended)
     process.pTkMHTEmulator = cms.Path(process.l1tTrackerEmuHTMissExtended)
-    if(runDispVert): process.DispVert = cms.Path(process.DisplacedVertexProducer)
+    if(runDispVert):
+        process.DispVert = cms.Path(process.DisplacedVertexProducer)
     DISPLACED = 'Displaced'#
 
 # HYBRID: extended tracking
 elif (L1TRKALGO == 'HYBRID_PROMPTANDDISP'):
     process.TTTracksEmu = cms.Path(process.L1TPromptExtendedHybridTracks)
     process.TTTracksEmuWithTruth = cms.Path(process.L1TPromptExtendedHybridTracksWithAssociators)
-    process.pL1TrackSelection = cms.Path(process.l1tTrackSelectionProducer * process.l1tTrackSelectionProducerExtended *
-                                         process.l1tTrackSelectionProducerForJets * process.l1tTrackSelectionProducerExtendedForJets *
-                                         process.l1tTrackSelectionProducerForEtMiss * process.l1tTrackSelectionProducerExtendedForEtMiss)
+    if(runDispVert):
+        process.pL1TrackSelection = cms.Path(process.l1tTrackSelectionProducer * process.l1tTrackSelectionProducerExtended *
+                                             process.l1tTrackSelectionProducerForJets * process.l1tTrackSelectionProducerExtendedForJets *
+                                             process.l1tTrackSelectionProducerForEtMiss * process.l1tTrackSelectionProducerExtendedForEtMiss *
+                                             process.l1tTrackSelectionProducerExtendedForDispVert)
+    else:
+        process.pL1TrackSelection = cms.Path(process.l1tTrackSelectionProducer * process.l1tTrackSelectionProducerExtended *
+                                             process.l1tTrackSelectionProducerForJets * process.l1tTrackSelectionProducerExtendedForJets *
+                                             process.l1tTrackSelectionProducerForEtMiss * process.l1tTrackSelectionProducerExtendedForEtMiss)
     process.pL1TrackVertexAssociation = cms.Path(VertexAssociator * process.l1tTrackVertexAssociationProducerExtended *
                                                  process.l1tTrackVertexAssociationProducerForJets * process.l1tTrackVertexAssociationProducerExtendedForJets *
                                                  process.l1tTrackVertexAssociationProducerForEtMiss * process.l1tTrackVertexAssociationProducerExtendedForEtMiss)
@@ -193,7 +206,8 @@ elif (L1TRKALGO == 'HYBRID_PROMPTANDDISP'):
     process.pTkMHT = cms.Path(process.l1tTrackerHTMiss*process.l1tTrackerHTMissExtended)
     process.pTkMHTEmulator = cms.Path(process.l1tTrackerEmuHTMiss*process.l1tTrackerEmuHTMissExtended)
     process.pL1TrackTripletEmulator = cms.Path(process.l1tTrackTripletEmulation)
-    if(runDispVert): process.DispVert = cms.Path(process.DisplacedVertexProducer)
+    if(runDispVert):
+        process.DispVert = cms.Path(process.DisplacedVertexProducer)
     DISPLACED = 'Both'
 
 
