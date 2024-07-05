@@ -1148,7 +1148,7 @@ steps['Cosmics_Phase2']=merge([{'cfg':'UndergroundCosmicMu_cfi.py',
                                 '--scenario':'cosmics',
                                 '--era': phase2CosInfo['Era'],
                                 '--geometry': phase2CosInfo['Geom'],
-                                '--beamspot':'HLLHC14TeV'},Kby(666,100000),step1Defaults])
+                                '--beamspot':'DBrealisticHLLHC'},Kby(666,100000),step1Defaults])
 
 steps['BeamHalo']=merge([{'cfg':'BeamHalo_cfi.py','--scenario':'cosmics'},Kby(9,100),step1Defaults])
 steps['BeamHalo_13']=merge([{'cfg':'BeamHalo_13TeV_cfi.py','--scenario':'cosmics'},Kby(9,100),step1Up2015Defaults])
@@ -4311,8 +4311,8 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
 
     upgradeStepDict['GenSimHLBeamSpot'][k]= {'-s' : 'GEN,SIM',
                                        '-n' : 10,
-                                       '--conditions' : gt,
-                                       '--beamspot' : 'HLLHC',
+                                       '--conditions' : gt+'_13TeV',
+                                       '--beamspot' : 'DBrealisticHLLHC',
                                        '--datatier' : 'GEN-SIM',
                                        '--eventcontent': 'FEVTDEBUG',
                                        '--geometry' : geom
@@ -4321,7 +4321,7 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
     upgradeStepDict['GenSimHLBeamSpot14'][k]= {'-s' : 'GEN,SIM',
                                        '-n' : 10,
                                        '--conditions' : gt,
-                                       '--beamspot' : 'HLLHC14TeV',
+                                       '--beamspot' : 'DBrealisticHLLHC',
                                        '--datatier' : 'GEN-SIM',
                                        '--eventcontent': 'FEVTDEBUG',
                                        '--geometry' : geom

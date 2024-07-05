@@ -1,6 +1,7 @@
 VtxSmeared = {
     'DBdesign':                      'IOMC.EventVertexGenerators.VtxSmearedDesign_cfi',
     'DBrealistic':                   'IOMC.EventVertexGenerators.VtxSmearedRealistic_cfi',
+    'DBrealisticHLLHC':              'IOMC.EventVertexGenerators.VtxSmearedRealisticHLLHC_cfi',
     'NoSmear':                       'Configuration.StandardSequences.VtxSmearedNoSmear_cff',              
     'BetafuncEarlyCollision':        'IOMC.EventVertexGenerators.VtxSmearedBetafuncEarlyCollision_cfi',    
     'BeamProfile':                   'IOMC.EventVertexGenerators.VtxSmearedBeamProfile_cfi',               
