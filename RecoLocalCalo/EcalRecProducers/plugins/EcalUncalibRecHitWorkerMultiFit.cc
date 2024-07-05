@@ -640,19 +640,24 @@ void EcalUncalibRecHitWorkerMultiFit::run(const edm::Event& evt,
         uncalibRecHit.setJitterError(0.);  // not computed with weights
 
       } else if (timealgo_ == crossCorrelationMethod) {
-		
         std::vector<double> amplitudes(activeBX.size());
         for (unsigned int ibx = 0; ibx < activeBX.size(); ++ibx)
           amplitudes[ibx] = uncalibRecHit.outOfTimeAmplitude(ibx);
 
-		bool const doSlewCorrection = barrel ? useSlewCorrectionEB_ : useSlewCorrectionEE_;
-		
-        float jitter =
-            computeCC_->computeTimeCC(*itdg, amplitudes, aped, aGain, fullpulse, CCtargetTimePrecision_, true, doSlewCorrection ) +
-            CCTimeShiftWrtRations_ / ecalcctiming::clockToNS;
-        float noCorrectedJitter =
-            computeCC_->computeTimeCC(*itdg, amplitudes, aped, aGain, fullpulse, CCtargetTimePrecisionForDelayedPulses_, false, doSlewCorrection ) +
-            CCTimeShiftWrtRations_ / ecalcctiming::clockToNS;
+        bool const doSlewCorrection = barrel ? useSlewCorrectionEB_ : useSlewCorrectionEE_;
+
+        float jitter = computeCC_->computeTimeCC(
+                           *itdg, amplitudes, aped, aGain, fullpulse, CCtargetTimePrecision_, true, doSlewCorrection) +
+                       CCTimeShiftWrtRations_ / ecalcctiming::clockToNS;
+        float noCorrectedJitter = computeCC_->computeTimeCC(*itdg,
+                                                            amplitudes,
+                                                            aped,
+                                                            aGain,
+                                                            fullpulse,
+                                                            CCtargetTimePrecisionForDelayedPulses_,
+                                                            false,
+                                                            doSlewCorrection) +
+                                  CCTimeShiftWrtRations_ / ecalcctiming::clockToNS;
 
         uncalibRecHit.setJitter(jitter);
         uncalibRecHit.setNonCorrectedTime(jitter, noCorrectedJitter);

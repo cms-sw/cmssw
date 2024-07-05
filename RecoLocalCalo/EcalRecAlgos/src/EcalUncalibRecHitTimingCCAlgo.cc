@@ -10,15 +10,14 @@ double EcalUncalibRecHitTimingCCAlgo::computeTimeCC(const EcalDataFrame& dataFra
                                                     const FullSampleVector& fullpulse,
                                                     const float targetTimePrecision,
                                                     const bool correctForOOT,
-													const bool correctForSlew ) const {
-
+                                                    const bool correctForSlew) const {
   constexpr unsigned int nsample = EcalDataFrame::MAXSAMPLES;
 
   double maxamplitude = -std::numeric_limits<double>::max();
   float pulsenorm = 0.;
 
   std::vector<float> pedSubSamples(nsample);
-  std::vector<float> weights(nsample,1.f);
+  std::vector<float> weights(nsample, 1.f);
   for (unsigned int iSample = 0; iSample < nsample; iSample++) {
     const EcalMGPASample& sample = dataFrame.sample(iSample);
 
@@ -54,16 +53,16 @@ double EcalUncalibRecHitTimingCCAlgo::computeTimeCC(const EcalDataFrame& dataFra
       maxamplitude = amplitude;
     }
 
-	if( iSample > 0 && correctForSlew ){ 
-		int GainIdPrev = dataFrame.sample(iSample - 1).gainId();
-		bool GainIdInRange = GainIdPrev >= 1 && GainIdPrev <= 3 && gainId >= 1 && gainId <= 3;
-		bool GainSlew = GainIdPrev < gainId;
-        if( GainIdInRange && GainSlew ) weights[iSample - 1] = 0.f;
-	}
-
+    if (iSample > 0 && correctForSlew) {
+      int GainIdPrev = dataFrame.sample(iSample - 1).gainId();
+      bool GainIdInRange = GainIdPrev >= 1 && GainIdPrev <= 3 && gainId >= 1 && gainId <= 3;
+      bool GainSlew = GainIdPrev < gainId;
+      if (GainIdInRange && GainSlew)
+        weights[iSample - 1] = 0.f;
+    }
   }
 
-  if( correctForOOT ){
+  if (correctForOOT) {
     int ipulse = -1;
     for (auto const& amplit : amplitudes) {
       ipulse++;
@@ -73,7 +72,7 @@ double EcalUncalibRecHitTimingCCAlgo::computeTimeCC(const EcalDataFrame& dataFra
 
       for (unsigned int isample = firstsamplet; isample < nsample; ++isample) {
         auto const pulse = fullpulse(isample + offset);
-        pedSubSamples[isample] = pedSubSamples[isample] - ( amplit * pulse / pulsenorm );
+        pedSubSamples[isample] = pedSubSamples[isample] - (amplit * pulse / pulsenorm);
       }
     }
   }
@@ -110,7 +109,9 @@ double EcalUncalibRecHitTimingCCAlgo::computeTimeCC(const EcalDataFrame& dataFra
   }
 
   float tM = (t3 + t0) / 2 - GLOBAL_TIME_SHIFT;
-  if (counter < MIN_NUM_OF_ITERATIONS || counter > MAX_NUM_OF_ITERATIONS - 1) { tM = TIME_WHEN_NOT_CONVERGING * ecalPh1::Samp_Period; }
+  if (counter < MIN_NUM_OF_ITERATIONS || counter > MAX_NUM_OF_ITERATIONS - 1) {
+    tM = TIME_WHEN_NOT_CONVERGING * ecalPh1::Samp_Period;
+  }
   return -tM / ecalPh1::Samp_Period;
 }
 
@@ -154,7 +155,7 @@ FullSampleVector EcalUncalibRecHitTimingCCAlgo::interpolatePulse(const FullSampl
 }
 
 float EcalUncalibRecHitTimingCCAlgo::computeCC(const std::vector<float>& samples,
-											   const std::vector<float>& weights,
+                                               const std::vector<float>& weights,
                                                const FullSampleVector& signalTemplate,
                                                const float time) const {
   constexpr int exclude = 1;
