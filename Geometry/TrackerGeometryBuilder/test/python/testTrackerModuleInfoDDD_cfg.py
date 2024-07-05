@@ -5,7 +5,7 @@ process = cms.Process("GeometryTest")
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
 # Choose Tracker Geometry
-process.load('Configuration.Geometry.GeometryExtended_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D100_cff')
 process.load('Geometry.CommonTopologies.globalTrackingGeometry_cfi')
 process.load('Geometry.TrackerGeometryBuilder.trackerParameters_cfi')
 process.load('Geometry.TrackerNumberingBuilder.trackerTopology_cfi')
@@ -15,6 +15,8 @@ process.TrackerGeometricDetESModule = cms.ESProducer( "TrackerGeometricDetESModu
                                                      )
 
 process.es_prefer_geomdet = cms.ESPrefer("TrackerGeometricDetESModule","")
+
+process.load("Geometry.TrackerGeometryBuilder.TrackerAdditionalParametersPerDet_cfi")
 
 process.load("Alignment.CommonAlignmentProducer.FakeAlignmentSource_cfi")
 process.preferFakeAlign = cms.ESPrefer("FakeAlignmentSource") 

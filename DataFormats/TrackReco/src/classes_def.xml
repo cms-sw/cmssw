@@ -398,11 +398,13 @@
   </class>
 
 
-      <class name="reco::DeDxHit"  ClassVersion="12">
+      <class name="reco::DeDxHit"  ClassVersion="13">
        <version ClassVersion="11" checksum="2617380234"/>
        <version ClassVersion="12" checksum="3747851168"/>       
+       <version ClassVersion="13" checksum="781849298"/>
       </class>
       <class name="reco::DeDxHitCollection" />
+      <class name="std::vector<reco::DeDxHitCollection>" />
 
   <!-- <class pattern="edm::AssociationVector<*>">
     <field name="transientVector_" transient="true"/>
@@ -422,6 +424,7 @@
   <class name="edm::AssociationVector<edm::RefProd<std::vector<reco::Track> >,std::vector<std::vector<reco::DeDxHit> >,edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >,unsigned int,edm::helper::AssociationIdenticalKeyReference>" >
     <field name="transientVector_" transient="true"/>
   </class>
+  <class name="std::pair<edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >,std::vector<reco::DeDxHit> >" />
      <!--   <class name="reco::DeDxDataCollection"/> -->
      <class name="reco::DeDxData" ClassVersion="10">
       <version ClassVersion="10" checksum="204721063"/>
@@ -490,8 +493,9 @@
     <class name="edm::Association<std::vector<reco::TrackExtra>>"/>
     <class name="edm::Wrapper<edm::Association<std::vector<reco::TrackExtra>>>"/>
 
-   <class name="reco::DeDxHitInfo::DeDxHitInfoContainer" ClassVersion="2">
+   <class name="reco::DeDxHitInfo::DeDxHitInfoContainer" ClassVersion="3">
     <version ClassVersion="2" checksum="3964047764"/>
+    <version ClassVersion="3" checksum="4148946944"/>
    </class>
    <class name="reco::DeDxHitInfo::DeDxHitInfoContainerCollection"/>
 

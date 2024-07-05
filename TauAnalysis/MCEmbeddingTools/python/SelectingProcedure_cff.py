@@ -3,17 +3,18 @@ from Configuration.StandardSequences.PAT_cff import *
 
 from PhysicsTools.PatAlgos.producersLayer1.muonProducer_cfi import patMuons
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import *
-
+from Configuration.Eras.Modifier_run2_HLTconditions_2016_cff import run2_HLTconditions_2016
 
 ## Trigger requirements
 doubleMuonHLTTrigger = cms.EDFilter("TriggerResultsFilter",
     hltResults = cms.InputTag("TriggerResults","","HLT"),
     l1tResults = cms.InputTag(""),
     throw = cms.bool(False),
-    triggerConditions = cms.vstring("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v* OR HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v*")
+    triggerConditions = cms.vstring("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v* OR HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8_v*") # from 2017 on (up to Run 3, it seems)
 )
 
-
+run2_HLTconditions_2016.toModify(doubleMuonHLTTrigger,
+                                 triggerConditions = ["HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v* OR HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v*"])
 
 ## Muon selection
 patMuonsAfterKinCuts = cms.EDFilter("PATMuonSelector",
@@ -64,11 +65,17 @@ ZmumuCandidates = cms.EDProducer("CandViewShallowCloneCombiner",
 
 ZmumuCandidatesFilter = cms.EDFilter("CandViewCountFilter",
     src = cms.InputTag("ZmumuCandidates"),
-    minNumber = cms.uint32(1),
+    minNumber = cms.uint32(1)
+    # filter = cms.bool(True)
 )
 
 selectedMuonsForEmbedding = cms.EDProducer("MuMuForEmbeddingSelector",
-    ZmumuCandidatesCollection = cms.InputTag("ZmumuCandidates")
+    ZmumuCandidatesCollection = cms.InputTag("ZmumuCandidates"),
+    use_zmass = cms.bool(False),
+    inputTagVertex = cms.InputTag("offlinePrimaryVertices"),
+    inputTagBeamSpot = cms.InputTag("offlineBeamSpot"),
+    PuppiMet = cms.InputTag("slimmedMETsPuppi"),
+    Met = cms.InputTag("slimmedMETs"),
 )
 
 makePatMuonsZmumuSelection = cms.Sequence(

@@ -11,3 +11,4 @@
 </library>
 
 <test name="BUFU_TEST" command="RunBUFU.sh"/>
+<test name="EventFilterUtilitiesReadStreamerFile" command="TestReadingStreamerFile.sh"/>

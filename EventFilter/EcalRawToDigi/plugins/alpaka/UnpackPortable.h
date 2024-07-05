@@ -4,7 +4,6 @@
 #include "CondFormats/EcalObjects/interface/alpaka/EcalElectronicsMappingDevice.h"
 #include "DataFormats/EcalDigi/interface/alpaka/EcalDigiDeviceCollection.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
-#include "HeterogeneousCore/AlpakaInterface/interface/traits.h"
 #include "DeclsForKernels.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::raw {

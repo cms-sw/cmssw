@@ -129,12 +129,7 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig)
   if (vetoEndcap_)
     inputTagVetoes_ = consumes<reco::PFCandidateCollection>(iConfig.getParameter<edm::InputTag>("vetoes"));
 
-  if (iConfig.existsAs<bool>("useEGammaFilters")) {
-    use_EGammaFilters_ = iConfig.getParameter<bool>("useEGammaFilters");
-  } else {
-    use_EGammaFilters_ = false;
-  }
-
+  use_EGammaFilters_ = iConfig.getParameter<bool>("useEGammaFilters");
   useEGammaElectrons_ = iConfig.getParameter<bool>("useEGammaElectrons");
 
   if (useEGammaElectrons_) {

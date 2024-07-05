@@ -37,6 +37,9 @@ namespace ecaldqm {
     double getBinContent(EcalDQMSetupObjects const, int, int = 0) const override;
 
     void reset(EcalElectronicsMapping const *, double = 0., double = 0., double = 0.) override;
+
+  private:
+    using ecaldqm::MESetEcal::operator=;
   };
 }  // namespace ecaldqm
 

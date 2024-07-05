@@ -74,10 +74,12 @@ def makePFTauAnalyzer(monitorModule):
 
 (HLTTauPostAnalysisInclusive, HLTTauPostAnalysisInclusive2) = makeInclusiveAnalyzer(hltTauOfflineMonitor_Inclusive)
 (HLTTauPostAnalysisPFTaus, HLTTauPostAnalysisPFTaus2) = makePFTauAnalyzer(hltTauOfflineMonitor_PFTaus)
+(HLTTauPostAnalysisPNetTaus, HLTTauPostAnalysisPNetTaus2) = makePFTauAnalyzer(hltTauOfflineMonitor_PNetTaus)
 (HLTTauPostAnalysisTP, HLTTauPostAnalysisTP2) = makePFTauAnalyzer(hltTauOfflineMonitor_TagAndProbe)
 
 HLTTauPostSeq = cms.Sequence(
     HLTTauPostAnalysisInclusive+HLTTauPostAnalysisInclusive2+
     HLTTauPostAnalysisPFTaus+HLTTauPostAnalysisPFTaus2+
+    HLTTauPostAnalysisPNetTaus+HLTTauPostAnalysisPNetTaus2+
     HLTTauPostAnalysisTP+HLTTauPostAnalysisTP2
 )

@@ -281,8 +281,7 @@ namespace cms {
         // Build trajectory from seed outwards
         theTmpTrajectories.clear();
         unsigned int nCandPerSeed = 0;
-        auto const& startTraj =
-            theTrajectoryBuilder->buildTrajectories((*collseed)[j], theTmpTrajectories, nCandPerSeed, nullptr);
+        theTrajectoryBuilder->buildTrajectories((*collseed)[j], theTmpTrajectories, nCandPerSeed, nullptr);
         {
           Lock lock(theMutex);
           (*outputSeedStopInfos)[j].setCandidatesPerSeed(nCandPerSeed);
@@ -309,7 +308,7 @@ namespace cms {
         // seed and if possible further inwards.
 
         if (doSeedingRegionRebuilding) {
-          theTrajectoryBuilder->rebuildTrajectories(startTraj, (*collseed)[j], theTmpTrajectories);
+          theTrajectoryBuilder->rebuildTrajectories((*collseed)[j], theTmpTrajectories);
 
           LogDebug("CkfPattern") << "======== Out-in trajectory building found " << theTmpTrajectories.size()
                                  << " valid/invalid trajectories from seed " << j << " ========\n"

@@ -262,8 +262,8 @@ TrackCount::TrackCount(const edm::ParameterSet& iConfig)
   m_hnlayerphieta->GetXaxis()->SetTitle("#eta");
   m_hnlayerphieta->GetYaxis()->SetTitle("#phi");
 
-  m_halgo =
-      tfserv->make<TH1D>("algo", "Algorithm number", reco::TrackBase::algoSize, -0.5, reco::TrackBase::algoSize - 0.5);
+  m_halgo = tfserv->make<TH1D>(
+      "algo", "Algorithm number", reco::TrackBase::algoSize, -0.5, static_cast<int>(reco::TrackBase::algoSize) - 0.5);
   m_halgo->GetXaxis()->SetTitle("algorithm");
   m_halgo->GetYaxis()->SetTitle("Tracks");
   m_hphieta = tfserv->make<TH2D>("phivseta", "#phi vs #eta", netabin2d, etamin, etamax, 40, -M_PI, M_PI);

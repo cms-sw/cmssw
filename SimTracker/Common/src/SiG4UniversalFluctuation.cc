@@ -2,11 +2,11 @@
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-#include "CLHEP/Random/RandFlat.h"
-#include "CLHEP/Random/RandGaussQ.h"
-#include "CLHEP/Random/RandPoissonQ.h"
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include <CLHEP/Random/RandFlat.h>
+#include <CLHEP/Random/RandGaussQ.h>
+#include <CLHEP/Random/RandPoissonQ.h>
+#include <CLHEP/Units/GlobalPhysicalConstants.h>
+#include <CLHEP/Units/SystemOfUnits.h>
 #include "SimTracker/Common/interface/SiG4UniversalFluctuation.h"
 #include "vdt/log.h"
 #include <cmath>
@@ -17,8 +17,8 @@ using namespace std;
 
 SiG4UniversalFluctuation::SiG4UniversalFluctuation()
     : minNumberInteractionsBohr(10.0),
-      theBohrBeta2(50.0 * keV / proton_mass_c2),
-      minLoss(10. * eV),
+      theBohrBeta2(50.0 * CLHEP::keV / proton_mass_c2),
+      minLoss(10. * CLHEP::eV),
       problim(5.e-3),
       alim(10.),
       nmaxCont1(4.),

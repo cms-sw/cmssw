@@ -25,8 +25,8 @@ CUDA kernels defined in this library. As a byproduct this plugin also shows how 
 `EDAnalyzer` or other framework plugin into a host-only part (in a `.cc` file) and a device part (in
 a `.cu` file).
 
-The `test` directory implements the `testCudaKernelAddition` test binary that launches the CUDA kernel
-defined in this library.
+The `test` directory implements the `testCudaKernelAddition` test binary that launches the CUDA
+kernel defined in this library.
 It also contains the `testCUDATestKernelAdditionModule.py` python configuration to exercise the
 `CUDATestKernelAdditionModule` module.
 

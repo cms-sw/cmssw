@@ -23,12 +23,18 @@ patAODTrackIsoDepositCtfTk = cms.EDProducer("CandIsoDepositProducer",
 )
 
 ## Configure calorimetric isolation
-from RecoMuon.MuonIsolationProducers.caloExtractorByAssociatorBlocks_cff import MIsoCaloExtractorByAssociatorTowersBlock
+from RecoMuon.MuonIsolationProducers.caloExtractorByAssociatorBlocks_cff import *
 patAODTrackIsoDepositCalByAssociatorTowers = cms.EDProducer("CandIsoDepositProducer",
     src                  = cms.InputTag("patAODTrackCands"),
     trackType            = cms.string('best'),
     MultipleDepositsFlag = cms.bool(True),
     ExtractorPSet        = cms.PSet( MIsoCaloExtractorByAssociatorTowersBlock )
+)
+patAODTrackIsoDepositCalByAssociatorHits = cms.EDProducer("CandIsoDepositProducer",
+    src                  = cms.InputTag("patAODTrackCands"),
+    trackType            = cms.string('best'),
+    MultipleDepositsFlag = cms.bool(True),
+    ExtractorPSet        = cms.PSet( MIsoCaloExtractorByAssociatorHitsBlock )
 )
 
 ## Select isolation labels to use
@@ -58,6 +64,7 @@ patAODTrackCandSequence = cms.Sequence(
         patAODTrackCandsUnfiltered *
         patAODTrackCands *
         patAODTrackIsoDepositCalByAssociatorTowers *
+        patAODTrackIsoDepositCalByAssociatorHits *
         patAODTrackIsoDepositCtfTk *
         patAODTrackIsolations
 )

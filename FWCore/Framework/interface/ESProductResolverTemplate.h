@@ -62,7 +62,7 @@ namespace edm {
                              const DataKey& iKey,
                              EventSetupImpl const* iEventSetupImpl,
                              edm::ServiceToken const& iToken,
-                             edm::ESParentContext const& iParent) override {
+                             edm::ESParentContext const& iParent) noexcept override {
         assert(iRecord.key() == RecordT::keyForClass());
         bool expected = false;
         bool doPrefetch = prefetching_.compare_exchange_strong(expected, true);

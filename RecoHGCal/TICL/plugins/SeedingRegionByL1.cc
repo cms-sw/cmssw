@@ -40,9 +40,9 @@ void ticl::SeedingRegionByL1::makeRegions(const edm::Event &ev,
 
     if (applyQuality_) {
       if (qualityIsMask_) {
-        passQuality = (l1GTCand.hwQual() & quality_);
+        passQuality = (l1GTCand.hwQualityFlags() & quality_);
       } else {
-        passQuality = (l1GTCand.hwQual() == quality_);
+        passQuality = (l1GTCand.hwQualityFlags() == quality_);
       }
     } else {
       passQuality = true;

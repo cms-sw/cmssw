@@ -26,6 +26,10 @@ uint32_t BTLNumberingScheme::getUnitID(const MTDBaseNumber& baseNumber) const {
     }
   }
 
+#ifdef EDM_ML_DEBUG
+  LogDebug("MTDGeom") << "BTLNumberingScheme::getUnitID(): isDD4hep " << isDD4hepOK;
+#endif
+
   auto bareBaseName = [&](std::string_view name) {
     size_t ipos = name.rfind('_');
     return (isDD4hepOK) ? name.substr(0, ipos) : name;
@@ -117,7 +121,11 @@ uint32_t BTLNumberingScheme::getUnitID(const MTDBaseNumber& baseNumber) const {
         modCopy = negModCopy[modCopy - 1];
       }
 
-      bool isV2(baseNumber.getLevelName(0).back() != 'l');
+      bool isV2(bareBaseName(baseNumber.getLevelName(0)).back() != 'l');
+
+#ifdef EDM_ML_DEBUG
+      LogDebug("MTDGeom") << "BTLNumberingScheme::getUnitID(): isV2 " << isV2;
+#endif
 
       if (isV2) {
         // V2: the type is embedded in crystal name
@@ -204,7 +212,11 @@ uint32_t BTLNumberingScheme::getUnitID(const MTDBaseNumber& baseNumber) const {
       modCopy = negModCopy[modCopy - 1];
     }
 
-    bool isV2(baseNumber.getLevelName(0).back() != 'e');
+    bool isV2(bareBaseName(baseNumber.getLevelName(0)).back() != 'e');
+
+#ifdef EDM_ML_DEBUG
+    LogDebug("MTDGeom") << "BTLNumberingScheme::getUnitID(): isV2 " << isV2;
+#endif
 
     if (isV2) {
       // V2: the type is embedded in crystal name

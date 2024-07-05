@@ -22,16 +22,15 @@
 
 class RPCConst {
 public:
-  enum {
-    ITOW_MIN = 0,   //!< Minimal number of abs(m_tower_number)
-    ITOW_MAX = 16,  //!< Maximal number of abs(m_tower_number)
-    //ITOW_MAX_LOWPT  = 7,      //!< Max m_tower number to which low_pt algorithm is used
-    IPT_MAX = 31,        //!< Max pt bin code
-    NSTRIPS = 1152,      //!< m_Number of Rpc strips in phi direction.
-    NSEG = NSTRIPS / 8,  //!< m_Number of trigger segments. One segment covers 8 RPC strips
-                         //!<in referencial plane (hardware 2 or 6(2')
-    OFFSET = 5           //!< Offset of the first trigger phi sector [deg]
-  };
+  static constexpr int ITOW_MIN = 0,  //!< Minimal number of abs(m_tower_number)
+      ITOW_MAX = 16,                  //!< Maximal number of abs(m_tower_number)
+      //ITOW_MAX_LOWPT  = 7,      //!< Max m_tower number to which low_pt algorithm is used
+      IPT_MAX = 31,        //!< Max pt bin code
+      NSTRIPS = 1152,      //!< m_Number of Rpc strips in phi direction.
+      NSEG = NSTRIPS / 8,  //!< m_Number of trigger segments. One segment covers 8 RPC strips
+                           //!<in referencial plane (hardware 2 or 6(2')
+      OFFSET = 5           //!< Offset of the first trigger phi sector [deg]
+      ;
 
   //static const int m_TOWER_COUNT = 16 + 1; //!< Only half of the detector.
 

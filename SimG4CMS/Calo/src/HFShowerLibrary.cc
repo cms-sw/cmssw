@@ -15,8 +15,8 @@
 #include "G4Track.hh"
 #include "G4ParticleTable.hh"
 #include "Randomize.hh"
-#include "CLHEP/Units/SystemOfUnits.h"
-#include "CLHEP/Units/PhysicalConstants.h"
+#include <CLHEP/Units/SystemOfUnits.h>
+#include <CLHEP/Units/PhysicalConstants.h>
 
 //#define EDM_ML_DEBUG
 namespace {
@@ -258,7 +258,7 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::fillHits(const G4ThreeVector&
   ok = true;
 
   // remove low-energy component
-  const double threshold = 50 * MeV;
+  const double threshold = 50 * CLHEP::MeV;
   if (pin < threshold) {
     return hit;
   }

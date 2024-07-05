@@ -16,7 +16,7 @@
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
 #include "Geometry/MuonNumbering/interface/RPCNumberingScheme.h"
 #include "DataFormats/GeometryVector/interface/Basic3DVector.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include <CLHEP/Units/SystemOfUnits.h>
 #include <iostream>
 #include <algorithm>
 #include <DetectorDescription/DDCMS/interface/DDFilteredView.h>

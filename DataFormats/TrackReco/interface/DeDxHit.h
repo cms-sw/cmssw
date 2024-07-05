@@ -12,8 +12,8 @@ namespace reco {
   public:
     DeDxHit() {}
 
-    DeDxHit(float ch, float mom, float len, uint32_t rawDetId)
-        : m_charge(ch), m_momentum(mom), m_pathLength(len), m_rawDetId(rawDetId) {}
+    DeDxHit(float ch, float mom, float len, uint32_t rawDetId, float err = 0)
+        : m_charge(ch), m_momentum(mom), m_pathLength(len), m_rawDetId(rawDetId), m_error(err) {}
 
     /// Return the angle and thick normalized, calibrated energy release
     float charge() const { return m_charge; }
@@ -27,6 +27,9 @@ namespace reco {
     /// Return the rawDetId
     uint32_t rawDetId() const { return m_rawDetId; }
 
+    /// Return the error of the energy release
+    float error() const { return m_error; }
+
     bool operator<(const DeDxHit &other) const { return m_charge < other.m_charge; }
 
   private:
@@ -36,6 +39,7 @@ namespace reco {
     float m_momentum;
     float m_pathLength;
     uint32_t m_rawDetId;
+    float m_error;
   };
 
   typedef std::vector<DeDxHit> DeDxHitCollection;

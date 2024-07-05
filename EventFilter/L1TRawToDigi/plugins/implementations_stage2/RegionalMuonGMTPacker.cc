@@ -108,7 +108,8 @@ namespace l1t {
               uint32_t msw{0};
               uint32_t lsw{0};
 
-              RegionalMuonRawDigiTranslator::generatePackedDataWords(mu, lsw, msw, isKbmtf_, useEmtfDisplacementInfo_);
+              RegionalMuonRawDigiTranslator::generatePackedDataWords(
+                  mu, lsw, msw, isKbmtf_, useOmtfDisplacementInfo_, useEmtfDisplacementInfo_);
 
               buf.at(frameIdx++) = lsw;
               buf.at(frameIdx++) = msw;

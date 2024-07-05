@@ -1,5 +1,5 @@
-#include "CLHEP/Random/RandFlat.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include <CLHEP/Random/RandFlat.h>
+#include <CLHEP/Units/SystemOfUnits.h>
 #include "DataFormats/Math/interface/Point3D.h"
 #include "Math/GenVector/Rotation3D.h"
 #include "Math/GenVector/RotationX.h"
@@ -10,6 +10,7 @@
 #include <vector>
 
 using namespace std;
+using CLHEP::deg;
 
 void computeRotation(double &myTheta, double &myPhi, ROOT::Math::Rotation3D &CMStoTB, ROOT::Math::Rotation3D &TBtoCMS) {
   // rotation matrix to move from the CMS reference frame to the test beam one

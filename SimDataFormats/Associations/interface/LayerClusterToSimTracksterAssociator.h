@@ -11,11 +11,11 @@
 
 // forward declarations
 
-namespace hgcal {
+namespace ticl {
 
   class LayerClusterToSimTracksterAssociator {
   public:
-    LayerClusterToSimTracksterAssociator(std::unique_ptr<hgcal::LayerClusterToSimTracksterAssociatorBaseImpl>);
+    LayerClusterToSimTracksterAssociator(std::unique_ptr<ticl::LayerClusterToSimTracksterAssociatorBaseImpl>);
     LayerClusterToSimTracksterAssociator() = default;
     LayerClusterToSimTracksterAssociator(LayerClusterToSimTracksterAssociator &&) = default;
     LayerClusterToSimTracksterAssociator &operator=(LayerClusterToSimTracksterAssociator &&) = default;
@@ -27,24 +27,24 @@ namespace hgcal {
 
     // ---------- const member functions ---------------------
     /// Associate a LayerCluster to SimTracksters
-    hgcal::RecoToSimTracksterCollection associateRecoToSim(
+    ticl::RecoToSimTracksterCollection associateRecoToSim(
         const edm::Handle<reco::CaloClusterCollection> &cCCH,
         const edm::Handle<ticl::TracksterCollection> &stCH,
         const edm::Handle<CaloParticleCollection> &cPCH,
-        const hgcal::RecoToSimCollection &lCToCPs,
+        const ticl::RecoToSimCollection &lCToCPs,
         const edm::Handle<SimClusterCollection> &sCCH,
-        const hgcal::RecoToSimCollectionWithSimClusters &lCToSCs) const {
+        const ticl::RecoToSimCollectionWithSimClusters &lCToSCs) const {
       return m_impl->associateRecoToSim(cCCH, stCH, cPCH, lCToCPs, sCCH, lCToSCs);
     };
 
     /// Associate a SimTrackster to LayerClusters
-    hgcal::SimTracksterToRecoCollection associateSimToReco(
+    ticl::SimTracksterToRecoCollection associateSimToReco(
         const edm::Handle<reco::CaloClusterCollection> &cCCH,
         const edm::Handle<ticl::TracksterCollection> &sTCH,
         const edm::Handle<CaloParticleCollection> &cPCH,
-        const hgcal::SimToRecoCollection &cpToLCs,
+        const ticl::SimToRecoCollection &cpToLCs,
         const edm::Handle<SimClusterCollection> &sCCH,
-        const hgcal::SimToRecoCollectionWithSimClusters &sCToLCs) const {
+        const ticl::SimToRecoCollectionWithSimClusters &sCToLCs) const {
       return m_impl->associateSimToReco(cCCH, sTCH, cPCH, cpToLCs, sCCH, sCToLCs);
     }
 
@@ -52,6 +52,6 @@ namespace hgcal {
     // ---------- member data --------------------------------
     std::unique_ptr<LayerClusterToSimTracksterAssociatorBaseImpl> m_impl;
   };
-}  // namespace hgcal
+}  // namespace ticl
 
 #endif

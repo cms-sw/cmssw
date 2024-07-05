@@ -127,11 +127,13 @@ private:
   edm::InputTag m_jetInputTag;
   edm::InputTag m_sumInputTag;
   edm::InputTag m_sumZdcInputTag;
+  edm::InputTag m_CICADAInputTag;
   edm::EDGetTokenT<BXVector<l1t::EGamma>> m_egInputToken;
   edm::EDGetTokenT<BXVector<l1t::Tau>> m_tauInputToken;
   edm::EDGetTokenT<BXVector<l1t::Jet>> m_jetInputToken;
   edm::EDGetTokenT<BXVector<l1t::EtSum>> m_sumInputToken;
   edm::EDGetTokenT<BXVector<l1t::EtSum>> m_sumZdcInputToken;
+  edm::EDGetTokenT<BXVector<float>> m_CICADAInputToken;
 
   /// input tag for external conditions
   edm::InputTag m_extInputTag;
@@ -194,9 +196,6 @@ private:
   // initialise prescale counters with a semi-random value in the range [0, prescale*10^precision - 1];
   // if false, the prescale counters are initialised to zero
   bool m_semiRandomInitialPSCounters;
-
-  //string to store AXOL1TL model version
-  std::string m_AXOL1TLModelVersion;
 
   // switch to load muon showers in the global board
   bool m_useMuonShowers;

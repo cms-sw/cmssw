@@ -128,6 +128,7 @@ int OmtfAngleConverter::getGlobalEta(const DTChamberId dTChamberId,
         bti_group = 511;
   }
 
+  //TODO why bti_group == 511 (meaning there is more then one bit fired) is converted into 95, but not into middle of the chamber?
   int iEta = 0;
   if (bti_group == 511)
     iEta = 95;
@@ -205,14 +206,14 @@ int OmtfAngleConverter::getGlobalEta(unsigned int rawid, const CSCCorrelatedLCTD
   const GlobalPoint final_gp(
       GlobalPoint::Polar(coarse_gp.theta(), (coarse_gp.phi().value() + phi_offset), coarse_gp.mag()));
 
-  r = final_gp.perp();
+  //TODO for phase 2, add firmware like, fixed point conversion from keyWG to eta and r
+  const LocalPoint lpWg = layer_geom->localCenterOfWireGroup(keyWG);
+  const GlobalPoint gpWg = layer->surface().toGlobal(lpWg);
+  r = round(gpWg.perp());
 
   if (config->getStubEtaEncoding() == ProcConfigurationBase::StubEtaEncoding::bits)
     return OMTFConfiguration::eta2Bits(abs(etaKeyWG2Code(id, keyWG)));
   else if (config->getStubEtaEncoding() == ProcConfigurationBase::StubEtaEncoding::valueP1Scale) {
-    const LocalPoint lpWg = layer_geom->localCenterOfWireGroup(keyWG);
-    const GlobalPoint gpWg = layer->surface().toGlobal(lpWg);
-
     return config->etaToHwEta(abs(gpWg.eta()));
   } else {
     return 0;

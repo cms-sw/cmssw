@@ -75,11 +75,17 @@
 //                               The digit *r* is used to treat depth values:
 //                               (0) treat each depth independently; (1) all
 //                               depths of ieta 15, 16 of HB as depth 1; (2)
-//                               all depths in HB and HE as depth 1; (3) all
-//                               depths in HE with values > 1 as depth 2; (4)
-//                               all depths in HB with values > 1 as depth 2;
+//                               all depths in HB and HE as depth 1; (3) ignore
+//                               depth index in HE (depth index set to 1); (4)
+//                               ignore depth index in HB (depth index set 1);
 //                               (5) all depths in HB and HE with values > 1
-//                               as depth 2.
+//                               as depth 2; (6) for depth = 1 and 2, depth =
+//                               1, else depth = 2; (7) in case of HB, depths
+//                               1 and 2 are set to 1, else depth =2; for HE
+//                               ignore depth index; (8) in case of HE, depths
+//                               1 and 2 are set to 1, else depth =2; for HB
+//                               ignore depth index; (9) Ignore depth index for
+//                               depth > 1 in HB and all depth index for HE.
 //                               The digit *d* is used if zside is to be
 //                               ignored (1) or not (0)
 //                               (Default 0)
@@ -119,8 +125,9 @@
 //                               corrFactor table, the corr-factor for the
 //                               corresponding zside, depth=1 and maximum ieta
 //                               in the table is taken (default = false)
-//   nmax            (Long64_t)= maximum number of entries to be processed,
-//                               if -1, all entries to be processed (-1)
+//  nmax             (Long64_t)= maximum number of entries to be processed,
+//                               if -1, all entries to be processed; -2 take
+//                               all odd entries; -3 take all even entries (-1)
 //   debug           (bool)    = Debug flag (false)
 //
 //   histFileName (std::string)= name of the file containing saved histograms
@@ -911,6 +918,7 @@ void CalibMonitor::Loop(Long64_t nmax, bool debug) {
   std::vector<int> kount3(20, 0);
   std::vector<int> kount4(20, 0);
   std::vector<int> kount5(20, 0);
+  int32_t oddEven = (nmax == -2) ? 1 : ((nmax == -3) ? -1 : 0);
   for (Long64_t jentry = 0; jentry < entries; jentry++) {
     //for (Long64_t jentry=0; jentry<200;jentry++) {
     Long64_t ientry = LoadTree(jentry);
@@ -920,6 +928,12 @@ void CalibMonitor::Loop(Long64_t nmax, bool debug) {
     nbytes += nb;
     if (jentry % 1000000 == 0)
       std::cout << "Entry " << jentry << " Run " << t_Run << " Event " << t_Event << std::endl;
+    if (oddEven != 0) {
+      if ((oddEven < 0) && (jentry % 2 == 0))
+        continue;
+      else if ((oddEven > 0) && (jentry % 2 != 0))
+        continue;
+    }
     double pmom = (useGen_ && (t_gentrackP > 0)) ? t_gentrackP : t_p;
     int kp(-1);
     for (unsigned int k = 1; k < ps_.size(); ++k) {
@@ -1983,7 +1997,7 @@ void GetEntries::Loop(Long64_t nmax) {
   //      Root > t.Show(16);     // Read and show values of entry 16
   //      Root > t.Loop();       // Loop on all entries
   //
-
+  //
   //     This is the loop skeleton where:
   //    jentry is the global entry number in the chain
   //    ientry is the entry number in the current Tree
@@ -2009,12 +2023,19 @@ void GetEntries::Loop(Long64_t nmax) {
   int looseHLT[3] = {0, 0, 0};
   int tightHLT[3] = {0, 0, 0};
   Long64_t entries = (nmax > 0) ? nmax : nentries;
+  int32_t oddEven = (nmax == -2) ? 1 : ((nmax == -3) ? -1 : 0);
   for (Long64_t jentry = 0; jentry < entries; jentry++) {
     Long64_t ientry = LoadTree(jentry);
     if (ientry < 0)
       break;
     nb = fChain->GetEntry(jentry);
     nbytes += nb;
+    if (oddEven != 0) {
+      if ((oddEven < 0) && (jentry % 2 == 0))
+        continue;
+      else if ((oddEven > 0) && (jentry % 2 != 0))
+        continue;
+    }
     bool select = (std::find(entries_.begin(), entries_.end(), jentry) == entries_.end());
     if (!select) {
       ++duplicate;

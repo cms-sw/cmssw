@@ -16,8 +16,9 @@
 
 
   <class name="l1t::P2GTCandidate::Optional<int>"/>
-  <class name="l1t::P2GTCandidate::Optional<double>"/>
-  <class name="l1t::P2GTCandidate"/>
+  <class name="l1t::P2GTCandidate" ClassVersion="10">
+    <version ClassVersion="10" checksum="2728416623"/>
+  </class>
   <class name="l1t::P2GTCandidateCollection"/>
   <class name="edm::Wrapper<l1t::P2GTCandidateCollection>"/>
   <class name="l1t::P2GTCandidateRef"/>
@@ -27,9 +28,12 @@
   <class name="l1t::P2GTCandidateVectorRef"/>
   <class name="edm::Wrapper<l1t::P2GTCandidateVectorRef>"/>
 
-  <class name="l1t::P2GTAlgoBlock"/>
-  <class name="l1t::P2GTAlgoBlockCollection"/>
-  <class name="edm::Wrapper<l1t::P2GTAlgoBlockCollection>"/>
+  <class name="l1t::P2GTAlgoBlock" ClassVersion="10">
+    <version ClassVersion="10" checksum="892944969"/>
+  </class>
+  <class name="l1t::P2GTAlgoBlockMap"/>
+  <class name="std::pair<const std::string, l1t::P2GTAlgoBlock>" />
+  <class name="edm::Wrapper<l1t::P2GTAlgoBlockMap>"/>
 
 
   <class name="l1t::Jet" ClassVersion="13">

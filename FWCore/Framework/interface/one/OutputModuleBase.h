@@ -47,12 +47,12 @@ namespace edm {
       OutputModuleBase& operator=(OutputModuleBase const&) = delete;  // Disallow copying and moving
 
       //Output modules always need writeRun and writeLumi to be called
-      virtual bool wantsProcessBlocks() const = 0;
-      virtual bool wantsInputProcessBlocks() const = 0;
-      virtual bool wantsGlobalRuns() const = 0;
-      virtual bool wantsGlobalLuminosityBlocks() const = 0;
-      bool wantsStreamRuns() const { return false; }
-      bool wantsStreamLuminosityBlocks() const { return false; };
+      virtual bool wantsProcessBlocks() const noexcept = 0;
+      virtual bool wantsInputProcessBlocks() const noexcept = 0;
+      virtual bool wantsGlobalRuns() const noexcept = 0;
+      virtual bool wantsGlobalLuminosityBlocks() const noexcept = 0;
+      bool wantsStreamRuns() const noexcept { return false; }
+      bool wantsStreamLuminosityBlocks() const noexcept { return false; };
 
       virtual SerialTaskQueue* globalRunsQueue() { return nullptr; }
       virtual SerialTaskQueue* globalLuminosityBlocksQueue() { return nullptr; }
@@ -81,9 +81,9 @@ namespace edm {
 
       virtual void preActionBeforeRunEventAsync(WaitingTaskHolder iTask,
                                                 ModuleCallingContext const& iModuleCallingContext,
-                                                Principal const& iPrincipal) const {}
+                                                Principal const& iPrincipal) const noexcept {}
 
-      bool hasAcquire() const { return false; }
+      bool hasAcquire() const noexcept { return false; }
     };
   }  // namespace one
 }  // namespace edm

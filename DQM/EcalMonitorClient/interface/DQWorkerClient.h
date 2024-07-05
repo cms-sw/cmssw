@@ -41,7 +41,7 @@ namespace ecaldqm {
 
     void setStatusManager(StatusManager const& _manager) { statusManager_ = &_manager; }
 
-    enum Quality { kBad = 0, kGood = 1, kUnknown = 2, kMBad = 3, kMGood = 4, kMUnknown = 5 };
+    static constexpr int kBad = 0, kGood = 1, kUnknown = 2, kMBad = 3, kMGood = 4, kMUnknown = 5;
 
   protected:
     void setME(edm::ParameterSet const& _ps) final;

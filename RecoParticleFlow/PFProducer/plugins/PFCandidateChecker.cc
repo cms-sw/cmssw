@@ -34,10 +34,10 @@ private:
   void printElementsInBlocks(const reco::PFCandidate& cand, std::ostream& out = std::cout) const;
 
   /// PFCandidates in which we'll look for pile up particles
-  edm::InputTag inputTagPFCandidatesReco_;
-  edm::InputTag inputTagPFCandidatesReReco_;
-  edm::InputTag inputTagPFJetsReco_;
-  edm::InputTag inputTagPFJetsReReco_;
+  edm::EDGetTokenT<reco::PFCandidateCollection> inputTokenPFCandidatesReco_;
+  edm::EDGetTokenT<reco::PFCandidateCollection> inputTokenPFCandidatesReReco_;
+  edm::EDGetTokenT<reco::PFJetCollection> inputTokenPFJetsReco_;
+  edm::EDGetTokenT<reco::PFJetCollection> inputTokenPFJetsReReco_;
 
   /// Cuts for comparison
   double deltaEMax_;
@@ -66,13 +66,15 @@ using namespace edm;
 using namespace reco;
 
 PFCandidateChecker::PFCandidateChecker(const edm::ParameterSet& iConfig) {
-  inputTagPFCandidatesReco_ = iConfig.getParameter<InputTag>("pfCandidatesReco");
+  inputTokenPFCandidatesReco_ =
+      consumes<reco::PFCandidateCollection>(iConfig.getParameter<InputTag>("pfCandidatesReco"));
 
-  inputTagPFCandidatesReReco_ = iConfig.getParameter<InputTag>("pfCandidatesReReco");
+  inputTokenPFCandidatesReReco_ =
+      consumes<reco::PFCandidateCollection>(iConfig.getParameter<InputTag>("pfCandidatesReReco"));
 
-  inputTagPFJetsReco_ = iConfig.getParameter<InputTag>("pfJetsReco");
+  inputTokenPFJetsReco_ = consumes<reco::PFJetCollection>(iConfig.getParameter<InputTag>("pfJetsReco"));
 
-  inputTagPFJetsReReco_ = iConfig.getParameter<InputTag>("pfJetsReReco");
+  inputTokenPFJetsReReco_ = consumes<reco::PFJetCollection>(iConfig.getParameter<InputTag>("pfJetsReReco"));
 
   deltaEMax_ = iConfig.getParameter<double>("deltaEMax");
 
@@ -88,8 +90,8 @@ PFCandidateChecker::PFCandidateChecker(const edm::ParameterSet& iConfig) {
 
   entry_ = 0;
 
-  LogDebug("PFCandidateChecker") << " input collections : " << inputTagPFCandidatesReco_ << " "
-                                 << inputTagPFCandidatesReReco_;
+  LogDebug("PFCandidateChecker") << " input collections : " << iConfig.getParameter<InputTag>("pfCandidatesReco") << " "
+                                 << iConfig.getParameter<InputTag>("pfCandidatesReReco");
 }
 
 void PFCandidateChecker::analyze(const Event& iEvent, const EventSetup& iSetup) {
@@ -97,17 +99,10 @@ void PFCandidateChecker::analyze(const Event& iEvent, const EventSetup& iSetup) 
 
   // get PFCandidates
 
-  Handle<PFCandidateCollection> pfCandidatesReco;
-  iEvent.getByLabel(inputTagPFCandidatesReco_, pfCandidatesReco);
-
-  Handle<PFCandidateCollection> pfCandidatesReReco;
-  iEvent.getByLabel(inputTagPFCandidatesReReco_, pfCandidatesReReco);
-
-  Handle<PFJetCollection> pfJetsReco;
-  iEvent.getByLabel(inputTagPFJetsReco_, pfJetsReco);
-
-  Handle<PFJetCollection> pfJetsReReco;
-  iEvent.getByLabel(inputTagPFJetsReReco_, pfJetsReReco);
+  const auto& pfCandidatesReco = iEvent.getHandle(inputTokenPFCandidatesReco_);
+  const auto& pfCandidatesReReco = iEvent.getHandle(inputTokenPFCandidatesReReco_);
+  const auto& pfJetsReco = iEvent.getHandle(inputTokenPFJetsReco_);
+  const auto& pfJetsReReco = iEvent.getHandle(inputTokenPFJetsReReco_);
 
   reco::PFCandidateCollection pfReco, pfReReco;
 

@@ -12,7 +12,7 @@
 #include "G4LogicalVolumeStore.hh"
 #include "G4RegionStore.hh"
 #include "Randomize.hh"
-#include "G4SystemOfUnits.hh"
+#include <CLHEP/Units/SystemOfUnits.h>
 #include "G4VSolid.hh"
 #include "G4TransportationManager.hh"
 #include "G4GammaGeneralProcess.hh"
@@ -29,8 +29,8 @@ StackingAction::StackingAction(const TrackingAction* trka, const edm::ParameterS
   kmaxNeutron = p.getParameter<double>("NeutronThreshold") * CLHEP::MeV;
   killDeltaRay = p.getParameter<bool>("KillDeltaRay");
   limitEnergyForVacuum = p.getParameter<double>("CriticalEnergyForVacuum") * CLHEP::MeV;
-  maxTrackTime = p.getParameter<double>("MaxTrackTime") * ns;
-  maxTrackTimeForward = p.getParameter<double>("MaxTrackTimeForward") * ns;
+  maxTrackTime = p.getParameter<double>("MaxTrackTime") * CLHEP::ns;
+  maxTrackTimeForward = p.getParameter<double>("MaxTrackTimeForward") * CLHEP::ns;
   maxZCentralCMS = p.getParameter<double>("MaxZCentralCMS") * CLHEP::m;
   maxTrackTimes = p.getParameter<std::vector<double> >("MaxTrackTimes");
   maxTimeNames = p.getParameter<std::vector<std::string> >("MaxTimeNames");

@@ -95,18 +95,18 @@ namespace edm {
                                           EventPrincipal const& iEvent,
                                           ActivityRegistry* iAct,
                                           ModuleCallingContext iMCC,
-                                          ServiceWeakToken const& iToken) {
+                                          ServiceWeakToken const& iToken) noexcept {
       EventForTransformer ev(iEvent, iMCC);
       transformAsync_(iTask, iTransformIndex, ev, iAct, iToken);
     }
 
-    size_t EDProducerBase::transformIndex_(edm::BranchDescription const& iBranch) const { return -1; }
-    ProductResolverIndex EDProducerBase::transformPrefetch_(std::size_t iIndex) const { return 0; }
+    size_t EDProducerBase::transformIndex_(edm::BranchDescription const& iBranch) const noexcept { return -1; }
+    ProductResolverIndex EDProducerBase::transformPrefetch_(std::size_t iIndex) const noexcept { return 0; }
     void EDProducerBase::transformAsync_(WaitingTaskHolder iTask,
                                          std::size_t iIndex,
                                          edm::EventForTransformer& iEvent,
                                          edm::ActivityRegistry* iAct,
-                                         ServiceWeakToken const& iToken) const {}
+                                         ServiceWeakToken const& iToken) const noexcept {}
 
     void EDProducerBase::doPreallocate(PreallocationConfiguration const& iPrealloc) {
       auto const nStreams = iPrealloc.numberOfStreams();

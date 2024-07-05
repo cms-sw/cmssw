@@ -28,45 +28,14 @@ public:
   }
 
   void setParameters(const edm::ParameterSet& iCfgCandConnector) {
-    bool bCorrect, bCalibPrimary;
-    double dptRel_PrimaryTrack, dptRel_MergedTrack, ptErrorSecondary;
-    std::vector<double> nuclCalibFactors;
-
     /// Flag to apply the correction procedure for nuclear interactions
-    bCorrect = iCfgCandConnector.getParameter<bool>("bCorrect");
+    const auto& bCorrect = iCfgCandConnector.getParameter<bool>("bCorrect");
     /// Flag to calibrate the reconstructed nuclear interactions with primary or merged tracks
-    bCalibPrimary = iCfgCandConnector.getParameter<bool>("bCalibPrimary");
-
-    if (iCfgCandConnector.exists("dptRel_PrimaryTrack"))
-      dptRel_PrimaryTrack = iCfgCandConnector.getParameter<double>("dptRel_PrimaryTrack");
-    else {
-      edm::LogWarning("PFCandConnector") << "dptRel_PrimaryTrack doesn't exist. Setting a default safe value 0"
-                                         << std::endl;
-      dptRel_PrimaryTrack = 0;
-    }
-
-    if (iCfgCandConnector.exists("dptRel_MergedTrack"))
-      dptRel_MergedTrack = iCfgCandConnector.getParameter<double>("dptRel_MergedTrack");
-    else {
-      edm::LogWarning("PFCandConnector") << "dptRel_MergedTrack doesn't exist. Setting a default safe value 0"
-                                         << std::endl;
-      dptRel_MergedTrack = 0;
-    }
-
-    if (iCfgCandConnector.exists("ptErrorSecondary"))
-      ptErrorSecondary = iCfgCandConnector.getParameter<double>("ptErrorSecondary");
-    else {
-      edm::LogWarning("PFCandConnector") << "ptErrorSecondary doesn't exist. Setting a default safe value 0"
-                                         << std::endl;
-      ptErrorSecondary = 0;
-    }
-
-    if (iCfgCandConnector.exists("nuclCalibFactors"))
-      nuclCalibFactors = iCfgCandConnector.getParameter<std::vector<double> >("nuclCalibFactors");
-    else {
-      edm::LogWarning("PFCandConnector") << "nuclear calib factors doesn't exist the factor would not be applyed"
-                                         << std::endl;
-    }
+    const auto& bCalibPrimary = iCfgCandConnector.getParameter<bool>("bCalibPrimary");
+    const auto& dptRel_PrimaryTrack = iCfgCandConnector.getParameter<double>("dptRel_PrimaryTrack");
+    const auto& dptRel_MergedTrack = iCfgCandConnector.getParameter<double>("dptRel_MergedTrack");
+    const auto& ptErrorSecondary = iCfgCandConnector.getParameter<double>("ptErrorSecondary");
+    const auto& nuclCalibFactors = iCfgCandConnector.getParameter<std::vector<double> >("nuclCalibFactors");
 
     setParameters(bCorrect, bCalibPrimary, dptRel_PrimaryTrack, dptRel_MergedTrack, ptErrorSecondary, nuclCalibFactors);
   }

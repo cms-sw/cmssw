@@ -23,8 +23,8 @@
 #include "G4Cerenkov.hh"
 #include "G4ParticleTable.hh"
 #include "G4PhysicalConstants.hh"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
+#include <CLHEP/Units/SystemOfUnits.h>
+#include <CLHEP/Units/GlobalPhysicalConstants.h>
 #include "Randomize.hh"
 #include "G4Poisson.hh"
 #include "G4TwoVector.hh"
@@ -92,7 +92,7 @@ bool ZdcSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
     auto const theTrack = aStep->GetTrack();
     uint16_t depth = getDepth(aStep);
 
-    double time = theTrack->GetGlobalTime() / nanosecond;
+    double time = theTrack->GetGlobalTime() / CLHEP::nanosecond;
     int primaryID = getTrackID(theTrack);
     currentID[0].setID(unitID, time, primaryID, depth);
     double energy = calculateCherenkovDeposit(aStep);
@@ -183,7 +183,7 @@ double ZdcSD::getEnergyDeposit(const G4Step* aStep) {
 
   const G4ThreeVector& hitPoint = preStepPoint->GetPosition();
   const G4ThreeVector& hit_mom = preStepPoint->GetMomentumDirection();
-  G4double stepL = aStep->GetStepLength() / cm;
+  G4double stepL = aStep->GetStepLength() / CLHEP::cm;
   G4double beta = preStepPoint->GetBeta();
   G4double charge = preStepPoint->GetCharge();
   if (charge == 0.0)

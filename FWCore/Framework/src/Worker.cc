@@ -120,7 +120,7 @@ namespace edm {
   bool Worker::shouldRethrowException(std::exception_ptr iPtr,
                                       ParentContext const& parentContext,
                                       bool isEvent,
-                                      bool shouldTryToContinue) const {
+                                      bool shouldTryToContinue) const noexcept {
     // NOTE: the warning printed as a result of ignoring or failing
     // a module will only be printed during the full true processing
     // pass of this module
@@ -156,26 +156,40 @@ namespace edm {
                                          WaitingTask* successTask,
                                          ServiceToken const& token,
                                          StreamID id,
-                                         EventPrincipal const* iPrincipal) {
+                                         EventPrincipal const* iPrincipal) noexcept {
     successTask->increment_ref_count();
 
     ServiceWeakToken weakToken = token;
     auto choiceTask =
         edm::make_waiting_task([id, successTask, iPrincipal, this, weakToken, &group](std::exception_ptr const*) {
           ServiceRegistry::Operate guard(weakToken.lock());
-          // There is no reasonable place to rethrow, and implDoPrePrefetchSelection() should not throw in the first place.
-          CMS_SA_ALLOW try {
-            if (not implDoPrePrefetchSelection(id, *iPrincipal, &moduleCallingContext_)) {
-              timesRun_.fetch_add(1, std::memory_order_relaxed);
-              setPassed<true>();
-              waitingTasks_.doneWaiting(nullptr);
-              //TBB requires that destroyed tasks have count 0
-              if (0 == successTask->decrement_ref_count()) {
-                TaskSentry s(successTask);
+          try {
+            bool selected = convertException::wrap([&]() {
+              if (not implDoPrePrefetchSelection(id, *iPrincipal, &moduleCallingContext_)) {
+                timesRun_.fetch_add(1, std::memory_order_relaxed);
+                setPassed<true>();
+                waitingTasks_.doneWaiting(nullptr);
+                //TBB requires that destroyed tasks have count 0
+                if (0 == successTask->decrement_ref_count()) {
+                  TaskSentry s(successTask);
+                }
+                return false;
               }
+              return true;
+            });
+            if (not selected) {
               return;
             }
-          } catch (...) {
+
+          } catch (cms::Exception& e) {
+            edm::exceptionContext(e, moduleCallingContext_);
+            setException<true>(std::current_exception());
+            waitingTasks_.doneWaiting(std::current_exception());
+            //TBB requires that destroyed tasks have count 0
+            if (0 == successTask->decrement_ref_count()) {
+              TaskSentry s(successTask);
+            }
+            return;
           }
           if (0 == successTask->decrement_ref_count()) {
             group.run([successTask]() {
@@ -193,7 +207,8 @@ namespace edm {
     for (auto const& item : items) {
       ProductResolverIndex productResolverIndex = item.productResolverIndex();
       bool skipCurrentProcess = item.skipCurrentProcess();
-      if (productResolverIndex != ProductResolverIndexAmbiguous) {
+      if (productResolverIndex != ProductResolverIndexAmbiguous and
+          productResolverIndex != ProductResolverIndexInvalid) {
         iPrincipal->prefetchAsync(
             choiceHolder, productResolverIndex, skipCurrentProcess, token, &moduleCallingContext_);
       }
@@ -204,7 +219,7 @@ namespace edm {
   void Worker::esPrefetchAsync(WaitingTaskHolder iTask,
                                EventSetupImpl const& iImpl,
                                Transition iTrans,
-                               ServiceToken const& iToken) {
+                               ServiceToken const& iToken) noexcept {
     if (iTrans >= edm::Transition::NumberOfEventSetupTransitions) {
       return;
     }
@@ -226,7 +241,9 @@ namespace edm {
     }
   }
 
-  void Worker::edPrefetchAsync(WaitingTaskHolder iTask, ServiceToken const& token, Principal const& iPrincipal) const {
+  void Worker::edPrefetchAsync(WaitingTaskHolder iTask,
+                               ServiceToken const& token,
+                               Principal const& iPrincipal) const noexcept {
     // Prefetch products the module declares it consumes
     std::vector<ProductResolverIndexAndSkipBit> const& items = itemsToGetFrom(iPrincipal.branchType());
 
@@ -241,14 +258,14 @@ namespace edm {
 
   void Worker::setEarlyDeleteHelper(EarlyDeleteHelper* iHelper) { earlyDeleteHelper_ = iHelper; }
 
-  size_t Worker::transformIndex(edm::BranchDescription const&) const { return -1; }
+  size_t Worker::transformIndex(edm::BranchDescription const&) const noexcept { return -1; }
   void Worker::doTransformAsync(WaitingTaskHolder iTask,
                                 size_t iTransformIndex,
                                 EventPrincipal const& iPrincipal,
                                 ServiceToken const& iToken,
                                 StreamID,
                                 ModuleCallingContext const& mcc,
-                                StreamContext const*) {
+                                StreamContext const*) noexcept {
     ServiceWeakToken weakToken = iToken;
 
     //Need to make the services available early so other services can see them
@@ -403,7 +420,7 @@ namespace edm {
   void Worker::runAcquireAfterAsyncPrefetch(std::exception_ptr iEPtr,
                                             EventTransitionInfo const& eventTransitionInfo,
                                             ParentContext const& parentContext,
-                                            WaitingTaskWithArenaHolder holder) {
+                                            WaitingTaskWithArenaHolder holder) noexcept {
     ranAcquireWithoutException_ = false;
     std::exception_ptr exceptionPtr;
     if (iEPtr) {
@@ -424,7 +441,8 @@ namespace edm {
     holder.doneWaiting(exceptionPtr);
   }
 
-  std::exception_ptr Worker::handleExternalWorkException(std::exception_ptr iEPtr, ParentContext const& parentContext) {
+  std::exception_ptr Worker::handleExternalWorkException(std::exception_ptr iEPtr,
+                                                         ParentContext const& parentContext) noexcept {
     if (ranAcquireWithoutException_) {
       try {
         convertException::wrap([iEPtr]() { std::rethrow_exception(iEPtr); });
@@ -440,7 +458,7 @@ namespace edm {
   Worker::HandleExternalWorkExceptionTask::HandleExternalWorkExceptionTask(Worker* worker,
                                                                            oneapi::tbb::task_group* group,
                                                                            WaitingTask* runModuleTask,
-                                                                           ParentContext const& parentContext)
+                                                                           ParentContext const& parentContext) noexcept
       : m_worker(worker), m_runModuleTask(runModuleTask), m_group(group), m_parentContext(parentContext) {}
 
   void Worker::HandleExternalWorkExceptionTask::execute() {

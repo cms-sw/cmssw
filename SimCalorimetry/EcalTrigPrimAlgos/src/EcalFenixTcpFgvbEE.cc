@@ -4,31 +4,28 @@
 #include <iostream>
 
 //---------------------------------------------------------------
-EcalFenixTcpFgvbEE::EcalFenixTcpFgvbEE(int maxNrSamples) {
-  indexLut_.resize(maxNrSamples);
-}  //---------------------------------------------------------------
-EcalFenixTcpFgvbEE::~EcalFenixTcpFgvbEE() {}
-//---------------------------------------------------------------
 void EcalFenixTcpFgvbEE::process(std::vector<std::vector<int>> &bypasslin_out,
                                  int nStr,
                                  int bitMask,
                                  std::vector<int> &output) {
-  //  std::vector<int> indexLut(output.size());
-
   for (unsigned int i = 0; i < output.size(); i++) {
     output[i] = 0;
-    indexLut_[i] = 0;
   }
 
+  //Return if fgee_lut_ is 0
+  if (fgee_lut_ == 0) {
+    return;
+  }
+
+  int indexLut = 0;
   for (unsigned int i = 0; i < output.size(); i++) {
+    indexLut = 0;
     for (int istrip = 0; istrip < nStr; istrip++) {
       int res = (bypasslin_out[istrip])[i];
       res = (res >> bitMask) & 1;  // res is FGVB at this stage
-      indexLut_[i] = indexLut_[i] | (res << istrip);
+      indexLut = indexLut | (res << istrip);
     }
-    indexLut_[i] = indexLut_[i] | (nStr << 5);
-
-    int mask = 1 << indexLut_[i];
+    int mask = 1 << indexLut;
     output[i] = fgee_lut_ & mask;
     if (output[i] > 0)
       output[i] = 1;

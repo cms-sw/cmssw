@@ -23,3 +23,5 @@
     <flags CXXFLAGS="-O0"/>
   </bin>
 </ifrelease>
+
+<test name="TestPerfToolsModuleAllocMonitor" command="runModuleAlloc.sh"/>

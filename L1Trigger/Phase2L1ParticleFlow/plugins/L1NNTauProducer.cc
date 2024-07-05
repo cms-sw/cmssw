@@ -97,10 +97,6 @@ void L1NNTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     process_SW(*l1PFCandidates, lTaus);
   }
 
-  if (lTaus->empty()) {
-    PFTau dummy;
-    lTaus->push_back(dummy);
-  }
   std::sort(lTaus->begin(), lTaus->end(), [](l1t::PFTau i, l1t::PFTau j) { return (i.pt() > j.pt()); });
   iEvent.put(std::move(lTaus), "L1PFTausNN");
 }

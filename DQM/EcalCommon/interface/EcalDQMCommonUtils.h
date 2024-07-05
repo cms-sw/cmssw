@@ -87,32 +87,18 @@ namespace ecaldqm {
     kEBpHigh = kEBp18
   };
 
-  enum Constants {
-    nDCC = 54,
-    nEBDCC = 36,
-    nEEDCC = 18,
-    nDCCMEM = 44,
-    nEEDCCMEM = 8,
+  static constexpr int nDCC = 54, nEBDCC = 36, nEEDCC = 18, nDCCMEM = 44, nEEDCCMEM = 8;
 
-    nTTOuter = 16,
-    nTTInner = 28,
-    // These lines set the number of TriggerTowers in "outer" and "inner" TCCs,
-    // where "outer" := closer to the barrel. These constants are used in
-    // setting the binning. There are 16 trigger towers per TCC for "outer" TCCs,
-    // and 24 per TCC for "inner" TCCs (but the numbering is from 0 to 27, so
-    // 28 bins are required).
+  // These lines set the number of TriggerTowers in "outer" and "inner" TCCs,
+  // where "outer" := closer to the barrel. These constants are used in
+  // setting the binning. There are 16 trigger towers per TCC for "outer" TCCs,
+  // and 24 per TCC for "inner" TCCs (but the numbering is from 0 to 27, so
+  // 28 bins are required).
+  static constexpr int nTTOuter = 16, nTTInner = 28;
 
-    nTCC = 108,
-    kEEmTCCLow = 0,
-    kEEmTCCHigh = 35,
-    kEEpTCCLow = 72,
-    kEEpTCCHigh = 107,
-    kEBTCCLow = 36,
-    kEBTCCHigh = 71,
-
-    nChannels = EBDetId::kSizeForDenseIndexing + EEDetId::kSizeForDenseIndexing,
-    nTowers = EcalTrigTowerDetId::kEBTotalTowers + EcalScDetId::kSizeForDenseIndexing
-  };
+  static constexpr int nTCC = 108, kEEmTCCLow = 0, kEEmTCCHigh = 35, kEEpTCCLow = 72, kEEpTCCHigh = 107, kEBTCCLow = 36,
+                       kEBTCCHigh = 71, nChannels = EBDetId::kSizeForDenseIndexing + EEDetId::kSizeForDenseIndexing,
+                       nTowers = EcalTrigTowerDetId::kEBTotalTowers + EcalScDetId::kSizeForDenseIndexing;
 
   extern std::vector<unsigned> const memDCC;
 

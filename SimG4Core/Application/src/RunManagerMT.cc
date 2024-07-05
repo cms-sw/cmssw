@@ -45,7 +45,7 @@
 #include "G4EmParameters.hh"
 #include "G4HadronicParameters.hh"
 #include "G4NuclearLevelData.hh"
-#include "G4SystemOfUnits.hh"
+#include <CLHEP/Units/SystemOfUnits.h>
 #include "G4LogicalVolume.hh"
 #include "G4LogicalVolumeStore.hh"
 #include "G4PhysicalVolumeStore.hh"

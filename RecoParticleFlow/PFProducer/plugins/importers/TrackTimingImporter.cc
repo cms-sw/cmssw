@@ -16,7 +16,7 @@ class TrackTimingImporter : public BlockElementImporterBase {
 public:
   TrackTimingImporter(const edm::ParameterSet& conf, edm::ConsumesCollector& cc)
       : BlockElementImporterBase(conf, cc),
-        useTimeQuality_(conf.existsAs<edm::InputTag>("timeQualityMap")),
+        useTimeQuality_(conf.getParameter<bool>("useTimeQuality")),
         timeQualityThreshold_(useTimeQuality_ ? conf.getParameter<double>("timeQualityThreshold") : -99.),
         srcTime_(cc.consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("timeValueMap"))),
         srcTimeError_(cc.consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("timeErrorMap"))),

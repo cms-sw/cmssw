@@ -15,14 +15,14 @@ class TmpSimEvent {
 public:
   TmpSimEvent();
   ~TmpSimEvent();
-  void load(edm::SimTrackContainer& c) const;
-  void load(edm::SimVertexContainer& c) const;
+  void load(edm::SimTrackContainer&) const;
+  void load(edm::SimVertexContainer&) const;
   unsigned int nTracks() const { return g4tracks_.size(); }
   unsigned int nVertices() const { return g4vertices_.size(); }
   unsigned int nGenParts() const { return hepMCEvent_->particles_size(); }
-  void hepEvent(const HepMC::GenEvent* r) { hepMCEvent_ = r; }
+  void setHepEvent(const HepMC::GenEvent* r) { hepMCEvent_ = r; }
   const HepMC::GenEvent* hepEvent() const { return hepMCEvent_; }
-  void weight(float w) { weight_ = w; }
+  void setWeight(float w) { weight_ = w; }
   float weight() const { return weight_; }
   void collisionPoint(const math::XYZTLorentzVectorD& v) { collisionPoint_ = v; }
   const math::XYZTLorentzVectorD& collisionPoint() const { return collisionPoint_; }
@@ -30,8 +30,11 @@ public:
   const int nparam() const { return nparam_; }
   void param(const std::vector<float>& p) { param_ = p; }
   const std::vector<float>& param() const { return param_; }
-  void add(TmpSimTrack* t) { g4tracks_.push_back(t); }
-  void add(TmpSimVertex* v) { g4vertices_.push_back(v); }
+  void addTrack(TmpSimTrack* t) { g4tracks_.push_back(t); }
+  void addVertex(TmpSimVertex* v) { g4vertices_.push_back(v); }
+  //  std::vector<TrackWithHistory*>* getHistories() { return &g4tracks_; }
+  // std::vector<TmpSimVertex*>* getVertices() { return &g4vertices_; }
+
   void clear();
 
 private:

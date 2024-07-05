@@ -67,6 +67,7 @@ public:
 
     variable.add<std::string>("expr")->setComment("a function to define the content of the branch in the flat table");
     variable.add<std::string>("doc")->setComment("few words description of the branch content");
+    variable.addUntracked<bool>("lazyEval")->setComment("set to True if the type read from the Event is unknown");
 
     variable.ifValue(edm::ParameterDescription<std::string>("type", "int", true, comType),
                      edm::allowedValues<std::string>("int", "uint", "int16", "uint8"));

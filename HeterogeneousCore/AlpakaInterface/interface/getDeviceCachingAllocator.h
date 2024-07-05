@@ -10,7 +10,6 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/AllocatorConfig.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/CachingAllocator.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/devices.h"
-#include "HeterogeneousCore/AlpakaInterface/interface/traits.h"
 
 namespace cms::alpakatools {
 
@@ -19,7 +18,7 @@ namespace cms::alpakatools {
     template <typename TDev,
               typename TQueue,
               typename = std::enable_if_t<alpaka::isDevice<TDev> and alpaka::isQueue<TQueue>>>
-    auto allocate_device_allocators() {
+    auto allocate_device_allocators(AllocatorConfig const& config, bool debug) {
       using Allocator = CachingAllocator<TDev, TQueue>;
       auto const& devices = cms::alpakatools::devices<alpaka::Platform<TDev>>();
       ssize_t const size = devices.size();
@@ -38,13 +37,9 @@ namespace cms::alpakatools {
 #endif
               ptr + index,
               devices[index],
-              config::binGrowth,
-              config::minBin,
-              config::maxBin,
-              config::maxCachedBytes,
-              config::maxCachedFraction,
-              true,    // reuseSameQueueAllocations
-              false);  // debug
+              config,
+              true,  // reuseSameQueueAllocations
+              debug);
         }
       } catch (...) {
         --index;
@@ -60,11 +55,11 @@ namespace cms::alpakatools {
       }
 
       // use a custom deleter to destroy all objects and deallocate the memory
-      auto deleter = [size](Allocator* ptr) {
+      auto deleter = [size](Allocator* allocators) {
         for (size_t i = size; i > 0; --i) {
-          std::destroy_at(ptr + i - 1);
+          std::destroy_at(allocators + i - 1);
         }
-        std::allocator<Allocator>().deallocate(ptr, size);
+        std::allocator<Allocator>().deallocate(allocators, size);
       };
 
       return std::unique_ptr<Allocator[], decltype(deleter)>(ptr, deleter);
@@ -75,9 +70,11 @@ namespace cms::alpakatools {
   template <typename TDev,
             typename TQueue,
             typename = std::enable_if_t<alpaka::isDevice<TDev> and alpaka::isQueue<TQueue>>>
-  inline CachingAllocator<TDev, TQueue>& getDeviceCachingAllocator(TDev const& device) {
+  inline CachingAllocator<TDev, TQueue>& getDeviceCachingAllocator(TDev const& device,
+                                                                   AllocatorConfig const& config = AllocatorConfig{},
+                                                                   bool debug = false) {
     // initialise all allocators, one per device
-    CMS_THREAD_SAFE static auto allocators = detail::allocate_device_allocators<TDev, TQueue>();
+    CMS_THREAD_SAFE static auto allocators = detail::allocate_device_allocators<TDev, TQueue>(config, debug);
 
     size_t const index = alpaka::getNativeHandle(device);
     assert(index < cms::alpakatools::devices<alpaka::Platform<TDev>>().size());

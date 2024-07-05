@@ -1,6 +1,6 @@
 #include "SimTransport/PPSProtonTransport/interface/TotemTransport.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
-#include <CLHEP/Units/GlobalSystemOfUnits.h>
+#include <CLHEP/Units/SystemOfUnits.h>
 #include "TLorentzVector.h"
 #include "TFile.h"
 
@@ -146,6 +146,7 @@ bool TotemTransport::transportProton(HepMC::GenParticle* in_trk) {
     return false;
   }
 
+  using CLHEP::meter;
   TVector3 out_pos(out_position[0] * meter, out_position[1] * meter, out_position[2] * meter);
   TVector3 out_mom(out_momentum[0], out_momentum[1], out_momentum[2]);
 

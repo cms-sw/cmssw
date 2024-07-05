@@ -4,6 +4,7 @@ import FWCore.ParameterSet.Config as cms
 ## L1REPACK FullSimTP : Re-Emulate all of L1 and repack into RAW
 
 from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
+from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
 
 (~stage2L1Trigger).toModify(None, lambda x:
     print("# L1T WARN:  L1REPACK:FullSimTP (intended for data) only supports Stage-2 eras for now.\n# L1T WARN:  Use a legacy version of L1REPACK for now."))
@@ -15,18 +16,13 @@ import EventFilter.L1TRawToDigi.bmtfDigis_cfi
 unpackBmtf = EventFilter.L1TRawToDigi.bmtfDigis_cfi.bmtfDigis.clone(
     InputLabel = cms.InputTag( 'rawDataCollector', processName=cms.InputTag.skipCurrentProcess()))
 
-import EventFilter.DTTFRawToDigi.dttfunpacker_cfi
-unpackDttf = EventFilter.DTTFRawToDigi.dttfunpacker_cfi.dttfunpacker.clone(
-    DTTF_FED_Source = cms.InputTag( 'rawDataCollector', processName=cms.InputTag.skipCurrentProcess()))
+import EventFilter.L1TRawToDigi.omtfStage2Digis_cfi
+unpackOmtf = EventFilter.L1TRawToDigi.omtfStage2Digis_cfi.omtfStage2Digis.clone(
+    inputLabel = cms.InputTag( 'rawDataCollector', processName=cms.InputTag.skipCurrentProcess()))
         
 import EventFilter.L1TRawToDigi.emtfStage2Digis_cfi
 unpackEmtf = EventFilter.L1TRawToDigi.emtfStage2Digis_cfi.emtfStage2Digis.clone(
     InputLabel = cms.InputTag( 'rawDataCollector', processName=cms.InputTag.skipCurrentProcess()))
-        
-
-import EventFilter.CSCTFRawToDigi.csctfunpacker_cfi
-unpackCsctf = EventFilter.CSCTFRawToDigi.csctfunpacker_cfi.csctfunpacker.clone(
-    producer = cms.InputTag( 'rawDataCollector', processName=cms.InputTag.skipCurrentProcess()))
 
 import EventFilter.CSCRawToDigi.cscUnpacker_cfi
 unpackCSC = EventFilter.CSCRawToDigi.cscUnpacker_cfi.muonCSCDigis.clone(
@@ -38,6 +34,10 @@ unpackDT = EventFilter.DTRawToDigi.dtunpacker_cfi.muonDTDigis.clone(
 
 import EventFilter.RPCRawToDigi.rpcUnpacker_cfi
 unpackRPC = EventFilter.RPCRawToDigi.rpcUnpacker_cfi.rpcunpacker.clone(
+    InputLabel = cms.InputTag( 'rawDataCollector', processName=cms.InputTag.skipCurrentProcess()))
+
+import EventFilter.GEMRawToDigi.muonGEMDigis_cfi
+unpackGEM = EventFilter.GEMRawToDigi.muonGEMDigis_cfi.muonGEMDigis.clone(
     InputLabel = cms.InputTag( 'rawDataCollector', processName=cms.InputTag.skipCurrentProcess()))
 
 import EventFilter.EcalRawToDigi.EcalUnpackerData_cfi
@@ -71,28 +71,55 @@ simDtTriggerPrimitiveDigis.digiTag = 'unpackDT'
 simCscTriggerPrimitiveDigis.CSCComparatorDigiProducer = 'unpackCSC:MuonCSCComparatorDigi'
 simCscTriggerPrimitiveDigis.CSCWireDigiProducer       = 'unpackCSC:MuonCSCWireDigi'
 
+# GEM-CSC
+simMuonGEMPadDigis.InputCollection = "unpackGEM"
+
+# TwinMux
 simTwinMuxDigis.RPC_Source         = 'unpackRPC'
-# simTwinMuxDigis.DTDigi_Source      = "simDtTriggerPrimitiveDigis"  # DEFAULT
-# simTwinMuxDigis.DTThetaDigi_Source = "simDtTriggerPrimitiveDigis"  # DEFAULT
+simTwinMuxDigis.DTDigi_Source      = "simDtTriggerPrimitiveDigis"  # DEFAULT
+simTwinMuxDigis.DTThetaDigi_Source = "simDtTriggerPrimitiveDigis"  # DEFAULT
 
 # BMTF
-# simBmtfDigis.DTDigi_Source       = "simTwinMuxDigis"               # DEFAULT
-# simBmtfDigis.DTDigi_Theta_Source = "simDtTriggerPrimitiveDigis"    # DEFAULT
+# simBmtfDigis.DTDigi_Source       = "simTwinMuxDigis"               # DEFAULT, use re-emulated TPs
+# simBmtfDigis.DTDigi_Theta_Source = "simTwinMuxDigis"               # DEFAULT, use re-emulated TPs
+
+simBmtfDigis.DTDigi_Source       = "unpackBmtf"                     # use unpacked TF inputs
+simBmtfDigis.DTDigi_Theta_Source = "unpackBmtf"                     # use unpacked TF inputs
+
+# KBMTF
+# simKBmtfStubs.srcPhi             = "simTwinMuxDigis"                # DEFAULT, use re-emulated TPs
+# simKBmtfStubs.srcTheta           = "simDtTriggerPrimitiveDigis"     # DEFAULT, use re-emulated TPs
+
+simKBmtfStubs.srcPhi             = "unpackBmtf"                     # use unpacked TF inputs
+simKBmtfStubs.srcTheta           = "unpackBmtf"                     # use unpacked TF inputs
+
+simKBmtfDigis.src                = "simKBmtfStubs"                  # DEFAULT, use re-emulated Stubs
 
 # OMTF
-simOmtfDigis.srcRPC              = 'unpackRPC'
-# simOmtfDigis.srcDTPh             = "simDtTriggerPrimitiveDigis"    # DEFAULT
-# simOmtfDigis.srcDTTh             = "simDtTriggerPrimitiveDigis"    # DEFAULT
-simOmtfDigis.srcCSC              = "unpackCsctf"
-# simOmtfDigis.srcCSC              = "simCscTriggerPrimitiveDigis"   # DEFAULT
+# simOmtfDigis.srcRPC              = 'unpackRPC'                     # we don't re-emulate RPCs in data
+# simOmtfDigis.srcDTPh             = "simDtTriggerPrimitiveDigis"    # DEFAULT, use re-emulated TPs
+# simOmtfDigis.srcDTTh             = "simDtTriggerPrimitiveDigis"    # DEFAULT, use re-emulated TPs
+# simOmtfDigis.srcCSC              = "simCscTriggerPrimitiveDigis"   # DEFAULT, use re-emulated TPs
+
+simOmtfDigis.srcRPC              = 'unpackOmtf'                 # use unpacked TF inputs
+simOmtfDigis.srcDTPh             = "unpackOmtf"                 # use unpacked TF inputs
+simOmtfDigis.srcDTTh             = "unpackOmtf"                 # use unpacked TF inputs
+simOmtfDigis.srcCSC              = "unpackOmtf"                 # use unpacked TF inputs
 
 # EMTF
-simEmtfDigis.CSCInput            = "unpackEmtf"
-# simEmtfDigis.CSCInput            = "simCscTriggerPrimitiveDigis"     # DEFAULT
-simEmtfDigis.RPCInput            = 'unpackRPC'
+# simEmtfDigis.CSCInput            = "simCscTriggerPrimitiveDigis"     # DEFAULT, use re-emulated TPs
+# simEmtfDigis.GEMInput            = "simMuonGEMPadDigiClusters"       # DEFAULT, use re-emulated TPs
+# simEmtfDigis.RPCInput            = 'unpackRPC'                       # we don't re-emulate RPCs in data
 
-# simCaloStage2Layer1Digis.ecalToken = 'simEcalTriggerPrimitiveDigis'  # DEFAULT
-# simCaloStage2Layer1Digis.hcalToken = 'simHcalTriggerPrimitiveDigis'  # DEFAULT
+simEmtfDigis.CSCInput            = "unpackEmtf"                  # use unpacked TF inputs
+simEmtfDigis.RPCInput            = 'unpackEmtf'                  # use unpacked TF inputs
+simEmtfDigis.GEMInput            = 'unpackEmtf'                  # use unpacked TF inputs
+simEmtfDigis.CPPFInput           = 'unpackEmtf'                  # use unpacked TF inputs
+simEmtfDigis.CPPFEnable          = True                          # we use CPPF inputs in data    
+
+# Calo Layer-1
+simCaloStage2Layer1Digis.ecalToken = 'simEcalTriggerPrimitiveDigis'  # DEFAULT
+simCaloStage2Layer1Digis.hcalToken = 'simHcalTriggerPrimitiveDigis'  # DEFAULT
 
 # Finally, pack the new L1T output back into RAW
     
@@ -114,9 +141,14 @@ rawDataCollector = EventFilter.RawDataCollector.rawDataCollectorByLabel_cfi.rawD
 
 
 SimL1EmulatorTask = cms.Task()
-stage2L1Trigger.toReplaceWith(SimL1EmulatorTask, cms.Task(unpackEcal,unpackHcal,unpackCSC,unpackDT,unpackRPC,unpackEmtf,unpackCsctf,unpackBmtf
+stage2L1Trigger.toReplaceWith(SimL1EmulatorTask, cms.Task(unpackEcal,unpackHcal,unpackCSC,unpackDT,unpackRPC,unpackEmtf,unpackBmtf,unpackOmtf
                                  ,simEcalTriggerPrimitiveDigis
                                  ,simHcalTriggerPrimitiveDigis
                                  ,SimL1EmulatorCoreTask,packCaloStage2
                                  ,packGmtStage2,packGtStage2,rawDataCollector))
+
+_SimL1EmulatorTaskWithGEM = SimL1EmulatorTask.copy()
+_SimL1EmulatorTaskWithGEM.add(unpackGEM)
+(stage2L1Trigger & run3_GEM).toReplaceWith(SimL1EmulatorTask, _SimL1EmulatorTaskWithGEM)
+
 SimL1Emulator = cms.Sequence(SimL1EmulatorTask)

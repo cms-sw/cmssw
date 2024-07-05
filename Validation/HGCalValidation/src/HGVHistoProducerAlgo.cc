@@ -1442,7 +1442,8 @@ void HGVHistoProducerAlgo::fill_caloparticle_histos(const Histograms& histograms
                                                     const CaloParticle& caloParticle,
                                                     std::vector<SimVertex> const& simVertices,
                                                     unsigned int layers,
-                                                    std::unordered_map<DetId, const HGCRecHit*> const& hitMap) const {
+                                                    std::unordered_map<DetId, const unsigned int> const& hitMap,
+                                                    std::vector<HGCRecHit> const& hits) const {
   const auto eta = getEta(caloParticle.eta());
   if (histograms.h_caloparticle_eta.count(pdgid)) {
     histograms.h_caloparticle_eta.at(pdgid)->Fill(eta);
@@ -1489,13 +1490,13 @@ void HGVHistoProducerAlgo::fill_caloparticle_histos(const Histograms& histograms
         // set to 0 if matched RecHit not found
         int layerId_matched_min = 999;
         int layerId_matched_max = 0;
-        std::unordered_map<DetId, const HGCRecHit*>::const_iterator itcheck = hitMap.find(hitDetId);
+        std::unordered_map<DetId, const unsigned int>::const_iterator itcheck = hitMap.find(hitDetId);
         if (itcheck != hitMap.end()) {
           layerId_matched_min = layerId;
           layerId_matched_max = layerId;
           simHits_matched++;
 
-          const auto hitEn = itcheck->second->energy();
+          const auto hitEn = (hits[itcheck->second]).energy();
           hitEnergyWeight_invSum += pow(hitEn, 2);
           const auto hitFr = h_and_f.second;
           const auto hitEnFr = hitEn * hitFr;
@@ -1556,7 +1557,7 @@ void HGVHistoProducerAlgo::fill_caloparticle_histos(const Histograms& histograms
     }
 
     for (auto const& haf : haf_cp) {
-      const auto hitEn = hitMap.find(haf.first)->second->energy();
+      const auto hitEn = (hits[hitMap.find(haf.first)->second]).energy();
       const auto weight = pow(hitEn, 2);
       histograms.h_caloparticle_fractions.at(pdgid)->Fill(haf.second, weight * hitEnergyWeight_invSum);
       histograms.h_caloparticle_fractions_weight.at(pdgid)->Fill(haf.second, weight * hitEnergyWeight_invSum, weight);
@@ -1612,49 +1613,47 @@ void HGVHistoProducerAlgo::HGVHistoProducerAlgo::fill_simCluster_histos(const Hi
     for (const auto& hAndF : sc.hits_and_fractions()) {
       const DetId sh_detid = hAndF.first;
 
-      //The layer the cluster belongs to. As mentioned in the mapping above, it takes into account -z and +z.
-      int layerid =
-          recHitTools_->getLayerWithOffset(sh_detid) + layers * ((recHitTools_->zside(sh_detid) + 1) >> 1) - 1;
-      //zside that the current cluster belongs to.
-      int zside = recHitTools_->zside(sh_detid);
+      if (sh_detid.det() == DetId::Forward || sh_detid.det() == DetId::HGCalEE || sh_detid.det() == DetId::HGCalHSi ||
+          sh_detid.det() == DetId::HGCalHSc) {
+        //The layer the cluster belongs to. As mentioned in the mapping above, it takes into account -z and +z.
+        int layerid =
+            recHitTools_->getLayerWithOffset(sh_detid) + layers * ((recHitTools_->zside(sh_detid) + 1) >> 1) - 1;
+        //zside that the current cluster belongs to.
+        int zside = recHitTools_->zside(sh_detid);
 
-      //add the simCluster to the relevant layer. A SimCluster may give contribution to several layers.
-      if (occurenceSCinlayer[layerid] == 0) {
-        tnscpl[layerid]++;
+        //add the simCluster to the relevant layer. A SimCluster may give contribution to several layers.
+        if (occurenceSCinlayer[layerid] == 0) {
+          tnscpl[layerid]++;
+        }
+        occurenceSCinlayer[layerid]++;
+
+        if (sh_detid.det() == DetId::HGCalHSc)
+          thickness = -1;
+        else
+          thickness = recHitTools_->getSiThickness(sh_detid);
+
+        if ((thickness == 120.) && (zside > 0.)) {
+          nthhits120p++;
+        } else if ((thickness == 120.) && (zside < 0.)) {
+          nthhits120m++;
+        } else if ((thickness == 200.) && (zside > 0.)) {
+          nthhits200p++;
+        } else if ((thickness == 200.) && (zside < 0.)) {
+          nthhits200m++;
+        } else if ((thickness == 300.) && (zside > 0.)) {
+          nthhits300p++;
+        } else if ((thickness == 300.) && (zside < 0.)) {
+          nthhits300m++;
+        } else if ((thickness == -1) && (zside > 0.)) {
+          nthhitsscintp++;
+        } else if ((thickness == -1) && (zside < 0.)) {
+          nthhitsscintm++;
+        } else {  //assert(0);
+          LogDebug("HGCalValidator")
+              << " You are running a geometry that contains thicknesses different than the normal ones. "
+              << "\n";
+        }
       }
-      occurenceSCinlayer[layerid]++;
-
-      if (sh_detid.det() == DetId::Forward || sh_detid.det() == DetId::HGCalEE || sh_detid.det() == DetId::HGCalHSi) {
-        thickness = recHitTools_->getSiThickness(sh_detid);
-      } else if (sh_detid.det() == DetId::HGCalHSc) {
-        thickness = -1;
-      } else {
-        LogDebug("HGCalValidator") << "These are HGCal simClusters, you shouldn't be here !!! " << layerid << "\n";
-        continue;
-      }
-
-      if ((thickness == 120.) && (zside > 0.)) {
-        nthhits120p++;
-      } else if ((thickness == 120.) && (zside < 0.)) {
-        nthhits120m++;
-      } else if ((thickness == 200.) && (zside > 0.)) {
-        nthhits200p++;
-      } else if ((thickness == 200.) && (zside < 0.)) {
-        nthhits200m++;
-      } else if ((thickness == 300.) && (zside > 0.)) {
-        nthhits300p++;
-      } else if ((thickness == 300.) && (zside < 0.)) {
-        nthhits300m++;
-      } else if ((thickness == -1) && (zside > 0.)) {
-        nthhitsscintp++;
-      } else if ((thickness == -1) && (zside < 0.)) {
-        nthhitsscintm++;
-      } else {  //assert(0);
-        LogDebug("HGCalValidator")
-            << " You are running a geometry that contains thicknesses different than the normal ones. "
-            << "\n";
-      }
-
     }  //end of loop through hits
 
     //Check for simultaneously having hits of different kind. Checking at least two combinations is sufficient.
@@ -1674,7 +1673,6 @@ void HGVHistoProducerAlgo::HGVHistoProducerAlgo::fill_simCluster_histos(const Hi
       //This is a cluster with hits of one kind
       tnscpthminus[std::to_string((int)thickness)]++;
     }
-
   }  //end of loop through SimClusters of the event
 
   //Per layer : Loop 0->99
@@ -1703,10 +1701,11 @@ void HGVHistoProducerAlgo::HGVHistoProducerAlgo::fill_simClusterAssociation_hist
     std::vector<SimCluster> const& simClusters,
     std::vector<size_t> const& sCIndices,
     const std::vector<float>& mask,
-    std::unordered_map<DetId, const HGCRecHit*> const& hitMap,
+    std::unordered_map<DetId, const unsigned int> const& hitMap,
     unsigned int layers,
-    const hgcal::RecoToSimCollectionWithSimClusters& scsInLayerClusterMap,
-    const hgcal::SimToRecoCollectionWithSimClusters& lcsInSimClusterMap) const {
+    const ticl::RecoToSimCollectionWithSimClusters& scsInLayerClusterMap,
+    const ticl::SimToRecoCollectionWithSimClusters& lcsInSimClusterMap,
+    std::vector<HGCRecHit> const& hits) const {
   //Each event to be treated as two events: an event in +ve endcap,
   //plus another event in -ve endcap. In this spirit there will be
   //a layer variable (layerid) that maps the layers in :
@@ -1726,7 +1725,8 @@ void HGVHistoProducerAlgo::HGVHistoProducerAlgo::fill_simClusterAssociation_hist
                                hitMap,
                                layers,
                                scsInLayerClusterMap,
-                               lcsInSimClusterMap);
+                               lcsInSimClusterMap,
+                               hits);
 }
 
 void HGVHistoProducerAlgo::fill_cluster_histos(const Histograms& histograms,
@@ -1743,10 +1743,11 @@ void HGVHistoProducerAlgo::layerClusters_to_CaloParticles(const Histograms& hist
                                                           std::vector<CaloParticle> const& cP,
                                                           std::vector<size_t> const& cPIndices,
                                                           std::vector<size_t> const& cPSelectedIndices,
-                                                          std::unordered_map<DetId, const HGCRecHit*> const& hitMap,
+                                                          std::unordered_map<DetId, const unsigned int> const& hitMap,
                                                           unsigned int layers,
-                                                          const hgcal::RecoToSimCollection& cpsInLayerClusterMap,
-                                                          const hgcal::SimToRecoCollection& cPOnLayerMap) const {
+                                                          const ticl::RecoToSimCollection& cpsInLayerClusterMap,
+                                                          const ticl::SimToRecoCollection& cPOnLayerMap,
+                                                          std::vector<HGCRecHit> const& hits) const {
   const auto nLayerClusters = clusters.size();
 
   std::unordered_map<DetId, std::vector<HGVHistoProducerAlgo::detIdInfoInCluster>> detIdToCaloParticleId_Map;
@@ -1804,8 +1805,8 @@ void HGVHistoProducerAlgo::layerClusters_to_CaloParticles(const Histograms& hist
       const DetId rh_detid = hits_and_fractions[iHit].first;
       const auto rhFraction = hits_and_fractions[iHit].second;
 
-      std::unordered_map<DetId, const HGCRecHit*>::const_iterator itcheck = hitMap.find(rh_detid);
-      const HGCRecHit* hit = itcheck->second;
+      std::unordered_map<DetId, const unsigned int>::const_iterator itcheck = hitMap.find(rh_detid);
+      const HGCRecHit* hit = &(hits[itcheck->second]);
 
       if (detIdToLayerClusterId_Map.find(rh_detid) == detIdToLayerClusterId_Map.end()) {
         detIdToLayerClusterId_Map[rh_detid] = std::vector<HGVHistoProducerAlgo::detIdInfoInCluster>();
@@ -1929,9 +1930,9 @@ void HGVHistoProducerAlgo::layerClusters_to_CaloParticles(const Histograms& hist
         const DetId hitid = (it_haf.first);
         const auto hitLayerId =
             recHitTools_->getLayerWithOffset(hitid) + layers * ((recHitTools_->zside(hitid) + 1) >> 1) - 1;
-        std::unordered_map<DetId, const HGCRecHit*>::const_iterator itcheck = hitMap.find(hitid);
+        std::unordered_map<DetId, const unsigned int>::const_iterator itcheck = hitMap.find(hitid);
         if (itcheck != hitMap.end()) {
-          const HGCRecHit* hit = itcheck->second;
+          const HGCRecHit* hit = &(hits[itcheck->second]);
           cPEnergyOnLayer[hitLayerId] += it_haf.second * hit->energy();
         }
       }
@@ -2003,10 +2004,11 @@ void HGVHistoProducerAlgo::layerClusters_to_SimClusters(
     std::vector<SimCluster> const& sC,
     std::vector<size_t> const& sCIndices,
     const std::vector<float>& mask,
-    std::unordered_map<DetId, const HGCRecHit*> const& hitMap,
+    std::unordered_map<DetId, const unsigned int> const& hitMap,
     unsigned int layers,
-    const hgcal::RecoToSimCollectionWithSimClusters& scsInLayerClusterMap,
-    const hgcal::SimToRecoCollectionWithSimClusters& lcsInSimClusterMap) const {
+    const ticl::RecoToSimCollectionWithSimClusters& scsInLayerClusterMap,
+    const ticl::SimToRecoCollectionWithSimClusters& lcsInSimClusterMap,
+    std::vector<HGCRecHit> const& hits) const {
   // Here fill the plots to compute the different metrics linked to
   // reco-level, namely fake-rate and merge-rate. In this loop should *not*
   // restrict only to the selected SimClusters.
@@ -2102,9 +2104,9 @@ void HGVHistoProducerAlgo::layerClusters_to_SimClusters(
       const DetId hitid = (it_haf.first);
       const auto scLayerId =
           recHitTools_->getLayerWithOffset(hitid) + layers * ((recHitTools_->zside(hitid) + 1) >> 1) - 1;
-      std::unordered_map<DetId, const HGCRecHit*>::const_iterator itcheck = hitMap.find(hitid);
+      std::unordered_map<DetId, const unsigned int>::const_iterator itcheck = hitMap.find(hitid);
       if (itcheck != hitMap.end()) {
-        const HGCRecHit* hit = itcheck->second;
+        const HGCRecHit* hit = &(hits[itcheck->second]);
         sCEnergyOnLayer[scLayerId] += it_haf.second * hit->energy();
       }
     }
@@ -2181,12 +2183,13 @@ void HGVHistoProducerAlgo::fill_generic_cluster_histos(const Histograms& histogr
                                                        std::vector<CaloParticle> const& cP,
                                                        std::vector<size_t> const& cPIndices,
                                                        std::vector<size_t> const& cPSelectedIndices,
-                                                       std::unordered_map<DetId, const HGCRecHit*> const& hitMap,
+                                                       std::unordered_map<DetId, const unsigned int> const& hitMap,
                                                        std::map<double, double> cummatbudg,
                                                        unsigned int layers,
                                                        std::vector<int> thicknesses,
-                                                       const hgcal::RecoToSimCollection& cpsInLayerClusterMap,
-                                                       const hgcal::SimToRecoCollection& cPOnLayerMap) const {
+                                                       const ticl::RecoToSimCollection& cpsInLayerClusterMap,
+                                                       const ticl::SimToRecoCollection& cPOnLayerMap,
+                                                       std::vector<HGCRecHit> const& hits) const {
   //Each event to be treated as two events: an event in +ve endcap,
   //plus another event in -ve endcap. In this spirit there will be
   //a layer variable (layerid) that maps the layers in :
@@ -2221,7 +2224,8 @@ void HGVHistoProducerAlgo::fill_generic_cluster_histos(const Histograms& histogr
                                  hitMap,
                                  layers,
                                  cpsInLayerClusterMap,
-                                 cPOnLayerMap);
+                                 cPOnLayerMap,
+                                 hits);
 
   //To find out the total amount of energy clustered per layer
   //Initialize with zeros because I see clear gives weird numbers.
@@ -2245,7 +2249,7 @@ void HGVHistoProducerAlgo::fill_generic_cluster_histos(const Histograms& histogr
     const auto seedid = lcId.seed();
     const double seedx = recHitTools_->getPosition(seedid).x();
     const double seedy = recHitTools_->getPosition(seedid).y();
-    DetId maxid = findmaxhit(lcId, hitMap);
+    DetId maxid = findmaxhit(lcId, hitMap, hits);
 
     // const DetId maxid = lcId.max();
     double maxx = recHitTools_->getPosition(maxid).x();
@@ -2326,7 +2330,7 @@ void HGVHistoProducerAlgo::fill_generic_cluster_histos(const Histograms& histogr
             << "\n";
       }
 
-      std::unordered_map<DetId, const HGCRecHit*>::const_iterator itcheck = hitMap.find(rh_detid);
+      std::unordered_map<DetId, const unsigned int>::const_iterator itcheck = hitMap.find(rh_detid);
       if (itcheck == hitMap.end()) {
         std::ostringstream st1;
         if ((rh_detid.det() == DetId::HGCalEE) || (rh_detid.det() == DetId::HGCalHSi)) {
@@ -2341,8 +2345,7 @@ void HGVHistoProducerAlgo::fill_generic_cluster_histos(const Histograms& histogr
         continue;
       }
 
-      const HGCRecHit* hit = itcheck->second;
-
+      const HGCRecHit* hit = &(hits[itcheck->second]);
       //Here for the per cell plots
       //----
       const double hit_x = recHitTools_->getPosition(rh_detid).x();
@@ -2506,8 +2509,9 @@ void HGVHistoProducerAlgo::tracksters_to_SimTracksters(
     std::vector<CaloParticle> const& cP,
     std::vector<size_t> const& cPIndices,
     std::vector<size_t> const& cPSelectedIndices,
-    std::unordered_map<DetId, const HGCRecHit*> const& hitMap,
-    unsigned int layers) const {
+    std::unordered_map<DetId, const unsigned int> const& hitMap,
+    unsigned int layers,
+    std::vector<HGCRecHit> const& hits) const {
   const auto nTracksters = tracksters.size();
   const auto nSimTracksters = simTSs.size();
 
@@ -2635,7 +2639,7 @@ void HGVHistoProducerAlgo::tracksters_to_SimTracksters(
               detIdSimTSId_Map[elemId].emplace_back(HGVHistoProducerAlgo::detIdInfoInCluster{iSTS, elemFr});
             }
           }
-          const auto hitEn = itcheck->second->energy();
+          const auto hitEn = (hits[itcheck->second]).energy();
           //Since the current hit from sim cluster has a reconstructed hit with the same detid,
           //fill the cPOnLayer[caloparticle][layer] object with energy (sum of all rechits energy times fraction
           //of the relevant simhit) and keep the hit (detid and fraction) that contributed.
@@ -2784,7 +2788,7 @@ void HGVHistoProducerAlgo::tracksters_to_SimTracksters(
         hitsToCaloParticleId[iHit] -= 1;
       } else {
         // Since the hit is belonging to the layer cluster, it must be also in the rechits map
-        const auto hitEn = hitMap.find(rh_detid)->second->energy();
+        const auto hitEn = (hits[hitMap.find(rh_detid)->second]).energy();
         //const auto layerId =
         //recHitTools_->getLayerWithOffset(rh_detid) + layers * ((recHitTools_->zside(rh_detid) + 1) >> 1) - 1;
         //0;
@@ -2912,6 +2916,7 @@ void HGVHistoProducerAlgo::tracksters_to_SimTracksters(
     // Compute the correct normalization
     float tracksterEnergy = 0.f, invTracksterEnergyWeight = 0.f;
     for (const auto& haf : tst_hitsAndFractions) {
+      const HGCRecHit* hit = &(hits[hitMap.at(haf.first)]);
       float hitFr = 0.f;
       if (valType == 0) {
         hitFr = haf.second;
@@ -2920,8 +2925,8 @@ void HGVHistoProducerAlgo::tracksters_to_SimTracksters(
         const auto iLC = std::find(tst.vertices().begin(), tst.vertices().end(), lcId);
         hitFr = 1.f / tst.vertex_multiplicity(std::distance(std::begin(tst.vertices()), iLC));
       }
-      tracksterEnergy += hitFr * hitMap.at(haf.first)->energy();
-      invTracksterEnergyWeight += pow(hitFr * hitMap.at(haf.first)->energy(), 2);
+      tracksterEnergy += hitFr * hit->energy();
+      invTracksterEnergyWeight += pow(hitFr * hit->energy(), 2);
     }
     if (invTracksterEnergyWeight)
       invTracksterEnergyWeight = 1.f / invTracksterEnergyWeight;
@@ -2943,7 +2948,7 @@ void HGVHistoProducerAlgo::tracksters_to_SimTracksters(
       bool hitWithNoSTS = false;
       if (detIdSimTSId_Map.find(elemId) == detIdSimTSId_Map.end())
         hitWithNoSTS = true;
-      const HGCRecHit* hit = hitMap.find(rh_detid)->second;
+      const HGCRecHit* hit = &(hits[hitMap.find(rh_detid)->second]);
       const auto hitEnergyWeight = pow(hit->energy(), 2);
 
       for (auto& stsPair : stsInTrackster[tstId]) {
@@ -3051,8 +3056,8 @@ void HGVHistoProducerAlgo::tracksters_to_SimTracksters(
     for (const auto& haf : hafLC) {
       const auto lcId = getLCId(sts.vertices(), layerClusters, haf.first);
       const auto iLC = std::find(sts.vertices().begin(), sts.vertices().end(), lcId);
-      SimEnergy_LC +=
-          hitMap.at(haf.first)->energy() / sts.vertex_multiplicity(std::distance(std::begin(sts.vertices()), iLC));
+      const HGCRecHit* hit = &(hits[hitMap.at(haf.first)]);
+      SimEnergy_LC += hit->energy() / sts.vertex_multiplicity(std::distance(std::begin(sts.vertices()), iLC));
     }
 
     auto iSim = sts.seedIndex();
@@ -3103,7 +3108,8 @@ void HGVHistoProducerAlgo::tracksters_to_SimTracksters(
       // Need to loop on the simOnLayer data structure since this is the
       // only one that has the compressed information for multiple usage
       // of the same DetId by different SimClusters by a single CaloParticle.
-      SimEnergyWeight += pow(haf.second * hitMap.at(hitDetId)->energy(), 2);
+      const HGCRecHit* hit = &(hits[hitMap.at(hitDetId)]);
+      SimEnergyWeight += pow(haf.second * hit->energy(), 2);
 
       const auto lcId = getLCId(sts.vertices(), layerClusters, hitDetId);
       float cpFraction = 0.f;
@@ -3119,7 +3125,6 @@ void HGVHistoProducerAlgo::tracksters_to_SimTracksters(
       bool hitWithNoTS = false;
       if (detIdToTracksterId_Map.find(hitDetId) == detIdToTracksterId_Map.end())
         hitWithNoTS = true;
-      const HGCRecHit* hit = hitMap.find(hitDetId)->second;
       const auto hitEnergyWeight = pow(hit->energy(), 2);
       hitsEnergyWeight += pow(cpFraction, 2) * hitEnergyWeight;
 
@@ -3331,8 +3336,9 @@ void HGVHistoProducerAlgo::fill_trackster_histos(
     std::vector<CaloParticle> const& cP,
     std::vector<size_t> const& cPIndices,
     std::vector<size_t> const& cPSelectedIndices,
-    std::unordered_map<DetId, const HGCRecHit*> const& hitMap,
-    unsigned int layers) const {
+    std::unordered_map<DetId, const unsigned int> const& hitMap,
+    unsigned int layers,
+    std::vector<HGCRecHit> const& hits) const {
   //Each event to be treated as two events:
   //an event in +ve endcap, plus another event in -ve endcap.
 
@@ -3513,7 +3519,8 @@ void HGVHistoProducerAlgo::fill_trackster_histos(
                               cPIndices,
                               cPSelectedIndices,
                               hitMap,
-                              layers);
+                              layers,
+                              hits);
 
   // Pattern recognition
   tracksters_to_SimTracksters(histograms,
@@ -3530,7 +3537,8 @@ void HGVHistoProducerAlgo::fill_trackster_histos(
                               cPIndices,
                               cPSelectedIndices,
                               hitMap,
-                              layers);
+                              layers,
+                              hits);
 }
 
 double HGVHistoProducerAlgo::distance2(const double x1,
@@ -3553,7 +3561,8 @@ void HGVHistoProducerAlgo::setRecHitTools(std::shared_ptr<hgcal::RecHitTools> re
 }
 
 DetId HGVHistoProducerAlgo::findmaxhit(const reco::CaloCluster& cluster,
-                                       std::unordered_map<DetId, const HGCRecHit*> const& hitMap) const {
+                                       std::unordered_map<DetId, const unsigned int> const& hitMap,
+                                       std::vector<HGCRecHit> const& hits) const {
   const auto& hits_and_fractions = cluster.hitsAndFractions();
 
   DetId themaxid;
@@ -3562,8 +3571,7 @@ DetId HGVHistoProducerAlgo::findmaxhit(const reco::CaloCluster& cluster,
        it_haf != hits_and_fractions.end();
        ++it_haf) {
     const DetId rh_detid = it_haf->first;
-    const auto hitEn = hitMap.find(rh_detid)->second->energy();
-
+    const auto hitEn = (hits[hitMap.find(rh_detid)->second]).energy();
     if (maxene < hitEn) {
       maxene = hitEn;
       themaxid = rh_detid;

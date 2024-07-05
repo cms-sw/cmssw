@@ -61,6 +61,19 @@ using Vec4 = ExtVec<T, 4>;
 template <typename T>
 using Vec2 = ExtVec<T, 2>;
 
+// convert V in W
+template <typename W, typename V>
+inline W convert(V v) {
+  // see https://gcc.gnu.org/bugzilla/show_bug.cgi?id=114943
+  //  return __builtin_convertvector(v,W);  // nope inefficient in gcc
+  typedef typename std::remove_reference<decltype(v[0])>::type T;
+  constexpr int N = sizeof(V) / sizeof(T);
+  W w;
+  for (int i = 0; i != N; ++i)
+    w[i] = v[i];
+  return w;
+}
+
 template <typename V>
 inline auto xy(V v) -> Vec2<typename std::remove_reference<decltype(v[0])>::type> {
   typedef typename std::remove_reference<decltype(v[0])>::type T;
@@ -137,11 +150,13 @@ inline auto dot(V x, V y) -> typename std::remove_reference<decltype(x[0])>::typ
 
 template <typename V1, typename V2>
 inline auto dot2(V1 x, V2 y) -> typename std::remove_reference<decltype(x[0])>::type {
-  typedef typename std::remove_reference<decltype(x[0])>::type T;
-  T ret = 0;
-  for (int i = 0; i != 2; ++i)
-    ret += x[i] * y[i];
-  return ret;
+  return x[0] * y[0] + x[1] * y[1];
+}
+
+template <typename V1, typename V2>
+inline auto dot3(V1 x, V2 y) -> typename std::remove_reference<decltype(x[0])>::type {
+  auto z = x * y;
+  return z[0] + z[1] + z[2];
 }
 
 typedef Vec2<float> Vec2F;

@@ -136,7 +136,7 @@ uint32_t HGCalNumberingScheme::getUnitID(int layer, int module, int cell, int iz
                                      << HGCalWaferIndex::waferIndex(layer, waferU, waferV, false) << ":" << module
                                      << ":" << cell << " has a type mismatch " << waferType << ":" << type;
 #endif
-          if (type != HGCSiliconDetId::HGCalCoarseThick)
+          if (type != HGCSiliconDetId::HGCalLD300)
             waferType = type;
         }
       }

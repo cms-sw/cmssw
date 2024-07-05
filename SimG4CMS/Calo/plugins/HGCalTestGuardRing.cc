@@ -62,10 +62,7 @@ HGCalTestGuardRing::HGCalTestGuardRing(const edm::ParameterSet& ps)
                                << " for wafers read from file " << waferFile_;
   if (!waferFile_.empty()) {
     std::string thick[4] = {"h120", "l200", "l300", "h200"};
-    int addType[4] = {HGCalTypes::WaferFineThin,
-                      HGCalTypes::WaferCoarseThin,
-                      HGCalTypes::WaferCoarseThick,
-                      HGCalTypes::WaferFineThick};
+    int addType[4] = {HGCalTypes::WaferHD120, HGCalTypes::WaferLD200, HGCalTypes::WaferLD300, HGCalTypes::WaferHD200};
     const int partTypeH[6] = {HGCalTypes::WaferFull,
                               HGCalTypes::WaferHalf2,
                               HGCalTypes::WaferChopTwoM,
@@ -98,7 +95,7 @@ HGCalTestGuardRing::HGCalTestGuardRing(const edm::ParameterSet& ps)
           int orient = std::atoi(items[5].c_str());
           int part = std::atoi(items[1].c_str());
           if (part >= 0) {
-            if (type == HGCalTypes::WaferFineThin)
+            if ((type == HGCalTypes::WaferHD120) || (type == HGCalTypes::WaferHD200))
               part = partTypeH[part];
             else
               part = partTypeL[part];

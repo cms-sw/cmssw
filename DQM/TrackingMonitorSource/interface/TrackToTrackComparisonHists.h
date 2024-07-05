@@ -52,7 +52,7 @@ public:
     MonitorElement *h_dPt, *h_dEta, *h_dPhi, *h_dDxy, *h_dDz, *h_dDxyWRTpv, *h_dDzWRTpv, *h_dCharge, *h_dHits;
   };
 
-  typedef std::vector<std::pair<int, std::map<double, int> > > idx2idxByDoubleColl;
+  typedef std::vector<std::pair<int, std::map<double, int>>> idx2idxByDoubleColl;
 
   explicit TrackToTrackComparisonHists(const edm::ParameterSet&);
   ~TrackToTrackComparisonHists() override;
@@ -65,7 +65,10 @@ protected:
   void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
   void bookHistograms(DQMStore::IBooker& iBooker, edm::Run const& iRun, edm::EventSetup const& iSetup) override;
 
-  void fillMap(reco::TrackCollection tracks1, reco::TrackCollection tracks2, idx2idxByDoubleColl& map, float dRMin);
+  void fillMap(const edm::View<reco::Track>& tracks1,
+               const edm::View<reco::Track>& tracks2,
+               idx2idxByDoubleColl& map,
+               float dRMin);
 
   void initialize_parameter(const edm::ParameterSet& iConfig);
   void bookHistos(DQMStore::IBooker& ibooker, generalME& mes, TString label, std::string& dir);
@@ -89,8 +92,8 @@ protected:
   edm::InputTag referenceTrackInputTag_;
 
   //these are used by MTVGenPs
-  edm::EDGetTokenT<reco::TrackCollection> monitoredTrackToken_;
-  edm::EDGetTokenT<reco::TrackCollection> referenceTrackToken_;
+  edm::EDGetTokenT<edm::View<reco::Track>> monitoredTrackToken_;
+  edm::EDGetTokenT<edm::View<reco::Track>> referenceTrackToken_;
   edm::EDGetTokenT<reco::BeamSpot> monitoredBSToken_;
   edm::EDGetTokenT<reco::BeamSpot> referenceBSToken_;
   edm::EDGetTokenT<reco::VertexCollection> monitoredPVToken_;

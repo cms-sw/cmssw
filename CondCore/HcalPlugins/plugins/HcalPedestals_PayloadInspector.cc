@@ -24,7 +24,7 @@ namespace {
   public:
     HcalPedestalContainer(std::shared_ptr<HcalPedestals> payload, unsigned int run)
         : HcalObjRepresent::HcalDataContainer<HcalPedestals, HcalPedestal>(payload, run) {}
-    float getValue(HcalPedestal* ped) override {
+    float getValue(const HcalPedestal* ped) override {
       return (ped->getValue(0) + ped->getValue(1) + ped->getValue(2) + ped->getValue(3)) / 4;
     }
   };

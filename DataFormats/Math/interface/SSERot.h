@@ -72,7 +72,7 @@ namespace mathSSE {
 
   typedef Rot3<double> Rot3D;
 
-#ifdef __SSE4_1__
+#ifdef CMS_USE_SSE4
   template <>
   inline Vec4<float> Rot3<float>::rotate(Vec4<float> v) const {
     return _mm_or_ps(_mm_or_ps(_mm_dp_ps(axis[0].vec, v.vec, 0x71), _mm_dp_ps(axis[1].vec, v.vec, 0x72)),

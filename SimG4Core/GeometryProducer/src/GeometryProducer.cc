@@ -82,9 +82,6 @@ GeometryProducer::GeometryProducer(edm::ParameterSet const &p)
 
   m_kernel->SetVerboseLevel(m_verbose);
 
-  //if (m_pUseSensitiveDetectors)
-  //  m_sdMakers = sim::sensitiveDetectorMakers(m_p, consumesCollector(), std::vector<std::string>());
-
   tokMF_ = esConsumes<MagneticField, IdealMagneticFieldRecord, edm::Transition::BeginRun>();
   if (m_pGeoFromDD4hep) {
     tokDD4hep_ = esConsumes<cms::DDCompactView, IdealGeometryRecord, edm::Transition::BeginRun>();
@@ -164,7 +161,7 @@ void GeometryProducer::makeGeom(const edm::EventSetup &es) {
     edm::LogVerbatim("GeometryProducer") << " instantiating sensitive detectors ";
     // instantiate and attach the sensitive detectors
     TmpSimEvent *ptr = nullptr;
-    m_trackManager = std::make_unique<SimTrackManager>(ptr);
+    m_trackManager = std::make_unique<SimTrackManager>(ptr, m_verbose);
     {
       std::pair<std::vector<SensitiveTkDetector *>, std::vector<SensitiveCaloDetector *>> sensDets =
           sim::attachSD(m_sdMakers, es, catalog, m_p, m_trackManager.get(), m_registry);

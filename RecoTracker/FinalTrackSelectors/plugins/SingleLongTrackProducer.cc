@@ -83,65 +83,52 @@ void SingleLongTrackProducer::produce(edm::Event &iEvent, const edm::EventSetup 
     return;
   }
 
-  const reco::Vertex vtx = vertices->at(0);
-
   // Preselection of long quality tracks
+  const reco::Vertex &vtx = vertices->at(0);
   std::vector<reco::Track> selTracks;
   reco::Track bestTrack;
   unsigned int tMuon = 0;
-  double fitProb = 100;
+  double fitProb = std::numeric_limits<double>::max();
 
   for (const auto &track : *tracks) {
     const reco::HitPattern &hitpattern = track.hitPattern();
-    double dR2min = 100.;
+    double dR2min = std::numeric_limits<double>::max();
     double chiNdof = track.normalizedChi2();
     double dxy = std::abs(track.dxy(vtx.position()));
     double dz = std::abs(track.dz(vtx.position()));
 
-    if (track.pt() < minPt)
+    if (track.pt() < minPt || std::abs(track.eta()) > maxEta ||
+        hitpattern.trackerLayersWithMeasurement() < minNumberOfLayers) {
       continue;
+    }
 
-    if (std::abs(track.eta()) > maxEta)
-      continue;
-
-    if (hitpattern.trackerLayersWithMeasurement() < minNumberOfLayers)
-      continue;
-
-    // Long track needs to be close to a good muon (only if requested)
-    if (matchInDr > 0.) {
-      for (const auto &m : *muons) {
-        if (m.isTrackerMuon()) {
+    if (matchInDr > 0.0) {
+      for (const auto &muon : *muons) {
+        if (muon.isTrackerMuon()) {
           tMuon++;
-          reco::Track matchedTrack = *(m.innerTrack());
-          // match to general track in deltaR
-          double dr2 = reco::deltaR2(track, matchedTrack);
-          if (dr2 < dR2min)
-            dR2min = dr2;
+          double dr2 = reco::deltaR2(track, *(muon.innerTrack()));
+          dR2min = std::min(dR2min, dr2);
         }
       }
-      // matchInDr here is defined positive
       if (dR2min >= matchInDr * matchInDr)
         continue;
     }
-    // do vertex consistency:
-    bool vertex_match = dxy < maxDxy && dz < maxDz;
-    if (!(vertex_match))
-      continue;
-    if (track.validFraction() < 1.0)
-      continue;
-    // only save the track with the smallest chiNdof
-    if (chiNdof < fitProb) {
+
+    if (dxy < maxDxy && dz < maxDz && track.validFraction() >= 1.0 && chiNdof < fitProb) {
       fitProb = chiNdof;
       bestTrack = track;
-      bestTrack.setExtra(track.extra());
     }
-    if (debug)
-      edm::LogPrint("SingleLongTrackProducer") << " deltaR2 (general) track to matched Track: " << dR2min;
-    if (debug)
-      edm::LogPrint("SingleLongTrackProducer") << "chi2Ndof:" << chiNdof << " best Track: " << fitProb;
+
+    if (debug) {
+      edm::LogPrint("SingleLongTrackProducer") << "deltaR2 (general) track to matched Track: " << dR2min
+                                               << " chi2Ndof: " << chiNdof << " best Track chi2Ndof: " << fitProb;
+    }
   }
 
-  selTracks.push_back(bestTrack);
+  // Only push if bestTrack was set
+  if (bestTrack.recHitsOk()) {
+    selTracks.push_back(bestTrack);
+  }
 
   if (debug)
     edm::LogPrint("SingleLongTrackProducer")
@@ -151,50 +138,27 @@ void SingleLongTrackProducer::produce(edm::Event &iEvent, const edm::EventSetup 
   bool hitIsNotValid{false};
 
   for (const auto &track : selTracks) {
-    reco::HitPattern hitpattern = track.hitPattern();
-    int deref{0};
-
-    // this checks track recHits
-    try {  // (Un)Comment this line with /* to (not) allow for events with not valid hits
+    // Check validity of track extra and rechits
+    if (track.recHitsOk()) {
+      reco::HitPattern hitpattern = track.hitPattern();
       auto hb = track.recHitsBegin();
 
+      // Checking if rechits are valid
       for (unsigned int h = 0; h < track.recHitsSize(); h++) {
         auto recHit = *(hb + h);
         auto const &hit = *recHit;
-
         if (onlyValidHits && !hit.isValid()) {
           hitIsNotValid = true;
           continue;
         }
       }
-    } catch (cms::Exception const &e) {
-      deref += 1;
-      if (debug)
-        std::cerr << e.explainSelf() << std::endl;
-    }
 
-    if (hitIsNotValid == true)
-      break;  // (Un)Comment this line with */ to (not) allow for events with not valid hits
+      if (hitIsNotValid == true)
+        break;  // (Un)Comment this line to (not) allow for events with not valid hits
 
-    int deref2{0};
-
-    // this checks track hitPattern hits
-    try {
-      auto hb = track.recHitsBegin();
-
+      // Checking if hitpattern hits are valid
       for (unsigned int h = 0; h < track.recHitsSize(); h++) {
         uint32_t pHit = hitpattern.getHitPattern(reco::HitPattern::TRACK_HITS, h);
-
-        auto recHit = *(hb + h);
-        auto const &hit = *recHit;
-
-        if (onlyValidHits && !hit.isValid()) {
-          if (debug)
-            edm::LogPrint("SingleLongTrackProducer") << "hit not valid: " << h;
-          continue;
-        }
-
-        // loop over the hits of the track.
         if (onlyValidHits && !(hitpattern.validHitFilter(pHit))) {
           if (debug)
             edm::LogPrint("SingleLongTrackProducer") << "hit not valid: " << h;
@@ -202,15 +166,8 @@ void SingleLongTrackProducer::produce(edm::Event &iEvent, const edm::EventSetup 
         }
       }
       goodTracks->push_back(track);
-    } catch (cms::Exception const &e) {
-      deref2 += 1;
-      if (debug)
-        std::cerr << e.explainSelf() << std::endl;
-    }
-
-    if (debug)
-      edm::LogPrint("SingleLongTrackProducer")
-          << "found tracks with " << deref << "missing valid hits and " << deref2 << " missing hit pattern";
+    } else
+      break;
   }
 
   if (debug) {

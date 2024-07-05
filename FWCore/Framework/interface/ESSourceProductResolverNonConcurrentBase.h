@@ -47,7 +47,7 @@ namespace edm::eventsetup {
                            edm::eventsetup::DataKey const& iKey,
                            edm::EventSetupImpl const*,
                            edm::ServiceToken const&,
-                           edm::ESParentContext const&) final;
+                           edm::ESParentContext const&) noexcept final;
 
     // ---------- member data --------------------------------
 

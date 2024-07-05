@@ -1,3 +1,4 @@
+#include "DataFormats/L1Scouting/interface/L1ScoutingBMTFStub.h"
 #include "DataFormats/L1Scouting/interface/L1ScoutingMuon.h"
 #include "DataFormats/L1Scouting/interface/L1ScoutingCalo.h"
 #include "DataFormats/L1Scouting/interface/OrbitCollection.h"
@@ -29,6 +30,7 @@ namespace edmtest {
     void produceEGammas(edm::Event& iEvent) const;
     void produceTaus(edm::Event& iEvent) const;
     void produceBxSums(edm::Event& iEvent) const;
+    void produceBmtfStubs(edm::Event& iEvent) const;
 
     void throwWithMessage(const char*) const;
 
@@ -48,6 +50,9 @@ namespace edmtest {
 
     const std::vector<int> bxSumsValues_;
     const edm::EDPutTokenT<OrbitCollection<l1ScoutingRun3::BxSums>> bxSumsPutToken_;
+
+    const std::vector<int> bmtfStubsValues_;
+    const edm::EDPutTokenT<OrbitCollection<l1ScoutingRun3::BMTFStub>> bmtfStubsPutToken_;
   };
 
   TestWriteL1Scouting::TestWriteL1Scouting(edm::ParameterSet const& iPSet)
@@ -61,7 +66,9 @@ namespace edmtest {
         tauValues_(iPSet.getParameter<std::vector<int>>("tauValues")),
         tausPutToken_(produces()),
         bxSumsValues_(iPSet.getParameter<std::vector<int>>("bxSumsValues")),
-        bxSumsPutToken_(produces()) {
+        bxSumsPutToken_(produces()),
+        bmtfStubsValues_(iPSet.getParameter<std::vector<int>>("bmtfStubValues")),
+        bmtfStubsPutToken_(produces()) {
     if (bxValues_.size() != 2) {
       throwWithMessage("bxValues must have 2 elements and it does not");
     }
@@ -80,6 +87,9 @@ namespace edmtest {
     if (bxSumsValues_.size() != 1) {
       throwWithMessage("bxSumsValues_ must have 1 elements and it does not");
     }
+    if (bmtfStubsValues_.size() != 2) {
+      throwWithMessage("bmtfStubsValues_ must have 2 elements and it does not");
+    }
   }
 
   void TestWriteL1Scouting::produce(edm::StreamID, edm::Event& iEvent, edm::EventSetup const&) const {
@@ -88,6 +98,7 @@ namespace edmtest {
     produceEGammas(iEvent);
     produceTaus(iEvent);
     produceBxSums(iEvent);
+    produceBmtfStubs(iEvent);
   }
 
   void TestWriteL1Scouting::produceMuons(edm::Event& iEvent) const {
@@ -171,6 +182,22 @@ namespace edmtest {
     iEvent.put(bxSumsPutToken_, std::move(bxSums));
   }
 
+  void TestWriteL1Scouting::produceBmtfStubs(edm::Event& iEvent) const {
+    std::unique_ptr<l1ScoutingRun3::BMTFStubOrbitCollection> stubs(new l1ScoutingRun3::BMTFStubOrbitCollection);
+
+    std::vector<std::vector<l1ScoutingRun3::BMTFStub>> orbitBufferStubs(3565);
+    int nStubs = 0;
+    for (const unsigned& bx : bxValues_) {
+      for (const int& val : bmtfStubsValues_) {
+        orbitBufferStubs[bx].emplace_back(val + 8, val + 7, val + 6, val + 5, val + 4, val + 3, val + 2, val + 1, val);
+        nStubs++;
+      }
+    }
+
+    stubs->fillAndClear(orbitBufferStubs, nStubs);
+    iEvent.put(bmtfStubsPutToken_, std::move(stubs));
+  }
+
   void TestWriteL1Scouting::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
     desc.add<std::vector<unsigned int>>("bxValues");
@@ -179,6 +206,7 @@ namespace edmtest {
     desc.add<std::vector<int>>("eGammaValues");
     desc.add<std::vector<int>>("tauValues");
     desc.add<std::vector<int>>("bxSumsValues");
+    desc.add<std::vector<int>>("bmtfStubValues");
     descriptions.addDefault(desc);
   }
 

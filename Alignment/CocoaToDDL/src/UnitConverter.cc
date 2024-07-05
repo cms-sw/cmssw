@@ -1,6 +1,6 @@
 #include "Alignment/CocoaToDDL/interface/UnitConverter.h"
 #include "Alignment/CocoaToDDL/interface/CocoaUnitsTable.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include <CLHEP/Units/SystemOfUnits.h>
 #include <sstream>
 
 /*
@@ -26,7 +26,7 @@ std::string UnitConverter::ucstring() {
 
   if (angl_) {
     str.precision(11);
-    double x = (*(bu_->GetValue())) / deg;
+    double x = (*(bu_->GetValue())) / CLHEP::deg;
     str << x << std::string("*deg") << '\0';
     return std::string(str.str());
 

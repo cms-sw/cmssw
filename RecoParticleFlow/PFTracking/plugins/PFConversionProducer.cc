@@ -22,6 +22,8 @@ public:
   ///Destructor
   ~PFConversionProducer() override;
 
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
 private:
   void beginRun(const edm::Run&, const edm::EventSetup&) override;
   void endRun(const edm::Run&, const edm::EventSetup&) override;
@@ -40,6 +42,13 @@ private:
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(PFConversionProducer);
+
+void PFConversionProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("conversionCollection", {"allConversions", ""});
+  desc.add<edm::InputTag>("PrimaryVertexLabel", {"offlinePrimaryVertices"});
+  descriptions.add("pfConversions", desc);
+}
 
 typedef std::multimap<unsigned, std::vector<unsigned> > BlockMap;
 using namespace std;

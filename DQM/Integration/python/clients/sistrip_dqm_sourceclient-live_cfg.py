@@ -474,10 +474,7 @@ if (process.runType.getRunType() == process.runType.hpu_run):
     process.load('RecoTracker.FinalTrackSelectors.MergeTrackCollections_cff')
     import RecoTracker.FinalTrackSelectors.earlyGeneralTracks_cfi
     process.load('RecoTracker.FinalTrackSelectors.earlyGeneralTracks_cfi')
-    process.earlyGeneralTracks.TrackProducers = (
-        cms.InputTag('initialStepTracks'),
-        )
-
+    process.earlyGeneralTracks.TrackProducers = cms.VInputTag(cms.InputTag('initialStepTracks'))
     process.earlyGeneralTracks.hasSelector=cms.vint32(1)
     process.earlyGeneralTracks.selectedTrackQuals = cms.VInputTag(
 #        cms.InputTag("initialStepSelector","initialStep"),

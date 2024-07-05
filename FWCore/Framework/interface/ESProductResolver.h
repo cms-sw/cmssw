@@ -52,7 +52,7 @@ namespace edm {
                          DataKey const&,
                          EventSetupImpl const*,
                          ServiceToken const&,
-                         ESParentContext const&) const;
+                         ESParentContext const&) const noexcept;
 
       void const* getAfterPrefetch(const EventSetupRecordImpl& iRecord, const DataKey& iKey, bool iTransiently) const;
 
@@ -83,7 +83,7 @@ namespace edm {
                                      DataKey const& iKey,
                                      EventSetupImpl const*,
                                      ServiceToken const&,
-                                     ESParentContext const&) = 0;
+                                     ESParentContext const&) noexcept = 0;
 
       /** indicates that the Resolver should invalidate any cached information
           as that information has 'expired' (i.e. we have moved to a new IOV)

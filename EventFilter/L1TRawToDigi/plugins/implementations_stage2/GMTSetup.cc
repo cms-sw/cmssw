@@ -45,6 +45,9 @@ namespace l1t {
       if (fed == 1402) {
         auto gmt_in_packer = static_pointer_cast<l1t::stage2::RegionalMuonGMTPacker>(
             PackerFactory::get()->make("stage2::RegionalMuonGMTPacker"));
+        if (fw >= 0x8010000) {
+          gmt_in_packer->setUseOmtfDisplacementInfo();
+        }
         if (fw >= 0x8000000) {
           gmt_in_packer->setUseEmtfLooseShowers();
         }
@@ -103,6 +106,9 @@ namespace l1t {
       // input muons on links 36-71
       auto gmt_in_unp = static_pointer_cast<l1t::stage2::RegionalMuonGMTUnpacker>(
           UnpackerFactory::get()->make("stage2::RegionalMuonGMTUnpacker"));
+      if (fw >= 0x8010000) {
+        gmt_in_unp->setUseOmtfDisplacementInfo();
+      }
       if (fw >= 0x8000000) {
         gmt_in_unp->setUseEmtfLooseShowers();
       }

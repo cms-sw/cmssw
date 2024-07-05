@@ -11,7 +11,7 @@
 #include <set>
 #include <vector>
 
-namespace edm {
+namespace edm::streamer {
   class RootDebug {
   public:
     RootDebug(int flevel, int rlevel) : flevel_(flevel), rlevel_(rlevel), old_(gDebug) {
@@ -33,6 +33,6 @@ namespace edm {
   TClass* getTClass(const std::type_info& ti);
   bool loadCap(const std::string& name, std::vector<std::string>& missingDictionaries);
   void doBuildRealData(const std::string& name);
-}  // namespace edm
+}  // namespace edm::streamer
 
 #endif

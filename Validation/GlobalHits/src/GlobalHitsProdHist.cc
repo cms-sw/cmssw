@@ -9,6 +9,8 @@
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Validation/GlobalHits/interface/GlobalHitsProdHist.h"
+using CLHEP::micrometer;
+using CLHEP::millimeter;
 
 GlobalHitsProdHist::GlobalHitsProdHist(const edm::ParameterSet &iPSet)
     : fName(""),

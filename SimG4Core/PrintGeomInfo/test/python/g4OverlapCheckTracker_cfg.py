@@ -2,8 +2,8 @@
 # Way to use this:
 #   cmsRun g4OverlapCheckTracker_cfg.py geometry=2021 tol=0.1
 #
-#   Options for geometry 2016, 2017, 2021, 2026D88, 2026D92, 2026D93, 2026D99,
-#                        2026D100
+#   Options for geometry 2016, 2017, 2021, 2026D102, 2026D103, 2026D104,
+#                        2026D108, 2026D109, 2026D110
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -17,9 +17,9 @@ options.register('geometry',
                  "2021",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: 2016, 2017, 2021, 2026D88, 2026D92, 2026D93, 2026D99, 2026D100")
+                  "geometry of operations: 2016, 2017, 2021, 2026D102, 2026D103, 2026D104, 2026D108, 2026D109, 2026D110")
 options.register('tol',
-                 0.1,
+                 0.01,
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.float,
                  "Tolerance for checking overlaps: 0.0, 0.01, 0.1, 1.0"
@@ -33,31 +33,36 @@ print(options)
 ####################################################################
 # Use the options
 
-if (options.geometry == "2026D88"):
+if (options.geometry == "2026D102"):
     from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
     process = cms.Process('G4PrintGeometry',Phase2C17I13M9)
-    process.load('Configuration.Geometry.GeometryExtended2026D88Reco_cff')
-    baseName = 'Tracker2026D88'
-elif (options.geometry == "2026D92"):
+    process.load('Configuration.Geometry.GeometryExtended2026D102Reco_cff')
+    baseName = 'Hcal2026D102'
+elif (options.geometry == "2026D103"):
     from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
     process = cms.Process('G4PrintGeometry',Phase2C17I13M9)
-    process.load('Configuration.Geometry.GeometryExtended2026D92Reco_cff')
-    baseName = 'Tracker2026D92'
-elif (options.geometry == "2026D93"):
+    process.load('Configuration.Geometry.GeometryExtended2026D103Reco_cff')
+    baseName = 'Hcal2026D103'
+elif (options.geometry == "2026D104"):
+    from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
+    process = cms.Process('G4PrintGeometry',Phase2C22I13M9)
+    process.load('Configuration.Geometry.GeometryExtended2026D104Reco_cff')
+    baseName = 'Hcal2026D104'
+elif (options.geometry == "2026D108"):
     from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
     process = cms.Process('G4PrintGeometry',Phase2C17I13M9)
-    process.load('Configuration.Geometry.GeometryExtended2026D93Reco_cff')
-    baseName = 'Tracker2026D93'
-elif (options.geometry == "2026D99"):
+    process.load('Configuration.Geometry.GeometryExtended2026D108Reco_cff')
+    baseName = 'Hcal2026D108'
+elif (options.geometry == "2026D109"):
+    from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
+    process = cms.Process('G4PrintGeometry',Phase2C22I13M9)
+    process.load('Configuration.Geometry.GeometryExtended2026D109Reco_cff')
+    baseName = 'Hcal2026D109'
+elif (options.geometry == "2026D110"):
     from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
     process = cms.Process('G4PrintGeometry',Phase2C17I13M9)
-    process.load('Configuration.Geometry.GeometryExtended2026D99Reco_cff')
-    baseName = 'Tracker2026D99'
-elif (options.geometry == "2026D100"):
-    from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
-    process = cms.Process('G4PrintGeometry',Phase2C17I13M9)
-    process.load('Configuration.Geometry.GeometryExtended2026D100Reco_cff')
-    baseName = 'Tracker2026D100'
+    process.load('Configuration.Geometry.GeometryExtended2026D108Reco_cff')
+    baseName = 'Hcal2026D110'
 elif (options.geometry == "2016"):
     from Configuration.Eras.Era_Run2_2016_cff import Run2_2016
     process = cms.Process('G4PrintGeometry',Run2_2016)

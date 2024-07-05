@@ -118,7 +118,7 @@ namespace reco {
     template <typename T>
     T& makeCacheIfNeeded(edm::AtomicPtrCache<T>& oCache) {
       if (not oCache.isSet()) {
-        oCache.set(std::move(std::make_unique<T>()));
+        oCache.set(std::make_unique<T>());
       }
       return *oCache;
     }

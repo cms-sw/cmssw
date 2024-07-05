@@ -12,7 +12,7 @@
 
 #include "zlib.h"
 
-namespace edm {
+namespace edm::streamer {
   StreamerOutputModuleBase::StreamerOutputModuleBase(ParameterSet const& ps)
       : one::OutputModuleBase::OutputModuleBase(ps),
         one::OutputModule<one::WatchRuns, one::WatchLuminosityBlocks>(ps),
@@ -29,16 +29,15 @@ namespace edm {
     auto psetMapHandle = iRun.getHandle(psetToken_);
 
     std::unique_ptr<InitMsgBuilder> init_message =
-        serializeRegistry(*getSerializerBuffer(),
-                          *branchIDLists(),
-                          *thinnedAssociationsHelper(),
-                          OutputModule::processName(),
+        serializeRegistry(OutputModule::processName(),
                           description().moduleLabel(),
                           moduleDescription().mainParameterSetID(),
                           psetMapHandle.isValid() ? psetMapHandle.product() : nullptr);
 
     doOutputHeader(*init_message);
-    serializerBuffer_->clearHeaderBuffer();
+    lastCallWasBeginRun_ = true;
+
+    clearHeaderBuffer();
   }
 
   void StreamerOutputModuleBase::endRun(RunForOutput const&) { stop(); }
@@ -54,7 +53,13 @@ namespace edm {
   void StreamerOutputModuleBase::write(EventForOutput const& e) {
     Handle<TriggerResults> const& triggerResults = getTriggerResults(trToken_, e);
 
-    std::unique_ptr<EventMsgBuilder> msg = serializeEvent(*getSerializerBuffer(), e, triggerResults, selectorConfig());
+    if (lastCallWasBeginRun_) {
+      auto msg = serializeEventMetaData(*branchIDLists(), *thinnedAssociationsHelper());
+      doOutputEvent(*msg);
+      lastCallWasBeginRun_ = false;
+    }
+    auto msg = serializeEvent(e, triggerResults, selectorConfig());
+
     doOutputEvent(*msg);  // You can't use msg in StreamerOutputModuleBase after this point
   }
 
@@ -71,4 +76,4 @@ namespace edm {
     desc.addUntracked<edm::InputTag>("psetMap", {"hltPSetMap"})
         ->setComment("Optionally allow the map of ParameterSets to be calculated externally.");
   }
-}  // namespace edm
+}  // namespace edm::streamer

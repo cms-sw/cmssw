@@ -31,6 +31,17 @@ DataROOTDumper2::DataROOTDumper2(const edm::ParameterSet& edmCfg,
     if (edmCfg.getParameter<bool>("dumpKilledOmtfCands"))
       dumpKilledOmtfCands = true;
 
+  if (edmCfg.exists("candidateSimMuonMatcherType")) {
+    if (edmCfg.getParameter<std::string>("candidateSimMuonMatcherType") == "propagation")
+      usePropagation = true;
+    else if (edmCfg.getParameter<std::string>("candidateSimMuonMatcherType") == "matchSimple")
+      usePropagation = false;
+
+    edm::LogImportant("l1tOmtfEventPrint")
+        << " CandidateSimMuonMatcher: candidateSimMuonMatcherType "
+        << edmCfg.getParameter<std::string>("candidateSimMuonMatcherType") << std::endl;
+  }
+
   edm::LogVerbatim("l1tOmtfEventPrint") << " DataROOTDumper2 created. dumpKilledOmtfCands " << dumpKilledOmtfCands
                                         << std::endl;
 }
@@ -123,6 +134,28 @@ void DataROOTDumper2::observeEventEnd(const edm::Event& iEvent,
                                 << matchingResults.size() << std::endl;
 
   //candidateSimMuonMatcher should use the  trackingParticles, because the simTracks are not stored for the pile-up events
+
+  //for some events there are more than one matchingResults,
+  //Usually at least one them has  genPt 0, which means no simMuon was matched, so candidate is ghost (or fake)
+  //so better is to to drop such event, as it is not sue if the correct simMuon was matched to the candidate.
+  //So we assume here that when the propagation is not used it is a single mu sample and this filter has sense
+  //the propagation is used for multi-muon sample, so then this fitler cannot be used
+  //TODO add a flag to enable this filter? Disable it if not needed
+  if (!usePropagation && matchingResults.size() > 1) {  //omtfConfig->cleanStubs() &&
+    edm::LogVerbatim("l1tOmtfEventPrint")
+        << "\nDataROOTDumper2::observeEventEnd matchingResults.size() " << matchingResults.size() << std::endl;
+
+    for (auto& matchingResult : matchingResults) {
+      edm::LogVerbatim("l1tOmtfEventPrint") << "matchingResult: genPt " << matchingResult.genPt;
+      if (matchingResult.procMuon)
+        edm::LogVerbatim("l1tOmtfEventPrint") << " procMuon.PtConstr " << matchingResult.procMuon->getPtConstr();
+      else
+        edm::LogVerbatim("l1tOmtfEventPrint") << " no procMuon" << std::endl;
+    }
+    edm::LogVerbatim("l1tOmtfEventPrint") << "dropping the event!!!\n" << std::endl;
+    return;
+  }
+
   for (auto& matchingResult : matchingResults) {
     omtfEvent.eventNum = iEvent.id().event();
 
@@ -273,12 +306,12 @@ void DataROOTDumper2::observeEventEnd(const edm::Event& iEvent,
                 <<" meanDistPhiValue   "<<procMuon->getGoldenPatern()->meanDistPhiValue(iLogicLayer, procMuon->getRefLayer())//<<(phiDist != hit.phiDist? "!!!!!!!<<<<<" : "")
                 <<endl;*/
 
-          if (hit.phiDist > 504 || hit.phiDist < -512) {
+          /*if (hit.phiDist > 504 || hit.phiDist < -512) {
             edm::LogVerbatim("l1tOmtfEventPrint")
                 << " muonPt " << omtfEvent.muonPt << " omtfPt " << omtfEvent.omtfPt << " RefLayer "
                 << (int)omtfEvent.omtfRefLayer << " layer " << int(hit.layer) << " hit.phiDist " << hit.phiDist
                 << " valid " << stubResult.getValid() << " !!!!!!!!!!!!!!!!!!!!!!!!" << endl;
-          }
+          }*/
 
           DetId detId(stubResult.getMuonStub()->detId);
           if (detId.subdetId() == MuonSubdetId::CSC) {
@@ -300,7 +333,7 @@ void DataROOTDumper2::observeEventEnd(const edm::Event& iEvent,
                                     << " RefHitNumber " << procMuon->getRefHitNumber() << std::endl;
     };
 
-    if (matchingResult.muonCand && matchingResult.procMuon->getPtConstr() >= 0 &&
+    if (matchingResult.muonCand && matchingResult.procMuon->getPtConstr() > 0 &&
         matchingResult.muonCand->hwQual() >= 1) {
       //TODO set the quality, quality 0 has the candidates with eta > 1.3(?) EtaHw >= 121
       //&& matchingResult.genPt < 20

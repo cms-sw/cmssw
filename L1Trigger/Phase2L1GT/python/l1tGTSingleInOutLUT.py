@@ -12,7 +12,7 @@ import math
 
 class SingleInOutLUT:
 
-    def __init__(self, width_in, unused_lsbs, lsb, output_scale_factor, operation, start_value=0, label=""):
+    def __init__(self, width_in, unused_lsbs, lsb, output_scale_factor, operation, start_value=0, label="", width_out_force=0):
         self.debug_txt = ""
         input_scale_factor = 2**unused_lsbs * lsb
         self.unused_lsbs = unused_lsbs
@@ -20,12 +20,14 @@ class SingleInOutLUT:
         signed_output = min([operation(input_scale_factor * (i + 0.5) + start_value)
                             for i in range(2**width_in)]) < 0
 
-        self.width_out = math.ceil(math.log2(output_scale_factor *
-                                             max([abs(operation(input_scale_factor * (i + 0.5) + start_value)) for i in range(2**width_in - 1)] + 
-                                             [abs(operation(input_scale_factor * (2**width_in - 1) + start_value))])))
-
-        if signed_output:
-            self.width_out += 1
+        if width_out_force == 0:
+            self.width_out = math.ceil(math.log2(output_scale_factor *
+                                                 max([abs(operation(input_scale_factor * (i + 0.5) + start_value)) for i in range(2**width_in - 1)] +
+                                                     [abs(operation(input_scale_factor * (2**width_in - 1) + start_value))])))
+            if signed_output:
+                self.width_out += 1
+        else:
+            self.width_out = width_out_force
 
         self.debug_info(
             "***************************** {} LUT {} *****************************".format(operation.__name__, label))
@@ -38,8 +40,8 @@ class SingleInOutLUT:
         self.operation = operation
         self.start_value = start_value
         self.lut = cms.vint32(
-            * ([round(output_scale_factor * operation(input_scale_factor * (i + 0.5) + start_value)) for i in range(2**width_in - 1)]
-               + [round(output_scale_factor * operation(input_scale_factor * (2 ** width_in - 1) + start_value))]))
+            * ([min(round(output_scale_factor * operation(input_scale_factor * (i + 0.5) + start_value)), 2**self.width_out - 1) for i in range(2**width_in - 1)]
+               + [min(round(output_scale_factor * operation(input_scale_factor * (2 ** width_in - 1) + start_value)), 2**self.width_out - 1)]))
 
         self.print_error()
 
@@ -87,19 +89,25 @@ COSH_ETA_IN_WIDTH = 11  # not using 2 lsb and 1 msb (splitted LUT)
 ISOLATION_WIDTH = 11
 
 # Since we calculate cosh(dEta) - cos(dPhi); both must be on the same scale the difference should fit into 17 bits for the DSP
-optimal_scale_factor = math.floor(
+optimal_scale_factor_lower = math.floor(
     (2**17 - 1) / (math.cosh((2**(COSH_ETA_IN_WIDTH + 2) - 1)*scale_parameter.eta_lsb.value()) + 1))
 
 COS_PHI_LUT = SingleInOutLUT(
-    COS_PHI_IN_WIDTH, 2, scale_parameter.phi_lsb.value(), optimal_scale_factor, math.cos)
+    COS_PHI_IN_WIDTH, 2, scale_parameter.phi_lsb.value(), optimal_scale_factor_lower, math.cos)
 
 # eta in [0, 2pi)
 COSH_ETA_LUT = SingleInOutLUT(
-    COSH_ETA_IN_WIDTH, 2, scale_parameter.eta_lsb.value(), optimal_scale_factor, math.cosh, 0, "[0, 2pi)")
+    COSH_ETA_IN_WIDTH, 2, scale_parameter.eta_lsb.value(), optimal_scale_factor_lower, math.cosh, 0, "[0, 2pi)")
+
+optimal_scale_factor_upper = SingleInOutLUT.optimal_scale_factor(
+    COSH_ETA_IN_WIDTH, 17, 2, scale_parameter.eta_lsb.value(), math.cosh, 2**13 * scale_parameter.eta_lsb.value())
+
+# Ensure a bitshift between upper and lower scale factor (makes 3- and 4-body invariant mass calculations easier).
+# As a result values for cosh(dEta) with approximately dEta > 12.5 are binned to a lower value.
+# However, there is no detector at abs(eta) > 6, so it shouldn't matter.
+optimal_scale_factor_upper = optimal_scale_factor_lower / \
+    math.pow(2, math.floor(math.log2(optimal_scale_factor_lower / optimal_scale_factor_upper)))
 
 # eta in [2pi, 4pi)
 COSH_ETA_LUT_2 = SingleInOutLUT(
-    COSH_ETA_IN_WIDTH, 2, scale_parameter.eta_lsb.value(),
-    SingleInOutLUT.optimal_scale_factor(
-        COSH_ETA_IN_WIDTH, 17, 2, scale_parameter.eta_lsb.value(), math.cosh, 2**13 * scale_parameter.eta_lsb.value()),
-    math.cosh, 2**13 * scale_parameter.eta_lsb.value(), "[2pi, 4pi)")
+    COSH_ETA_IN_WIDTH, 2, scale_parameter.eta_lsb.value(), optimal_scale_factor_upper, math.cosh, 2**13 * scale_parameter.eta_lsb.value(), "[2pi, 4pi)", 17)

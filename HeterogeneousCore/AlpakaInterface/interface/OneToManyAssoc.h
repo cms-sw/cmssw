@@ -257,7 +257,7 @@ namespace cms::alpakatools {
                            nOnes,
                            nblocks,
                            ppsws,
-                           alpaka::getWarpSizes(alpaka::getDev(queue))[0]);
+                           alpaka::getPreferredWarpSize(alpaka::getDev(queue)));
       } else {
         h->finalize();
       }

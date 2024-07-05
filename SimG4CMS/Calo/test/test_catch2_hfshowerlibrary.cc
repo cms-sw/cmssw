@@ -1,11 +1,15 @@
 #include "catch.hpp"
 #include "SimG4CMS/Calo/interface/HFShowerLibrary.h"
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
+#include <CLHEP/Units/GlobalPhysicalConstants.h>
+#include <CLHEP/Units/SystemOfUnits.h>
 #include "FWCore/PluginManager/interface/PresenceFactory.h"
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
-#include "CLHEP/Random/MixMaxRng.h"
+#include <CLHEP/Random/MixMaxRng.h>
 #include "Randomize.hh"
+
+using CLHEP::deg;
+using CLHEP::GeV;
 
 namespace {
   std::shared_ptr<edm::Presence> setupMessageLogger(bool iDoSetup) {

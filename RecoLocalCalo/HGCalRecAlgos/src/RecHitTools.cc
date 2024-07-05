@@ -140,7 +140,7 @@ const CaloSubdetectorGeometry* RecHitTools::getSubdetectorGeometry(const DetId& 
 GlobalPoint RecHitTools::getPosition(const DetId& id) const {
   auto geom = getSubdetectorGeometry(id);
   GlobalPoint position;
-  if (id.det() == DetId::Hcal) {
+  if (id.det() == DetId::Hcal || id.det() == DetId::Ecal) {
     position = geom->getGeometry(id)->getPosition();
   } else {
     auto hg = static_cast<const HGCalGeometry*>(geom);
@@ -367,8 +367,13 @@ unsigned int RecHitTools::getLayer(const DetId& id) const {
     layer = HFNoseDetId(id).layer();
   } else if (id.det() == DetId::Forward) {
     layer = HGCalDetId(id).layer();
-  } else if (id.det() == DetId::Hcal && id.subdetId() == HcalEndcap) {
-    layer = HcalDetId(id).depth();
+  } else if (id.det() == DetId::Hcal && id.subdetId() != HcalEmpty) {
+    if (id.subdetId() == HcalBarrel)
+      layer = HcalDetId(id).depth();
+    else if (id.subdetId() == HcalOuter)
+      layer = HcalDetId(id).depth() + 1;
+  } else if (id.det() == DetId::Ecal) {
+    layer = 0;
   }
   return layer;
 }

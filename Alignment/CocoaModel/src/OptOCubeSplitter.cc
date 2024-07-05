@@ -9,7 +9,7 @@
 #include "Alignment/CocoaModel/interface/LightRay.h"
 #include "Alignment/CocoaModel/interface/ALIPlane.h"
 #include "Alignment/CocoaUtilities/interface/ALIUtils.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include <CLHEP/Units/SystemOfUnits.h>
 #ifdef COCOA_VIS
 #include "Alignment/IgCocoaFileWriter/interface/IgCocoaFileMgr.h"
 #include "Alignment/CocoaVisMgr/interface/ALIColour.h"
@@ -180,7 +180,7 @@ ALIPlane OptOCubeSplitter::getMiddlePlate() {
         acos(0.) /
         2.;  //default is 45o  !!! this creates problem in 'isr_medidas_globales.txt': laser goes along X and does not intersect cube if angles Y 0, anglePlanes 45
     if (ALIUtils::debug >= 4)
-      std::cout << "anglePlanes default = " << anglePlanes / deg << std::endl;
+      std::cout << "anglePlanes default = " << anglePlanes / CLHEP::deg << std::endl;
   }
   CLHEP::Hep3Vector Axis(0., 0., 1.);
   CLHEP::Hep3Vector XAxis(1., 0., 0.);
@@ -247,6 +247,8 @@ void OptOCubeSplitter::constructSolidShape() {
   GlobalOptionMgr* gomgr = GlobalOptionMgr::getInstance();
   gomgr->getGlobalOptionValue("VisScale", go);
 
-  theSolidShape = new CocoaSolidShapeBox(
-      "Box", go * 5. * cm / m, go * 5. * cm / m, go * 5. * cm / m);  //COCOA internal units are meters
+  theSolidShape = new CocoaSolidShapeBox("Box",
+                                         go * 5. * CLHEP::cm / CLHEP::m,
+                                         go * 5. * CLHEP::cm / CLHEP::m,
+                                         go * 5. * CLHEP::cm / CLHEP::m);  //COCOA internal units are meters
 }

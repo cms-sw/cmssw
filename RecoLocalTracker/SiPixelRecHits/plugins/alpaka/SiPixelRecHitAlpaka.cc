@@ -92,9 +92,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                    Algo_.makeHitsAsync(digis, clusters, bs.data(), fcpe.const_buffer().data(), iEvent.queue()));
   }
   using SiPixelRecHitAlpakaPhase1 = SiPixelRecHitAlpaka<pixelTopology::Phase1>;
+  using SiPixelRecHitAlpakaHIonPhase1 = SiPixelRecHitAlpaka<pixelTopology::HIonPhase1>;
   using SiPixelRecHitAlpakaPhase2 = SiPixelRecHitAlpaka<pixelTopology::Phase2>;
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
 
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/MakerMacros.h"
 DEFINE_FWK_ALPAKA_MODULE(SiPixelRecHitAlpakaPhase1);
+DEFINE_FWK_ALPAKA_MODULE(SiPixelRecHitAlpakaHIonPhase1);
 DEFINE_FWK_ALPAKA_MODULE(SiPixelRecHitAlpakaPhase2);

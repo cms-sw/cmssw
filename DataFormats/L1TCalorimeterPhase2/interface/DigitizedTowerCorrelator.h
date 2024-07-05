@@ -9,7 +9,7 @@ namespace l1tp2 {
   class DigitizedTowerCorrelator {
   private:
     // Data
-    ap_uint<16> towerData;
+    unsigned int towerData;
     unsigned int idxCard;   // 0, 1, or 2 (there are three GCT cards)
     unsigned int idxFiber;  // 0 to 47 (there are 48 fibers in one GCT card)
     unsigned int idxTower;  // 0 to 16 (there are 17 towers in one fiber)

@@ -236,11 +236,11 @@ LocalPoint PixelCPEClusterRepair::localPosition(DetParam const& theDetParam, Clu
   bool xdouble[mrow], ydouble[mcol];
   // x directions (shorter), rows
   for (int irow = 0; irow < mrow; ++irow)
-    xdouble[irow] = theDetParam.theRecTopol->isItBigPixelInX(irow + row_offset);
+    xdouble[irow] = theDetParam.theTopol->isItBigPixelInX(irow + row_offset);
   //
   // y directions (longer), columns
   for (int icol = 0; icol < mcol; ++icol)
-    ydouble[icol] = theDetParam.theRecTopol->isItBigPixelInY(icol + col_offset);
+    ydouble[icol] = theDetParam.theTopol->isItBigPixelInY(icol + col_offset);
 
   //--- C-style matrix.  We'll need it in either case.
   float clustMatrix[mrow][mcol];

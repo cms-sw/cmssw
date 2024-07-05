@@ -1,98 +1,65 @@
-How to use relval plotting machinary:
+How to set and use plotting machinery in CMSSW_14_0_0_pre3 (or later) on lxplus (el9 OS)
+for making plots and submitting them to /TMP folder of
+/eos/project/c/cmsweb/www/hcal-sw-validation/TMP
+visible on the web as
+https://cms-docs.web.cern.ch/hcal-sw-validation/?dir=TMP
 
-Example: CMSSW_10_2_0_pre6 vs CMSSW_10_2_0_pre5
+NB: HCAL Validation expert is supposed revise/eamine the plots and then
+to move the folders from /TMP to an actual destination deirectory. 
 
-Target relaease: CMSSW_10_2_0_pre6 , target GT: 102X_upgrade2018_realistic_v7
-Reference relaease: CMSSW_10_2_0_pre5, reference GT: 102X_upgrade2018_realistic_v1
+Eample uses CMSSW_14_0_0_pre2 vs CMSSW_14_0_0_pre1 comparison
+with the relevant DQM files fetched from the repository directories on
+https://cmsweb.cern.ch/dqm/relval/data/browse/ROOT/RelVal/
 
+Target relaease: CMSSW_14_0_0_pre2 , target GT: 133X_mcRun3_2023_realistic_v3
+Reference relaease: CMSSW_14_0_0_pre1, reference GT: 133X_mcRun3_2023_realistic_v3
+(GTs can be different or the same)
 
-	cmsrel CMSSW_10_2_0
-	cd CMSSW_10_2_0/src
-	cmsenv
-
-> download relval script
-	
-	git cms-addpkg Validation/CaloTowers
-	### in case PR 24159 is not yet merged then use following command
-	git cms-merge-topic spandeyehep:HCAL_DQM_hist_booking_change
-	scram b
-	cd Validation/CaloTowers/test/macros/
-	make
-
-> initialize proxies
-
-	voms-proxy-init --voms cms
-	### for csh shell
-	setenv X509_USER_PROXY /tmp/x509up_u`id -u`
-	### for bash shell
-	export X509_USER_PROXY=/tmp/x509up_u`id -u`
+NB: attention should be payed to the versions of the DQM files,
+there could be additional strings at the end of their names,
+like a version number "vN" (v1 in most of the cases)
+or additional special strings, like "STD-v1",
 
 
-> Download target and reference DQM files:
+Login to lxplus (=lxplus9)
+List which recent CMSSW versions are available:
+$scram list --all CMSSW | grep 14_0_0
 
-	### MC target
-	./RelValHarvest.py -M CMSSW_10_2_0_pre6
-	### MC reference
-	./RelValHarvest.py -M CMSSW_10_2_0_pre5
+and create local CMSSW release area:
 
-> It will download and rename DQM files (the main files are following):
+$export SCRAM_ARCH="el9_amd64_gcc12"  (for tcsh shell: setenv SCRAM_ARCH el9_amd64_gcc12)
+$cmsrel CMSSW_14_0_0_pre3 (for instance) or 14_0_0 (when it's available)
+$cd CMSSW_14_0_0/src/
+$cmsenv
+$
+$git cms-addpkg Validation/CaloTowers (if all the updated are already available in CMSSW)
+$git cms-merge-topic abdoulline:HCAL_RelVal_update (if the branch with updates is not yet merged into CMSSW)
+$scram b
+$cd Validation/CaloTowers/test/macros/
+$make
+$voms-proxy-init --voms cms
+$export X509_USER_PROXY=/tmp/x509up_uid -u
 
-Target:
-# HcalRecHitValidationRelVal_HighPtQCD_1020pre6_102X_upgrade2018_realistic_v7-v1.root
-# HcalRecHitValidationRelVal_MinBias_1020pre6_102X_upgrade2018_realistic_v7-v1.root
-# HcalRecHitValidationRelVal_QCD_1020pre6_102X_upgrade2018_realistic_v7-v1.root
-# HcalRecHitValidationRelVal_TTbar_1020pre6_102X_upgrade2018_realistic_v7-v1.root
-# HcalRecHitValidationRelVal_TTbar_1020pre6_PU25ns_102X_upgrade2018_realistic_v7_rsb-v1.root
-# HcalRecHitValidationRelVal_TTbar_1020pre6_PUpmx25ns_102X_upgrade2018_realistic_v7-v1.root
+(1) for making.uploding "2023" (Run3) noPU/PU plots:
 
-Reference:
-# HcalRecHitValidationRelVal_HighPtQCD_1020pre5_102X_upgrade2018_realistic_v1-v1.root
-# HcalRecHitValidationRelVal_MinBias_1020pre5_102X_upgrade2018_realistic_v1-v1.root
-# HcalRecHitValidationRelVal_QCD_1020pre5_102X_upgrade2018_realistic_v1-v1.root
-# HcalRecHitValidationRelVal_TTbar_1020pre5_102X_upgrade2018_realistic_v1-v1.root
-# HcalRecHitValidationRelVal_TTbar_1020pre5_PU25ns_102X_upgrade2018_realistic_v1-v1.root
-# HcalRecHitValidationRelVal_TTbar_1020pre5_PUpmx25ns_102X_upgrade2018_realistic_v1-v1.root
+Update skProc1_2023.sh  accordinly (using actual target and reference versions): 
+./RelValHarvest_2023.py -M CMSSW_14_0_0_pre2
+./RelValHarvest_2023.py -M CMSSW_14_0_0_pre1
+And execute it (it will download and rename DQM files)
+$./skProc1_2023.sh
 
+Update skProc2_2023.sh
+to use actual DQM files + change username (replacing "ykazhyka" with your own)
+nopu_new="1400pre2_133X_mcRun3_2023_realistic_v3_STD-v1"
+nopu_old="1400pre1_133X_mcRun3_2023_realistic_v3-v1"
+pu_new="1400pre2_PU_133X_mcRun3_2023_realistic_v3_STD_PU-v3"
+pu_old="1400pre1_PU_133X_mcRun3_2023_realistic_v3-v1"
 
+Execute it:
+$./skProc2_2023.sh
 
-> Generate plots: We'll need to generate plots for standard MC samples, PU25ns samples & PUpmx25ns samples:
+(2) Similar steps for producing Phase2 (2026D...) noPU/PU plots
+(after updating their content)
 
-	### MC samples
-	./RunRVMacros2018.csh 1020pre6_102X_upgrade2018_realistic_v7-v1 1020pre5_102X_upgrade2018_realistic_v1-v1
-	### PU25ns samples
-	./RunRVMacros_Pileup2018.csh 1020pre6_PU25ns_102X_upgrade2018_realistic_v7-v1 1020pre5_PU25ns_102X_upgrade2018_realistic_v1-v1
-
-It will generate the plots for all the samples.
-
-
-
-
->>> Similarly for DATA:
-
-> Download target and reference DQM files (2017B):
-
-	### Data target
-	./RelValHarvest.py -D CMSSW_10_2_0_pre6
-	### Data reference
-	./RelValHarvest.py -D CMSSW_10_2_0_pre5
-
-> It will download and rename DQM files (the main files are following):
-
-Target:
-# HcalRecHitValidationRelVal_ZeroBias_1020pre6_102X_dataRun2_PromptLike_v3.root
-# HcalRecHitValidationRelVal_JetHT_1020pre6_102X_dataRun2_PromptLike_v3.root
-
-Reference:
-# HcalRecHitValidationRelVal_ZeroBias_1020pre5_102X_dataRun2_PromptLike_v3.root
-# HcalRecHitValidationRelVal_JetHT_1020pre5_102X_dataRun2_PromptLike_v3.root
-
-> Generate plots:
-
-	./RunRVMacros_DATA.csh 1020pre6_102X_dataRun2_PromptLike_v3 1020pre5_102X_dataRun2_PromptLike_v3
-
-
-> upload the plots
-
-	rsync -av 1020* userId@lxplus.cern.ch:/afs/cern.ch/cms/cpt/Software/html/General/Validation/SVSuite/HCAL/
-
-NOTE: To download 2018A or 2018B samples, use RelValHarvest_2018A.py or RelValHarvest_2018B.py script.
+$./skProc1_Phase2.sh
+$./skProc2_Phase2.sh

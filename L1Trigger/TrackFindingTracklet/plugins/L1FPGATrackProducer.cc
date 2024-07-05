@@ -71,7 +71,6 @@
 #include "Geometry/CommonTopologies/interface/PixelGeomDetType.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelTopologyBuilder.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 //
@@ -739,6 +738,9 @@ void L1FPGATrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     aTrack.setStubPtConsistency(
         StubPtConsistency::getConsistency(aTrack, theTrackerGeom, tTopo, settings_.bfield(), settings_.nHelixPar()));
 
+    // set track word before TQ MVA calculated which uses track word variables
+    aTrack.setTrackWordBits();
+
     if (trackQuality_) {
       trackQualityModel_->setL1TrackQuality(aTrack);
     }
@@ -748,7 +750,10 @@ void L1FPGATrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     //      trackQualityModel_->setBonusFeatures(hph.bonusFeatures());
     //    }
 
-    // set TTTrack word
+    // test track word
+    //aTrack.testTrackWordBits();
+
+    // set track word again to set MVA variable from TTTrack into track word
     aTrack.setTrackWordBits();
     // test track word
     //aTrack.testTrackWordBits();

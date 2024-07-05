@@ -28,13 +28,13 @@ namespace edm {
 
   class EventForTransformer {
   public:
-    EventForTransformer(EventPrincipal const&, ModuleCallingContext);
+    EventForTransformer(EventPrincipal const&, ModuleCallingContext) noexcept;
 
     BasicHandle get(edm::TypeID const& iTypeID, ProductResolverIndex iIndex) const;
 
     void put(ProductResolverIndex index, std::unique_ptr<WrapperBase> edp, BasicHandle const& iGetHandle);
 
-    ModuleCallingContext const& moduleCallingContext() const { return mcc_; }
+    ModuleCallingContext const& moduleCallingContext() const noexcept { return mcc_; }
 
   private:
     EventPrincipal const& eventPrincipal_;

@@ -11,7 +11,8 @@
 #include "TMath.h"
 
 #include "Randomize.hh"
-#include "G4SystemOfUnits.hh"
+
+#include <CLHEP/Units/SystemOfUnits.h>
 
 //#define EDM_ML_DEBUG
 

@@ -53,6 +53,7 @@ from Configuration.Eras.Modifier_peripheralPbPb_cff import peripheralPbPb
 from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
 from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 from Configuration.Eras.Modifier_run3_upc_cff import run3_upc
+from Configuration.Eras.Modifier_ppRef_2024_cff import ppRef_2024
 #products from regular pp which does not fit the normal AOD
 for e in [pA_2016, peripheralPbPb, pp_on_XeXe_2017, pp_on_AA]:
     e.toModify( RecoJetsAOD.outputCommands, 
@@ -64,6 +65,9 @@ for e in [pp_on_XeXe_2017, pp_on_AA, run3_upc]:
                                                                    'keep recoClusterCompatibility*_hiClusterCompatibility_*_*'
                                                                    ])
                 )
+ppRef_2024.toModify( RecoJetsAOD.outputCommands,
+                     func=lambda outputCommands: outputCommands.extend(['keep recoClusterCompatibility*_hiClusterCompatibility_*_*'])
+                     )
 #HI-specific products: needed in AOD, propagate to more inclusive tiers as well
 pA_2016.toModify( RecoJetsAOD.outputCommands, 
                   func=lambda outputCommands: outputCommands.extend(['keep recoCentrality*_pACentrality_*_*',

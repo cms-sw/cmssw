@@ -33,7 +33,7 @@
 #include "G4Step.hh"
 #include "G4ParticleTable.hh"
 
-#include "G4SystemOfUnits.hh"
+#include <CLHEP/Units/SystemOfUnits.h>
 
 #include <string>
 #include <vector>
@@ -143,7 +143,7 @@ void FP420SD::GetStepInfo(G4Step* aStep) {
     edepositHAD = getEnergyDeposit(aStep);
   }
   edeposit = aStep->GetTotalEnergyDeposit();
-  tSlice = (postStepPoint->GetGlobalTime()) / nanosecond;
+  tSlice = (postStepPoint->GetGlobalTime()) / CLHEP::nanosecond;
   tSliceID = (int)tSlice;
   unitID = setDetUnitId(aStep);
 #ifdef debug
@@ -151,13 +151,13 @@ void FP420SD::GetStepInfo(G4Step* aStep) {
 #endif
   primaryID = theTrack->GetTrackID();
   //  Position     = hitPoint;
-  Pabs = aStep->GetPreStepPoint()->GetMomentum().mag() / GeV;
+  Pabs = aStep->GetPreStepPoint()->GetMomentum().mag() / CLHEP::GeV;
   //Tof          = 1400. + aStep->GetPostStepPoint()->GetGlobalTime()/nanosecond;
-  Tof = aStep->GetPostStepPoint()->GetGlobalTime() / nanosecond;
-  Eloss = aStep->GetTotalEnergyDeposit() / GeV;
+  Tof = aStep->GetPostStepPoint()->GetGlobalTime() / CLHEP::nanosecond;
+  Eloss = aStep->GetTotalEnergyDeposit() / CLHEP::GeV;
   ParticleType = theTrack->GetDefinition()->GetPDGEncoding();
-  ThetaAtEntry = aStep->GetPreStepPoint()->GetPosition().theta() / deg;
-  PhiAtEntry = aStep->GetPreStepPoint()->GetPosition().phi() / deg;
+  ThetaAtEntry = aStep->GetPreStepPoint()->GetPosition().theta() / CLHEP::deg;
+  PhiAtEntry = aStep->GetPreStepPoint()->GetPosition().phi() / CLHEP::deg;
 
   ParentId = theTrack->GetParentID();
   Vx = theTrack->GetVertexPosition().x();

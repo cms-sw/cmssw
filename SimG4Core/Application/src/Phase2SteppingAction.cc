@@ -8,7 +8,7 @@
 #include "G4PhysicalVolumeStore.hh"
 #include "G4RegionStore.hh"
 #include "G4UnitsTable.hh"
-#include "G4SystemOfUnits.hh"
+#include <CLHEP/Units/SystemOfUnits.h>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/isFinite.h"
@@ -55,7 +55,7 @@ Phase2SteppingAction::Phase2SteppingAction(const CMSSteppingVerbose* sv,
     for (unsigned int i = 0; i < numberTimes; i++) {
       edm::LogVerbatim("SimG4CoreApplication")
           << "Phase2SteppingAction::MaxTrackTime for " << maxTimeNames[i] << " is " << maxTrackTimes[i] << " ns ";
-      maxTrackTimes[i] *= ns;
+      maxTrackTimes[i] *= CLHEP::ns;
     }
   }
 
@@ -103,7 +103,8 @@ void Phase2SteppingAction::UserSteppingAction(const G4Step* aStep) {
       ++nWarnings;
       edm::LogWarning("SimG4CoreApplication")
           << "Phase2SteppingAction::UserPhase2SteppingAction: Track #" << theTrack->GetTrackID() << " "
-          << theTrack->GetDefinition()->GetParticleName() << " Ekin(MeV)= " << theTrack->GetKineticEnergy() / MeV;
+          << theTrack->GetDefinition()->GetParticleName()
+          << " Ekin(MeV)= " << theTrack->GetKineticEnergy() / CLHEP::MeV;
     }
     theTrack->SetKineticEnergy(0.0);
   }
@@ -125,7 +126,7 @@ void Phase2SteppingAction::UserSteppingAction(const G4Step* aStep) {
       ++nWarnings;
       edm::LogWarning("SimG4CoreApplication")
           << "Track #" << theTrack->GetTrackID() << " " << theTrack->GetDefinition()->GetParticleName()
-          << " E(MeV)= " << preStep->GetKineticEnergy() / MeV << " Nstep= " << theTrack->GetCurrentStepNumber()
+          << " E(MeV)= " << preStep->GetKineticEnergy() / CLHEP::MeV << " Nstep= " << theTrack->GetCurrentStepNumber()
           << " is killed due to limit on number of steps;/n  PV: " << preStep->GetPhysicalVolume()->GetName() << " at "
           << theTrack->GetPosition() << " StepLen(mm)= " << aStep->GetStepLength();
     }
@@ -201,28 +202,15 @@ void Phase2SteppingAction::UserSteppingAction(const G4Step* aStep) {
       if (!trkinfo->crossedBoundary()) {
         trkinfo->setCrossedBoundary(theTrack);
       }
-    } else if (preStep->GetPhysicalVolume() == calo && postStep->GetPhysicalVolume() != calo) {
-      bool backscattering(false);
-      if (postStep->GetPhysicalVolume() == tracker) {
-        backscattering = true;
-      } else if (postStep->GetPhysicalVolume() == cmse) {
-        // simple protection to avoid possible steps from calo towards the outer part of the detector, if allowed by geometry
-        // to be removed as soon as tracker-calo boundary becomes again the default
-        if (preStep->GetPosition().mag2() > postStep->GetPosition().mag2()) {
-          backscattering = true;
-        }
-      }
-      // store transition calo -> cmse to tag backscattering
-      if (backscattering) {
-        TrackInformation* trkinfo = static_cast<TrackInformation*>(theTrack->GetUserInformation());
-        if (!trkinfo->isInTrkFromBackscattering()) {
-          trkinfo->setInTrkFromBackscattering();
+    } else if ((preStep->GetPhysicalVolume() == calo && postStep->GetPhysicalVolume() == tracker) ||
+               (preStep->GetPhysicalVolume() == cmse && postStep->GetPhysicalVolume() == tracker)) {
+      // accounting for both geometries with direct CALO -> Tracker transitions or older versions with CMSE in the middle
+      TrackInformation* trkinfo = static_cast<TrackInformation*>(theTrack->GetUserInformation());
+      trkinfo->setInTrkFromBackscattering();
 #ifdef EDM_ML_DEBUG
-          LogDebug("SimG4CoreApplication")
-              << "Setting flag for backscattering from CALO " << trkinfo->isInTrkFromBackscattering();
+      LogDebug("SimG4CoreApplication") << "Setting flag for backscattering from CALO "
+                                       << trkinfo->isInTrkFromBackscattering();
 #endif
-        }
-      }
     }
   } else {
     theTrack->SetTrackStatus(fStopAndKill);
@@ -297,7 +285,7 @@ bool Phase2SteppingAction::initPointer() {
       if (nullptr != part)
         ekinPDG[i] = part->GetPDGEncoding();
       edm::LogVerbatim("SimG4CoreApplication") << "Particle " << ekinParticles[i] << " with PDG code " << ekinPDG[i]
-                                               << " and KE cut off " << ekinMins[i] / MeV << " MeV";
+                                               << " and KE cut off " << ekinMins[i] / CLHEP::MeV << " MeV";
     }
   }
 

@@ -1,4 +1,5 @@
 <use name="root"/>
+<use name="boost"/>
 <use name="DataFormats/HcalDetId"/>
 <use name="DataFormats/HcalDigi"/>
 <use name="DataFormats/HcalRecHit"/>
@@ -12,8 +13,12 @@
 <use name="Geometry/CaloTopology"/>
 <use name="Geometry/HcalTowerAlgo"/>
 <use name="DataFormats/FEDRawData"/>
+<use name="DataFormats/Common"/>
 <use name="CalibFormats/HcalObjects"/>
 <use name="CalibCalorimetry/HcalAlgos"/>
 <use name="FWCore/ServiceRegistry"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
 <use name="CommonTools/UtilAlgos"/>
 <flags EDM_PLUGIN="1"/>
+

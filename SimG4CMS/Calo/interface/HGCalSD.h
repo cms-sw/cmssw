@@ -55,7 +55,7 @@ private:
   std::string nameX_;
   HGCalGeometryMode::GeometryMode geom_mode_;
   double eminHit_, slopeMin_, distanceFromEdge_;
-  double waferSize_, mouseBiteCut_, guardRingOffset_, weight_;
+  double waferSize_, mouseBiteCut_, guardRingOffset_, sensorSizeOffset_, weight_;
   int levelT1_, levelT2_, cornerMinMask_;
   bool storeAllG4Hits_;
   bool fiducialCut_, rejectMB_, waferRot_, checkID_;

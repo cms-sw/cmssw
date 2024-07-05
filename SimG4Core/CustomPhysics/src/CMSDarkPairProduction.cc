@@ -7,7 +7,7 @@
 //
 #include "SimG4Core/CustomPhysics/interface/CMSDarkPairProduction.h"
 #include "G4PhysicalConstants.hh"
-#include "G4SystemOfUnits.hh"
+#include <CLHEP/Units/SystemOfUnits.h>
 #include "G4PairProductionRelModel.hh"
 
 using namespace std;

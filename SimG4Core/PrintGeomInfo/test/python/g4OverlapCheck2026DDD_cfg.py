@@ -3,7 +3,8 @@
 #   cmsRun g4OverlapCheck2026DDD_cfg.py geometry=D88 tol=0.1
 #
 #   Options for geometry D86, D88, D91, D92, D93, D94, D95, D96, D98, D99,
-#                        D100, D101, D102, D103, D104, D105, D106
+#                        D100, D101, D102, D103, D104, D105, D106, D107,
+#                        D108, D109, D110, D111, D112, D113
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -17,12 +18,12 @@ options.register('geometry',
                  "D88",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D86, D88, D91, D92, D93, D94, D95, D96, D98, D99, D100, D101, D102, D103, D104, D105, D106")
+                  "geometry of operations: D86, D88, D91, D92, D93, D94, D95, D96, D98, D99, D100, D101, D102, D103, D104, D105, D106, D107, D108, D109, D110, D111, D112, D113")
 options.register('tol',
-                 0.1,
+                 0.01,
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.float,
-                 "Tolerance for checking overlaps: 0.01, 0.1, 1.0"
+                 "Tolerance for checking overlaps: 0.0, 0.01, 0.1, 1.0"
 )
 
 ### get and parse the command line arguments

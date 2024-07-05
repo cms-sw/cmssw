@@ -38,6 +38,7 @@
 #include "L1Trigger/L1TGlobal/interface/EnergySumTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/EnergySumZdcTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/AXOL1TLTemplate.h"
+#include "L1Trigger/L1TGlobal/interface/CICADATemplate.h"
 #include "L1Trigger/L1TGlobal/interface/CorrelationTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/CorrelationThreeBodyTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/CorrelationWithOverlapRemovalTemplate.h"
@@ -158,6 +159,10 @@ namespace l1t {
     void setVecAXOL1TLTemplate(const std::vector<std::vector<AXOL1TLTemplate> >&);
 
     //
+    inline const std::vector<std::vector<CICADATemplate> >& vecCICADATemplate() const { return m_vecCICADATemplate; }
+    void setVecCICADATemplate(const std::vector<std::vector<CICADATemplate> >&);
+
+    //
     inline const std::vector<std::vector<ExternalTemplate> >& vecExternalTemplate() const {
       return m_vecExternalTemplate;
     }
@@ -186,11 +191,6 @@ namespace l1t {
 
     void setVecCorrelationWithOverlapRemovalTemplate(
         const std::vector<std::vector<CorrelationWithOverlapRemovalTemplate> >&);
-
-    // get/set the AXO model version so it can be fetched from the GlobalProducer
-    inline const std::string& AXOL1TLModelVersion() const { return m_axol1tlModelVersion; }
-
-    void setAXOL1TLModelVersion(const std::string&);
 
     // get / set the vectors containing the conditions for correlation templates
     //
@@ -314,6 +314,8 @@ namespace l1t {
 
     bool parseAXOL1TL(L1TUtmCondition condAXOL1TL, unsigned int chipNr = 0);
 
+    bool parseCICADA(L1TUtmCondition condCICADA, unsigned int chipNr = 0);
+
     bool parseEnergySumCorr(const L1TUtmObject* corrESum, unsigned int chipNr = 0);
 
     bool parseExternal(L1TUtmCondition condExt, unsigned int chipNr = 0);
@@ -421,6 +423,7 @@ namespace l1t {
     std::vector<std::vector<EnergySumTemplate> > m_vecEnergySumTemplate;
     std::vector<std::vector<EnergySumZdcTemplate> > m_vecEnergySumZdcTemplate;
     std::vector<std::vector<AXOL1TLTemplate> > m_vecAXOL1TLTemplate;
+    std::vector<std::vector<CICADATemplate> > m_vecCICADATemplate;
     std::vector<std::vector<ExternalTemplate> > m_vecExternalTemplate;
 
     std::vector<std::vector<CorrelationTemplate> > m_vecCorrelationTemplate;
@@ -429,9 +432,6 @@ namespace l1t {
     std::vector<std::vector<MuonTemplate> > m_corMuonTemplate;
     std::vector<std::vector<CaloTemplate> > m_corCaloTemplate;
     std::vector<std::vector<EnergySumTemplate> > m_corEnergySumTemplate;
-
-    /// AXOL1TL Model Version
-    std::string m_axol1tlModelVersion = "";
 
     /// map containing the physics algorithms (by name)
     AlgorithmMap m_algorithmMap;

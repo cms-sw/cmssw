@@ -135,20 +135,6 @@ namespace {
       pluginNames.push_back(nameAndType.first);
     }
   }
-
-  void writeModulesFile() {
-    if (std::filesystem::exists(std::filesystem::current_path() / "modules.py"))
-      return;
-    std::array<char, L_tmpnam> buffer;
-    std::tmpnam(buffer.data());
-    std::ofstream file{buffer.data()};
-
-    file << "from FWCore.ParameterSet.ModulesProxy import _setupProxies\n"
-            "locals().update(_setupProxies(__file__))\n";
-    file.close();
-    std::filesystem::copy(buffer.data(), "modules.py");
-    std::filesystem::remove(buffer.data());
-  }
 }  // namespace
 
 int main(int argc, char** argv) try {
@@ -303,9 +289,6 @@ int main(int argc, char** argv) try {
 
       std::set<std::string> usedCfiFileNames;
       edm::for_all(pluginNames, std::bind(&writeCfisForPlugin, _1, factory, std::ref(usedCfiFileNames)));
-      if (not pluginNames.empty()) {
-        writeModulesFile();
-      }
     });
   } catch (cms::Exception& iException) {
     if (!library.empty()) {

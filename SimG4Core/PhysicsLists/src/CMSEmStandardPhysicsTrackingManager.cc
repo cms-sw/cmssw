@@ -36,7 +36,7 @@
 #include "G4LossTableManager.hh"
 
 #include "G4EmParameters.hh"
-#include "G4SystemOfUnits.hh"
+#include <CLHEP/Units/SystemOfUnits.h>
 
 #include "G4Electron.hh"
 #include "G4Gamma.hh"

@@ -111,11 +111,6 @@ HLT_PPRefCscCluster_Loose_v*     # CMSHLT-2883
 HLT_PPRefCscCluster_Medium_v*    # CMSHLT-2883
 HLT_PPRefCscCluster_Tight_v*     # CMSHLT-2883
 
-HLT_PPRefDmesonTrackingGlobal_Dpt25_v* # CMSHLT-2897
-HLT_PPRefDmesonTrackingGlobal_Dpt35_v* # CMSHLT-2897
-HLT_PPRefDmesonTrackingGlobal_Dpt45_v* # CMSHLT-2897
-HLT_PPRefDmesonTrackingGlobal_Dpt60_v* # CMSHLT-2897
-
 ## EndPaths / FinalPaths ##
 
 ALCAP0Output

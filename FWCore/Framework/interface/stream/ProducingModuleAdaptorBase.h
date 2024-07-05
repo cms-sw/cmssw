@@ -85,16 +85,16 @@ namespace edm {
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
-      const ModuleDescription& moduleDescription() const { return moduleDescription_; }
+      const ModuleDescription& moduleDescription() const noexcept { return moduleDescription_; }
 
-      virtual bool wantsProcessBlocks() const = 0;
-      virtual bool wantsInputProcessBlocks() const = 0;
-      virtual bool wantsGlobalRuns() const = 0;
-      virtual bool wantsGlobalLuminosityBlocks() const = 0;
-      virtual bool hasAcquire() const = 0;
-      virtual bool hasAccumulator() const = 0;
-      virtual bool wantsStreamRuns() const = 0;
-      virtual bool wantsStreamLuminosityBlocks() const = 0;
+      virtual bool wantsProcessBlocks() const noexcept = 0;
+      virtual bool wantsInputProcessBlocks() const noexcept = 0;
+      virtual bool wantsGlobalRuns() const noexcept = 0;
+      virtual bool wantsGlobalLuminosityBlocks() const noexcept = 0;
+      virtual bool hasAcquire() const noexcept = 0;
+      virtual bool hasAccumulator() const noexcept = 0;
+      virtual bool wantsStreamRuns() const noexcept = 0;
+      virtual bool wantsStreamLuminosityBlocks() const noexcept = 0;
 
       void registerProductsAndCallbacks(ProducingModuleAdaptorBase const*, ProductRegistry* reg);
 
@@ -128,14 +128,14 @@ namespace edm {
 
       std::vector<edm::ProductResolverIndex> const& indiciesForPutProducts(BranchType iBranchType) const;
 
-      ProductResolverIndex transformPrefetch_(size_t iTransformIndex) const;
-      size_t transformIndex_(edm::BranchDescription const& iBranch) const;
+      ProductResolverIndex transformPrefetch_(size_t iTransformIndex) const noexcept;
+      size_t transformIndex_(edm::BranchDescription const& iBranch) const noexcept;
       void doTransformAsync(WaitingTaskHolder iTask,
                             size_t iTransformIndex,
                             EventPrincipal const& iEvent,
                             ActivityRegistry*,
                             ModuleCallingContext,
-                            ServiceWeakToken const&);
+                            ServiceWeakToken const&) noexcept;
 
     protected:
       template <typename F>

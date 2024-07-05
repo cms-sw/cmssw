@@ -6,9 +6,9 @@
 #include "SimMuon/CSCDigitizer/src/CSCAnalogSignal.h"
 #include "SimMuon/CSCDigitizer/src/CSCWireElectronicsSim.h"
 
-#include "CLHEP/Random/RandGaussQ.h"
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include <CLHEP/Random/RandGaussQ.h>
+#include <CLHEP/Units/GlobalPhysicalConstants.h>
+#include <CLHEP/Units/SystemOfUnits.h>
 
 #include <iostream>
 
@@ -19,7 +19,7 @@ CSCWireElectronicsSim::CSCWireElectronicsSim(const edm::ParameterSet &p)
 
 void CSCWireElectronicsSim::initParameters() {
   nElements = theLayerGeometry->numberOfWireGroups();
-  theWireNoise = theSpecs->wireNoise(theShapingTime) * e_SI * pow(10.0, 15);
+  theWireNoise = theSpecs->wireNoise(theShapingTime) * CLHEP::e_SI * pow(10.0, 15);
   theWireThreshold = theWireNoise * 8;
 }
 
@@ -172,7 +172,7 @@ float CSCWireElectronicsSim::timeOfFlightCalibration(int wireGroup) const {
 
   GlobalPoint centerOfGroupGroup = theLayer->centerOfWireGroup(middleWireGroup);
   float averageDist = centerOfGroupGroup.mag();
-  float averageTOF = averageDist * cm / c_light;  // Units of c_light: mm/ns
+  float averageTOF = averageDist * CLHEP::cm / c_light;  // Units of c_light: mm/ns
 
   LogTrace("CSCWireElectronicsSim") << "CSCWireElectronicsSim: TofCalib  wg = " << wireGroup
                                     << " mid wg = " << middleWireGroup << " av dist = " << averageDist

@@ -18,10 +18,10 @@ options.register('geometry',
                   VarParsing.VarParsing.varType.string,
                   "geometry of operations: D94")
 options.register('tol',
-                 0.1,
+                 0.01,
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.float,
-                 "Tolerance for checking overlaps: 0.01, 0.1, 1.0"
+                 "Tolerance for checking overlaps: 0.0, 0.01, 0.1, 1.0"
 )
 
 ### get and parse the command line arguments

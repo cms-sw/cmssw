@@ -93,7 +93,7 @@ VertexTableProducer::VertexTableProducer(const edm::ParameterSet& params)
   produces<nanoaod::FlatTable>("pv");
   produces<nanoaod::FlatTable>("otherPVs");
   produces<nanoaod::FlatTable>("svs");
-  produces<edm::PtrVector<reco::Candidate>>();
+  produces<edm::PtrVector<reco::VertexCompositePtrCandidate>>();
 }
 
 //
@@ -167,7 +167,7 @@ void VertexTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   otherPVsTable->addColumn<float>("score", pvscores, "scores of other primary vertices, excluding the main PV", 8);
 
   const auto& svsProd = iEvent.get(svs_);
-  auto selCandSv = std::make_unique<PtrVector<reco::Candidate>>();
+  auto selCandSv = std::make_unique<PtrVector<reco::VertexCompositePtrCandidate>>();
   std::vector<float> dlen, dlenSig, pAngle, dxy, dxySig;
   std::vector<int16_t> charge;
   VertexDistance3D vdist;
@@ -182,8 +182,7 @@ void VertexTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
       if (dl.value() > dlenMin_ and dl.significance() > dlenSigMin_) {
         dlen.push_back(dl.value());
         dlenSig.push_back(dl.significance());
-        edm::Ptr<reco::Candidate> c = svsProd.ptrAt(i);
-        selCandSv->push_back(c);
+        selCandSv->push_back(svsProd.ptrAt(i));
         double dx = (PV0.x() - sv.vx()), dy = (PV0.y() - sv.vy()), dz = (PV0.z() - sv.vz());
         double pdotv = (dx * sv.px() + dy * sv.py() + dz * sv.pz()) / sv.p() / sqrt(dx * dx + dy * dy + dz * dz);
         pAngle.push_back(std::acos(pdotv));

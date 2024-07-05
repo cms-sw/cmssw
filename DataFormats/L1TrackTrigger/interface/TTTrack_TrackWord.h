@@ -49,11 +49,11 @@ public:
     kPhiSize = 12,        // Width of phi
     kRinvSize = 15,       // Width of Rinv
     kValidSize = 1,       // Valid bit
-
-    kTrackWordSize = kValidSize + kRinvSize + kPhiSize + kChi2RPhiSize + kTanlSize + kZ0Size + kChi2RZSize + kD0Size +
-                     kBendChi2Size + kHitPatternSize + kMVAQualitySize +
-                     kMVAOtherSize,  // Width of the track word in bits
   };
+  static constexpr int kTrackWordSize = kValidSize + kRinvSize + kPhiSize + kChi2RPhiSize + kTanlSize + kZ0Size +
+                                        kChi2RZSize + kD0Size + kBendChi2Size + kHitPatternSize + kMVAQualitySize +
+                                        kMVAOtherSize  // Width of the track word in bits
+      ;
 
   enum TrackBitLocations {
     // The location of the least significant bit (LSB) and most significant bit (MSB) in the track word for different fields
@@ -103,8 +103,10 @@ public:
       {0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0, 6.0, 8.0, 10.0, 20.0, 50.0}};
   static constexpr std::array<double, 1 << TrackBitWidths::kBendChi2Size> bendChi2Bins = {
       {0.0, 0.75, 1.0, 1.5, 2.25, 3.5, 5.0, 20.0}};
-  static constexpr std::array<double, 1 << TrackBitWidths::kMVAQualitySize> mvaQualityBins = {
-      {0.0, 0.125, 0.25, 0.375, 0.5, 0.625, 0.750, 0.875}};
+
+  // Bin edges for TQ MVA
+  static constexpr std::array<double, 1 << TrackBitWidths::kMVAQualitySize> tqMVABins = {
+      {0, 0.125, 0.25, 0.375, 0.5, 0.625, 0.750, 0.875}};
 
   // Sector constants
   static constexpr unsigned int nSectors = 9;
@@ -129,8 +131,8 @@ public:
   typedef ap_uint<TrackBitWidths::kMVAOtherSize> otherMVA_t;      // Specialized MVA selection
 
   // Track word types
-  typedef std::bitset<TrackBitWidths::kTrackWordSize> tkword_bs_t;  // Entire track word;
-  typedef ap_uint<TrackBitWidths::kTrackWordSize> tkword_t;         // Entire track word;
+  typedef std::bitset<kTrackWordSize> tkword_bs_t;  // Entire track word;
+  typedef ap_uint<kTrackWordSize> tkword_t;         // Entire track word;
 
 public:
   // ----------Constructors --------------------------
@@ -144,7 +146,7 @@ public:
                     double bendChi2,
                     unsigned int hitPattern,
                     double mvaQuality,
-                    unsigned int mvaOther,
+                    double mvaOther,
                     unsigned int sector);
   TTTrack_TrackWord(unsigned int valid,
                     unsigned int rInv,
@@ -226,8 +228,8 @@ public:
   double getBendChi2() const { return bendChi2Bins[getBendChi2Bits()]; }
   unsigned int getHitPattern() const { return getHitPatternBits(); }
   unsigned int getNStubs() const { return countSetBits(getHitPatternBits()); }
-  double getMVAQuality() const { return mvaQualityBins[getMVAQualityBits()]; }
-  unsigned int getMVAOther() const { return getMVAOtherBits(); }
+  double getMVAQuality() const { return tqMVABins[getMVAQualityBits()]; }
+  double getMVAOther() const { return getMVAOtherBits(); }
 
   // ----------member functions (setters) ------------
   void setTrackWord(unsigned int valid,
@@ -239,7 +241,7 @@ public:
                     double bendChi2,
                     unsigned int hitPattern,
                     double mvaQuality,
-                    unsigned int mvaOther,
+                    double mvaOther,
                     unsigned int sector);
 
   void setTrackWord(unsigned int valid,

@@ -42,13 +42,13 @@ namespace edm {
       OutputModuleBase& operator=(OutputModuleBase const&) = delete;  // Disallow copying and moving
 
       //Output modules always need writeRun and writeLumi to be called
-      bool wantsGlobalRuns() const { return true; }
-      bool wantsGlobalLuminosityBlocks() const { return true; }
+      bool wantsGlobalRuns() const noexcept { return true; }
+      bool wantsGlobalLuminosityBlocks() const noexcept { return true; }
 
-      virtual bool wantsProcessBlocks() const = 0;
-      virtual bool wantsInputProcessBlocks() const = 0;
-      virtual bool wantsStreamRuns() const = 0;
-      virtual bool wantsStreamLuminosityBlocks() const = 0;
+      virtual bool wantsProcessBlocks() const noexcept = 0;
+      virtual bool wantsInputProcessBlocks() const noexcept = 0;
+      virtual bool wantsStreamRuns() const noexcept = 0;
+      virtual bool wantsStreamLuminosityBlocks() const noexcept = 0;
 
     protected:
       void doPreallocate(PreallocationConfiguration const&);
@@ -66,7 +66,7 @@ namespace edm {
       //For now this is a placeholder
       /*virtual*/ void preActionBeforeRunEventAsync(WaitingTaskHolder iTask,
                                                     ModuleCallingContext const& iModuleCallingContext,
-                                                    Principal const& iPrincipal) const {}
+                                                    Principal const& iPrincipal) const noexcept {}
 
     private:
       std::string workerType() const { return "WorkerT<edm::global::OutputModuleBase>"; }
@@ -88,7 +88,7 @@ namespace edm {
       virtual void doEndLuminosityBlockSummary_(LuminosityBlockForOutput const&, EventSetup const&) {}
       virtual void doAcquire_(StreamID, EventForOutput const&, WaitingTaskWithArenaHolder&) {}
 
-      virtual bool hasAcquire() const { return false; }
+      virtual bool hasAcquire() const noexcept { return false; }
     };
   }  // namespace global
 }  // namespace edm

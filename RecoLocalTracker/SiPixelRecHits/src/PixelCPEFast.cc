@@ -4,7 +4,6 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
-#include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
 #include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
@@ -443,13 +442,6 @@ void PixelCPEFast<TrackerTraits>::errorFromTemplates(DetParam const& theDetParam
   theClusterParam.sigmay = theClusterParam.sigmay * micronsToCm;
   theClusterParam.sy1 = theClusterParam.sy1 * micronsToCm;
   theClusterParam.sy2 = theClusterParam.sy2 * micronsToCm;
-}
-
-template <>
-void PixelCPEFast<pixelTopology::Phase2>::errorFromTemplates(DetParam const& theDetParam,
-                                                             ClusterParamGeneric& theClusterParam,
-                                                             float qclus) const {
-  theClusterParam.qBin_ = 0.0f;
 }
 
 //-----------------------------------------------------------------------------

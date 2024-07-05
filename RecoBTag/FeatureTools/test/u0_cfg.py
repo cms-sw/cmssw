@@ -16,7 +16,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.source = cms.Source("PoolSource",
-        fileNames = cms.untracked.vstring("root://xrootd-cms.infn.it//store/hidata/HIRun2023A/HIPhysicsRawPrime0/MINIAOD/PromptReco-v2/000/375/823/00000/8158260e-df3c-45a5-a121-55345a682a23.root")
+        fileNames = cms.untracked.vstring("/store/hidata/HIRun2023A/HIPhysicsRawPrime0/MINIAOD/PromptReco-v2/000/375/823/00000/8158260e-df3c-45a5-a121-55345a682a23.root")
 )
 
 from Configuration.AlCa.GlobalTag import GlobalTag

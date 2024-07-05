@@ -33,7 +33,7 @@
 #include "G4LossTableManager.hh"
 #include "G4PhysicsListHelper.hh"
 #include "G4ProcessManager.hh"
-#include "G4SystemOfUnits.hh"
+#include <CLHEP/Units/SystemOfUnits.h>
 #include "G4Transportation.hh"
 #include "G4UAtomicDeexcitation.hh"
 #include <memory>
@@ -95,8 +95,8 @@ ParametrisedEMPhysics::ParametrisedEMPhysics(const std::string& name, const edm:
   param->SetFluo(fluo);
 
   bool modifyT = theParSet.getParameter<bool>("ModifyTransportation");
-  double th1 = theParSet.getUntrackedParameter<double>("ThresholdWarningEnergy") * MeV;
-  double th2 = theParSet.getUntrackedParameter<double>("ThresholdImportantEnergy") * MeV;
+  double th1 = theParSet.getUntrackedParameter<double>("ThresholdWarningEnergy") * CLHEP::MeV;
+  double th2 = theParSet.getUntrackedParameter<double>("ThresholdImportantEnergy") * CLHEP::MeV;
   int nt = theParSet.getUntrackedParameter<int>("ThresholdTrials");
 
   edm::LogVerbatim("SimG4CoreApplication")
@@ -107,7 +107,7 @@ ParametrisedEMPhysics::ParametrisedEMPhysics(const std::string& name, const edm:
       << "\n read muon data: " << mudat << "\n bremsstrahlung threshold Eth(GeV)= " << bremth / CLHEP::GeV;
 
   // Russian roulette and tracking cut for e+-
-  double energyLim = theParSet.getParameter<double>("RusRoElectronEnergyLimit") * MeV;
+  double energyLim = theParSet.getParameter<double>("RusRoElectronEnergyLimit") * CLHEP::MeV;
   if (energyLim > 0.0) {
     G4double rrfact[NREG] = {1.0};
 
@@ -320,8 +320,8 @@ void ParametrisedEMPhysics::ConstructProcess() {
   // change parameters of transportation
   bool modifyT = theParSet.getParameter<bool>("ModifyTransportation");
   if (modifyT) {
-    double th1 = theParSet.getUntrackedParameter<double>("ThresholdWarningEnergy") * MeV;
-    double th2 = theParSet.getUntrackedParameter<double>("ThresholdImportantEnergy") * MeV;
+    double th1 = theParSet.getUntrackedParameter<double>("ThresholdWarningEnergy") * CLHEP::MeV;
+    double th2 = theParSet.getUntrackedParameter<double>("ThresholdImportantEnergy") * CLHEP::MeV;
     int nt = theParSet.getUntrackedParameter<int>("ThresholdTrials");
     ModifyTransportation(G4Electron::Electron(), nt, th1, th2);
   }

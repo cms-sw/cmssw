@@ -100,5 +100,6 @@ TEST_CASE("Test l1t::GlobalObject", "[l1tGlobalObject]") {
     REQUIRE(isValidGlobalObject(29, l1t::gtZDCP, "ZDCP"));                // 29
     REQUIRE(isValidGlobalObject(30, l1t::gtZDCM, "ZDCM"));                // 30
     REQUIRE(isValidGlobalObject(31, l1t::ObjNull, "ObjNull"));            // 31
+    REQUIRE(isValidGlobalObject(32, l1t::gtHTMHF, "HTMHF"));              // 32
   }
 }

@@ -23,6 +23,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SimDataFormats/CaloAnalysis/interface/CaloParticleFwd.h"
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
+#include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
+#include "DataFormats/ParticleFlowReco/interface/PFRecHitFwd.h"
 
 #include "FWCore/Utilities/interface/EDGetToken.h"
 
@@ -40,17 +42,17 @@ private:
 
   edm::EDGetTokenT<CaloParticleCollection> CPCollectionToken_;
   edm::EDGetTokenT<reco::CaloClusterCollection> LCCollectionToken_;
-  edm::EDGetTokenT<hgcal::LayerClusterToCaloParticleAssociator> associatorToken_;
+  edm::EDGetTokenT<ticl::LayerClusterToCaloParticleAssociator> associatorToken_;
 };
 
 LCToCPAssociatorEDProducer::LCToCPAssociatorEDProducer(const edm::ParameterSet &pset) {
-  produces<hgcal::SimToRecoCollection>();
-  produces<hgcal::RecoToSimCollection>();
+  produces<ticl::SimToRecoCollection>();
+  produces<ticl::RecoToSimCollection>();
 
   CPCollectionToken_ = consumes<CaloParticleCollection>(pset.getParameter<edm::InputTag>("label_cp"));
   LCCollectionToken_ = consumes<reco::CaloClusterCollection>(pset.getParameter<edm::InputTag>("label_lc"));
   associatorToken_ =
-      consumes<hgcal::LayerClusterToCaloParticleAssociator>(pset.getParameter<edm::InputTag>("associator"));
+      consumes<ticl::LayerClusterToCaloParticleAssociator>(pset.getParameter<edm::InputTag>("associator"));
 }
 
 LCToCPAssociatorEDProducer::~LCToCPAssociatorEDProducer() {}
@@ -63,7 +65,7 @@ LCToCPAssociatorEDProducer::~LCToCPAssociatorEDProducer() {}
 void LCToCPAssociatorEDProducer::produce(edm::StreamID, edm::Event &iEvent, const edm::EventSetup &iSetup) const {
   using namespace edm;
 
-  edm::Handle<hgcal::LayerClusterToCaloParticleAssociator> theAssociator;
+  edm::Handle<ticl::LayerClusterToCaloParticleAssociator> theAssociator;
   iEvent.getByToken(associatorToken_, theAssociator);
 
   Handle<CaloParticleCollection> CPCollection;
@@ -74,13 +76,13 @@ void LCToCPAssociatorEDProducer::produce(edm::StreamID, edm::Event &iEvent, cons
 
   // associate LC and CP
   LogTrace("AssociatorValidator") << "Calling associateRecoToSim method\n";
-  hgcal::RecoToSimCollection recSimColl = theAssociator->associateRecoToSim(LCCollection, CPCollection);
+  ticl::RecoToSimCollection recSimColl = theAssociator->associateRecoToSim(LCCollection, CPCollection);
 
   LogTrace("AssociatorValidator") << "Calling associateSimToReco method\n";
-  hgcal::SimToRecoCollection simRecColl = theAssociator->associateSimToReco(LCCollection, CPCollection);
+  ticl::SimToRecoCollection simRecColl = theAssociator->associateSimToReco(LCCollection, CPCollection);
 
-  auto rts = std::make_unique<hgcal::RecoToSimCollection>(recSimColl);
-  auto str = std::make_unique<hgcal::SimToRecoCollection>(simRecColl);
+  auto rts = std::make_unique<ticl::RecoToSimCollection>(recSimColl);
+  auto str = std::make_unique<ticl::SimToRecoCollection>(simRecColl);
 
   iEvent.put(std::move(rts));
   iEvent.put(std::move(str));

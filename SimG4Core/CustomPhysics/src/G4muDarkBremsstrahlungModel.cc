@@ -8,7 +8,7 @@
 #include "G4MuonMinus.hh"
 #include "G4MuonPlus.hh"
 #include "G4ProductionCutsTable.hh"
-#include "G4SystemOfUnits.hh"
+#include <CLHEP/Units/SystemOfUnits.h>
 //Root
 #include "TFile.h"
 #include "TTree.h"
@@ -226,7 +226,7 @@ G4double G4muDarkBremsstrahlungModel::ComputeCrossSectionPerAtom(
 // Calculates the cross section per atom in GEANT4 internal units. Uses WW approximation to find the total cross section, performing numerical integrals over x and theta.
 {
   G4double cross = 0.0;
-  if (E0 < keV || E0 < cut) {
+  if (E0 < CLHEP::keV || E0 < cut) {
     return cross;
   }
 

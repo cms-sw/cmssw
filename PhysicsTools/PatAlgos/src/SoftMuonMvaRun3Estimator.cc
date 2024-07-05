@@ -1,6 +1,6 @@
 #include "PhysicsTools/PatAlgos/interface/SoftMuonMvaRun3Estimator.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
-#include "PhysicsTools/PatAlgos/interface/XGBooster.h"
+#include "PhysicsTools/XGBoost/interface/XGBooster.h"
 
 typedef std::pair<const reco::MuonChamberMatch*, const reco::MuonSegmentMatch*> MatchPair;
 

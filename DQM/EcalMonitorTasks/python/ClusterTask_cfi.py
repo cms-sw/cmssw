@@ -349,6 +349,19 @@ ecalClusterTask = cms.untracked.PSet(
             btype = cms.untracked.string('User'),
             description = cms.untracked.string('Energy distribution of the super clusters (low scale).')
         ),
+        SCRawEHigh = cms.untracked.PSet(
+            path = cms.untracked.string('%(subdet)s/%(prefix)sClusterTask/%(prefix)sCLT SC raw energy (high scale)'),
+            kind = cms.untracked.string('TH1F'),
+            otype = cms.untracked.string('Ecal2P'),
+            xaxis = cms.untracked.PSet(
+                high = cms.untracked.double(1000.0),
+                nbins = cms.untracked.int32(50),
+                low = cms.untracked.double(0.0),
+                title = cms.untracked.string('energy (GeV)')
+            ),
+            btype = cms.untracked.string('User'),
+            description = cms.untracked.string('Energy distribution of the super clusters (high scale).')
+        ),
         SCClusterVsSeed = cms.untracked.PSet(
             kind = cms.untracked.string('TH2F'),
             yaxis = cms.untracked.PSet(

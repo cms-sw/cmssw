@@ -1184,6 +1184,79 @@ namespace AlignmentPI {
     }    // loop on detids
   }
 
+  /*--------------------------------------------------------------------*/
+  inline bool isReorderedTFPXTEPX(const std::vector<AlignTransform>& transforms)
+  /*--------------------------------------------------------------------*/
+  {
+    // Lambda function to extract the disk, blade panel and numbers from rawId
+    auto extractBladePanel = [](const AlignTransform& transform) {
+      // Extract blade and panel numbers using bitwise operations
+      uint32_t rawId = transform.rawId();
+      int subid = DetId(transform.rawId()).subdetId();
+      if (subid == 2) {
+        // Tracker with subdisk hierarchy level (additional hierarchy level wrt original)
+        // see for parameters: Geometry/TrackerCommonData/data/PhaseII/TFPXTEPXReordered/trackerParameters.xml
+        //
+        //<Vector name="Subdetector2" type="numeric" nEntries="12">
+        //  23, 19, 18, 12, 10, 2, 0x3, 0xF, 0x1, 0x3F, 0x3, 0xFF
+        //</Vector>
+
+        //unsigned int sideStartBit_ = 23;
+        //unsigned int diskStartBit_ = 19;
+        //unsigned int subDiskStartBit_ = 18;
+        //unsigned int bladeStartBit_ = 12;
+        //unsigned int panelStartBit_ = 10;
+        //unsigned int moduleStartBit_ = 2;
+        //unsigned int sideMask_ = 0x3;
+        //unsigned int diskMask_ = 0xF;
+        //unsigned int subDiskMask_ = 0x1;
+        //unsigned int bladeMask_ = 0x3F;
+        //unsigned int panelMask_ = 0x3;
+        //unsigned int moduleMask_ = 0xFF;
+
+        // Original Tracker
+        // see for parameters: Geometry/TrackerCommonData/data/PhaseII/trackerParameters.xml
+        //
+        //<Vector name="Subdetector2" type="numeric" nEntries="10">
+        // 23, 18, 12, 10, 2, 0x3, 0xF, 0x3F, 0x3, 0xFF
+        //</Vector>
+
+        //unsigned int sideStartBit_   = 23;
+        unsigned int diskStartBit_ = 18;
+        unsigned int bladeStartBit_ = 12;
+        unsigned int panelStartBit_ = 10;
+        //unsigned int moduleStartBit_ = 2;
+        //unsigned int sideMask_       = 0x3;
+        unsigned int diskMask_ = 0xF;
+        unsigned int bladeMask_ = 0x3F;
+        unsigned int panelMask_ = 0x3;
+        //unsigned int moduleMask_     = 0xFF;
+
+        int disk = (rawId >> diskStartBit_) & diskMask_;     // Assuming regular trackerParameters.xml
+        int blade = (rawId >> bladeStartBit_) & bladeMask_;  // Assuming regular trackerParameters.xml
+        int panel = (rawId >> panelStartBit_) & panelMask_;  // Assuming regular trackerParameters.xml
+        return std::make_tuple(disk, blade, panel);
+      }
+      return std::make_tuple(-1, -1, -1);  // Return (-1, -1, -1) if subdetId is not 2
+    };
+
+    bool foundZeroDisk = false;  // Flag to track if a disk with value 0 is found
+    std::for_each(
+        transforms.begin(), transforms.end(), [&extractBladePanel, &foundZeroDisk](const AlignTransform& transform) {
+          auto [disk, blade, panel] = extractBladePanel(transform);
+          int subid = DetId(transform.rawId()).subdetId();
+          if (subid == 2) {
+            if (disk == 0) {
+              edm::LogInfo("isReorderedTFPXTEPX") << "subid: " << subid << " detid: " << transform.rawId()
+                                                  << " disk: " << disk << " blade: " << blade << " panel: " << panel;
+              foundZeroDisk = true;  // Set flag to true if disk value is 0
+            }
+          }
+        });
+
+    return foundZeroDisk;  // Return true if at least one disk with value 0 is found
+  }
+
 }  // namespace AlignmentPI
 
 #endif

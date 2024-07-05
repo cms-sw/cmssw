@@ -1,6 +1,6 @@
 
 #include "Alignment/CocoaToDDL/interface/CocoaUnitsTable.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include <CLHEP/Units/SystemOfUnits.h>
 
 #include <iomanip>
 #include <cmath>  // include floating-point std::abs functions
@@ -122,6 +122,7 @@ void CocoaUnitDefinition::PrintDefinition() {
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
 void CocoaUnitDefinition::BuildUnitsTable() {
+  using namespace CLHEP;
   //Length
   new CocoaUnitDefinition("meter", "m", "Length", meter);
   new CocoaUnitDefinition("centimeter", "cm", "Length", centimeter);

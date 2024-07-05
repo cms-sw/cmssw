@@ -16,6 +16,7 @@
 <use name="CondFormats/ESObjects"/>
 <use name="CondFormats/EcalObjects"/>
 <use name="CondFormats/GBRForest"/>
+<use name="CondFormats/GEMObjects"/>
 <use name="CondFormats/Luminosity"/>
 <use name="CondFormats/HcalObjects"/>
 <use name="CondFormats/JetMETObjects"/>

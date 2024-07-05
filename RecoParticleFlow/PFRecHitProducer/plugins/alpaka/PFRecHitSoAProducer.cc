@@ -8,8 +8,10 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/global/EDProducer.h"
-#include "CalorimeterDefinitions.h"
+#include "RecoParticleFlow/PFRecHitProducer/interface/PFRecHitParamsRecord.h"
+#include "RecoParticleFlow/PFRecHitProducer/interface/PFRecHitTopologyRecord.h"
 
+#include "CalorimeterDefinitions.h"
 #include "PFRecHitProducerKernel.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
@@ -39,10 +41,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
       reco::PFRecHitDeviceCollection pfRecHits{(int)num_recHits, event.queue()};
 
-      PFRecHitProducerKernel<CAL> kernel{event.queue(), num_recHits};
-      for (const auto& token : recHitsToken_)
-        kernel.processRecHits(event.queue(), event.get(token.first), setup.getData(token.second), topology, pfRecHits);
-      kernel.associateTopologyInfo(event.queue(), topology, pfRecHits);
+      if (num_recHits != 0) {
+        PFRecHitProducerKernel<CAL> kernel{event.queue(), num_recHits};
+        for (const auto& token : recHitsToken_)
+          kernel.processRecHits(
+              event.queue(), event.get(token.first), setup.getData(token.second), topology, pfRecHits);
+        kernel.associateTopologyInfo(event.queue(), topology, pfRecHits);
+      }
 
       if (synchronise_)
         alpaka::wait(event.queue());

@@ -51,6 +51,8 @@ void L1TGlobalProducer::fillDescriptions(edm::ConfigurationDescriptions& descrip
       ->setComment("InputTag for Calo Trigger EtSum (required parameter:  default value is invalid)");
   desc.add<edm::InputTag>("EtSumZdcInputTag", edm::InputTag(""))
       ->setComment("InputTag for ZDC EtSums Plus and Minus (required parameter:  default value is invalid)");
+  desc.add<edm::InputTag>("CICADAInputTag", edm::InputTag(""))
+      ->setComment("InputTag for CICADA Anomaly Detection (required parameter: default value is invalid)");
   desc.add<edm::InputTag>("ExtInputTag", edm::InputTag(""))
       ->setComment("InputTag for external conditions (not required, but recommend to specify explicitly in config)");
   desc.add<edm::InputTag>("AlgoBlkInputTag", edm::InputTag("hltGtStage2Digis"))
@@ -106,6 +108,7 @@ L1TGlobalProducer::L1TGlobalProducer(const edm::ParameterSet& parSet)
       m_jetInputTag(parSet.getParameter<edm::InputTag>("JetInputTag")),
       m_sumInputTag(parSet.getParameter<edm::InputTag>("EtSumInputTag")),
       m_sumZdcInputTag(parSet.getParameter<edm::InputTag>("EtSumZdcInputTag")),
+      m_CICADAInputTag(parSet.getParameter<edm::InputTag>("CICADAInputTag")),
       m_extInputTag(parSet.getParameter<edm::InputTag>("ExtInputTag")),
 
       m_produceL1GtDaqRecord(parSet.getParameter<bool>("ProduceL1GtDaqRecord")),
@@ -136,6 +139,7 @@ L1TGlobalProducer::L1TGlobalProducer(const edm::ParameterSet& parSet)
   m_jetInputToken = consumes<BXVector<Jet>>(m_jetInputTag);
   m_sumInputToken = consumes<BXVector<EtSum>>(m_sumInputTag);
   m_sumZdcInputToken = consumes<BXVector<EtSum>>(m_sumZdcInputTag);
+  m_CICADAInputToken = consumes<BXVector<float>>(m_CICADAInputTag);
   m_muInputToken = consumes<BXVector<Muon>>(m_muInputTag);
   if (m_useMuonShowers)
     m_muShowerInputToken = consumes<BXVector<MuonShower>>(m_muShowerInputTag);
@@ -219,8 +223,6 @@ L1TGlobalProducer::L1TGlobalProducer(const edm::ParameterSet& parSet)
   //
   m_l1GtParCacheID = 0ULL;
   m_l1GtMenuCacheID = 0ULL;
-
-  m_AXOL1TLModelVersion = "";
 
   m_numberPhysTriggers = 0;
   m_numberDaqPartitions = 0;
@@ -377,6 +379,7 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
                                                gtParser.vecEnergySumTemplate(),
                                                gtParser.vecEnergySumZdcTemplate(),
                                                gtParser.vecAXOL1TLTemplate(),
+                                               gtParser.vecCICADATemplate(),
                                                gtParser.vecExternalTemplate(),
                                                gtParser.vecCorrelationTemplate(),
                                                gtParser.vecCorrelationThreeBodyTemplate(),
@@ -401,17 +404,6 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
       m_l1GtMenu->print(std::cout, printV);
 
     m_l1GtMenuCacheID = l1GtMenuCacheID;
-
-    //get model version to condition class via GlobalBoard.runGTL, comes from menu rather than config
-    //for throwing exception when using L1Menu_Collisions2024_v1_0_0
-    if ((gtParser.gtTriggerMenuName() == "L1Menu_Collisions2024_v1_0_0") ||
-        (gtParser.gtTriggerMenuName() == "L1Menu_Collisions2024_v0_0_0")) {
-      throw cms::Exception("ConditionsError")
-          << " Error L1T menu version " << gtParser.gtTriggerMenuName()
-          << " is unsupported due to incompatible utm grammar, please use L1Menu_Collisions2024_v1_0_1 or later";
-    } else {
-      m_AXOL1TLModelVersion = gtParser.AXOL1TLModelVersion();
-    }
   }
 
   // get / update the board maps from the EventSetup
@@ -533,6 +525,7 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
   bool receiveJet = true;
   bool receiveEtSums = true;
   bool receiveEtSumsZdc = true;
+  bool receiveCICADA = true;
   bool receiveExt = true;
 
   /*  *** Boards need redefining *****
@@ -623,6 +616,7 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
                                   m_jetInputToken,
                                   m_sumInputToken,
                                   m_sumZdcInputToken,
+                                  m_CICADAInputToken,
                                   receiveEG,
                                   m_nrL1EG,
                                   receiveTau,
@@ -630,12 +624,10 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
                                   receiveJet,
                                   m_nrL1Jet,
                                   receiveEtSums,
-                                  receiveEtSumsZdc);
+                                  receiveEtSumsZdc,
+                                  receiveCICADA);
 
   m_uGtBrd->receiveMuonObjectData(iEvent, m_muInputToken, receiveMu, m_nrL1Mu);
-
-  //set axo model version in global board from version in menu
-  m_uGtBrd->setAXOL1TLModelVersion(m_AXOL1TLModelVersion);
 
   if (m_useMuonShowers)
     m_uGtBrd->receiveMuonShowerObjectData(iEvent, m_muShowerInputToken, receiveMuShower, m_nrL1MuShower);

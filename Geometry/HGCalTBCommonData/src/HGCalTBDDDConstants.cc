@@ -20,7 +20,7 @@ using namespace geant_units::operators;
 HGCalTBDDDConstants::HGCalTBDDDConstants(const HGCalTBParameters* hp, const std::string& name)
     : hgpar_(hp), sqrt3_(std::sqrt(3.0)), mode_(hgpar_->mode_) {
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "Mode " << mode_;
+  edm::LogVerbatim("HGCalGeom") << "HGCalTBDDDConstants::Mode " << mode_;
 #endif
   if (waferHexagon6()) {
     rmax_ = (HGCalTBParameters::k_ScaleFromDDD * (hgpar_->waferR_) * std::cos(30._deg));
@@ -28,9 +28,10 @@ HGCalTBDDDConstants::HGCalTBDDDConstants(const HGCalTBParameters* hp, const std:
     hexside_ = 2.0 * rmax_ * tan30deg_;
     hexsideT_ = 2.0 * rmaxT_ * tan30deg_;
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "rmax_ " << rmax_ << ":" << rmaxT_ << ":" << hexside_ << ":" << hexsideT_
-                                  << " CellSize " << 0.5 * HGCalTBParameters::k_ScaleFromDDD * hgpar_->cellSize_[0]
-                                  << ":" << 0.5 * HGCalTBParameters::k_ScaleFromDDD * hgpar_->cellSize_[1];
+    edm::LogVerbatim("HGCalGeom") << "HGCalTBDDDConstants::rmax_ " << rmax_ << ":" << rmaxT_ << ":" << hexside_ << ":"
+                                  << hexsideT_ << " CellSize "
+                                  << 0.5 * HGCalTBParameters::k_ScaleFromDDD * hgpar_->cellSize_[0] << ":"
+                                  << 0.5 * HGCalTBParameters::k_ScaleFromDDD * hgpar_->cellSize_[1];
 #endif
   }
   // init maps and constants
@@ -45,16 +46,17 @@ HGCalTBDDDConstants::HGCalTBDDDConstants(const HGCalTBParameters* hp, const std:
         modHalf_ += max_modules_layer_[simreco][layer];
         maxWafersPerLayer_ = std::max(maxWafersPerLayer_, max_modules_layer_[simreco][layer]);
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("HGCalGeom") << "Layer " << layer << " with " << max_modules_layer_[simreco][layer] << ":"
-                                      << modHalf_ << " modules in RECO";
+        edm::LogVerbatim("HGCalGeom") << "HGCalTBDDDConstants::Layer " << layer << " with "
+                                      << max_modules_layer_[simreco][layer] << ":" << modHalf_ << " modules in RECO";
       } else {
-        edm::LogVerbatim("HGCalGeom") << "Layer " << layer << " with " << max_modules_layer_[simreco][layer]
-                                      << " modules in SIM";
+        edm::LogVerbatim("HGCalGeom") << "HGCalTBDDDConstants::Layer " << layer << " with "
+                                      << max_modules_layer_[simreco][layer] << " modules in SIM";
 #endif
       }
     }
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "SimReco " << simreco << " with " << tot_layers_[simreco] << " Layers";
+    edm::LogVerbatim("HGCalGeom") << "HGCalTBDDDConstants::SimReco " << simreco << " with " << tot_layers_[simreco]
+                                  << " Layers";
 #endif
   }
   tot_wafers_ = wafers();

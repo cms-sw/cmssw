@@ -21,7 +21,7 @@ ln -s ../RecoTracker/MkFitCore/standalone/plotting .
 ln -s ../RecoTracker/MkFitCore/standalone/web .
 
 rm -rf valtree_*.root log_*.txt
-val_scripts/validation-cmssw-benchmarks-multiiter.sh forPR --mtv-like-val TTbar_Phase2
+val_scripts/validation-cmssw-benchmarks-multiiter.sh forPR --mtv-like-val TTbar_phase2
 
 web/collectBenchmarks-multi.sh Phase2-0 forPR
 

@@ -1,7 +1,7 @@
 #include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysicsEMZ.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "G4SystemOfUnits.hh"
+#include <CLHEP/Units/SystemOfUnits.h>
 #include "G4ParticleDefinition.hh"
 #include "G4LossTableManager.hh"
 #include "G4EmParameters.hh"
@@ -58,7 +58,7 @@
 #include "G4Region.hh"
 #include "G4GammaGeneralProcess.hh"
 
-#include "G4SystemOfUnits.hh"
+#include <CLHEP/Units/SystemOfUnits.h>
 
 CMSEmStandardPhysicsEMZ::CMSEmStandardPhysicsEMZ(G4int ver, const edm::ParameterSet& p)
     : G4VPhysicsConstructor("CMSEmStandard_emz") {

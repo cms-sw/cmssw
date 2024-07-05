@@ -32,7 +32,7 @@
 #include "G4VProcess.hh"
 
 #include "G4PhysicalConstants.hh"
-#include "G4SystemOfUnits.hh"
+#include <CLHEP/Units/SystemOfUnits.h>
 
 PPSPixelSD::PPSPixelSD(const std::string& pname,
                        const SensitiveDetectorCatalog& clg,
@@ -60,7 +60,7 @@ PPSPixelSD::~PPSPixelSD() {}
 bool PPSPixelSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
   eloss_ = aStep->GetTotalEnergyDeposit();
   if (eloss_ > 0.0) {
-    eloss_ /= GeV;
+    eloss_ /= CLHEP::GeV;
     stepInfo(aStep);
     LogDebug("PPSSim") << "PPSPixelSD: ProcessHits: edep=" << eloss_ << " "
                        << theTrack_->GetDefinition()->GetParticleName();
@@ -154,7 +154,7 @@ void PPSPixelSD::stepInfo(const G4Step* aStep) {
   theLocalEntryPoint_ = setToLocal(hitPoint_);
   theLocalExitPoint_ = setToLocal(exitPoint_);
 
-  tSlice_ = postStepPoint_->GetGlobalTime() / nanosecond;
+  tSlice_ = postStepPoint_->GetGlobalTime() / CLHEP::nanosecond;
   tSliceID_ = (int)tSlice_;
   unitID_ = setDetUnitId(aStep);
 #ifdef debug
@@ -163,10 +163,10 @@ void PPSPixelSD::stepInfo(const G4Step* aStep) {
   primaryID_ = theTrack_->GetTrackID();
   parentID_ = theTrack_->GetParentID();
 
-  incidentEnergy_ = theTrack_->GetTotalEnergy() / GeV;
+  incidentEnergy_ = theTrack_->GetTotalEnergy() / CLHEP::GeV;
 
-  pabs_ = aStep->GetPreStepPoint()->GetMomentum().mag() / GeV;
-  tof_ = aStep->GetPostStepPoint()->GetGlobalTime() / nanosecond;
+  pabs_ = aStep->GetPreStepPoint()->GetMomentum().mag() / CLHEP::GeV;
+  tof_ = aStep->GetPostStepPoint()->GetGlobalTime() / CLHEP::nanosecond;
 
   particleType_ = theTrack_->GetDefinition()->GetPDGEncoding();
 

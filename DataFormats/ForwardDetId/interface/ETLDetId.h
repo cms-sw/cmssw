@@ -98,9 +98,18 @@ public:
   }
 
   /** ETL TDR Construct and fill only the det and sub-det fields. */
+  /** input disc runs from 0 to 1 */
 
   inline uint32_t encodeSector(uint32_t& disc, uint32_t& discside, uint32_t& sector) const {
     return (sector + discside * kSoff + 2 * kSoff * disc);
+  }
+
+  /** decode encoded "ring" field, disc numbered from 1 to 2, as in dedicated method */
+
+  static void decodeSector(const uint32_t rr, uint32_t& nDisc, uint32_t& discSide, uint32_t& sector) {
+    nDisc = (((rr - 1) >> kETLnDiscOffset) & kETLnDiscMask) + 1;
+    discSide = ((rr - 1) >> kETLdiscSideOffset) & kETLdiscSideMask;
+    sector = ((rr - 1) & kETLsectorMask) + 1;
   }
 
   // pre v8

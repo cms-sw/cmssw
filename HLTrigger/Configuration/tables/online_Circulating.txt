@@ -12,8 +12,6 @@ HLT_L1DoubleMu0_v*
 HLT_L1SingleJet8erHE_v*
 HLT_L1SingleJet10erHE_v*
 HLT_L1SingleJet12erHE_v*
-HLT_L1SingleEG10er2p5_v*  # replaces HLT_L1SingleEG10, as per CMSHLT-2860
-HLT_L1SingleEG15er2p5_v*  # replaces HLT_L1SingleEG15, as per CMSHLT-2860
 HLT_L1SingleJet35_v*
 HLT_L1SingleJet200_v*
 HLT_L2Mu10_NoVertex_NoBPTX3BX_v*

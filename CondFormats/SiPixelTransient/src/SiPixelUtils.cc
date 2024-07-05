@@ -22,11 +22,11 @@ namespace siPixelUtils {
                                  float theThickness,          //detector thickness
                                  float cot_angle,             //!< cot of alpha_ or beta_
                                  float pitch,                 //!< thePitchX or thePitchY
-                                 bool first_is_big,           //!< true if the first is big
-                                 bool last_is_big,            //!< true if the last is big
-                                 float eff_charge_cut_low,    //!< Use edge if > w_eff  &&&
-                                 float eff_charge_cut_high,   //!< Use edge if < w_eff  &&&
-                                 float size_cut               //!< Use edge when size == cuts
+                                 float pitchfraction_first,
+                                 float pitchfraction_last,
+                                 float eff_charge_cut_low,   //!< Use edge if > w_eff  &&&
+                                 float eff_charge_cut_high,  //!< Use edge if < w_eff  &&&
+                                 float size_cut              //!< Use edge when size == cuts
   ) {
     float geom_center = 0.5f * (upper_edge_first_pix + lower_edge_last_pix);
 
@@ -46,11 +46,7 @@ namespace siPixelUtils {
                    - lorentz_shift;          // (in cm) &&& check fpix!
 
     //--- Total length of the two edge pixels (first+last)
-    float sum_of_edge = 2.0f;
-    if (first_is_big)
-      sum_of_edge += 1.0f;
-    if (last_is_big)
-      sum_of_edge += 1.0f;
+    float sum_of_edge = pitchfraction_first + pitchfraction_last;
 
     //--- The `effective' charge width -- particle's path in first and last pixels only
     float w_eff = std::abs(w_pred) - w_inner;

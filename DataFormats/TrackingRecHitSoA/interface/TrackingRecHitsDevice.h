@@ -27,15 +27,14 @@ public:
       : PortableDeviceCollection<TrackingRecHitLayout<TrackerTraits>, TDev>(nHits, queue), offsetBPIX2_{offsetBPIX2} {
     const auto device = alpaka::getDev(queue);
 
-    auto start_h = cms::alpakatools::make_host_view(hitsModuleStart, TrackerTraits::numberOfModules + 1);
+    auto start_h = cms::alpakatools::make_device_view(device, hitsModuleStart, TrackerTraits::numberOfModules + 1);
     auto start_d =
         cms::alpakatools::make_device_view(device, view().hitsModuleStart().data(), TrackerTraits::numberOfModules + 1);
     alpaka::memcpy(queue, start_d, start_h);
 
-    auto off_h = cms::alpakatools::make_host_view(offsetBPIX2);
+    auto off_h = cms::alpakatools::make_host_view(offsetBPIX2_);
     auto off_d = cms::alpakatools::make_device_view(device, view().offsetBPIX2());
     alpaka::memcpy(queue, off_d, off_h);
-    alpaka::wait(queue);
   }
 
   uint32_t nHits() const { return view().metadata().size(); }

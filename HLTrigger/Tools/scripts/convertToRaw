@@ -142,12 +142,12 @@ for f in files:
         if parsing:
             run, lumi, events = tuple(map(int, line.split()))
             if not args.range.is_in_range(run, lumi):
-                print(f'  run {run}, lumisetion {lumi} is outside of the given range and will be skipped')
+                print(f'  run {run}, lumisection {lumi} is outside of the given range and will be skipped')
                 continue
             if events == 0:
-                print(f'  run {run}, lumisetion {lumi} is empty and will be skipped')
+                print(f'  run {run}, lumisection {lumi} is empty and will be skipped')
                 continue
-            print(f'  run {run}, lumisetion {lumi} with {events} events will be processed')
+            print(f'  run {run}, lumisection {lumi} with {events} events will be processed')
             if not run in content:
                 content[run] = {}
             if not lumi in content[run]:
@@ -215,7 +215,7 @@ for run in sorted(content):
             os.makedirs(lumi_path)
             cmsRun(config_py, args.verbose, inputFiles = ','.join(content[run][lumi].files), runNumber = run, lumiNumber = lumi, eventsPerLumi = args.events_per_lumi, eventsPerFile = args.events_per_file, rawDataCollection = args.raw_data_collection, outputPath = lumi_path)
 
-            # merge all lumisetions data
+            # merge all lumisections data
 
             # number of events expected to be processed
             if args.events_per_lumi < 0:

@@ -24,9 +24,9 @@ public:
     detectedFRDversion_ = *((uint16_t*)(fileBuf + fileHeaderOffset));
   }
 
-  uint32_t headerSize() const override { return FRDHeaderVersionSize[detectedFRDversion_]; }
+  uint32_t headerSize() const override { return edm::streamer::FRDHeaderVersionSize[detectedFRDversion_]; }
 
-  bool versionCheck() const override { return detectedFRDversion_ <= FRDHeaderMaxVersion; }
+  bool versionCheck() const override { return detectedFRDversion_ <= edm::streamer::FRDHeaderMaxVersion; }
 
   uint64_t dataBlockSize() const override { return event_->size(); }
 
@@ -76,7 +76,7 @@ private:
   std::vector<std::shared_ptr<const edm::DaqProvenanceHelper>> daqProvenanceHelpers_;
   uint16_t detectedFRDversion_ = 0;
   size_t headerSize_ = 0;
-  std::unique_ptr<FRDEventMsgView> event_;
+  std::unique_ptr<edm::streamer::FRDEventMsgView> event_;
   uint32_t crc_ = 0;
   unsigned char* dataBlockAddr_ = nullptr;
   size_t dataBlockMax_ = 0;
@@ -106,9 +106,9 @@ public:
     detectedFRDversion_ = *((uint16_t*)(fileBuf + fileHeaderOffset));
   }
 
-  uint32_t headerSize() const override { return FRDHeaderVersionSize[detectedFRDversion_]; }
+  uint32_t headerSize() const override { return edm::streamer::FRDHeaderVersionSize[detectedFRDversion_]; }
 
-  bool versionCheck() const override { return detectedFRDversion_ <= FRDHeaderMaxVersion; }
+  bool versionCheck() const override { return detectedFRDversion_ <= edm::streamer::FRDHeaderMaxVersion; }
 
   uint64_t dataBlockSize() const override {
     //just get first event size
@@ -186,7 +186,7 @@ private:
   uint16_t detectedFRDversion_ = 0;
   size_t fileHeaderSize_ = 0;
   size_t headerSize_ = 0;
-  std::vector<std::unique_ptr<FRDEventMsgView>> events_;
+  std::vector<std::unique_ptr<edm::streamer::FRDEventMsgView>> events_;
   std::string crcMsg_;
   unsigned char* dataBlockAddr_ = nullptr;
   std::vector<unsigned char*> dataBlockAddrs_;

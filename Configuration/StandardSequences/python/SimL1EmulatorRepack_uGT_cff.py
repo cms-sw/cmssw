@@ -23,28 +23,30 @@ from L1Trigger.Configuration.SimL1Emulator_cff import *
 
 simGtExtFakeStage2Digis.tcdsRecordLabel= cms.InputTag("unpackTcds","tcdsRecord")
 
-simGtStage2Digis.MuonInputTag   = "unpackGtStage2:Muon"
+simGtStage2Digis.MuonInputTag       = "unpackGtStage2:Muon"
 simGtStage2Digis.MuonShowerInputTag = "unpackGtStage2:MuonShower"
-simGtStage2Digis.EGammaInputTag = "unpackGtStage2:EGamma"
-simGtStage2Digis.TauInputTag    = "unpackGtStage2:Tau"
-simGtStage2Digis.JetInputTag    = "unpackGtStage2:Jet"
-simGtStage2Digis.EtSumInputTag  = "unpackGtStage2:EtSum"
-simGtStage2Digis.ExtInputTag    = "unpackGtStage2" # as in default
+simGtStage2Digis.EGammaInputTag     = "unpackGtStage2:EGamma"
+simGtStage2Digis.TauInputTag        = "unpackGtStage2:Tau"
+simGtStage2Digis.JetInputTag        = "unpackGtStage2:Jet"
+simGtStage2Digis.EtSumInputTag      = "unpackGtStage2:EtSum"
+simGtStage2Digis.EtSumZdcInputTag   = "unpackGtStage2:EtSumZDC"
+simGtStage2Digis.ExtInputTag        = "unpackGtStage2" # as in default
 
 
 # Finally, pack the new L1T output back into RAW
-    
+
 # pack simulated uGT
 from EventFilter.L1TRawToDigi.gtStage2Raw_cfi import gtStage2Raw as packGtStage2
-packGtStage2.MuonInputTag   = "unpackGtStage2:Muon"
+packGtStage2.MuonInputTag     = "unpackGtStage2:Muon"
 packGtStage2.ShowerInputLabel = "unpackGtStage2:MuonShower"
-packGtStage2.EGammaInputTag = "unpackGtStage2:EGamma"
-packGtStage2.TauInputTag    = "unpackGtStage2:Tau"
-packGtStage2.JetInputTag    = "unpackGtStage2:Jet"
-packGtStage2.EtSumInputTag  = "unpackGtStage2:EtSum"
-packGtStage2.GtInputTag     = "simGtStage2Digis" # as in default
-packGtStage2.ExtInputTag    = "unpackGtStage2" # as in default
-    
+packGtStage2.EGammaInputTag   = "unpackGtStage2:EGamma"
+packGtStage2.TauInputTag      = "unpackGtStage2:Tau"
+packGtStage2.JetInputTag      = "unpackGtStage2:Jet"
+packGtStage2.EtSumInputTag    = "unpackGtStage2:EtSum"
+packGtStage2.EtSumZDCInputTag = "unpackGtStage2:EtSumZDC"
+packGtStage2.GtInputTag       = "simGtStage2Digis" # as in default
+packGtStage2.ExtInputTag      = "unpackGtStage2" # as in default
+
 
 # combine the new L1 RAW with existing RAW for other FEDs
 import EventFilter.RawDataCollector.rawDataCollectorByLabel_cfi

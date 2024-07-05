@@ -1,7 +1,8 @@
 ###############################################################################
 # Way to use this:
-#   cmsRun runPrintSolid_cfg.py type=DDD
+#   cmsRun runPrintSolid_cfg.py type=DDD geometry=2023
 #
+#   Options for geometry 2021, 2023, 2024
 #   Options for type DDD, DD4hep
 #
 ###############################################################################
@@ -12,6 +13,11 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 ####################################################################
 ### SETUP OPTIONS
 options = VarParsing.VarParsing('standard')
+options.register('geometry',
+                 "2024",
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.string,
+                  "geometry of operations: 2021, 2023, 2024")
 options.register('type',
                  "DDD",
                   VarParsing.VarParsing.multiplicity.singleton,
@@ -29,13 +35,16 @@ print(options)
 if (options.type == "DDD"):
     from Configuration.Eras.Era_Run3_DDD_cff import Run3_DDD
     process = cms.Process('G4PrintGeometry',Run3_DDD)
-    process.load('Configuration.Geometry.GeometryExtended2021Reco_cff')
+    geomFile = "Configuration.Geometry.GeometryExtended" + options.geometry + "Reco_cff"
 else:
     from Configuration.Eras.Era_Run3_dd4hep_cff import Run3_dd4hep
     process = cms.Process('G4PrintGeometry',Run3_dd4hep)
-    process.load('Configuration.Geometry.GeometryDD4hepExtended2021Reco_cff')
+    geomFile = "Configuration.Geometry.GeometryDD4hepExtended" + options.geometry + "Reco_cff"
+
+print("Geometry file: ", geomFile)
 
 process.load('SimGeneral.HepPDTESSource.pdt_cfi')
+process.load(geomFile)
 
 process.load('IOMC.RandomEngine.IOMC_cff')
 process.load('IOMC.EventVertexGenerators.VtxSmearedFlat_cfi')

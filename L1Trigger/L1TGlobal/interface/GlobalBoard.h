@@ -69,6 +69,7 @@ namespace l1t {
                                const edm::EDGetTokenT<BXVector<l1t::Jet>>&,
                                const edm::EDGetTokenT<BXVector<l1t::EtSum>>&,
                                const edm::EDGetTokenT<BXVector<l1t::EtSum>>&,
+                               const edm::EDGetTokenT<BXVector<float>>&,
                                const bool receiveEG,
                                const int nrL1EG,
                                const bool receiveTau,
@@ -76,7 +77,8 @@ namespace l1t {
                                const bool receiveJet,
                                const int nrL1Jet,
                                const bool receiveEtSums,
-                               const bool receiveEtSumsZdc);
+                               const bool receiveEtSumsZdc,
+                               const bool receiveCICADA);
 
     void receiveMuonObjectData(const edm::Event&,
                                const edm::EDGetTokenT<BXVector<l1t::Muon>>&,
@@ -172,6 +174,8 @@ namespace l1t {
     /// pointer to External data list
     inline const BXVector<const GlobalExtBlk*>* getCandL1External() const { return m_candL1External; }
 
+    inline const float getCICADAScore() const { return m_cicadaScore; }
+
     /*  Drop individual EtSums for Now
     /// pointer to ETM data list
     inline const l1t::EtSum* getCandL1ETM() const
@@ -204,7 +208,7 @@ namespace l1t {
     void setResetPSCountersEachLumiSec(bool val) { m_resetPSCountersEachLumiSec = val; }
     void setSemiRandomInitialPSCounters(bool val) { m_semiRandomInitialPSCounters = val; }
 
-    void setAXOL1TLModelVersion(std::string axol1tlModelVersion);
+    void setCICADAScore(float val) { m_cicadaScore = val; }
 
   public:
     inline void setVerbosity(const int verbosity) { m_verbosity = verbosity; }
@@ -244,7 +248,7 @@ namespace l1t {
     int m_bxFirst_;
     int m_bxLast_;
 
-    std::string m_axol1tlModelVersion = "NULL";
+    float m_cicadaScore = 0.0;
 
     std::bitset<GlobalAlgBlk::maxPhysicsTriggers> m_gtlAlgorithmOR;
     std::bitset<GlobalAlgBlk::maxPhysicsTriggers> m_gtlDecisionWord;

@@ -58,6 +58,7 @@ private:
 
   HLTTauDQMPath hltPath_;
 
+  MonitorElement *hCounter_;
   MonitorElement *hAcceptedEvents_;
   MonitorElement *hTrigTauEt_;
   MonitorElement *hTrigTauEta_;

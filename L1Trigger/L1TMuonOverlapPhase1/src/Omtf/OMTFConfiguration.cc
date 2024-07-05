@@ -467,6 +467,8 @@ unsigned int OMTFConfiguration::etaBits2HwEta(unsigned int bits) {
     return 115;
   else if (bits == 0b000000000)
     return 121;
+  else if (bits == 0b111111111)
+    return 95;
   else
     return 0b111111111;
   ;

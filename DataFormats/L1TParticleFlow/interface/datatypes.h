@@ -34,6 +34,7 @@ namespace l1ct {
   typedef ap_ufixed<10, 5, AP_TRN, AP_SAT> hoe_t;
   typedef ap_uint<4> redChi2Bin_t;
   typedef ap_fixed<10, 1, AP_RND_CONV, AP_SAT> id_score_t;  // ID score to be between -1 (background) and 1 (signal)
+  typedef ap_ufixed<10, 1, AP_RND, AP_SAT> b_tag_score_t;   // result_t from the NN is still apx_fixed<16,6>
 
   // FIXME: adjust range 10-11bits -> 1/4 - 1/2TeV is probably more than enough for all reasonable use cases
   typedef ap_ufixed<11, 9, AP_TRN, AP_SAT> iso_t;
@@ -175,6 +176,7 @@ namespace l1ct {
     inline float floatMeanZ(meanz_t meanz) { return meanz + MEANZ_OFFSET; };
     inline float floatHoe(hoe_t hoe) { return hoe.to_float(); };
     inline float floatIDScore(id_score_t score) { return score.to_float(); };
+    inline float floatBtagScore(b_tag_score_t b_tag_score) { return b_tag_score.to_float(); }
 
     inline pt_t makePt(int pt) { return ap_ufixed<16, 14>(pt) >> 2; }
     inline dpt_t makeDPt(int dpt) { return ap_fixed<18, 16>(dpt) >> 2; }

@@ -1,0 +1,8 @@
+<export>
+</export>
+<library name="CondToolsDeDxplugins" file="*.cc">
+  <use name="CondFormats/PhysicsToolsObjects"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="CondCore/DBOutputService"/>
+</library>

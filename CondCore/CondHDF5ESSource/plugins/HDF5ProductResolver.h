@@ -53,7 +53,7 @@ private:
                          edm::eventsetup::DataKey const& iKey,
                          edm::EventSetupImpl const*,
                          edm::ServiceToken const&,
-                         edm::ESParentContext const&) final;
+                         edm::ESParentContext const&) noexcept final;
 
   void invalidateCache() final;
   void prefetch(edm::eventsetup::DataKey const& iKey, edm::EventSetupRecordDetails) final;

@@ -8,7 +8,7 @@
 #include <vector>
 #include <iostream>
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include <CLHEP/Units/SystemOfUnits.h>
 
 class HcalCellType {
 public:

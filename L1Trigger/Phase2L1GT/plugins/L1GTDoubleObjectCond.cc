@@ -16,7 +16,7 @@
 
 #include "L1GTOptionalParam.h"
 #include "L1GTSingleCollectionCut.h"
-#include "L1GTDeltaCut.h"
+#include "L1GTCorrelationalCut.h"
 #include "L1GTSingleInOutLUT.h"
 
 #include <cinttypes>
@@ -46,10 +46,11 @@ private:
   const bool enable_sanity_checks_;
   const bool inv_mass_checks_;
 
-  const L1GTDeltaCut deltaCuts_;
+  const L1GTCorrelationalCut deltaCuts_;
 
   const edm::EDGetTokenT<P2GTCandidateCollection> token1_;
   const edm::EDGetTokenT<P2GTCandidateCollection> token2_;
+  const edm::EDGetTokenT<P2GTCandidateCollection> primVertToken_;
 };
 
 L1GTDoubleObjectCond::L1GTDoubleObjectCond(const edm::ParameterSet& config)
@@ -62,7 +63,8 @@ L1GTDoubleObjectCond::L1GTDoubleObjectCond(const edm::ParameterSet& config)
       token1_(consumes<P2GTCandidateCollection>(collection1Cuts_.tag())),
       token2_(collection1Cuts_.tag() == collection2Cuts_.tag()
                   ? token1_
-                  : consumes<P2GTCandidateCollection>(collection2Cuts_.tag())) {
+                  : consumes<P2GTCandidateCollection>(collection2Cuts_.tag())),
+      primVertToken_(consumes<P2GTCandidateCollection>(config.getParameter<edm::InputTag>("primVertTag"))) {
   produces<P2GTCandidateVectorRef>(collection1Cuts_.tag().instance());
 
   if (!(collection1Cuts_.tag() == collection2Cuts_.tag())) {
@@ -85,11 +87,13 @@ void L1GTDoubleObjectCond::fillDescriptions(edm::ConfigurationDescriptions& desc
   L1GTSingleCollectionCut::fillPSetDescription(collection2Desc);
   desc.add<edm::ParameterSetDescription>("collection2", collection2Desc);
 
+  desc.add<edm::InputTag>("primVertTag");
+
   desc.addUntracked<bool>("sanity_checks", false);
   desc.addUntracked<bool>("inv_mass_checks", false);
 
-  L1GTDeltaCut::fillPSetDescription(desc);
-  L1GTDeltaCut::fillLUTDescriptions(desc);
+  L1GTCorrelationalCut::fillPSetDescription(desc);
+  L1GTCorrelationalCut::fillLUTDescriptions(desc);
 
   edm::ParameterSetDescription scalesDesc;
   L1GTScales::fillPSetDescription(scalesDesc);
@@ -101,6 +105,7 @@ void L1GTDoubleObjectCond::fillDescriptions(edm::ConfigurationDescriptions& desc
 bool L1GTDoubleObjectCond::filter(edm::StreamID, edm::Event& event, const edm::EventSetup& setup) const {
   edm::Handle<P2GTCandidateCollection> col1 = event.getHandle(token1_);
   edm::Handle<P2GTCandidateCollection> col2 = event.getHandle(token2_);
+  edm::Handle<P2GTCandidateCollection> primVertCol = event.getHandle(primVertToken_);
 
   bool condition_result = false;
 
@@ -110,15 +115,18 @@ bool L1GTDoubleObjectCond::filter(edm::StreamID, edm::Event& event, const edm::E
   InvariantMassErrorCollection massErrors;
 
   for (std::size_t idx1 = 0; idx1 < col1->size(); ++idx1) {
+    bool single1Pass = collection1Cuts_.checkObject(col1->at(idx1));
+    single1Pass &= collection1Cuts_.checkPrimaryVertices(col1->at(idx1), *primVertCol);
+
     for (std::size_t idx2 = 0; idx2 < col2->size(); ++idx2) {
       // If we're looking at the same collection then we shouldn't use the same object in one comparison.
       if (col1.product() == col2.product() && idx1 == idx2) {
         continue;
       }
 
-      bool pass = true;
-      pass &= collection1Cuts_.checkObject(col1->at(idx1));
+      bool pass = single1Pass;
       pass &= collection2Cuts_.checkObject(col2->at(idx2));
+      pass &= collection2Cuts_.checkPrimaryVertices(col2->at(idx2), *primVertCol);
       pass &= deltaCuts_.checkObjects(col1->at(idx1), col2->at(idx2), massErrors);
 
       condition_result |= pass;

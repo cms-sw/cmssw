@@ -111,6 +111,9 @@ namespace edmplugin {
       }
       throw ex;
     }
+    if (iConfig.mustHaveCache() and categoryToInfos_.empty()) {
+      throw cms::Exception("PluginManagerCacheFilesEmpty") << "Cache files were found but all were empty.";
+    }
     //Since this should not be called until after 'main' has started, we can set the value
     loadingLibraryNamed_() = "<loaded by another plugin system>";
   }

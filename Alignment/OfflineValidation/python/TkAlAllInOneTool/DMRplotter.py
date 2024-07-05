@@ -51,6 +51,17 @@ class DMRplotter:
             else:
                 print(text)
 
+    def _middleString(self, fullString):
+        ##############################################################
+        #Auxiliary function to retrieve object name from full string
+        ##############################################################
+
+        middleString = "_".join(fullString.split("_")[1:])
+        if middleString.endswith("_y"): middleString = "_".join(middleString.split("_")[:-1])
+        middleString = "_".join(middleString.split("_")[:-1])
+        return middleString
+
+
     def _replaceMulti(self, mainString, toBeReplaced, newString):
         #################################
         #Auxiliary function to remove 
@@ -339,7 +350,7 @@ class DMRplotter:
                 if objName in objAreIgnored: continue   
                 objDict[objName] = []
                 for obj in objList:
-                    if objName in obj.GetName():
+                    if objName == self._middleString(obj.GetName()):
                         segment = ""
                         var = ""
                         if obj.GetName()[-1] == "y":
@@ -834,7 +845,7 @@ class DMRplotter:
 
     def plotSingle(self):
         ##############################################
-	#Auxiliary plotter for unweighted Data and MC
+	    #Auxiliary plotter for unweighted Data and MC
         ##############################################
 
         #check for input file and create output dir
@@ -993,7 +1004,7 @@ class DMRplotter:
                 #order plots & prepare y-axis scale factors  
                 isEmpty = True
                 maxY = 0.0
-                objGroup = [] 
+                objGroup = []
                 for objName in self.objNameList: #follow plotting order
                     for obj in objects[objName]:
                         if obj['var'] == var and obj['segment'] == segment:
@@ -1010,14 +1021,13 @@ class DMRplotter:
                                 legStyle = "l"
                             if obj['type'] == "DATA": 
                                 drawStyle += "P HIST SAME"
-                                legStyle = "p"     
+                                legStyle = "p"    
                             objGroup.append({'hist'        : obj['hist'], 
                                              'label'       : legendLabel,
                                              'stat'        : self.__getStat__(obj['hist'],var),
                                              'drawStyle'   : drawStyle,
                                              'legStyle'    : legStyle  
                                             })
-
                 #draw & save
                 if not isEmpty:
                     legMinY = (1./self.legendOffset)+(1.-1./self.legendOffset)*(self.maxEntriesPerColumn-len(objGroup))/(self.maxEntriesPerColumn*3)

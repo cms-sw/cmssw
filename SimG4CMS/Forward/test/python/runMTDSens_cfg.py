@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
 process = cms.Process('G4PrintGeometry',Phase2C17I13M9)
 
-process.load('Configuration.Geometry.GeometryExtended2026D98Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D110Reco_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
@@ -84,6 +84,6 @@ process.p1 = cms.Path(process.generator*process.VtxSmeared*process.generatorSmea
 process.g4SimHits.UseMagneticField        = False
 process.g4SimHits.Physics.DefaultCutValue = 10. 
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
-	Name           = cms.untracked.vstring('BTLCrystal1','BTLCrystal2','BTLCrystal3','EModule_Timingactive'),
+	Name           = cms.untracked.vstring('BTLCrystal','LGAD_active'),
 	type           = cms.string('PrintMTDSens')
 ))

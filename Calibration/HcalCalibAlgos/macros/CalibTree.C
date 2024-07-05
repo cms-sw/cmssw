@@ -54,11 +54,17 @@
 //                              The digit *r* is used to treat depth values:
 //                              (0) treat each depth independently; (1) all
 //                              depths of ieta 15, 16 of HB as depth 1; (2)
-//                              all depths in HB and HE as depth 1; (3) all
-//                              depths in HE with values > 1 as depth 2; (4)
-//                              all depths in HB with values > 1 as depth 2;
+//                              all depths in HB and HE as depth 1; (3) ignore
+//                              depth index in HE (depth index set to 1); (4)
+//                              ignore depth index in HB (depth index set 1);
 //                              (5) all depths in HB and HE with values > 1
-//                              as depth 2.
+//                              as depth 2; (6) for depth = 1 and 2, depth =
+//                              1, else depth = 2; (7) in case of HB, depths
+//                              1 and 2 are set to 1, else depth =2; for HE
+//                              ignore depth index; (8) in case of HE, depths
+//                              1 and 2 are set to 1, else depth =2; for HB
+//                              ignore depth index; (9) Ignore depth index for
+//                              depth > 1 in HB and all depth index for HE.
 //                              The digit *d* is used if zside is to be
 //                              ignored (1) or not (0)
 //                              (Default 0)
@@ -107,7 +113,8 @@
 //  debug           (bool)    = To produce more debug printing on screen
 //                              (false)
 //  nmax            (Long64_t)= maximum number of entries to be processed,
-//                               if -1, all entries to be processed (-1)
+//                              if -1, all entries to be processed; -2 take
+//                              all odd entries; -3 take all even entries (-1)
 //
 //  doIt(inFileName, dupFileName)
 //  calls Run 5 times reducing # of events by a factor of 2 in each case
@@ -757,6 +764,7 @@ Double_t CalibTree::Loop(int loop,
   Long64_t nbytes(0), nb(0);
   Long64_t nentryTot = fChain->GetEntriesFast();
   Long64_t nentries = (fraction > 0.01 && fraction < 0.99) ? (Long64_t)(fraction * nentryTot) : nentryTot;
+  int32_t oddEven = (nmax == -2) ? 1 : ((nmax == -3) ? -1 : 0);
   if ((nentries > nmax) && (nmax > 0))
     nentries = nmax;
 
@@ -773,6 +781,12 @@ Double_t CalibTree::Loop(int loop,
     nbytes += nb;
     if (jentry % 1000000 == 0)
       std::cout << "Entry " << jentry << " Run " << t_Run << " Event " << t_Event << std::endl;
+    if (oddEven != 0) {
+      if ((oddEven < 0) && (jentry % 2 == 0))
+        continue;
+      else if ((oddEven > 0) && (jentry % 2 != 0))
+        continue;
+    }
     bool select = ((cDuplicate_ != nullptr) && (duplicate_ == 0)) ? (cDuplicate_->isDuplicate(jentry)) : true;
     if (!select)
       continue;
@@ -1056,6 +1070,7 @@ void CalibTree::getDetId(double fraction, int ietaTrack, bool debug, Long64_t nm
     Long64_t nbytes(0), nb(0), kprint(0);
     Long64_t nentryTot = fChain->GetEntriesFast();
     Long64_t nentries = (fraction > 0.01 && fraction < 0.99) ? (Long64_t)(fraction * nentryTot) : nentryTot;
+    int32_t oddEven = (nmax == -2) ? 1 : ((nmax == -3) ? -1 : 0);
     if ((nentries > nmax) && (nmax > 0))
       nentries = nmax;
 
@@ -1067,6 +1082,12 @@ void CalibTree::getDetId(double fraction, int ietaTrack, bool debug, Long64_t nm
       nbytes += nb;
       if (jentry % 1000000 == 0)
         std::cout << "Entry " << jentry << " Run " << t_Run << " Event " << t_Event << std::endl;
+      if (oddEven != 0) {
+        if ((oddEven < 0) && (jentry % 2 == 0))
+          continue;
+        else if ((oddEven > 0) && (jentry % 2 != 0))
+          continue;
+      }
       bool select = ((cDuplicate_ != nullptr) && (duplicate_ == 0)) ? (cDuplicate_->isDuplicate(jentry)) : true;
       if (!select)
         continue;
@@ -1283,6 +1304,7 @@ void CalibTree::makeplots(
     return;
   Long64_t nentryTot = fChain->GetEntriesFast();
   Long64_t nentries = (fraction > 0.01 && fraction < 0.99) ? (Long64_t)(fraction * nentryTot) : nentryTot;
+  int32_t oddEven = (nmax == -2) ? 1 : ((nmax == -3) ? -1 : 0);
   if ((nentries > nmax) && (nmax > 0))
     nentries = nmax;
 
@@ -1314,6 +1336,12 @@ void CalibTree::makeplots(
     nbytes += nb;
     if (ientry < 0)
       break;
+    if (oddEven != 0) {
+      if ((oddEven < 0) && (jentry % 2 == 0))
+        continue;
+      else if ((oddEven > 0) && (jentry % 2 != 0))
+        continue;
+    }
     bool select = ((cDuplicate_ != nullptr) && (duplicate_ == 0)) ? (cDuplicate_->isDuplicate(jentry)) : true;
     if (!select)
       continue;

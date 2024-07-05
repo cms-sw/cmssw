@@ -26,6 +26,8 @@
 
   <test name="NewStreamerZSTD" command="RunZSTD.sh"/>
 
+  <test name="TestIOPoolStreamerRefProductIDMetadataConsistency" command="run_TestRefProductIDMetadataConsistencyStreamer.sh"/>
+  
   <library file="StreamThingProducer.cc" name="StreamThingProducer">
     <flags EDM_PLUGIN="1"/>
     <use name="DataFormats/TestObjects"/>

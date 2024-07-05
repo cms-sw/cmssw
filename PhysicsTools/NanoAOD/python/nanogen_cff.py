@@ -7,6 +7,7 @@ from PhysicsTools.NanoAOD.particlelevel_cff import *
 from PhysicsTools.NanoAOD.genWeightsTable_cfi import *
 from PhysicsTools.NanoAOD.genVertex_cff import *
 from PhysicsTools.NanoAOD.common_cff import Var,CandVars
+from PhysicsTools.NanoAOD.simpleSingletonCandidateFlatTableProducer_cfi import simpleSingletonCandidateFlatTableProducer
 
 nanoMetadata = cms.EDProducer("UniqueStringProducer",
     strings = cms.PSet(
@@ -26,6 +27,7 @@ nanogenSequence = cms.Sequence(
     genJetAK8FlavourTable+
     cms.Sequence(genTauTask)+
     genTable+
+    genIso+
     genFilterTable+
     cms.Sequence(genParticleTablesTask)+
     cms.Sequence(genVertexTablesTask)+
@@ -80,8 +82,12 @@ def customizeNanoGENFromMini(process):
     return process
 
 def customizeNanoGEN(process):
-    process.metMCTable.src = "genMetTrue"
-    process.metMCTable.variables = cms.PSet(PTVars)
+    process.metMCTable = simpleSingletonCandidateFlatTableProducer.clone(
+        src = "genMetTrue",
+        name = process.metMCTable.name,
+        doc = process.metMCTable.doc,
+        variables = cms.PSet(PTVars)
+    )
 
     process.rivetProducerHTXS.HepMCCollection = "generatorSmeared"
     process.genParticleTable.src = "genParticles"
@@ -97,6 +103,8 @@ def customizeNanoGEN(process):
     process.nanogenSequence.remove(process.genParticles2HepMCHiggsVtx)
     process.nanogenSequence.remove(process.genParticles2HepMC)
     process.nanogenSequence.remove(process.mergedGenParticles)
+    process.nanogenSequence.remove(process.genIso)
+    delattr(process.genParticleTable.externalVariables,"iso")
     nanoGenCommonCustomize(process)
     return process
 

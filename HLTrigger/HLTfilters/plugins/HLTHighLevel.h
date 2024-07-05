@@ -77,6 +77,7 @@ private:
 
   /// not empty => use read paths from AlCaRecoTriggerBitsRcd via this key
   const std::string eventSetupPathsKey_;
+  const std::string eventSetupPathsLabel_;
   /// Watcher to be created and used if 'eventSetupPathsKey_' non empty:
   std::optional<edm::ESWatcher<AlCaRecoTriggerBitsRcd>> watchAlCaRecoTriggerBitsRcd_;
   /// ESGetToken to read AlCaRecoTriggerBits

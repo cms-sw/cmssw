@@ -28,6 +28,8 @@ Disclaimer: Most of the code here is randomly written during
 
 #define NO_OF_EVENTS 10
 
+using namespace edm::streamer;
+
 int main() try {
   typedef std::vector<uint8> Buffer;
   Buffer buf(1024);

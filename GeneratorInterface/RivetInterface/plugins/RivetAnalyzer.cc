@@ -27,7 +27,7 @@ RivetAnalyzer::RivetAnalyzer(const edm::ParameterSet& pset)
       _xsection(-1.) {
   usesResource("Rivet");
 
-  _hepmcCollection = consumes<HepMCProduct>(pset.getParameter<edm::InputTag>("HepMCCollection"));
+  _hepmcCollection = consumes<HepMC3Product>(pset.getParameter<edm::InputTag>("HepMCCollection"));
   _genLumiInfoToken = consumes<GenLumiInfoHeader, edm::InLumi>(pset.getParameter<edm::InputTag>("genLumiInfo"));
 
   _useLHEweights = pset.getParameter<bool>("useLHEweights");
@@ -122,43 +122,40 @@ void RivetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     for (const std::string& wn : _weightNames) {
       _cleanedWeightNames.push_back(std::regex_replace(wn, std::regex("[^A-Za-z\\d\\._=]"), "_"));
     }
+    runinfo = make_shared<HepMC3::GenRunInfo>();
+    runinfo->set_weight_names(_cleanedWeightNames);
   }
 
   //get the hepmc product from the event
-  edm::Handle<HepMCProduct> evt;
+  edm::Handle<HepMC3Product> evt;
   iEvent.getByToken(_hepmcCollection, evt);
 
   // get HepMC GenEvent
-  const HepMC::GenEvent* myGenEvent = evt->GetEvent();
-  std::unique_ptr<HepMC::GenEvent> tmpGenEvtPtr;
-  //if you want to use an external weight or set the cross section we have to clone the GenEvent and change the weight
-  tmpGenEvtPtr = std::make_unique<HepMC::GenEvent>(*(evt->GetEvent()));
-
-  if (_xsection > 0) {
-    HepMC::GenCrossSection xsec;
-    xsec.set_cross_section(_xsection);
-    tmpGenEvtPtr->set_cross_section(xsec);
-  }
+  const HepMC3::GenEventData* genEventData = evt->GetEvent();
+  std::unique_ptr<HepMC3::GenEvent> genEvent = std::make_unique<HepMC3::GenEvent>();
+  genEvent->read_data(*genEventData);
 
   std::vector<double> mergedWeights;
-  for (unsigned int i = 0; i < tmpGenEvtPtr->weights().size(); i++) {
-    mergedWeights.push_back(tmpGenEvtPtr->weights()[i]);
+  for (unsigned int i = 0; i < genEvent->weights().size(); i++) {
+    mergedWeights.push_back(genEvent->weights()[i]);
   }
 
   if (_useLHEweights) {
     edm::Handle<LHEEventProduct> lheEventHandle;
     iEvent.getByToken(_LHECollection, lheEventHandle);
     for (unsigned int i = 0; i < _lheWeightNames.size(); i++) {
-      mergedWeights.push_back(tmpGenEvtPtr->weights()[0] * lheEventHandle->weights().at(i).wgt /
+      mergedWeights.push_back(genEvent->weights()[0] * lheEventHandle->weights().at(i).wgt /
                               lheEventHandle->originalXWGTUP());
     }
   }
 
-  tmpGenEvtPtr->weights().clear();
-  for (unsigned int i = 0; i < _cleanedWeightNames.size(); i++) {
-    tmpGenEvtPtr->weights()[_cleanedWeightNames[i]] = mergedWeights[i];
-  }
-  myGenEvent = tmpGenEvtPtr.get();
+  double xsection = _xsection > 0 ? _xsection : genEvent->cross_section()->xsecs()[0];
+  HepMC3::GenCrossSectionPtr xsec = make_shared<HepMC3::GenCrossSection>();
+  xsec->set_cross_section(std::vector<double>(mergedWeights.size(), xsection),
+                          std::vector<double>(mergedWeights.size(), 0.));
+  genEvent->set_cross_section(xsec);
+  genEvent->set_run_info(runinfo);
+  genEvent->weights() = mergedWeights;
 
   //apply the beams initialization on the first event
   if (_isFirstEvent) {
@@ -166,21 +163,21 @@ void RivetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     _analysisHandler->addAnalyses(_analysisNames);
 
     /// Set analysis handler weight options
-    _analysisHandler->setIgnoreBeams(_setIgnoreBeams);
+    _analysisHandler->setCheckBeams(!_setIgnoreBeams);
     _analysisHandler->skipMultiWeights(_skipMultiWeights);
-    _analysisHandler->selectMultiWeights(_selectMultiWeights);
-    _analysisHandler->deselectMultiWeights(_deselectMultiWeights);
+    _analysisHandler->matchWeightNames(_selectMultiWeights);
+    _analysisHandler->unmatchWeightNames(_deselectMultiWeights);
     _analysisHandler->setNominalWeightName(_setNominalWeightName);
     _analysisHandler->setWeightCap(_weightCap);
     _analysisHandler->setNLOSmearing(_NLOSmearing);
 
-    _analysisHandler->init(*myGenEvent);
+    _analysisHandler->init(*genEvent);
 
     _isFirstEvent = false;
   }
 
   //run the analysis
-  _analysisHandler->analyze(*myGenEvent);
+  _analysisHandler->analyze(const_cast<GenEvent&>(*genEvent));
 }
 
 void RivetAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {

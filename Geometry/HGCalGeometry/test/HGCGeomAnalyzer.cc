@@ -157,10 +157,10 @@ void HGCGeomAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &e
                  << rInVec.eta() << std::setw(15) << rOutVec.y() << std::setw(15) << rOutVec.eta() << std::setw(15);
 
       if (d != DetId::HGCalHSc) {
-        boundaries << typeRadMap[ilay][HGCSiliconDetId::waferType::HGCalCoarseThin].begin()->first << std::setw(15)
-                   << typeRadMap[ilay][HGCSiliconDetId::waferType::HGCalCoarseThin].begin()->second << std::setw(15)
-                   << typeRadMap[ilay][HGCSiliconDetId::waferType::HGCalCoarseThick].begin()->first << std::setw(15)
-                   << typeRadMap[ilay][HGCSiliconDetId::waferType::HGCalCoarseThick].begin()->second << std::setw(15);
+        boundaries << typeRadMap[ilay][HGCSiliconDetId::waferType::HGCalLD200].begin()->first << std::setw(15)
+                   << typeRadMap[ilay][HGCSiliconDetId::waferType::HGCalLD200].begin()->second << std::setw(15)
+                   << typeRadMap[ilay][HGCSiliconDetId::waferType::HGCalLD300].begin()->first << std::setw(15)
+                   << typeRadMap[ilay][HGCSiliconDetId::waferType::HGCalLD300].begin()->second << std::setw(15);
       }
       boundaries << "\n";
     }

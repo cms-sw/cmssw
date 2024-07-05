@@ -24,20 +24,16 @@ namespace ticl {
     ~ClusterFilterByAlgoAndSizeAndLayerRange() override{};
 
     void filter(const std::vector<reco::CaloCluster>& layerClusters,
-                const TICLClusterFilterMask& availableLayerClusters,
                 std::vector<float>& layerClustersMask,
                 hgcal::RecHitTools& rhtools) const override {
-      auto filteredLayerClusters = std::make_unique<TICLClusterFilterMask>();
-      for (auto const& cl : availableLayerClusters) {
-        auto const& layerCluster = layerClusters[cl.first];
+      for (size_t i = 0; i < layerClusters.size(); i++) {
+        auto const& layerCluster = layerClusters[i];
         auto const& haf = layerCluster.hitsAndFractions();
         auto layerId = rhtools.getLayerWithOffset(haf[0].first);
-        if (find(algo_number_.begin(), algo_number_.end(), layerCluster.algo()) != algo_number_.end() and
-            layerId <= max_layerId_ and layerId >= min_layerId_ and haf.size() <= max_cluster_size_ and
-            (haf.size() >= min_cluster_size_ or !(rhtools.isSilicon(haf[0].first)))) {
-          filteredLayerClusters->emplace_back(cl);
-        } else {
-          layerClustersMask[cl.first] = 0.;
+        if (find(algo_number_.begin(), algo_number_.end(), layerCluster.algo()) == algo_number_.end() or
+            layerId > max_layerId_ or layerId < min_layerId_ or haf.size() > max_cluster_size_ or
+            (haf.size() < min_cluster_size_ and rhtools.isSilicon(haf[0].first))) {
+          layerClustersMask[i] = 0.;
         }
       }
     }

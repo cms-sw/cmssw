@@ -12,58 +12,60 @@
 
 namespace edm {
 
-  ParentContext::ParentContext() : type_(Type::kInvalid) { parent_.global = nullptr; }
+  ParentContext::ParentContext() noexcept : type_(Type::kInvalid) { parent_.global = nullptr; }
 
-  ParentContext::ParentContext(GlobalContext const* global) : type_(Type::kGlobal) { parent_.global = global; }
+  ParentContext::ParentContext(GlobalContext const* global) noexcept : type_(Type::kGlobal) { parent_.global = global; }
 
-  ParentContext::ParentContext(InternalContext const* internal) : type_(Type::kInternal) {
+  ParentContext::ParentContext(InternalContext const* internal) noexcept : type_(Type::kInternal) {
     parent_.internal = internal;
   }
 
-  ParentContext::ParentContext(ModuleCallingContext const* module) : type_(Type::kModule) { parent_.module = module; }
+  ParentContext::ParentContext(ModuleCallingContext const* module) noexcept : type_(Type::kModule) {
+    parent_.module = module;
+  }
 
-  ParentContext::ParentContext(PlaceInPathContext const* placeInPath) : type_(Type::kPlaceInPath) {
+  ParentContext::ParentContext(PlaceInPathContext const* placeInPath) noexcept : type_(Type::kPlaceInPath) {
     parent_.placeInPath = placeInPath;
   }
 
-  ParentContext::ParentContext(StreamContext const* stream) : type_(Type::kStream) { parent_.stream = stream; }
+  ParentContext::ParentContext(StreamContext const* stream) noexcept : type_(Type::kStream) { parent_.stream = stream; }
 
-  ModuleCallingContext const* ParentContext::moduleCallingContext() const {
+  ModuleCallingContext const* ParentContext::moduleCallingContext() const noexcept(false) {
     if (type_ != Type::kModule) {
       throw Exception(errors::LogicError) << "ParentContext::moduleCallingContext called for incorrect type of context";
     }
     return parent_.module;
   }
 
-  PlaceInPathContext const* ParentContext::placeInPathContext() const {
+  PlaceInPathContext const* ParentContext::placeInPathContext() const noexcept(false) {
     if (type_ != Type::kPlaceInPath) {
       throw Exception(errors::LogicError) << "ParentContext::placeInPathContext called for incorrect type of context";
     }
     return parent_.placeInPath;
   }
 
-  StreamContext const* ParentContext::streamContext() const {
+  StreamContext const* ParentContext::streamContext() const noexcept(false) {
     if (type_ != Type::kStream) {
       throw Exception(errors::LogicError) << "ParentContext::streamContext called for incorrect type of context";
     }
     return parent_.stream;
   }
 
-  GlobalContext const* ParentContext::globalContext() const {
+  GlobalContext const* ParentContext::globalContext() const noexcept(false) {
     if (type_ != Type::kGlobal) {
       throw Exception(errors::LogicError) << "ParentContext::globalContext called for incorrect type of context";
     }
     return parent_.global;
   }
 
-  InternalContext const* ParentContext::internalContext() const {
+  InternalContext const* ParentContext::internalContext() const noexcept(false) {
     if (type_ != Type::kInternal) {
       throw Exception(errors::LogicError) << "ParentContext::internalContext called for incorrect type of context";
     }
     return parent_.internal;
   }
 
-  bool ParentContext::isAtEndTransition() const {
+  bool ParentContext::isAtEndTransition() const noexcept {
     switch (type_) {
       case Type::kGlobal: {
         return parent_.global->isAtEndTransition();
