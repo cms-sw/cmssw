@@ -29,7 +29,8 @@ public:
   /** Create cellid from raw id (0=invalid tower id) */
   constexpr HGCScintillatorDetId(uint32_t rawid) : DetId(rawid) {}
   /** Constructor from subdetector, zplus, layer, module, cell numbers */
-  constexpr HGCScintillatorDetId(int type, int layer, int ring, int phi, bool trigger = false, int sipm = 0, int granularity = 0)
+  constexpr HGCScintillatorDetId(
+      int type, int layer, int ring, int phi, bool trigger = false, int sipm = 0, int granularity = 0)
       : DetId(HGCalHSc, ForwardEmpty) {
     int zside = (ring < 0) ? 1 : 0;
     int itrig = trigger ? 1 : 0;
@@ -37,7 +38,8 @@ public:
     id_ |= (((type & kHGCalTypeMask) << kHGCalTypeOffset) | ((zside & kHGCalZsideMask) << kHGCalZsideOffset) |
             ((sipm & kHGCalSiPMMask) << kHGCalSiPMOffset) | ((itrig & kHGCalTriggerMask) << kHGCalTriggerOffset) |
             ((layer & kHGCalLayerMask) << kHGCalLayerOffset) | ((ringAbs & kHGCalRadiusMask) << kHGCalRadiusOffset) |
-            ((phi & kHGCalPhiMask) << kHGCalPhiOffset) | ((granularity & kHGCalGranularityMask) << kHGCalGranularityOffset));
+            ((phi & kHGCalPhiMask) << kHGCalPhiOffset) |
+            ((granularity & kHGCalGranularityMask) << kHGCalGranularityOffset));
   }
 
   /** Constructor from a generic cell id */
