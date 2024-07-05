@@ -21,7 +21,5 @@ std::vector<HGCScintillatorDetId> HGCScintillatorDetId::detectorCells() const {
 }
 
 std::ostream& operator<<(std::ostream& s, const HGCScintillatorDetId& id) {
-  return s << " HGCScintillatorDetId::EE:HE= " << id.isEE() << ":" << id.isHE() << " trigger= " << id.trigger()
-           << " type= " << id.type() << " SiPM= " << id.sipm() << " layer= " << id.layer() << " ring= " << id.iradius()
-           << ":" << id.iradiusTrigger() << " phi= " << id.iphi() << ":" << id.iphiTrigger();
+  return s << " HGCScintillatorDetId::EE:HE= " << id.isEE() << ":" << id.isHE() << " trigger= " << id.trigger() << " granularity= " << id.granularity()<< " type= " << id.type() << " SiPM= " << id.sipm() << " layer= " << id.layer() << " ring= " << id.iradius() << ":" << id.iradiusTrigger() << " phi= " << id.iphi() << ":" << id.iphiTrigger();
 }
