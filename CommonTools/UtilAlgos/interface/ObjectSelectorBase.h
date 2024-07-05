@@ -38,6 +38,7 @@ public:
         srcToken_(
             this->template consumes<typename Selector::collection>(cfg.template getParameter<edm::InputTag>("src"))),
         filter_(false),
+        throwOnMissing_(cfg.template getUntrackedParameter<bool>("throwOnMissing", true)),
         selectorInit_(this->consumesCollector()),
         selector_(cfg, this->consumesCollector()),
         sizeSelector_(reco::modules::make<SizeSelector>(cfg)),
@@ -57,6 +58,9 @@ private:
   bool filter(edm::Event& evt, const edm::EventSetup& es) override {
     selectorInit_.init(selector_, evt, es);
     edm::Handle<typename Selector::collection> source;
+    if (!throwOnMissing_ && !source.isValid()) {
+      return false;
+    }
     evt.getByToken(srcToken_, source);
     StoreManager manager(source);
     selector_.select(source, evt, es);
@@ -70,6 +74,8 @@ private:
   edm::EDGetTokenT<typename Selector::collection> srcToken_;
   /// filter event
   bool filter_;
+  /// trhow on missing
+  bool throwOnMissing_;
   /// Object collection selector
   Init selectorInit_;
   Selector selector_;
