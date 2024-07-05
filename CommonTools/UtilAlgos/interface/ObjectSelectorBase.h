@@ -59,7 +59,7 @@ private:
     selectorInit_.init(selector_, evt, es);
     edm::Handle<typename Selector::collection> source;
     if (!throwOnMissing_ && !source.isValid()) {
-      return false;
+      return !filter_;
     }
     evt.getByToken(srcToken_, source);
     StoreManager manager(source);
