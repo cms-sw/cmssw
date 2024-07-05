@@ -14,6 +14,8 @@ run3_ecal.toModify(ecalMultiFitUncalibRecHit,
         outOfTimeThresholdGain12mEB = 3.0,
         outOfTimeThresholdGain61pEB = 3.0,
         outOfTimeThresholdGain61mEB = 3.0,
+        useSlewCorrectionEB = True,
+        useSlewCorrectionEE = False,
         timeCalibTag = ':CC',
         timeOffsetTag = ':CC'
     )
