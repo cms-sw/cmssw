@@ -163,7 +163,6 @@ FedRawDataInputSource::FedRawDataInputSource(edm::ParameterSet const& pset, edm:
     thread_quit_signal.push_back(false);
     workerJob_.push_back(ReaderInfo(nullptr, nullptr));
     cvReader_.push_back(std::make_unique<std::condition_variable>());
-    mReaderNotify_.push_back(std::make_unique<std::mutex>());
     tid_active_.push_back(0);
   }
 
@@ -428,6 +427,8 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent() {
   //file is finished
   if (currentFile_->bufferPosition_ == currentFile_->fileSize_) {
     readingFilesCount_--;
+    if (fileListMode_)
+      heldFilesCount_--;
     //release last chunk (it is never released elsewhere)
     freeChunks_.push(currentFile_->chunks_[currentFile_->currentChunk_]);
     if (currentFile_->nEvents_ >= 0 && currentFile_->nEvents_ != int(currentFile_->nProcessed_)) {
@@ -1008,7 +1009,6 @@ void FedRawDataInputSource::readSupervisor() {
             //wakeup main thread for the new non-data file obj
             std::unique_lock<std::mutex> lkw(mWakeup_);
             cvWakeupAll_.notify_all();
-            //lkw.unlock();
           }
         }
         //else
@@ -1182,10 +1182,6 @@ void FedRawDataInputSource::readSupervisor() {
 
           //wake up the worker thread
           cvReader_[newTid]->notify_one();
-          lk.unlock();
-
-          //acquiring the lock to wait for thread to receive CV
-          std::unique_lock<std::mutex> lkn(*mReaderNotify_[newTid]);
         }
       }
     }
@@ -1228,12 +1224,8 @@ void FedRawDataInputSource::readWorker(unsigned int tid) {
     }
     cvWakeup_.notify_all();
 
-    std::unique_lock<std::mutex> lkn(*mReaderNotify_[tid]);
-
     cvReader_[tid]->wait(lk);
     lk.unlock();
-
-    lkn.unlock();
 
     if (thread_quit_signal[tid])
       return;
@@ -1337,8 +1329,8 @@ void FedRawDataInputSource::readWorker(unsigned int tid) {
     auto end = std::chrono::high_resolution_clock::now();
     auto diff = end - start;
     std::chrono::milliseconds msec = std::chrono::duration_cast<std::chrono::milliseconds>(diff);
-    LogDebug("FedRawDataInputSource") << " finished reading block -: " << (bufferLeft >> 20) << " MB"
-                                      << " in " << msec.count() << " ms (" << (bufferLeft >> 20) / double(msec.count())
+    LogDebug("FedRawDataInputSource") << " finished reading block -: " << (bufferLeft / (1024.*1024)) << " MB"
+                                      << " in " << msec.count() << " ms (" << (bufferLeft / (1024.*1024.)) / double(msec.count())
                                       << " GB/s)";
 
     if (chunk->offset_ + bufferLeft == file->fileSize_) {  //file reading finished using same fd
@@ -1366,7 +1358,6 @@ void FedRawDataInputSource::readWorker(unsigned int tid) {
 
     //wakeup for chunk
     cvWakeupAll_.notify_all();
-    //lkw.unlock();
 
     //timeval ts_copyend;
     //gettimeofday(&ts_copyend, nullptr);

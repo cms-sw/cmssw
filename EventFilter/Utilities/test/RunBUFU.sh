@@ -97,7 +97,7 @@ rm -rf $OUTDIR/{ramdisk,data,dqmdisk,*.log}
 ################
 echo "Running test with FRD file header v2"
 CMDLINE_STARTBU="cmsRun startBU.py runNumber=${runnumber} fffBaseDir=${OUTDIR} maxLS=2 fedMeanSize=128 eventsPerFile=20 eventsPerLS=35 frdFileVersion=2"
-CMDLINE_STARTFU="cmsRun unittest_FU.py runNumber=${runnumber} fffBaseDir=${OUTDIR}"
+CMDLINE_STARTFU="cmsRun ${FUSCRIPT} runNumber=${runnumber} fffBaseDir=${OUTDIR}"
 ${CMDLINE_STARTBU}  > out_2_bu.log 2>&1 || diebu "${CMDLINE_STARTBU}" $? $OUTDIR
 ${CMDLINE_STARTFU}  > out_2_fu.log 2>&1 || diefu "${CMDLINE_STARTFU}" $? $OUTDIR
 

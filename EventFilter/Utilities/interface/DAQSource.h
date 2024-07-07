@@ -149,7 +149,6 @@ private:
   tbb::concurrent_queue<std::unique_ptr<RawInputFile>> fileQueue_;
 
   std::mutex mReader_;
-  std::vector<std::unique_ptr<std::mutex>> mReaderNotify_;
   std::vector<std::unique_ptr<std::condition_variable>> cvReader_;
   std::vector<unsigned int> tid_active_;
 

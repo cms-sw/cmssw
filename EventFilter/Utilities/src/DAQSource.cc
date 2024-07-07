@@ -437,6 +437,8 @@ evf::EvFDaqDirector::FileStatus DAQSource::getNextDataBlock() {
   //file is finished
   if (currentFile_->bufferPosition_ == currentFile_->fileSize_) {
     readingFilesCount_--;
+    if (fileListMode_)
+      heldFilesCount_--;
     //release last chunk (it is never released elsewhere)
     freeChunks_.push(currentFile_->chunks_[currentFile_->currentChunk_]);
     if (currentFile_->nEvents_ >= 0 && currentFile_->nEvents_ != int(currentFile_->nProcessed_)) {
@@ -1085,10 +1087,6 @@ void DAQSource::readSupervisor() {
 
         //wake up the worker thread
         cvReader_[newTid]->notify_one();
-        lk.unlock();
-
-        //acquiring the lock to wait for thread to receive CV
-        std::unique_lock<std::mutex> lkn(*mReaderNotify_[newTid]);
       }
     }
   }
@@ -1131,12 +1129,8 @@ void DAQSource::readWorker(unsigned int tid) {
     }
     cvWakeup_.notify_all();
 
-    std::unique_lock<std::mutex> lkn(*mReaderNotify_[tid]);
-
     cvReader_[tid]->wait(lk);
     lk.unlock();
-
-    lkn.unlock();
 
     if (thread_quit_signal[tid])
       return;
