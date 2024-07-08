@@ -52,7 +52,7 @@ public:
 
 CPPUNIT_TEST_SUITE_REGISTRATION(testTorchFromBufferModelEval);
 
-std::string testTorchFromBufferModelEval::pyScript() const { return "create_dnn_largeinput.py"; }
+std::string testTorchFromBufferModelEval::pyScript() const { return "create_dnn_sum.py"; }
 /*
  * Demonstration of interoperability between CUDA and Torch C++ API using 
  * pinned memory.
@@ -166,7 +166,7 @@ void testTorchFromBufferModelEval::test() {
   if (prctl(PR_SET_NAME, "test::Main", 0, 0, 0))
     printf ("Warning: Could not set thread name: %s\n", strerror(errno));
     // Load the TorchScript model
-  std::string model_path = dataPath_ + "/simple_dnn_largeinput.pt";
+  std::string model_path = dataPath_ + "/simple_dnn_sum.pt";
 
 //  cout << "Loading model..." << endl;
 //  torch::jit::script::Module model;
