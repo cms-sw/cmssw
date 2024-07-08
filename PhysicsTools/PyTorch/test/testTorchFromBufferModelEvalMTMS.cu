@@ -130,9 +130,9 @@ void testTorchFromBufferModelEvalSinglePass(torch::jit::script::Module& model, c
   } catch (exception& e) {
     cout << e.what() << endl;
     
-    cudaFree(a_gpu);
-    cudaFree(b_gpu);
-    cudaFree(c_gpu);
+    cudaFreeAsync(a_gpu, c10::cuda::getCurrentCUDAStream().stream());
+    cudaFreeAsync(b_gpu, c10::cuda::getCurrentCUDAStream().stream());
+    cudaFreeAsync(c_gpu, c10::cuda::getCurrentCUDAStream().stream());
 
     CPPUNIT_ASSERT(false);
   }
@@ -156,9 +156,9 @@ void testTorchFromBufferModelEvalSinglePass(torch::jit::script::Module& model, c
   }
   
   NVTXScopedRange freeRange("Free GPU memory");
-  cudaFree(a_gpu);
-  cudaFree(b_gpu);
-  cudaFree(c_gpu);
+  cudaFreeAsync(a_gpu, c10::cuda::getCurrentCUDAStream().stream());
+  cudaFreeAsync(b_gpu, c10::cuda::getCurrentCUDAStream().stream());
+  cudaFreeAsync(c_gpu, c10::cuda::getCurrentCUDAStream().stream());
   freeRange.end();
 }
 
@@ -255,7 +255,7 @@ void testTorchFromBufferModelEval::test() {
   }
   for (auto &t: threads) t.join();
   cout << "Threads done." << endl;
-//  cudaFreeHost(a_cpu);
-//  cudaFreeHost(b_cpu);
+  cudaFreeHost(a_cpu);
+  cudaFreeHost(b_cpu);
   // Fixme: free mempory in case of exceptions...
 }
