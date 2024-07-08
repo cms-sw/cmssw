@@ -1,4 +1,6 @@
 <bin file="testParabolicParametrizedMagneticField.cc">
+  <use name="alpaka"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
   <use name="eigen"/>
   <use name="DataFormats/GeometryVector"/>
   <use name="FWCore/Utilities"/>
