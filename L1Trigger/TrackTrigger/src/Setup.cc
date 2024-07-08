@@ -258,7 +258,8 @@ namespace tt {
       const ParameterSet& pSetProcess = getParameterSet(pSetId);
       cms::Exception exception("BadConfiguration");
       exception.addContext("tt::Setup::checkHistory");
-      exception << "Label " << label << " of parent Process " << pc.processName() << " is inconsistent with current Process " << ph.data().back().processName() << "." << endl;
+      exception << "Label " << label << " of parent Process " << pc.processName()
+                << " is inconsistent with current Process " << ph.data().back().processName() << "." << endl;
       exception << "Config Differences:" << endl;
       exception << dumpDiff(pSet, pSetProcess) << endl;
       throw exception;
