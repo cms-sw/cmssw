@@ -34,7 +34,10 @@ namespace edm {
             convertException::wrap([&func]() { func(); });
           } catch (cms::Exception& e) {
             e.addContext(errorContext());
-            holder.doneWaiting(std::current_exception());
+            // doneWaiting() is intentionally not called here. The
+            // reference count decrement must be done only in
+            // threadLoop() (see the comment there)
+            holder.presetTaskAsFailed(std::current_exception());
           }
         };
         thisPtr_ = std::move(thisPtr);
