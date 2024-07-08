@@ -252,29 +252,15 @@ namespace tt {
                            const pset::Registry* pr,
                            const string& label,
                            const ParameterSetID& pSetId) const {
-    vector<pair<string, ParameterSet>> pSets;
-    pSets.reserve(ph.size());
-    for (const ProcessConfiguration& pc : ph) {
-      const ParameterSet* pSet = pr->getMapped(pc.parameterSetID());
-      if (pSet && pSet->exists(label))
-        pSets.emplace_back(pc.processName(), pSet->getParameterSet(label));
-    }
-    if (pSets.empty()) {
-      cms::Exception exception("BadConfiguration");
-      exception << label << " not found in process history.";
-      exception.addContext("tt::Setup::checkHistory");
-      throw exception;
-    }
-    auto consistent = [&pSetId](const pair<string, ParameterSet>& p) { return p.second.id() == pSetId; };
-    if (!all_of(pSets.begin(), pSets.end(), consistent)) {
+    const ProcessConfiguration& pc = *next(ph.end(), -2);
+    const ParameterSet& pSet = pr->getMapped(pc.parameterSetID())->getParameterSet(label);
+    if (pSet.id() != pSetId) {
       const ParameterSet& pSetProcess = getParameterSet(pSetId);
       cms::Exception exception("BadConfiguration");
       exception.addContext("tt::Setup::checkHistory");
-      exception << label << " inconsistent with History." << endl;
-      exception << "Current Configuration:" << endl << pSetProcess.dump() << endl;
-      for (const pair<string, ParameterSet>& p : pSets)
-        if (!consistent(p))
-          exception << "Process " << p.first << " Configuration:" << endl << dumpDiff(p.second, pSetProcess) << endl;
+      exception << "Label " << label << " of parent Process " << pc.processName() << " is inconsistent with current Process " << ph.data().back().processName() << "." << endl;
+      exception << "Config Differences:" << endl;
+      exception << dumpDiff(pSet, pSetProcess) << endl;
       throw exception;
     }
   }
