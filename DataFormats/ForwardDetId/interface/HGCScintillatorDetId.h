@@ -12,23 +12,25 @@
    [9:16]  |ring| index (starting from a minimum radius depending on type)
    [17:21] Layer #
    [22]    Trigger(1)/Detector(0) cell
-   [23]    SiPM type (0 for 2mm: 1 for 4mm)
-   [24]    Free
+   [23]    SiPM type (0 for Small: 1 for Large)
+   [24]    Granularity of the tile (0 normal; 1 fine)
    [25:25] z-side (0 for +z; 1 for -z)
-   [26:27] Tile granularity and type (0 fine divisions of scintillators;
-                                      1 coarse divisions of type "c";
-                                      2 coarse divisions of type "m")
+   [26:27] Tile make (1 of type "c"; 2 of type "m")
    [28:31] Detector type (HGCalHSc)
 */
 
 class HGCScintillatorDetId : public DetId {
 public:
+  enum tileGranularity { HGCalTileNormal = 0, HGCalTileFine = 1 };
+  enum sipmType { HGCalSiPMSmall = 0, HGCalSiPMLarge = 1 };
+  enum tileType { HGCalTileTypeUnknown = 0, HGCalTileTypeCaste = 1, HGCalTileTypeMould = 2 };
   /** Create a null cellid*/
   constexpr HGCScintillatorDetId() : DetId() {}
   /** Create cellid from raw id (0=invalid tower id) */
   constexpr HGCScintillatorDetId(uint32_t rawid) : DetId(rawid) {}
   /** Constructor from subdetector, zplus, layer, module, cell numbers */
-  constexpr HGCScintillatorDetId(int type, int layer, int ring, int phi, bool trigger = false, int sipm = 0)
+  constexpr HGCScintillatorDetId(
+      int type, int layer, int ring, int phi, bool trigger = false, int sipm = 0, int granularity = 0)
       : DetId(HGCalHSc, ForwardEmpty) {
     int zside = (ring < 0) ? 1 : 0;
     int itrig = trigger ? 1 : 0;
@@ -36,7 +38,8 @@ public:
     id_ |= (((type & kHGCalTypeMask) << kHGCalTypeOffset) | ((zside & kHGCalZsideMask) << kHGCalZsideOffset) |
             ((sipm & kHGCalSiPMMask) << kHGCalSiPMOffset) | ((itrig & kHGCalTriggerMask) << kHGCalTriggerOffset) |
             ((layer & kHGCalLayerMask) << kHGCalLayerOffset) | ((ringAbs & kHGCalRadiusMask) << kHGCalRadiusOffset) |
-            ((phi & kHGCalPhiMask) << kHGCalPhiOffset));
+            ((phi & kHGCalPhiMask) << kHGCalPhiOffset) |
+            ((granularity & kHGCalGranularityMask) << kHGCalGranularityOffset));
   }
 
   /** Constructor from a generic cell id */
@@ -79,6 +82,11 @@ public:
   constexpr void setType(int type) {
     id_ &= kHGCalTypeMask0;
     id_ |= ((type & kHGCalTypeMask) << kHGCalTypeOffset);
+  }
+  constexpr int granularity() const { return (id_ >> kHGCalGranularityOffset) & kHGCalGranularityMask; }
+  constexpr void setGranularity(int granularity) {
+    id_ &= kHGCalGranularityMask0;
+    id_ |= ((granularity & kHGCalGranularityMask) << kHGCalGranularityOffset);
   }
 
   /// get the z-side of the cell (1/-1)
@@ -145,6 +153,9 @@ public:
   static constexpr int kHGCalTriggerMask = 0x1;
   static constexpr int kHGCalSiPMOffset = 23;
   static constexpr int kHGCalSiPMMask = 0x1;
+  static constexpr int kHGCalGranularityOffset = 24;
+  static constexpr int kHGCalGranularityMask = 0x1;
+  static constexpr int kHGCalGranularityMask0 = 0xFFDFFFFF;
   static constexpr int kHGCalSiPMMask0 = 0xFF7FFFFF;
   static constexpr int kHGCalZsideOffset = 25;
   static constexpr int kHGCalZsideMask = 0x1;
