@@ -53,7 +53,8 @@ ALCARECOTkAlJpsiMuMu.TwoBodyDecaySelector.numberOfCandidates = 1
 TkAlJpsiMuMuGenMuonSelector = cms.EDFilter("GenParticleSelector",
                                            src = cms.InputTag("genParticles"),
                                            cut = cms.string("abs(pdgId) == 13"), # Select only muons
-                                           filter = cms.bool(False))
+                                           filter = cms.bool(False),
+                                           throwOnMissing = cms.untracked.bool(False))
 
 seqALCARECOTkAlJpsiMuMu = cms.Sequence(ALCARECOTkAlJpsiMuMuHLT+ALCARECOTkAlJpsiMuMuDCSFilter+ALCARECOTkAlJpsiMuMuGoodMuons+ALCARECOTkAlJpsiMuMu+TkAlJpsiMuMuGenMuonSelector)
 
