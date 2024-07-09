@@ -263,11 +263,6 @@ void testTorchFromBufferModelEval::test() {
   }
   
   size_t threadCount = 10;
-//  std::vector<torch::jit::script::Module> perThreadModels;
-//  for (size_t t=0, t<threadCount; ++t) {
-//    
-//  }
-  
   std::vector<std::thread> threads;
   for (size_t t=0; t<threadCount; ++t) {
     threads.emplace_back([&, t]{
@@ -280,18 +275,6 @@ void testTorchFromBufferModelEval::test() {
       cudaStreamCreate(&cudaStream);
       c10::cuda::CUDAStream torchStream = c10::cuda::getStreamFromExternal(cudaStream, torchDevice.index());
       c10::cuda::setCurrentCUDAStream(torchStream);
-      
-//      cout << "Thread " << t << ": loading model..." << endl;
-//      torch::jit::script::Module model;
-//
-//      try {
-//        // Deserialize the ScriptModule from a file using torch::jit::load().
-//        model = torch::jit::load(model_path);
-//        model.to(device, true /* async */);
-//
-//      } catch (const c10::Error& e) {
-//        std::cerr << "error loading the model\n" << e.what() << std::endl;
-//      }
       
       int * c_cpu;
       cudaMallocHost((void**)&c_cpu, bytes);
