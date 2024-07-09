@@ -168,20 +168,20 @@ void testTorchFromBufferModelEval::test() {
     // Load the TorchScript model
   std::string model_path = dataPath_ + "/simple_dnn_sum.pt";
 
-//  cout << "Loading model..." << endl;
-//  torch::jit::script::Module model;
-//  // We need to set the device index to 0 (or a valid value) as leaving it to default (-1) leads to a 
-//  // bug when setting the cuda stream (-1 is used as an array index without resolving back to 
-//  // real index (probably).
-//  torch::Device device(torch::kCUDA, 0);
-//  try {
-//    // Deserialize the ScriptModule from a file using torch::jit::load().
-//    model = torch::jit::load(model_path);
-//    model.to(device);
-//
-//  } catch (const c10::Error& e) {
-//    std::cerr << "error loading the model\n" << e.what() << std::endl;
-//  }
+  cout << "Loading model..." << endl;
+  torch::jit::script::Module model;
+  // We need to set the device index to 0 (or a valid value) as leaving it to default (-1) leads to a 
+  // bug when setting the cuda stream (-1 is used as an array index without resolving back to 
+  // real index (probably).
+  torch::Device device(torch::kCUDA, 0);
+  try {
+    // Deserialize the ScriptModule from a file using torch::jit::load().
+    model = torch::jit::load(model_path);
+    model.to(device);
+
+  } catch (const c10::Error& e) {
+    std::cerr << "error loading the model\n" << e.what() << std::endl;
+  }
   
   // Setup array, here 2^16 = 65536 items
   const int N = 1 << 20;
@@ -211,10 +211,6 @@ void testTorchFromBufferModelEval::test() {
 //    
 //  }
   
-  // We need to set the device index to 0 (or a valid value) as leaving it to default (-1) leads to a 
-  // bug when setting the cuda stream (-1 is used as an array index without resolving back to 
-  // real index (probably).
-  torch::Device device(torch::kCUDA, 0);
   std::vector<std::thread> threads;
   for (size_t t=0; t<threadCount; ++t) {
     threads.emplace_back([&, t]{
@@ -228,17 +224,17 @@ void testTorchFromBufferModelEval::test() {
       c10::cuda::CUDAStream torchStream = c10::cuda::getStreamFromExternal(cudaStream, device.index());
       c10::cuda::setCurrentCUDAStream(torchStream);
       
-      cout << "Thread " << t << ": loading model..." << endl;
-      torch::jit::script::Module model;
-
-      try {
-        // Deserialize the ScriptModule from a file using torch::jit::load().
-        model = torch::jit::load(model_path);
-        model.to(device, true /* async */);
-
-      } catch (const c10::Error& e) {
-        std::cerr << "error loading the model\n" << e.what() << std::endl;
-      }
+//      cout << "Thread " << t << ": loading model..." << endl;
+//      torch::jit::script::Module model;
+//
+//      try {
+//        // Deserialize the ScriptModule from a file using torch::jit::load().
+//        model = torch::jit::load(model_path);
+//        model.to(device, true /* async */);
+//
+//      } catch (const c10::Error& e) {
+//        std::cerr << "error loading the model\n" << e.what() << std::endl;
+//      }
       
       int * c_cpu;
       cudaMallocHost((void**)&c_cpu, bytes);
