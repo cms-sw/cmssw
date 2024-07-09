@@ -28,6 +28,29 @@ using std::exception;
 
 constexpr bool doValidation = false;
 
+// Automatic translation of alpaka platform to torch constants. Embryon of PhysicsTools/PyTorch/interface/config.h
+// We rely on HeterogeneousCore/AlpakaInterface/interface/config.h for filtering the defines and assume one and only
+// one macro is defined among:
+// ALPAKA_ACC_GPU_CUDA_ENABLED
+// ALPAKA_ACC_GPU_HIP_ENABLED
+// ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLED
+// ALPAKA_ACC_CPU_B_TBB_T_SEQ_ENABLED
+// The threading model of the CPU versions will have to be investigated.
+
+namespace torch_common {
+#ifdef ALPAKA_ACC_GPU_CUDA_ENABLED
+  constexpr c10::DeviceType kDeviceType = c10::DeviceType::CUDA;
+#elif ALPAKA_ACC_GPU_HIP_ENABLED
+  constexpr c10::DeviceType kDeviceType = c10::DeviceType::HIP;
+#elif ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLED
+  constexpr c10::DeviceType kDeviceType = c10::DeviceType::CPU;
+#elif ALPAKA_ACC_CPU_B_TBB_T_SEQ_ENABLED
+  constexpr c10::DeviceType kDeviceType = c10::DeviceType::CPU;
+#else
+  #error "Could not define the torch device type."
+#endif
+}
+
 class NVTXScopedRange {
 public:
   NVTXScopedRange(const char * msg) {
@@ -181,22 +204,7 @@ void testTorchFromBufferModelEval::test() {
     // Load the TorchScript model
   std::string model_path = dataPath_ + "/simple_dnn_sum.pt";
 
-  cout << "Loading model..." << endl;
-  torch::jit::script::Module model;
-  // We need to set the device index to 0 (or a valid value) as leaving it to default (-1) leads to a 
-  // bug when setting the cuda stream (-1 is used as an array index without resolving back to 
-  // real index (probably).
-  torch::Device device(torch::kCUDA, 0);
-  try {
-    // Deserialize the ScriptModule from a file using torch::jit::load().
-    model = torch::jit::load(model_path);
-    model.to(device);
-
-  } catch (const c10::Error& e) {
-    std::cerr << "error loading the model\n" << e.what() << std::endl;
-  }
-  
-  cout << "ALPAKA Plateform info:" << endl;
+  cout << "ALPAKA Platform info:" << endl;
   int idx = 0;
   try {
     for(;;) {
@@ -205,13 +213,32 @@ void testTorchFromBufferModelEval::test() {
       cout << "Host[" << idx++ << "]:   " << alpaka::getName(host) << endl;
     }
   } catch (...) {}
-  alpaka::Platform<alpaka::DevCpu> host;
-  auto devices = alpaka::getDevs(host);
+  ALPAKA_ACCELERATOR_NAMESPACE::Platform platform;
+  auto alpakaDevices = alpaka::getDevs(platform);
   idx=0;
-  for (auto d: devices) {
+  for (const auto& d: alpakaDevices) {
     cout << "Device[" << idx++ << "]:   " << alpaka::getName(d) << endl;
   }
-  exit(EXIT_SUCCESS);
+  const auto & alpakaDevice = alpakaDevices[0];
+  
+  cout << "Will create torch device with type=" << torch_common::kDeviceType <<
+          " and native handle=" << alpakaDevice.getNativeHandle() << endl;
+  torch::Device torchDevice(torch_common::kDeviceType, alpakaDevice.getNativeHandle());
+  torch::jit::script::Module model;
+
+  cout << "Loading model..." << endl;
+  
+  // We need to set the device index to 0 (or a valid value) as leaving it to default (-1) leads to a 
+  // bug when setting the cuda stream (-1 is used as an array index without resolving back to 
+  // real index (probably).
+  try {
+    // Deserialize the ScriptModule from a file using torch::jit::load().
+    model = torch::jit::load(model_path);
+    model.to(torchDevice);
+
+  } catch (const c10::Error& e) {
+    std::cerr << "error loading the model\n" << e.what() << std::endl;
+  }
 
   // Setup array, here 2^16 = 65536 items
   const int N = 1 << 20;
@@ -251,7 +278,7 @@ void testTorchFromBufferModelEval::test() {
       cout << "Thread " << t << ": allocating CUDA stream and result buffer" << endl;
       cudaStream_t cudaStream;
       cudaStreamCreate(&cudaStream);
-      c10::cuda::CUDAStream torchStream = c10::cuda::getStreamFromExternal(cudaStream, device.index());
+      c10::cuda::CUDAStream torchStream = c10::cuda::getStreamFromExternal(cudaStream, torchDevice.index());
       c10::cuda::setCurrentCUDAStream(torchStream);
       
 //      cout << "Thread " << t << ": loading model..." << endl;
