@@ -34,6 +34,7 @@ struct MatchStruct {
         pt(cand->pt()),
         eta(cand->eta()),
         phi(cand->phi()),
+        bTag(0),
         thepointer(cand)
 
   {}
