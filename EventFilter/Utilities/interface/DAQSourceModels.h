@@ -66,9 +66,12 @@ public:
                                     std::string const& runDir) = 0;
   void setTesting(bool testing) { testing_ = testing; }
 
+  bool errorDetected() {return errorDetected_;}
+
 protected:
   DAQSource* daqSource_;
   bool testing_ = false;
+  bool errorDetected_ = false;
 };
 
 #endif  // EventFilter_Utilities_DAQSourceModels_h

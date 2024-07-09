@@ -442,9 +442,29 @@ evf::EvFDaqDirector::FileStatus DAQSource::getNextDataBlock() {
     //release last chunk (it is never released elsewhere)
     freeChunks_.push(currentFile_->chunks_[currentFile_->currentChunk_]);
     if (currentFile_->nEvents_ >= 0 && currentFile_->nEvents_ != int(currentFile_->nProcessed_)) {
+      std::stringstream str;
+      for (auto& s: currentFile_->fileNames_) {
+        struct stat bufs;
+        assert(stat(s.c_str(), &bufs) == 0);
+        if (stat(s.c_str(), &bufs) != 0)
+          throw cms::Exception("DAQSource::getNextDataBlock") << "Could not stat file " << s;
+        str << s << " (size:" << (bufs.st_size / 1000) << " kB)" << std::endl;
+      }
       throw cms::Exception("DAQSource::getNextDataBlock")
-          << "Fully processed " << currentFile_->nProcessed_ << " from the file " << currentFile_->fileName_
-          << " but according to BU JSON there should be " << currentFile_->nEvents_ << " events";
+          << "Fully processed " << currentFile_->nProcessed_ << " from:" << std::endl << str.str()
+          << "but according to RAW header there should be " << currentFile_->nEvents_ << " events. Check previous error log for details.";
+    } else if (dataMode_->errorDetected()) {
+      std::stringstream str;
+      for (auto& s: currentFile_->fileNames_) {
+        struct stat bufs;
+        assert(stat(s.c_str(), &bufs) == 0);
+        if (stat(s.c_str(), &bufs) != 0)
+          throw cms::Exception("DAQSource::getNextDataBlock") << "Could not stat file " << s;
+        str << s << " (size:" << (bufs.st_size / 1000) << " kB)" << std::endl;
+      }
+      throw cms::Exception("DAQSource::getNextDataBlock")
+          << "Processed " << currentFile_->nProcessed_ << " from:" << std::endl << str.str()
+          << "but there was a mismatch detected by the data model. Check previous error log for details.";
     }
     setMonState(inReadCleanup);
     if (!daqDirector_->isSingleStreamThread() && !fileListMode_) {

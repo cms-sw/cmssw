@@ -336,16 +336,15 @@ bool DataModeFRDStriped::nextEventView() {
 bool DataModeFRDStriped::makeEvents() {
   events_.clear();
   assert(!blockCompleted_);
+  int completed = 0;
+
   for (int i = 0; i < numFiles_; i++) {
     if (dataBlockAddrs_[i] >= dataBlockMaxAddrs_[i]) {
       //must be exact
       assert(dataBlockAddrs_[i] == dataBlockMaxAddrs_[i]);
       blockCompleted_ = true;
-      return false;
-    } else {
-      if (blockCompleted_)
-        throw cms::Exception("DataModeFRDStriped::makeEvents")
-            << "not all striped blocks were completed at the same time";
+      completed++;
+      continue;
     }
     if (blockCompleted_)
       continue;
@@ -354,6 +353,15 @@ bool DataModeFRDStriped::makeEvents() {
       throw cms::Exception("DAQSource::getNextEvent")
           << " event id:" << events_[i]->event() << " lumi:" << events_[i]->lumi() << " run:" << events_[i]->run()
           << " of size:" << events_[i]->size() << " bytes does not fit into the buffer or has corrupted header";
+  }
+  if (completed < numFiles_) {
+    for (int i = 0; i < numFiles_; i++) {
+      if (dataBlockAddrs_[i] == dataBlockMaxAddrs_[i]) {
+        edm::LogError("dataModeFRDStriped::makeEvents")
+          << "incomplete file block read from directory " << buPaths_[i];
+        errorDetected_ = true;
+      }
+    }
   }
   return !blockCompleted_;
 }
