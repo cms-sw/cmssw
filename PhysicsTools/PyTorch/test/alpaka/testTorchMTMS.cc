@@ -3,6 +3,8 @@
 // PyTorch execution
 // Memory allocation investigation can be a secondary target.
 
+
+#include <alpaka/alpaka.hpp>
 #include <torch/torch.h>
 #include <torch/script.h>
 #include <c10/cuda/CUDAStream.h>
@@ -16,6 +18,9 @@
 #include <cuda_runtime.h>
 #include <nvToolsExt.h>
 #endif
+#include "HeterogeneousCore/AlpakaInterface/interface/config.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
 
 using std::cout;
 using std::endl;
@@ -191,6 +196,23 @@ void testTorchFromBufferModelEval::test() {
     std::cerr << "error loading the model\n" << e.what() << std::endl;
   }
   
+  cout << "ALPAKA Plateform info:" << endl;
+  int idx = 0;
+  try {
+    for(;;) {
+      alpaka::Platform<alpaka::DevCpu> platformHost;
+      alpaka::DevCpu host = alpaka::getDevByIdx(platformHost, idx);
+      cout << "Host[" << idx++ << "]:   " << alpaka::getName(host) << endl;
+    }
+  } catch (...) {}
+  alpaka::Platform<alpaka::DevCpu> host;
+  auto devices = alpaka::getDevs(host);
+  idx=0;
+  for (auto d: devices) {
+    cout << "Device[" << idx++ << "]:   " << alpaka::getName(d) << endl;
+  }
+  exit(EXIT_SUCCESS);
+
   // Setup array, here 2^16 = 65536 items
   const int N = 1 << 20;
   size_t bytes = N * sizeof(int);
