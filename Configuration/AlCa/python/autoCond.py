@@ -100,7 +100,7 @@ autoCond = {
     # GlobalTag for MC production with realistic conditions for Phase1 2024 detector for Heavy Ion
     'phase1_2024_realistic_hi'     :    '141X_mcRun3_2024_realistic_HI_v4',
     # GlobalTag for MC production with realistic conditions for Phase2
-    'phase2_realistic'             :    '140X_mcRun4_realistic_v4'
+    'phase2_realistic'             :    '141X_mcRun4_realistic_v1'
 }
 
 aliases = {
@@ -125,6 +125,10 @@ autoCond = autoCondHLT(autoCond)
 # dedicated GlobalTags for phase-2 (specializing conditions for each geometry)
 from Configuration.AlCa.autoCondPhase2 import autoCondPhase2
 autoCond = autoCondPhase2(autoCond)
+
+# special GTs for phase-2 with BeamSpot at 13 TeV (instead of 14 TeV)
+from Configuration.AlCa.autoCondModifiers import autoCondBSHLLHC13TeV
+autoCond = autoCondBSHLLHC13TeV(autoCond)
 
 # special cases modifier for autoCond GTs
 from Configuration.AlCa.autoCondModifiers import autoCond0T
