@@ -2,6 +2,8 @@
 <use name="FWCore/PluginManager"/>
 <use name="CondCore/CondDB"/>
 <use name="CondFormats/SerializationHelper"/>
+<use name="CondFormats/DataRecord"/>
+<flags LDFLAGS="-Wl,--no-as-needed -lCondFormatsDataRecord -Wl,-as-needed"/>
 <export>
   <lib name="1"/>
 </export>
