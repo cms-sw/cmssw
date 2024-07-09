@@ -3,8 +3,6 @@
 // PyTorch execution
 // Memory allocation investigation can be a secondary target.
 
-//#include <cuda_runtime.h>
-//#include <nvToolsExt.h>
 #include <torch/torch.h>
 #include <torch/script.h>
 #include <c10/cuda/CUDAStream.h>
@@ -14,6 +12,10 @@
 #include <math.h>
 #include <sys/prctl.h>
 #include "../testBase.h"
+#ifdef ALPAKA_ACC_GPU_CUDA_ENABLED
+#include <cuda_runtime.h>
+#include <nvToolsExt.h>
+#endif
 
 using std::cout;
 using std::endl;
@@ -24,20 +26,26 @@ constexpr bool doValidation = false;
 class NVTXScopedRange {
 public:
   NVTXScopedRange(const char * msg) {
-    //id_ = nvtxRangeStartA(msg);
+#ifdef ALPAKA_ACC_GPU_CUDA_ENABLED
+    id_ = nvtxRangeStartA(msg);
+#endif
   }
   
   void end() {
-//    if (active_) {
-//      active_ = false;
-//      nvtxRangeEnd(id_);
-//    }
+#ifdef ALPAKA_ACC_GPU_CUDA_ENABLED 
+    if (active_) {
+      active_ = false;
+      nvtxRangeEnd(id_);
+    }
+#endif
   }
   
   ~NVTXScopedRange() { end(); }
 private:
-//  nvtxRangeId_t id_;
-//  bool active_ = true;
+#ifdef ALPAKA_ACC_GPU_CUDA_ENABLED
+  nvtxRangeId_t id_;
+  bool active_ = true;
+#endif
 };
 
 class testTorchFromBufferModelEval : public testBasePyTorch {
