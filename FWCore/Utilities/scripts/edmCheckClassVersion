@@ -1,9 +1,4 @@
 #!  /usr/bin/env python3
-from sys import version_info
-if version_info[0] > 2:
-    atol = int
-else:
-    from string import atol
 
 class XmlParser(object):
     """Parses a classes_def.xml file looking for class declarations that contain
@@ -49,11 +44,11 @@ class XmlParser(object):
             if 'name' in attrs:
                 if 'ClassVersion' in attrs:
                     normalizedName = self.genNName(attrs['name'])
-                    self.classes[normalizedName]=[attrs['name'],atol(attrs['ClassVersion']),[]]
+                    self.classes[normalizedName]=[attrs['name'],int(attrs['ClassVersion']),[]]
                     self._presentClass=normalizedName
         if name == 'version':
-            self.classes[self._presentClass][XmlParser.versionsToChecksumIndex].append([atol(attrs['ClassVersion']),
-                                                                                    atol(attrs['checksum'])])
+            self.classes[self._presentClass][XmlParser.versionsToChecksumIndex].append([int(attrs['ClassVersion']),
+                                                                                    int(attrs['checksum'])])
         pass
     def end_element(self,name):
         if name in ('class','struct'):
