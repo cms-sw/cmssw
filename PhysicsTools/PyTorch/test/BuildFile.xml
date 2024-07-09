@@ -1,11 +1,11 @@
   <use name="python_tools"/>
-
+<!--
 <bin name="testTorchSimpleDnn" file="testRunner.cc,testTorchSimpleDnn.cc">
   <use name="pytorch"/>
   <use name="boost_filesystem"/>
   <use name="cppunit"/>
-</bin>
-
+</bin>-->
+<!--
 <iftool name="cuda">
   <bin name="testTorchSimpleDnnCUDA" file="testRunner.cc,testTorchSimpleDnnCUDA.cc">
     <use name="boost_filesystem"/>
@@ -58,7 +58,7 @@
     <use name="HeterogeneousCore/CUDAUtilities"/>
   </bin>
 </iftool>
-
+--><!--
 <iftool name="cuda">
   <bin name="testTorchFromBufferModelEvalMTMS" file="testRunner.cc,testTorchFromBufferModelEvalMTMS.cu">
     <use name="boost_filesystem"/>
@@ -75,8 +75,8 @@
     <use name="HeterogeneousCore/CUDAServices"/>
     <use name="HeterogeneousCore/CUDAUtilities"/>
   </bin>
-</iftool>
-
+</iftool>-->
+<!--
 <iftool name="cuda">
   <bin name="testTorchFromBuffer" file="testTorchFromBuffer.cu">
     <use name="boost_filesystem"/>
@@ -93,3 +93,12 @@
     <use name="HeterogeneousCore/CUDAUtilities"/>
   </bin>
 </iftool>
+-->
+<bin file="alpaka/testTorchMTMS.cc testRunner.cc" name="testTorchMTMS-alpaka">
+  <use name="boost_filesystem"/>
+  <use name="alpaka"/>
+  <use name="cppunit"/>
+  <use name="pytorch"/>
+  <use name="pytorch-cuda"/>
+  <flags ALPAKA_BACKENDS="cuda"/>
+</bin>
