@@ -120,25 +120,25 @@ std::string testTorchFromBufferModelEval::pyScript() const { return "create_dnn_
 
 // bool ENABLE_ERROR = true;
 // We take the model as non consr as the forward function is a non const one.
-void testTorchFromBufferModelEvalSinglePass(torch::jit::script::Module& model, const HostBuffer & a_cpu,  const HostBuffer & b_cpu, int * c_cpu, 
+void testTorchFromBufferModelEvalSinglePass(torch::jit::script::Module& model, const HostBuffer & a_cpu,  const HostBuffer & b_cpu, HostBuffer & c_cpu, 
         const int N, const size_t bytes, const size_t thread, const size_t iteration, const ALPAKA_ACCELERATOR_NAMESPACE::Queue & queue) {
   // Declare GPU memory pointers
-  int *a_gpu, *b_gpu, *c_gpu;
+  //int *a_gpu, *b_gpu, *c_gpu;
 
   NVTXScopedRange allocRange("GPU memory allocation");
   // Allocate memory on the device
   cout << "T" << thread << " I" << iteration << " Allocating memory for vectors on GPU" << endl;
-  cudaMallocAsync((void**)&a_gpu, bytes, queue.getNativeHandle());
-  cudaMallocAsync((void**)&b_gpu, bytes, queue.getNativeHandle());
-  cudaMallocAsync((void**)&c_gpu, bytes, queue.getNativeHandle());
+  auto a_gpu = alpaka::allocAsyncBuf<uint8_t, uint32_t>(queue, alpaka_common::Vec1D{bytes});
+  auto b_gpu = alpaka::allocAsyncBuf<uint8_t, uint32_t>(queue, alpaka_common::Vec1D{bytes});
+  auto c_gpu = alpaka::allocAsyncBuf<uint8_t, uint32_t>(queue, alpaka_common::Vec1D{bytes});
   allocRange.end();
   
   
   NVTXScopedRange memcpyRange("Memcpy host to dev");
   // Copy data from the host to the device (CPU -> GPU)
   cout << "T" << thread << " I" << iteration << " Transfering vectors from CPU to GPU" << endl;
-  cudaMemcpyAsync(a_gpu, a_cpu.data(), bytes, cudaMemcpyHostToDevice, queue.getNativeHandle());
-  cudaMemcpyAsync(b_gpu, b_cpu.data(), bytes, cudaMemcpyHostToDevice, queue.getNativeHandle());
+  cudaMemcpyAsync(a_gpu.data(), a_cpu.data(), bytes, cudaMemcpyHostToDevice, queue.getNativeHandle());
+  cudaMemcpyAsync(b_gpu.data(), b_cpu.data(), bytes, cudaMemcpyHostToDevice, queue.getNativeHandle());
   memcpyRange.end();
   
   // Specify threads per CUDA block (CTA), her 2^10 = 1024 threads
@@ -156,23 +156,18 @@ void testTorchFromBufferModelEvalSinglePass(torch::jit::script::Module& model, c
     // Convert pinned memory on GPU to Torch tensor on GPU
     auto options = torch::TensorOptions().dtype(torch::kInt).device(torch_common::kDeviceType, alpaka::getDev(queue).getNativeHandle()).pinned_memory(true);
     cout << "T" << thread << " I" << iteration << " Converting vectors and result to Torch tensors on GPU" << endl;
-    torch::Tensor a_gpu_tensor = torch::from_blob(a_gpu, {N}, options);
-    torch::Tensor b_gpu_tensor = torch::from_blob(b_gpu, {N}, options);
+    torch::Tensor a_gpu_tensor = torch::from_blob(a_gpu.data(), {N}, options);
+    torch::Tensor b_gpu_tensor = torch::from_blob(b_gpu.data(), {N}, options);
 
     cout << "T" << thread << " I" << iteration << " Running torch inference" << endl;
     std::vector<torch::jit::IValue> inputs{a_gpu_tensor, b_gpu_tensor};
     // Not fully understood but std::move() is needed
     // https://stackoverflow.com/questions/71790378/assign-memory-blob-to-py-torch-output-tensor-c-api 
-    torch::from_blob(c_gpu, {N}, options) = model.forward(inputs).toTensor();
+    torch::from_blob(c_gpu.data(), {N}, options) = model.forward(inputs).toTensor();
 
     //CPPUNIT_ASSERT(c_gpu_tensor.equal(output));
   } catch (exception& e) {
     cout << e.what() << endl;
-    
-    cudaFreeAsync(a_gpu, queue.getNativeHandle());
-    cudaFreeAsync(b_gpu, queue.getNativeHandle());
-    cudaFreeAsync(c_gpu, queue.getNativeHandle());
-
     CPPUNIT_ASSERT(false);
   }
   inferenceRange.end();
@@ -180,25 +175,19 @@ void testTorchFromBufferModelEvalSinglePass(torch::jit::script::Module& model, c
   NVTXScopedRange memcpyBackRange("Memcpy dev to host");
   // Copy memory from device and also synchronize (implicitly)
   cout << "T" << thread << " I" << iteration << " Synchronizing CPU and GPU. Copying result from GPU to CPU" << endl;
-  cudaMemcpyAsync(c_cpu, c_gpu, bytes, cudaMemcpyDeviceToHost, c10::cuda::getCurrentCUDAStream().stream());
+  cudaMemcpyAsync(c_cpu.data(), c_gpu.data(), bytes, cudaMemcpyDeviceToHost, c10::cuda::getCurrentCUDAStream().stream());
   memcpyBackRange.end();
   
   if constexpr (doValidation) {
     NVTXScopedRange validationRange("Validation");
     // Verify the result on the CPU
-    cudaStreamSynchronize(c10::cuda::getCurrentCUDAStream().stream());
+    alpaka::wait(queue);
     cout << "T" << thread << " I" << iteration << " Verifying result on CPU" << endl;
     for (int i = 0; i < N; ++i) {
-      CPPUNIT_ASSERT_MESSAGE("ERROR: Mismatch in verification", c_cpu[i] == a_cpu.data()[i] + b_cpu.data()[i]);
+      CPPUNIT_ASSERT_MESSAGE("ERROR: Mismatch in verification", c_cpu.data()[i] == a_cpu.data()[i] + b_cpu.data()[i]);
     }
     validationRange.end();
   }
-  
-  NVTXScopedRange freeRange("Free GPU memory");
-  cudaFreeAsync(a_gpu, c10::cuda::getCurrentCUDAStream().stream());
-  cudaFreeAsync(b_gpu, c10::cuda::getCurrentCUDAStream().stream());
-  cudaFreeAsync(c_gpu, c10::cuda::getCurrentCUDAStream().stream());
-  freeRange.end();
 }
 
 void testTorchFromBufferModelEval::test() {
@@ -276,15 +265,12 @@ void testTorchFromBufferModelEval::test() {
       c10::cuda::CUDAStream torchStream = c10::cuda::getStreamFromExternal(queue.getNativeHandle(), torchDevice.index());
       c10::cuda::setCurrentCUDAStream(torchStream);
       
-      int * c_cpu;
-      cudaMallocHost((void**)&c_cpu, bytes);
+      auto c_cpu  = alpaka::allocMappedBuf<ALPAKA_ACCELERATOR_NAMESPACE::Platform, uint8_t, uint32_t>(alpakaHost,platform,alpaka_common::Vec1D{bytes});
       // Get a pyTorch style cuda stream, device is captured from above.
       for (size_t i=0; i<10; ++i)
         testTorchFromBufferModelEvalSinglePass(model, a_cpu, b_cpu, c_cpu, N, bytes, t, i, queue);
-      cudaStreamSynchronize(queue.getNativeHandle());
+      alpaka::wait(queue);
       cout << "Thread " << t << " Test loop complete." << endl;
-      //cudaFreeHost(c_cpu);
-      cout << "Thread " << t << " Result buffer freeed." << endl;
       c10::cuda::setCurrentCUDAStream(c10::cuda::getDefaultCUDAStream());
       cout << "Thread " << t << " Stream reset." << endl;
     });
