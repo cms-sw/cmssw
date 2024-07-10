@@ -61,8 +61,6 @@ namespace pixelCPEforDevice {
   struct CommonParams {
     float theThicknessB;
     float theThicknessE;
-    float thePitchX;
-    float thePitchY;
 
     uint16_t maxModuleStride;
     uint8_t numberOfLaddersInBarrel;
@@ -77,6 +75,8 @@ namespace pixelCPEforDevice {
 
     float shiftX;
     float shiftY;
+    float thePitchX;
+    float thePitchY;
     float chargeWidthX;
     float chargeWidthY;
     uint16_t pixmx;  // max pix charge
@@ -239,10 +239,10 @@ namespace pixelCPEforDevice {
     // Use an explicit FMA instruction instead of simply (position * pitch + shift) to make sure that
     // different compiler optimizations do not produce different code on different architectures.
     float xPos = std::fmaf(0.5f * ((float)mx - (float)detParams.nRows) - TrackerTraits::bigPixXCorrection,
-                           comParams.thePitchX,
+                           detParams.thePitchX,
                            detParams.shiftX);
     float yPos = std::fmaf(0.5f * ((float)my - (float)detParams.nCols) - TrackerTraits::bigPixYCorrection,
-                           comParams.thePitchY,
+                           detParams.thePitchY,
                            detParams.shiftY);
 
     float cotalpha = 0, cotbeta = 0;
@@ -259,7 +259,7 @@ namespace pixelCPEforDevice {
                             detParams.chargeWidthX,  // lorentz shift in cm
                             thickness,
                             cotalpha,
-                            comParams.thePitchX,
+                            detParams.thePitchX,
                             TrackerTraits::isBigPixX(cp.minRow[ic]),
                             TrackerTraits::isBigPixX(cp.maxRow[ic]));
 
@@ -271,7 +271,7 @@ namespace pixelCPEforDevice {
                             detParams.chargeWidthY,  // lorentz shift in cm
                             thickness,
                             cotbeta,
-                            comParams.thePitchY,
+                            detParams.thePitchY,
                             TrackerTraits::isBigPixY(cp.minCol[ic]),
                             TrackerTraits::isBigPixY(cp.maxCol[ic]));
 
@@ -374,7 +374,7 @@ namespace pixelCPEforDevice {
     cp.status[ic].isOneY = isOneY;
     cp.status[ic].isBigY = (isOneY & isBigY) | isEdgeY;
 
-    auto xoff = -float(TrackerTraits::xOffset) * comParams.thePitchX;
+    auto xoff = -float(TrackerTraits::xOffset) * detParams.thePitchX;
     int low_value = 0;
     int high_value = kNumErrorBins - 1;
     int bin_value = float(kNumErrorBins) * (cp.xpos[ic] + xoff) / (2 * xoff);
