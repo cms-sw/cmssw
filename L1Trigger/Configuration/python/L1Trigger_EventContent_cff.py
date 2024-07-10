@@ -207,6 +207,7 @@ def _appendPhase2Digis(obj):
         'keep *_l1tSC4PFL1PuppiCorrectedEmulatorMHT_*_*',
         'keep *_l1tSC4PFL1PuppiExtendedCorrectedEmulator_*_*',
         'keep *_l1tSC4PFL1PuppiExtendedCorrectedEmulatorMHT_*_*',
+	'keep *_l1tSC8PFL1PuppiCorrectedEmulator_*_*',
         'keep *_l1tPhase1JetProducer9x9_*_*', 
         'keep *_l1tPhase1JetCalibrator9x9_*_*',
         'keep *_l1tPhase1JetSumsProducer9x9_*_*',
