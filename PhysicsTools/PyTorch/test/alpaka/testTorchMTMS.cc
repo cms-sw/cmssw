@@ -137,8 +137,8 @@ void testTorchFromBufferModelEvalSinglePass(torch::jit::script::Module& model, c
   NVTXScopedRange memcpyRange("Memcpy host to dev");
   // Copy data from the host to the device (CPU -> GPU)
   cout << "T" << thread << " I" << iteration << " Transfering vectors from CPU to GPU" << endl;
-  cudaMemcpyAsync(a_gpu, alpaka::getPtrNative(a_cpu), bytes, cudaMemcpyHostToDevice, queue.getNativeHandle());
-  cudaMemcpyAsync(b_gpu, alpaka::getPtrNative(b_cpu), bytes, cudaMemcpyHostToDevice, queue.getNativeHandle());
+  cudaMemcpyAsync(a_gpu, a_cpu.data(), bytes, cudaMemcpyHostToDevice, queue.getNativeHandle());
+  cudaMemcpyAsync(b_gpu, b_cpu.data(), bytes, cudaMemcpyHostToDevice, queue.getNativeHandle());
   memcpyRange.end();
   
   // Specify threads per CUDA block (CTA), her 2^10 = 1024 threads
