@@ -89,6 +89,8 @@ public:
 
 CPPUNIT_TEST_SUITE_REGISTRATION(testTorchFromBufferModelEval);
 
+using HostBuffer = alpaka::BufCpu<uint8_t, alpaka_common::Dim1D, alpaka_common::Idx>;
+
 std::string testTorchFromBufferModelEval::pyScript() const { return "create_dnn_sum.py"; }
 /*
  * Demonstration of interoperability between CUDA and Torch C++ API using 
@@ -118,7 +120,7 @@ std::string testTorchFromBufferModelEval::pyScript() const { return "create_dnn_
 
 // bool ENABLE_ERROR = true;
 // We take the model as non consr as the forward function is a non const one.
-void testTorchFromBufferModelEvalSinglePass(torch::jit::script::Module& model, const int * a_cpu,  const int *b_cpu, int * c_cpu, 
+void testTorchFromBufferModelEvalSinglePass(torch::jit::script::Module& model, const HostBuffer & a_cpu,  const HostBuffer & b_cpu, int * c_cpu, 
         const int N, const size_t bytes, const size_t thread, const size_t iteration, const ALPAKA_ACCELERATOR_NAMESPACE::Queue & queue) {
   // Declare GPU memory pointers
   int *a_gpu, *b_gpu, *c_gpu;
@@ -135,8 +137,8 @@ void testTorchFromBufferModelEvalSinglePass(torch::jit::script::Module& model, c
   NVTXScopedRange memcpyRange("Memcpy host to dev");
   // Copy data from the host to the device (CPU -> GPU)
   cout << "T" << thread << " I" << iteration << " Transfering vectors from CPU to GPU" << endl;
-  cudaMemcpyAsync(a_gpu, a_cpu, bytes, cudaMemcpyHostToDevice, queue.getNativeHandle());
-  cudaMemcpyAsync(b_gpu, b_cpu, bytes, cudaMemcpyHostToDevice, queue.getNativeHandle());
+  cudaMemcpyAsync(a_gpu, alpaka::getPtrNative(a_cpu), bytes, cudaMemcpyHostToDevice, queue.getNativeHandle());
+  cudaMemcpyAsync(b_gpu, alpaka::getPtrNative(b_cpu), bytes, cudaMemcpyHostToDevice, queue.getNativeHandle());
   memcpyRange.end();
   
   // Specify threads per CUDA block (CTA), her 2^10 = 1024 threads
@@ -187,7 +189,7 @@ void testTorchFromBufferModelEvalSinglePass(torch::jit::script::Module& model, c
     cudaStreamSynchronize(c10::cuda::getCurrentCUDAStream().stream());
     cout << "T" << thread << " I" << iteration << " Verifying result on CPU" << endl;
     for (int i = 0; i < N; ++i) {
-      CPPUNIT_ASSERT_MESSAGE("ERROR: Mismatch in verification", c_cpu[i] == a_cpu[i] + b_cpu[i]);
+      CPPUNIT_ASSERT_MESSAGE("ERROR: Mismatch in verification", c_cpu[i] == a_cpu.data()[i] + b_cpu.data()[i]);
     }
     validationRange.end();
   }
@@ -218,8 +220,9 @@ void testTorchFromBufferModelEval::test() {
   auto alpakaDevices = alpaka::getDevs(platform);
   idx=0;
   for (const auto& d: alpakaDevices) {
-    cout << "Device[" << idx++ << "]:   " << alpaka::getName(d) << endl;
+      cout << "Device[" << idx++ << "]:   " << alpaka::getName(d) << endl;
   }
+  const auto & alpakaHost = alpaka::getDevByIdx(alpaka_common::PlatformHost(), 0u);
   const auto & alpakaDevice = alpakaDevices[0];
   
   cout << "Will create torch device with type=" << torch_common::kDeviceType <<
@@ -244,17 +247,14 @@ void testTorchFromBufferModelEval::test() {
   // Setup array, here 2^16 = 65536 items
   const int N = 1 << 20;
   size_t bytes = N * sizeof(int);
-  
-  // Declare pinned memory pointers
-  int *a_cpu, *b_cpu;
 
   // Allocate pinned memory for the pointers
   // The memory will be accessible from both CPU and GPU
   // without the requirements to copy data from one device
   // to the other
   cout << "Allocating memory for vectors on CPU" << endl;
-  cudaMallocHost((void**)&a_cpu, bytes);
-  cudaMallocHost((void**)&b_cpu, bytes);
+  auto a_cpu = alpaka::allocMappedBuf<ALPAKA_ACCELERATOR_NAMESPACE::Platform, uint8_t, uint32_t>(alpakaHost,platform,alpaka_common::Vec1D{bytes});
+  auto b_cpu = alpaka::allocMappedBuf<ALPAKA_ACCELERATOR_NAMESPACE::Platform, uint8_t, uint32_t>(alpakaHost,platform,alpaka_common::Vec1D{bytes});
 
   // Init vectors
   cout << "Populating vectors with random integers" << endl;
@@ -291,7 +291,5 @@ void testTorchFromBufferModelEval::test() {
   }
   for (auto &t: threads) t.join();
   cout << "Threads done." << endl;
-  cudaFreeHost(a_cpu);
-  cudaFreeHost(b_cpu);
   // Fixme: free mempory in case of exceptions...
 }
