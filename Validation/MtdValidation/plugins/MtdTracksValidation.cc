@@ -23,7 +23,6 @@
 #include "DataFormats/Common/interface/RefVector.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 #include "Geometry/Records/interface/MTDDigiGeometryRecord.h"
@@ -62,14 +61,10 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/Associations/interface/TrackToTrackingParticleAssociator.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
-#include "SimDataFormats/TrackingAnalysis/interface/TrackingVertexContainer.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "SimDataFormats/Associations/interface/MtdSimLayerClusterToTPAssociatorBaseImpl.h"
 
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
-#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
-#include "HepMC/GenRanges.h"
 #include "CLHEP/Units/PhysicalConstants.h"
 #include "MTDHit.h"
 
@@ -88,11 +83,9 @@ private:
   const std::pair<bool, bool> checkAcceptance(
       const reco::Track&, const edm::Event&, const edm::EventSetup&, size_t&, float&, float&, float&, float&);
 
-  const bool mvaGenSel(const HepMC::GenParticle&, const float&);
-  const bool mvaTPSelLV(const TrackingParticle&);
-  const bool mvaTPSelAll(const TrackingParticle&);
-  const bool mvaRecSel(const reco::TrackBase&, const reco::Vertex&, const double&, const double&);
-  const bool mvaGenRecMatch(const HepMC::GenParticle&, const double&, const reco::TrackBase&, const bool&);
+  const bool trkTPSelLV(const TrackingParticle&);
+  const bool trkTPSelAll(const TrackingParticle&);
+  const bool trkRecSel(const reco::TrackBase&);
   const edm::Ref<std::vector<TrackingParticle>>* getMatchedTP(const reco::TrackBaseRef&);
 
   const unsigned long int uniqueId(const uint32_t x, const EncodedEventId& y) {
@@ -110,17 +103,16 @@ private:
   // ------------ member data ------------
 
   const std::string folder_;
-  const float trackMinPt_;
+  const float trackMaxPt_;
   const float trackMaxBtlEta_;
   const float trackMinEtlEta_;
   const float trackMaxEtlEta_;
 
+  static constexpr double simUnit_ = 1e9;                // sim time in s while reco time in ns
   static constexpr double etacutGEN_ = 4.;               // |eta| < 4;
   static constexpr double etacutREC_ = 3.;               // |eta| < 3;
-  static constexpr double pTcut_ = 0.7;                  // PT > 0.7 GeV
-  static constexpr double deltaZcut_ = 0.1;              // dz separation 1 mm
-  static constexpr double deltaPTcut_ = 0.05;            // dPT < 5%
-  static constexpr double deltaDRcut_ = 0.03;            // DeltaR separation
+  static constexpr double pTcutBTL_ = 0.7;               // PT > 0.7 GeV
+  static constexpr double pTcutETL_ = 0.2;               // PT > 0.2 GeV
   static constexpr double depositBTLthreshold_ = 1;      // threshold for energy deposit in BTL cell [MeV]
   static constexpr double depositETLthreshold_ = 0.001;  // threshold for energy deposit in ETL cell [MeV]
   static constexpr double rBTL_ = 110.0;
@@ -133,9 +125,7 @@ private:
 
   edm::EDGetTokenT<reco::TrackCollection> GenRecTrackToken_;
   edm::EDGetTokenT<reco::TrackCollection> RecTrackToken_;
-  edm::EDGetTokenT<std::vector<reco::Vertex>> RecVertexToken_;
 
-  edm::EDGetTokenT<edm::HepMCProduct> HepMCProductToken_;
   edm::EDGetTokenT<TrackingParticleCollection> trackingParticleCollectionToken_;
   edm::EDGetTokenT<reco::SimToRecoCollection> simToRecoAssociationToken_;
   edm::EDGetTokenT<reco::RecoToSimCollection> recoToSimAssociationToken_;
@@ -165,7 +155,6 @@ private:
   edm::ESGetToken<MTDDetLayerGeometry, MTDRecoGeometryRecord> mtdlayerToken_;
   edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magfieldToken_;
   edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> builderToken_;
-  edm::ESGetToken<HepPDT::ParticleDataTable, edm::DefaultRecord> particleTableToken_;
 
   MonitorElement* meBTLTrackRPTime_;
   MonitorElement* meBTLTrackEffEtaTot_;
@@ -206,9 +195,6 @@ private:
   MonitorElement* meTrackSigmaTofvsP_[3];
 
   MonitorElement* meTrackPtTot_;
-  MonitorElement* meMVATrackEffPtTot_;
-  MonitorElement* meMVATrackMatchedEffPtTot_;
-  MonitorElement* meMVATrackMatchedEffPtMtd_;
   MonitorElement* meExtraPtMtd_;
   MonitorElement* meExtraPtEtl2Mtd_;
 
@@ -238,9 +224,6 @@ private:
   MonitorElement* meTrackMatchedTPmtdEffPtTot_;
   MonitorElement* meTrackMatchedTPmtdEffPtMtd_;
   MonitorElement* meTrackEtaTot_;
-  MonitorElement* meMVATrackEffEtaTot_;
-  MonitorElement* meMVATrackMatchedEffEtaTot_;
-  MonitorElement* meMVATrackMatchedEffEtaMtd_;
   MonitorElement* meExtraEtaMtd_;
   MonitorElement* meExtraEtaEtl2Mtd_;
   MonitorElement* meTrackMatchedTPEffEtaTot_;
@@ -249,9 +232,8 @@ private:
   MonitorElement* meTrackMatchedTPEffEtaEtl2Mtd_;
   MonitorElement* meTrackMatchedTPmtdEffEtaTot_;
   MonitorElement* meTrackMatchedTPmtdEffEtaMtd_;
-  MonitorElement* meMVATrackResTot_;
-  MonitorElement* meMVATrackPullTot_;
-  MonitorElement* meMVATrackZposResTot_;
+  MonitorElement* meTrackResTot_;
+  MonitorElement* meTrackPullTot_;
 
   MonitorElement* meExtraPhiAtBTL_;
   MonitorElement* meExtraPhiAtBTLmatched_;
@@ -263,14 +245,12 @@ private:
 // ------------ constructor and destructor --------------
 MtdTracksValidation::MtdTracksValidation(const edm::ParameterSet& iConfig)
     : folder_(iConfig.getParameter<std::string>("folder")),
-      trackMinPt_(iConfig.getParameter<double>("trackMinimumPt")),
+      trackMaxPt_(iConfig.getParameter<double>("trackMaximumPt")),
       trackMaxBtlEta_(iConfig.getParameter<double>("trackMaximumBtlEta")),
       trackMinEtlEta_(iConfig.getParameter<double>("trackMinimumEtlEta")),
       trackMaxEtlEta_(iConfig.getParameter<double>("trackMaximumEtlEta")) {
   GenRecTrackToken_ = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("inputTagG"));
   RecTrackToken_ = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("inputTagT"));
-  RecVertexToken_ = consumes<std::vector<reco::Vertex>>(iConfig.getParameter<edm::InputTag>("inputTagV"));
-  HepMCProductToken_ = consumes<edm::HepMCProduct>(iConfig.getParameter<edm::InputTag>("inputTagH"));
   trackingParticleCollectionToken_ =
       consumes<TrackingParticleCollection>(iConfig.getParameter<edm::InputTag>("SimTag"));
   simToRecoAssociationToken_ =
@@ -302,7 +282,6 @@ MtdTracksValidation::MtdTracksValidation(const edm::ParameterSet& iConfig)
   mtdlayerToken_ = esConsumes<MTDDetLayerGeometry, MTDRecoGeometryRecord>();
   magfieldToken_ = esConsumes<MagneticField, IdealMagneticFieldRecord>();
   builderToken_ = esConsumes<TransientTrackBuilder, TransientTrackRecord>(edm::ESInputTag("", "TransientTrackBuilder"));
-  particleTableToken_ = esConsumes<HepPDT::ParticleDataTable, edm::DefaultRecord>();
 }
 
 MtdTracksValidation::~MtdTracksValidation() {}
@@ -314,7 +293,6 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
   using namespace std;
 
   auto GenRecTrackHandle = makeValid(iEvent.getHandle(GenRecTrackToken_));
-  auto RecVertexHandle = makeValid(iEvent.getHandle(RecVertexToken_));
 
   std::unordered_map<uint32_t, MTDHit> m_btlHits;
   std::unordered_map<uint32_t, MTDHit> m_etlHits;
@@ -338,17 +316,6 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
   const auto& pathLength = iEvent.get(pathLengthToken_);
   const auto& outermostHitPosition = iEvent.get(outermostHitPositionToken_);
 
-  const auto& primRecoVtx = *(RecVertexHandle.product()->begin());
-
-  // generator level information (HepMC format)
-  auto GenEventHandle = makeValid(iEvent.getHandle(HepMCProductToken_));
-  const HepMC::GenEvent* mc = GenEventHandle->GetEvent();
-  double zsim = convertMmToCm((*(mc->vertices_begin()))->position().z());
-  double tsim = (*(mc->vertices_begin()))->position().t() * CLHEP::mm / CLHEP::c_light;
-
-  auto pdt = iSetup.getHandle(particleTableToken_);
-  const HepPDT::ParticleDataTable* pdTable = pdt.product();
-
   auto simToRecoH = makeValid(iEvent.getHandle(simToRecoAssociationToken_));
   s2r_ = simToRecoH.product();
 
@@ -356,9 +323,6 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
   r2s_ = recoToSimH.product();
 
   unsigned int index = 0;
-
-  // flag to select events with reco vertex close to true simulated primary vertex, or PV fake (particle guns)
-  const bool isGoodVtx = std::abs(primRecoVtx.z() - zsim) < deltaZcut_ || primRecoVtx.isFake();
 
   // --- Loop over all RECO tracks ---
   for (const auto& trackGen : *GenRecTrackHandle) {
@@ -378,7 +342,7 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
     bool twoETLdiscs = false;
     bool noCrack = std::abs(trackGen.eta()) < trackMaxBtlEta_ || std::abs(trackGen.eta()) > trackMinEtlEta_;
 
-    if (track.pt() >= trackMinPt_ && std::abs(track.eta()) <= trackMaxEtlEta_) {
+    if (trkRecSel(trackGen)) {
       meTracktmtd_->Fill(tMtd[trackref]);
       if (std::round(SigmatMtd[trackref] - Sigmat0Pid[trackref]) != 0) {
         LogWarning("mtdTracks")
@@ -398,17 +362,17 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
       meTrackSigmaTof_[0]->Fill(SigmaTofPi[trackref] * 1e3);  //save as ps
       meTrackSigmaTof_[1]->Fill(SigmaTofK[trackref] * 1e3);
       meTrackSigmaTof_[2]->Fill(SigmaTofP[trackref] * 1e3);
-      meTrackSigmaTofvsP_[0]->Fill(track.p(), SigmaTofPi[trackref] * 1e3);
-      meTrackSigmaTofvsP_[1]->Fill(track.p(), SigmaTofK[trackref] * 1e3);
-      meTrackSigmaTofvsP_[2]->Fill(track.p(), SigmaTofP[trackref] * 1e3);
+      meTrackSigmaTofvsP_[0]->Fill(trackGen.p(), SigmaTofPi[trackref] * 1e3);
+      meTrackSigmaTofvsP_[1]->Fill(trackGen.p(), SigmaTofK[trackref] * 1e3);
+      meTrackSigmaTofvsP_[2]->Fill(trackGen.p(), SigmaTofP[trackref] * 1e3);
 
-      meTrackPathLenghtvsEta_->Fill(std::abs(track.eta()), pathLength[trackref]);
+      meTrackPathLenghtvsEta_->Fill(std::abs(trackGen.eta()), pathLength[trackref]);
 
-      if (std::abs(track.eta()) < trackMaxBtlEta_) {
+      if (std::abs(trackGen.eta()) < trackMaxBtlEta_) {
         // --- all BTL tracks (with and without hit in MTD) ---
-        meBTLTrackEffEtaTot_->Fill(track.eta());
-        meBTLTrackEffPhiTot_->Fill(track.phi());
-        meBTLTrackEffPtTot_->Fill(track.pt());
+        meBTLTrackEffEtaTot_->Fill(trackGen.eta());
+        meBTLTrackEffPhiTot_->Fill(trackGen.phi());
+        meBTLTrackEffPtTot_->Fill(trackGen.pt());
 
         bool MTDBtl = false;
         int numMTDBtlvalidhits = 0;
@@ -426,9 +390,9 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
         // --- keeping only tracks with last hit in MTD ---
         if (MTDBtl == true) {
           isBTL = true;
-          meBTLTrackEffEtaMtd_->Fill(track.eta());
-          meBTLTrackEffPhiMtd_->Fill(track.phi());
-          meBTLTrackEffPtMtd_->Fill(track.pt());
+          meBTLTrackEffEtaMtd_->Fill(trackGen.eta());
+          meBTLTrackEffPhiMtd_->Fill(trackGen.phi());
+          meBTLTrackEffPtMtd_->Fill(trackGen.pt());
           meBTLTrackRPTime_->Fill(track.t0());
           meBTLTrackPtRes_->Fill((trackGen.pt() - track.pt()) / trackGen.pt());
         }
@@ -439,16 +403,16 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
 
       else {
         // --- all ETL tracks (with and without hit in MTD) ---
-        if ((track.eta() < -trackMinEtlEta_) && (track.eta() > -trackMaxEtlEta_)) {
-          meETLTrackEffEtaTot_[0]->Fill(track.eta());
-          meETLTrackEffPhiTot_[0]->Fill(track.phi());
-          meETLTrackEffPtTot_[0]->Fill(track.pt());
+        if ((trackGen.eta() < -trackMinEtlEta_) && (trackGen.eta() > -trackMaxEtlEta_)) {
+          meETLTrackEffEtaTot_[0]->Fill(trackGen.eta());
+          meETLTrackEffPhiTot_[0]->Fill(trackGen.phi());
+          meETLTrackEffPtTot_[0]->Fill(trackGen.pt());
         }
 
-        if ((track.eta() > trackMinEtlEta_) && (track.eta() < trackMaxEtlEta_)) {
-          meETLTrackEffEtaTot_[1]->Fill(track.eta());
-          meETLTrackEffPhiTot_[1]->Fill(track.phi());
-          meETLTrackEffPtTot_[1]->Fill(track.pt());
+        if ((trackGen.eta() > trackMinEtlEta_) && (trackGen.eta() < trackMaxEtlEta_)) {
+          meETLTrackEffEtaTot_[1]->Fill(trackGen.eta());
+          meETLTrackEffPhiTot_[1]->Fill(trackGen.phi());
+          meETLTrackEffPtTot_[1]->Fill(trackGen.pt());
         }
 
         bool MTDEtlZnegD1 = false;
@@ -496,29 +460,29 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
         }
 
         // --- keeping only tracks with last hit in MTD ---
-        if ((track.eta() < -trackMinEtlEta_) && (track.eta() > -trackMaxEtlEta_)) {
+        if ((trackGen.eta() < -trackMinEtlEta_) && (trackGen.eta() > -trackMaxEtlEta_)) {
           twoETLdiscs = (MTDEtlZnegD1 == true) && (MTDEtlZnegD2 == true);
           if ((MTDEtlZnegD1 == true) || (MTDEtlZnegD2 == true)) {
-            meETLTrackEffEtaMtd_[0]->Fill(track.eta());
-            meETLTrackEffPhiMtd_[0]->Fill(track.phi());
-            meETLTrackEffPtMtd_[0]->Fill(track.pt());
+            meETLTrackEffEtaMtd_[0]->Fill(trackGen.eta());
+            meETLTrackEffPhiMtd_[0]->Fill(trackGen.phi());
+            meETLTrackEffPtMtd_[0]->Fill(trackGen.pt());
             if (twoETLdiscs) {
-              meETLTrackEffEta2Mtd_[0]->Fill(track.eta());
-              meETLTrackEffPhi2Mtd_[0]->Fill(track.phi());
-              meETLTrackEffPt2Mtd_[0]->Fill(track.pt());
+              meETLTrackEffEta2Mtd_[0]->Fill(trackGen.eta());
+              meETLTrackEffPhi2Mtd_[0]->Fill(trackGen.phi());
+              meETLTrackEffPt2Mtd_[0]->Fill(trackGen.pt());
             }
           }
         }
-        if ((track.eta() > trackMinEtlEta_) && (track.eta() < trackMaxEtlEta_)) {
+        if ((trackGen.eta() > trackMinEtlEta_) && (trackGen.eta() < trackMaxEtlEta_)) {
           twoETLdiscs = (MTDEtlZposD1 == true) && (MTDEtlZposD2 == true);
           if ((MTDEtlZposD1 == true) || (MTDEtlZposD2 == true)) {
-            meETLTrackEffEtaMtd_[1]->Fill(track.eta());
-            meETLTrackEffPhiMtd_[1]->Fill(track.phi());
-            meETLTrackEffPtMtd_[1]->Fill(track.pt());
+            meETLTrackEffEtaMtd_[1]->Fill(trackGen.eta());
+            meETLTrackEffPhiMtd_[1]->Fill(trackGen.phi());
+            meETLTrackEffPtMtd_[1]->Fill(trackGen.pt());
             if (twoETLdiscs) {
-              meETLTrackEffEta2Mtd_[1]->Fill(track.eta());
-              meETLTrackEffPhi2Mtd_[1]->Fill(track.phi());
-              meETLTrackEffPt2Mtd_[1]->Fill(track.pt());
+              meETLTrackEffEta2Mtd_[1]->Fill(trackGen.eta());
+              meETLTrackEffPhi2Mtd_[1]->Fill(trackGen.phi());
+              meETLTrackEffPt2Mtd_[1]->Fill(trackGen.pt());
             }
           }
         }
@@ -529,8 +493,9 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
       if (isETL)
         meTrackOutermostHitZ_->Fill(std::abs(outermostHitPosition[trackref]));
 
-      LogDebug("MtdTracksValidation") << "Track p/pt = " << track.p() << " " << track.pt() << " eta " << track.eta()
-                                      << " BTL " << isBTL << " ETL " << isETL << " 2disks " << twoETLdiscs;
+      LogDebug("MtdTracksValidation") << "Track p/pt = " << trackGen.p() << " " << trackGen.pt() << " eta "
+                                      << trackGen.eta() << " BTL " << isBTL << " ETL " << isETL << " 2disks "
+                                      << twoETLdiscs;
 
       // TrackingParticle based matching
 
@@ -539,8 +504,8 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
 
       meTrackPtTot_->Fill(trackGen.pt());
       meTrackEtaTot_->Fill(std::abs(trackGen.eta()));
-      if (tp_info != nullptr && mvaTPSelAll(**tp_info)) {
-        if (track.pt() < 12.) {
+      if (tp_info != nullptr && trkTPSelAll(**tp_info)) {
+        if (trackGen.pt() < trackMaxPt_) {
           if (isBTL) {
             meBTLTrackMatchedTPPtResMtd_->Fill(std::abs(track.pt() - (*tp_info)->pt()) /
                                                std::abs(trackGen.pt() - (*tp_info)->pt()));
@@ -581,7 +546,7 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
         const bool withMTD = (simClustersRefs != tp2SimAssociationMap.end());
         if (noCrack) {
           meTrackMatchedTPEffPtTot_->Fill(trackGen.pt());
-          if (mvaTPSelLV(**tp_info)) {
+          if (trkTPSelLV(**tp_info)) {
             meTrackMatchedTPEffPtTotLV_->Fill(trackGen.pt());
           }
           if (withMTD) {
@@ -589,7 +554,7 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
           }
         }
         meTrackMatchedTPEffEtaTot_->Fill(std::abs(trackGen.eta()));
-        if (mvaTPSelLV(**tp_info)) {
+        if (trkTPSelLV(**tp_info)) {
           meTrackMatchedTPEffEtaTotLV_->Fill(std::abs(trackGen.eta()));
         }
         if (withMTD) {
@@ -614,8 +579,8 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
           }
         }
 
-        // detailed extrapolation check only on tracks associated to TP from signal event
-        if (!mvaTPSelLV(**tp_info)) {
+        // time pull and detailed extrapolation check only on tracks associated to TP from signal event
+        if (!trkTPSelLV(**tp_info)) {
           continue;
         }
         size_t nlayers(0);
@@ -651,57 +616,24 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
               meExtraMTDfailExtenderPt_->Fill(trackGen.pt());
             }
           }
-        }
+        }  // detailed extrapolation check
 
-      }  // TP matching
-    }
-
-    if (isGoodVtx) {
-      const bool vtxFake = primRecoVtx.isFake();
-
-      if (mvaRecSel(trackGen, primRecoVtx, t0Safe[trackref], Sigmat0Safe[trackref])) {
-        // reco-gen matching used for MVA quality flag
-
-        if (noCrack) {
-          meMVATrackEffPtTot_->Fill(trackGen.pt());
-        }
-        meMVATrackEffEtaTot_->Fill(std::abs(trackGen.eta()));
-
-        double dZ = trackGen.vz() - zsim;
+        // time res and time pull
+        double tsim = (*tp_info)->parentVertex()->position().t() * simUnit_;
         double dT(-9999.);
         double pullT(-9999.);
         if (Sigmat0Safe[trackref] != -1.) {
           dT = t0Safe[trackref] - tsim;
           pullT = dT / Sigmat0Safe[trackref];
-        }
-        for (const auto& genP : mc->particle_range()) {
-          // select status 1 genParticles and match them to the reconstructed track
-
-          float charge = pdTable->particle(HepPDT::ParticleID(genP->pdg_id())) != nullptr
-                             ? pdTable->particle(HepPDT::ParticleID(genP->pdg_id()))->charge()
-                             : 0.f;
-          if (mvaGenSel(*genP, charge)) {
-            if (mvaGenRecMatch(*genP, zsim, trackGen, vtxFake)) {
-              meMVATrackZposResTot_->Fill(dZ);
-              if (noCrack) {
-                meMVATrackMatchedEffPtTot_->Fill(trackGen.pt());
-              }
-              meMVATrackMatchedEffEtaTot_->Fill(std::abs(trackGen.eta()));
-              if (isBTL || isETL) {
-                meMVATrackResTot_->Fill(dT);
-                meMVATrackPullTot_->Fill(pullT);
-                if (noCrack) {
-                  meMVATrackMatchedEffPtMtd_->Fill(trackGen.pt());
-                }
-                meMVATrackMatchedEffEtaMtd_->Fill(std::abs(trackGen.eta()));
-              }
-              break;
-            }
+          if (isBTL || isETL) {
+            meTrackResTot_->Fill(dT);
+            meTrackPullTot_->Fill(pullT);
           }
-        }
-      }
-    }  // MC truth matich analysis for good PV
-  }    //RECO tracks loop
+        }  // time res and time pull
+
+      }  // TP matching
+    }
+  }  //RECO tracks loop
 }
 
 const std::pair<bool, bool> MtdTracksValidation::checkAcceptance(const reco::Track& track,
@@ -999,12 +931,6 @@ void MtdTracksValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
                                              50.,
                                              "S");
 
-  meMVATrackEffPtTot_ = ibook.book1D("MVAEffPtTot", "Pt of tracks associated to LV; track pt [GeV] ", 110, 0., 11.);
-  meMVATrackMatchedEffPtTot_ =
-      ibook.book1D("MVAMatchedEffPtTot", "Pt of tracks associated to LV matched to GEN; track pt [GeV] ", 110, 0., 11.);
-  meMVATrackMatchedEffPtMtd_ = ibook.book1D(
-      "MVAMatchedEffPtMtd", "Pt of tracks associated to LV matched to GEN with time; track pt [GeV] ", 110, 0., 11.);
-
   meExtraPtMtd_ =
       ibook.book1D("ExtraPtMtd", "Pt of tracks associated to LV extrapolated to hits; track pt [GeV] ", 110, 0., 11.);
   meExtraPtEtl2Mtd_ = ibook.book1D("ExtraPtEtl2Mtd",
@@ -1019,9 +945,9 @@ void MtdTracksValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
   meTrackMatchedTPEffPtTotLV_ =
       ibook.book1D("MatchedTPEffPtTotLV", "Pt of tracks associated to LV matched to TP; track pt [GeV] ", 110, 0., 11.);
   meTrackMatchedTPEffPtMtd_ =
-      ibook.book1D("MatchedTPEffPtMtd", "Pt of tracks  matched to TP with time; track pt [GeV] ", 110, 0., 11.);
+      ibook.book1D("MatchedTPEffPtMtd", "Pt of tracks matched to TP with time; track pt [GeV] ", 110, 0., 11.);
   meTrackMatchedTPEffPtEtl2Mtd_ = ibook.book1D(
-      "MatchedTPEffPtEtl2Mtd", "Pt of tracks  matched to TP with time, 2 ETL hits; track pt [GeV] ", 110, 0., 11.);
+      "MatchedTPEffPtEtl2Mtd", "Pt of tracks matched to TP with time, 2 ETL hits; track pt [GeV] ", 110, 0., 11.);
 
   meBTLTrackMatchedTPPtResMtd_ = ibook.book1D(
       "TrackMatchedTPBTLPtResMtd",
@@ -1147,15 +1073,9 @@ void MtdTracksValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
                                                       "s");
 
   meTrackMatchedTPmtdEffPtTot_ =
-      ibook.book1D("MatchedTPmtdEffPtTot", "Pt of tracks  matched to TP-mtd hit; track pt [GeV] ", 110, 0., 11.);
+      ibook.book1D("MatchedTPmtdEffPtTot", "Pt of tracks matched to TP-mtd hit; track pt [GeV] ", 110, 0., 11.);
   meTrackMatchedTPmtdEffPtMtd_ = ibook.book1D(
-      "MatchedTPmtdEffPtMtd", "Pt of tracks  matched to TP-mtd hit with time; track pt [GeV] ", 110, 0., 11.);
-
-  meMVATrackEffEtaTot_ = ibook.book1D("MVAEffEtaTot", "Eta of tracks associated to LV; track eta ", 66, 0., 3.3);
-  meMVATrackMatchedEffEtaTot_ =
-      ibook.book1D("MVAMatchedEffEtaTot", "Eta of tracks associated to LV matched to GEN; track eta ", 66, 0., 3.3);
-  meMVATrackMatchedEffEtaMtd_ = ibook.book1D(
-      "MVAMatchedEffEtaMtd", "Eta of tracks associated to LV matched to GEN with time; track eta ", 66, 0., 3.3);
+      "MatchedTPmtdEffPtMtd", "Pt of tracks matched to TP-mtd hit with time; track pt [GeV] ", 110, 0., 11.);
 
   meExtraEtaMtd_ =
       ibook.book1D("ExtraEtaMtd", "Eta of tracks associated to LV extrapolated to hits; track eta ", 66, 0., 3.3);
@@ -1167,23 +1087,20 @@ void MtdTracksValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
       ibook.book1D("MatchedTPEffEtaTot", "Eta of tracks matched to TP; track eta ", 66, 0., 3.3);
   meTrackMatchedTPEffEtaTotLV_ =
       ibook.book1D("MatchedTPEffEtaTotLV", "Eta of tracks associated to LV matched to TP; track eta ", 66, 0., 3.3);
-  meMVATrackEffEtaTot_ = ibook.book1D("MVAEffEtaTot", "Eta of tracks ; track eta ", 66, 0., 3.3);
   meTrackMatchedTPEffEtaMtd_ =
-      ibook.book1D("MatchedTPEffEtaMtd", "Eta of tracks  matched to TP with time; track eta ", 66, 0., 3.3);
+      ibook.book1D("MatchedTPEffEtaMtd", "Eta of tracks matched to TP with time; track eta ", 66, 0., 3.3);
   meTrackMatchedTPEffEtaEtl2Mtd_ = ibook.book1D(
-      "MatchedTPEffEtaEtl2Mtd", "Eta of tracks  matched to TP with time, 2 ETL hits; track eta ", 66, 0., 3.3);
+      "MatchedTPEffEtaEtl2Mtd", "Eta of tracks matched to TP with time, 2 ETL hits; track eta ", 66, 0., 3.3);
 
   meTrackMatchedTPmtdEffEtaTot_ =
-      ibook.book1D("MatchedTPmtdEffEtaTot", "Eta of tracks  matched to TP-mtd hit; track eta ", 66, 0., 3.3);
+      ibook.book1D("MatchedTPmtdEffEtaTot", "Eta of tracks matched to TP-mtd hit; track eta ", 66, 0., 3.3);
   meTrackMatchedTPmtdEffEtaMtd_ =
-      ibook.book1D("MatchedTPmtdEffEtaMtd", "Eta of tracks  matched to TP-mtd hit with time; track eta ", 66, 0., 3.3);
+      ibook.book1D("MatchedTPmtdEffEtaMtd", "Eta of tracks matched to TP-mtd hit with time; track eta ", 66, 0., 3.3);
 
-  meMVATrackResTot_ = ibook.book1D(
-      "MVATrackRes", "t_{rec} - t_{sim} for LV associated tracks; t_{rec} - t_{sim} [ns] ", 120, -0.15, 0.15);
-  meMVATrackPullTot_ =
-      ibook.book1D("MVATrackPull", "Pull for associated tracks; (t_{rec}-t_{sim})/#sigma_{t}", 50, -5., 5.);
-  meMVATrackZposResTot_ = ibook.book1D(
-      "MVATrackZposResTot", "Z_{PCA} - Z_{sim} for associated tracks;Z_{PCA} - Z_{sim} [cm] ", 100, -0.1, 0.1);
+  meTrackResTot_ = ibook.book1D(
+      "TrackRes", "t_{rec} - t_{sim} for LV associated tracks matched to TP; t_{rec} - t_{sim} [ns] ", 120, -0.15, 0.15);
+  meTrackPullTot_ = ibook.book1D(
+      "TrackPull", "Pull for LV associated tracks matched to TP; (t_{rec}-t_{sim})/#sigma_{t}", 50, -5., 5.);
 
   meExtraPhiAtBTL_ = ibook.book1D(
       "ExtraPhiAtBTL", "Phi at BTL surface of extrapolated tracks associated to LV; phi [deg]", 720, -180., 180.);
@@ -1208,7 +1125,7 @@ void MtdTracksValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
   ;
   meExtraMTDfailExtenderPt_ = ibook.book1D(
       "ExtraMTDfailExtenderPt",
-      "Pt of tracks associated to lV extrapolated to MTD with no track extender match to hits; track pt [GeV] ",
+      "Pt of tracks associated to LV extrapolated to MTD with no track extender match to hits; track pt [GeV] ",
       110,
       0.,
       11.);
@@ -1247,6 +1164,7 @@ void MtdTracksValidation::fillDescriptions(edm::ConfigurationDescriptions& descr
   desc.add<edm::InputTag>("outermostHitPositionSrc",
                           edm::InputTag("trackExtenderWithMTD:generalTrackOutermostHitPosition"));
   desc.add<double>("trackMinimumPt", 0.7);  // [GeV]
+  desc.add<double>("trackMaximumPt", 12.);  // [GeV]
   desc.add<double>("trackMaximumBtlEta", 1.5);
   desc.add<double>("trackMinimumEtlEta", 1.6);
   desc.add<double>("trackMaximumEtlEta", 3.);
@@ -1255,21 +1173,12 @@ void MtdTracksValidation::fillDescriptions(edm::ConfigurationDescriptions& descr
   descriptions.add("mtdTracksValid", desc);
 }
 
-const bool MtdTracksValidation::mvaGenSel(const HepMC::GenParticle& gp, const float& charge) {
-  bool match = false;
-  if (gp.status() != 1) {
-    return match;
-  }
-  match = charge != 0.f && gp.momentum().perp() > pTcut_ && std::abs(gp.momentum().eta()) < etacutGEN_;
-  return match;
-}
-
-const bool MtdTracksValidation::mvaTPSelLV(const TrackingParticle& tp) {
+const bool MtdTracksValidation::trkTPSelLV(const TrackingParticle& tp) {
   bool match = (tp.status() != 1) ? false : true;
   return match;
 }
 
-const bool MtdTracksValidation::mvaTPSelAll(const TrackingParticle& tp) {
+const bool MtdTracksValidation::trkTPSelAll(const TrackingParticle& tp) {
   bool match = false;
 
   auto x_pv = tp.parentVertex()->position().x();
@@ -1278,33 +1187,17 @@ const bool MtdTracksValidation::mvaTPSelAll(const TrackingParticle& tp) {
 
   auto r_pv = std::sqrt(x_pv * x_pv + y_pv * y_pv);
 
-  match =
-      tp.charge() != 0 && tp.pt() > pTcut_ && std::abs(tp.eta()) < etacutGEN_ && r_pv < rBTL_ && std::abs(z_pv) < zETL_;
+  match = tp.charge() != 0 &&
+          ((std::abs(tp.eta()) <= trackMaxBtlEta_ && tp.pt() > pTcutBTL_) ^
+           (std::abs(tp.eta()) > trackMaxBtlEta_ && std::abs(tp.eta()) < etacutGEN_ && tp.pt() > pTcutETL_)) &&
+          r_pv < rBTL_ && std::abs(z_pv) < zETL_;
   return match;
 }
 
-const bool MtdTracksValidation::mvaRecSel(const reco::TrackBase& trk,
-                                          const reco::Vertex& vtx,
-                                          const double& t0,
-                                          const double& st0) {
+const bool MtdTracksValidation::trkRecSel(const reco::TrackBase& trk) {
   bool match = false;
-  match = trk.pt() > pTcut_ && std::abs(trk.eta()) < etacutREC_ &&
-          (std::abs(trk.vz() - vtx.z()) <= deltaZcut_ || vtx.isFake());
-  if (st0 > 0.) {
-    match = match && std::abs(t0 - vtx.t()) < 3. * st0;
-  }
-  return match;
-}
-
-const bool MtdTracksValidation::mvaGenRecMatch(const HepMC::GenParticle& genP,
-                                               const double& zsim,
-                                               const reco::TrackBase& trk,
-                                               const bool& vtxFake) {
-  bool match = false;
-  double dR = reco::deltaR(genP.momentum(), trk.momentum());
-  double genPT = genP.momentum().perp();
-  match = std::abs(genPT - trk.pt()) < trk.pt() * deltaPTcut_ && dR < deltaDRcut_ &&
-          (std::abs(trk.vz() - zsim) < deltaZcut_ || vtxFake);
+  match = (std::abs(trk.eta()) <= trackMaxBtlEta_ && trk.pt() > pTcutBTL_) ^
+          (std::abs(trk.eta()) > trackMaxBtlEta_ && std::abs(trk.eta()) < etacutREC_ && trk.pt() > pTcutETL_);
   return match;
 }
 
