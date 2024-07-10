@@ -38,7 +38,7 @@ l1tVertexProducer = cms.EDProducer('VertexProducer',
         # Track word limits (256 binns): [-20.46912512, 20.46912512, 0.15991504]
         FH_HistogramParameters = cms.vdouble(-20.46912512, 20.46912512, 0.15991504),
         # The number of vertixes to return (i.e. N windows with the highest combined pT)
-        FH_NVtx = cms.uint32(10),
+        FH_NVtx = cms.uint32(1),
         # fastHisto algorithm assumed vertex half-width [cm]
         FH_VertexWidth = cms.double(.15),
         # Window size of the sliding window
