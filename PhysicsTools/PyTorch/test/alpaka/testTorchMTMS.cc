@@ -121,7 +121,7 @@ std::string testTorchFromBufferModelEval::pyScript() const { return "create_dnn_
 // bool ENABLE_ERROR = true;
 // We take the model as non consr as the forward function is a non const one.
 void testTorchFromBufferModelEvalSinglePass(torch::jit::script::Module& model, const HostBuffer & a_cpu,  const HostBuffer & b_cpu, HostBuffer & c_cpu, 
-        const int N, const size_t bytes, const size_t thread, const size_t iteration, const ALPAKA_ACCELERATOR_NAMESPACE::Queue & queue) {
+        const int N, const size_t bytes, const size_t thread, const size_t iteration, ALPAKA_ACCELERATOR_NAMESPACE::Queue & queue) {
   // Declare GPU memory pointers
   //int *a_gpu, *b_gpu, *c_gpu;
 
@@ -137,8 +137,8 @@ void testTorchFromBufferModelEvalSinglePass(torch::jit::script::Module& model, c
   NVTXScopedRange memcpyRange("Memcpy host to dev");
   // Copy data from the host to the device (CPU -> GPU)
   cout << "T" << thread << " I" << iteration << " Transfering vectors from CPU to GPU" << endl;
-  cudaMemcpyAsync(a_gpu.data(), a_cpu.data(), bytes, cudaMemcpyHostToDevice, queue.getNativeHandle());
-  cudaMemcpyAsync(b_gpu.data(), b_cpu.data(), bytes, cudaMemcpyHostToDevice, queue.getNativeHandle());
+  alpaka::memcpy(queue, a_gpu, a_cpu);
+  alpaka::memcpy(queue, b_gpu, b_cpu);
   memcpyRange.end();
   
   // Specify threads per CUDA block (CTA), her 2^10 = 1024 threads
@@ -175,7 +175,7 @@ void testTorchFromBufferModelEvalSinglePass(torch::jit::script::Module& model, c
   NVTXScopedRange memcpyBackRange("Memcpy dev to host");
   // Copy memory from device and also synchronize (implicitly)
   cout << "T" << thread << " I" << iteration << " Synchronizing CPU and GPU. Copying result from GPU to CPU" << endl;
-  cudaMemcpyAsync(c_cpu.data(), c_gpu.data(), bytes, cudaMemcpyDeviceToHost, c10::cuda::getCurrentCUDAStream().stream());
+  alpaka::memcpy(queue, c_cpu, c_gpu);
   memcpyBackRange.end();
   
   if constexpr (doValidation) {
