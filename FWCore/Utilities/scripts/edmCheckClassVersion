@@ -1,72 +1,7 @@
 #!  /usr/bin/env python3
 
-class XmlParser(object):
-    """Parses a classes_def.xml file looking for class declarations that contain
-    ClassVersion attributes. Once found looks for sub-elements named 'version'
-    which contain the ClassVersion to checksum mappings.
-    """
-    
-    #The following are constants used to describe what data is kept
-    # in which index in the 'classes' member data
-    originalNameIndex=0
-    classVersionIndex=1
-    versionsToChecksumIndex = 2
-    
-    def __init__(self,filename):
-        self._file = filename
-        self.classes = dict()
-        self._presentClass = None
-        self.readClassesDefXML()
-    def readClassesDefXML(self):
-        import xml.parsers.expat
-        p = xml.parsers.expat.ParserCreate()
-        p.StartElementHandler = self.start_element
-        p.EndElementHandler = self.end_element
-        f = open(self._file)
-        # Replace any occurence of <>& in the attribute values by the xml parameter
-        rxml, nxml = f.read(), ''
-        q1,q2 = 0,0
-        for c in rxml :
-            if   (q1 or q2) and c == '<' : nxml += '&lt;'
-            elif (q1 or q2) and c == '>' : nxml += '&gt;'
-            # elif (q1 or q2) and c == '&' : nxml += '&amp;'
-            else                         : nxml += c
-            if c == '"' : q1 = not q1
-            if c == "'" : q2 = not q2
-        try : p.Parse(nxml)
-        except xml.parsers.expat.ExpatError as e :
-            print ('--->> edmCheckClassVersion: ERROR: parsing selection file ',self._file)
-            print ('--->> edmCheckClassVersion: ERROR: Error is:', e)
-            raise
-        f.close()
-    def start_element(self,name,attrs):
-        if name in ('class','struct'):
-            if 'name' in attrs:
-                if 'ClassVersion' in attrs:
-                    normalizedName = self.genNName(attrs['name'])
-                    self.classes[normalizedName]=[attrs['name'],int(attrs['ClassVersion']),[]]
-                    self._presentClass=normalizedName
-        if name == 'version':
-            self.classes[self._presentClass][XmlParser.versionsToChecksumIndex].append([int(attrs['ClassVersion']),
-                                                                                    int(attrs['checksum'])])
-        pass
-    def end_element(self,name):
-        if name in ('class','struct'):
-            self._presentClass = None
-    def genNName(self, name ):
-        n_name = " ".join(name.split())
-        for e in [ ['long long unsigned int', 'unsigned long long'],
-                   ['long long int',          'long long'],
-                   ['unsigned short int',     'unsigned short'],
-                   ['short unsigned int',     'unsigned short'],
-                   ['short int',              'short'],
-                   ['long unsigned int',      'unsigned long'],
-                   ['unsigned long int',      'unsigned long'],
-                   ['long int',               'long'],
-                   ['std::string',            'std::basic_string<char>']] :
-            n_name = n_name.replace(e[0],e[1])
-        n_name = n_name.replace(' ','')
-        return n_name
+from FWCore.Utilities.ClassesDefXmlUtils import XmlParser
+import FWCore.Utilities.ClassesDefXmlUtils as ClassesDefUtils
 
 # recursively check the base classes for a class pointer
 # as building the streamer will crash if base classes are
@@ -111,40 +46,6 @@ def checkDictionaries(name):
 
     return missingDict
 
-#The following are error codes returned from checkClass
-noError = 0
-errorRootDoesNotMatchClassDef =1
-errorMustUpdateClassVersion=2
-errorMustAddChecksum=3
-
-def checkClass(name,version,versionsToChecksums):
-    c = ROOT.TClass.GetClass(name)
-    if not c:
-        raise RuntimeError("failed to load dictionary for class '"+name+"'")
-    temp = "checkTheClass.f(" + '"' + name + '"' + ");"
-    retval = ROOT.gROOT.ProcessLine(temp)
-    if retval == 0 :
-        raise RuntimeError("TClass::GetCheckSum: Failed to load dictionary for base class. See previous Error message")
-    classChecksum = c.GetCheckSum()
-    classVersion = c.GetClassVersion()
-
-    #does this version match what is in the file?
-    if version != classVersion:
-        return (errorRootDoesNotMatchClassDef,classVersion,classChecksum)
-
-    #is the version already in our list?
-    found = False
-    
-    for v,cs in versionsToChecksums:
-        if v == version:
-            found = True
-            if classChecksum != cs:
-                return (errorMustUpdateClassVersion,classVersion,classChecksum)
-            break
-    if not found and classVersion != 0:
-        return (errorMustAddChecksum,classVersion,classChecksum)
-    return (noError,classVersion,classChecksum)
-
 #Setup the options
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 oparser = ArgumentParser(formatter_class=ArgumentDefaultsHelpFormatter)
@@ -175,14 +76,13 @@ else:
 
 missingDict = 0
 
-ROOT.gROOT.ProcessLine("class checkclass {public: int f(char const* name) {TClass* cl = TClass::GetClass(name); bool b = false; cl->GetCheckSum(b); return (int)b;} };")
-ROOT.gROOT.ProcessLine("checkclass checkTheClass;")
+ClassesDefUtils.initCheckClass()
 
 p = XmlParser(options.xmlfile)
 foundErrors = dict()
 for name,info in p.classes.items():
-    errorCode,rootClassVersion,classChecksum = checkClass(name,info[XmlParser.classVersionIndex],info[XmlParser.versionsToChecksumIndex])
-    if errorCode != noError:
+    errorCode,rootClassVersion,classChecksum = ClassesDefUtils.checkClass(name,info[XmlParser.classVersionIndex],info[XmlParser.versionsToChecksumIndex])
+    if errorCode != ClassesDefUtils.noError:
         foundErrors[name]=(errorCode,classChecksum,rootClassVersion)
     if options.checkdict :
         missingDict += checkDictionaries(name)
@@ -196,10 +96,10 @@ for name,retValues in foundErrors.items():
     classVersion = p.classes[name][XmlParser.classVersionIndex]
     classChecksum = retValues[1]
     rootClassVersion = retValues[2]
-    if code == errorRootDoesNotMatchClassDef:
+    if code == ClassesDefUtils.errorRootDoesNotMatchClassDef:
         foundRootDoesNotMatchError=True
         print ("error: for class '"+name+"' ROOT says the ClassVersion is "+str(rootClassVersion)+" but classes_def.xml says it is "+str(classVersion)+". Are you sure everything compiled correctly?")
-    elif code == errorMustUpdateClassVersion and not options.generate:
+    elif code == ClassesDefUtils.errorMustUpdateClassVersion and not options.generate:
         print ("error: class '"+name+"' has a different checksum for ClassVersion "+str(classVersion)+". Increment ClassVersion to "+str(classVersion+1)+" and assign it to checksum "+str(classChecksum))
     elif not options.generate:
         print ("error:class '"+name+"' needs to include the following as part of its 'class' declaration")
@@ -222,7 +122,7 @@ if options.generate and not foundRootDoesNotMatchError and not missingDict:
                 classVersion = p.classes[normName][XmlParser.classVersionIndex]
                 code,checksum,rootClassVersion = foundErrors[normName]
                 hasNoSubElements = (-1 != l.find('/>'))
-                if code == errorMustUpdateClassVersion:
+                if code == ClassesDefUtils.errorMustUpdateClassVersion:
                     classVersion += 1
                     parts = splitArgs[:]
                     indexToClassVersion = 0

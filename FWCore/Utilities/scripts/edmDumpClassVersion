@@ -1,0 +1,34 @@
+#!/usr/bin/env python3
+
+import argparse
+
+import FWCore.Utilities.ClassesDefXmlUtils as ClassesDefUtils
+
+def main(args):
+    #Need to not have ROOT load .rootlogon.(C|py) since it can cause interference.
+    import ROOT
+    ROOT.PyConfig.DisableRootLogon = True
+
+    #Keep ROOT from trying to use X11
+    ROOT.gROOT.SetBatch(True)
+    ROOT.gROOT.ProcessLine(".autodict")
+    if args.library is not None:
+        if ROOT.gSystem.Load(args.library) < 0 :
+            raise RuntimeError("failed to load library '"+args.library+"'")
+    
+    ClassesDefUtils.initCheckClass()
+    p = ClassesDefUtils.XmlParser(args.xmlfile, includeNonVersionedClasses=True, normalizeClassNames=False)
+    for name, info in p.classes.items():
+        (error, version, checksum) = ClassesDefUtils.checkClass(name, 0, {})
+        print(name, version, checksum)
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+                                     description="Prints class versions and checksums for all non-transient clases defined in a given classes_def.xml file")
+    parser.add_argument("-l","--lib", dest="library", type=str,
+                         help="specify the library to load. If not set classes are found using the PluginManager")
+    parser.add_argument("-x","--xml_file", dest="xmlfile",default="./classes_def.xml", type=str,
+                         help="the classes_def.xml file to read")
+
+    args = parser.parse_args()
+    main(args)
