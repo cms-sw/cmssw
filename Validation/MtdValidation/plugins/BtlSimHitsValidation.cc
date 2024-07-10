@@ -372,7 +372,7 @@ void BtlSimHitsValidation::bookHistograms(DQMStore::IBooker& ibook,
 
   meHitXlocal_ = ibook.book1D("BtlHitXlocal", "BTL SIM local X;X_{SIM}^{LOC} [mm]", 100, -30., 30.);
   meHitYlocal_ = ibook.book1D("BtlHitYlocal", "BTL SIM local Y;Y_{SIM}^{LOC} [mm]", 100, -1.65, 1.65);
-  meHitZlocal_ = ibook.book1D("BtlHitZlocal", "BTL SIM local z;z_{SIM}^{LOC} [mm]", 100, -2., 2.);
+  meHitZlocal_ = ibook.book1D("BtlHitZlocal", "BTL SIM local Z;Z_{SIM}^{LOC} [mm]", 100, -2., 2.);
 
   meOccupancy_ = ibook.book2D(
       "BtlOccupancy", "BTL SIM hits occupancy;z_{SIM} [cm];#phi_{SIM} [rad]", 130, -260., 260., 200, -3.15, 3.15);
