@@ -330,7 +330,7 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
     index++;
 
     if (trackAssoc[trackref] == -1) {
-      LogInfo("mtdTracks") << "Extended track not associated";
+      LogWarning("mtdTracks") << "Extended track not associated";
       continue;
     }
 
