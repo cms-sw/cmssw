@@ -5,6 +5,7 @@ noConcurrentLumiGenerators = [
     "CosMuoGenProducer",
     "ExhumeGeneratorFilter",
     "Herwig7GeneratorFilter",
+    "Herwig7HadronizerFilter",
     "HydjetGeneratorFilter",
     "Hydjet2GeneratorFilter",
     "PyquenGeneratorFilter",
