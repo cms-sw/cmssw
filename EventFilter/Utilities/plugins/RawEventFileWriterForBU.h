@@ -60,6 +60,8 @@ private:
   jsoncollector::IntJ perRunFileCount_;
   jsoncollector::IntJ perRunLumiCount_;
   jsoncollector::IntJ perRunLastLumi_;
+  jsoncollector::IntJ perRunTotalEventCount_;
+  jsoncollector::IntJ perRunLostEventCount_;
 
   jsoncollector::IntJ perLumiEventCount_;
   jsoncollector::IntJ perLumiFileCount_;

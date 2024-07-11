@@ -69,17 +69,24 @@ RawEventFileWriterForBU::RawEventFileWriterForBU(edm::ParameterSet const& ps)
   eorJsonDef_.addLegendItem("NFiles", "integer", DataPointDefinition::SUM);
   eorJsonDef_.addLegendItem("NLumis", "integer", DataPointDefinition::SUM);
   eorJsonDef_.addLegendItem("LastLumi", "integer", DataPointDefinition::SUM);
+  eorJsonDef_.addLegendItem("TotalEvents", "integer", DataPointDefinition::SUM);
+  eorJsonDef_.addLegendItem("NLostEvents", "integer", DataPointDefinition::SUM);
 
   perRunEventCount_.setName("NEvents");
   perRunFileCount_.setName("NFiles");
   perRunLumiCount_.setName("NLumis");
   perRunLastLumi_.setName("LastLumi");
+  perRunTotalEventCount_.setName("TotalEvents");
+  perRunLostEventCount_.setName("NLostEvents");
 
   runMon_ = new FastMonitor(&eorJsonDef_, false);
   runMon_->registerGlobalMonitorable(&perRunEventCount_, false, nullptr);
   runMon_->registerGlobalMonitorable(&perRunFileCount_, false, nullptr);
   runMon_->registerGlobalMonitorable(&perRunLumiCount_, false, nullptr);
   runMon_->registerGlobalMonitorable(&perRunLastLumi_, false, nullptr);
+  runMon_->registerGlobalMonitorable(&perRunTotalEventCount_, false, nullptr);
+  runMon_->registerGlobalMonitorable(&perRunLostEventCount_, false, nullptr);
+
   runMon_->commit(nullptr);
 }
 
@@ -260,6 +267,7 @@ void RawEventFileWriterForBU::endOfLS(unsigned int ls) {
   lumiMon_->discardCollected(ls);
 
   perRunEventCount_.value() += perLumiEventCount_.value();
+  perRunTotalEventCount_.value() = perRunEventCount_.value();
   perRunFileCount_.value() += perLumiFileCount_.value();
   perRunLumiCount_.value() += 1;
   perRunLastLumi_.value() = ls;
