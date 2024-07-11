@@ -100,5 +100,5 @@
   <use name="cppunit"/>
   <use name="pytorch"/>
   <use name="pytorch-cuda"/>
-  <flags ALPAKA_BACKENDS="cuda"/>
+  <flags ALPAKA_BACKENDS="1"/>
 </bin>

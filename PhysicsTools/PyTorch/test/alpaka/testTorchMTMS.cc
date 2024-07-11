@@ -7,7 +7,9 @@
 #include <alpaka/alpaka.hpp>
 #include <torch/torch.h>
 #include <torch/script.h>
+#ifdef ALPAKA_ACC_GPU_CUDA_ENABLED
 #include <c10/cuda/CUDAStream.h>
+#endif
 #include <iostream>
 #include <exception>
 #include <memory>
@@ -212,6 +214,7 @@ void testTorchFromBufferModelEval::test() {
       cout << "Device[" << idx++ << "]:   " << alpaka::getName(d) << endl;
   }
   const auto & alpakaHost = alpaka::getDevByIdx(alpaka_common::PlatformHost(), 0u);
+  CPPUNIT_ASSERT(alpakaDevices.size());
   const auto & alpakaDevice = alpakaDevices[0];
   
   cout << "Will create torch device with type=" << torch_common::kDeviceType <<
@@ -262,16 +265,20 @@ void testTorchFromBufferModelEval::test() {
         printf ("Warning: Could not set thread name: %s\n", strerror(errno));
       cout << "Thread " << t << ": allocating CUDA stream and result buffer" << endl;
       ALPAKA_ACCELERATOR_NAMESPACE::Queue queue{alpakaDevice};
+#ifdef ALPAKA_ACC_GPU_CUDA_ENABLED
       c10::cuda::CUDAStream torchStream = c10::cuda::getStreamFromExternal(queue.getNativeHandle(), torchDevice.index());
       c10::cuda::setCurrentCUDAStream(torchStream);
-      
+#endif
+
       auto c_cpu  = alpaka::allocMappedBuf<ALPAKA_ACCELERATOR_NAMESPACE::Platform, uint8_t, uint32_t>(alpakaHost,platform,alpaka_common::Vec1D{bytes});
       // Get a pyTorch style cuda stream, device is captured from above.
       for (size_t i=0; i<10; ++i)
         testTorchFromBufferModelEvalSinglePass(model, a_cpu, b_cpu, c_cpu, N, bytes, t, i, queue);
       alpaka::wait(queue);
       cout << "Thread " << t << " Test loop complete." << endl;
+#ifdef ALPAKA_ACC_GPU_CUDA_ENABLED
       c10::cuda::setCurrentCUDAStream(c10::cuda::getDefaultCUDAStream());
+#endif
       cout << "Thread " << t << " Stream reset." << endl;
     });
   }
