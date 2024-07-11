@@ -9,6 +9,8 @@
 #include <unistd.h>
 #include <ostream>
 #include <cstring>
+#include <filesystem>
+#include <vector>
 #if __APPLE__
 #include <crt_externs.h>
 #define environ (*_NSGetEnviron())
@@ -52,27 +54,32 @@ int RemoteFile::local(const std::string &tmpdir, std::string &temp) {
   // This is better for grid jobs as the current directory is
   // likely to have more space, and is more optimised for
   // large files, and is cleaned up after the job.
+  std::vector<char> temp_chars;
+
   if (tmpdir.empty() || tmpdir == ".") {
-    size_t len = pathconf(".", _PC_PATH_MAX);
-    char *buf = (char *)malloc(len);
-    getcwd(buf, len);
-
-    temp.reserve(len + 32);
-    temp = buf;
-    free(buf);
+    std::filesystem::path current_path = std::filesystem::current_path();
+    auto spath = current_path.string();
+    temp_chars.reserve(spath.size() + 30);
+    temp_chars.assign(spath.begin(), spath.end());
   } else {
-    temp.reserve(tmpdir.size() + 32);
-    temp = tmpdir;
+    temp_chars.reserve(tmpdir.size() + 30);
+    temp_chars.assign(tmpdir.begin(), tmpdir.end());
   }
-  if (temp[temp.size() - 1] != '/')
-    temp += '/';
 
-  temp += "storage-factory-local-XXXXXX";
-  temp.c_str();  // null terminate for mkstemp
+  if (temp_chars.back() != '/')
+    temp_chars.push_back('/');
 
-  int fd = mkstemp(&temp[0]);
+  std::string suffix = "storage-factory-local-XXXXXX";
+  temp_chars.insert(temp_chars.end(), suffix.begin(), suffix.end());
+
+  // Ensure the vector is null-terminated
+  temp_chars.push_back('\0');
+
+  int fd = mkstemp(temp_chars.data());
   if (fd == -1)
     throwStorageError("RemoteFile", "Calling RemoteFile::local()", "mkstemp()", errno);
+  // Copy temp_chars to temp
+  temp.assign(temp_chars.begin(), temp_chars.end() - 1);  // Exclude the null terminator
 
   return fd;
 }
