@@ -5,5 +5,5 @@ hltCaloMET = cms.EDProducer("CaloMETProducer",
     calculateSignificance = cms.bool(False),
     globalThreshold = cms.double(0.3),
     noHF = cms.bool(False),
-    src = cms.InputTag("towerMaker")
+    src = cms.InputTag("hltTowerMaker")
 )

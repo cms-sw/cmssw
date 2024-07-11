@@ -5,7 +5,7 @@ hltTauPFJets08Region = cms.EDProducer("RecoTauJetRegionProducer",
     maxJetAbsEta = cms.double(99.0),
     minJetPt = cms.double(-1.0),
     pfCandAssocMapSrc = cms.InputTag(""),
-    pfCandSrc = cms.InputTag("particleFlowTmp"),
+    pfCandSrc = cms.InputTag("hltParticleFlowTmp"),
     src = cms.InputTag("hltAK4PFJets"),
     verbosity = cms.int32(0)
 )

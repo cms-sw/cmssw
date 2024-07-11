@@ -56,7 +56,7 @@ hltPFPuppiNoLep = cms.EDProducer("PuppiProducer",
         )
     ),
     applyCHS = cms.bool(True),
-    candName = cms.InputTag("particleFlowTmp"),
+    candName = cms.InputTag("hltParticleFlowTmp"),
     clonePackedCands = cms.bool(False),
     invertPuppi = cms.bool(False),
     puppiDiagnostics = cms.bool(False),
@@ -64,7 +64,7 @@ hltPFPuppiNoLep = cms.EDProducer("PuppiProducer",
     useExistingWeights = cms.bool(False),
     useExp = cms.bool(False),
     usePUProxyValue = cms.bool(True),
-    vertexName = cms.InputTag("goodOfflinePrimaryVertices"),
+    vertexName = cms.InputTag("hltGoodOfflinePrimaryVertices"),
     vtxNdofCut = cms.int32(4),
     vtxZCut = cms.double(24)
 )

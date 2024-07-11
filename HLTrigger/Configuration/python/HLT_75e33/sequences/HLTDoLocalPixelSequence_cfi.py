@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from ..modules.siPixelClusters_cfi import *
-from ..modules.siPixelRecHits_cfi import *
+from ..modules.hltSiPixelClusters_cfi import *
+from ..modules.hltSiPixelRecHits_cfi import *
 
-HLTDoLocalPixelSequence = cms.Sequence(siPixelClusters+siPixelRecHits)
+HLTDoLocalPixelSequence = cms.Sequence(hltSiPixelClusters+hltSiPixelRecHits)
