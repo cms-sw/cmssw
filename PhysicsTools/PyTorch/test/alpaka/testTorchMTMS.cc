@@ -22,7 +22,8 @@
 #if defined(ALPAKA_ACC_GPU_CUDA_ENABLED) || defined(ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLED) || defined(ALPAKA_ACC_CPU_B_TBB_T_SEQ_ENABLED)
 #include <nvToolsExt.h>
 #endif
-#include "HeterogeneousCore/AlpakaInterface/interface/config.h"
+
+#include "PhysicsTools/PyTorch/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
 
@@ -30,7 +31,7 @@ using std::cout;
 using std::endl;
 using std::exception;
 
-constexpr bool doValidation = false;
+constexpr bool doValidation = true;
 
 // Automatic translation of alpaka platform to torch constants. Embryon of PhysicsTools/PyTorch/interface/config.h
 // We rely on HeterogeneousCore/AlpakaInterface/interface/config.h for filtering the defines and assume one and only
@@ -40,21 +41,6 @@ constexpr bool doValidation = false;
 // ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLED
 // ALPAKA_ACC_CPU_B_TBB_T_SEQ_ENABLED
 // The threading model of the CPU versions will have to be investigated.
-
-// TODO: we might be able to cast alpaka devices based on their types instead...
-namespace torch_common {
-#ifdef ALPAKA_ACC_GPU_CUDA_ENABLED
-  constexpr c10::DeviceType kDeviceType = c10::DeviceType::CUDA;
-#elif ALPAKA_ACC_GPU_HIP_ENABLED
-  constexpr c10::DeviceType kDeviceType = c10::DeviceType::HIP;
-#elif ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLED
-  constexpr c10::DeviceType kDeviceType = c10::DeviceType::CPU;
-#elif ALPAKA_ACC_CPU_B_TBB_T_SEQ_ENABLED
-  constexpr c10::DeviceType kDeviceType = c10::DeviceType::CPU;
-#else
-  #error "Could not define the torch device type."
-#endif
-}
 
 class NVTXScopedRange {
 public:
