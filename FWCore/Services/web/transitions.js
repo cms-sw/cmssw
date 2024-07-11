@@ -1,6 +1,3 @@
-import {data} from './data.js';
-//import data from './data.json' assert { type: 'json' };
-
 const kBoxHeight = 15;
 const kRowHeight = 20;
 
@@ -89,11 +86,13 @@ const activityToName = [  "prefetch",
                         "externalWork"]
 
 const activityToColor = ["#FF5F1F", "#CC7722", null, "#FF4433", "#8B4513"];
-
-window.onload = () => {
+/* const promiseOfSomeData = fetch("modules_data.json").then(r=>r.json()).then(data => {
+    return data;
+}); */
+window.onload = async() => {
     
-    //const response = await fetch("./data.json");
-    //const data = await response.json();
+    const response = await fetch("modules_data.json");
+    const data = await response.json();
     const left = document.querySelector('.name_div');
     const div = document.querySelector('.graph_div');
     const bottom = document.querySelector('.time_div');

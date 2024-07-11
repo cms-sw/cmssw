@@ -14,7 +14,12 @@ This is a simple HTTP server implemented in Python using the `http.server` modul
 1. Run the server script (`server.py`) using Python.
 2. Access the server in your web browser by navigating to `http://localhost:65432`.
 
+### Specifying the Port
 
+You can specify the port to serve on by using the `--port` argument:
+
+```sh
+python server.py --port 8080
 
 ## Viewer layout
 The viewer is composed to two main areas, the top is the timing viewer and at the bottom shows information about a selected time block. The top time viewer is further divided into three parts. On the left is the macro scoping grouping of framework activity types into Global and Stream activities. If the _module centric_ option was chosen then this area is also divided by each module activity which is sorted based on most time used to least time used. At the bottom is the measurement of time since the start of the job. The main area shows the blocks of time spend doing various work within the Framework.
