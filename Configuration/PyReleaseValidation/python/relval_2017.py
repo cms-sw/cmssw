@@ -39,7 +39,7 @@ from Configuration.PyReleaseValidation.relval_upgrade import workflows as _upgra
 #        (TTbar PU prod-like)
 #        (QCD 1.8TeV DeepCore)
 #        (TTbar DigiNoHLT)
-#   2023 (TTbar, TTbar PU, TTbar PU premix)
+#   2023 (TTbar, TTbar PU, TTbar PU premix, TTbar PU prod-like)
 #        (TTbar trackingMkFit)
 #        (Patatrack pixel-only: TTbar - on CPU: quadruplets, triplets)
 #        (Patatrack ECAL-only: TTbar - on CPU)
@@ -48,7 +48,7 @@ from Configuration.PyReleaseValidation.relval_upgrade import workflows as _upgra
 #        (TTbar FastSim, TTbar FastSim PU, MinBiasFS for mixing))
 #        (ZEE)
 #        (Nu Gun)
-#   2024 (TTbar, TTbar PU, TTbar PU premix)
+#   2024 (TTbar, TTbar PU, TTbar PU premix, TTbar PU prod-like)
 #        (TTbar trackingMkFit)
 #        (Alpaka Pixel Only, Alpaka ECal only)
 #        (TTbar FastSim, TTbar FastSim PU, MinBiasFS for mixing))
@@ -86,7 +86,7 @@ numWFIB = [10001.0,10002.0,10003.0,10004.0,10005.0,10006.0,10007.0,10008.0,10009
            11723.17,
            11634.601,
            # 2023
-           12434.0,12634.0,12634.99,
+           12434.0,12634.0,12634.99,12634.21,
            12434.7,
            12434.501,12434.505,
            12434.511,
@@ -96,7 +96,7 @@ numWFIB = [10001.0,10002.0,10003.0,10004.0,10005.0,10006.0,10007.0,10008.0,10009
            12446.0,
            12461.0,	
            # 2024
-           12834.0,13034.0,13034.99,
+           12834.0,13034.0,13034.99,13034.21,
            12834.7,
            12834.402, 12834.412,
            14434.0, 14634.0, 14440.303,
