@@ -33,6 +33,7 @@ class testTestProcessor : public CppUnit::TestFixture {
   CPPUNIT_TEST(addProductTest);
   CPPUNIT_TEST(missingProductTest);
   CPPUNIT_TEST(filterTest);
+  CPPUNIT_TEST(outputModuleTest);
   CPPUNIT_TEST(extraProcessTest);
   CPPUNIT_TEST(eventSetupTest);
   CPPUNIT_TEST(eventSetupPutTest);
@@ -55,6 +56,7 @@ public:
   void addProductTest();
   void missingProductTest();
   void filterTest();
+  void outputModuleTest();
   void extraProcessTest();
   void eventSetupTest();
   void eventSetupPutTest();
@@ -149,6 +151,20 @@ void testTestProcessor::filterTest() {
   CPPUNIT_ASSERT(tester.test().modulePassed());
 }
 
+void testTestProcessor::outputModuleTest() {
+  char const* kTest =
+      "from FWCore.TestProcessor.TestProcess import *\n"
+      "process = TestProcess()\n"
+      "process.MessageLogger.cerr.INFO.limit=10000\n"
+      "process.foo = cms.OutputModule('GetProductCheckerOutputModule', verbose=cms.untracked.bool(True),"
+      " outputCommands = cms.untracked.vstring('drop *','keep edmtestIntProduct_in__TEST'),\n"
+      " crosscheck = cms.untracked.vstring('edmtestIntProduct_in__TEST'))\n"
+      "process.moduleToTest(process.foo)\n";
+  edm::test::TestProcessor::Config config(kTest);
+  auto token = config.produces<edmtest::IntProduct>("in");
+  edm::test::TestProcessor tester(config);
+  tester.test(std::make_pair(token, std::make_unique<edmtest::IntProduct>(1)));
+}
 void testTestProcessor::extraProcessTest() {
   char const* kTest =
       "from FWCore.TestProcessor.TestProcess import *\n"
