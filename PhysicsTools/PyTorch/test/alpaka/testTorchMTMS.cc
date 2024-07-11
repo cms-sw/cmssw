@@ -18,6 +18,8 @@
 #include "../testBase.h"
 #ifdef ALPAKA_ACC_GPU_CUDA_ENABLED
 #include <cuda_runtime.h>
+#endif
+#if defined(ALPAKA_ACC_GPU_CUDA_ENABLED) || defined(ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLED) || defined(ALPAKA_ACC_CPU_B_TBB_T_SEQ_ENABLED)
 #include <nvToolsExt.h>
 #endif
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
@@ -57,13 +59,13 @@ namespace torch_common {
 class NVTXScopedRange {
 public:
   NVTXScopedRange(const char * msg) {
-#ifdef ALPAKA_ACC_GPU_CUDA_ENABLED
+#if defined(ALPAKA_ACC_GPU_CUDA_ENABLED) || defined(ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLED) || defined(ALPAKA_ACC_CPU_B_TBB_T_SEQ_ENABLED)
     id_ = nvtxRangeStartA(msg);
 #endif
   }
   
   void end() {
-#ifdef ALPAKA_ACC_GPU_CUDA_ENABLED 
+#if defined(ALPAKA_ACC_GPU_CUDA_ENABLED) || defined(ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLED) || defined(ALPAKA_ACC_CPU_B_TBB_T_SEQ_ENABLED)
     if (active_) {
       active_ = false;
       nvtxRangeEnd(id_);
@@ -73,7 +75,7 @@ public:
   
   ~NVTXScopedRange() { end(); }
 private:
-#ifdef ALPAKA_ACC_GPU_CUDA_ENABLED
+#if defined(ALPAKA_ACC_GPU_CUDA_ENABLED) || defined(ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLED) || defined(ALPAKA_ACC_CPU_B_TBB_T_SEQ_ENABLED)
   nvtxRangeId_t id_;
   bool active_ = true;
 #endif
@@ -153,10 +155,14 @@ void testTorchFromBufferModelEvalSinglePass(torch::jit::script::Module& model, c
   //cout << "Running CUDA kernels" << endl;
   //vector_add(a_gpu, b_gpu, c_gpu, N, NUM_BLOCKS, NUM_THREADS);
 
-  NVTXScopedRange inferenceRange("Inference");
+  NVTXScopedRange inferenceRange((std::string("Inference thread ") + std::to_string(thread)).c_str());
   try {
     // Convert pinned memory on GPU to Torch tensor on GPU
-    auto options = torch::TensorOptions().dtype(torch::kInt).device(torch_common::kDeviceType, alpaka::getDev(queue).getNativeHandle()).pinned_memory(true);
+    auto options = torch::TensorOptions().dtype(torch::kInt)
+#ifdef ALPAKA_ACC_GPU_CUDA_ENABLED
+      .device(torch_common::kDeviceType, alpaka::getDev(queue).getNativeHandle())
+#endif
+      .pinned_memory(true);
     cout << "T" << thread << " I" << iteration << " Converting vectors and result to Torch tensors on GPU" << endl;
     torch::Tensor a_gpu_tensor = torch::from_blob(a_gpu.data(), {N}, options);
     torch::Tensor b_gpu_tensor = torch::from_blob(b_gpu.data(), {N}, options);
@@ -221,7 +227,14 @@ void testTorchFromBufferModelEval::test() {
           " and native handle=" << alpakaDevice.getNativeHandle() << endl;
   torch::Device torchDevice(torch_common::kDeviceType, alpakaDevice.getNativeHandle());
   torch::jit::script::Module model;
-
+  
+  cout << "Setting the torch thread numbers to 1" << endl
+        << "Before:" << endl
+        << at::get_parallel_info();
+  at::set_num_threads(1);
+  at::set_num_interop_threads(1);
+  cout << "After:" << endl
+       << at::get_parallel_info();
   cout << "Loading model..." << endl;
   
   // We need to set the device index to 0 (or a valid value) as leaving it to default (-1) leads to a 
