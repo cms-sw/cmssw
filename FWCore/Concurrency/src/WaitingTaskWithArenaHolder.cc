@@ -90,6 +90,12 @@ namespace edm {
     }
   }
 
+  void WaitingTaskWithArenaHolder::presetTaskAsFailed(std::exception_ptr iExcept) noexcept {
+    if (iExcept) {
+      m_task->dependentTaskFailed(iExcept);
+    }
+  }
+
   // This next function is useful if you know from the context that
   // m_arena (which is set when the  constructor was executes) is the
   // same arena in which you want to execute the doneWaiting function.
