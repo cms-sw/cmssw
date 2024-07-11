@@ -10,6 +10,7 @@
 // user include files
 #include "FWCore/Framework/interface/ESSourceProductResolverTemplate.h"
 #include "FWCore/Framework/interface/DataKey.h"
+#include "FWCore/Framework/interface/EventSetupRecordKey.h"
 
 #include "CondCore/CondDB/interface/IOVProxy.h"
 #include "CondCore/CondDB/interface/PayloadProxy.h"
@@ -69,6 +70,7 @@ namespace cond {
     virtual edm::eventsetup::TypeTag type() const = 0;
     virtual ProxyP proxy(unsigned int iovIndex) const = 0;
     virtual esResolverP esResolver(unsigned int iovIndex) const = 0;
+    virtual edm::eventsetup::EventSetupRecordKey recordKey() const = 0;
 
     ProductResolverWrapperBase();
     // late initialize (to allow to load ALL library first)
@@ -173,6 +175,13 @@ public:
   edm::eventsetup::TypeTag type() const override { return m_type; }
   ProxyP proxy(unsigned int iovIndex) const override { return m_proxies.at(iovIndex); }
   esResolverP esResolver(unsigned int iovIndex) const override { return m_esResolvers.at(iovIndex); }
+
+  // ProductResolverWrapper returning the Key for the RecordT
+  // guarantees the proper linking order between the Records and
+  // CondDBESSource
+  edm::eventsetup::EventSetupRecordKey recordKey() const final {
+    return edm::eventsetup::EventSetupRecordKey::makeKey<RecordT>();
+  }
 
 private:
   std::string m_source;
