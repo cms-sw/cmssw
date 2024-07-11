@@ -165,6 +165,10 @@ namespace ecaldqm {
 
         float aRmsThr(sqrt(pow(aMean * toleranceAmpRMSRatio_, 2) + pow(3., 2)));
 
+        //Temporarily disabling all cuts on LED Quality plot.
+        qItr->setBinContent(doMask ? kMGood : kGood);
+
+        /*
         EcalScDetId scid = EEDetId(id).sc();  //Get the Endcap SC id for the given crystal id.
 
         //For the known bad Supercrystals in the SClist, bad quality flag is only set based on the amplitude RMS
@@ -180,7 +184,7 @@ namespace ecaldqm {
             qItr->setBinContent(doMask ? kMBad : kBad);
           else
             qItr->setBinContent(doMask ? kMGood : kGood);
-        }
+        }*/
       }
 
       towerAverage_(meQualitySummary, meQuality, 0.2);
