@@ -15,7 +15,7 @@
 #include <memory>
 #include <math.h>
 #include <sys/prctl.h>
-#include "../testBase.h"
+#include <cppunit/extensions/HelperMacros.h>
 #ifdef ALPAKA_ACC_GPU_CUDA_ENABLED
 #include <cuda_runtime.h>
 #endif
@@ -33,14 +33,6 @@ using std::exception;
 
 constexpr bool doValidation = true;
 
-// Automatic translation of alpaka platform to torch constants. Embryon of PhysicsTools/PyTorch/interface/config.h
-// We rely on HeterogeneousCore/AlpakaInterface/interface/config.h for filtering the defines and assume one and only
-// one macro is defined among:
-// ALPAKA_ACC_GPU_CUDA_ENABLED
-// ALPAKA_ACC_GPU_HIP_ENABLED
-// ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLED
-// ALPAKA_ACC_CPU_B_TBB_T_SEQ_ENABLED
-// The threading model of the CPU versions will have to be investigated.
 
 class NVTXScopedRange {
 public:
