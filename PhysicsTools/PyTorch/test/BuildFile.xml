@@ -102,3 +102,12 @@
   <use name="pytorch-cuda"/>
   <flags ALPAKA_BACKENDS="1"/>
 </bin>
+
+<bin file="alpaka/testTorchMTMS-localNN.cc testRunner.cc" name="testTorchMTMS-localNN-alpaka">
+  <use name="boost_filesystem"/>
+  <use name="alpaka"/>
+  <use name="cppunit"/>
+  <use name="pytorch"/>
+  <use name="pytorch-cuda"/>
+  <flags ALPAKA_BACKENDS="1"/>
+</bin>
