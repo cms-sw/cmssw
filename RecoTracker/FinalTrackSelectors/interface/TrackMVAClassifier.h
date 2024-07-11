@@ -1,6 +1,7 @@
 #ifndef RecoTracker_FinalTrackSelectors_TrackMVAClassifierBase_h
 #define RecoTracker_FinalTrackSelectors_TrackMVAClassifierBase_h
 
+#include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
