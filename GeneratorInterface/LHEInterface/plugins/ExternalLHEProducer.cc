@@ -192,6 +192,7 @@ void ExternalLHEProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
                 partonLevel_->weights().end(),
                 std::bind(&LHEEventProduct::addWeight, product.get(), std::placeholders::_1));
   product->setScales(partonLevel_->scales());
+  product->setEvtNum(partonLevel_->evtnum());
   if (nPartonMapping_.empty()) {
     product->setNpLO(partonLevel_->npLO());
     product->setNpNLO(partonLevel_->npNLO());
