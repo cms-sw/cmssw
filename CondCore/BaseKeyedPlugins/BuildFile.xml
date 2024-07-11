@@ -1,4 +1,7 @@
+<use name="CondCore/CondDB"/>
 <use name="CondCore/ESSources"/>
 <use name="CondFormats/Calibration"/>
+<use name="CondFormats/Common"/>
+<use name="CondFormats/DataRecord"/>
 <use name="CondFormats/DTObjects"/>
 <flags EDM_PLUGIN="1"/>
