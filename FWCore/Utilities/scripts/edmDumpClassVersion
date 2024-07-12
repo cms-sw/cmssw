@@ -9,9 +9,13 @@ def main(args):
     
     ClassesDefUtils.initCheckClass()
     p = ClassesDefUtils.XmlParser(args.xmlfile, includeNonVersionedClasses=True, normalizeClassNames=False)
+    out = []
     for name, info in p.classes.items():
         (error, version, checksum) = ClassesDefUtils.checkClass(name, 0, {})
-        print(name, version, checksum)
+        out.append(f"{name} {version} {checksum}")
+    out.sort()
+    for l in out:
+        print(l)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter,
