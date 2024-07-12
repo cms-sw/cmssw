@@ -139,20 +139,9 @@ void testTorchFromBufferModelEvalSinglePass(torch::jit::script::Module& model, c
     // Convert pinned memory on GPU to Torch tensor on GPU
     cout << "T" << thread << " I" << iteration << " Running torch inference" << endl;
     using  torch_common::toTensor;
-//    auto options = torch::TensorOptions().dtype(torch::kInt)
-//#ifdef ALPAKA_ACC_GPU_CUDA_ENABLED
-//      .device(torch_common::kDeviceType, alpaka::getDev(queue).getNativeHandle())
-//#endif
-//      .pinned_memory(true);
-//    cout << "T" << thread << " I" << iteration << " Converting vectors and result to Torch tensors on GPU" << endl;
-//    torch::Tensor a_gpu_tensor = torch::from_blob(a_gpu.data(), {N}, options);
-//    torch::Tensor b_gpu_tensor = torch::from_blob(b_gpu.data(), {N}, options);
-
-//    cout << "T" << thread << " I" << iteration << " Running torch inference" << endl;
-    std::vector<torch::jit::IValue> inputs{toTensor(a_gpu), toTensor(b_gpu)};
     // Not fully understood but std::move() is needed
     // https://stackoverflow.com/questions/71790378/assign-memory-blob-to-py-torch-output-tensor-c-api 
-    toTensor(c_gpu) = model.forward(inputs).toTensor();
+    toTensor(c_gpu) = model.forward({toTensor(a_gpu), toTensor(b_gpu)}).toTensor();
 
     //CPPUNIT_ASSERT(c_gpu_tensor.equal(output));
   } catch (exception& e) {
