@@ -269,8 +269,7 @@ private:
   static constexpr double zWosMatchMax_ = 1.;
   static constexpr double etacutGEN_ = 4.;   // |eta| < 4;
   static constexpr double etacutREC_ = 3.;   // |eta| < 3;
-  static constexpr double pTcutBTL_ = 0.7;   // PT > 0.7 GeV
-  static constexpr double pTcutETL_ = 0.2;   // PT > 0.2 GeV
+  static constexpr double pTcut_ = 0.7;      // PT > 0.7 GeV
   static constexpr double deltaZcut_ = 0.1;  // dz separation 1 mm
   static constexpr double trackMaxBtlEta_ = 1.5;
   static constexpr double trackMinEtlEta_ = 1.6;
@@ -2841,17 +2840,14 @@ const bool Primary4DVertexValidation::trkTPSelLV(const TrackingParticle& tp) {
 
   auto r_pv = std::sqrt(x_pv * x_pv + y_pv * y_pv);
 
-  match = tp.charge() != 0 &&
-          ((std::abs(tp.eta()) <= trackMaxBtlEta_ && tp.pt() > pTcutBTL_) ^
-           (std::abs(tp.eta()) > trackMaxBtlEta_ && std::abs(tp.eta()) < etacutGEN_ && tp.pt() > pTcutETL_)) &&
-          r_pv < rBTL_ && std::abs(z_pv) < zETL_;
+  match =
+      tp.charge() != 0 && std::abs(tp.eta()) < etacutGEN_ && tp.pt() > pTcut_ && r_pv < rBTL_ && std::abs(z_pv) < zETL_;
   return match;
 }
 
 const bool Primary4DVertexValidation::trkRecSel(const reco::TrackBase& trk) {
   bool match = false;
-  match = (std::abs(trk.eta()) <= trackMaxBtlEta_ && trk.pt() > pTcutBTL_) ^
-          (std::abs(trk.eta()) > trackMaxBtlEta_ && std::abs(trk.eta()) < etacutREC_ && trk.pt() > pTcutETL_);
+  match = std::abs(trk.eta()) <= etacutREC_ && trk.pt() > pTcut_;
   return match;
 }
 

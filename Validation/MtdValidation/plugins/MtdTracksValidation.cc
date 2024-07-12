@@ -86,6 +86,7 @@ private:
   const bool trkTPSelLV(const TrackingParticle&);
   const bool trkTPSelAll(const TrackingParticle&);
   const bool trkRecSel(const reco::TrackBase&);
+  const bool trkRecSelLowPt(const reco::TrackBase&);
   const edm::Ref<std::vector<TrackingParticle>>* getMatchedTP(const reco::TrackBaseRef&);
 
   const unsigned long int uniqueId(const uint32_t x, const EncodedEventId& y) {
@@ -167,9 +168,12 @@ private:
 
   MonitorElement* meETLTrackRPTime_;
   MonitorElement* meETLTrackEffEtaTot_[2];
+  MonitorElement* meETLTrackEffEtaTotLowPt_[2];
   MonitorElement* meETLTrackEffPhiTot_[2];
   MonitorElement* meETLTrackEffPtTot_[2];
   MonitorElement* meETLTrackEffEtaMtd_[2];
+  MonitorElement* meETLTrackEffEtaMtdLowPt_[2];
+  MonitorElement* meETLTrackEffEta2MtdLowPt_[2];
   MonitorElement* meETLTrackEffPhiMtd_[2];
   MonitorElement* meETLTrackEffPtMtd_[2];
   MonitorElement* meETLTrackEffEta2Mtd_[2];
@@ -234,6 +238,8 @@ private:
   MonitorElement* meTrackMatchedTPmtdEffEtaMtd_;
   MonitorElement* meTrackResTot_;
   MonitorElement* meTrackPullTot_;
+  MonitorElement* meTrackResTotvsMVAQual_;
+  MonitorElement* meTrackPullTotvsMVAQual_;
 
   MonitorElement* meExtraPhiAtBTL_;
   MonitorElement* meExtraPhiAtBTLmatched_;
@@ -517,7 +523,8 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
                                                  (trackGen.pt() - (*tp_info)->pt()) / (*tp_info)->pt());
             meBTLTrackMatchedTPDPtvsPtMtd_->Fill((*tp_info)->pt(), (track.pt() - (*tp_info)->pt()) / (*tp_info)->pt());
           }
-          if (isETL && !twoETLdiscs) {
+          if (isETL && !twoETLdiscs && (std::abs(trackGen.eta()) > trackMinEtlEta_) &&
+              (std::abs(trackGen.eta()) < trackMaxEtlEta_)) {
             meETLTrackMatchedTPPtResMtd_->Fill(std::abs(track.pt() - (*tp_info)->pt()) /
                                                std::abs(trackGen.pt() - (*tp_info)->pt()));
             meETLTrackMatchedTPPtRatioGen_->Fill(trackGen.pt() / (*tp_info)->pt());
@@ -628,12 +635,71 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
           if (isBTL || isETL) {
             meTrackResTot_->Fill(dT);
             meTrackPullTot_->Fill(pullT);
+            meTrackResTotvsMVAQual_->Fill(mtdQualMVA[trackref], dT);
+            meTrackPullTotvsMVAQual_->Fill(mtdQualMVA[trackref], pullT);
           }
         }  // time res and time pull
 
       }  // TP matching
-    }
-  }  //RECO tracks loop
+    }    // trkRecSel
+
+    // ETL tracks with low pt (0.2 < Pt [GeV] < 0.7)
+    if (trkRecSelLowPt(trackGen)) {
+      if ((std::abs(trackGen.eta()) > trackMinEtlEta_) && (std::abs(trackGen.eta()) < trackMaxEtlEta_)) {
+        if (trackGen.pt() < 0.45) {
+          meETLTrackEffEtaTotLowPt_[0]->Fill(std::abs(trackGen.eta()));
+        } else {
+          meETLTrackEffEtaTotLowPt_[1]->Fill(std::abs(trackGen.eta()));
+        }
+      }
+      bool MTDEtlZnegD1 = false;
+      bool MTDEtlZnegD2 = false;
+      bool MTDEtlZposD1 = false;
+      bool MTDEtlZposD2 = false;
+      for (const auto hit : track.recHits()) {
+        if (hit->isValid() == false)
+          continue;
+        MTDDetId Hit = hit->geographicalId();
+        if ((Hit.det() == 6) && (Hit.subdetId() == 1) && (Hit.mtdSubDetector() == 2)) {
+          isETL = true;
+          ETLDetId ETLHit = hit->geographicalId();
+          if ((ETLHit.zside() == -1) && (ETLHit.nDisc() == 1)) {
+            MTDEtlZnegD1 = true;
+          }
+          if ((ETLHit.zside() == -1) && (ETLHit.nDisc() == 2)) {
+            MTDEtlZnegD2 = true;
+          }
+          if ((ETLHit.zside() == 1) && (ETLHit.nDisc() == 1)) {
+            MTDEtlZposD1 = true;
+          }
+          if ((ETLHit.zside() == 1) && (ETLHit.nDisc() == 2)) {
+            MTDEtlZposD2 = true;
+          }
+        }
+      }
+      if ((trackGen.eta() < -trackMinEtlEta_) && (trackGen.eta() > -trackMaxEtlEta_)) {
+        twoETLdiscs = (MTDEtlZnegD1 == true) && (MTDEtlZnegD2 == true);
+      }
+      if ((trackGen.eta() > trackMinEtlEta_) && (trackGen.eta() < trackMaxEtlEta_)) {
+        twoETLdiscs = (MTDEtlZposD1 == true) && (MTDEtlZposD2 == true);
+      }
+      if (isETL && (std::abs(trackGen.eta()) > trackMinEtlEta_) && (std::abs(trackGen.eta()) < trackMaxEtlEta_)) {
+        if (trackGen.pt() < 0.45) {
+          meETLTrackEffEtaMtdLowPt_[0]->Fill(std::abs(trackGen.eta()));
+        } else {
+          meETLTrackEffEtaMtdLowPt_[1]->Fill(std::abs(trackGen.eta()));
+        }
+      }
+      if (isETL && twoETLdiscs) {
+        if (trackGen.pt() < 0.45) {
+          meETLTrackEffEta2MtdLowPt_[0]->Fill(std::abs(trackGen.eta()));
+        } else {
+          meETLTrackEffEta2MtdLowPt_[1]->Fill(std::abs(trackGen.eta()));
+        }
+      }
+    }  // trkRecSelLowPt
+
+  }  // RECO tracks loop
 }
 
 const std::pair<bool, bool> MtdTracksValidation::checkAcceptance(const reco::Track& track,
@@ -829,53 +895,59 @@ void MtdTracksValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
 
   // histogram booking
   meBTLTrackRPTime_ = ibook.book1D("TrackBTLRPTime", "Track t0 with respect to R.P.;t0 [ns]", 100, -1, 3);
-  meBTLTrackEffEtaTot_ = ibook.book1D("TrackBTLEffEtaTot", "Track efficiency vs eta (Tot);#eta_{RECO}", 100, -1.6, 1.6);
-  meBTLTrackEffPhiTot_ =
-      ibook.book1D("TrackBTLEffPhiTot", "Track efficiency vs phi (Tot);#phi_{RECO} [rad]", 100, -3.2, 3.2);
-  meBTLTrackEffPtTot_ = ibook.book1D("TrackBTLEffPtTot", "Track efficiency vs pt (Tot);pt_{RECO} [GeV]", 50, 0, 10);
-  meBTLTrackEffEtaMtd_ = ibook.book1D("TrackBTLEffEtaMtd", "Track efficiency vs eta (Mtd);#eta_{RECO}", 100, -1.6, 1.6);
-  meBTLTrackEffPhiMtd_ =
-      ibook.book1D("TrackBTLEffPhiMtd", "Track efficiency vs phi (Mtd);#phi_{RECO} [rad]", 100, -3.2, 3.2);
-  meBTLTrackEffPtMtd_ = ibook.book1D("TrackBTLEffPtMtd", "Track efficiency vs pt (Mtd);pt_{RECO} [GeV]", 50, 0, 10);
+  meBTLTrackEffEtaTot_ = ibook.book1D("TrackBTLEffEtaTot", "Eta of tracks (Tot);#eta_{RECO}", 100, -1.6, 1.6);
+  meBTLTrackEffPhiTot_ = ibook.book1D("TrackBTLEffPhiTot", "Phi of tracks (Tot);#phi_{RECO} [rad]", 100, -3.2, 3.2);
+  meBTLTrackEffPtTot_ = ibook.book1D("TrackBTLEffPtTot", "Pt of tracks (Tot);pt_{RECO} [GeV]", 50, 0, 10);
+  meBTLTrackEffEtaMtd_ = ibook.book1D("TrackBTLEffEtaMtd", "Eta of tracks (Mtd);#eta_{RECO}", 100, -1.6, 1.6);
+  meBTLTrackEffPhiMtd_ = ibook.book1D("TrackBTLEffPhiMtd", "Phi of tracks (Mtd);#phi_{RECO} [rad]", 100, -3.2, 3.2);
+  meBTLTrackEffPtMtd_ = ibook.book1D("TrackBTLEffPtMtd", "Pt of tracks (Mtd);pt_{RECO} [GeV]", 50, 0, 10);
   meBTLTrackPtRes_ =
       ibook.book1D("TrackBTLPtRes", "Track pT resolution  ;pT_{Gentrack}-pT_{MTDtrack}/pT_{Gentrack} ", 100, -0.1, 0.1);
   meETLTrackRPTime_ = ibook.book1D("TrackETLRPTime", "Track t0 with respect to R.P.;t0 [ns]", 100, -1, 3);
   meETLTrackEffEtaTot_[0] =
-      ibook.book1D("TrackETLEffEtaTotZneg", "Track efficiency vs eta (Tot) (-Z);#eta_{RECO}", 100, -3.2, -1.4);
+      ibook.book1D("TrackETLEffEtaTotZneg", "Eta of tracks (Tot) (-Z);#eta_{RECO}", 100, -3.2, -1.4);
   meETLTrackEffEtaTot_[1] =
-      ibook.book1D("TrackETLEffEtaTotZpos", "Track efficiency vs eta (Tot) (+Z);#eta_{RECO}", 100, 1.4, 3.2);
+      ibook.book1D("TrackETLEffEtaTotZpos", "Eta of tracks (Tot) (+Z);#eta_{RECO}", 100, 1.4, 3.2);
+  meETLTrackEffEtaTotLowPt_[0] =
+      ibook.book1D("TrackETLEffEtaTotLowPt0", "Eta of tracks, 0.2 < pt < 0.45 (Tot);#eta_{RECO}", 100, 1.4, 3.2);
+  meETLTrackEffEtaTotLowPt_[1] =
+      ibook.book1D("TrackETLEffEtaTotLowPt1", "Eta of tracks, 0.45 < pt < 0.7 (Tot);#eta_{RECO}", 100, 1.4, 3.2);
   meETLTrackEffPhiTot_[0] =
-      ibook.book1D("TrackETLEffPhiTotZneg", "Track efficiency vs phi (Tot) (-Z);#phi_{RECO} [rad]", 100, -3.2, 3.2);
+      ibook.book1D("TrackETLEffPhiTotZneg", "Phi of tracks (Tot) (-Z);#phi_{RECO} [rad]", 100, -3.2, 3.2);
   meETLTrackEffPhiTot_[1] =
-      ibook.book1D("TrackETLEffPhiTotZpos", "Track efficiency vs phi (Tot) (+Z);#phi_{RECO} [rad]", 100, -3.2, 3.2);
-  meETLTrackEffPtTot_[0] =
-      ibook.book1D("TrackETLEffPtTotZneg", "Track efficiency vs pt (Tot) (-Z);pt_{RECO} [GeV]", 50, 0, 10);
-  meETLTrackEffPtTot_[1] =
-      ibook.book1D("TrackETLEffPtTotZpos", "Track efficiency vs pt (Tot) (+Z);pt_{RECO} [GeV]", 50, 0, 10);
+      ibook.book1D("TrackETLEffPhiTotZpos", "Phi of tracks (Tot) (+Z);#phi_{RECO} [rad]", 100, -3.2, 3.2);
+  meETLTrackEffPtTot_[0] = ibook.book1D("TrackETLEffPtTotZneg", "Pt of tracks (Tot) (-Z);pt_{RECO} [GeV]", 50, 0, 10);
+  meETLTrackEffPtTot_[1] = ibook.book1D("TrackETLEffPtTotZpos", "Pt of tracks (Tot) (+Z);pt_{RECO} [GeV]", 50, 0, 10);
   meETLTrackEffEtaMtd_[0] =
-      ibook.book1D("TrackETLEffEtaMtdZneg", "Track efficiency vs eta (Mtd) (-Z);#eta_{RECO}", 100, -3.2, -1.4);
+      ibook.book1D("TrackETLEffEtaMtdZneg", "Eta of tracks (Mtd) (-Z);#eta_{RECO}", 100, -3.2, -1.4);
   meETLTrackEffEtaMtd_[1] =
-      ibook.book1D("TrackETLEffEtaMtdZpos", "Track efficiency vs eta (Mtd) (+Z);#eta_{RECO}", 100, 1.4, 3.2);
+      ibook.book1D("TrackETLEffEtaMtdZpos", "Eta of tracks (Mtd) (+Z);#eta_{RECO}", 100, 1.4, 3.2);
+  meETLTrackEffEtaMtdLowPt_[0] =
+      ibook.book1D("TrackETLEffEtaMtdLowPt0", "Eta of tracks, 0.2 < pt < 0.45 (Mtd);#eta_{RECO}", 100, 1.4, 3.2);
+  meETLTrackEffEtaMtdLowPt_[1] =
+      ibook.book1D("TrackETLEffEtaMtdLowPt1", "Eta of tracks, 0.45 < pt < 0.7 (Mtd);#eta_{RECO}", 100, 1.4, 3.2);
+  meETLTrackEffEta2MtdLowPt_[0] =
+      ibook.book1D("TrackETLEffEta2MtdLowPt0", "Eta of tracks, 0.2 < pt < 0.45 (Mtd 2 hit);#eta_{RECO}", 100, 1.4, 3.2);
+  meETLTrackEffEta2MtdLowPt_[1] =
+      ibook.book1D("TrackETLEffEta2MtdLowPt1", "Eta of tracks, 0.45 < pt < 0.7 (Mtd 2 hit);#eta_{RECO}", 100, 1.4, 3.2);
   meETLTrackEffPhiMtd_[0] =
-      ibook.book1D("TrackETLEffPhiMtdZneg", "Track efficiency vs phi (Mtd) (-Z);#phi_{RECO} [rad]", 100, -3.2, 3.2);
+      ibook.book1D("TrackETLEffPhiMtdZneg", "Phi of tracks (Mtd) (-Z);#phi_{RECO} [rad]", 100, -3.2, 3.2);
   meETLTrackEffPhiMtd_[1] =
-      ibook.book1D("TrackETLEffPhiMtdZpos", "Track efficiency vs phi (Mtd) (+Z);#phi_{RECO} [rad]", 100, -3.2, 3.2);
-  meETLTrackEffPtMtd_[0] =
-      ibook.book1D("TrackETLEffPtMtdZneg", "Track efficiency vs pt (Mtd) (-Z);pt_{RECO} [GeV]", 50, 0, 10);
-  meETLTrackEffPtMtd_[1] =
-      ibook.book1D("TrackETLEffPtMtdZpos", "Track efficiency vs pt (Mtd) (+Z);pt_{RECO} [GeV]", 50, 0, 10);
+      ibook.book1D("TrackETLEffPhiMtdZpos", "Phi of tracks (Mtd) (+Z);#phi_{RECO} [rad]", 100, -3.2, 3.2);
+  meETLTrackEffPtMtd_[0] = ibook.book1D("TrackETLEffPtMtdZneg", "Pt of tracks (Mtd) (-Z);pt_{RECO} [GeV]", 50, 0, 10);
+  meETLTrackEffPtMtd_[1] = ibook.book1D("TrackETLEffPtMtdZpos", "Pt of tracks (Mtd) (+Z);pt_{RECO} [GeV]", 50, 0, 10);
   meETLTrackEffEta2Mtd_[0] =
-      ibook.book1D("TrackETLEffEta2MtdZneg", "Track efficiency vs eta (Mtd 2 hit) (-Z);#eta_{RECO}", 100, -3.2, -1.4);
+      ibook.book1D("TrackETLEffEta2MtdZneg", "Eta of tracks (Mtd 2 hit) (-Z);#eta_{RECO}", 100, -3.2, -1.4);
   meETLTrackEffEta2Mtd_[1] =
-      ibook.book1D("TrackETLEffEta2MtdZpos", "Track efficiency vs eta (Mtd 2 hit) (+Z);#eta_{RECO}", 100, 1.4, 3.2);
-  meETLTrackEffPhi2Mtd_[0] = ibook.book1D(
-      "TrackETLEffPhi2MtdZneg", "Track efficiency vs phi (Mtd 2 hit) (-Z);#phi_{RECO} [rad]", 100, -3.2, 3.2);
-  meETLTrackEffPhi2Mtd_[1] = ibook.book1D(
-      "TrackETLEffPhi2MtdZpos", "Track efficiency vs phi (Mtd 2 hit) (+Z);#phi_{RECO} [rad]", 100, -3.2, 3.2);
+      ibook.book1D("TrackETLEffEta2MtdZpos", "Eta of tracks (Mtd 2 hit) (+Z);#eta_{RECO}", 100, 1.4, 3.2);
+  meETLTrackEffPhi2Mtd_[0] =
+      ibook.book1D("TrackETLEffPhi2MtdZneg", "Phi of tracks (Mtd 2 hit) (-Z);#phi_{RECO} [rad]", 100, -3.2, 3.2);
+  meETLTrackEffPhi2Mtd_[1] =
+      ibook.book1D("TrackETLEffPhi2MtdZpos", "Phi of tracks (Mtd 2 hit) (+Z);#phi_{RECO} [rad]", 100, -3.2, 3.2);
   meETLTrackEffPt2Mtd_[0] =
-      ibook.book1D("TrackETLEffPt2MtdZneg", "Track efficiency vs pt (Mtd 2 hit) (-Z);pt_{RECO} [GeV]", 50, 0, 10);
+      ibook.book1D("TrackETLEffPt2MtdZneg", "Pt of tracks (Mtd 2 hit) (-Z);pt_{RECO} [GeV]", 50, 0, 10);
   meETLTrackEffPt2Mtd_[1] =
-      ibook.book1D("TrackETLEffPt2MtdZpos", "Track efficiency vs pt (Mtd 2 hit) (+Z);pt_{RECO} [GeV]", 50, 0, 10);
+      ibook.book1D("TrackETLEffPt2MtdZpos", "Pt of tracks (Mtd 2 hit) (+Z);pt_{RECO} [GeV]", 50, 0, 10);
   meETLTrackPtRes_ =
       ibook.book1D("TrackETLPtRes", "Track pT resolution;pT_{Gentrack}-pT_{MTDtrack}/pT_{Gentrack} ", 100, -0.1, 0.1);
 
@@ -974,12 +1046,12 @@ void MtdTracksValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
   meETLTrackMatchedTP2PtRatioGen_ = ibook.book1D(
       "TrackMatchedTPETL2PtRatioGen", "Pt ratio of Gentracks (ETL 2hits)  ;pT_{Gentrack}/pT_{truth} ", 100, 0.9, 1.1);
   meBTLTrackMatchedTPPtRatioMtd_ = ibook.book1D("TrackMatchedTPBTLPtRatioMtd",
-                                                "Pt ratio of tracks matched to TP-BTL hits  ;pT_{MTDtrack}/pT_{truth} ",
+                                                "Pt ratio of tracks matched to TP-BTL hit  ;pT_{MTDtrack}/pT_{truth} ",
                                                 100,
                                                 0.9,
                                                 1.1);
   meETLTrackMatchedTPPtRatioMtd_ = ibook.book1D("TrackMatchedTPETLPtRatioMtd",
-                                                "Pt ratio of tracks matched to TP-ETL hits  ;pT_{MTDtrack}/pT_{truth} ",
+                                                "Pt ratio of tracks matched to TP-ETL hit  ;pT_{MTDtrack}/pT_{truth} ",
                                                 100,
                                                 0.9,
                                                 1.1);
@@ -1101,6 +1173,24 @@ void MtdTracksValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
       "TrackRes", "t_{rec} - t_{sim} for LV associated tracks matched to TP; t_{rec} - t_{sim} [ns] ", 120, -0.15, 0.15);
   meTrackPullTot_ = ibook.book1D(
       "TrackPull", "Pull for LV associated tracks matched to TP; (t_{rec}-t_{sim})/#sigma_{t}", 50, -5., 5.);
+  meTrackResTotvsMVAQual_ = ibook.bookProfile(
+      "TrackResvsMVA",
+      "t_{rec} - t_{sim} for LV associated tracks matched to TP vs MVA Quality; MVAQual; t_{rec} - t_{sim} [ns] ",
+      100,
+      -1.,
+      1.,
+      -0.15,
+      0.15,
+      "s");
+  meTrackPullTotvsMVAQual_ = ibook.bookProfile(
+      "TrackPullvsMVA",
+      "Pull for LV associated tracks matched to TP vs MVA Quality; MVAQual; (t_{rec}-t_{sim})/#sigma_{t}",
+      100,
+      -1.,
+      1.,
+      -5.,
+      5.,
+      "s");
 
   meExtraPhiAtBTL_ = ibook.book1D(
       "ExtraPhiAtBTL", "Phi at BTL surface of extrapolated tracks associated to LV; phi [deg]", 720, -180., 180.);
@@ -1187,17 +1277,20 @@ const bool MtdTracksValidation::trkTPSelAll(const TrackingParticle& tp) {
 
   auto r_pv = std::sqrt(x_pv * x_pv + y_pv * y_pv);
 
-  match = tp.charge() != 0 &&
-          ((std::abs(tp.eta()) <= trackMaxBtlEta_ && tp.pt() > pTcutBTL_) ^
-           (std::abs(tp.eta()) > trackMaxBtlEta_ && std::abs(tp.eta()) < etacutGEN_ && tp.pt() > pTcutETL_)) &&
-          r_pv < rBTL_ && std::abs(z_pv) < zETL_;
+  match = tp.charge() != 0 && std::abs(tp.eta()) < etacutGEN_ && tp.pt() > pTcutBTL_ && r_pv < rBTL_ &&
+          std::abs(z_pv) < zETL_;
   return match;
 }
 
 const bool MtdTracksValidation::trkRecSel(const reco::TrackBase& trk) {
   bool match = false;
-  match = (std::abs(trk.eta()) <= trackMaxBtlEta_ && trk.pt() > pTcutBTL_) ^
-          (std::abs(trk.eta()) > trackMaxBtlEta_ && std::abs(trk.eta()) < etacutREC_ && trk.pt() > pTcutETL_);
+  match = std::abs(trk.eta()) <= etacutREC_ && trk.pt() > pTcutBTL_;
+  return match;
+}
+
+const bool MtdTracksValidation::trkRecSelLowPt(const reco::TrackBase& trk) {
+  bool match = false;
+  match = std::abs(trk.eta()) <= etacutREC_ && trk.pt() > pTcutETL_ && trk.pt() < pTcutBTL_;
   return match;
 }
 
