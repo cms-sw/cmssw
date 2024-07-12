@@ -71,7 +71,7 @@ public:
 
 CPPUNIT_TEST_SUITE_REGISTRATION(testTorchFromBufferModelEval);
 
-using HostBuffer = alpaka::BufCpu<uint32_t, alpaka_common::Dim1D, alpaka_common::Idx>;
+using HostBuffer = alpaka::BufCpu<int32_t, alpaka_common::Dim1D, alpaka_common::Idx>;
 
 std::string testTorchFromBufferModelEval::pyScript() const { return "create_dnn_sum.py"; }
 /*
@@ -111,9 +111,9 @@ void testTorchFromBufferModelEvalSinglePass(torch::jit::script::Module& model, c
   NVTXScopedRange allocRange("GPU memory allocation");
   // Allocate memory on the device
   cout << "T" << thread << " I" << iteration << " Allocating memory for vectors on GPU" << endl;
-  auto a_gpu = alpaka::allocAsyncBuf<uint32_t, uint32_t>(queue, alpaka::getExtents(a_cpu));
-  auto b_gpu = alpaka::allocAsyncBuf<uint32_t, uint32_t>(queue, alpaka::getExtents(b_cpu));
-  auto c_gpu = alpaka::allocAsyncBuf<uint32_t, uint32_t>(queue, alpaka::getExtents(c_cpu));
+  auto a_gpu = alpaka::allocAsyncBuf<int32_t, uint32_t>(queue, alpaka::getExtents(a_cpu));
+  auto b_gpu = alpaka::allocAsyncBuf<int32_t, uint32_t>(queue, alpaka::getExtents(b_cpu));
+  auto c_gpu = alpaka::allocAsyncBuf<int32_t, uint32_t>(queue, alpaka::getExtents(c_cpu));
   allocRange.end();
   
   
@@ -238,8 +238,8 @@ void testTorchFromBufferModelEval::test() {
   // without the requirements to copy data from one device
   // to the other
   cout << "Allocating memory for vectors on CPU" << endl;
-  auto a_cpu = alpaka::allocMappedBuf<ALPAKA_ACCELERATOR_NAMESPACE::Platform, uint32_t, uint32_t>(alpakaHost,platform,alpaka_common::Vec1D{N});
-  auto b_cpu = alpaka::allocMappedBuf<ALPAKA_ACCELERATOR_NAMESPACE::Platform, uint32_t, uint32_t>(alpakaHost,platform,alpaka_common::Vec1D{N});
+  auto a_cpu = alpaka::allocMappedBuf<ALPAKA_ACCELERATOR_NAMESPACE::Platform, int32_t, uint32_t>(alpakaHost,platform,alpaka_common::Vec1D{N});
+  auto b_cpu = alpaka::allocMappedBuf<ALPAKA_ACCELERATOR_NAMESPACE::Platform, int32_t, uint32_t>(alpakaHost,platform,alpaka_common::Vec1D{N});
 
   // Init vectors
   cout << "Populating vectors with random integers" << endl;
@@ -263,7 +263,7 @@ void testTorchFromBufferModelEval::test() {
       c10::cuda::setCurrentCUDAStream(torchStream);
 #endif
 
-      auto c_cpu  = alpaka::allocMappedBuf<ALPAKA_ACCELERATOR_NAMESPACE::Platform, uint32_t, uint32_t>(alpakaHost,platform,alpaka_common::Vec1D{N});
+      auto c_cpu  = alpaka::allocMappedBuf<ALPAKA_ACCELERATOR_NAMESPACE::Platform, int32_t, uint32_t>(alpakaHost,platform,alpaka_common::Vec1D{N});
       // Get a pyTorch style cuda stream, device is captured from above.
       for (size_t i=0; i<10; ++i)
         testTorchFromBufferModelEvalSinglePass(model, a_cpu, b_cpu, c_cpu, t, i, queue);
