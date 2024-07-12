@@ -141,25 +141,9 @@ void testTorchFromBufferModelEvalSinglePass(SimpleDnnSum& model, const HostBuffe
   NVTXScopedRange inferenceRange((std::string("Inference thread ") + std::to_string(thread)).c_str());
   try {
     // Convert pinned memory on GPU to Torch tensor on GPU
-    using  torch_common::toTensor;
-//    auto aTensor = toTensor(a_gpu);
-//    auto bTensor = toTensor(b_gpu);
-//    auto cTensor = toTensor(c_gpu);
-//    cout << "T" << thread << " I" << iteration << " Running torch inference" << endl;
-//    cTensor = model.forward(aTensor, bTensor);
-    auto options = torch::TensorOptions().dtype(torch::kInt)
-#ifdef ALPAKA_ACC_GPU_CUDA_ENABLED
-      .device(torch_common::kDeviceType, alpaka::getDev(a_gpu).getNativeHandle())
-#endif
-      .pinned_memory(true);
-    cout << "T" << thread << " I" << iteration << " Converting vectors and result to Torch tensors on GPU (datasize=" << N << ")" << endl;
-    torch::Tensor a_gpu_tensor = toTensor(a_gpu);
-    torch::Tensor b_gpu_tensor = torch::from_blob(b_gpu.data(), {N}, options);
-
     cout << "T" << thread << " I" << iteration << " Running torch inference" << endl;
-    //std::vector<torch::jit::IValue> inputs{a_gpu_tensor, b_gpu_tensor};
-    torch::from_blob(c_gpu.data(), {N}, options) = model.forward(a_gpu_tensor, b_gpu_tensor);
-
+    using  torch_common::toTensor;
+    toTensor(c_gpu) = model.forward(toTensor(a_gpu), toTensor(b_gpu));
     //CPPUNIT_ASSERT(c_gpu_tensor.equal(output));
   } catch (exception& e) {
     cout << e.what() << endl;
