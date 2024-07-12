@@ -125,7 +125,7 @@ void testTorchFromBufferModelEval::test() {
     cout << "Verifying result using Torch tensors" << endl;
     std::vector<torch::jit::IValue> inputs{a_gpu_tensor, b_gpu_tensor};
     // Not fully understood but std::move() is needed
-    // https://stackoverflow.com/questions/71790378/assign-memory-blob-to-py-torch-output-tensor-c-api 
+    // https://stackoverflow.com/questions/71790378/assign-memory-blob-to-py-torch-output-tensor-c-api
     torch::from_blob(c_gpu, {N}, options) = model.forward(inputs).toTensor();
 
     //CPPUNIT_ASSERT(c_gpu_tensor.equal(output));

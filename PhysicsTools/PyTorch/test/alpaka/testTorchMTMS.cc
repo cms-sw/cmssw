@@ -1,8 +1,7 @@
 // A multi thread, multi stream version of the previous tests
-// This will ensure we can control the CUDA streaming of the 
+// This will ensure we can control the CUDA streaming of the
 // PyTorch execution
 // Memory allocation investigation can be a secondary target.
-
 
 #include <alpaka/alpaka.hpp>
 #include <torch/torch.h>
@@ -19,7 +18,8 @@
 #ifdef ALPAKA_ACC_GPU_CUDA_ENABLED
 #include <cuda_runtime.h>
 #endif
-#if defined(ALPAKA_ACC_GPU_CUDA_ENABLED) || defined(ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLED) || defined(ALPAKA_ACC_CPU_B_TBB_T_SEQ_ENABLED)
+#if defined(ALPAKA_ACC_GPU_CUDA_ENABLED) || defined(ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLED) || \
+    defined(ALPAKA_ACC_CPU_B_TBB_T_SEQ_ENABLED)
 #include <nvToolsExt.h>
 #endif
 
@@ -33,27 +33,30 @@ using std::exception;
 
 constexpr bool doValidation = true;
 
-
 class NVTXScopedRange {
 public:
-  NVTXScopedRange(const char * msg) {
-#if defined(ALPAKA_ACC_GPU_CUDA_ENABLED) || defined(ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLED) || defined(ALPAKA_ACC_CPU_B_TBB_T_SEQ_ENABLED)
+  NVTXScopedRange(const char* msg) {
+#if defined(ALPAKA_ACC_GPU_CUDA_ENABLED) || defined(ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLED) || \
+    defined(ALPAKA_ACC_CPU_B_TBB_T_SEQ_ENABLED)
     id_ = nvtxRangeStartA(msg);
 #endif
   }
-  
+
   void end() {
-#if defined(ALPAKA_ACC_GPU_CUDA_ENABLED) || defined(ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLED) || defined(ALPAKA_ACC_CPU_B_TBB_T_SEQ_ENABLED)
+#if defined(ALPAKA_ACC_GPU_CUDA_ENABLED) || defined(ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLED) || \
+    defined(ALPAKA_ACC_CPU_B_TBB_T_SEQ_ENABLED)
     if (active_) {
       active_ = false;
       nvtxRangeEnd(id_);
     }
 #endif
   }
-  
+
   ~NVTXScopedRange() { end(); }
+
 private:
-#if defined(ALPAKA_ACC_GPU_CUDA_ENABLED) || defined(ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLED) || defined(ALPAKA_ACC_CPU_B_TBB_T_SEQ_ENABLED)
+#if defined(ALPAKA_ACC_GPU_CUDA_ENABLED) || defined(ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLED) || \
+    defined(ALPAKA_ACC_CPU_B_TBB_T_SEQ_ENABLED)
   nvtxRangeId_t id_;
   bool active_ = true;
 #endif
@@ -102,8 +105,13 @@ std::string testTorchFromBufferModelEval::pyScript() const { return "create_dnn_
 
 // bool ENABLE_ERROR = true;
 // We take the model as non consr as the forward function is a non const one.
-void testTorchFromBufferModelEvalSinglePass(torch::jit::script::Module& model, const HostBuffer & a_cpu,  const HostBuffer & b_cpu, HostBuffer & c_cpu, 
-        const size_t thread, const size_t iteration, ALPAKA_ACCELERATOR_NAMESPACE::Queue & queue) {
+void testTorchFromBufferModelEvalSinglePass(torch::jit::script::Module& model,
+                                            const HostBuffer& a_cpu,
+                                            const HostBuffer& b_cpu,
+                                            HostBuffer& c_cpu,
+                                            const size_t thread,
+                                            const size_t iteration,
+                                            ALPAKA_ACCELERATOR_NAMESPACE::Queue& queue) {
   // Declare GPU memory pointers
   //int *a_gpu, *b_gpu, *c_gpu;
   const int N = alpaka::getExtents(a_cpu)[0];
@@ -115,15 +123,14 @@ void testTorchFromBufferModelEvalSinglePass(torch::jit::script::Module& model, c
   auto b_gpu = alpaka::allocAsyncBuf<int32_t, uint32_t>(queue, alpaka::getExtents(b_cpu));
   auto c_gpu = alpaka::allocAsyncBuf<int32_t, uint32_t>(queue, alpaka::getExtents(c_cpu));
   allocRange.end();
-  
-  
+
   NVTXScopedRange memcpyRange("Memcpy host to dev");
   // Copy data from the host to the device (CPU -> GPU)
   cout << "T" << thread << " I" << iteration << " Transfering vectors from CPU to GPU" << endl;
   alpaka::memcpy(queue, a_gpu, a_cpu);
   alpaka::memcpy(queue, b_gpu, b_cpu);
   memcpyRange.end();
-  
+
   // Specify threads per CUDA block (CTA), her 2^10 = 1024 threads
   //int NUM_THREADS = 1 << 10;
 
@@ -138,9 +145,9 @@ void testTorchFromBufferModelEvalSinglePass(torch::jit::script::Module& model, c
   try {
     // Convert pinned memory on GPU to Torch tensor on GPU
     cout << "T" << thread << " I" << iteration << " Running torch inference" << endl;
-    using  torch_common::toTensor;
+    using torch_common::toTensor;
     // Not fully understood but std::move() is needed
-    // https://stackoverflow.com/questions/71790378/assign-memory-blob-to-py-torch-output-tensor-c-api 
+    // https://stackoverflow.com/questions/71790378/assign-memory-blob-to-py-torch-output-tensor-c-api
     toTensor(c_gpu) = model.forward({toTensor(a_gpu), toTensor(b_gpu)}).toTensor();
 
     //CPPUNIT_ASSERT(c_gpu_tensor.equal(output));
@@ -155,7 +162,7 @@ void testTorchFromBufferModelEvalSinglePass(torch::jit::script::Module& model, c
   cout << "T" << thread << " I" << iteration << " Synchronizing CPU and GPU. Copying result from GPU to CPU" << endl;
   alpaka::memcpy(queue, c_cpu, c_gpu);
   memcpyBackRange.end();
-  
+
   if constexpr (doValidation) {
     NVTXScopedRange validationRange("Validation");
     // Verify the result on the CPU
@@ -170,45 +177,43 @@ void testTorchFromBufferModelEvalSinglePass(torch::jit::script::Module& model, c
 
 void testTorchFromBufferModelEval::test() {
   if (prctl(PR_SET_NAME, "test::Main", 0, 0, 0))
-    printf ("Warning: Could not set thread name: %s\n", strerror(errno));
-    // Load the TorchScript model
+    printf("Warning: Could not set thread name: %s\n", strerror(errno));
+  // Load the TorchScript model
   std::string model_path = dataPath_ + "/simple_dnn_sum.pt";
 
   cout << "ALPAKA Platform info:" << endl;
   int idx = 0;
   try {
-    for(;;) {
+    for (;;) {
       alpaka::Platform<alpaka::DevCpu> platformHost;
       alpaka::DevCpu host = alpaka::getDevByIdx(platformHost, idx);
       cout << "Host[" << idx++ << "]:   " << alpaka::getName(host) << endl;
     }
-  } catch (...) {}
+  } catch (...) {
+  }
   ALPAKA_ACCELERATOR_NAMESPACE::Platform platform;
   auto alpakaDevices = alpaka::getDevs(platform);
-  idx=0;
-  for (const auto& d: alpakaDevices) {
-      cout << "Device[" << idx++ << "]:   " << alpaka::getName(d) << endl;
+  idx = 0;
+  for (const auto& d : alpakaDevices) {
+    cout << "Device[" << idx++ << "]:   " << alpaka::getName(d) << endl;
   }
-  const auto & alpakaHost = alpaka::getDevByIdx(alpaka_common::PlatformHost(), 0u);
+  const auto& alpakaHost = alpaka::getDevByIdx(alpaka_common::PlatformHost(), 0u);
   CPPUNIT_ASSERT(alpakaDevices.size());
-  const auto & alpakaDevice = alpakaDevices[0];
-  
-  cout << "Will create torch device with type=" << torch_common::kDeviceType <<
-          " and native handle=" << alpakaDevice.getNativeHandle() << endl;
+  const auto& alpakaDevice = alpakaDevices[0];
+
+  cout << "Will create torch device with type=" << torch_common::kDeviceType
+       << " and native handle=" << alpakaDevice.getNativeHandle() << endl;
   torch::Device torchDevice(torch_common::kDeviceType, alpakaDevice.getNativeHandle());
   torch::jit::script::Module model;
-  
-  cout << "Setting the torch thread numbers to 1" << endl
-        << "Before:" << endl
-        << at::get_parallel_info();
+
+  cout << "Setting the torch thread numbers to 1" << endl << "Before:" << endl << at::get_parallel_info();
   at::set_num_threads(1);
   at::set_num_interop_threads(1);
-  cout << "After:" << endl
-       << at::get_parallel_info();
+  cout << "After:" << endl << at::get_parallel_info();
   cout << "Loading model..." << endl;
-  
-  // We need to set the device index to 0 (or a valid value) as leaving it to default (-1) leads to a 
-  // bug when setting the cuda stream (-1 is used as an array index without resolving back to 
+
+  // We need to set the device index to 0 (or a valid value) as leaving it to default (-1) leads to a
+  // bug when setting the cuda stream (-1 is used as an array index without resolving back to
   // real index (probably).
   try {
     // Deserialize the ScriptModule from a file using torch::jit::load().
@@ -227,8 +232,10 @@ void testTorchFromBufferModelEval::test() {
   // without the requirements to copy data from one device
   // to the other
   cout << "Allocating memory for vectors on CPU" << endl;
-  auto a_cpu = alpaka::allocMappedBuf<ALPAKA_ACCELERATOR_NAMESPACE::Platform, int32_t, uint32_t>(alpakaHost,platform,alpaka_common::Vec1D{N});
-  auto b_cpu = alpaka::allocMappedBuf<ALPAKA_ACCELERATOR_NAMESPACE::Platform, int32_t, uint32_t>(alpakaHost,platform,alpaka_common::Vec1D{N});
+  auto a_cpu = alpaka::allocMappedBuf<ALPAKA_ACCELERATOR_NAMESPACE::Platform, int32_t, uint32_t>(
+      alpakaHost, platform, alpaka_common::Vec1D{N});
+  auto b_cpu = alpaka::allocMappedBuf<ALPAKA_ACCELERATOR_NAMESPACE::Platform, int32_t, uint32_t>(
+      alpakaHost, platform, alpaka_common::Vec1D{N});
 
   // Init vectors
   cout << "Populating vectors with random integers" << endl;
@@ -236,25 +243,27 @@ void testTorchFromBufferModelEval::test() {
     a_cpu[i] = rand() % (1000 * 1000);
     b_cpu[i] = rand() % (1000 * 1000);
   }
-  
+
   size_t threadCount = 10;
   std::vector<std::thread> threads;
-  for (size_t t=0; t<threadCount; ++t) {
-    threads.emplace_back([&, t]{
+  for (size_t t = 0; t < threadCount; ++t) {
+    threads.emplace_back([&, t] {
       char threadName[15];
       snprintf(threadName, 15, "test::%ld", t);
       if (prctl(PR_SET_NAME, threadName, 0, 0, 0))
-        printf ("Warning: Could not set thread name: %s\n", strerror(errno));
+        printf("Warning: Could not set thread name: %s\n", strerror(errno));
       cout << "Thread " << t << ": allocating CUDA stream and result buffer" << endl;
       ALPAKA_ACCELERATOR_NAMESPACE::Queue queue{alpakaDevice};
 #ifdef ALPAKA_ACC_GPU_CUDA_ENABLED
-      c10::cuda::CUDAStream torchStream = c10::cuda::getStreamFromExternal(queue.getNativeHandle(), torchDevice.index());
+      c10::cuda::CUDAStream torchStream =
+          c10::cuda::getStreamFromExternal(queue.getNativeHandle(), torchDevice.index());
       c10::cuda::setCurrentCUDAStream(torchStream);
 #endif
 
-      auto c_cpu  = alpaka::allocMappedBuf<ALPAKA_ACCELERATOR_NAMESPACE::Platform, int32_t, uint32_t>(alpakaHost,platform,alpaka_common::Vec1D{N});
+      auto c_cpu = alpaka::allocMappedBuf<ALPAKA_ACCELERATOR_NAMESPACE::Platform, int32_t, uint32_t>(
+          alpakaHost, platform, alpaka_common::Vec1D{N});
       // Get a pyTorch style cuda stream, device is captured from above.
-      for (size_t i=0; i<10; ++i)
+      for (size_t i = 0; i < 10; ++i)
         testTorchFromBufferModelEvalSinglePass(model, a_cpu, b_cpu, c_cpu, t, i, queue);
       alpaka::wait(queue);
       cout << "Thread " << t << " Test loop complete." << endl;
@@ -264,7 +273,8 @@ void testTorchFromBufferModelEval::test() {
       cout << "Thread " << t << " Stream reset." << endl;
     });
   }
-  for (auto &t: threads) t.join();
+  for (auto& t : threads)
+    t.join();
   cout << "Threads done." << endl;
   // Fixme: free mempory in case of exceptions...
 }

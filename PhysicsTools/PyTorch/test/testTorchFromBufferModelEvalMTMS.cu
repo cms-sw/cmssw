@@ -1,5 +1,5 @@
 // A multi thread, multi stream version of the previous tests
-// This will ensure we can control the CUDA streaming of the 
+// This will ensure we can control the CUDA streaming of the
 // PyTorch execution
 // Memory allocation investigation can be a secondary target.
 
@@ -23,18 +23,17 @@ constexpr bool doValidation = false;
 
 class NVTXScopedRange {
 public:
-  NVTXScopedRange(const char * msg) {
-    id_ = nvtxRangeStartA(msg);
-  }
-  
+  NVTXScopedRange(const char* msg) { id_ = nvtxRangeStartA(msg); }
+
   void end() {
     if (active_) {
       active_ = false;
       nvtxRangeEnd(id_);
     }
   }
-  
+
   ~NVTXScopedRange() { end(); }
+
 private:
   nvtxRangeId_t id_;
   bool active_ = true;
@@ -81,8 +80,14 @@ void vector_add(int* a, int* b, int* c, int N, int cuda_grid_size, int cuda_bloc
 
 // bool ENABLE_ERROR = true;
 // We take the model as non consr as the forward function is a non const one.
-void testTorchFromBufferModelEvalSinglePass(torch::jit::script::Module& model, const int * a_cpu,  const int *b_cpu, int * c_cpu, 
-        const int N, const size_t bytes, const size_t thread, const size_t iteration) {
+void testTorchFromBufferModelEvalSinglePass(torch::jit::script::Module& model,
+                                            const int* a_cpu,
+                                            const int* b_cpu,
+                                            int* c_cpu,
+                                            const int N,
+                                            const size_t bytes,
+                                            const size_t thread,
+                                            const size_t iteration) {
   // Declare GPU memory pointers
   int *a_gpu, *b_gpu, *c_gpu;
 
@@ -93,15 +98,14 @@ void testTorchFromBufferModelEvalSinglePass(torch::jit::script::Module& model, c
   cudaMallocAsync(&b_gpu, bytes, c10::cuda::getCurrentCUDAStream().stream());
   cudaMallocAsync(&c_gpu, bytes, c10::cuda::getCurrentCUDAStream().stream());
   allocRange.end();
-  
-  
+
   NVTXScopedRange memcpyRange("Memcpy host to dev");
   // Copy data from the host to the device (CPU -> GPU)
   cout << "T" << thread << " I" << iteration << " Transfering vectors from CPU to GPU" << endl;
   cudaMemcpyAsync(a_gpu, a_cpu, bytes, cudaMemcpyHostToDevice, c10::cuda::getCurrentCUDAStream().stream());
   cudaMemcpyAsync(b_gpu, b_cpu, bytes, cudaMemcpyHostToDevice, c10::cuda::getCurrentCUDAStream().stream());
   memcpyRange.end();
-  
+
   // Specify threads per CUDA block (CTA), her 2^10 = 1024 threads
   //int NUM_THREADS = 1 << 10;
 
@@ -123,13 +127,13 @@ void testTorchFromBufferModelEvalSinglePass(torch::jit::script::Module& model, c
     cout << "T" << thread << " I" << iteration << " Running torch inference" << endl;
     std::vector<torch::jit::IValue> inputs{a_gpu_tensor, b_gpu_tensor};
     // Not fully understood but std::move() is needed
-    // https://stackoverflow.com/questions/71790378/assign-memory-blob-to-py-torch-output-tensor-c-api 
+    // https://stackoverflow.com/questions/71790378/assign-memory-blob-to-py-torch-output-tensor-c-api
     torch::from_blob(c_gpu, {N}, options) = model.forward(inputs).toTensor();
 
     //CPPUNIT_ASSERT(c_gpu_tensor.equal(output));
   } catch (exception& e) {
     cout << e.what() << endl;
-    
+
     cudaFreeAsync(a_gpu, c10::cuda::getCurrentCUDAStream().stream());
     cudaFreeAsync(b_gpu, c10::cuda::getCurrentCUDAStream().stream());
     cudaFreeAsync(c_gpu, c10::cuda::getCurrentCUDAStream().stream());
@@ -143,7 +147,7 @@ void testTorchFromBufferModelEvalSinglePass(torch::jit::script::Module& model, c
   cout << "T" << thread << " I" << iteration << " Synchronizing CPU and GPU. Copying result from GPU to CPU" << endl;
   cudaMemcpyAsync(c_cpu, c_gpu, bytes, cudaMemcpyDeviceToHost, c10::cuda::getCurrentCUDAStream().stream());
   memcpyBackRange.end();
-  
+
   if constexpr (doValidation) {
     NVTXScopedRange validationRange("Validation");
     // Verify the result on the CPU
@@ -154,7 +158,7 @@ void testTorchFromBufferModelEvalSinglePass(torch::jit::script::Module& model, c
     }
     validationRange.end();
   }
-  
+
   NVTXScopedRange freeRange("Free GPU memory");
   cudaFreeAsync(a_gpu, c10::cuda::getCurrentCUDAStream().stream());
   cudaFreeAsync(b_gpu, c10::cuda::getCurrentCUDAStream().stream());
@@ -164,29 +168,29 @@ void testTorchFromBufferModelEvalSinglePass(torch::jit::script::Module& model, c
 
 void testTorchFromBufferModelEval::test() {
   if (prctl(PR_SET_NAME, "test::Main", 0, 0, 0))
-    printf ("Warning: Could not set thread name: %s\n", strerror(errno));
-    // Load the TorchScript model
+    printf("Warning: Could not set thread name: %s\n", strerror(errno));
+  // Load the TorchScript model
   std::string model_path = dataPath_ + "/simple_dnn_sum.pt";
 
-//  cout << "Loading model..." << endl;
-//  torch::jit::script::Module model;
-//  // We need to set the device index to 0 (or a valid value) as leaving it to default (-1) leads to a 
-//  // bug when setting the cuda stream (-1 is used as an array index without resolving back to 
-//  // real index (probably).
-//  torch::Device device(torch::kCUDA, 0);
-//  try {
-//    // Deserialize the ScriptModule from a file using torch::jit::load().
-//    model = torch::jit::load(model_path);
-//    model.to(device);
-//
-//  } catch (const c10::Error& e) {
-//    std::cerr << "error loading the model\n" << e.what() << std::endl;
-//  }
-  
+  //  cout << "Loading model..." << endl;
+  //  torch::jit::script::Module model;
+  //  // We need to set the device index to 0 (or a valid value) as leaving it to default (-1) leads to a
+  //  // bug when setting the cuda stream (-1 is used as an array index without resolving back to
+  //  // real index (probably).
+  //  torch::Device device(torch::kCUDA, 0);
+  //  try {
+  //    // Deserialize the ScriptModule from a file using torch::jit::load().
+  //    model = torch::jit::load(model_path);
+  //    model.to(device);
+  //
+  //  } catch (const c10::Error& e) {
+  //    std::cerr << "error loading the model\n" << e.what() << std::endl;
+  //  }
+
   // Setup array, here 2^16 = 65536 items
   const int N = 1 << 20;
   size_t bytes = N * sizeof(int);
-  
+
   // Declare pinned memory pointers
   int *a_cpu, *b_cpu;
 
@@ -204,30 +208,30 @@ void testTorchFromBufferModelEval::test() {
     a_cpu[i] = rand() % 100;
     b_cpu[i] = rand() % 100;
   }
-  
+
   size_t threadCount = 10;
-//  std::vector<torch::jit::script::Module> perThreadModels;
-//  for (size_t t=0, t<threadCount; ++t) {
-//    
-//  }
-  
-  // We need to set the device index to 0 (or a valid value) as leaving it to default (-1) leads to a 
-  // bug when setting the cuda stream (-1 is used as an array index without resolving back to 
+  //  std::vector<torch::jit::script::Module> perThreadModels;
+  //  for (size_t t=0, t<threadCount; ++t) {
+  //
+  //  }
+
+  // We need to set the device index to 0 (or a valid value) as leaving it to default (-1) leads to a
+  // bug when setting the cuda stream (-1 is used as an array index without resolving back to
   // real index (probably).
   torch::Device device(torch::kCUDA, 0);
   std::vector<std::thread> threads;
-  for (size_t t=0; t<threadCount; ++t) {
-    threads.emplace_back([&, t]{
+  for (size_t t = 0; t < threadCount; ++t) {
+    threads.emplace_back([&, t] {
       char threadName[15];
       snprintf(threadName, 15, "test::%ld", t);
       if (prctl(PR_SET_NAME, threadName, 0, 0, 0))
-        printf ("Warning: Could not set thread name: %s\n", strerror(errno));
+        printf("Warning: Could not set thread name: %s\n", strerror(errno));
       cout << "Thread " << t << ": allocating CUDA stream and result buffer" << endl;
       cudaStream_t cudaStream;
       cudaStreamCreate(&cudaStream);
       c10::cuda::CUDAStream torchStream = c10::cuda::getStreamFromExternal(cudaStream, device.index());
       c10::cuda::setCurrentCUDAStream(torchStream);
-      
+
       cout << "Thread " << t << ": loading model..." << endl;
       torch::jit::script::Module model;
 
@@ -239,11 +243,11 @@ void testTorchFromBufferModelEval::test() {
       } catch (const c10::Error& e) {
         std::cerr << "error loading the model\n" << e.what() << std::endl;
       }
-      
-      int * c_cpu;
+
+      int* c_cpu;
       cudaMallocHost(&c_cpu, bytes);
       // Get a pyTorch style cuda stream, device is captured from above.
-      for (size_t i=0; i<10; ++i)
+      for (size_t i = 0; i < 10; ++i)
         testTorchFromBufferModelEvalSinglePass(model, a_cpu, b_cpu, c_cpu, N, bytes, t, i);
       cudaStreamSynchronize(cudaStream);
       cout << "Thread " << t << " Test loop complete." << endl;
@@ -253,7 +257,8 @@ void testTorchFromBufferModelEval::test() {
       cout << "Thread " << t << " Stream reset." << endl;
     });
   }
-  for (auto &t: threads) t.join();
+  for (auto& t : threads)
+    t.join();
   cout << "Threads done." << endl;
   cudaFreeHost(a_cpu);
   cudaFreeHost(b_cpu);
