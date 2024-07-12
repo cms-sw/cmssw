@@ -208,8 +208,8 @@ void testTorchFromBufferModelEval::test() {
   torch::jit::script::Module model;
   try {
     // Deserialize the ScriptModule from a file using torch::jit::load().
-      model = torch::jit::load(model_path);
-      model.to(torchDevice);
+    model = torch::jit::load(model_path);
+    model.to(torchDevice);
 
   } catch (const c10::Error& e) {
     std::cerr << "error loading the model\n" << e.what() << std::endl;
