@@ -90,7 +90,27 @@ namespace torch_common {
   };
 #endif
   
-  // TODO: casting of Buffers <=> tensors
+  template<typename TBuf>
+  torch::Tensor toTensor (TBuf &alpakaBuff) {
+    // TODO: type is still hardcoded
+    static_assert(1 == alpaka::Dim<TBuf>::value, "Current support limited to 1-dimension buffers");
+    auto options = torch::TensorOptions().dtype(torch::kInt)
+#ifdef ALPAKA_ACC_GPU_CUDA_ENABLED
+      .device(c10::DeviceType::CUDA, alpaka::getDev(alpakaBuff).getNativeHandle())
+#endif
+      .pinned_memory(true);
+    std::cout << "data type=" << typeid(*alpakaBuff.data()).name() << std::endl;
+    std::cout << "data sizeof element=" << (unsigned)sizeof(*alpakaBuff.data()) << std::endl;
+    std::cout << "buff extent product=" << alpaka::getExtentProduct(alpakaBuff) << std::endl;
+    std::cout << "getExtends(buff)=["; 
+    for (auto s : alpaka::getExtents(alpakaBuff)) {
+      std::cout << s << ", ";
+    }
+    std::cout << "]" << std::endl;
+    return torch::from_blob(alpakaBuff.data(), 
+      {alpaka::getExtents(alpakaBuff)[0]},
+      options);
+  }
 }
 
 #endif // defined PhysicsTools_PyTorch_interface_config_h

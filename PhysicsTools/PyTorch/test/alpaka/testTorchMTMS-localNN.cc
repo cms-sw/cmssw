@@ -76,7 +76,7 @@ public:
 
 CPPUNIT_TEST_SUITE_REGISTRATION(testTorchFromBufferModelEval);
 
-using HostBuffer = alpaka::BufCpu<uint8_t, alpaka_common::Dim1D, alpaka_common::Idx>;
+using HostBuffer = alpaka::BufCpu<uint32_t, alpaka_common::Dim1D, alpaka_common::Idx>;
 
 /*
  * Demonstration of interoperability between CUDA and Torch C++ API using 
@@ -107,16 +107,17 @@ using HostBuffer = alpaka::BufCpu<uint8_t, alpaka_common::Dim1D, alpaka_common::
 // bool ENABLE_ERROR = true;
 // We take the model as non consr as the forward function is a non const one.
 void testTorchFromBufferModelEvalSinglePass(SimpleDnnSum& model, const HostBuffer & a_cpu,  const HostBuffer & b_cpu, HostBuffer & c_cpu, 
-        const int N, const size_t bytes, const size_t thread, const size_t iteration, ALPAKA_ACCELERATOR_NAMESPACE::Queue & queue) {
+        const size_t thread, const size_t iteration, ALPAKA_ACCELERATOR_NAMESPACE::Queue & queue) {
   // Declare GPU memory pointers
   //int *a_gpu, *b_gpu, *c_gpu;
+  const int N = alpaka::getExtents(a_cpu)[0];
 
   NVTXScopedRange allocRange("GPU memory allocation");
   // Allocate memory on the device
   cout << "T" << thread << " I" << iteration << " Allocating memory for vectors on GPU" << endl;
-  auto a_gpu = alpaka::allocAsyncBuf<uint8_t, uint32_t>(queue, alpaka_common::Vec1D{bytes});
-  auto b_gpu = alpaka::allocAsyncBuf<uint8_t, uint32_t>(queue, alpaka_common::Vec1D{bytes});
-  auto c_gpu = alpaka::allocAsyncBuf<uint8_t, uint32_t>(queue, alpaka_common::Vec1D{bytes});
+  auto a_gpu = alpaka::allocAsyncBuf<uint32_t, uint32_t>(queue, alpaka::getExtents(a_cpu));
+  auto b_gpu = alpaka::allocAsyncBuf<uint32_t, uint32_t>(queue, alpaka::getExtents(b_cpu));
+  auto c_gpu = alpaka::allocAsyncBuf<uint32_t, uint32_t>(queue, alpaka::getExtents(c_cpu));
   allocRange.end();
   
   
@@ -140,17 +141,23 @@ void testTorchFromBufferModelEvalSinglePass(SimpleDnnSum& model, const HostBuffe
   NVTXScopedRange inferenceRange((std::string("Inference thread ") + std::to_string(thread)).c_str());
   try {
     // Convert pinned memory on GPU to Torch tensor on GPU
+    using  torch_common::toTensor;
+//    auto aTensor = toTensor(a_gpu);
+//    auto bTensor = toTensor(b_gpu);
+//    auto cTensor = toTensor(c_gpu);
+//    cout << "T" << thread << " I" << iteration << " Running torch inference" << endl;
+//    cTensor = model.forward(aTensor, bTensor);
     auto options = torch::TensorOptions().dtype(torch::kInt)
 #ifdef ALPAKA_ACC_GPU_CUDA_ENABLED
-      .device(torch_common::kDeviceType, alpaka::getDev(queue).getNativeHandle())
+      .device(torch_common::kDeviceType, alpaka::getDev(a_gpu).getNativeHandle())
 #endif
       .pinned_memory(true);
-    cout << "T" << thread << " I" << iteration << " Converting vectors and result to Torch tensors on GPU" << endl;
-    torch::Tensor a_gpu_tensor = torch::from_blob(a_gpu.data(), {N}, options);
+    cout << "T" << thread << " I" << iteration << " Converting vectors and result to Torch tensors on GPU (datasize=" << N << ")" << endl;
+    torch::Tensor a_gpu_tensor = toTensor(a_gpu);
     torch::Tensor b_gpu_tensor = torch::from_blob(b_gpu.data(), {N}, options);
 
     cout << "T" << thread << " I" << iteration << " Running torch inference" << endl;
-    std::vector<torch::jit::IValue> inputs{a_gpu_tensor, b_gpu_tensor};
+    //std::vector<torch::jit::IValue> inputs{a_gpu_tensor, b_gpu_tensor};
     torch::from_blob(c_gpu.data(), {N}, options) = model.forward(a_gpu_tensor, b_gpu_tensor);
 
     //CPPUNIT_ASSERT(c_gpu_tensor.equal(output));
@@ -221,21 +228,20 @@ void testTorchFromBufferModelEval::test() {
 
   // Setup array, here 2^16 = 65536 items
   const int N = 1 << 20;
-  size_t bytes = N * sizeof(int);
 
   // Allocate pinned memory for the pointers
   // The memory will be accessible from both CPU and GPU
   // without the requirements to copy data from one device
   // to the other
   cout << "Allocating memory for vectors on CPU" << endl;
-  auto a_cpu = alpaka::allocMappedBuf<ALPAKA_ACCELERATOR_NAMESPACE::Platform, uint8_t, uint32_t>(alpakaHost,platform,alpaka_common::Vec1D{bytes});
-  auto b_cpu = alpaka::allocMappedBuf<ALPAKA_ACCELERATOR_NAMESPACE::Platform, uint8_t, uint32_t>(alpakaHost,platform,alpaka_common::Vec1D{bytes});
+  auto a_cpu = alpaka::allocMappedBuf<ALPAKA_ACCELERATOR_NAMESPACE::Platform, uint32_t, uint32_t>(alpakaHost,platform,alpaka_common::Vec1D{N});
+  auto b_cpu = alpaka::allocMappedBuf<ALPAKA_ACCELERATOR_NAMESPACE::Platform, uint32_t, uint32_t>(alpakaHost,platform,alpaka_common::Vec1D{N});
 
   // Init vectors
   cout << "Populating vectors with random integers" << endl;
   for (int i = 0; i < N; ++i) {
-    a_cpu[i] = rand() % 100;
-    b_cpu[i] = rand() % 100;
+    a_cpu[i] = rand() % (1000 * 1000);
+    b_cpu[i] = rand() % (1000 * 1000);
   }
   
   size_t threadCount = 10;
@@ -253,10 +259,10 @@ void testTorchFromBufferModelEval::test() {
       c10::cuda::setCurrentCUDAStream(torchStream);
 #endif
 
-      auto c_cpu  = alpaka::allocMappedBuf<ALPAKA_ACCELERATOR_NAMESPACE::Platform, uint8_t, uint32_t>(alpakaHost,platform,alpaka_common::Vec1D{bytes});
+      auto c_cpu  = alpaka::allocMappedBuf<ALPAKA_ACCELERATOR_NAMESPACE::Platform, uint32_t, uint32_t>(alpakaHost,platform,alpaka_common::Vec1D{N});
       // Get a pyTorch style cuda stream, device is captured from above.
       for (size_t i=0; i<10; ++i)
-        testTorchFromBufferModelEvalSinglePass(model, a_cpu, b_cpu, c_cpu, N, bytes, t, i, queue);
+        testTorchFromBufferModelEvalSinglePass(model, a_cpu, b_cpu, c_cpu, t, i, queue);
       alpaka::wait(queue);
       cout << "Thread " << t << " Test loop complete." << endl;
 #ifdef ALPAKA_ACC_GPU_CUDA_ENABLED
