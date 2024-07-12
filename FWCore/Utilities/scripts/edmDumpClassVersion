@@ -5,16 +5,7 @@ import argparse
 import FWCore.Utilities.ClassesDefXmlUtils as ClassesDefUtils
 
 def main(args):
-    #Need to not have ROOT load .rootlogon.(C|py) since it can cause interference.
-    import ROOT
-    ROOT.PyConfig.DisableRootLogon = True
-
-    #Keep ROOT from trying to use X11
-    ROOT.gROOT.SetBatch(True)
-    ROOT.gROOT.ProcessLine(".autodict")
-    if args.library is not None:
-        if ROOT.gSystem.Load(args.library) < 0 :
-            raise RuntimeError("failed to load library '"+args.library+"'")
+    ClassesDefUtils.initROOT(args.library)
     
     ClassesDefUtils.initCheckClass()
     p = ClassesDefUtils.XmlParser(args.xmlfile, includeNonVersionedClasses=True, normalizeClassNames=False)

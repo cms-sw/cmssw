@@ -59,19 +59,9 @@ oparser.add_argument("-g","--generate_new",dest="generate", action="store_true",
 
 options=oparser.parse_args()
 
-#Need to not have ROOT load .rootlogon.(C|py) since it can cause interference.
-import ROOT
-ROOT.PyConfig.DisableRootLogon = True
-
-#Keep ROOT from trying to use X11
-ROOT.gROOT.SetBatch(True)
-ROOT.gROOT.ProcessLine(".autodict")
-if options.library is None:
-    if options.checkdict :
-        print ("Dictionary checks require a specific library")
-else:
-    if ROOT.gSystem.Load(options.library) < 0 :
-        raise RuntimeError("failed to load library '"+options.library+"'")
+ClassesDefUtils.initROOT(options.library)
+if options.library is None and options.checkdict:
+    print ("Dictionary checks require a specific library")
 
 missingDict = 0
 

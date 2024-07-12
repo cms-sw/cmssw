@@ -75,6 +75,18 @@ class XmlParser(object):
         n_name = n_name.replace(' ','')
         return n_name
 
+def initROOT(library):
+    #Need to not have ROOT load .rootlogon.(C|py) since it can cause interference.
+    import ROOT
+    ROOT.PyConfig.DisableRootLogon = True
+
+    #Keep ROOT from trying to use X11
+    ROOT.gROOT.SetBatch(True)
+    ROOT.gROOT.ProcessLine(".autodict")
+    if library is not None:
+        if ROOT.gSystem.Load(library) < 0 :
+            raise RuntimeError("failed to load library '"+library+"'")
+
 def initCheckClass():
     """Must be called before checkClass()"""
     import ROOT
