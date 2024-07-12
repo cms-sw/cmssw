@@ -230,6 +230,8 @@ private:
   MonitorElement *h2_ele_chargeVsPt;
   MonitorElement *h1_ele_vertexP;
   MonitorElement *h1_ele_vertexPt;
+  MonitorElement *h1_ele_vertexPt_EB;
+  MonitorElement *h1_ele_vertexPt_EE;
   MonitorElement *h1_ele_vertexPt_nocut;
   MonitorElement *h1_ele_Et;
   MonitorElement *h2_ele_vertexPtVsEta;
