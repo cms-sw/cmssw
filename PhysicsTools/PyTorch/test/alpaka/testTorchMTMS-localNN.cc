@@ -147,8 +147,10 @@ void testTorchFromBufferModelEvalSinglePass(SimpleDnnSum& model,
   try {
     // Convert pinned memory on GPU to Torch tensor on GPU
     cout << "T" << thread << " I" << iteration << " Running torch inference" << endl;
+    torch_common::DeviceStreamGuard dsg(queue);
     using torch_common::toTensor;
     toTensor(c_gpu) = model.forward(toTensor(a_gpu), toTensor(b_gpu));
+    dsg.end();
     //CPPUNIT_ASSERT(c_gpu_tensor.equal(output));
   } catch (exception& e) {
     cout << e.what() << endl;
@@ -202,16 +204,6 @@ void testTorchFromBufferModelEval::test() {
        << " and native handle=" << alpakaDevice.getNativeHandle() << endl;
   torch::Device torchDevice(torch_common::kDeviceType, alpakaDevice.getNativeHandle());
   SimpleDnnSum model;
-
-  cout << "Setting the torch thread numbers to 1" << endl << "Before:" << endl << at::get_parallel_info();
-  at::set_num_threads(1);
-  at::set_num_interop_threads(1);
-  cout << "After:" << endl << at::get_parallel_info();
-  cout << "Loading model..." << endl;
-
-  // We need to set the device index to 0 (or a valid value) as leaving it to default (-1) leads to a
-  // bug when setting the cuda stream (-1 is used as an array index without resolving back to
-  // real index (probably).
 
   // Setup array, here 2^16 = 65536 items
   const int N = 1 << 20;

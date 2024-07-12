@@ -69,6 +69,7 @@ namespace torch_common {
 
   private:
     class TorchThreadingDisabler {
+      friend DeviceStreamGuardTorchThreadingDisabler;
       TorchThreadingDisabler() {
         at::set_num_threads(1);
         at::set_num_interop_threads(1);

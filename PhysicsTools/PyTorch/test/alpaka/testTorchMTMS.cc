@@ -145,11 +145,12 @@ void testTorchFromBufferModelEvalSinglePass(torch::jit::script::Module& model,
   try {
     // Convert pinned memory on GPU to Torch tensor on GPU
     cout << "T" << thread << " I" << iteration << " Running torch inference" << endl;
+    torch_common::DeviceStreamGuard dsg(queue);
     using torch_common::toTensor;
     // Not fully understood but std::move() is needed
     // https://stackoverflow.com/questions/71790378/assign-memory-blob-to-py-torch-output-tensor-c-api
     toTensor(c_gpu) = model.forward({toTensor(a_gpu), toTensor(b_gpu)}).toTensor();
-
+    dsg.end();
     //CPPUNIT_ASSERT(c_gpu_tensor.equal(output));
   } catch (exception& e) {
     cout << e.what() << endl;
@@ -205,20 +206,10 @@ void testTorchFromBufferModelEval::test() {
        << " and native handle=" << alpakaDevice.getNativeHandle() << endl;
   torch::Device torchDevice(torch_common::kDeviceType, alpakaDevice.getNativeHandle());
   torch::jit::script::Module model;
-
-  cout << "Setting the torch thread numbers to 1" << endl << "Before:" << endl << at::get_parallel_info();
-  at::set_num_threads(1);
-  at::set_num_interop_threads(1);
-  cout << "After:" << endl << at::get_parallel_info();
-  cout << "Loading model..." << endl;
-
-  // We need to set the device index to 0 (or a valid value) as leaving it to default (-1) leads to a
-  // bug when setting the cuda stream (-1 is used as an array index without resolving back to
-  // real index (probably).
   try {
     // Deserialize the ScriptModule from a file using torch::jit::load().
-    model = torch::jit::load(model_path);
-    model.to(torchDevice);
+      model = torch::jit::load(model_path);
+      model.to(torchDevice);
 
   } catch (const c10::Error& e) {
     std::cerr << "error loading the model\n" << e.what() << std::endl;
