@@ -9,6 +9,8 @@
 #include <stdexcept>
 #include <vector>
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "PhysicsTools/XGBoost/interface/XGBooster.h"
 
 using namespace pat;
@@ -69,29 +71,46 @@ XGBooster::XGBooster(std::string model_file, std::string model_features) : XGBoo
   }
 }
 
-void XGBooster::reset() { std::fill(features_.begin(), features_.end(), std::nan("")); }
+void XGBooster::reset() {
+  std::fill(status_.begin(), status_.end(), false);
+}
 
 void XGBooster::addFeature(std::string name) {
   features_.push_back(0);
+  status_.push_back(false);
   feature_name_to_index_[name] = features_.size() - 1;
 }
 
-void XGBooster::set(std::string name, float value) { features_.at(feature_name_to_index_[name]) = value; }
+void XGBooster::set(std::string name, float value) {
+  auto i = feature_name_to_index_[name];
+  features_.at(i) = value;
+  status_.at(i) = true;
+}
+
+const std::string& XGBooster::name(unsigned int feature) const
+{
+  for (const auto& pair : feature_name_to_index_) {
+    if (pair.second == feature)
+      return pair.first;
+  }
+  throw std::runtime_error("Invalid feature index");
+}
 
 float XGBooster::predict(const int iterationEnd) {
-  // check if all feature values are set properly
-  for (unsigned int i = 0; i < features_.size(); ++i)
-    if (std::isnan(features_.at(i))) {
-      std::string feature_name;
-      for (const auto& pair : feature_name_to_index_) {
-        if (pair.second == i) {
-          feature_name = pair.first;
-          break;
-        }
-      }
-      throw std::runtime_error("Feature is not set: " + feature_name);
+  // Validate input
+  for (unsigned int i = 0; i < features_.size(); ++i) {
+    // Check that feature is set
+    if (not status_.at(i)) {
+      throw std::runtime_error("Feature " + name(i) + " not set");
     }
-
+    // Check for invalid input
+    if (std::isnan(features_.at(i))) {
+      edm::LogWarning("InvalidInput") <<
+	"Invalid input is provided (NaN). Feature name " + name(i);
+      return -998.;
+    }
+  }
+  
   float const ret = predict(features_, iterationEnd);
 
   reset();
