@@ -71,9 +71,7 @@ XGBooster::XGBooster(std::string model_file, std::string model_features) : XGBoo
   }
 }
 
-void XGBooster::reset() {
-  std::fill(status_.begin(), status_.end(), false);
-}
+void XGBooster::reset() { std::fill(status_.begin(), status_.end(), false); }
 
 void XGBooster::addFeature(std::string name) {
   features_.push_back(0);
@@ -87,8 +85,7 @@ void XGBooster::set(std::string name, float value) {
   status_.at(i) = true;
 }
 
-const std::string& XGBooster::name(unsigned int feature) const
-{
+const std::string& XGBooster::name(unsigned int feature) const {
   for (const auto& pair : feature_name_to_index_) {
     if (pair.second == feature)
       return pair.first;
@@ -105,12 +102,11 @@ float XGBooster::predict(const int iterationEnd) {
     }
     // Check for invalid input
     if (std::isnan(features_.at(i))) {
-      edm::LogWarning("InvalidInput") <<
-	"Invalid input is provided (NaN). Feature name " + name(i);
+      edm::LogWarning("InvalidInput") << "Invalid input is provided (NaN). Feature name " + name(i);
       return -998.;
     }
   }
-  
+
   float const ret = predict(features_, iterationEnd);
 
   reset();
