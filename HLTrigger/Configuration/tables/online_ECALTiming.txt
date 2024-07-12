@@ -16,7 +16,7 @@ HLT_ZeroBias_Alignment_v*
 HLT_ZeroBias_Beamspot_v*
 HLT_ZeroBias_FirstCollisionAfterAbortGap_v*
 HLT_SpecialHLTPhysics_v*
-
+HLT_Physics_v*	# CMSHLT-3210
 HLTriggerFinalPath
 
 ## EndPaths / FinalPaths ##

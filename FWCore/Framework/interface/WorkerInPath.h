@@ -35,7 +35,7 @@ namespace edm {
                         typename T::TransitionInfoType const&,
                         ServiceToken const&,
                         StreamID,
-                        typename T::Context const*);
+                        typename T::Context const*) noexcept;
 
     bool checkResultsOfRunWorker(bool wasEvent);
 
@@ -111,24 +111,12 @@ namespace edm {
                                     typename T::TransitionInfoType const& info,
                                     ServiceToken const& token,
                                     StreamID streamID,
-                                    typename T::Context const* context) {
-    if constexpr (T::isEvent_) {
-      ++timesVisited_;
-    }
+                                    typename T::Context const* context) noexcept {
+    static_assert(T::isEvent_);
 
-    if constexpr (T::isEvent_) {
-      ParentContext parentContext(&placeInPathContext_);
-      worker_->doWorkAsync<T>(std::move(iTask), info, token, streamID, parentContext, context);
-    } else {
-      ParentContext parentContext(context);
-
-      // We do not need to run prefetching here because this only handles
-      // stream transitions for runs and lumis. There are no products put
-      // into the runs or lumis in stream transitions, so there can be
-      // no data dependencies which require prefetching. Prefetching is
-      // needed for global transitions, but they are run elsewhere.
-      worker_->doWorkNoPrefetchingAsync<T>(std::move(iTask), info, token, streamID, parentContext, context);
-    }
+    ++timesVisited_;
+    ParentContext parentContext(&placeInPathContext_);
+    worker_->doWorkAsync<T>(std::move(iTask), info, token, streamID, parentContext, context);
   }
 }  // namespace edm
 

@@ -11,7 +11,14 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "G4SystemOfUnits.hh"
+#include <CLHEP/Units/SystemOfUnits.h>
+using CLHEP::cm;
+using CLHEP::fermi;
+using CLHEP::m;
+using CLHEP::MeV;
+using CLHEP::micrometer;
+using CLHEP::mm;
+using CLHEP::ns;
 
 MaterialProperties::MaterialProperties(int DebugLevel, double SiAbsLengthScale)
     : theMaterialTable(),
@@ -31,8 +38,8 @@ MaterialProperties::MaterialProperties(int DebugLevel, double SiAbsLengthScale)
           the fact that all modules are made out of the same G4Material
   */
   /* *********************************************************************** */
-  G4double theDensity = 2.33 * g / cm3;
-  G4double theAtomicWeight = 28.09 * g / mole;
+  G4double theDensity = 2.33 * CLHEP::g / CLHEP::cm3;
+  G4double theAtomicWeight = 28.09 * CLHEP::g / CLHEP::mole;
   G4double theAtomicNumber = 14.0;
 
   theTECWafer = new G4Material("TEC_Wafer", theAtomicNumber, theAtomicWeight, theDensity);
@@ -92,7 +99,7 @@ void MaterialProperties::setMaterialProperties() {
   const G4int nEntries = 3;
 
   // Photon energies
-  G4double PhotonEnergy[nEntries] = {1.10 * eV, 1.15 * eV, 1.20 * eV};
+  G4double PhotonEnergy[nEntries] = {1.10 * CLHEP::eV, 1.15 * CLHEP::eV, 1.20 * CLHEP::eV};
 
   // scintillation
   G4double Scintillation[nEntries] = {0.1, 1.0, 0.1};

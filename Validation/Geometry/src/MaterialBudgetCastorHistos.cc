@@ -9,8 +9,8 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include <CLHEP/Units/GlobalPhysicalConstants.h>
+#include <CLHEP/Units/SystemOfUnits.h>
 
 #include <string>
 
@@ -57,8 +57,8 @@ void MaterialBudgetCastorHistos::fillStartTrack(const G4Track* aTrack) {
   }
 
   edm::LogInfo("MaterialBudget") << "MaterialBudgetCastorHistos: Track " << aTrack->GetTrackID() << " Code " << theID
-                                 << " Energy " << theEnergy / GeV << " GeV; Eta " << eta_ << " Phi " << phi_ / deg
-                                 << " PT " << dir.perp() / GeV << " GeV *****";
+                                 << " Energy " << theEnergy / CLHEP::GeV << " GeV; Eta " << eta_ << " Phi "
+                                 << phi_ / CLHEP::deg << " PT " << dir.perp() / CLHEP::GeV << " GeV *****";
 }
 
 void MaterialBudgetCastorHistos::fillPerStep(const G4Step* aStep) {
@@ -66,7 +66,7 @@ void MaterialBudgetCastorHistos::fillPerStep(const G4Step* aStep) {
   double step = aStep->GetStepLength();
   double radl = material->GetRadlen();
   double intl = material->GetNuclearInterLength();
-  double density = material->GetDensity() / (g / cm3);
+  double density = material->GetDensity() / (CLHEP::g / CLHEP::cm3);
 
   int id1Old = id1;
   int id2Old = id2;

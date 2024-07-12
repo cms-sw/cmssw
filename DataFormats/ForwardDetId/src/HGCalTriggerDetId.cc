@@ -47,8 +47,9 @@ HGCalTriggerDetId& HGCalTriggerDetId::operator=(const DetId& gen) {
 }
 
 int HGCalTriggerDetId::triggerCellX() const {
-  int nT =
-      (type() == HGCSiliconDetId::HGCalFine) ? HGCSiliconDetId::HGCalFineTrigger : HGCSiliconDetId::HGCalCoarseTrigger;
+  int nT = ((type() == HGCSiliconDetId::HGCalHD120) || (type() == HGCSiliconDetId::HGCalHD200))
+               ? HGCSiliconDetId::HGCalFineTrigger
+               : HGCSiliconDetId::HGCalCoarseTrigger;
   int N = nT * HGCalTriggerCell;
   std::vector<int> vc = cellV();
   int x(0);
@@ -59,8 +60,9 @@ int HGCalTriggerDetId::triggerCellX() const {
 }
 
 int HGCalTriggerDetId::triggerCellY() const {
-  int nT =
-      (type() == HGCSiliconDetId::HGCalFine) ? HGCSiliconDetId::HGCalFineTrigger : HGCSiliconDetId::HGCalCoarseTrigger;
+  int nT = ((type() == HGCSiliconDetId::HGCalHD120) || (type() == HGCSiliconDetId::HGCalHD200))
+               ? HGCSiliconDetId::HGCalFineTrigger
+               : HGCSiliconDetId::HGCalCoarseTrigger;
   int N = nT * HGCalTriggerCell;
   std::vector<int> uc = cellU();
   std::vector<int> vc = cellV();
@@ -73,8 +75,9 @@ int HGCalTriggerDetId::triggerCellY() const {
 
 std::vector<int> HGCalTriggerDetId::cellU() const {
   std::vector<int> uc;
-  int nT =
-      (type() == HGCSiliconDetId::HGCalFine) ? HGCSiliconDetId::HGCalFineTrigger : HGCSiliconDetId::HGCalCoarseTrigger;
+  int nT = ((type() == HGCSiliconDetId::HGCalHD120) || (type() == HGCSiliconDetId::HGCalHD200))
+               ? HGCSiliconDetId::HGCalFineTrigger
+               : HGCSiliconDetId::HGCalCoarseTrigger;
   if ((triggerCellU() >= HGCalTriggerCell) && (triggerCellV() >= HGCalTriggerCell)) {
     int u0 = nT * triggerCellU();
     for (int i = 0; i < nT; ++i) {
@@ -103,8 +106,9 @@ std::vector<int> HGCalTriggerDetId::cellU() const {
 
 std::vector<int> HGCalTriggerDetId::cellV() const {
   std::vector<int> vc;
-  int nT =
-      (type() == HGCSiliconDetId::HGCalFine) ? HGCSiliconDetId::HGCalFineTrigger : HGCSiliconDetId::HGCalCoarseTrigger;
+  int nT = ((type() == HGCSiliconDetId::HGCalHD120) || (type() == HGCSiliconDetId::HGCalHD200))
+               ? HGCSiliconDetId::HGCalFineTrigger
+               : HGCSiliconDetId::HGCalCoarseTrigger;
   if ((triggerCellU() >= HGCalTriggerCell) && (triggerCellV() >= HGCalTriggerCell)) {
     int v0 = nT * triggerCellV();
     for (int i = 0; i < nT; ++i) {

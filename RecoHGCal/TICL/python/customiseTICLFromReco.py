@@ -5,7 +5,7 @@ from RecoLocalCalo.HGCalRecProducers.hgcalMergeLayerClusters_cfi import hgcalMer
 from RecoHGCal.TICL.ticlDumper_cfi import ticlDumper
 # Validation
 from Validation.HGCalValidation.HGCalValidator_cfi import *
-from RecoLocalCalo.HGCalRecProducers.hgcalRecHitMapProducer_cfi import hgcalRecHitMapProducer
+from RecoLocalCalo.HGCalRecProducers.recHitMapProducer_cfi import recHitMapProducer
 
 # Load DNN ESSource
 from RecoTracker.IterativeTracking.iterativeTk_cff import trackdnn_source
@@ -32,7 +32,7 @@ def customiseTICLFromReco(process):
                             process.ticlIterationsTask,
                             process.ticlTracksterMergeTask)
 # Validation
-    process.TICL_ValidationProducers = cms.Task(process.hgcalRecHitMapProducer,
+    process.TICL_ValidationProducers = cms.Task(process.recHitMapProducer,
                                                 process.lcAssocByEnergyScoreProducer,
                                                 process.layerClusterCaloParticleAssociationProducer,
                                                 process.scAssocByEnergyScoreProducer,
@@ -79,6 +79,15 @@ def customiseTICLForDumper(process):
         saveTracks=True,
         saveAssociations=True,
     )
+
+    from Configuration.ProcessModifiers.ticl_v5_cff import ticl_v5
+    ticl_v5.toModify(process.ticlDumper,
+                     # trackstersclue3d = cms.InputTag('mergedTrackstersProducer'), # For future separate iterations
+                     trackstersclue3d = cms.InputTag('ticlTrackstersCLUE3DHigh'),
+                     ticlcandidates = cms.InputTag("ticlCandidate"),
+                     trackstersmerged = cms.InputTag("ticlCandidate"),
+                     trackstersInCand = cms.InputTag("ticlCandidate"))
+
     process.TFileService = cms.Service("TFileService",
                                        fileName=cms.string("histo.root")
                                        )

@@ -115,7 +115,7 @@ def autoCondRelValForRun3(autoCond):
 
     GlobalTagRelValForRun3 = {}
     L1GtTriggerMenuForRelValForRun3 =    ','.join( ['L1Menu_Collisions2015_25nsStage1_v5' , "L1GtTriggerMenuRcd",             connectionString, "", "2023-01-28 12:00:00.000"] )
-    L1TUtmTriggerMenuForRelValForRun3 =  ','.join( ['L1Menu_Collisions2024_v1_1_0_xml'    , "L1TUtmTriggerMenuRcd",           connectionString, "", "2024-03-20 12:00:00.000"] )
+    L1TUtmTriggerMenuForRelValForRun3 =  ','.join( ['L1Menu_Collisions2024_v1_3_0_xml'    , "L1TUtmTriggerMenuRcd",           connectionString, "", "2024-07-03 12:00:00.000"] )
 
     for key,val in autoCond.items():
         if 'run3_data' in key or 'run3_hlt' in key :
@@ -125,3 +125,20 @@ def autoCondRelValForRun3(autoCond):
     autoCond.update(GlobalTagRelValForRun3)
     return autoCond
 
+def autoCondBSHLLHC13TeV(autoCond):
+
+    GlobalTagBSHLLHC13TeV = {}
+    SimBeamSpotForHLLHC13TeV = ','.join( ['SimBeamSpotHLLHCObjects_z4p3cm_t193ns_13TeV_nominal_mc_v1', "SimBeamSpotHLLHCObjectsRcd", connectionString, "", "2024-07-04 15:00:00.000"] )
+
+    for key,val in autoCond.items():
+        if 'phase2_realistic' in key:
+            # If 'phase2_realistic_T' is in key, it means it was already modified
+            # by autoCondPhase2: simply add to the already existing tuple
+            if 'phase2_realistic_T' in key:
+                GlobalTagBSHLLHC13TeV[key+'_13TeV'] = autoCond[key] + (SimBeamSpotForHLLHC13TeV,)
+            # Else, build the tuple as done in the rest of the autoCondModifiers
+            else:
+                GlobalTagBSHLLHC13TeV[key+'_13TeV'] = (autoCond[key], SimBeamSpotForHLLHC13TeV)
+
+    autoCond.update(GlobalTagBSHLLHC13TeV)
+    return autoCond

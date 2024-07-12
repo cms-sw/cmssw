@@ -168,7 +168,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                    const uint32_t numDigis);
 
       SiPixelDigisSoACollection getDigis() {
-        digis_d->setNModulesDigis(nModules_Clusters_h[0], nDigis);
+        digis_d->setNModules(nModules_Clusters_h[0]);
         return std::move(*digis_d);
       }
 

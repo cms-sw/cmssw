@@ -38,9 +38,6 @@ XMLEventWriter::XMLEventWriter(const OMTFConfiguration* aOMTFConfig, std::string
 XMLEventWriter::~XMLEventWriter() {}
 
 void XMLEventWriter::observeProcesorBegin(unsigned int iProcessor, l1t::tftype mtfType) {
-  if (eventNum > 5000)
-    return;
-
   procTree.clear();
 
   int endcap = (mtfType == l1t::omtf_neg) ? -1 : ((mtfType == l1t::omtf_pos) ? +1 : 0);
@@ -59,9 +56,6 @@ void XMLEventWriter::observeProcesorEmulation(unsigned int iProcessor,
                                               const AlgoMuons& algoCandidates,
                                               const AlgoMuons& gbCandidates,
                                               const std::vector<l1t::RegionalMuonCand>& candMuons) {
-  if (eventNum > 5000)
-    return;
-
   int endcap = (mtfType == l1t::omtf_neg) ? -1 : ((mtfType == l1t::omtf_pos) ? +1 : 0);
   OmtfName board(iProcessor, endcap, omtfConfig);
 
@@ -203,10 +197,6 @@ void XMLEventWriter::observeProcesorEmulation(unsigned int iProcessor,
 
 void XMLEventWriter::observeEventBegin(const edm::Event& iEvent) {
   eventNum++;
-  if (eventNum > 5000)
-    //due to some bug if more events is written the memory consumption s very big and program crashes
-    return;
-  //currentElement = xmlWriter.writeEventHeader(iEvent.id().event());
   eventId = iEvent.id().event();
 
   eventTree = &(tree.add("OMTF.Event", ""));

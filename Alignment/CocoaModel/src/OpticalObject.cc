@@ -42,7 +42,7 @@
 #include "CondFormats/OptAlignObjects/interface/OpticalAlignInfo.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include <CLHEP/Units/SystemOfUnits.h>
 
 #include <cstdlib>
 #include <iostream>
@@ -1999,7 +1999,7 @@ const double OpticalObject::getEntryRMangle(const ALIstring& coorstr) const {
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void OpticalObject::constructMaterial() {
-  theMaterial = new CocoaMaterialElementary("Hydrogen", 70.8 * mg / cm3, "H", 1.00794f, 1);
+  theMaterial = new CocoaMaterialElementary("Hydrogen", 70.8 * CLHEP::mg / CLHEP::cm3, "H", 1.00794f, 1);
 }
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -2008,8 +2008,10 @@ void OpticalObject::constructSolidShape() {
   GlobalOptionMgr* gomgr = GlobalOptionMgr::getInstance();
   gomgr->getGlobalOptionValue("VisScale", go);
 
-  theSolidShape = new CocoaSolidShapeBox(
-      "Box", go * 5. * cm / m, go * 5. * cm / m, go * 5. * cm / m);  //COCOA internal units are meters
+  theSolidShape = new CocoaSolidShapeBox("Box",
+                                         go * 5. * CLHEP::cm / CLHEP::m,
+                                         go * 5. * CLHEP::cm / CLHEP::m,
+                                         go * 5. * CLHEP::cm / CLHEP::m);  //COCOA internal units are meters
 }
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@

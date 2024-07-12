@@ -75,6 +75,8 @@ RawEventOutputModuleForBU<Consumer>::~RawEventOutputModuleForBU() {}
 
 template <class Consumer>
 void RawEventOutputModuleForBU<Consumer>::write(edm::EventForOutput const& e) {
+  using namespace edm::streamer;
+
   unsigned int ls = e.luminosityBlock();
   if (totevents > 0 && totevents % numEventsPerFile_ == 0) {
     index_++;
@@ -89,8 +91,8 @@ void RawEventOutputModuleForBU<Consumer>::write(edm::EventForOutput const& e) {
   e.getByToken(token_, fedBuffers);
 
   // determine the expected size of the FRDEvent IN BYTES !!!!!
-  assert(frdVersion_ <= FRDHeaderMaxVersion);
-  int headerSize = FRDHeaderVersionSize[frdVersion_];
+  assert(frdVersion_ <= edm::streamer::FRDHeaderMaxVersion);
+  int headerSize = edm::streamer::FRDHeaderVersionSize[frdVersion_];
   int expectedSize = headerSize;
   int nFeds = frdVersion_ < 3 ? 1024 : FEDNumbering::lastFEDId() + 1;
 
@@ -156,7 +158,7 @@ void RawEventOutputModuleForBU<Consumer>::write(edm::EventForOutput const& e) {
   }
 
   // create the FRDEventMsgView and use the template consumer to write it out
-  FRDEventMsgView msg(workBuffer.get()->data());
+  edm::streamer::FRDEventMsgView msg(workBuffer.get()->data());
   writtensize += msg.size();
 
   templateConsumer_->doOutputEvent(msg);

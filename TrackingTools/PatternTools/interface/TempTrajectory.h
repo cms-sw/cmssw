@@ -43,6 +43,25 @@ public:
   typedef TrackingRecHit::ConstRecHitContainer ConstRecHitContainer;
   typedef ConstRecHitContainer RecHitContainer;
 
+  struct Payload {
+    float theChiSquared = 0;
+    float theDPhiCache = 0;
+    float theCCCThreshold_ = std::numeric_limits<float>::max();
+
+    uint8_t theNumberOfFoundHits = 0;
+    uint8_t theNumberOfFoundPixelHits = 0;
+    uint8_t theNumberOfLostHits = 0;
+    uint8_t theNumberOfTrailingFoundHits = 0;
+    uint8_t theNumberOfCCCBadHits_ = 0;
+
+    // PropagationDirection
+    int8_t theDirection = anyDirection;
+
+    uint8_t theNHseed = 0;
+    uint8_t theNLoops = 0;
+    StopReason stopReason_ = StopReason::UNINITIALIZED;
+  };
+
   /** Default constructor of an empty trajectory with undefined seed and 
    * undefined direction. This constructor is necessary in order to transiently
    * copy vector<Trajectory> in the edm::Event
@@ -54,52 +73,40 @@ public:
    *  No check is made in the push method that measurements are
    *  added in the correct direction.
    */
-  TempTrajectory(PropagationDirection dir, unsigned char nhseed)
-      : theDirection(dir), theValid(true), theNHseed(nhseed) {}
+  TempTrajectory(PropagationDirection dir, unsigned char nhseed) : thePayload(std::make_unique<Payload>()) {
+    thePayload->theDirection = dir;
+    thePayload->theNHseed = nhseed;
+  }
 
-  TempTrajectory(TempTrajectory const& rh) = default;
-  TempTrajectory& operator=(TempTrajectory const& rh) = default;
+  TempTrajectory(TempTrajectory const& rh)
+      : theData(rh.theData), thePayload(rh.thePayload ? std::make_unique<Payload>(*rh.thePayload) : nullptr) {}
 
-  TempTrajectory(TempTrajectory&& rh) noexcept
-      : theData(std::move(rh.theData)),
-        theChiSquared(rh.theChiSquared),
-        theNumberOfFoundHits(rh.theNumberOfFoundHits),
-        theNumberOfFoundPixelHits(rh.theNumberOfFoundPixelHits),
-        theNumberOfLostHits(rh.theNumberOfLostHits),
-        theNumberOfTrailingFoundHits(rh.theNumberOfTrailingFoundHits),
-        theNumberOfCCCBadHits_(rh.theNumberOfCCCBadHits_),
-        theDirection(rh.theDirection),
-        theValid(rh.theValid),
-        theNHseed(rh.theNHseed),
-        theNLoops(rh.theNLoops),
-        theDPhiCache(rh.theDPhiCache),
-        theCCCThreshold_(rh.theCCCThreshold_),
-        stopReason_(rh.stopReason_) {}
+  TempTrajectory& operator=(TempTrajectory const& rh) {
+    theData = rh.theData;
+    thePayload = rh.thePayload ? std::make_unique<Payload>(*rh.thePayload) : nullptr;
+    return *this;
+  }
+
+  TempTrajectory(TempTrajectory&& rh) noexcept : theData(std::move(rh.theData)), thePayload(std::move(rh.thePayload)) {}
 
   TempTrajectory& operator=(TempTrajectory&& rh) noexcept {
     using std::swap;
     swap(theData, rh.theData);
-    theChiSquared = rh.theChiSquared;
-    theNumberOfFoundHits = rh.theNumberOfFoundHits;
-    theNumberOfFoundPixelHits = rh.theNumberOfFoundPixelHits;
-    theNumberOfLostHits = rh.theNumberOfLostHits;
-    theNumberOfTrailingFoundHits = rh.theNumberOfTrailingFoundHits;
-    theNumberOfCCCBadHits_ = rh.theNumberOfCCCBadHits_;
-    theDirection = rh.theDirection;
-    theValid = rh.theValid;
-    theNHseed = rh.theNHseed;
-    theNLoops = rh.theNLoops;
-    theDPhiCache = rh.theDPhiCache;
-    theCCCThreshold_ = rh.theCCCThreshold_;
-    stopReason_ = rh.stopReason_;
+    swap(thePayload, rh.thePayload);
     return *this;
+  }
+
+  void swap(TempTrajectory& rh) noexcept {
+    using std::swap;
+    swap(theData, rh.theData);
+    swap(thePayload, rh.thePayload);
   }
 
   /// construct TempTrajectory from standard Trajectory
   explicit TempTrajectory(Trajectory&& traj);
 
   /// destruct a TempTrajectory
-  ~TempTrajectory() {}
+  ~TempTrajectory() = default;
 
   /** Add a new measurement to a Trajectory.
    *  The Chi2 of the trajectory is incremented by the value
@@ -181,36 +188,36 @@ public:
    *  detector layers crossed without using RecHits from them are also 
    *  stored as measurements.
    */
-  int foundHits() const { return theNumberOfFoundHits; }
+  int foundHits() const { return thePayload->theNumberOfFoundHits; }
 
   /** Number of valid pixel RecHits used to determine the trajectory.
    */
-  int foundPixelHits() const { return theNumberOfFoundPixelHits; }
+  int foundPixelHits() const { return thePayload->theNumberOfFoundPixelHits; }
 
   /** Number of detector layers crossed without valid RecHits.
    *  Used mainly as a criteria for abandoning a trajectory candidate
    *  during trajectory building.
    */
-  int lostHits() const { return theNumberOfLostHits; }
+  int lostHits() const { return thePayload->theNumberOfLostHits; }
 
   /** Number of valid RecHits at the end of the trajectory after last lost hit.
    */
-  int trailingFoundHits() const { return theNumberOfTrailingFoundHits; }
+  int trailingFoundHits() const { return thePayload->theNumberOfTrailingFoundHits; }
 
   /** Number of hits that are not compatible with the CCC used during
    *  patter recognition. Used mainly as a criteria for abandoning a
    *  trajectory candidate during trajectory building.
    */
-  int cccBadHits() const { return theNumberOfCCCBadHits_; }
+  int cccBadHits() const { return thePayload->theNumberOfCCCBadHits_; }
 
   //number of hits in seed
-  unsigned int seedNHits() const { return theNHseed; }
+  unsigned int seedNHits() const { return thePayload->theNHseed; }
 
   /// True if trajectory has no measurements.
   bool empty() const { return theData.empty(); }
 
   /// Value of the raw Chi2 of the trajectory, not normalised to the N.D.F.
-  float chiSquared() const { return theChiSquared; }
+  float chiSquared() const { return thePayload->theChiSquared; }
 
   /** Direction of "growing" of the trajectory. 
    *  Possible values are alongMomentum (outwards) and 
@@ -221,10 +228,10 @@ public:
   /** Returns true if the Trajectory is valid.
    *  Trajectories are invalidated e.g. during ambiguity resolution.
    */
-  bool isValid() const { return theValid; }
+  bool isValid() const { return bool(thePayload); }
 
   /// Method to invalidate a trajectory. Useful during ambiguity resolution.
-  void invalidate() { theValid = false; }
+  void invalidate() { thePayload.reset(); }
 
   /** Definition of inactive Det from the Trajectory point of view.
    */
@@ -247,20 +254,20 @@ public:
 
   /// accessor to the delta phi angle betweem the directions of the two measurements on the last
   /// two layers crossed by the trajectory
-  float dPhiCacheForLoopersReconstruction() const { return theDPhiCache; }
+  float dPhiCacheForLoopersReconstruction() const { return thePayload->theDPhiCache; }
 
   /// method to set the delta phi angle betweem the directions of the two measurements on the last
   /// two layers crossed by the trajectory
-  void setDPhiCacheForLoopersReconstruction(float dphi) { theDPhiCache = dphi; }
+  void setDPhiCacheForLoopersReconstruction(float dphi) { thePayload->theDPhiCache = dphi; }
 
-  bool isLooper() const { return (theNLoops > 0); }
-  signed char nLoops() const { return theNLoops; }
+  bool isLooper() const { return (thePayload->theNLoops > 0); }
+  signed char nLoops() const { return thePayload->theNLoops; }
 
-  void setNLoops(signed char value) { theNLoops = value; }
-  void incrementLoops() { theNLoops++; }
+  void setNLoops(int8_t value) { thePayload->theNLoops = value; }
+  void incrementLoops() { thePayload->theNLoops++; }
 
-  StopReason stopReason() const { return stopReason_; }
-  void setStopReason(StopReason s) { stopReason_ = s; }
+  StopReason stopReason() const { return thePayload->stopReason_; }
+  void setStopReason(StopReason s) { thePayload->stopReason_ = s; }
 
   int numberOfCCCBadHits(float ccc_threshold);
 
@@ -277,25 +284,7 @@ private:
 
 private:
   DataContainer theData;
-
-  float theChiSquared = 0;
-
-  signed short theNumberOfFoundHits = 0;
-  signed short theNumberOfFoundPixelHits = 0;
-  signed short theNumberOfLostHits = 0;
-  signed short theNumberOfTrailingFoundHits = 0;
-  signed short theNumberOfCCCBadHits_ = 0;
-
-  // PropagationDirection
-  signed char theDirection = anyDirection;
-  bool theValid = false;
-
-  unsigned char theNHseed = 0;
-
-  signed char theNLoops = 0;
-  float theDPhiCache = 0;
-  float theCCCThreshold_ = std::numeric_limits<float>::max();
-  StopReason stopReason_ = StopReason::UNINITIALIZED;
+  std::unique_ptr<Payload> thePayload;
 
   void check() const;
 };

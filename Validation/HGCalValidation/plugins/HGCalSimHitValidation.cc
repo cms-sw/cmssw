@@ -29,8 +29,8 @@
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
+#include <CLHEP/Units/SystemOfUnits.h>
+#include <CLHEP/Units/GlobalPhysicalConstants.h>
 
 class HGCalSimHitValidation : public DQMEDAnalyzer {
 public:
@@ -334,19 +334,19 @@ void HGCalSimHitValidation::fillMuonTomoHistos(int partialType, std::pair<hitsin
     if (nameDetector_ == "HGCalEESensitive" or nameDetector_ == "HGCalHESiliconSensitive") {
       // Fill the energy loss histograms for MIP
       if (!TMath::AreEqualAbs(edep, 0.0, 1.e-5)) {  //to avoid peak at zero due Eloss less than 10 mili eV.
-        if (hinfo.type == HGCSiliconDetId::HGCalFine) {
+        if (hinfo.type == HGCSiliconDetId::HGCalHD120) {
           if (partialType == 0)
             energyFWF_.at(ilayer)->Fill(edep);
           if (partialType > 0)
             energyPWF_.at(ilayer)->Fill(edep);
         }
-        if (hinfo.type == HGCSiliconDetId::HGCalCoarseThin) {
+        if (hinfo.type == HGCSiliconDetId::HGCalLD200) {
           if (partialType == 0)
             energyFWCN_.at(ilayer)->Fill(edep);
           if (partialType > 0)
             energyPWCN_.at(ilayer)->Fill(edep);
         }
-        if (hinfo.type == HGCSiliconDetId::HGCalCoarseThick) {
+        if (hinfo.type == HGCSiliconDetId::HGCalLD300) {
           if (partialType == 0)
             energyFWCK_.at(ilayer)->Fill(edep);
           if (partialType > 0)
@@ -355,13 +355,13 @@ void HGCalSimHitValidation::fillMuonTomoHistos(int partialType, std::pair<hitsin
       }
 
       // Fill the XY distribution of detector hits
-      if (hinfo.type == HGCSiliconDetId::HGCalFine)
+      if (hinfo.type == HGCSiliconDetId::HGCalHD120)
         hitXYFWF_.at(ilayer)->Fill(x, y);
 
-      if (hinfo.type == HGCSiliconDetId::HGCalCoarseThin)
+      if (hinfo.type == HGCSiliconDetId::HGCalLD200)
         hitXYFWCN_.at(ilayer)->Fill(x, y);
 
-      if (hinfo.type == HGCSiliconDetId::HGCalCoarseThick)
+      if (hinfo.type == HGCSiliconDetId::HGCalLD300)
         hitXYFWCK_.at(ilayer)->Fill(x, y);
 
     }  //is Silicon

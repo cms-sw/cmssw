@@ -86,7 +86,8 @@ TEST_CASE("test ParameterSetDescription", "[ParameterSetDescription]") {
         std::ostringstream os;
         bool startWithComma = false;
         bool wroteSomething = false;
-        w.writeCfi(os, false, startWithComma, 0, wroteSomething);
+        edm::CfiOptions ops = edm::cfi::Typed{};
+        w.writeCfi(os, false, startWithComma, 0, ops, wroteSomething);
 
         REQUIRE_THAT(os.str(), Equals("\nallowAnyLabel_ = cms.required.int32"));
       }
@@ -107,7 +108,9 @@ TEST_CASE("test ParameterSetDescription", "[ParameterSetDescription]") {
         std::ostringstream os;
         bool startWithComma = false;
         bool wroteSomething = false;
-        w.writeCfi(os, false, startWithComma, 0, wroteSomething);
+        edm::CfiOptions ops = edm::cfi::Typed{};
+
+        w.writeCfi(os, false, startWithComma, 0, ops, wroteSomething);
 
         REQUIRE_THAT(os.str(), Equals("\nallowAnyLabel_ = cms.required.untracked.uint32"));
       }
@@ -152,7 +155,9 @@ TEST_CASE("test ParameterSetDescription", "[ParameterSetDescription]") {
         std::ostringstream os;
         bool startWithComma = false;
         bool wroteSomething = false;
-        w.writeCfi(os, false, startWithComma, 0, wroteSomething);
+        edm::CfiOptions ops = edm::cfi::Typed{};
+
+        w.writeCfi(os, false, startWithComma, 0, ops, wroteSomething);
 
         REQUIRE_THAT(os.str(), Equals("\nallowAnyLabel_ = cms.required.double"));
       }
@@ -186,7 +191,8 @@ TEST_CASE("test ParameterSetDescription", "[ParameterSetDescription]") {
         std::ostringstream os;
         bool startWithComma = false;
         bool wroteSomething = false;
-        w.writeCfi(os, false, startWithComma, 0, wroteSomething);
+        edm::CfiOptions ops = edm::cfi::Typed{};
+        w.writeCfi(os, false, startWithComma, 0, ops, wroteSomething);
 
         REQUIRE_THAT(os.str(), Equals("\nallowAnyLabel_ = cms.required.PSetTemplate()"));
       }
@@ -235,7 +241,8 @@ TEST_CASE("test ParameterSetDescription", "[ParameterSetDescription]") {
         std::ostringstream os;
         bool startWithComma = false;
         bool wroteSomething = false;
-        w.writeCfi(os, false, startWithComma, 0, wroteSomething);
+        edm::CfiOptions ops = edm::cfi::Typed{};
+        w.writeCfi(os, false, startWithComma, 0, ops, wroteSomething);
 
         REQUIRE_THAT(os.str(),
                      Equals("\nallowAnyLabel_ = cms.required.PSetTemplate(\n  n1 = cms.untracked.uint32(1)\n)"));
@@ -287,7 +294,8 @@ TEST_CASE("test ParameterSetDescription", "[ParameterSetDescription]") {
         std::ostringstream os;
         bool startWithComma = false;
         bool wroteSomething = false;
-        w.writeCfi(os, false, startWithComma, 0, wroteSomething);
+        edm::CfiOptions ops = edm::cfi::Typed{};
+        w.writeCfi(os, false, startWithComma, 0, ops, wroteSomething);
 
         REQUIRE_THAT(os.str(), Equals("\nallowAnyLabel_ = cms.required.VPSet"));
       }
@@ -1350,13 +1358,15 @@ TEST_CASE("test ParameterSetDescription", "[ParameterSetDescription]") {
 
       psetDesc.addVPSet("vp", templte, defaults);
     }
-    edm::ParameterSet test;
-    test.addParameter("vp", defaults);
-    psetDesc.validate(test);
+    SECTION("writeCfi full") {
+      edm::ParameterSet test;
+      test.addParameter("vp", defaults);
+      psetDesc.validate(test);
 
-    std::ostringstream s;
-    psetDesc.writeCfi(s, false, 0);
-    std::string expected = R"-(
+      std::ostringstream s;
+      edm::CfiOptions fullOps = edm::cfi::Typed{};
+      psetDesc.writeCfi(s, false, 0, fullOps);
+      std::string expected = R"-(
 vp = cms.VPSet(
   cms.PSet(
     L = cms.LuminosityBlockID(1, 2),
@@ -1392,7 +1402,180 @@ vp = cms.VPSet(
 )
 )-";
 
-    CHECK(expected == s.str());
+      CHECK(expected == s.str());
+    }
+    SECTION("writeCfi Untyped") {
+      edm::ParameterSet test;
+      test.addParameter("vp", defaults);
+      psetDesc.validate(test);
+
+      std::ostringstream s;
+      edm::CfiOptions fullOps = edm::cfi::Untyped{edm::cfi::Paths{}};
+      psetDesc.writeCfi(s, false, 0, fullOps);
+      std::string expected = R"-(
+vp = [
+  cms.PSet(
+    L = cms.LuminosityBlockID(1, 2),
+    Lr = cms.LuminosityBlockRange('1:2-3:4'),
+    b = cms.bool(True),
+    d = cms.double(1),
+    e = cms.EventID(1, 2, 3),
+    er = cms.EventRange('1:2:3-4:5:6'),
+    et = cms.ESInputTag('', 'foo'),
+    f = cms.FileInPath(''),
+    i = cms.int32(1),
+    l = cms.int64(1),
+    s = cms.string('a'),
+    t = cms.InputTag('foo'),
+    ui = cms.uint32(1),
+    ul = cms.uint64(1),
+    vL = cms.VLuminosityBlockID('1:2'),
+    vLr = cms.VLuminosityBlockRange('1:2-3:4'),
+    vd = cms.vdouble(1),
+    ve = cms.VEventID('1:2:3'),
+    ver = cms.VEventRange('1:2:3-4:5:6'),
+    vet = cms.VESInputTag(':foo'),
+    vi = cms.vint32(1),
+    vl = cms.vint64(1),
+    vs = cms.vstring('a'),
+    vt = cms.VInputTag('foo'),
+    vui = cms.vuint32(1),
+    vul = cms.vuint64(1),
+    p = cms.PSet(),
+    vp = cms.VPSet(
+    )
+  )
+]
+)-";
+
+      CHECK(expected == s.str());
+    }
+  }
+
+  SECTION("PSet with default") {
+    edm::ParameterSetDescription psetDesc;
+
+    {
+      edm::ParameterSetDescription templte;
+
+      templte.add<int>("i", 1);
+      templte.add<std::vector<int>>("vi", std::vector<int>({1}));
+      templte.add<unsigned int>("ui", 1);
+      templte.add<std::vector<unsigned int>>("vui", std::vector<unsigned int>({1}));
+      templte.add<long long>("l", 1);
+      templte.add<std::vector<long long>>("vl", std::vector<long long>({1}));
+      templte.add<unsigned long long>("ul", 1);
+      templte.add<std::vector<unsigned long long>>("vul", std::vector<unsigned long long>({1}));
+      templte.add<bool>("b", true);
+      templte.add<double>("d", 1.0);
+      templte.add<std::vector<double>>("vd", std::vector<double>({1.0}));
+      templte.add<std::string>("s", "a");
+      templte.add<std::vector<std::string>>("vs", std::vector<std::string>({"a"}));
+      templte.add<edm::InputTag>("t", edm::InputTag("foo"));
+      templte.add<std::vector<edm::InputTag>>("vt", std::vector<edm::InputTag>({edm::InputTag("foo")}));
+      templte.add<edm::ESInputTag>("et", edm::ESInputTag(":foo"));
+      templte.add<std::vector<edm::ESInputTag>>("vet", std::vector<edm::ESInputTag>({edm::ESInputTag(":foo")}));
+      edm::FileInPath::disableFileLookup();
+      templte.add<edm::FileInPath>("f", edm::FileInPath());
+      templte.add<edm::EventID>("e", edm::EventID(1, 2, 3));
+      templte.add<std::vector<edm::EventID>>("ve", std::vector<edm::EventID>({edm::EventID(1, 2, 3)}));
+      templte.add<edm::LuminosityBlockID>("L", edm::LuminosityBlockID(1, 2));
+      templte.add<std::vector<edm::LuminosityBlockID>>(
+          "vL", std::vector<edm::LuminosityBlockID>({edm::LuminosityBlockID(1, 2)}));
+      templte.add<edm::EventRange>("er", edm::EventRange(1, 2, 3, 4, 5, 6));
+      templte.add<std::vector<edm::EventRange>>("ver",
+                                                std::vector<edm::EventRange>({edm::EventRange(1, 2, 3, 4, 5, 6)}));
+      templte.add<edm::LuminosityBlockRange>("Lr", edm::LuminosityBlockRange(1, 2, 3, 4));
+      templte.add<std::vector<edm::LuminosityBlockRange>>(
+          "vLr", std::vector<edm::LuminosityBlockRange>({edm::LuminosityBlockRange(1, 2, 3, 4)}));
+      templte.add<edm::ParameterSetDescription>("p", edm::ParameterSetDescription());
+      templte.addVPSet("vp", edm::ParameterSetDescription(), std::vector<edm::ParameterSet>());
+      psetDesc.add<edm::ParameterSetDescription>("p", templte);
+    }
+    SECTION("writeCfi full") {
+      edm::ParameterSet test;
+      test.addParameter("p", edm::ParameterSet());
+      psetDesc.validate(test);
+
+      std::ostringstream s;
+      edm::CfiOptions fullOps = edm::cfi::Typed{};
+      psetDesc.writeCfi(s, false, 0, fullOps);
+      std::string expected = R"-(
+p = cms.PSet(
+  i = cms.int32(1),
+  vi = cms.vint32(1),
+  ui = cms.uint32(1),
+  vui = cms.vuint32(1),
+  l = cms.int64(1),
+  vl = cms.vint64(1),
+  ul = cms.uint64(1),
+  vul = cms.vuint64(1),
+  b = cms.bool(True),
+  d = cms.double(1),
+  vd = cms.vdouble(1),
+  s = cms.string('a'),
+  vs = cms.vstring('a'),
+  t = cms.InputTag('foo'),
+  vt = cms.VInputTag('foo'),
+  et = cms.ESInputTag('', 'foo'),
+  vet = cms.VESInputTag(':foo'),
+  f = cms.FileInPath(''),
+  e = cms.EventID(1, 2, 3),
+  ve = cms.VEventID('1:2:3'),
+  L = cms.LuminosityBlockID(1, 2),
+  vL = cms.VLuminosityBlockID('1:2'),
+  er = cms.EventRange('1:2:3-4:5:6'),
+  ver = cms.VEventRange('1:2:3-4:5:6'),
+  Lr = cms.LuminosityBlockRange('1:2-3:4'),
+  vLr = cms.VLuminosityBlockRange('1:2-3:4'),
+  p = cms.PSet(),
+  vp = cms.VPSet(
+  )
+)
+)-";
+
+      CHECK(expected == s.str());
+    }
+    SECTION("writeCfi Untyped") {
+      std::ostringstream s;
+      edm::CfiOptions fullOps = edm::cfi::Untyped{edm::cfi::Paths{}};
+      psetDesc.writeCfi(s, false, 0, fullOps);
+      std::string expected = R"-(
+p = dict(
+  i = 1,
+  vi = [1],
+  ui = 1,
+  vui = [1],
+  l = 1,
+  vl = [1],
+  ul = 1,
+  vul = [1],
+  b = True,
+  d = 1,
+  vd = [1],
+  s = 'a',
+  vs = ['a'],
+  t = ('foo'),
+  vt = ['foo'],
+  et = ('', 'foo'),
+  vet = [':foo'],
+  f = '',
+  e = (1, 2, 3),
+  ve = ['1:2:3'],
+  L = (1, 2),
+  vL = ['1:2'],
+  er = ('1:2:3-4:5:6'),
+  ver = ['1:2:3-4:5:6'],
+  Lr = ('1:2-3:4'),
+  vLr = ['1:2-3:4'],
+  p = dict(),
+  vp = [
+  ]
+)
+)-";
+
+      CHECK(expected == s.str());
+    }
   }
 
   SECTION("setAllowAnything") {

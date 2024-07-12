@@ -52,7 +52,7 @@ public:
   }
 
   /// Compute HGCUncalibratedRecHit from DataFrame
-  virtual HGCUncalibratedRecHit makeRecHit(const C& dataFrame) {
+  virtual HGCUncalibratedRecHit makeRecHit(const C& dataFrame, const bool computeLocalTime) {
     double amplitude_(-1.), pedestal_(-1.), jitter_(-99.), chi2_(-1.);
     uint32_t flag = 0;
 
@@ -84,7 +84,8 @@ public:
 
     if (sample.getToAValid()) {
       const auto& dist2center = geom_ ? geom_->getPosition(dataFrame.id()).mag() : 0;
-      jitter_ = double(sample.toa()) * toaLSBToNS_ - dist2center / c_cm_ns - tofDelay_;
+      jitter_ = computeLocalTime ? double(sample.toa()) * toaLSBToNS_ - tofDelay_
+                                 : double(sample.toa()) * toaLSBToNS_ - dist2center / c_cm_ns - tofDelay_;
     }
 
     int thickness = (ddd_ != nullptr) ? ddd_->waferType(dataFrame.id(), false) : 0;

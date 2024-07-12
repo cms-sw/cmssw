@@ -55,6 +55,7 @@
 <use name="TrackingTools/TransientTrackingRecHit"/>
 <use name="TrackingTools/TrackAssociator"/>
 <use name="TrackPropagation/SteppingHelixPropagator"/>
+<use name="ofast-flag"/>
 <export>
   <lib name="1"/>
 </export>

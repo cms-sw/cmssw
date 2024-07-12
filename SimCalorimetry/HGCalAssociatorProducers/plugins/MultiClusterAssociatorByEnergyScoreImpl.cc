@@ -14,8 +14,13 @@ MultiClusterAssociatorByEnergyScoreImpl::MultiClusterAssociatorByEnergyScoreImpl
     edm::EDProductGetter const& productGetter,
     bool hardScatterOnly,
     std::shared_ptr<hgcal::RecHitTools> recHitTools,
-    const std::unordered_map<DetId, const HGCRecHit*>*& hitMap)
-    : hardScatterOnly_(hardScatterOnly), recHitTools_(recHitTools), hitMap_(hitMap), productGetter_(&productGetter) {
+    const std::unordered_map<DetId, const unsigned int>*& hitMap,
+    std::vector<const HGCRecHit*>& hits)
+    : hardScatterOnly_(hardScatterOnly),
+      recHitTools_(recHitTools),
+      hitMap_(hitMap),
+      hits_(hits),
+      productGetter_(&productGetter) {
   layers_ = recHitTools_->lastLayerBH();
 }
 
@@ -90,7 +95,7 @@ hgcal::association MultiClusterAssociatorByEnergyScoreImpl::makeConnections(
               detIdToCaloParticleId_Map[hitid].emplace_back(cpId, it_haf.second);
             }
           }
-          const HGCRecHit* hit = itcheck->second;
+          const HGCRecHit* hit = hits_[itcheck->second];
           //Since the current hit from sim cluster has a reconstructed hit with the same detid,
           //fill the cPOnLayer[caloparticle][layer] object with energy (sum of all recHits energy times fraction
           //of the relevant simHit) and keep the hit (detid and fraction) that contributed.
@@ -126,10 +131,11 @@ hgcal::association MultiClusterAssociatorByEnergyScoreImpl::makeConnections(
           << "    Energy:          " << cPOnLayer[cp][cpp].energy << std::endl;
       double tot_energy = 0.;
       for (auto const& haf : cPOnLayer[cp][cpp].hits_and_fractions) {
+        const HGCRecHit* hit = hits_[hitMap_->at(haf.first)];
         LogDebug("MultiClusterAssociatorByEnergyScoreImpl")
             << "      Hits/fraction/energy: " << (uint32_t)haf.first << "/" << haf.second << "/"
-            << haf.second * hitMap_->at(haf.first)->energy() << std::endl;
-        tot_energy += haf.second * hitMap_->at(haf.first)->energy();
+            << haf.second * hit->energy() << std::endl;
+        tot_energy += haf.second * hit->energy();
       }
       LogDebug("MultiClusterAssociatorByEnergyScoreImpl") << "    Tot Sum haf: " << tot_energy << std::endl;
       for (auto const& mc : cPOnLayer[cp][cpp].multiClusterIdToEnergyAndScore) {
@@ -141,13 +147,14 @@ hgcal::association MultiClusterAssociatorByEnergyScoreImpl::makeConnections(
 
   LogDebug("MultiClusterAssociatorByEnergyScoreImpl") << "detIdToCaloParticleId_Map INFO" << std::endl;
   for (auto const& cp : detIdToCaloParticleId_Map) {
+    const HGCRecHit* hit = hits_[hitMap_->at(cp.first)];
     LogDebug("MultiClusterAssociatorByEnergyScoreImpl")
         << "For detId: " << (uint32_t)cp.first
         << " we have found the following connections with CaloParticles:" << std::endl;
     for (auto const& cpp : cp.second) {
       LogDebug("MultiClusterAssociatorByEnergyScoreImpl")
           << "  CaloParticle Id: " << cpp.clusterId << " with fraction: " << cpp.fraction
-          << " and energy: " << cpp.fraction * hitMap_->at(cp.first)->energy() << std::endl;
+          << " and energy: " << cpp.fraction * hit->energy() << std::endl;
     }
   }
 #endif
@@ -218,7 +225,7 @@ hgcal::association MultiClusterAssociatorByEnergyScoreImpl::makeConnections(
 
         //Since the hit is belonging to the layer cluster, it must also be in the recHits map.
         const auto itcheck = hitMap_->find(rh_detid);
-        const auto hit = itcheck->second;
+        const HGCRecHit* hit = hits_[itcheck->second];
 
         //Make a map that will connect a detid (that belongs to a recHit of the layer cluster under study,
         //no need to save others) with:
@@ -365,8 +372,8 @@ hgcal::association MultiClusterAssociatorByEnergyScoreImpl::makeConnections(
       // Compute the correct normalization
       float invMultiClusterEnergyWeight = 0.f;
       for (auto const& haf : mClusters[mcId].hitsAndFractions()) {
-        invMultiClusterEnergyWeight +=
-            (haf.second * hitMap_->at(haf.first)->energy()) * (haf.second * hitMap_->at(haf.first)->energy());
+        const HGCRecHit* hit = hits_[hitMap_->at(haf.first)];
+        invMultiClusterEnergyWeight += (haf.second * hit->energy()) * (haf.second * hit->energy());
       }
       invMultiClusterEnergyWeight = 1.f / invMultiClusterEnergyWeight;
 
@@ -377,7 +384,7 @@ hgcal::association MultiClusterAssociatorByEnergyScoreImpl::makeConnections(
         bool hitWithNoCP = (detIdToCaloParticleId_Map.find(rh_detid) == detIdToCaloParticleId_Map.end());
 
         auto itcheck = hitMap_->find(rh_detid);
-        const HGCRecHit* hit = itcheck->second;
+        const HGCRecHit* hit = hits_[itcheck->second];
         float hitEnergyWeight = hit->energy() * hit->energy();
 
         for (auto& cpPair : cpsInMultiCluster[mcId]) {
@@ -451,7 +458,7 @@ hgcal::association MultiClusterAssociatorByEnergyScoreImpl::makeConnections(
         if (hit_find_in_MCL == detIdToMultiClusterId_Map.end())
           hitWithNoMCL = true;
         auto itcheck = hitMap_->find(cp_hitDetId);
-        const HGCRecHit* hit = itcheck->second;
+        const HGCRecHit* hit = hits_[itcheck->second];
         float hitEnergyWeight = hit->energy() * hit->energy();
         for (auto& mcPair : cPOnLayer[cpId][layerId].multiClusterIdToEnergyAndScore) {
           unsigned int multiClusterId = mcPair.first;

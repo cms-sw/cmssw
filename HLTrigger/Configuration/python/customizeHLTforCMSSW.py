@@ -260,7 +260,152 @@ def checkHLTfor43774(process):
                     print('# TSG WARNING: check value of parameter "useAbs" in',filt,'(expect True but is False)!')
 
     return process
+
+def customizeHLTfor45206(process):
+
+    dqmPixelRecoPathName = None
+    for pathName in process.paths_():
+        if pathName.startswith('DQM_PixelReconstruction_v'):
+            dqmPixelRecoPathName = pathName
+            break
+
+    if dqmPixelRecoPathName == None:
+        return process
+
+    import copy
+    from DQM.SiPixelPhase1Common.SiPixelPhase1RawData_cfi import SiPixelPhase1RawDataConf,SiPixelPhase1RawDataAnalyzer
+
+    # PixelDigiErrors: monitor of SerialSync product
+    SiPixelPhase1RawDataConfForCPU = copy.deepcopy(SiPixelPhase1RawDataConf)
+    for pset in SiPixelPhase1RawDataConfForCPU:
+        pset.topFolderName =  "SiPixelHeterogeneous/PixelErrorsCPU"
+
+    process.hltPixelPhase1MonitorRawDataACPU = SiPixelPhase1RawDataAnalyzer.clone(
+        src = "hltSiPixelDigiErrorsSerialSync",
+        histograms = SiPixelPhase1RawDataConfForCPU
+    )
+
+    # PixelDigiErrors: monitor of GPU product
+    SiPixelPhase1RawDataConfForGPU = copy.deepcopy(SiPixelPhase1RawDataConf)
+    for pset in SiPixelPhase1RawDataConfForGPU:
+        pset.topFolderName =  "SiPixelHeterogeneous/PixelErrorsGPU"
+
+    process.hltPixelPhase1MonitorRawDataAGPU = SiPixelPhase1RawDataAnalyzer.clone(
+        src = "hltSiPixelDigiErrors",
+        histograms = SiPixelPhase1RawDataConfForGPU
+    )
+
+    # PixelDigiErrors: 'Alpaka' comparison
+    process.hltPixelDigiErrorsCompareGPUvsCPU = cms.EDProducer('SiPixelPhase1RawDataErrorComparator',
+        pixelErrorSrcCPU = cms.InputTag( 'hltSiPixelDigiErrorsSerialSync' ),
+        pixelErrorSrcGPU = cms.InputTag( 'hltSiPixelDigiErrors' ),
+        topFolderName = cms.string( 'SiPixelHeterogeneous/PixelErrorsCompareGPUvsCPU' )
+    )
+
+    # Comparisons below are to change the names of the modules defined in customizeHLTforAlpaka
+    process.hltPixelRecHitsSoACompareGPUvsCPU = cms.EDProducer('SiPixelPhase1CompareRecHits',
+        pixelHitsReferenceSoA = cms.InputTag('hltSiPixelRecHitsSoASerialSync'),
+        pixelHitsTargetSoA = cms.InputTag('hltSiPixelRecHitsSoA'),
+        topFolderName = cms.string('SiPixelHeterogeneous/PixelRecHitsCompareGPUvsCPU'),
+        minD2cut = cms.double(1.0e-4)
+    )
+
+    process.hltPixelTracksSoACompareGPUvsCPU = cms.EDProducer("SiPixelPhase1CompareTracks",
+        deltaR2cut = cms.double(0.04),
+        minQuality = cms.string('loose'),
+        pixelTrackReferenceSoA = cms.InputTag("hltPixelTracksSoASerialSync"),
+        pixelTrackTargetSoA = cms.InputTag("hltPixelTracksSoA"),
+        topFolderName = cms.string('SiPixelHeterogeneous/PixelTrackCompareGPUvsCPU'),
+        useQualityCut = cms.bool(True)
+    )
+
+    process.hltPixelVertexSoACompareGPUvsCPU = cms.EDProducer("SiPixelCompareVertices",
+        beamSpotSrc = cms.InputTag("hltOnlineBeamSpot"),
+        dzCut = cms.double(1),
+        pixelVertexReferenceSoA = cms.InputTag("hltPixelVerticesSoASerialSync"),
+        pixelVertexTargetSoA = cms.InputTag("hltPixelVerticesSoA"),
+        topFolderName = cms.string('SiPixelHeterogeneous/PixelVertexCompareGPUvsCPU')
+    )
+
+    process.HLTDQMPixelReconstruction = cms.Sequence(
+        process.hltPixelPhase1MonitorRawDataACPU
+      + process.hltPixelPhase1MonitorRawDataAGPU
+      + process.hltPixelDigiErrorsCompareGPUvsCPU
+      + process.hltPixelRecHitsSoAMonitorCPU
+      + process.hltPixelRecHitsSoAMonitorGPU
+      + process.hltPixelRecHitsSoACompareGPUvsCPU
+      + process.hltPixelTracksSoAMonitorCPU
+      + process.hltPixelTracksSoAMonitorGPU
+      + process.hltPixelTracksSoACompareGPUvsCPU
+      + process.hltPixelVertexSoAMonitorCPU
+      + process.hltPixelVertexSoAMonitorGPU
+      + process.hltPixelVertexSoACompareGPUvsCPU
+    )
+
+    return process
+
     
+def customizeHLTfor44576(process):
+    """Ensure TrackerAdditionalParametersPerDetRcd ESProducer is run when needed"""
+    for esprod in esproducers_by_type(process, 'TrackerGeometricDetESModule'):
+        process.load("Geometry.TrackerGeometryBuilder.TrackerAdditionalParametersPerDet_cfi")
+        break
+    return process
+
+def customizeHLTfor45063(process):
+    """Assigns value of MuonHLTSeedMVAClassifier mva input file, scales and mean values according to the value of isFromL1"""
+    for prod in producers_by_type(process, 'MuonHLTSeedMVAClassifier'):
+        if hasattr(prod, "isFromL1"):
+            if (prod.isFromL1 == True):
+                if hasattr(prod, "mvaFileBL1"):
+                    prod.mvaFileB = prod.mvaFileBL1
+                if hasattr(prod, "mvaFileEL1"):
+                    prod.mvaFileE = prod.mvaFileEL1
+                if hasattr(prod, "mvaScaleMeanBL1"):
+                    prod.mvaScaleMeanB = prod.mvaScaleMeanBL1
+                if hasattr(prod, "mvaScaleStdBL1"):
+                    prod.mvaScaleStdB = prod.mvaScaleStdBL1
+                if hasattr(prod, "mvaScaleMeanEL1"):
+                    prod.mvaScaleMeanE = prod.mvaScaleMeanEL1
+                if hasattr(prod, "mvaScaleStdEL1"):                    
+                    prod.mvaScaleStdE = prod.mvaScaleStdEL1                
+            else:
+                if hasattr(prod, "mvaFileBL2"):
+                    prod.mvaFileB = prod.mvaFileBL2
+                if hasattr(prod, "mvaFileEL2"):
+                    prod.mvaFileE = prod.mvaFileEL2
+                if hasattr(prod, "mvaScaleMeanBL2"):
+                    prod.mvaScaleMeanB = prod.mvaScaleMeanBL2
+                if hasattr(prod, "mvaScaleStdBL2"):
+                    prod.mvaScaleStdB = prod.mvaScaleStdBL2
+                if hasattr(prod, "mvaScaleMeanEL2"):
+                    prod.mvaScaleMeanE = prod.mvaScaleMeanEL2
+                if hasattr(prod, "mvaScaleStdEL2"):
+                    prod.mvaScaleStdE = prod.mvaScaleStdEL2
+                    
+    for prod in producers_by_type(process, 'MuonHLTSeedMVAClassifier'):
+        delattr(prod,"mvaFileBL1")
+        delattr(prod,"mvaFileEL1")
+        delattr(prod,"mvaScaleMeanBL1")
+        delattr(prod,"mvaScaleStdBL1")
+        delattr(prod,"mvaScaleMeanEL1")
+        delattr(prod,"mvaScaleStdEL1")
+        delattr(prod,"mvaFileBL2")
+        delattr(prod,"mvaFileEL2")
+        delattr(prod,"mvaScaleMeanBL2")
+        delattr(prod,"mvaScaleStdBL2")
+        delattr(prod,"mvaScaleMeanEL2")
+        delattr(prod,"mvaScaleStdEL2")       
+                    
+    return process
+            
+def customizeHLTfor44778(process):
+    for modLabel in ['hltDoubleEle10Mass50PPOnAAFilter', 'hltDoubleEle15Mass50PPOnAAFilter']:
+        if hasattr(process, modLabel):
+            mod = getattr(process, modLabel)
+            mod.l1EGCand = cms.InputTag('hltEgammaCandidatesPPOnAA')
+    return process
+
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
@@ -270,5 +415,9 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     # process = customiseFor12718(process)
 
     process = checkHLTfor43774(process)
+    process = customizeHLTfor44576(process)
+    process = customizeHLTfor45063(process)
+    process = customizeHLTfor45206(process)
+    process = customizeHLTfor44778(process)
 
     return process

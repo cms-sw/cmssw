@@ -88,6 +88,8 @@
    <version ClassVersion="11" checksum="122348193"/>
    <version ClassVersion="10" checksum="3782271882"/>
   </class>
+  <class name="edm::ValueMap<Point3DBase<float,GlobalTag> >"/>
+  <class name="edm::Wrapper<edm::ValueMap<Point3DBase<float,GlobalTag> > >"/>
   <class name="Vector2DBase<float,GlobalTag>" ClassVersion="11">
    <version ClassVersion="11" checksum="2993275990"/>
    <version ClassVersion="10" checksum="662089398"/>

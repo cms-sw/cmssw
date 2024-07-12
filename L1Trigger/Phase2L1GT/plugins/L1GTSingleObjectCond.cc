@@ -34,18 +34,22 @@ private:
   const L1GTSingleCollectionCut collection;
 
   const edm::EDGetTokenT<P2GTCandidateCollection> token_;
+  const edm::EDGetTokenT<P2GTCandidateCollection> primVertToken_;
 };
 
 L1GTSingleObjectCond::L1GTSingleObjectCond(const edm::ParameterSet& config)
     : scales_(config.getParameter<edm::ParameterSet>("scales")),
       collection(config, config, scales_),
-      token_(consumes<P2GTCandidateCollection>(collection.tag())) {
+      token_(consumes<P2GTCandidateCollection>(collection.tag())),
+      primVertToken_(consumes<P2GTCandidateCollection>(config.getParameter<edm::InputTag>("primVertTag"))) {
   produces<P2GTCandidateVectorRef>(collection.tag().instance());
 }
 
 void L1GTSingleObjectCond::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   L1GTSingleCollectionCut::fillPSetDescription(desc);
+
+  desc.add<edm::InputTag>("primVertTag");
 
   edm::ParameterSetDescription scalesDesc;
   L1GTScales::fillPSetDescription(scalesDesc);
@@ -56,6 +60,7 @@ void L1GTSingleObjectCond::fillDescriptions(edm::ConfigurationDescriptions& desc
 
 bool L1GTSingleObjectCond::filter(edm::StreamID, edm::Event& event, const edm::EventSetup& setup) const {
   edm::Handle<P2GTCandidateCollection> col = event.getHandle(token_);
+  edm::Handle<P2GTCandidateCollection> primVertCol = event.getHandle(primVertToken_);
 
   bool condition_result = false;
 
@@ -63,6 +68,8 @@ bool L1GTSingleObjectCond::filter(edm::StreamID, edm::Event& event, const edm::E
 
   for (std::size_t idx = 0; idx < col->size(); ++idx) {
     bool pass{collection.checkObject(col->at(idx))};
+    pass &= collection.checkPrimaryVertices(col->at(idx), *primVertCol);
+
     condition_result |= pass;
 
     if (pass) {

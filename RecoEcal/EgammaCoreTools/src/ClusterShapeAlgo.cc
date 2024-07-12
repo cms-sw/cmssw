@@ -13,8 +13,8 @@
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "CLHEP/Geometry/Transform3D.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include <CLHEP/Geometry/Transform3D.h>
+#include <CLHEP/Units/SystemOfUnits.h>
 
 ClusterShapeAlgo::ClusterShapeAlgo(const edm::ParameterSet& par) : parameterSet_(par) {}
 

@@ -441,14 +441,17 @@ namespace gctobj {
     return jet_tmp;
   }
 
-  inline jetInfo getRegion(GCTsupertower_t temp[nSTEta][nSTPhi]) {
+  inline jetInfo getRegion(GCTsupertower_t temp[nSTEta][nSTPhi], float TTseedThreshold) {
     jetInfo jet_tmp, jet;
     jet_tmp = getJetPosition(temp);
     int seed_phi = jet_tmp.phi;
     int seed_eta = jet_tmp.eta;
     float seed_energy = jet_tmp.seedEnergy;
+    float seed_tower_energy = jet_tmp.energyMax;
     jet = getJetValues(temp, seed_eta, seed_phi);
-    if (seed_energy > 10.) {  // suppress <= 10 GeV ST as seed
+    if (seed_energy > 10. &&
+        seed_tower_energy >
+            TTseedThreshold) {  // suppress <= 10 GeV ST as ST seed and <=5 GeV (3 GeV) as max TT in ST barrel/HF (endcap)
       jet_tmp.energy = jet.energy;
       jet_tmp.tauEt = jet.tauEt;
     } else {

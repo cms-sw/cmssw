@@ -59,7 +59,7 @@ namespace edm {
                                           DataKey const& iKey,
                                           EventSetupImpl const* iEventSetupImpl,
                                           ServiceToken const& iToken,
-                                          ESParentContext const& iParent) const {
+                                          ESParentContext const& iParent) const noexcept {
       const_cast<ESProductResolver*>(this)->prefetchAsyncImpl(iTask, iRecord, iKey, iEventSetupImpl, iToken, iParent);
     }
 

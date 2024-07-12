@@ -13,7 +13,8 @@
 #include "G4HadronElasticPhysics.hh"
 #include "G4NeutronTrackingCut.hh"
 
-#include "G4SystemOfUnits.hh"
+#include <CLHEP/Units/SystemOfUnits.h>
+using CLHEP::ns;
 
 CustomPhysics::CustomPhysics(const edm::ParameterSet& p) : PhysicsList(p) {
   int ver = p.getUntrackedParameter<int>("Verbosity", 0);

@@ -57,9 +57,9 @@ TrackToTrackEfficiencies = DQMEDHarvester("DQMGenericClient",
         "FakeRate_dzWRTpv    'Relative Fake Rate vs dzWRTpv;d_{z};relative fake rate'           mon_unMatched_dzWRTpv   mon_dzWRTpv     eff",
         "FakeRate_charge     'Relative Fake Rate vs charge;charge;relative fake rate'           mon_unMatched_charge    mon_charge      eff",
         "FakeRate_hits       'Relative Fake Rate vs hits;number of hits;relative fake rate'     mon_unMatched_hits      mon_hits        eff",
-        "FakeRate_OnlineLumi 'Relative Fake Rate vs OnlineLumi;OnlineLumi E30 [Hz cm^{-2}];relative efficiency' mon_unMatched_onlinelumi mon_onlinelumi  eff",
-        "FakeRate_LS         'Relative Fake Rate vs LS;LS;relative efficiency'                  mon_unMatched_ls        mon_ls          eff",
-        "FakeRate_PU         'Relative Fake Rate vs PU;PU;relative efficiency'                  mon_unMatched_PU        mon_PU          eff",
+        "FakeRate_OnlineLumi 'Relative Fake Rate vs OnlineLumi;OnlineLumi E30 [Hz cm^{-2}];relative fake rate' mon_unMatched_onlinelumi mon_onlinelumi  eff",
+        "FakeRate_LS         'Relative Fake Rate vs LS;LS;relative fake rate'                  mon_unMatched_ls        mon_ls          eff",
+        "FakeRate_PU         'Relative Fake Rate vs PU;PU;relative fake rate'                  mon_unMatched_PU        mon_PU          eff",
     ),
 )
 
@@ -69,8 +69,16 @@ pp_on_PbPb_run3.toModify(TrackToTrackEfficiencies,
                              "HLT/Tracking/ValidationWRTOffline/hltMergedPPonAAWrtHighPurity",
                              "HLT/Tracking/ValidationWRTOffline/hltMergedPPonAAWrtHighPurityPV"])
 
+EGMTrackToTrackEfficiencies = TrackToTrackEfficiencies.clone(
+    subDirs        = cms.untracked.vstring(
+        "HLT/EGM/Tracking/ValidationWRTOffline/hltEgammaGsfTracks",
+        "HLT/EGM/Tracking/ValidationWRTOffline/hltEgammaGsfTracksPV",
+    )
+)
+
 trackEfficiencyMonitoringClientHLT = cms.Sequence(
-    TrackToTrackEfficiencies
+    TrackToTrackEfficiencies+
+    EGMTrackToTrackEfficiencies
 )
 
 def _modifyForRun3Default(efffromhitpattern):

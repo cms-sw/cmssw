@@ -27,6 +27,8 @@ MtdSimLayerCluster::~MtdSimLayerCluster() {}
 std::ostream &operator<<(std::ostream &s, MtdSimLayerCluster const &tp) {
   s << "CP momentum, q, ID, & Event #: " << tp.p4() << " " << tp.charge() << " " << tp.pdgId() << " "
     << tp.eventId().bunchCrossing() << "." << tp.eventId().event() << std::endl;
+  s << " Offset " << tp.trackIdOffset() << " "
+    << " LC time " << tp.simLCTime() << " LC energy " << tp.simLCEnergy() << std::endl;
 
   for (MtdSimLayerCluster::genp_iterator hepT = tp.genParticle_begin(); hepT != tp.genParticle_end(); ++hepT) {
     s << " HepMC Track Momentum " << (*hepT)->momentum().rho() << std::endl;
@@ -39,7 +41,7 @@ std::ostream &operator<<(std::ostream &s, MtdSimLayerCluster const &tp) {
       s << " Mismatch b/t MtdSimLayerCluster and Geant types" << std::endl;
     }
   }
-  s << " # of cells = " << tp.hits_.size()
+  s << " # of cells = " << tp.mtdHits_.size()
     << ", effective cells = " << std::accumulate(tp.fractions_.begin(), tp.fractions_.end(), 0.f) << std::endl;
   return s;
 }

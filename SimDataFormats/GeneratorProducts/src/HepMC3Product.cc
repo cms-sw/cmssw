@@ -17,37 +17,31 @@ using namespace edm;
 using namespace std;
 
 HepMC3Product::HepMC3Product(HepMC3::GenEvent* evt)
-    : evt_(evt), isVtxGenApplied_(false), isVtxBoostApplied_(false), isPBoostApplied_(false) {}
-
-HepMC3Product::~HepMC3Product() {
-  delete evt_;
-  evt_ = nullptr;
-  isVtxGenApplied_ = false;
-  isVtxBoostApplied_ = false;
-  isPBoostApplied_ = false;
+    : isVtxGenApplied_(false), isVtxBoostApplied_(false), isPBoostApplied_(false) {
+  addHepMCData(evt);
 }
 
-void HepMC3Product::addHepMCData(HepMC3::GenEvent* evt) {
-  //  evt->print();
-  // cout <<sizeof (evt)  <<"  " << sizeof ( HepMC::GenEvent)   << endl;
-  evt_ = evt;
+HepMC3Product::~HepMC3Product() = default;
 
-  // same story about vertex smearing - GenEvent won't know it...
-  // in fact, would be better to implement CmsGenEvent...
-}
+void HepMC3Product::addHepMCData(HepMC3::GenEvent* evt) { evt->write_data(evt_); }
 
 void HepMC3Product::applyVtxGen(HepMC3::FourVector const& vtxShift) {
   //std::cout<< " applyVtxGen called " << isVtxGenApplied_ << endl;
   //fTimeOffset = 0;
   if (isVtxGenApplied())
     return;
-  evt_->shift_position_by(vtxShift);
+  HepMC3::GenEvent evt;
+  evt.read_data(evt_);
+  evt.shift_position_by(vtxShift);
+  evt.write_data(evt_);
   isVtxGenApplied_ = true;
   return;
 }
 
 void HepMC3Product::boostToLab(TMatrixD const* lorentz, std::string const& type) {
   //std::cout << "from boostToLab:" << std::endl;
+  HepMC3::GenEvent evt;
+  evt.read_data(evt_);
 
   if (lorentz == nullptr) {
     //std::cout << " lorentz = 0 " << std::endl;
@@ -65,7 +59,7 @@ void HepMC3Product::boostToLab(TMatrixD const* lorentz, std::string const& type)
       return;
     }
 
-    for (const HepMC3::GenVertexPtr& vt : evt_->vertices()) {
+    for (const HepMC3::GenVertexPtr& vt : evt.vertices()) {
       // change basis to lorentz boost definition: (t,x,z,y)
       TMatrixD p4(4, 1);
       p4(0, 0) = vt->position().t();
@@ -86,7 +80,7 @@ void HepMC3Product::boostToLab(TMatrixD const* lorentz, std::string const& type)
       return;
     }
 
-    for (const HepMC3::GenParticlePtr& part : evt_->particles()) {
+    for (const HepMC3::GenParticlePtr& part : evt.particles()) {
       // change basis to lorentz boost definition: (E,Px,Pz,Py)
       TMatrixD p4(4, 1);
       p4(0, 0) = part->momentum().e();
@@ -107,40 +101,6 @@ void HepMC3Product::boostToLab(TMatrixD const* lorentz, std::string const& type)
     //  << "no type found for boostToLab(std::string), options are vertex or momentum \n";
   }
 
+  evt.write_data(evt_);
   return;
-}
-
-const HepMC3::GenEvent& HepMC3Product::getHepMCData() const { return *evt_; }
-
-// copy constructor
-HepMC3Product::HepMC3Product(HepMC3Product const& other) : evt_(nullptr) {
-  if (other.evt_)
-    evt_ = new HepMC3::GenEvent(*other.evt_);
-  isVtxGenApplied_ = other.isVtxGenApplied_;
-  isVtxBoostApplied_ = other.isVtxBoostApplied_;
-  isPBoostApplied_ = other.isPBoostApplied_;
-  //fTimeOffset = other.fTimeOffset;
-}
-
-// swap
-void HepMC3Product::swap(HepMC3Product& other) {
-  std::swap(evt_, other.evt_);
-  std::swap(isVtxGenApplied_, other.isVtxGenApplied_);
-  std::swap(isVtxBoostApplied_, other.isVtxBoostApplied_);
-  std::swap(isPBoostApplied_, other.isPBoostApplied_);
-  //std::swap(fTimeOffset, other.fTimeOffset);
-}
-
-// assignment: use copy/swap idiom for exception safety.
-HepMC3Product& HepMC3Product::operator=(HepMC3Product const& other) {
-  HepMC3Product temp(other);
-  swap(temp);
-  return *this;
-}
-
-// move, needed explicitly as we have raw pointer...
-HepMC3Product::HepMC3Product(HepMC3Product&& other) : evt_(nullptr) { swap(other); }
-HepMC3Product& HepMC3Product::operator=(HepMC3Product&& other) {
-  swap(other);
-  return *this;
 }

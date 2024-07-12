@@ -304,6 +304,21 @@ void HLTL1TSeed::dumpTriggerFilterObjectWithRefs(trigger::TriggerFilterObjectWit
                            << "phi =  " << obj->phi();  //<< "\t" << "BX = " << obj->bx();
   }
 
+  vector<l1t::EtSumRef> seedsL1EtSumHTMHF;
+  filterproduct.getObjects(trigger::TriggerL1HTMHF, seedsL1EtSumHTMHF);
+  const size_t sizeSeedsL1EtSumHTMHF = seedsL1EtSumHTMHF.size();
+  LogTrace("HLTL1TSeed") << "\n  L1EtSum HTMHF seeds:      " << sizeSeedsL1EtSumHTMHF << endl << endl;
+
+  for (size_t i = 0; i != sizeSeedsL1EtSumHTMHF; i++) {
+    l1t::EtSumRef obj = l1t::EtSumRef(seedsL1EtSumHTMHF[i]);
+
+    LogTrace("HLTL1TSeed") << "\tL1EtSum  HTMHF"
+                           << "\t"
+                           << "pt = " << obj->pt() << "\t"
+                           << "eta =  " << obj->eta() << "\t"
+                           << "phi =  " << obj->phi();  //<< "\t" << "BX = " << obj->bx();
+  }
+
   vector<l1t::EtSumRef> seedsL1EtSumHTM;
   filterproduct.getObjects(trigger::TriggerL1HTM, seedsL1EtSumHTM);
   const size_t sizeSeedsL1EtSumHTM = seedsL1EtSumHTM.size();
@@ -485,6 +500,7 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent, trigger::TriggerFi
   std::list<int> listHTT;
   std::list<int> listHTM;
   std::list<int> listETMHF;
+  std::list<int> listHTMHF;
 
   std::list<int> listJetCounts;
 
@@ -789,6 +805,9 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent, trigger::TriggerFi
             case l1t::gtETMHF: {
               listETMHF.push_back(*itObject);
             } break;
+            case l1t::gtHTMHF: {
+              listHTMHF.push_back(*itObject);
+            } break;
             case l1t::gtTowerCount: {
               listTowerCount.push_back(*itObject);
             } break;
@@ -891,6 +910,9 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent, trigger::TriggerFi
   listETMHF.sort();
   listETMHF.unique();
 
+  listHTMHF.sort();
+  listHTMHF.unique();
+
   listJetCounts.sort();
   listJetCounts.unique();
 
@@ -950,6 +972,14 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent, trigger::TriggerFi
                                     << "\nNo muons added to filterproduct." << endl;
     } else {
       for (std::list<int>::const_iterator itObj = listMuon.begin(); itObj != listMuon.end(); ++itObj) {
+        // skip invalid indices
+        if (*itObj < 0 or unsigned(*itObj) >= muons->size(0)) {
+          edm::LogWarning("HLTL1TSeed")
+              << "Invalid index from the L1ObjectMap (L1uGT emulator), will be ignored (l1t::MuonBxCollection):"
+              << " index=" << *itObj << " (size of unpacked L1T objects in BX0 = " << muons->size(0) << ")";
+          continue;
+        }
+
         // Transform to index for Bx = 0 to begin of BxVector
         unsigned int index = muons->begin(0) - muons->begin() + *itObj;
 
@@ -970,6 +1000,14 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent, trigger::TriggerFi
                                     << "\nNo muon showers added to filterproduct." << endl;
     } else {
       for (std::list<int>::const_iterator itObj = listMuonShower.begin(); itObj != listMuonShower.end(); ++itObj) {
+        // skip invalid indices
+        if (*itObj < 0 or unsigned(*itObj) >= muonShowers->size(0)) {
+          edm::LogWarning("HLTL1TSeed")
+              << "Invalid index from the L1ObjectMap (L1uGT emulator), will be ignored (l1t::MuonShowerBxCollection):"
+              << " index=" << *itObj << " (size of unpacked L1T objects in BX0 = " << muonShowers->size(0) << ")";
+          continue;
+        }
+
         // Transform to index for Bx = 0 to begin of BxVector
         unsigned int index = muonShowers->begin(0) - muonShowers->begin() + *itObj;
 
@@ -989,6 +1027,14 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent, trigger::TriggerFi
                                     << "\nNo egammas added to filterproduct." << endl;
     } else {
       for (std::list<int>::const_iterator itObj = listEG.begin(); itObj != listEG.end(); ++itObj) {
+        // skip invalid indices
+        if (*itObj < 0 or unsigned(*itObj) >= egammas->size(0)) {
+          edm::LogWarning("HLTL1TSeed")
+              << "Invalid index from the L1ObjectMap (L1uGT emulator), will be ignored (l1t::EGammaBxCollection):"
+              << " index=" << *itObj << " (size of unpacked L1T objects in BX0 = " << egammas->size(0) << ")";
+          continue;
+        }
+
         // Transform to begin of BxVector
         unsigned int index = egammas->begin(0) - egammas->begin() + *itObj;
 
@@ -1009,6 +1055,14 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent, trigger::TriggerFi
                                     << "\nNo jets added to filterproduct." << endl;
     } else {
       for (std::list<int>::const_iterator itObj = listJet.begin(); itObj != listJet.end(); ++itObj) {
+        // skip invalid indices
+        if (*itObj < 0 or unsigned(*itObj) >= jets->size(0)) {
+          edm::LogWarning("HLTL1TSeed")
+              << "Invalid index from the L1ObjectMap (L1uGT emulator), will be ignored (l1t::JetBxCollection):"
+              << " index=" << *itObj << " (size of unpacked L1T objects in BX0 = " << jets->size(0) << ")";
+          continue;
+        }
+
         // Transform to begin of BxVector
         unsigned int index = jets->begin(0) - jets->begin() + *itObj;
 
@@ -1029,6 +1083,14 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent, trigger::TriggerFi
                                     << "\nNo taus added to filterproduct." << endl;
     } else {
       for (std::list<int>::const_iterator itObj = listTau.begin(); itObj != listTau.end(); ++itObj) {
+        // skip invalid indices
+        if (*itObj < 0 or unsigned(*itObj) >= taus->size(0)) {
+          edm::LogWarning("HLTL1TSeed")
+              << "Invalid index from the L1ObjectMap (L1uGT emulator), will be ignored (l1t::TauBxCollection):"
+              << " index=" << *itObj << " (size of unpacked L1T objects in BX0 = " << taus->size(0) << ")";
+          continue;
+        }
+
         // Transform to begin of BxVector
         unsigned int index = taus->begin(0) - taus->begin() + *itObj;
 
@@ -1071,6 +1133,10 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent, trigger::TriggerFi
         case l1t::EtSum::kMissingEtHF:
           if (!listETMHF.empty())
             filterproduct.addObject(trigger::TriggerL1ETMHF, myref);
+          break;
+        case l1t::EtSum::kMissingHtHF:
+          if (!listHTMHF.empty())
+            filterproduct.addObject(trigger::TriggerL1HTMHF, myref);
           break;
         case l1t::EtSum::kCentrality:
           if (!listCentrality.empty())

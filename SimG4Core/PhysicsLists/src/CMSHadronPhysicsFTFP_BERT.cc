@@ -11,7 +11,7 @@
 #include "G4HadronicProcess.hh"
 #include "G4HadronInelasticProcess.hh"
 #include "G4HadProcesses.hh"
-#include "G4SystemOfUnits.hh"
+#include <CLHEP/Units/SystemOfUnits.h>
 #include "G4Threading.hh"
 
 CMSHadronPhysicsFTFP_BERT::CMSHadronPhysicsFTFP_BERT(G4int)

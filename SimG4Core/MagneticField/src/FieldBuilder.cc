@@ -9,7 +9,7 @@
 #include "SimG4Core/MagneticField/interface/FieldStepper.h"
 #include "SimG4Core/MagneticField/interface/MonopoleEquation.h"
 
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include <CLHEP/Units/SystemOfUnits.h>
 #include "G4ChordFinder.hh"
 #include "G4ClassicalRK4.hh"
 #include "G4FieldManager.hh"

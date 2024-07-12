@@ -107,12 +107,12 @@ namespace edm {
                        ServiceToken const& token,
                        Transition iTrans,
                        Principal const& iPrincipal,
-                       EventSetupImpl const& iImpl) const;
+                       EventSetupImpl const& iImpl) const noexcept;
 
     void esPrefetchAsync(WaitingTaskHolder iTask,
                          EventSetupImpl const& iImpl,
                          Transition iTrans,
-                         ServiceToken const& iToken) const;
+                         ServiceToken const& iToken) const noexcept;
 
     ///Override this method if you need to monitor the state of the processing
     virtual void attachTo(ActivityRegistry&);
@@ -159,7 +159,9 @@ namespace edm {
     ///Called after all event modules have processed the end of a LuminosityBlock
     virtual void endLuminosityBlock(LuminosityBlock const&, EventSetup const&);
 
-    void edPrefetchAsync(WaitingTaskHolder iTask, ServiceToken const& token, Principal const& iPrincipal) const;
+    void edPrefetchAsync(WaitingTaskHolder iTask,
+                         ServiceToken const& token,
+                         Principal const& iPrincipal) const noexcept;
 
     unsigned int iCounter_;
     ExceptionToActionTable const* act_table_;

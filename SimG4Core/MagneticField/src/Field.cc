@@ -3,7 +3,7 @@
 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include <CLHEP/Units/SystemOfUnits.h>
 
 using namespace sim;
 

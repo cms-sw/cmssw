@@ -1,7 +1,7 @@
 #include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysicsEMH.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "G4SystemOfUnits.hh"
+#include <CLHEP/Units/SystemOfUnits.h>
 #include "G4ParticleDefinition.hh"
 #include "G4EmParameters.hh"
 #include "G4EmBuilder.hh"

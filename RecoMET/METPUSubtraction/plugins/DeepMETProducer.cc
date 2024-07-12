@@ -81,12 +81,12 @@ void DeepMETProducer::produce(edm::Event& event, const edm::EventSetup& setup) {
     // fill the tensor
     // PF keys [b'PF_dxy', b'PF_dz', b'PF_eta', b'PF_mass', b'PF_pt', b'PF_puppiWeight', b'PF_px', b'PF_py']
     float* ptr = &input_.tensor<float, 3>()(0, i_pf, 0);
-    *ptr = pf.dxy();
-    *(++ptr) = pf.dz();
-    *(++ptr) = pf.eta();
-    *(++ptr) = pf.mass();
+    *ptr = rm_outlier(pf.dxy());
+    *(++ptr) = rm_outlier(pf.dz());
+    *(++ptr) = rm_outlier(pf.eta());
+    *(++ptr) = rm_outlier(pf.mass());
     *(++ptr) = scale_and_rm_outlier(pf.pt(), scale);
-    *(++ptr) = pf.puppiWeight();
+    *(++ptr) = rm_outlier(pf.puppiWeight());
     *(++ptr) = scale_and_rm_outlier(pf.px(), scale);
     *(++ptr) = scale_and_rm_outlier(pf.py(), scale);
     input_cat0_.tensor<float, 3>()(0, i_pf, 0) = charge_embedding.at(pf.charge());

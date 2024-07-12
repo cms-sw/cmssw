@@ -48,7 +48,7 @@
 #include "G4Timer.hh"
 #include "G4Event.hh"
 #include "G4Run.hh"
-#include "G4SystemOfUnits.hh"
+#include <CLHEP/Units/SystemOfUnits.h>
 #include "G4Threading.hh"
 #include "G4UImanager.hh"
 #include "G4WorkerThread.hh"
@@ -679,11 +679,11 @@ void RunManagerMTWorker::DumpMagneticField(const G4Field* field, const std::stri
         << "MTWorker::DumpMagneticField: error opening file <" << file << "> for magnetic field";
   } else {
     // CMS magnetic field volume
-    double rmax = 9000 * mm;
-    double zmax = 24000 * mm;
+    double rmax = 9000 * CLHEP::mm;
+    double zmax = 24000 * CLHEP::mm;
 
-    double dr = 1 * cm;
-    double dz = 5 * cm;
+    double dr = 1 * CLHEP::cm;
+    double dz = 5 * CLHEP::cm;
 
     int nr = (int)(rmax / dr);
     int nz = 2 * (int)(zmax / dz);
@@ -707,9 +707,10 @@ void RunManagerMTWorker::DumpMagneticField(const G4Field* field, const std::stri
         point[1] = r * sinf;
         point[2] = z;
         field->GetFieldValue(point, bfield);
-        fout << "R(mm)= " << r / mm << " phi(deg)= " << phi / degree << " Z(mm)= " << z / mm
-             << "   Bz(tesla)= " << bfield[2] / tesla << " Br(tesla)= " << (bfield[0] * cosf + bfield[1] * sinf) / tesla
-             << " Bphi(tesla)= " << (bfield[0] * sinf - bfield[1] * cosf) / tesla << G4endl;
+        fout << "R(mm)= " << r / CLHEP::mm << " phi(deg)= " << phi / CLHEP::degree << " Z(mm)= " << z / CLHEP::mm
+             << "   Bz(tesla)= " << bfield[2] / CLHEP::tesla
+             << " Br(tesla)= " << (bfield[0] * cosf + bfield[1] * sinf) / CLHEP::tesla
+             << " Bphi(tesla)= " << (bfield[0] * sinf - bfield[1] * cosf) / CLHEP::tesla << G4endl;
         z += dz;
       }
       r += dr;

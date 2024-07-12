@@ -46,7 +46,7 @@
 
 #include "G4EmBuilder.hh"
 #include "G4BuilderType.hh"
-#include "G4SystemOfUnits.hh"
+#include <CLHEP/Units/SystemOfUnits.h>
 
 CMSEmNoDeltaRay::CMSEmNoDeltaRay(const G4String& name, G4int ver, const std::string& reg)
     : G4VPhysicsConstructor(name), region(reg) {

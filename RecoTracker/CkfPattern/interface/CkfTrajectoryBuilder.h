@@ -49,15 +49,12 @@ public:
   /// trajectories building starting from a seed
   void trajectories(const TrajectorySeed& seed, TrajectoryContainer& ret) const override;
 
-  // new interface returning the start Trajectory...
-  TempTrajectory buildTrajectories(const TrajectorySeed&,
-                                   TrajectoryContainer& ret,
-                                   unsigned int& nCandPerSeed,
-                                   const TrajectoryFilter*) const override;
+  void buildTrajectories(const TrajectorySeed&,
+                         TrajectoryContainer& ret,
+                         unsigned int& nCandPerSeed,
+                         const TrajectoryFilter*) const override;
 
-  void rebuildTrajectories(TempTrajectory const& startingTraj,
-                           const TrajectorySeed&,
-                           TrajectoryContainer& result) const override {}
+  void rebuildTrajectories(const TrajectorySeed&, TrajectoryContainer& result) const override {}
 
   /// set Event for the internal MeasurementTracker data member
   //  virtual void setEvent(const edm::Event& event) const;
@@ -66,6 +63,8 @@ protected:
   int theMaxCand;               /**< Maximum number of trajectory candidates 
 		                     to propagate to the next layer. */
   float theLostHitPenalty;      /**< Chi**2 Penalty for each lost hit. */
+  float theFoundHitBonus;       /**< Chi**2 Bonus for each found hit. */
+  int theMinHitForDoubleBonus;  /**< minimun number of hits to double the bonus above */
   bool theIntermediateCleaning; /**< Tells whether an intermediary cleaning stage 
                                      should take place during TB. */
   bool theAlwaysUseInvalidHits;

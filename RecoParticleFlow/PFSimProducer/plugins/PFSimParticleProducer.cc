@@ -122,11 +122,7 @@ void PFSimParticleProducer::fillDescriptions(edm::ConfigurationDescriptions& des
   desc.add<edm::InputTag>("ecalRecHitsEE", edm::InputTag("caloRecHits", "EcalRecHitsEE"));
   desc.add<edm::InputTag>("ecalRecHitsEB", edm::InputTag("caloRecHits", "EcalRecHitsEB"));
   desc.addUntracked<bool>("process_RecTracks", false);
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.setUnknown();
-    desc.add<edm::ParameterSetDescription>("ParticleFilter", psd0);
-  }
+  desc.add<edm::ParameterSetDescription>("ParticleFilter", {});
   desc.add<std::string>("TTRHBuilder", "WithTrackAngle");
   desc.addUntracked<bool>("process_Particles", true);
   desc.add<std::string>("Propagator", "PropagatorWithMaterial");

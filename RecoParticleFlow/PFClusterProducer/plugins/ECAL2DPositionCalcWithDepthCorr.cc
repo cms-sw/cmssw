@@ -38,10 +38,9 @@ public:
         _esMinus(false),
         _geomToken(cc.esConsumes<edm::Transition::BeginRun>()) {
     _timeResolutionCalc.reset(nullptr);
-    if (conf.exists("timeResolutionCalc")) {
-      const edm::ParameterSet& timeResConf = conf.getParameterSet("timeResolutionCalc");
+    const auto& timeResConf = conf.getParameterSet("timeResolutionCalc");
+    if (!timeResConf.empty())
       _timeResolutionCalc = std::make_unique<CaloRecHitResolutionProvider>(timeResConf);
-    }
   }
   ECAL2DPositionCalcWithDepthCorr(const ECAL2DPositionCalcWithDepthCorr&) = delete;
   ECAL2DPositionCalcWithDepthCorr& operator=(const ECAL2DPositionCalcWithDepthCorr&) = delete;

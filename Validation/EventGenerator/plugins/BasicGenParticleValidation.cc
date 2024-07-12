@@ -276,9 +276,9 @@ bool BasicGenParticleValidation::matchParticles(const HepMC::GenParticle*& hepmc
 
   if (hepmcP->pdg_id() != recoP->pdgId())
     return state;
-  if (std::fabs(hepmcP->momentum().px() - recoP->px()) < std::fabs(matchPr_ * hepmcP->momentum().px()) &&
-      std::fabs(hepmcP->momentum().py() - recoP->py()) < std::fabs(matchPr_ * hepmcP->momentum().py()) &&
-      std::fabs(hepmcP->momentum().pz() - recoP->pz()) < std::fabs(matchPr_ * hepmcP->momentum().pz())) {
+  if (std::fabs(hepmcP->momentum().px() - recoP->px()) <= std::fabs(matchPr_ * hepmcP->momentum().px()) &&
+      std::fabs(hepmcP->momentum().py() - recoP->py()) <= std::fabs(matchPr_ * hepmcP->momentum().py()) &&
+      std::fabs(hepmcP->momentum().pz() - recoP->pz()) <= std::fabs(matchPr_ * hepmcP->momentum().pz())) {
     state = true;
   }
 

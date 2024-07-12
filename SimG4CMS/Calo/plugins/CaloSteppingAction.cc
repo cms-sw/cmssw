@@ -48,13 +48,14 @@
 #include "G4Region.hh"
 #include "G4RegionStore.hh"
 #include "G4Step.hh"
-#include "G4SystemOfUnits.hh"
 #include "G4Track.hh"
 #include "G4Trap.hh"
 #include "G4UnitsTable.hh"
 #include "G4UserSteppingAction.hh"
 #include "G4VPhysicalVolume.hh"
 #include "G4VTouchable.hh"
+
+#include <CLHEP/Units/SystemOfUnits.h>
 
 #include <algorithm>
 #include <cmath>

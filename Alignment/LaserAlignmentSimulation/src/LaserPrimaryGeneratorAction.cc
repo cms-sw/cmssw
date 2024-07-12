@@ -11,7 +11,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "G4SystemOfUnits.hh"
+#include <CLHEP/Units/SystemOfUnits.h>
 
 LaserPrimaryGeneratorAction::LaserPrimaryGeneratorAction(edm::ParameterSet const &theConf)
     : thePhotonEnergy(0),
@@ -23,7 +23,7 @@ LaserPrimaryGeneratorAction::LaserPrimaryGeneratorAction(edm::ParameterSet const
   // {{{ LaserPrimaryGeneratorAction constructor
 
   // get the PhotonEnergy from the parameter set
-  thePhotonEnergy = theConf.getUntrackedParameter<double>("PhotonEnergy", 1.15) * eV;
+  thePhotonEnergy = theConf.getUntrackedParameter<double>("PhotonEnergy", 1.15) * CLHEP::eV;
 
   // number of particles in the Laser beam
   thenParticleInGun = theConf.getUntrackedParameter<int>("NumberOfPhotonsInParticleGun", 1);

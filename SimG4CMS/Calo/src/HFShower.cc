@@ -11,8 +11,8 @@
 #include "G4Track.hh"
 #include "G4VSolid.hh"
 #include "Randomize.hh"
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include <CLHEP/Units/PhysicalConstants.h>
+#include <CLHEP/Units/SystemOfUnits.h>
 
 //#define EDM_ML_DEBUG
 

@@ -8,7 +8,9 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 
 #include "SimDataFormats/Associations/interface/MtdRecoClusterToSimLayerClusterAssociator.h"
@@ -21,6 +23,8 @@ class MtdRecoClusterToSimLayerClusterAssociatorEDProducer : public edm::global::
 public:
   explicit MtdRecoClusterToSimLayerClusterAssociatorEDProducer(const edm::ParameterSet &);
   ~MtdRecoClusterToSimLayerClusterAssociatorEDProducer() override;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
 private:
   void produce(edm::StreamID, edm::Event &, const edm::EventSetup &) const override;
@@ -79,6 +83,16 @@ void MtdRecoClusterToSimLayerClusterAssociatorEDProducer::produce(edm::StreamID,
 
   iEvent.put(std::move(r2s));
   iEvent.put(std::move(s2r));
+}
+
+void MtdRecoClusterToSimLayerClusterAssociatorEDProducer::fillDescriptions(edm::ConfigurationDescriptions &cfg) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("associator", edm::InputTag("mtdRecoClusterToSimLayerClusterAssociatorByHits"));
+  desc.add<edm::InputTag>("mtdSimClustersTag", edm::InputTag("mix", "MergedMtdTruthLC"));
+  desc.add<edm::InputTag>("btlRecoClustersTag", edm::InputTag("mtdClusters", "FTLBarrel"));
+  desc.add<edm::InputTag>("etlRecoClustersTag", edm::InputTag("mtdClusters", "FTLEndcap"));
+
+  cfg.add("mtdRecoClusterToSimLayerClusterAssociationDefault", desc);
 }
 
 // define this as a plug-in

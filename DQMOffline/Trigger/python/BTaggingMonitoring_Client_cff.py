@@ -41,7 +41,7 @@ BTVEfficiency_BTagMu_DiJet = DQMEDHarvester("DQMGenericClient",
         "effic_bjetPt_1      'efficiency vs 1st b-jet pt; bjet pt [GeV]; efficiency' bjetPt_1_numerator  bjetPt_1_denominator",
         "effic_bjetEta_1     'efficiency vs 1st b-jet eta; bjet eta ; efficiency'  bjetEta_1_numerator   bjetEta_1_denominator",
         "effic_bjetPhi_1     'efficiency vs 1st b-jet phi; bjet phi ; efficiency'  bjetPhi_1_numerator   bjetPhi_1_denominator",
-        "effic_bjetCSV_1     'efficiency vs 1st b-jet csv; bjet CSV; efficiency' bjetCSV_1_numerator  bjetCSV_1_denominator",
+        "effic_bjetCSV_1     'efficiency vs 1st b-jet PNet Score; bjet PNet Score; efficiency' bjetCSV_1_numerator  bjetCSV_1_denominator",
         "effic_bjetPt_1_variableBinning   'efficiency vs 1st b-jet pt; bjet pt [GeV]; efficiency' bjetPt_1_variableBinning_numerator   bjetPt_1_variableBinning_denominator",
         "effic_bjetEta_1_variableBinning  'efficiency vs 1st b-jet eta; bjet eta ; efficiency' bjetEta_1_variableBinning_numerator     bjetEta_1_variableBinning_denominator",
         "effic_bjetMulti      'efficiency vs b-jet multiplicity; bjet multiplicity; efficiency' bjetMulti_numerator   bjetMulti_denominator",
@@ -49,6 +49,15 @@ BTVEfficiency_BTagMu_DiJet = DQMEDHarvester("DQMGenericClient",
         "effic_bjetEtaPhi_1    'efficiency vs 1st b-jet #eta-#phi; bjet #eta ; bjet #phi' bjetEtaPhi_1_numerator  bjetEtaPhi_1_denominator",
         "effic_DeltaR_jet_Mu    'efficiency vs #DeltaR between jet and mu; #DeltaR(jet,mu) ; efficiency' DeltaR_jet_Mu_numerator  DeltaR_jet_Mu_denominator",
     ),
+)
+
+BTVEfficiency_BTagMu_DiJet_DeepJet = DQMEDHarvester("DQMGenericClient",
+    subDirs        = cms.untracked.vstring("HLT/BTV/BTagMu_DiJet/*_DeepJet"),
+    verbose        = cms.untracked.uint32(0),
+    resolution     = cms.vstring(),
+    efficiency     = cms.vstring(
+        "effic_bjetCSV_1     'efficiency vs 1st b-jet DeepJet score; DeepJet score; efficiency' bjetCSV_1_numerator  bjetCSV_1_denominator"
+    )    
 )
 
 BTVEfficiency_BTagMu_Jet = DQMEDHarvester("DQMGenericClient",
@@ -83,7 +92,7 @@ BTVEfficiency_BTagMu_Jet = DQMEDHarvester("DQMGenericClient",
         "effic_bjetPt_1      'efficiency vs 1st b-jet pt; bjet pt [GeV]; efficiency' bjetPt_1_numerator  bjetPt_1_denominator",
         "effic_bjetEta_1     'efficiency vs 1st b-jet eta; bjet eta ; efficiency'  bjetEta_1_numerator   bjetEta_1_denominator",
         "effic_bjetPhi_1     'efficiency vs 1st b-jet phi; bjet phi ; efficiency'  bjetPhi_1_numerator   bjetPhi_1_denominator",
-        "effic_bjetCSV_1     'efficiency vs 1st b-jet csv; bjet CSV; efficiency' bjetCSV_1_numerator  bjetCSV_1_denominator",
+        "effic_bjetCSV_1     'efficiency vs 1st b-jet PNet Score; bjet PNet Score; efficiency' bjetCSV_1_numerator  bjetCSV_1_denominator",
         "effic_bjetPt_1_variableBinning   'efficiency vs 1st b-jet pt; bjet pt [GeV]; efficiency' bjetPt_1_variableBinning_numerator   bjetPt_1_variableBinning_denominator",
         "effic_bjetEta_1_variableBinning  'efficiency vs 1st b-jet eta; bjet eta ; efficiency' bjetEta_1_variableBinning_numerator     bjetEta_1_variableBinning_denominator",
         "effic_bjetMulti      'efficiency vs b-jet multiplicity; bjet multiplicity; efficiency' bjetMulti_numerator   bjetMulti_denominator",
@@ -92,6 +101,16 @@ BTVEfficiency_BTagMu_Jet = DQMEDHarvester("DQMGenericClient",
         "effic_DeltaR_jet_Mu    'efficiency vs #DeltaR between jet and mu; #DeltaR(jet,mu) ; efficiency' DeltaR_jet_Mu_numerator  DeltaR_jet_Mu_denominator",
     ),
 )
+
+BTVEfficiency_BTagMu_Jet_DeepJet = DQMEDHarvester("DQMGenericClient",
+    subDirs        = cms.untracked.vstring("HLT/BTV/BTagMu_Jet/*_DeepJet"),
+    verbose        = cms.untracked.uint32(0),
+    resolution     = cms.vstring(),
+    efficiency     = cms.vstring(
+        "effic_bjetCSV_1     'efficiency vs 1st b-jet DeepJet score; DeepJet score; efficiency' bjetCSV_1_numerator  bjetCSV_1_denominator"
+    )
+)
+
 
 BTVEfficiency_BTagDiMu_Jet = DQMEDHarvester("DQMGenericClient",
     subDirs        = cms.untracked.vstring("HLT/BTV/BTagDiMu_Jet/*"),
@@ -132,7 +151,7 @@ BTVEfficiency_BTagDiMu_Jet = DQMEDHarvester("DQMGenericClient",
         "effic_bjetPt_1      'efficiency vs 1st b-jet pt; bjet pt [GeV]; efficiency' bjetPt_1_numerator  bjetPt_1_denominator",
         "effic_bjetEta_1     'efficiency vs 1st b-jet eta; bjet eta ; efficiency'  bjetEta_1_numerator   bjetEta_1_denominator",
         "effic_bjetPhi_1     'efficiency vs 1st b-jet phi; bjet phi ; efficiency'  bjetPhi_1_numerator   bjetPhi_1_denominator",
-        "effic_bjetCSV_1     'efficiency vs 1st b-jet csv; bjet CSV; efficiency' bjetCSV_1_numerator  bjetCSV_1_denominator",
+        "effic_bjetCSV_1     'efficiency vs 1st b-jet PNet Score; bjet PNet Score; efficiency' bjetCSV_1_numerator  bjetCSV_1_denominator",
         "effic_bjetPt_1_variableBinning   'efficiency vs 1st b-jet pt; bjet pt [GeV]; efficiency' bjetPt_1_variableBinning_numerator   bjetPt_1_variableBinning_denominator",
         "effic_bjetEta_1_variableBinning  'efficiency vs 1st b-jet eta; bjet eta ; efficiency' bjetEta_1_variableBinning_numerator     bjetEta_1_variableBinning_denominator",
         "effic_bjetMulti      'efficiency vs b-jet multiplicity; bjet multiplicity; efficiency' bjetMulti_numerator   bjetMulti_denominator",
@@ -140,6 +159,15 @@ BTVEfficiency_BTagDiMu_Jet = DQMEDHarvester("DQMGenericClient",
         "effic_bjetEtaPhi_1    'efficiency vs 1st b-jet #eta-#phi; bjet #eta ; bjet #phi' bjetEtaPhi_1_numerator  bjetEtaPhi_1_denominator",
         "effic_DeltaR_jet_Mu    'efficiency vs #DeltaR between jet and mu; #DeltaR(jet,mu) ; efficiency' DeltaR_jet_Mu_numerator  DeltaR_jet_Mu_denominator",
     ),
+)
+
+BTVEfficiency_BTagDiMu_Jet_DeepJet = DQMEDHarvester("DQMGenericClient",
+    subDirs        = cms.untracked.vstring("HLT/BTV/BTagDiMu_Jet/*_DeepJet"),
+    verbose        = cms.untracked.uint32(0),
+    resolution     = cms.vstring(),
+    efficiency     = cms.vstring(
+        "effic_bjetCSV_1     'efficiency vs 1st b-jet DeepJet score; DeepJet score; efficiency' bjetCSV_1_numerator  bjetCSV_1_denominator"
+    )
 )
 
 BTVEfficiency_PFJet = DQMEDHarvester("DQMGenericClient",
@@ -165,7 +193,7 @@ BTVEfficiency_PFJet = DQMEDHarvester("DQMGenericClient",
         "effic_bjetPt_1      'efficiency vs 1st b-jet pt; bjet pt [GeV]; efficiency' bjetPt_1_numerator  bjetPt_1_denominator",
         "effic_bjetEta_1     'efficiency vs 1st b-jet eta; bjet eta ; efficiency'  bjetEta_1_numerator   bjetEta_1_denominator",
         "effic_bjetPhi_1     'efficiency vs 1st b-jet phi; bjet phi ; efficiency'  bjetPhi_1_numerator   bjetPhi_1_denominator",
-        "effic_bjetCSV_1     'efficiency vs 1st b-jet csv; bjet CSV; efficiency' bjetCSV_1_numerator  bjetCSV_1_denominator",
+        "effic_bjetCSV_1     'efficiency vs 1st b-jet PNet Score; bjet PNet Score; efficiency' bjetCSV_1_numerator  bjetCSV_1_denominator",
         "effic_bjetPt_1_variableBinning   'efficiency vs 1st b-jet pt; bjet pt [GeV]; efficiency' bjetPt_1_variableBinning_numerator   bjetPt_1_variableBinning_denominator",
         "effic_bjetEta_1_variableBinning  'efficiency vs 1st b-jet eta; bjet eta ; efficiency' bjetEta_1_variableBinning_numerator     bjetEta_1_variableBinning_denominator",
         "effic_bjetMulti      'efficiency vs b-jet multiplicity; bjet multiplicity; efficiency' bjetMulti_numerator   bjetMulti_denominator",
@@ -175,11 +203,18 @@ BTVEfficiency_PFJet = DQMEDHarvester("DQMGenericClient",
     ),
 )
 
+BTVEfficiency_PFJet_DeepJet = DQMEDHarvester("DQMGenericClient",
+    subDirs        = cms.untracked.vstring("HLT/BTV/PFJet/*_DeepJet"),
+    verbose        = cms.untracked.uint32(0),
+    resolution     = cms.vstring(),
+    efficiency     = cms.vstring(
+        "effic_bjetCSV_1     'efficiency vs 1st b-jet DeepJet score; DeepJet score; efficiency' bjetCSV_1_numerator  bjetCSV_1_denominator"
+    )
+)
+
 BTVEfficiency_TurnOnCurves = DQMEDHarvester("DQMGenericClient",
     subDirs        = cms.untracked.vstring(
-        "HLT/BTV/HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_PFDiJet30_PFBtagDeepCSV_1p5*",
-        "HLT/BTV/HLT_DoublePFJets40_CaloBTagDeepCSV_p71*",
-        "HLT/BTV/HLT_Mu12_DoublePFJets40_CaloBTagDeepCSV_p71*",
+        "HLT/BTV/HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_PFDiJet30*",
     ),
     verbose        = cms.untracked.uint32(0),
     resolution     = cms.vstring(),
@@ -187,14 +222,21 @@ BTVEfficiency_TurnOnCurves = DQMEDHarvester("DQMGenericClient",
         "Turnon_loose   'turn-on (loose online OP);discriminator;efficiency'   Turnon_loose_Discr_numerator   Turnon_loose_Discr_denominator",
         "Turnon_medium  'turn-on (medium online OP);discriminator;efficiency'  Turnon_medium_Discr_numerator  Turnon_medium_Discr_denominator",
         "Turnon_tight   'turn-on (tight online OP);discriminator;efficiency'   Turnon_tight_Discr_numerator   Turnon_tight_Discr_denominator",
+        "Turnon_loose_pt    'turn-on (loose online OP);pt;efficiency'    Turnon_loose_Pt_numerator    Turnon_loose_Pt_denominator",
+        "Turnon_medium_pt   'turn-on (medium online OP);pt;efficiency'   Turnon_medium_Pt_numerator   Turnon_medium_Pt_denominator",
+        "Turnon_tight_pt    'turn-on (tight online OP);pt;efficiency'    Turnon_tight_Pt_numerator    Turnon_tight_Pt_denominator",
+        "Turnon_loose_eta   'turn-on (loose online OP);eta;efficiency'   Turnon_loose_Eta_numerator   Turnon_loose_Eta_denominator",
+        "Turnon_medium_eta  'turn-on (medium online OP);eta;efficiency'  Turnon_medium_Eta_numerator  Turnon_medium_Eta_denominator",
+        "Turnon_tight_eta   'turn-on (tight online OP);eta;efficiency'   Turnon_tight_Eta_numerator   Turnon_tight_Eta_denominator",
+        "Turnon_loose_phi   'turn-on (loose online OP);phi;efficiency'   Turnon_loose_Phi_numerator   Turnon_loose_Phi_denominator",
+        "Turnon_medium_phi  'turn-on (medium online OP);phi;efficiency'  Turnon_medium_Phi_numerator  Turnon_medium_Phi_denominator",
+        "Turnon_tight_phi   'turn-on (tight online OP);phi;efficiency'   Turnon_tight_Phi_numerator   Turnon_tight_Phi_denominator",
     ),
 )
 
 BTVEfficiency_OnlineTrackEff = DQMEDHarvester("DQMGenericClient",
     subDirs        = cms.untracked.vstring(
-        "HLT/BTV/HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_PFDiJet30_PFBtagDeepCSV_1p5*",
-        "HLT/BTV/HLT_DoublePFJets40_CaloBTagDeepCSV_p71*",
-        "HLT/BTV/HLT_Mu12_DoublePFJets40_CaloBTagDeepCSV_p71*",
+        "HLT/BTV/HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_PFDiJet30*",
     ),
     verbose        = cms.untracked.uint32(0),
     resolution     = cms.vstring(),
@@ -208,9 +250,7 @@ BTVEfficiency_OnlineTrackEff = DQMEDHarvester("DQMGenericClient",
 
 BTVEfficiency_OnlineTrackFake = DQMEDHarvester("DQMGenericClient",
     subDirs        = cms.untracked.vstring(
-        "HLT/BTV/HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_PFDiJet30_PFBtagDeepCSV_1p5*",
-        "HLT/BTV/HLT_DoublePFJets40_CaloBTagDeepCSV_p71*",
-        "HLT/BTV/HLT_Mu12_DoublePFJets40_CaloBTagDeepCSV_p71*",
+        "HLT/BTV/HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_PFDiJet30*",
     ),
     verbose        = cms.untracked.uint32(0),
     resolution     = cms.vstring(),
@@ -225,9 +265,7 @@ BTVEfficiency_OnlineTrackFake = DQMEDHarvester("DQMGenericClient",
 from DQMOffline.Trigger.TrackingMonitoring_Client_cff import TrackToTrackEfficiencies
 
 BJetTrackToTrackEfficiencies = TrackToTrackEfficiencies.clone(
-    subDirs = ["HLT/BTV/HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_PFDiJet30_PFBtagDeepCSV_1p5*",
-               "HLT/BTV/HLT_DoublePFJets40_CaloBTagDeepCSV_p71*",
-               "HLT/BTV/HLT_Mu12_DoublePFJets40_CaloBTagDeepCSV_p71*",
+    subDirs = ["HLT/BTV/HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_PFDiJet30*",
               ]
 )
 
@@ -239,5 +277,9 @@ btaggingClient = cms.Sequence(
   + BTVEfficiency_BTagMu_Jet
   + BTVEfficiency_BTagDiMu_Jet
   + BTVEfficiency_PFJet
+  + BTVEfficiency_BTagMu_DiJet_DeepJet
+  + BTVEfficiency_BTagMu_Jet_DeepJet
+  + BTVEfficiency_BTagDiMu_Jet_DeepJet
+  + BTVEfficiency_PFJet_DeepJet
   + BJetTrackToTrackEfficiencies
 )

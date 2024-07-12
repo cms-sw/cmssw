@@ -17,8 +17,8 @@
     <Parameter name="Volume" value="HGCalEELayer" eval="false"/>
     <Parameter name="GeometryMode" value="HGCalGeometryMode::Hexagon8Cassette" eval="false"/>
     <Parameter name="LevelZSide"          value="3"/>
-    <Parameter name="LevelTop"            value="9"/>
-    <Parameter name="LevelTop"            value="12"/>
+    <Parameter name="LevelTop"            value="8"/>
+    <Parameter name="LevelTop"            value="11"/>
     <Parameter name="WaferThickness"      value="[hgcal:WaferThicknessCoarse2]"/>
     <Parameter name="WaferThickness"      value="[hgcal:WaferThicknessCoarse2]"/>
     <Parameter name="WaferThickness"      value="[hgcal:WaferThicknessCoarse2]"/>

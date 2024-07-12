@@ -30,7 +30,7 @@
 #include <iostream>
 #include <vector>
 
-namespace edm {
+namespace edm::streamer {
 
   /**
    * Creates a translator instance for the specified product registry.
@@ -42,18 +42,14 @@ namespace edm {
    * Serializes the product registry (that was specified to the constructor)
    * into the specified InitMessage.
    */
-  int StreamSerializer::serializeRegistry(SerializeDataBuffer &data_buffer,
-                                          const BranchIDLists &branchIDLists,
-                                          ThinnedAssociationsHelper const &thinnedAssociationsHelper) {
+  int StreamSerializer::serializeRegistry(SerializeDataBuffer &data_buffer) const {
     SendJobHeader::ParameterSetMap psetMap;
     pset::Registry::instance()->fillMap(psetMap);
-    return serializeRegistry(data_buffer, branchIDLists, thinnedAssociationsHelper, psetMap);
+    return serializeRegistry(data_buffer, psetMap);
   }
 
   int StreamSerializer::serializeRegistry(SerializeDataBuffer &data_buffer,
-                                          const BranchIDLists &branchIDLists,
-                                          ThinnedAssociationsHelper const &thinnedAssociationsHelper,
-                                          SendJobHeader::ParameterSetMap const &psetMap) {
+                                          SendJobHeader::ParameterSetMap const &psetMap) const {
     FDEBUG(6) << "StreamSerializer::serializeRegistry" << std::endl;
     SendJobHeader sd;
 
@@ -64,8 +60,6 @@ namespace edm {
       FDEBUG(9) << "StreamOutput got product = " << selection.first->className() << std::endl;
     }
     Service<ConstProductRegistry> reg;
-    sd.setBranchIDLists(branchIDLists);
-    sd.setThinnedAssociationsHelper(thinnedAssociationsHelper);
     sd.setParameterSetMap(psetMap);
 
     data_buffer.rootbuf_.Reset();
@@ -132,12 +126,19 @@ namespace edm {
   int StreamSerializer::serializeEvent(SerializeDataBuffer &data_buffer,
                                        EventForOutput const &event,
                                        ParameterSetID const &selectorConfig,
+                                       uint32_t metaDataChecksum,
                                        StreamerCompressionAlgo compressionAlgo,
                                        int compression_level,
                                        unsigned int reserveSize) const {
     EventSelectionIDVector selectionIDs = event.eventSelectionIDs();
     selectionIDs.push_back(selectorConfig);
-    SendEvent se(event.eventAuxiliary(), event.processHistory(), selectionIDs, event.branchListIndexes());
+    SendEvent se(event.eventAuxiliary(),
+                 event.processHistory(),
+                 selectionIDs,
+                 event.branchListIndexes(),
+                 {},
+                 {},
+                 metaDataChecksum);
 
     // Loop over EDProducts, fill the provenance, and write.
 
@@ -172,7 +173,25 @@ namespace edm {
         }
       }
     }
+    return serializeEventCommon(data_buffer, se, compressionAlgo, compression_level, reserveSize);
+  }
 
+  int StreamSerializer::serializeEventMetaData(SerializeDataBuffer &data_buffer,
+                                               const BranchIDLists &branchIDLists,
+                                               ThinnedAssociationsHelper const &thinnedAssociationsHelper,
+                                               StreamerCompressionAlgo compressionAlgo,
+                                               int compression_level,
+                                               unsigned int reserveSize) const {
+    SendEvent se({}, {}, {}, {}, branchIDLists, thinnedAssociationsHelper, 0);
+
+    return serializeEventCommon(data_buffer, se, compressionAlgo, compression_level, reserveSize);
+  }
+
+  int StreamSerializer::serializeEventCommon(SerializeDataBuffer &data_buffer,
+                                             edm::SendEvent const &se,
+                                             StreamerCompressionAlgo compressionAlgo,
+                                             int compression_level,
+                                             unsigned int reserveSize) const {
     data_buffer.rootbuf_.Reset();
     RootDebug tracer(10, 10);
 
@@ -182,7 +201,7 @@ namespace edm {
       case 0:  // failure
       {
         throw cms::Exception("StreamTranslation", "Event serialization failed")
-            << "StreamSerializer failed to serialize event: " << event.id();
+            << "StreamSerializer failed to serialize event: " << se.aux().id();
         break;
       }
       case 1:  // succcess
@@ -191,14 +210,14 @@ namespace edm {
       {
         throw cms::Exception("StreamTranslation", "Event serialization truncated")
             << "StreamSerializer module attempted to serialize an event\n"
-            << "that is to big for the allocated buffers: " << event.id();
+            << "that is to big for the allocated buffers: " << se.aux().id();
         break;
       }
       default:  // unknown
       {
         throw cms::Exception("StreamTranslation", "Event serialization failed")
             << "StreamSerializer module got an unknown error code\n"
-            << " while attempting to serialize event: " << event.id();
+            << " while attempting to serialize event: " << se.aux().id();
         break;
       }
     }
@@ -426,4 +445,4 @@ namespace edm {
     return resultSize;
   }
 
-}  // namespace edm
+}  // namespace edm::streamer

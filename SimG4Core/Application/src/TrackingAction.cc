@@ -12,7 +12,7 @@
 
 #include "G4UImanager.hh"
 #include "G4TrackingManager.hh"
-#include "G4SystemOfUnits.hh"
+#include <CLHEP/Units/SystemOfUnits.h>
 
 //#define EDM_ML_DEBUG
 

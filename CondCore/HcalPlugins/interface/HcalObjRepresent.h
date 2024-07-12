@@ -108,10 +108,14 @@ namespace HcalObjRepresent {
       setTopoModeFromValConts();
     }
 
+    const std::vector<std::pair<std::string, std::vector<Item> > > getAllItems() {
+      return (*payload_).getAllContainers();
+    }
+
     ////NOTE to be implemented in PayloadInspector classes
-    virtual float getValue(Item* item) {
+    virtual float getValue(const Item* item) {
       throw cms::Exception("Value definition not found") << "getValue definition not found for " << payload_->myname();
-    };
+    }
 
     //Gets Hcal Object at given coordinate
     //Currently unused but remains as a potentially useful function

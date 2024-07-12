@@ -154,7 +154,8 @@ void DTBlockedROChannelsTest::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
     }
 
     if (!offlineMode) {
-      hSystFractionVsLS = new DTTimeEvolutionHisto(ibooker, "EnabledROChannelsVsLS", "% RO channels", 500, 5, true, 3);
+      hSystFractionVsLS =
+          new DTTimeEvolutionHisto(ibooker, "EnabledROChannelsVsLS", "Fraction of RO channels", 500, 5, true, 3);
     }
   }  // end attempt to make these bookings only once!
 

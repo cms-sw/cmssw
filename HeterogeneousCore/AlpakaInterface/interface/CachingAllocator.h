@@ -16,6 +16,7 @@
 #include <alpaka/alpaka.hpp>
 
 #include "HeterogeneousCore/AlpakaInterface/interface/devices.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/AllocatorConfig.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/AlpakaServiceFwd.h"
 
 // Inspired by cub::CachingDeviceAllocator
@@ -36,18 +37,20 @@ namespace cms::alpakatools {
       return power;
     }
 
-    // format a memory size in B/kB/MB/GB
+    // format a memory size in B/KiB/MiB/GiB/TiB
     inline std::string as_bytes(size_t value) {
       if (value == std::numeric_limits<size_t>::max()) {
         return "unlimited";
-      } else if (value >= (1 << 30) and value % (1 << 30) == 0) {
-        return std::to_string(value >> 30) + " GB";
-      } else if (value >= (1 << 20) and value % (1 << 20) == 0) {
-        return std::to_string(value >> 20) + " MB";
-      } else if (value >= (1 << 10) and value % (1 << 10) == 0) {
-        return std::to_string(value >> 10) + " kB";
+      } else if (value >= (1ul << 40) and value % (1ul << 40) == 0) {
+        return std::to_string(value >> 40) + " TiB";
+      } else if (value >= (1ul << 30) and value % (1ul << 30) == 0) {
+        return std::to_string(value >> 30) + " GiB";
+      } else if (value >= (1ul << 20) and value % (1ul << 20) == 0) {
+        return std::to_string(value >> 20) + " MiB";
+      } else if (value >= (1ul << 10) and value % (1ul << 10) == 0) {
+        return std::to_string(value >> 10) + " KiB";
       } else {
-        return std::to_string(value) + "  B";
+        return std::to_string(value) + "   B";
       }
     }
 
@@ -118,27 +121,29 @@ namespace cms::alpakatools {
 
     explicit CachingAllocator(
         Device const& device,
-        unsigned int binGrowth,          // bin growth factor;
-        unsigned int minBin,             // smallest bin, corresponds to binGrowth^minBin bytes;
-                                         // smaller allocations are rounded to this value;
-        unsigned int maxBin,             // largest bin, corresponds to binGrowth^maxBin bytes;
-                                         // larger allocations will fail;
-        size_t maxCachedBytes,           // total storage for the allocator (0 means no limit);
-        double maxCachedFraction,        // fraction of total device memory taken for the allocator (0 means no limit);
-                                         // if both maxCachedBytes and maxCachedFraction are non-zero,
-                                         // the smallest resulting value is used.
-        bool reuseSameQueueAllocations,  // reuse non-ready allocations if they are in the same queue as the new one;
-                                         // this is safe only if all memory operations are scheduled in the same queue
-        bool debug)
+        AllocatorConfig const& config,
+        bool reuseSameQueueAllocations,  // Reuse non-ready allocations if they are in the same queue as the new one;
+                                         // this is safe only if all memory operations are scheduled in the same queue.
+                                         // In particular, this is not safe if the memory will be accessed without using
+                                         // any queue, like host memory accessed directly or with immediate operations.
+        bool debug = false)
         : device_(device),
-          binGrowth_(binGrowth),
-          minBin_(minBin),
-          maxBin_(maxBin),
-          minBinBytes_(detail::power(binGrowth, minBin)),
-          maxBinBytes_(detail::power(binGrowth, maxBin)),
-          maxCachedBytes_(cacheSize(maxCachedBytes, maxCachedFraction)),
+          binGrowth_(config.binGrowth),
+          minBin_(config.minBin),
+          maxBin_(config.maxBin),
+          minBinBytes_(detail::power(binGrowth_, minBin_)),
+          maxBinBytes_(detail::power(binGrowth_, maxBin_)),
+          maxCachedBytes_(cacheSize(config.maxCachedBytes, config.maxCachedFraction)),
           reuseSameQueueAllocations_(reuseSameQueueAllocations),
-          debug_(debug) {
+          debug_(debug),
+          fillAllocations_(config.fillAllocations),
+          fillAllocationValue_(config.fillAllocationValue),
+          fillReallocations_(config.fillReallocations),
+          fillReallocationValue_(config.fillReallocationValue),
+          fillDeallocations_(config.fillDeallocations),
+          fillDeallocationValue_(config.fillDeallocationValue),
+          fillCaches_(config.fillCaches),
+          fillCacheValue_(config.fillCacheValue) {
       if (debug_) {
         std::ostringstream out;
         out << "CachingAllocator settings\n"
@@ -147,7 +152,7 @@ namespace cms::alpakatools {
             << "  max bin    " << maxBin_ << "\n"
             << "  resulting bins:\n";
         for (auto bin = minBin_; bin <= maxBin_; ++bin) {
-          auto binSize = detail::power(binGrowth, bin);
+          auto binSize = detail::power(binGrowth_, bin);
           out << "    " << std::right << std::setw(12) << detail::as_bytes(binSize) << '\n';
         }
         out << "  maximum amount of cached memory: " << detail::as_bytes(maxCachedBytes_);
@@ -172,6 +177,22 @@ namespace cms::alpakatools {
       return cachedBytes_;
     }
 
+    // Fill a memory buffer with the specified bye value.
+    // If the underlying device is the host and the allocator is configured to support immediate
+    // (non queue-ordered) operations, fill the memory synchronously using std::memset.
+    // Otherwise, let the alpaka queue schedule the operation.
+    //
+    // This is not used for deallocation/caching, because the memory may still be in use until the
+    // corresponding event is reached.
+    void immediateOrAsyncMemset(Queue queue, Buffer buffer, uint8_t value) {
+      // host-only
+      if (std::is_same_v<Device, alpaka::DevCpu> and not reuseSameQueueAllocations_) {
+        std::memset(buffer.data(), value, alpaka::getExtentProduct(buffer) * sizeof(alpaka::Elem<Buffer>));
+      } else {
+        alpaka::memset(queue, buffer, value);
+      }
+    }
+
     // Allocate given number of bytes on the current device associated to given queue
     void* allocate(size_t bytes, Queue queue) {
       // create a block descriptor for the requested allocation
@@ -181,8 +202,19 @@ namespace cms::alpakatools {
       std::tie(block.bin, block.bytes) = findBin(bytes);
 
       // try to re-use a cached block, or allocate a new buffer
-      if (not tryReuseCachedBlock(block)) {
+      if (tryReuseCachedBlock(block)) {
+        // fill the re-used memory block with a pattern
+        if (fillReallocations_) {
+          immediateOrAsyncMemset(*block.queue, *block.buffer, fillReallocationValue_);
+        } else if (fillAllocations_) {
+          immediateOrAsyncMemset(*block.queue, *block.buffer, fillAllocationValue_);
+        }
+      } else {
         allocateNewBlock(block);
+        // fill the newly allocated memory block with a pattern
+        if (fillAllocations_) {
+          immediateOrAsyncMemset(*block.queue, *block.buffer, fillAllocationValue_);
+        }
       }
 
       return block.buffer->data();
@@ -214,11 +246,18 @@ namespace cms::alpakatools {
         // because of multiple exceptions it is best to ignore these
         // errors.
         try {
+          // fill memory blocks with a pattern before caching them
+          if (fillCaches_) {
+            alpaka::memset(*block.queue, *block.buffer, fillCacheValue_);
+          } else if (fillDeallocations_) {
+            alpaka::memset(*block.queue, *block.buffer, fillDeallocationValue_);
+          }
+          // record in the block a marker associated to the work queue
           alpaka::enqueue(*(block.queue), *(block.event));
         } catch (std::exception& e) {
           if (debug_) {
             std::ostringstream out;
-            out << "CachingAllocator::free() error from alpaka::enqueue(): " << e.what() << "\n";
+            out << "CachingAllocator::free() caught an alpaka error: " << e.what() << "\n";
             out << "\t" << deviceType_ << " " << alpaka::getName(device_) << " freed " << block.bytes << " bytes at "
                 << ptr << " from associated queue " << block.queue->m_spQueueImpl.get() << ", event "
                 << block.event->m_spEventImpl.get() << " .\n\t\t " << cachedBlocks_.size()
@@ -243,6 +282,30 @@ namespace cms::alpakatools {
           std::cout << out.str() << std::endl;
         }
       } else {
+        // If the memset fails, very likely an error has occurred in the
+        // asynchronous processing. In that case the error will show up in all
+        // device API function calls, and the free() will be called by
+        // destructors during stack unwinding. In order to avoid terminate()
+        // being called because of multiple exceptions it is best to ignore
+        // these errors.
+        try {
+          // fill memory blocks with a pattern before freeing them
+          if (fillDeallocations_) {
+            alpaka::memset(*block.queue, *block.buffer, fillDeallocationValue_);
+          }
+        } catch (std::exception& e) {
+          if (debug_) {
+            std::ostringstream out;
+            out << "CachingAllocator::free() caught an alpaka error: " << e.what() << "\n";
+            out << "\t" << deviceType_ << " " << alpaka::getName(device_) << " freed " << block.bytes << " bytes at "
+                << ptr << " from associated queue " << block.queue->m_spQueueImpl.get() << ", event "
+                << block.event->m_spEventImpl.get() << " .\n\t\t " << cachedBlocks_.size()
+                << " available blocks cached (" << cachedBytes_.free << " bytes), " << liveBlocks_.size()
+                << " live blocks (" << cachedBytes_.live << " bytes) outstanding." << std::endl;
+            std::cout << out.str() << std::endl;
+          }
+          return;
+        }
         // if the buffer is not recached, it is automatically freed when block goes out of scope
         if (debug_) {
           std::ostringstream out;
@@ -451,6 +514,15 @@ namespace cms::alpakatools {
 
     const bool reuseSameQueueAllocations_;
     const bool debug_;
+
+    const bool fillAllocations_;
+    const uint8_t fillAllocationValue_;
+    const bool fillReallocations_;
+    const uint8_t fillReallocationValue_;
+    const bool fillDeallocations_;
+    const uint8_t fillDeallocationValue_;
+    const bool fillCaches_;
+    const uint8_t fillCacheValue_;
   };
 
 }  // namespace cms::alpakatools

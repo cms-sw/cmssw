@@ -12,8 +12,8 @@
 PythiaDecays::PythiaDecays() {
   // inspired by method Pythia8Hadronizer::residualDecay() in GeneratorInterface/Pythia8Interface/src/Py8GunBase.cc
   decayer = std::make_unique<Pythia8::Pythia>();
-  p8RndmEngine = std::make_unique<gen::P8RndmEngine>();
-  decayer->setRndmEnginePtr(p8RndmEngine.get());
+  p8RndmEngine = std::make_shared<gen::P8RndmEngine>();
+  decayer->setRndmEnginePtr(p8RndmEngine);
   decayer->settings.flag("ProcessLevel:all", false);
   decayer->settings.flag("PartonLevel:FSRinResonances", false);
   decayer->settings.flag("ProcessLevel:resonanceDecays", false);

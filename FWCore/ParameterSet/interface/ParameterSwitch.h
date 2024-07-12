@@ -86,13 +86,29 @@ namespace edm {
       }
     }
 
-    void writeCfi_(
-        std::ostream& os, bool optional, bool& startWithComma, int indentation, bool& wroteSomething) const override {
-      switch_.writeCfi(os, optional, startWithComma, indentation, wroteSomething);
+    void writeCfi_(std::ostream& os,
+                   bool optional,
+                   bool& startWithComma,
+                   int indentation,
+                   CfiOptions& options,
+                   bool& wroteSomething) const override {
+      switch_.writeCfi(os, optional, startWithComma, indentation, options, wroteSomething);
+
+      if (std::holds_alternative<cfi::ClassFile>(options)) {
+        std::set<std::string> labels;
+        std::set<ParameterTypes> parameterTypes;
+        std::set<ParameterTypes> wildcardTypes;
+        for (auto const& n : cases_) {
+          n.second->checkAndGetLabelsAndTypes(labels, parameterTypes, wildcardTypes);
+        }
+        for (auto const& l : labels) {
+          cfi::parameterMustBeTyped(options, l);
+        }
+      }
 
       typename CaseMap::const_iterator selectedCase = cases_.find(switch_.getDefaultValue());
       if (selectedCase != cases_.end()) {
-        selectedCase->second->writeCfi(os, optional, startWithComma, indentation, wroteSomething);
+        selectedCase->second->writeCfi(os, optional, startWithComma, indentation, options, wroteSomething);
       }
     }
 

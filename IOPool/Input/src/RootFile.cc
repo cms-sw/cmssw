@@ -2216,7 +2216,7 @@ namespace edm {
     void readProvenanceAsync(WaitingTaskHolder task,
                              ModuleCallingContext const* moduleCallingContext,
                              unsigned int transitionIndex,
-                             std::atomic<const std::set<ProductProvenance>*>& writeTo) const override;
+                             std::atomic<const std::set<ProductProvenance>*>& writeTo) const noexcept override;
 
     edm::propagate_const<RootTree*> rootTree_;
     edm::propagate_const<TBranch*> provBranch_;
@@ -2302,10 +2302,11 @@ namespace edm {
     }
   }  // namespace
 
-  void ReducedProvenanceReader::readProvenanceAsync(WaitingTaskHolder task,
-                                                    ModuleCallingContext const* moduleCallingContext,
-                                                    unsigned int transitionIndex,
-                                                    std::atomic<const std::set<ProductProvenance>*>& writeTo) const {
+  void ReducedProvenanceReader::readProvenanceAsync(
+      WaitingTaskHolder task,
+      ModuleCallingContext const* moduleCallingContext,
+      unsigned int transitionIndex,
+      std::atomic<const std::set<ProductProvenance>*>& writeTo) const noexcept {
     readProvenanceAsyncImpl(this,
                             acquirer_.serialQueueChain(),
                             task,
@@ -2356,7 +2357,7 @@ namespace edm {
     void readProvenanceAsync(WaitingTaskHolder task,
                              ModuleCallingContext const* moduleCallingContext,
                              unsigned int transitionIndex,
-                             std::atomic<const std::set<ProductProvenance>*>& writeTo) const override;
+                             std::atomic<const std::set<ProductProvenance>*>& writeTo) const noexcept override;
 
     RootTree* rootTree_;
     ProductProvenanceVector infoVector_;
@@ -2376,10 +2377,11 @@ namespace edm {
         mutex_(SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader().second),
         acquirer_(SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader().first) {}
 
-  void FullProvenanceReader::readProvenanceAsync(WaitingTaskHolder task,
-                                                 ModuleCallingContext const* moduleCallingContext,
-                                                 unsigned int transitionIndex,
-                                                 std::atomic<const std::set<ProductProvenance>*>& writeTo) const {
+  void FullProvenanceReader::readProvenanceAsync(
+      WaitingTaskHolder task,
+      ModuleCallingContext const* moduleCallingContext,
+      unsigned int transitionIndex,
+      std::atomic<const std::set<ProductProvenance>*>& writeTo) const noexcept {
     readProvenanceAsyncImpl(this,
                             acquirer_.serialQueueChain(),
                             task,
@@ -2422,7 +2424,7 @@ namespace edm {
     void readProvenanceAsync(WaitingTaskHolder task,
                              ModuleCallingContext const* moduleCallingContext,
                              unsigned int transitionIndex,
-                             std::atomic<const std::set<ProductProvenance>*>& writeTo) const override;
+                             std::atomic<const std::set<ProductProvenance>*>& writeTo) const noexcept override;
 
     edm::propagate_const<RootTree*> rootTree_;
     std::vector<EventEntryInfo> infoVector_;
@@ -2446,10 +2448,11 @@ namespace edm {
         mutex_(SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader().second),
         acquirer_(SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader().first) {}
 
-  void OldProvenanceReader::readProvenanceAsync(WaitingTaskHolder task,
-                                                ModuleCallingContext const* moduleCallingContext,
-                                                unsigned int transitionIndex,
-                                                std::atomic<const std::set<ProductProvenance>*>& writeTo) const {
+  void OldProvenanceReader::readProvenanceAsync(
+      WaitingTaskHolder task,
+      ModuleCallingContext const* moduleCallingContext,
+      unsigned int transitionIndex,
+      std::atomic<const std::set<ProductProvenance>*>& writeTo) const noexcept {
     readProvenanceAsyncImpl(this,
                             acquirer_.serialQueueChain(),
                             task,
@@ -2491,7 +2494,7 @@ namespace edm {
     void readProvenanceAsync(WaitingTaskHolder task,
                              ModuleCallingContext const* moduleCallingContext,
                              unsigned int transitionIndex,
-                             std::atomic<const std::set<ProductProvenance>*>& writeTo) const override;
+                             std::atomic<const std::set<ProductProvenance>*>& writeTo) const noexcept override;
   };
 
   DummyProvenanceReader::DummyProvenanceReader() : ProvenanceReaderBase() {}
@@ -2500,10 +2503,11 @@ namespace edm {
     // Not providing parentage!!!
     return std::set<ProductProvenance>{};
   }
-  void DummyProvenanceReader::readProvenanceAsync(WaitingTaskHolder task,
-                                                  ModuleCallingContext const* moduleCallingContext,
-                                                  unsigned int transitionIndex,
-                                                  std::atomic<const std::set<ProductProvenance>*>& writeTo) const {
+  void DummyProvenanceReader::readProvenanceAsync(
+      WaitingTaskHolder task,
+      ModuleCallingContext const* moduleCallingContext,
+      unsigned int transitionIndex,
+      std::atomic<const std::set<ProductProvenance>*>& writeTo) const noexcept {
     if (nullptr == writeTo.load()) {
       auto emptyProv = std::make_unique<const std::set<ProductProvenance>>();
       const std::set<ProductProvenance>* expected = nullptr;

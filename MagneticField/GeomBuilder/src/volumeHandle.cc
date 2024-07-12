@@ -16,7 +16,7 @@
 #include "DataFormats/GeometrySurface/interface/Cone.h"
 #include "DataFormats/GeometryVector/interface/CoordinateSets.h"
 
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include <CLHEP/Units/SystemOfUnits.h>
 
 #include <string>
 #include <iterator>
@@ -42,7 +42,8 @@ MagGeoBuilderFromDDD::volumeHandle::volumeHandle(const DDExpandedView &fv, bool 
   name = fv.logicalPart().name().name();
   copyno = fv.copyno();
   solid = fv.logicalPart().solid();
-  center_ = GlobalPoint(fv.translation().x() / cm, fv.translation().y() / cm, fv.translation().z() / cm);
+  center_ =
+      GlobalPoint(fv.translation().x() / CLHEP::cm, fv.translation().y() / CLHEP::cm, fv.translation().z() / CLHEP::cm);
 
   // ASSUMPTION: volume names ends with "_NUM" where NUM is the volume number
   string volName = name;

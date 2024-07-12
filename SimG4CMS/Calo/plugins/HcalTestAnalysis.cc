@@ -30,14 +30,21 @@
 #include "G4HCofThisEvent.hh"
 
 #include <CLHEP/Random/Randomize.h>
-#include <CLHEP/Units/GlobalSystemOfUnits.h>
-#include <CLHEP/Units/GlobalPhysicalConstants.h>
+#include <CLHEP/Units/SystemOfUnits.h>
+#include <CLHEP/Units/PhysicalConstants.h>
 
 #include <cmath>
 #include <iomanip>
 #include <iostream>
 #include <string>
 #include <vector>
+
+using CLHEP::c_light;
+using CLHEP::deg;
+using CLHEP::GeV;
+using CLHEP::MeV;
+using CLHEP::mm;
+using CLHEP::ns;
 
 class HcalTestAnalysis : public SimProducer,
                          public Observer<const BeginOfRun*>,

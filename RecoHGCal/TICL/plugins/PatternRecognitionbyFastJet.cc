@@ -37,7 +37,8 @@ PatternRecognitionbyFastJet<TILES>::PatternRecognitionbyFastJet(const edm::Param
       eidOutputNameId_(conf.getParameter<std::string>("eid_output_name_id")),
       eidMinClusterEnergy_(conf.getParameter<double>("eid_min_cluster_energy")),
       eidNLayers_(conf.getParameter<int>("eid_n_layers")),
-      eidNClusters_(conf.getParameter<int>("eid_n_clusters")){};
+      eidNClusters_(conf.getParameter<int>("eid_n_clusters")),
+      computeLocalTime_(conf.getParameter<bool>("computeLocalTime")){};
 
 template <typename TILES>
 void PatternRecognitionbyFastJet<TILES>::buildJetAndTracksters(std::vector<PseudoJet> &fjInputs,
@@ -144,7 +145,8 @@ void PatternRecognitionbyFastJet<TILES>::makeTracksters(
   ticl::assignPCAtoTracksters(result,
                               input.layerClusters,
                               input.layerClustersTime,
-                              rhtools_.getPositionLayer(rhtools_.lastLayerEE(isHFnose), isHFnose).z());
+                              rhtools_.getPositionLayer(rhtools_.lastLayerEE(isHFnose), isHFnose).z(),
+                              computeLocalTime_);
 
   // run energy regression and ID
   energyRegressionAndID(input.layerClusters, input.tfSession, result);
@@ -309,6 +311,7 @@ void PatternRecognitionbyFastJet<TILES>::fillPSetDescription(edm::ParameterSetDe
   iDesc.add<double>("eid_min_cluster_energy", 1.);
   iDesc.add<int>("eid_n_layers", 50);
   iDesc.add<int>("eid_n_clusters", 10);
+  iDesc.add<bool>("computeLocalTime", false);
 }
 
 template class ticl::PatternRecognitionbyFastJet<TICLLayerTiles>;

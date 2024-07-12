@@ -35,7 +35,7 @@
 #include "G4HCofThisEvent.hh"
 #include "G4UserEventAction.hh"
 
-#include <CLHEP/Units/GlobalSystemOfUnits.h>
+#include <CLHEP/Units/SystemOfUnits.h>
 #include <CLHEP/Units/GlobalPhysicalConstants.h>
 #include <CLHEP/Random/Randomize.h>
 

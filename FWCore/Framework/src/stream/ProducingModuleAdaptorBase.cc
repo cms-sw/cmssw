@@ -184,11 +184,11 @@ namespace edm {
     }
 
     template <typename T>
-    ProductResolverIndex ProducingModuleAdaptorBase<T>::transformPrefetch_(size_t iTransformIndex) const {
+    ProductResolverIndex ProducingModuleAdaptorBase<T>::transformPrefetch_(size_t iTransformIndex) const noexcept {
       return 0;
     }
     template <typename T>
-    size_t ProducingModuleAdaptorBase<T>::transformIndex_(edm::BranchDescription const& iBranch) const {
+    size_t ProducingModuleAdaptorBase<T>::transformIndex_(edm::BranchDescription const& iBranch) const noexcept {
       return 0;
     }
     template <typename T>
@@ -197,7 +197,7 @@ namespace edm {
                                                          EventPrincipal const& iEvent,
                                                          ActivityRegistry*,
                                                          ModuleCallingContext iMCC,
-                                                         ServiceWeakToken const&) {}
+                                                         ServiceWeakToken const&) noexcept {}
 
     template <typename T>
     void ProducingModuleAdaptorBase<T>::doBeginStream(StreamID id) {

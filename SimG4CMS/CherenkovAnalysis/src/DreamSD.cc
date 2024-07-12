@@ -24,7 +24,7 @@
 #include "SimG4CMS/CherenkovAnalysis/interface/PMTResponse.h"
 
 #include "G4PhysicalConstants.hh"
-#include "G4SystemOfUnits.hh"
+#include <CLHEP/Units/SystemOfUnits.h>
 
 //#define EDM_ML_DEBUG
 
@@ -360,7 +360,7 @@ double DreamSD::getAverageNumberOfPhotons_(const double charge,
                                            const double beta,
                                            const G4Material *aMaterial,
                                            const G4MaterialPropertyVector *Rindex) {
-  const double rFact = 369.81 / (eV * cm);
+  const double rFact = 369.81 / (CLHEP::eV * CLHEP::cm);
 
   if (beta <= 0.0)
     return 0.0;
@@ -409,7 +409,7 @@ double DreamSD::getAverageNumberOfPhotons_(const double charge,
   }
 
   // Calculate number of photons
-  double numPhotons = rFact * charge / eplus * charge / eplus * (dp - ge * BetaInverse * BetaInverse);
+  double numPhotons = rFact * charge / CLHEP::eplus * charge / CLHEP::eplus * (dp - ge * BetaInverse * BetaInverse);
 
   edm::LogVerbatim("EcalSim") << "@SUB=getAverageNumberOfPhotons\nCAImin = " << CAImin << "\nCAImax = " << CAImax
                               << "\ndp = " << dp << ", ge = " << ge << "\nnumPhotons = " << numPhotons;
@@ -433,6 +433,7 @@ bool DreamSD::setPbWO2MaterialProperties_(G4Material *aMaterial) {
   // Refractive index as a function of photon momentum
   // FIXME: Should somehow put that in the configuration
   const int nEntries = 14;
+  using CLHEP::eV;
   double PhotonEnergy[nEntries] = {1.7712 * eV,
                                    1.8368 * eV,
                                    1.90745 * eV,

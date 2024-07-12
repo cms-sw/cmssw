@@ -41,6 +41,7 @@ namespace edm {
     void write(EventForOutput const& e) override;
     void writeLuminosityBlock(LuminosityBlockForOutput const&) override;
     void writeRun(RunForOutput const&) override;
+    const std::vector<std::string> crosscheck_;
     const bool verbose_;
   };
 
@@ -58,6 +59,7 @@ namespace edm {
   GetProductCheckerOutputModule::GetProductCheckerOutputModule(ParameterSet const& iPSet)
       : one::OutputModuleBase(iPSet),
         one::OutputModule<>(iPSet),
+        crosscheck_(iPSet.getUntrackedParameter<std::vector<std::string>>("crosscheck")),
         verbose_(iPSet.getUntrackedParameter<bool>("verbose")) {}
 
   // GetProductCheckerOutputModule::GetProductCheckerOutputModule(GetProductCheckerOutputModule const& rhs) {
@@ -108,10 +110,40 @@ namespace edm {
       }
     }
   }
+  namespace {
+    std::string canonicalName(std::string const& iOriginal) {
+      if (iOriginal.empty()) {
+        return iOriginal;
+      }
+      if (iOriginal.back() == '.') {
+        return iOriginal.substr(0, iOriginal.size() - 1);
+      }
+      return iOriginal;
+    }
+  }  // namespace
   void GetProductCheckerOutputModule::write(EventForOutput const& e) {
     std::ostringstream str;
     str << e.id();
     check(e, str.str(), keptProducts()[InEvent], verbose_);
+    if (not crosscheck_.empty()) {
+      std::set<std::string> expectedProducts(crosscheck_.begin(), crosscheck_.end());
+      for (auto const& kp : keptProducts()[InEvent]) {
+        auto bn = canonicalName(kp.first->branchName());
+        auto found = expectedProducts.find(bn);
+        if (found == expectedProducts.end()) {
+          throw cms::Exception("CrosscheckFailed") << "unexpected kept product " << bn;
+        }
+        expectedProducts.erase(bn);
+      }
+      if (not expectedProducts.empty()) {
+        cms::Exception e("CrosscheckFailed");
+        e << "Did not find the expected products:\n";
+        for (auto const& p : expectedProducts) {
+          e << p << "\n";
+        }
+        throw e;
+      }
+    }
   }
   void GetProductCheckerOutputModule::writeLuminosityBlock(LuminosityBlockForOutput const& l) {
     std::ostringstream str;
@@ -135,6 +167,8 @@ namespace edm {
   void GetProductCheckerOutputModule::fillDescriptions(ConfigurationDescriptions& descriptions) {
     ParameterSetDescription desc;
     one::OutputModule<>::fillDescription(desc);
+    desc.addUntracked<std::vector<std::string>>("crosscheck", {})
+        ->setComment("Branch names that should be in the event. If empty no check done.");
     desc.addUntracked<bool>("verbose", false);
     descriptions.add("productChecker", desc);
   }

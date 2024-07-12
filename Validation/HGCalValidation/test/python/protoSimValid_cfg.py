@@ -2,7 +2,8 @@
 # Way to use this:
 #   cmsRun protoSimValid_cfg.py geometry=D99 type=hgcalBHValidation
 #
-#   Options for geometry D98, D99, D108, D94, D103, D104, D106, D109
+#   Options for geometry D98, D99, D108, D94, D103, D104, D106, D107, D108,
+#                        D109, D110, D111, D112, D113
 #               type hgcalBHValidation, hgcalSiliconValidation
 #
 ###############################################################################
@@ -17,7 +18,7 @@ options.register('geometry',
                  "D99",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D98, D99, D108, D94, D103, D104, D106, D109")
+                  "geometry of operations: D98, D99, D108, D94, D103, D104, D106, D107, D108, D109, D110, D111, D112, D113")
 options.register ('type',
                   "hgcalBHValidation",
                   VarParsing.VarParsing.multiplicity.singleton,

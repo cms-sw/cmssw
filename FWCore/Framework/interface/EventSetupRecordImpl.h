@@ -87,7 +87,7 @@ namespace edm {
                          ESResolverIndex iResolverIndex,
                          EventSetupImpl const*,
                          ServiceToken const&,
-                         ESParentContext) const;
+                         ESParentContext) const noexcept;
 
       /**returns true only if someone has already requested data for this key
           and the data was retrieved

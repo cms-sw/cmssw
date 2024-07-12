@@ -6,12 +6,17 @@ TSToSimTSAssociatorByEnergyScoreImpl::TSToSimTSAssociatorByEnergyScoreImpl(
     edm::EDProductGetter const& productGetter,
     bool hardScatterOnly,
     std::shared_ptr<hgcal::RecHitTools> recHitTools,
-    const std::unordered_map<DetId, const HGCRecHit*>* hitMap)
-    : hardScatterOnly_(hardScatterOnly), recHitTools_(recHitTools), hitMap_(hitMap), productGetter_(&productGetter) {
+    const std::unordered_map<DetId, const unsigned int>* hitMap,
+    std::vector<const HGCRecHit*>& hits)
+    : hardScatterOnly_(hardScatterOnly),
+      recHitTools_(recHitTools),
+      hitMap_(hitMap),
+      hits_(hits),
+      productGetter_(&productGetter) {
   layers_ = recHitTools_->lastLayerBH();
 }
 
-hgcal::association TSToSimTSAssociatorByEnergyScoreImpl::makeConnections(
+ticl::association TSToSimTSAssociatorByEnergyScoreImpl::makeConnections(
     const edm::Handle<ticl::TracksterCollection>& tCH,
     const edm::Handle<reco::CaloClusterCollection>& lCCH,
     const edm::Handle<ticl::TracksterCollection>& sTCH) const {
@@ -38,7 +43,7 @@ hgcal::association TSToSimTSAssociatorByEnergyScoreImpl::makeConnections(
   // among other the information to compute the SimTrackster-To-Trackster score. It is one of the two objects that
   // build the output of the makeConnections function.
   // tssInSimTrackster[stId]
-  hgcal::simTracksterToTrackster tssInSimTrackster;
+  ticl::simTracksterToTrackster tssInSimTrackster;
   tssInSimTrackster.resize(nSimTracksters);
   for (unsigned int i = 0; i < nSimTracksters; ++i) {
     tssInSimTrackster[i].simTracksterId = i;
@@ -50,7 +55,7 @@ hgcal::association TSToSimTSAssociatorByEnergyScoreImpl::makeConnections(
   // The lcToSimTracksterId_Map is used to connect a LayerCluster, via its id (key), with all the SimTracksters that
   // contributed to that LayerCluster by storing the SimTrackster id and the fraction of the LayerCluster's energy
   // in which the SimTrackster contributed.
-  std::unordered_map<int, std::vector<hgcal::lcInfoInTrackster>> lcToSimTracksterId_Map;
+  std::unordered_map<int, std::vector<ticl::lcInfoInTrackster>> lcToSimTracksterId_Map;
   for (const auto& stId : sTIndices) {
     const auto& lcs = simTracksters[stId].vertices();
     int lcInSimTst = 0;
@@ -59,7 +64,7 @@ hgcal::association TSToSimTSAssociatorByEnergyScoreImpl::makeConnections(
 
       const auto lc_find_it = lcToSimTracksterId_Map.find(lcId);
       if (lc_find_it == lcToSimTracksterId_Map.end()) {
-        lcToSimTracksterId_Map[lcId] = std::vector<hgcal::lcInfoInTrackster>();
+        lcToSimTracksterId_Map[lcId] = std::vector<ticl::lcInfoInTrackster>();
       }
       lcToSimTracksterId_Map[lcId].emplace_back(stId, fraction);
 
@@ -108,7 +113,7 @@ hgcal::association TSToSimTSAssociatorByEnergyScoreImpl::makeConnections(
   // this contains the ids of the simTracksters contributing with at least one
   // hit to the Trackster. To be returned since this contains the information
   // to compute the Trackster-To-SimTrackster score.
-  hgcal::tracksterToSimTrackster stsInTrackster;  // tsId->(stId,score)
+  ticl::tracksterToSimTrackster stsInTrackster;  // tsId->(stId,score)
   stsInTrackster.resize(nTracksters);
 
   for (unsigned int tsId = 0; tsId < nTracksters; ++tsId) {
@@ -310,7 +315,8 @@ hgcal::association TSToSimTSAssociatorByEnergyScoreImpl::makeConnections(
       const auto& hits_and_fractions = layerClusters[lcId].hitsAndFractions();
       // Compute the correct normalization
       for (auto const& haf : hits_and_fractions) {
-        invTracksterEnergyWeight += std::pow(lcFractionInTs * haf.second * hitMap_->at(haf.first)->energy(), 2);
+        const HGCRecHit* hit = hits_[hitMap_->at(haf.first)];
+        invTracksterEnergyWeight += std::pow(lcFractionInTs * haf.second * hit->energy(), 2);
       }
     }
     invTracksterEnergyWeight = 1.f / invTracksterEnergyWeight;
@@ -328,7 +334,7 @@ hgcal::association TSToSimTSAssociatorByEnergyScoreImpl::makeConnections(
         if (lcWithST) {
           const auto findLCIt = std::find(lcToSimTracksterId_Map[lcId].begin(),
                                           lcToSimTracksterId_Map[lcId].end(),
-                                          hgcal::lcInfoInTrackster{stPair.first, 0.f});
+                                          ticl::lcInfoInTrackster{stPair.first, 0.f});
           if (findLCIt != lcToSimTracksterId_Map[lcId].end()) {
             stFraction = findLCIt->fraction;
           }
@@ -434,11 +440,11 @@ hgcal::association TSToSimTSAssociatorByEnergyScoreImpl::makeConnections(
   return {stsInTrackster, tssInSimTrackster};
 }
 
-hgcal::RecoToSimCollectionSimTracksters TSToSimTSAssociatorByEnergyScoreImpl::associateRecoToSim(
+ticl::RecoToSimCollectionSimTracksters TSToSimTSAssociatorByEnergyScoreImpl::associateRecoToSim(
     const edm::Handle<ticl::TracksterCollection>& tCH,
     const edm::Handle<reco::CaloClusterCollection>& lCCH,
     const edm::Handle<ticl::TracksterCollection>& sTCH) const {
-  hgcal::RecoToSimCollectionSimTracksters returnValue(productGetter_);
+  ticl::RecoToSimCollectionSimTracksters returnValue(productGetter_);
   const auto& links = makeConnections(tCH, lCCH, sTCH);
 
   const auto& stsInTrackster = std::get<0>(links);
@@ -457,11 +463,11 @@ hgcal::RecoToSimCollectionSimTracksters TSToSimTSAssociatorByEnergyScoreImpl::as
   return returnValue;
 }
 
-hgcal::SimToRecoCollectionSimTracksters TSToSimTSAssociatorByEnergyScoreImpl::associateSimToReco(
+ticl::SimToRecoCollectionSimTracksters TSToSimTSAssociatorByEnergyScoreImpl::associateSimToReco(
     const edm::Handle<ticl::TracksterCollection>& tCH,
     const edm::Handle<reco::CaloClusterCollection>& lCCH,
     const edm::Handle<ticl::TracksterCollection>& sTCH) const {
-  hgcal::SimToRecoCollectionSimTracksters returnValue(productGetter_);
+  ticl::SimToRecoCollectionSimTracksters returnValue(productGetter_);
   const auto& links = makeConnections(tCH, lCCH, sTCH);
   const auto& tssInSimTrackster = std::get<1>(links);
   for (size_t stId = 0; stId < tssInSimTrackster.size(); ++stId) {

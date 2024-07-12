@@ -2,6 +2,7 @@
 #define IOPool_Streamer_StreamerInputModule_h
 
 #include "IOPool/Streamer/interface/StreamerInputSource.h"
+#include "IOPool/Streamer/interface/EventMessage.h"
 
 #include "FWCore/Utilities/interface/DebugMacros.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
@@ -15,7 +16,7 @@
 #include <algorithm>
 #include <iterator>
 
-namespace edm {
+namespace edm::streamer {
   template <typename Producer>
   class StreamerInputModule : public StreamerInputSource {
     /**
@@ -30,8 +31,24 @@ namespace edm {
 
   private:
     void genuineCloseFile() override {
+      if (didArtificialFile_) {
+        return;
+      }
       if (pr_.get() != nullptr)
         pr_->closeFile();
+    }
+
+    void setupMetaData() {
+      InitMsgView const* header = pr_->getHeader();
+      assert(header);
+      deserializeAndMergeWithRegistry(*header);
+
+      //NOTE: should read first Event to get the meta data
+      auto eview = pr_->getNextEvent();
+      assert(eview);
+      assert(eview->isEventMetaData());
+      deserializeEventMetaData(*eview);
+      updateEventMetaData();
     }
 
     void genuineReadFile() override {
@@ -40,14 +57,21 @@ namespace edm {
         return;
       }
 
-      InitMsgView const* header = pr_->getHeader();
-      deserializeAndMergeWithRegistry(*header);
+      if (didArtificialFile_) {
+        //update the event meta data
+        didArtificialFile_ = false;
+        updateEventMetaData();
+
+        return;
+      }
+      setupMetaData();
     }
 
     Next checkNext() override;
 
     edm::propagate_const<std::unique_ptr<Producer>> pr_;
     bool isFirstFile_ = true;
+    bool didArtificialFile_ = false;
   };  //end-of-class-def
 
   template <typename Producer>
@@ -59,25 +83,30 @@ namespace edm {
         //prod_reg_(&productRegistry()),
         pr_(new Producer(pset)) {
     //Get header/init from Producer
-    InitMsgView const* header = pr_->getHeader();
-    deserializeAndMergeWithRegistry(*header);
+    setupMetaData();
   }
 
   template <typename Producer>
   StreamerInputSource::Next StreamerInputModule<Producer>::checkNext() {
     EventMsgView const* eview = pr_->getNextEvent();
 
-    if (pr_->newHeader()) {
-      FDEBUG(6) << "A new file has been opened and we must compare Headers here !!" << std::endl;
-      return Next::kFile;
-    }
     if (eview == nullptr) {
+      if (pr_->newHeader()) {
+        FDEBUG(6) << "A new file has been opened and we must compare Headers here !!" << std::endl;
+        return Next::kFile;
+      }
       return Next::kStop;
+    }
+    if (eview->isEventMetaData()) {
+      //we lie and say there is a new file since we need to synchronize to update the meta data
+      deserializeEventMetaData(*eview);
+      didArtificialFile_ = true;
+      return Next::kFile;
     }
     deserializeEvent(*eview);
     return Next::kEvent;
   }
 
-}  // namespace edm
+}  // namespace edm::streamer
 
 #endif

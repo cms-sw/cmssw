@@ -4,6 +4,7 @@
 <use name="DataFormats/RPCDigi"/>
 <use name="DataFormats/L1DTTrackFinder"/>
 <use name="DataFormats/L1TMuon"/>
+<use name="DataFormats/L1CaloTrigger"/>
 <use name="EventFilter/RPCRawToDigi"/>
 <use name="boost_regex"/>
 <export>

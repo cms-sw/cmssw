@@ -38,7 +38,7 @@
 #include "G4VProcess.hh"
 
 #include "G4PhysicalConstants.hh"
-#include "G4SystemOfUnits.hh"
+#include <CLHEP/Units/SystemOfUnits.h>
 
 //#define EDM_ML_DEBUG
 //
@@ -183,7 +183,7 @@ void TotemSD::getStepInfo(const G4Step* aStep) {
   G4String particleType = theTrack->GetDefinition()->GetParticleName();
   edeposit = aStep->GetTotalEnergyDeposit();
 
-  tSlice = (postStepPoint->GetGlobalTime()) / nanosecond;
+  tSlice = (postStepPoint->GetGlobalTime()) / CLHEP::nanosecond;
   tSliceID = (int)tSlice;
   unitID = setDetUnitId(aStep);
 #ifdef EDM_ML_DEBUG

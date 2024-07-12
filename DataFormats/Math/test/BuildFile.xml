@@ -35,10 +35,13 @@
 
 <release name="!.*ICC_X.*">
   <bin file="ExtVec_t.cpp" name="DataFormatsExtVec_t">
+  <use name="ofast-flag"/>
 </bin>
-
 </release>
+
+
 <bin file="SSEVec_t.cpp" name="DataFormatsSSEVec_t">
+  <use name="ofast-flag"/> 
 </bin>
 
 <bin file="crossV4_t.cpp" name="DataFormatscrossV4_t">

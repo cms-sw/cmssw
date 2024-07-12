@@ -27,7 +27,7 @@ namespace {
   public:
     HcalGainContainer(std::shared_ptr<HcalGains> payload, unsigned int run)
         : HcalObjRepresent::HcalDataContainer<HcalGains, HcalGain>(payload, run) {}
-    float getValue(HcalGain* gain) override {
+    float getValue(const HcalGain* gain) override {
       return gain->getValue(0) + gain->getValue(1) + gain->getValue(2) + gain->getValue(3);
     }
   };

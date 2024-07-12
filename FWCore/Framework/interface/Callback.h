@@ -56,7 +56,7 @@ namespace edm {
                          EventSetupRecordImpl const* iRecord,
                          EventSetupImpl const* iEventSetupImpl,
                          ServiceToken const& token,
-                         ESParentContext const& iParent) {
+                         ESParentContext const& iParent) noexcept {
         return Base::prefetchAsyncImpl(
             [this](auto&& group, auto&& token, auto&& record, auto&& es) {
               constexpr bool emitPostPrefetchingSignal = true;

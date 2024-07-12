@@ -75,6 +75,7 @@ boost::dynamic_bitset<> OMTFinput::getRefHits(unsigned int iProcessor) const {
     int iPhi = getPhiHw(refHitLogicLayer, iRefHitDef.iInput);
     if (iPhi < (int)myOmtfConfig->nPhiBins()) {
       //TODO use a constant defined somewhere instead of 6
+      //6 applies the quality cut also for the MB3, which has not much sense, because for MB3 there is no extrapolation, but it does not matter much
       if (refHitLogicLayer >= 6 ||
           getMuonStub(refHitLogicLayer, iRefHitDef.iInput)->qualityHw >= myOmtfConfig->getDtRefHitMinQuality())
         refHits.set(iRefHit, iRefHitDef.fitsRange(iPhi));

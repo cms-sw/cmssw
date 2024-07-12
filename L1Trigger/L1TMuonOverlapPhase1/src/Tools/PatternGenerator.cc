@@ -132,6 +132,9 @@ void PatternGenerator::updateStat() {
     throw runtime_error("algoMuon is null");
   }
 
+  simMuEta->Fill(simMuon->momentum().eta());
+  candEta->Fill(omtfConfig->hwEtaToEta(regionalMuonCand.hwEta()));
+
   double ptSim = simMuon->momentum().pt();
   int chargeSim = (abs(simMuon->type()) == 13) ? simMuon->type() / -13 : 0;
 
@@ -217,6 +220,8 @@ void PatternGenerator::updateStatUsingMatcher2() {
       double muDxy = (-1 * matchingResult.simVertex->position().x() * matchingResult.simTrack->momentum().py() +
                       matchingResult.simVertex->position().y() * matchingResult.simTrack->momentum().px()) /
                      matchingResult.simTrack->momentum().pt();
+
+      simMuEta->Fill(matchingResult.simTrack->momentum().eta());
 
       simMuPtVsDispl->Fill(matchingResult.simTrack->momentum().pt(), muDxy);
       simMuPtVsRho->Fill(matchingResult.simTrack->momentum().pt(), matchingResult.simVertex->position().rho());
@@ -446,7 +451,8 @@ void PatternGenerator::upadatePdfs() {
         //watch out - the pt here is the hardware pt before the recalibration
         //the shift for given pattern and layer should be the same same for all refLayers
         //otherwise the firmware does not compile - at least the phase-1
-        if ((gp->key().thePt <= 10) &&
+        //for phase2
+        /*if ((gp->key().thePt <= 10) &&
             (iLayer == 1 || iLayer == 3 || iLayer == 5)) {  //iRefLayer: MB2, iLayer: MB1 and MB2 phiB
           gp->setDistPhiBitShift(2, iLayer, iRefLayer);
         } else if ((gp->key().thePt <= 10) && (iLayer == 10)) {  //iRefLayer: MB2, iLayer: RB1_in
@@ -459,6 +465,26 @@ void PatternGenerator::upadatePdfs() {
           //due to grouping the patterns 4-7, the pdfs for the layer 1 in the pattern go outside of the range
           //so the shift must be increased (or the group should be divided into to 2 groups, but it will increase fw occupancy
           gp->setDistPhiBitShift(1, iLayer, iRefLayer);
+        } else
+          gp->setDistPhiBitShift(0, iLayer, iRefLayer);*/
+
+        //for phase1
+        if ((gp->key().thePt <= 8) &&
+            (iLayer == 1 || iLayer == 3 || iLayer == 5)) {  //iRefLayer: MB2, iLayer: MB1 and MB2 phiB
+          gp->setDistPhiBitShift(2, iLayer, iRefLayer);
+        } else if ((gp->key().thePt <= 10) && (iLayer == 10)) {  //iRefLayer: MB2, iLayer: RB1_in
+          gp->setDistPhiBitShift(1, iLayer, iRefLayer);
+        } else if ((gp->key().thePt <= 10) &&
+                   (iLayer == 1 || iLayer == 3 || iLayer == 5)) {  //iRefLayer: MB2, iLayer: MB1 and MB2 phiB
+          gp->setDistPhiBitShift(1, iLayer, iRefLayer);
+        } else if ((gp->key().thePt <= 17) && (iLayer == 1)) {  //MB1 phiB
+          //due to grouping the patterns 4-7, the pdfs for the layer 1 in the pattern go outside of the range
+          //so the shift must be increased (or the group should be divided into to 2 groups, but it will increase fw occupancy
+          gp->setDistPhiBitShift(1, iLayer, iRefLayer);
+        } else if ((gp->key().thePt >= 11 && gp->key().thePt <= 17) && (iLayer == 3 || iLayer == 5)) {  //MB1 phiB
+          //due to grouping the patterns 4-7, the pdfs for the layer 1 in the pattern go outside of the range
+          //so the shift must be increased (or the group should be divided into to 2 groups, but it will increase fw occupancy
+          gp->setDistPhiBitShift(0, iLayer, iRefLayer);
         } else
           gp->setDistPhiBitShift(0, iLayer, iRefLayer);
       }
@@ -542,19 +568,20 @@ void PatternGenerator::upadatePdfs() {
             //then higher value of shift can be avoided (sometimes). So this is just a simple trick
             meanDistPhi /= norm;
 
-            //setting the meanDistPhi to 0 if it is already small - this should save logic in FPGA
+            /*
+            //setting the meanDistPhi to 0 if it is already small - this should save logic in FPGA - but seems it does not
             if (iLayer == 2) {
               //the meanDistPhi for the iLayer == 2 i.e. MB2 is used to calculate the algoMuon output phi
               //therefore it is not zero-ed, as it will affect this output phi, phi and thus e.g. ghostbusting
             } else if (abs(round(meanDistPhi)) <= 3)
               meanDistPhi = 0;
             else if (goldenPatterns.at(patternGroups[iGroup][0]).get()->key().thePt >= 13) {
-              //RPC layers, one strip is 4.7 units, the minimal possinle spacing between two RPC hits is 2 strips
+              //RPC layers, one strip is 4.7 units, the minimal possible spacing between two RPC hits is 2 strips
               if (iLayer >= 10 && abs(round(meanDistPhi)) <= 8)
                 meanDistPhi = 0;
               else if (abs(round(meanDistPhi)) <= 5)
                 meanDistPhi = 0;
-            }
+            } */
 
             for (unsigned int i = 0; i < patternGroups[iGroup].size(); i++) {
               auto gp = goldenPatterns.at(patternGroups[iGroup][i]).get();
@@ -693,7 +720,7 @@ void PatternGenerator::modifyClassProb(double step) {
         int digitisedVal = rint(pdfMaxVal - log(classProb) / minPlog * pdfMaxVal);
 
         int newPdfVal = digitisedVal;  //gp->getPdf()[refLayerLogicNumber][iRefLayer][iPdf]
-
+        //watch out - the pt here is before re-calibration
         if (ptFrom == 0)
           newPdfVal += 15;
         if (ptFrom == 3.5)
@@ -708,6 +735,13 @@ void PatternGenerator::modifyClassProb(double step) {
           newPdfVal += 4;
         if (ptFrom == 7)
           newPdfVal += 2;
+
+        //if (ptFrom == 20) //pattern Key_13
+        //  newPdfVal += 1;
+        if (ptFrom >= 22 && ptFrom <= 26)
+          newPdfVal += 2;
+        if (ptFrom == 28)  //pattern Key_17
+          newPdfVal += 1;
 
         if (ptFrom == 100)
           newPdfVal = 16;

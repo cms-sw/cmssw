@@ -226,9 +226,9 @@ std::string TTStub<T>::print(unsigned int i) const {
   std::stringstream output;
   output << padding << "TTStub:\n";
   padding += '\t';
-  output << padding << "DetId: " << theDetId.rawId() << ", position: " << this->InnerClusterPosition();
-  output << ", bend: " << this->BendFE() << '\n';
-  output << ", hardware bend: " << this->BendBE() << '\n';
+  output << padding << "DetId: " << theDetId.rawId() << ", position: " << this->innerClusterPosition();
+  output << ", bend: " << this->bendFE() << '\n';
+  output << ", hardware bend: " << this->bendBE() << '\n';
   output << padding << "cluster 0: address: " << theClusterRef0.get();
   output << ", cluster size: " << theClusterRef0->getHits().size() << '\n';
   output << padding << "cluster 1: address: " << theClusterRef1.get();

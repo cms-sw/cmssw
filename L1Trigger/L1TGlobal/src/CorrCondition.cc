@@ -577,6 +577,10 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
             type = l1t::EtSum::EtSumType::kMissingEtHF;
             lutObj0 = "ETMHF";
             break;
+          case gtHTMHF:
+            type = l1t::EtSum::EtSumType::kMissingHtHF;
+            lutObj0 = "HTMHF";
+            break;
           case gtMinBiasHFP0:
           case gtMinBiasHFM0:
           case gtMinBiasHFP1:
@@ -643,6 +647,20 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
               }
 
               binEdges = m_gtScales->getETMHFScales().etBins.at(etBin0);
+              et0Phy = 0.5 * (binEdges.second + binEdges.first);
+            } else if (cndObjTypeVec[0] == gtHTMHF) {
+              std::pair<double, double> binEdges = m_gtScales->getHTMHFScales().phiBins.at(phiIndex0);
+              phi0Phy = 0.5 * (binEdges.second + binEdges.first);
+              eta0Phy = 0.;  //No Eta for Energy Sums
+
+              etBin0 = etIndex0;
+              int ssize = m_gtScales->getHTMHFScales().etBins.size();
+              assert(ssize > 0);
+              if (etBin0 >= ssize) {
+                etBin0 = ssize - 1;
+              }
+
+              binEdges = m_gtScales->getHTMHFScales().etBins.at(etBin0);
               et0Phy = 0.5 * (binEdges.second + binEdges.first);
             }
 
@@ -854,6 +872,10 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
               type = l1t::EtSum::EtSumType::kMissingEtHF;
               lutObj1 = "ETMHF";
               break;
+            case gtHTMHF:
+              type = l1t::EtSum::EtSumType::kMissingHtHF;
+              lutObj1 = "HTMHF";
+              break;
             case gtMinBiasHFP0:
             case gtMinBiasHFM0:
             case gtMinBiasHFP1:
@@ -921,6 +943,20 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
                 }
 
                 binEdges = m_gtScales->getETMHFScales().etBins.at(etBin1);
+                et1Phy = 0.5 * (binEdges.second + binEdges.first);
+              } else if (cndObjTypeVec[1] == gtHTMHF) {
+                std::pair<double, double> binEdges = m_gtScales->getHTMHFScales().phiBins.at(phiIndex1);
+                phi1Phy = 0.5 * (binEdges.second + binEdges.first);
+                eta1Phy = 0.;  //No Eta for Energy Sums
+
+                etBin1 = etIndex1;
+                int ssize = m_gtScales->getHTMHFScales().etBins.size();
+                assert(ssize > 0);
+                if (etBin1 >= ssize) {
+                  etBin1 = ssize - 1;
+                }
+
+                binEdges = m_gtScales->getHTMHFScales().etBins.at(etBin1);
                 et1Phy = 0.5 * (binEdges.second + binEdges.first);
               }
 

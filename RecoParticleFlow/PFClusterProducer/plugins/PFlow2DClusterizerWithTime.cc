@@ -130,25 +130,25 @@ PFlow2DClusterizerWithTime::PFlow2DClusterizerWithTime(const edm::ParameterSet& 
     _recHitEnergyNorms.emplace(_layerMap.find(det)->second, rhE_norm);
   }
 
-  if (conf.exists("allCellsPositionCalc")) {
-    const edm::ParameterSet& acConf = conf.getParameterSet("allCellsPositionCalc");
+  const auto& acConf = conf.getParameterSet("allCellsPositionCalc");
+  if (!acConf.empty()) {
     const std::string& algoac = acConf.getParameter<std::string>("algoName");
-    _allCellsPosCalc = PFCPositionCalculatorFactory::get()->create(algoac, acConf, cc);
+    if (!algoac.empty())
+      _allCellsPosCalc = PFCPositionCalculatorFactory::get()->create(algoac, acConf, cc);
   }
   // if necessary a third pos calc for convergence testing
-  if (conf.exists("positionCalcForConvergence")) {
-    const edm::ParameterSet& convConf = conf.getParameterSet("positionCalcForConvergence");
+  const auto& convConf = conf.getParameterSet("positionCalcForConvergence");
+  if (!convConf.empty()) {
     const std::string& algoconv = convConf.getParameter<std::string>("algoName");
-    _convergencePosCalc = PFCPositionCalculatorFactory::get()->create(algoconv, convConf, cc);
+    if (!algoconv.empty())
+      _convergencePosCalc = PFCPositionCalculatorFactory::get()->create(algoconv, convConf, cc);
   }
-  if (conf.exists("timeResolutionCalcBarrel")) {
-    const edm::ParameterSet& timeResConf = conf.getParameterSet("timeResolutionCalcBarrel");
-    _timeResolutionCalcBarrel = std::make_unique<CaloRecHitResolutionProvider>(timeResConf);
-  }
-  if (conf.exists("timeResolutionCalcEndcap")) {
-    const edm::ParameterSet& timeResConf = conf.getParameterSet("timeResolutionCalcEndcap");
-    _timeResolutionCalcEndcap = std::make_unique<CaloRecHitResolutionProvider>(timeResConf);
-  }
+  const auto& timeResConfBarrel = conf.getParameterSet("timeResolutionCalcBarrel");
+  if (!timeResConfBarrel.empty())
+    _timeResolutionCalcBarrel = std::make_unique<CaloRecHitResolutionProvider>(timeResConfBarrel);
+  const auto& timeResConfEndcap = conf.getParameterSet("timeResolutionCalcEndcap");
+  if (!timeResConfEndcap.empty())
+    _timeResolutionCalcEndcap = std::make_unique<CaloRecHitResolutionProvider>(timeResConfEndcap);
 }
 
 void PFlow2DClusterizerWithTime::buildClusters(const reco::PFClusterCollection& input,

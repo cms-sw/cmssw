@@ -29,7 +29,7 @@ HLTMuonTrkL1TkMuFilter::HLTMuonTrkL1TkMuFilter(const edm::ParameterSet& iConfig)
   m_candsTag = iConfig.getParameter<edm::InputTag>("inputCandCollection");
   m_candsToken = consumes<reco::RecoChargedCandidateCollection>(m_candsTag);
   m_l1GTAlgoBlockTag = iConfig.getParameter<edm::InputTag>("l1GTAlgoBlockTag");
-  m_algoBlockToken = consumes<std::vector<l1t::P2GTAlgoBlock>>(m_l1GTAlgoBlockTag);
+  m_algoBlockToken = consumes<l1t::P2GTAlgoBlockMap>(m_l1GTAlgoBlockTag);
   m_l1GTAlgoNames = iConfig.getParameter<std::vector<std::string>>("l1GTAlgoNames");
   m_minTrkHits = iConfig.getParameter<int>("minTrkHits");
   m_minMuonHits = iConfig.getParameter<int>("minMuonHits");
@@ -76,16 +76,14 @@ bool HLTMuonTrkL1TkMuFilter::hltFilter(edm::Event& iEvent,
   if (m_l1GTAlgoBlockTag == edm::InputTag("") || m_l1GTAlgoNames.empty())
     check_l1match = false;
   if (check_l1match) {
-    const std::vector<l1t::P2GTAlgoBlock>& algos = iEvent.get(m_algoBlockToken);
-    for (const l1t::P2GTAlgoBlock& algo : algos) {
-      for (auto& algoName : m_l1GTAlgoNames) {
-        if (algo.algoName() == algoName && algo.decisionBeforeBxMaskAndPrescale()) {
-          const l1t::P2GTCandidateVectorRef& objects = algo.trigObjects();
-          for (const l1t::P2GTCandidateRef& obj : objects) {
-            if (obj->objectType() == l1t::P2GTCandidate::ObjectType::GMTTkMuons) {
-              vl1cands.push_back(obj);
-              LogDebug("HLTMuonTrkL1TkMuFilter") << "Found P2GTCandidate ObjectType::GMTTkMuons" << std::endl;
-            }
+    const l1t::P2GTAlgoBlockMap& algos = iEvent.get(m_algoBlockToken);
+    for (auto& algoName : m_l1GTAlgoNames) {
+      if (algos.count(algoName) > 0 && algos.at(algoName).decisionBeforeBxMaskAndPrescale()) {
+        const l1t::P2GTCandidateVectorRef& objects = algos.at(algoName).trigObjects();
+        for (const l1t::P2GTCandidateRef& obj : objects) {
+          if (obj->objectType() == l1t::P2GTCandidate::ObjectType::GMTTkMuons) {
+            vl1cands.push_back(obj);
+            LogDebug("HLTMuonTrkL1TkMuFilter") << "Found P2GTCandidate ObjectType::GMTTkMuons" << std::endl;
           }
         }
       }

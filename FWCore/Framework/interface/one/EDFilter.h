@@ -42,10 +42,12 @@ namespace edm {
       //virtual ~EDFilter();
 
       // ---------- const member functions ---------------------
-      bool wantsProcessBlocks() const final { return WantsProcessBlockTransitions<T...>::value; }
-      bool wantsInputProcessBlocks() const final { return WantsInputProcessBlockTransitions<T...>::value; }
-      bool wantsGlobalRuns() const final { return WantsGlobalRunTransitions<T...>::value; }
-      bool wantsGlobalLuminosityBlocks() const final { return WantsGlobalLuminosityBlockTransitions<T...>::value; }
+      bool wantsProcessBlocks() const noexcept final { return WantsProcessBlockTransitions<T...>::value; }
+      bool wantsInputProcessBlocks() const noexcept final { return WantsInputProcessBlockTransitions<T...>::value; }
+      bool wantsGlobalRuns() const noexcept final { return WantsGlobalRunTransitions<T...>::value; }
+      bool wantsGlobalLuminosityBlocks() const noexcept final {
+        return WantsGlobalLuminosityBlockTransitions<T...>::value;
+      }
 
       bool hasAbilityToProduceInBeginProcessBlocks() const final {
         return HasAbilityToProduceInBeginProcessBlocks<T...>::value;

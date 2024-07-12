@@ -78,13 +78,14 @@ namespace trklet {
 
     int partialTrackWordBits_;
 
-    // Helper function to convert floating chi2 to chi2 bin
+    // Helper function to convert floating value to bin
     template <typename T>
     unsigned int digitise(const T& bins, double value, double factor) {
       unsigned int bin = 0;
       for (unsigned int i = 0; i < bins.size() - 1; i++) {
         if (value * factor > bins[i] && value * factor <= bins[i + 1])
-          bin = i;
+          break;
+        bin++;
       }
       return bin;
     }
@@ -200,7 +201,7 @@ namespace trklet {
       StreamsTrack outputStreamsTracks(setup_->numRegions() * setup_->tfpNumChannel());
 
       // Setup containers for track quality
-      float tempTQMVA = 0.0;
+      float tempTQMVAPreSig = 0.0;
       // Due to ap_fixed implementation in CMSSW this 10,5 must be specified at compile time, TODO make this a changeable parameter
       std::vector<ap_fixed<10, 5>> trackQuality_inputs = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
 
@@ -295,10 +296,11 @@ namespace trklet {
               digitise(TTTrack_TrackWord::chi2RZBins, tempchi2rz, (double)setup_->kfoutchi2rzConv())};
 
           // Run BDT emulation and package output into 3 bits
-
-          tempTQMVA = trackQualityModel_->runEmulatedTQ(trackQuality_inputs);
-          tempTQMVA = std::trunc(tempTQMVA * ap_fixed_rescale);
-          TTBV tqMVA(digitise(tqBins_, tempTQMVA, 1.0), TTTrack_TrackWord::TrackBitWidths::kMVAQualitySize, false);
+          // output needs sigmoid transformation applied
+          tempTQMVAPreSig = trackQualityModel_->runEmulatedTQ(trackQuality_inputs);
+          TTBV tqMVA(digitise(L1TrackQuality::getTqMVAPreSigBins(), tempTQMVAPreSig, 1.0),
+                     TTTrack_TrackWord::TrackBitWidths::kMVAQualitySize,
+                     false);
 
           // Build 32 bit partial tracks for outputting in 64 bit packets
           //                  12 +  3       +  7         +  3    +  6

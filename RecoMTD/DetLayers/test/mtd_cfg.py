@@ -16,11 +16,17 @@ process.MessageLogger.cerr.threshold = cms.untracked.string('DEBUG')
 process.MessageLogger.cerr.DEBUG = cms.untracked.PSet(
     limit = cms.untracked.int32(0)
 )
-process.MessageLogger.cerr.MTDLayerDump = cms.untracked.PSet(
+process.MessageLogger.cerr.MTDLayerDumpFull = cms.untracked.PSet(
     limit = cms.untracked.int32(-1)
 )
-process.MessageLogger.cerr.MTDDetLayers = cms.untracked.PSet(
+process.MessageLogger.cerr.MTDDetLayersFull = cms.untracked.PSet(
     limit = cms.untracked.int32(-1)
+)
+process.MessageLogger.cerr.MTDLayerDump = cms.untracked.PSet(
+    limit = cms.untracked.int32(0)
+)
+process.MessageLogger.cerr.MTDDetLayers = cms.untracked.PSet(
+    limit = cms.untracked.int32(0)
 )
 process.MessageLogger.files.mtdDetLayerGeometry = cms.untracked.PSet(
     MTDLayerDump = cms.untracked.PSet(
@@ -48,7 +54,7 @@ process.MessageLogger.files.mtdDetLayerGeometry = cms.untracked.PSet(
     threshold = cms.untracked.string('INFO'))
 
 # Choose Tracker Geometry
-process.load("Configuration.Geometry.GeometryExtended2026D98Reco_cff")
+process.load("Configuration.Geometry.GeometryExtended2026D110Reco_cff")
 process.load("MagneticField.Engine.volumeBasedMagneticField_160812_cfi")
 
 process.Timing = cms.Service("Timing")

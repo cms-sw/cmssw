@@ -214,7 +214,7 @@ namespace edm {
                                              ESResolverIndex iResolverIndex,
                                              EventSetupImpl const* iEventSetupImpl,
                                              ServiceToken const& iToken,
-                                             ESParentContext iParent) const {
+                                             ESParentContext iParent) const noexcept {
       if UNLIKELY (iResolverIndex.value() == std::numeric_limits<int>::max()) {
         return;
       }

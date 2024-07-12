@@ -1,3 +1,4 @@
+#include "DataFormats/L1Scouting/interface/L1ScoutingBMTFStub.h"
 #include "DataFormats/L1Scouting/interface/L1ScoutingMuon.h"
 #include "DataFormats/L1Scouting/interface/L1ScoutingCalo.h"
 #include "DataFormats/L1Scouting/interface/OrbitCollection.h"
@@ -31,6 +32,7 @@ namespace edmtest {
     void analyzeEGammas(edm::Event const& iEvent) const;
     void analyzeTaus(edm::Event const& iEvent) const;
     void analyzeBxSums(edm::Event const& iEvent) const;
+    void analyzeBmtfStubs(edm::Event const& iEvent) const;
 
     void throwWithMessageFromConstructor(const char*) const;
     void throwWithMessage(const char*) const;
@@ -51,6 +53,10 @@ namespace edmtest {
 
     const std::vector<int> expectedBxSumsValues_;
     const edm::EDGetTokenT<OrbitCollection<l1ScoutingRun3::BxSums>> bxSumsToken_;
+
+    const int bmtfStubClassVersion_;
+    const std::vector<int> expectedBmtfStubValues_;
+    const edm::EDGetTokenT<OrbitCollection<l1ScoutingRun3::BMTFStub>> bmtfStubToken_;
   };
 
   TestReadL1Scouting::TestReadL1Scouting(edm::ParameterSet const& iPSet)
@@ -64,7 +70,10 @@ namespace edmtest {
         expectedTauValues_(iPSet.getParameter<std::vector<int>>("expectedTauValues")),
         tausToken_(consumes(iPSet.getParameter<edm::InputTag>("tausTag"))),
         expectedBxSumsValues_(iPSet.getParameter<std::vector<int>>("expectedBxSumsValues")),
-        bxSumsToken_(consumes(iPSet.getParameter<edm::InputTag>("bxSumsTag"))) {
+        bxSumsToken_(consumes(iPSet.getParameter<edm::InputTag>("bxSumsTag"))),
+        bmtfStubClassVersion_(iPSet.getParameter<int>("bmtfStubClassVersion")),
+        expectedBmtfStubValues_(iPSet.getParameter<std::vector<int>>("expectedBmtfStubValues")),
+        bmtfStubToken_(consumes(iPSet.getParameter<edm::InputTag>("bmtfStubTag"))) {
     if (bxValues_.size() != 2) {
       throwWithMessageFromConstructor("bxValues must have 2 elements and it does not");
     }
@@ -83,6 +92,9 @@ namespace edmtest {
     if (expectedBxSumsValues_.size() != 1) {
       throwWithMessageFromConstructor("bxSumsValues_ must have 1 elements and it does not");
     }
+    if (expectedBmtfStubValues_.size() != 2) {
+      throwWithMessageFromConstructor("bmtfStubValues_ must have 2 elements and it does not");
+    }
   }
 
   void TestReadL1Scouting::analyze(edm::StreamID, edm::Event const& iEvent, edm::EventSetup const&) const {
@@ -91,6 +103,7 @@ namespace edmtest {
     analyzeEGammas(iEvent);
     analyzeTaus(iEvent);
     analyzeBxSums(iEvent);
+    analyzeBmtfStubs(iEvent);
   }
 
   void TestReadL1Scouting::analyzeMuons(edm::Event const& iEvent) const {
@@ -303,6 +316,51 @@ namespace edmtest {
     }
   }
 
+  void TestReadL1Scouting::analyzeBmtfStubs(edm::Event const& iEvent) const {
+    if (bmtfStubClassVersion_ < 3) {
+      return;
+    }
+    auto const& stubsCollection = iEvent.get(bmtfStubToken_);
+
+    for (const unsigned& bx : bxValues_) {
+      unsigned nStubs = stubsCollection.getBxSize(bx);
+      if (nStubs != expectedBmtfStubValues_.size()) {
+        throwWithMessage("analyzeBmtfStubs, stubs do not have the expected bx size");
+      }
+
+      const auto& stubs = stubsCollection.bxIterator(bx);
+      for (unsigned i = 0; i < nStubs; i++) {
+        if (stubs[i].hwPhi() != (expectedBmtfStubValues_[i] + 8)) {
+          throwWithMessage("analyzeBmtfStubs, hwPhi does not match the expected value");
+        }
+        if (stubs[i].hwPhiB() != (expectedBmtfStubValues_[i] + 7)) {
+          throwWithMessage("analyzeBmtfStubs, hwPhiB does not match the expected value");
+        }
+        if (stubs[i].hwQual() != (expectedBmtfStubValues_[i] + 6)) {
+          throwWithMessage("analyzeBmtfStubs, hwQual does not match the expected value");
+        }
+        if (stubs[i].hwEta() != (expectedBmtfStubValues_[i] + 5)) {
+          throwWithMessage("analyzeBmtfStubs, hwEta does not match the expected value");
+        }
+        if (stubs[i].hwQEta() != (expectedBmtfStubValues_[i] + 4)) {
+          throwWithMessage("analyzeBmtfStubs, hwQEta does not match the expected value");
+        }
+        if (stubs[i].station() != (expectedBmtfStubValues_[i] + 3)) {
+          throwWithMessage("analyzeBmtfStubs, station does not match the expected value");
+        }
+        if (stubs[i].wheel() != (expectedBmtfStubValues_[i] + 2)) {
+          throwWithMessage("analyzeBmtfStubs, wheel does not match the expected value");
+        }
+        if (stubs[i].sector() != (expectedBmtfStubValues_[i] + 1)) {
+          throwWithMessage("analyzeBmtfStubs, sector does not match the expected value");
+        }
+        if (stubs[i].tag() != (expectedBmtfStubValues_[i])) {
+          throwWithMessage("analyzeBmtfStubs, tag does not match the expected value");
+        }
+      }
+    }
+  }
+
   void TestReadL1Scouting::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
     desc.add<std::vector<unsigned int>>("bxValues");
@@ -316,6 +374,10 @@ namespace edmtest {
     desc.add<edm::InputTag>("tausTag");
     desc.add<std::vector<int>>("expectedBxSumsValues");
     desc.add<edm::InputTag>("bxSumsTag");
+    desc.add<int>("bmtfStubClassVersion");
+    desc.add<std::vector<int>>("expectedBmtfStubValues");
+    desc.add<edm::InputTag>("bmtfStubTag");
+
     descriptions.addDefault(desc);
   }
 

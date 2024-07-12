@@ -67,6 +67,9 @@ namespace edm {
   typedef std::vector<StreamedProduct> SendProds;
 
   // ------------------------------------------
+  // Contains either Event data or meta data about an Event. The header of the
+  // message contains which way an instance of this class is to be interpreted
+  // via the use of EventMsgView::isEventMetaData()
 
   class SendEvent {
   public:
@@ -74,17 +77,29 @@ namespace edm {
     SendEvent(EventAuxiliary const& aux,
               ProcessHistory const& processHistory,
               EventSelectionIDVector const& eventSelectionIDs,
-              BranchListIndexes const& branchListIndexes)
+              BranchListIndexes const& branchListIndexes,
+              BranchIDLists const& branchIDLists,
+              ThinnedAssociationsHelper const& thinnedAssociationsHelper,
+              uint32_t metaDataChecksum)
         : aux_(aux),
           processHistory_(processHistory),
           eventSelectionIDs_(eventSelectionIDs),
           branchListIndexes_(branchListIndexes),
-          products_() {}
+          branchIDLists_(branchIDLists),
+          thinnedAssociationsHelper_(thinnedAssociationsHelper),
+          products_(),
+          metaDataChecksum_(metaDataChecksum) {}
     EventAuxiliary const& aux() const { return aux_; }
     SendProds const& products() const { return products_; }
     ProcessHistory const& processHistory() const { return processHistory_; }
     EventSelectionIDVector const& eventSelectionIDs() const { return eventSelectionIDs_; }
     BranchListIndexes const& branchListIndexes() const { return branchListIndexes_; }
+    //This will only hold values for EventMetaData messages
+    BranchIDLists const& branchIDLists() const { return branchIDLists_; }
+    //This will only hold values for EventMetaData messages
+    ThinnedAssociationsHelper const& thinnedAssociationsHelper() const { return thinnedAssociationsHelper_; }
+    //This is the adler32 checksum of the EventMetaData associated with this Event
+    uint32_t metaDataChecksum() const { return metaDataChecksum_; }
     SendProds& products() { return products_; }
 
   private:
@@ -92,7 +107,10 @@ namespace edm {
     ProcessHistory processHistory_;
     EventSelectionIDVector eventSelectionIDs_;
     BranchListIndexes branchListIndexes_;
+    BranchIDLists branchIDLists_;
+    ThinnedAssociationsHelper thinnedAssociationsHelper_;
     SendProds products_;
+    uint32_t metaDataChecksum_;
 
     // other tables necessary for provenance lookup
   };
@@ -105,21 +123,13 @@ namespace edm {
     SendJobHeader() {}
     SendDescs const& descs() const { return descs_; }
     ParameterSetMap const& processParameterSet() const { return processParameterSet_; }
-    BranchIDLists const& branchIDLists() const { return branchIDLists_; }
-    ThinnedAssociationsHelper const& thinnedAssociationsHelper() const { return thinnedAssociationsHelper_; }
     void push_back(BranchDescription const& bd) { descs_.push_back(bd); }
     void setParameterSetMap(ParameterSetMap const& psetMap) { processParameterSet_ = psetMap; }
-    void setBranchIDLists(BranchIDLists const& bidlists) { branchIDLists_ = bidlists; }
-    void setThinnedAssociationsHelper(ThinnedAssociationsHelper const& v) { thinnedAssociationsHelper_ = v; }
     void initializeTransients();
 
   private:
     SendDescs descs_;
     ParameterSetMap processParameterSet_;
-    BranchIDLists branchIDLists_;
-    ThinnedAssociationsHelper thinnedAssociationsHelper_;
-    // trigger bit descriptions will be added here and permanent
-    //  provenance values
   };
 
 }  // namespace edm

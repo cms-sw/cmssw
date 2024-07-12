@@ -118,11 +118,92 @@ namespace edm {
     }
   }
 
-  void ParameterDescriptionBase::writeCfi_(
-      std::ostream& os, bool optional, bool& startWithComma, int indentation, bool& wroteSomething) const {
+  void ParameterDescriptionBase::writeCfi_(std::ostream& os,
+                                           bool optional,
+                                           bool& startWithComma,
+                                           int indentation,
+                                           CfiOptions& options,
+                                           bool& wroteSomething) const {
     if (label().empty() or label()[0] == '@') {
       return;
     }
+
+    auto check = cfi::needToSwitchToTyped(label(), options);
+    if (check.first) {
+      CfiOptions fullOp = cfi::Typed{};
+      writeFullCfi(os, optional, startWithComma, indentation, fullOp, wroteSomething);
+    } else if (shouldWriteUntyped(options)) {
+      writeLabelValueCfi(os, optional, startWithComma, indentation, options, wroteSomething);
+    } else {
+      writeFullCfi(os, optional, startWithComma, indentation, options, wroteSomething);
+    }
+  }
+
+  void ParameterDescriptionBase::writeLabelValueCfi(std::ostream& os,
+                                                    bool optional,
+                                                    bool& startWithComma,
+                                                    int indentation,
+                                                    CfiOptions& options,
+                                                    bool& wroteSomething) const {
+    constexpr std::string_view k_endList = "]";
+    constexpr std::string_view k_endParenthesis = ")";
+    constexpr std::string_view k_endBasicType = "";
+    if (not hasDefault()) {
+      return;
+    }
+    wroteSomething = true;
+    if (startWithComma)
+      os << ",";
+    startWithComma = true;
+    os << "\n";
+    printSpaces(os, indentation);
+
+    os << label() << " = ";
+    std::string_view endDelimiter = k_endBasicType;
+    switch (type()) {
+      case k_vdouble:
+      case k_vint32:
+      case k_vint64:
+      case k_vstringRaw:
+      case k_vuint32:
+      case k_vuint64:
+      case k_VESInputTag:
+      case k_VEventID:
+      case k_VEventRange:
+      case k_VInputTag:
+      case k_VLuminosityBlockID:
+      case k_VLuminosityBlockRange:
+      case k_VPSet:
+        os << "[";
+        endDelimiter = k_endList;
+        break;
+      case k_PSet:
+        os << "dict(";
+        endDelimiter = k_endParenthesis;
+        break;
+      case k_EventID:
+      case k_EventRange:
+      case k_ESInputTag:
+      case k_InputTag:
+      case k_LuminosityBlockID:
+      case k_LuminosityBlockRange:
+        os << "(";
+        endDelimiter = k_endParenthesis;
+        break;
+      default:
+        break;
+    }
+    writeCfi_(os, indentation, options);
+    os << endDelimiter;
+    return;
+  }
+
+  void ParameterDescriptionBase::writeFullCfi(std::ostream& os,
+                                              bool optional,
+                                              bool& startWithComma,
+                                              int indentation,
+                                              CfiOptions& options,
+                                              bool& wroteSomething) const {
     wroteSomething = true;
     if (startWithComma)
       os << ",";
@@ -146,11 +227,10 @@ namespace edm {
       if (!isTracked())
         os << "untracked.";
       os << parameterTypeEnumToString(type()) << "(";
-      writeCfi_(os, indentation);
+      writeCfi_(os, indentation, options);
       os << ")";
     }
   }
-
   void ParameterDescriptionBase::print_(std::ostream& os, bool optional, bool writeToCfi, DocFormatHelper& dfh) const {
     if (dfh.pass() == 0) {
       dfh.setAtLeast1(label().size());

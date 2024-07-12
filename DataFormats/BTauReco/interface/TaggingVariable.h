@@ -172,20 +172,20 @@ namespace reco {
   extern const char* const TaggingVariableDescription[];
   extern const char* const TaggingVariableTokens[];
 
-  TaggingVariableName getTaggingVariableName(const std::string& name);
+  btau::TaggingVariableName getTaggingVariableName(const std::string& name);
 
   typedef float TaggingValue;
 
   // cannot use a const member since the STL containers relie on the default assignment operator
   // typedef std::pair< const TaggingVariableName, TaggingValue > TaggingVariable;
-  typedef std::pair<TaggingVariableName, TaggingValue> TaggingVariable;
+  typedef std::pair<btau::TaggingVariableName, TaggingValue> TaggingVariable;
 
   struct TaggingVariableCompare {
     bool operator()(const TaggingVariable& i, const TaggingVariable& j) { return i.first < j.first; }
 
-    bool operator()(const TaggingVariable& i, TaggingVariableName tag) { return i.first < tag; }
+    bool operator()(const TaggingVariable& i, btau::TaggingVariableName tag) { return i.first < tag; }
 
-    bool operator()(TaggingVariableName tag, const TaggingVariable& i) { return tag < i.first; }
+    bool operator()(btau::TaggingVariableName tag, const TaggingVariable& i) { return tag < i.first; }
   };
 
   // implementation via std::vector where
@@ -222,22 +222,22 @@ namespace reco {
     std::vector<TaggingVariable> m_list;
 
   public:
-    bool checkTag(TaggingVariableName tag) const;
+    bool checkTag(btau::TaggingVariableName tag) const;
 
     void insert(const TaggingVariable& variable, bool delayed = false);
     void insert(const TaggingVariableList& list);
-    void insert(TaggingVariableName tag, TaggingValue value, bool delayed = false);
-    void insert(TaggingVariableName tag, const std::vector<TaggingValue>& values, bool delayed = false);
+    void insert(btau::TaggingVariableName tag, TaggingValue value, bool delayed = false);
+    void insert(btau::TaggingVariableName tag, const std::vector<TaggingValue>& values, bool delayed = false);
 
     void finalize(void);
 
-    TaggingValue get(TaggingVariableName tag) const;
-    TaggingValue get(TaggingVariableName tag, TaggingValue defaultValue) const;
-    std::vector<TaggingValue> getList(TaggingVariableName tag, bool throwOnEmptyList = true) const;
+    TaggingValue get(btau::TaggingVariableName tag) const;
+    TaggingValue get(btau::TaggingVariableName tag, TaggingValue defaultValue) const;
+    std::vector<TaggingValue> getList(btau::TaggingVariableName tag, bool throwOnEmptyList = true) const;
 
-    range getRange(TaggingVariableName tag) const;
+    range getRange(btau::TaggingVariableName tag) const;
 
-    TaggingValue operator[](TaggingVariableName tag) const { return get(tag); }
+    TaggingValue operator[](btau::TaggingVariableName tag) const { return get(tag); }
   };
 
   DECLARE_EDM_REFS(TaggingVariableList)

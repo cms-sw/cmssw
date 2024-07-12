@@ -25,6 +25,12 @@
 #include <vector>
 #include <limits>
 
+#define DEBUG_CLUSTERS_ALPAKA 0
+
+#if DEBUG_CLUSTERS_ALPAKA
+#include "RecoLocalCalo/HGCalRecProducers/interface/DumpClustersDetails.h"
+#endif
+
 template <typename TILE, typename STRATEGY>
 class HGCalCLUEAlgoT : public HGCalClusteringAlgoBase {
 public:
@@ -48,7 +54,11 @@ public:
         thresholdW0_(ps.getParameter<std::vector<double>>("thresholdW0")),
         positionDeltaRho2_(ps.getParameter<double>("positionDeltaRho2")),
         use2x2_(ps.getParameter<bool>("use2x2")),
-        initialized_(false) {}
+        initialized_(false) {
+#if DEBUG_CLUSTERS_ALPAKA
+    moduleType_ = ps.getParameter<std::string>("type");
+#endif
+  }
 
   ~HGCalCLUEAlgoT() override {}
 
@@ -197,6 +207,17 @@ private:
   std::vector<CellsOnLayer> cells_;
 
   std::vector<int> numberOfClustersPerLayer_;
+
+#if DEBUG_CLUSTERS_ALPAKA
+  std::string moduleType_;
+#endif
+
+  inline float distance2(const TILE& lt, int cell1, int cell2, int layerId) const {  // 2-d distance on the layer (x-y)
+    return (lt.distance2(cells_[layerId].dim1[cell1],
+                         cells_[layerId].dim2[cell1],
+                         cells_[layerId].dim1[cell2],
+                         cells_[layerId].dim2[cell2]));
+  }
 
   inline float distance(const TILE& lt, int cell1, int cell2, int layerId) const {  // 2-d distance on the layer (x-y)
     return std::sqrt(lt.distance2(cells_[layerId].dim1[cell1],

@@ -4,7 +4,7 @@
 #include "SimG4Core/CustomPhysics/interface/CMSSIMP.h"
 
 #include "G4Types.hh"
-#include "G4SystemOfUnits.hh"
+#include <CLHEP/Units/SystemOfUnits.h>
 #include "G4HadProjectile.hh"
 #include "G4ElementVector.hh"
 #include "G4Track.hh"

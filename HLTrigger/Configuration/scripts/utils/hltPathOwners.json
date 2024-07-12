@@ -202,6 +202,13 @@
       "TSG (DQM)"
     ]
   },
+  "DST_PFScouting_AXOLoose_v": {
+    "online?": true,
+    "owners": [
+      "EXO",
+      "TSG (Scouting)"
+    ]
+  },
   "DST_PFScouting_AXONominal_v": {
     "online?": true,
     "owners": [
@@ -210,6 +217,20 @@
     ]
   },
   "DST_PFScouting_AXOTight_v": {
+    "online?": true,
+    "owners": [
+      "EXO",
+      "TSG (Scouting)"
+    ]
+  },
+  "DST_PFScouting_AXOVLoose_v": {
+    "online?": true,
+    "owners": [
+      "EXO",
+      "TSG (Scouting)"
+    ]
+  },
+  "DST_PFScouting_AXOVTight_v": {
     "online?": true,
     "owners": [
       "EXO",
@@ -248,6 +269,23 @@
     "online?": true,
     "owners": [
       "BPH",
+      "TSG (Scouting)"
+    ]
+  },
+  "DST_PFScouting_SinglePhotonEB_v": {
+    "online?": true,
+    "owners": [
+      "EGM",
+      "EXO",
+      "SMP",
+      "TSG (Scouting)"
+    ]
+  },
+  "DST_PFScouting_ZeroBias_v": {
+    "online?": true,
+    "owners": [
+      "BPH",
+      "EXO",
       "TSG (Scouting)"
     ]
   },
@@ -1324,6 +1362,18 @@
     "owners": [
       "HIG",
       "SUS"
+    ]
+  },
+  "HLT_DiphotonMVA14p25_Mass90_v": {
+    "online?": true,
+    "owners": [
+      "HIG"
+    ]
+  },
+  "HLT_DiphotonMVA14p25_Tight_Mass90_v": {
+    "online?": true,
+    "owners": [
+      "HIG"
     ]
   },
   "HLT_DisplacedMu24_MediumChargedIsoDisplacedPFTauHPS24_v": {
@@ -4590,6 +4640,36 @@
       "BPH"
     ]
   },
+  "HLT_Mu0_Barrel_L1HP6_IP6_v": {
+    "online?": true,
+    "owners": [
+      "BPH"
+    ]
+  },
+  "HLT_Mu0_Barrel_L1HP6_v": {
+    "online?": true,
+    "owners": [
+      "BPH"
+    ]
+  },
+  "HLT_Mu0_Barrel_L1HP7_v": {
+    "online?": true,
+    "owners": [
+      "BPH"
+    ]
+  },
+  "HLT_Mu0_Barrel_L1HP8_v": {
+    "online?": true,
+    "owners": [
+      "BPH"
+    ]
+  },
+  "HLT_Mu0_Barrel_L1HP9_v": {
+    "online?": true,
+    "owners": [
+      "BPH"
+    ]
+  },
   "HLT_Mu0_Barrel_v": {
     "online?": true,
     "owners": [
@@ -5079,6 +5159,18 @@
       "EXO"
     ]
   },
+  "HLT_Mu6_Barrel_L1HP7_IP6_v": {
+    "online?": true,
+    "owners": [
+      "BPH"
+    ]
+  },
+  "HLT_Mu7_Barrel_L1HP8_IP6_v": {
+    "online?": true,
+    "owners": [
+      "BPH"
+    ]
+  },
   "HLT_Mu7p5_L2Mu2_Jpsi_v": {
     "online?": true,
     "owners": [
@@ -5086,6 +5178,12 @@
     ]
   },
   "HLT_Mu7p5_L2Mu2_Upsilon_v": {
+    "online?": true,
+    "owners": [
+      "BPH"
+    ]
+  },
+  "HLT_Mu8_Barrel_L1HP9_IP6_v": {
     "online?": true,
     "owners": [
       "BPH"
@@ -5324,6 +5422,20 @@
     "online?": true,
     "owners": [
       "HIG"
+    ]
+  },
+  "HLT_PFHT330PT30_QuadPFJet_75_60_45_40_PNet3BTag_2p0_v": {
+    "online?": true,
+    "owners": [
+      "BTV",
+      "EXO"
+    ]
+  },
+  "HLT_PFHT330PT30_QuadPFJet_75_60_45_40_PNet3BTag_4p3_v": {
+    "online?": true,
+    "owners": [
+      "BTV",
+      "EXO"
     ]
   },
   "HLT_PFHT330PT30_QuadPFJet_75_60_45_40_TriplePFBTagDeepJet_4p5_v": {
@@ -6240,6 +6352,38 @@
       "HIG"
     ]
   },
+  "HLT_Photon40EB_TightID_TightIso_v": {
+    "online?": true,
+    "owners": [
+      "EGM",
+      "EXO",
+      "HIG"
+    ]
+  },
+  "HLT_Photon40EB_v": {
+    "online?": true,
+    "owners": [
+      "EGM",
+      "EXO",
+      "HIG"
+    ]
+  },
+  "HLT_Photon45EB_TightID_TightIso_v": {
+    "online?": true,
+    "owners": [
+      "EGM",
+      "EXO",
+      "HIG"
+    ]
+  },
+  "HLT_Photon45EB_v": {
+    "online?": true,
+    "owners": [
+      "EGM",
+      "EXO",
+      "HIG"
+    ]
+  },
   "HLT_Photon50EB_TightID_TightIso_AK8CaloJet30_v": {
     "online?": true,
     "owners": [
@@ -7046,7 +7190,7 @@
     ]
   },
   "MC_PFScouting_v": {
-    "online?": true,
+    "online?": false,
     "owners": [
       "BPH",
       "EXO",

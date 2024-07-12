@@ -18,6 +18,7 @@
 #include <cctype>
 
 namespace dqmservices {
+  using namespace edm::streamer;
 
   DQMStreamerReader::DQMStreamerReader(edm::ParameterSet const& pset, edm::InputSourceDescription const& desc)
       : StreamerInputSource(pset, desc),
@@ -26,7 +27,8 @@ namespace dqmservices {
         flagSkipFirstLumis_(pset.getUntrackedParameter<bool>("skipFirstLumis")),
         flagEndOfRunKills_(pset.getUntrackedParameter<bool>("endOfRunKills")),
         flagDeleteDatFiles_(pset.getUntrackedParameter<bool>("deleteDatFiles")),
-        hltSel_(pset.getUntrackedParameter<std::vector<std::string>>("SelectEvents")) {
+        hltSel_(pset.getUntrackedParameter<std::vector<std::string>>("SelectEvents")),
+        unitTest_(pset.getUntrackedParameter<bool>("unitTest", false)) {
     setAcceptAllEvt();
     reset_();
   }
@@ -81,17 +83,27 @@ namespace dqmservices {
     fiterator_.logFileAction("DQMStreamerReader initialised.");
   }
 
+  void DQMStreamerReader::setupMetaData(edm::streamer::InitMsgView const& msg, bool subsequent) {
+    deserializeAndMergeWithRegistry(msg, subsequent);
+    auto event = getEventMsg();
+    //file might be empty
+    if (not event)
+      return;
+    assert(event->isEventMetaData());
+    deserializeEventMetaData(*event);
+    updateEventMetaData();
+  }
   void DQMStreamerReader::openFileImp_(const DQMFileIterator::LumiEntry& entry) {
     processedEventPerLs_ = 0;
 
     std::string path = entry.get_data_path();
 
     file_.lumi_ = entry;
-    file_.streamFile_ = std::make_unique<edm::StreamerInputFile>(path);
+    file_.streamFile_ = std::make_unique<StreamerInputFile>(path);
 
     InitMsgView const* header = getHeaderMsg();
     if (isFirstFile_) {
-      deserializeAndMergeWithRegistry(*header, false);
+      setupMetaData(*header, false);
     }
 
     // dump the list of HLT trigger name from the header
@@ -135,9 +147,14 @@ namespace dqmservices {
       return;
     }
 
+    if (artificialFileBoundary_) {
+      updateEventMetaData();
+      artificialFileBoundary_ = false;
+      return;
+    }
     //Get header/init from reader
     InitMsgView const* header = getHeaderMsg();
-    deserializeAndMergeWithRegistry(*header, true);
+    setupMetaData(*header, true);
   }
 
   bool DQMStreamerReader::openNextFileImp_() {
@@ -151,6 +168,12 @@ namespace dqmservices {
         openFileImp_(currentLumi);
         return true;
       } catch (const cms::Exception& e) {
+        if (unitTest_) {
+          throw edm::Exception(edm::errors::FileReadError, "DQMStreamerReader::openNextFileInp")
+              << std::string("Can't deserialize registry data (in open file): ") + e.what()
+              << "\n error: data file corrupted";
+        }
+
         fiterator_.logFileAction(std::string("Can't deserialize registry data (in open file): ") + e.what(), p);
         fiterator_.logLumiState(currentLumi, "error: data file corrupted");
 
@@ -179,11 +202,11 @@ namespace dqmservices {
 
   EventMsgView const* DQMStreamerReader::getEventMsg() {
     auto next = file_.streamFile_->next();
-    if (edm::StreamerInputFile::Next::kFile == next) {
+    if (StreamerInputFile::Next::kFile == next) {
       return nullptr;
     }
 
-    if (edm::StreamerInputFile::Next::kStop == next) {
+    if (StreamerInputFile::Next::kStop == next) {
       return nullptr;
     }
 
@@ -285,6 +308,25 @@ namespace dqmservices {
           // this means end of file, so close the file
           closeFileImp_("eof");
         } else {
+          //NOTE: at this point need to see if meta data checksum changed. If it did
+          // we need to issue a 'new File' transition
+          if (eview->isEventMetaData()) {
+            auto lastEventMetaData = presentEventMetaDataChecksum();
+            if (eventMetaDataChecksum(*eview) != lastEventMetaData) {
+              deserializeEventMetaData(*eview);
+              artificialFileBoundary_ = true;
+              return nullptr;
+            } else {
+              //skipping
+              eview = getEventMsg();
+              assert((eview == nullptr) or (not eview->isEventMetaData()));
+              if (eview == nullptr) {
+                closeFileImp_("eof");
+                continue;
+              }
+            }
+          }
+
           if (!acceptEvent(eview)) {
             continue;
           } else {
@@ -303,7 +345,7 @@ namespace dqmservices {
     try {
       EventMsgView const* eview = prepareNextEvent();
       if (eview == nullptr) {
-        if (file_.streamFile_ and file_.streamFile_->newHeader()) {
+        if (artificialFileBoundary_ or (file_.streamFile_ and file_.streamFile_->newHeader())) {
           return Next::kFile;
         }
         return Next::kStop;
@@ -428,6 +470,9 @@ namespace dqmservices {
             "Kill the processing as soon as the end-of-run file appears, even if "
             "there are/will be unprocessed lumisections.");
 
+    desc.addUntracked<bool>("unitTest", false)
+        ->setComment("Kill the processing if the input data cannot be deserialized");
+
     // desc.addUntracked<unsigned int>("skipEvents", 0U)
     //    ->setComment("Skip the first 'skipEvents' events that otherwise would "
     //                 "have been processed.");
@@ -437,7 +482,7 @@ namespace dqmservices {
     desc.addUntracked<bool>("inputFileTransitionsEachEvent", false);
 
     DQMFileIterator::fillDescription(desc);
-    edm::StreamerInputSource::fillDescription(desc);
+    StreamerInputSource::fillDescription(desc);
     edm::EventSkipperByID::fillDescription(desc);
 
     descriptions.add("source", desc);

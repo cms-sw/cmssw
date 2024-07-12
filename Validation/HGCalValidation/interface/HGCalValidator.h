@@ -22,6 +22,7 @@
 
 #include "DQMServices/Core/interface/DQMGlobalEDAnalyzer.h"
 
+#include "Validation/HGCalValidation/interface/TICLCandidateValidator.h"
 #include "Validation/HGCalValidation/interface/HGVHistoProducerAlgo.h"
 #include "Validation/HGCalValidation/interface/CaloParticleSelector.h"
 #include "RecoLocalCalo/HGCalRecProducers/interface/HGCalClusteringAlgoBase.h"
@@ -33,6 +34,7 @@ class PileupSummaryInfo;
 
 struct HGCalValidatorHistograms {
   HGVHistoProducerAlgoHistograms histoProducerAlgo;
+  TICLCandidateValidatorHistograms histoTICLCandidates;
   std::vector<dqm::reco::MonitorElement*> h_layerclusters_coll;
 };
 
@@ -56,7 +58,8 @@ public:
                                 std::vector<SimVertex> const& simVertices,
                                 std::vector<size_t>& selected_cPeff,
                                 unsigned int layers,
-                                std::unordered_map<DetId, const HGCRecHit*> const&) const;
+                                std::unordered_map<DetId, const unsigned int> const&,
+                                std::vector<HGCRecHit> const& hits) const;
 
 protected:
   edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
@@ -75,7 +78,10 @@ protected:
   const bool doTrackstersPlots_;
   std::string label_TS_, label_TSToCPLinking_, label_TSToSTSPR_;
   std::vector<edm::InputTag> label_clustersmask;
+  const bool doCandidatesPlots_;
+  std::string label_candidates_;
   const edm::FileInPath cummatbudinxo_;
+  const bool isTICLv5_;
 
   std::vector<edm::EDGetTokenT<reco::CaloClusterCollection>> labelToken;
   edm::EDGetTokenT<std::vector<SimCluster>> simClusters_;
@@ -88,17 +94,20 @@ protected:
   edm::EDGetTokenT<std::vector<CaloParticle>> label_cp_fake;
   edm::EDGetTokenT<std::vector<SimVertex>> simVertices_;
   std::vector<edm::EDGetTokenT<std::vector<float>>> clustersMaskTokens_;
-  edm::EDGetTokenT<std::unordered_map<DetId, const HGCRecHit*>> hitMap_;
-  edm::EDGetTokenT<hgcal::RecoToSimCollection> associatorMapRtS;
-  edm::EDGetTokenT<hgcal::SimToRecoCollection> associatorMapStR;
-  edm::EDGetTokenT<hgcal::SimToRecoCollectionWithSimClusters> associatorMapSimtR;
-  edm::EDGetTokenT<hgcal::RecoToSimCollectionWithSimClusters> associatorMapRtSim;
+  edm::EDGetTokenT<std::unordered_map<DetId, const unsigned int>> hitMap_;
+  edm::EDGetTokenT<ticl::RecoToSimCollection> associatorMapRtS;
+  edm::EDGetTokenT<ticl::SimToRecoCollection> associatorMapStR;
+  edm::EDGetTokenT<ticl::SimToRecoCollectionWithSimClusters> associatorMapSimtR;
+  edm::EDGetTokenT<ticl::RecoToSimCollectionWithSimClusters> associatorMapRtSim;
   std::unique_ptr<HGVHistoProducerAlgo> histoProducerAlgo_;
+  std::vector<edm::InputTag> hits_label_;
+  std::vector<edm::EDGetTokenT<HGCRecHitCollection>> hits_token_;
+  std::unique_ptr<TICLCandidateValidator> candidateVal_;
 
 private:
   CaloParticleSelector cpSelector;
   std::shared_ptr<hgcal::RecHitTools> tools_;
-  std::map<double, double> cummatbudg;
+  std::map<double, double> cumulative_material_budget;
   std::vector<int> particles_to_monitor_;
   unsigned totallayers_to_monitor_;
   std::vector<int> thicknesses_to_monitor_;

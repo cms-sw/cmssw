@@ -111,7 +111,11 @@ modifyConfigurationCalibTrackerAlpakaES_ = alpaka.makeProcessModifier(_addProces
 
 # reconstruct the pixel digis and clusters with alpaka on the device
 from RecoLocalTracker.SiPixelClusterizer.siPixelRawToClusterPhase1_cfi import siPixelRawToClusterPhase1 as _siPixelRawToClusterAlpaka
+from RecoLocalTracker.SiPixelClusterizer.siPixelRawToClusterHIonPhase1_cfi import siPixelRawToClusterHIonPhase1 as _siPixelRawToClusterAlpakaHIonPhase1
+
 siPixelClustersPreSplittingAlpaka = _siPixelRawToClusterAlpaka.clone()
+
+(alpaka & pp_on_AA & ~phase2_tracker).toReplaceWith(siPixelClustersPreSplittingAlpaka,_siPixelRawToClusterAlpakaHIonPhase1.clone())
 
 (alpaka & run3_common).toModify(siPixelClustersPreSplittingAlpaka,
     # use the pixel channel calibrations scheme for Run 3
@@ -135,8 +139,13 @@ siPixelClustersPreSplittingAlpakaSerial = makeSerialClone(siPixelClustersPreSpli
 
 from RecoLocalTracker.SiPixelClusterizer.siPixelDigisClustersFromSoAAlpakaPhase1_cfi import siPixelDigisClustersFromSoAAlpakaPhase1 as _siPixelDigisClustersFromSoAAlpakaPhase1
 from RecoLocalTracker.SiPixelClusterizer.siPixelDigisClustersFromSoAAlpakaPhase2_cfi import siPixelDigisClustersFromSoAAlpakaPhase2 as _siPixelDigisClustersFromSoAAlpakaPhase2
+from RecoLocalTracker.SiPixelClusterizer.siPixelDigisClustersFromSoAAlpakaHIonPhase1_cfi import siPixelDigisClustersFromSoAAlpakaHIonPhase1 as _siPixelDigisClustersFromSoAAlpakaHIonPhase1
 
 (alpaka & ~phase2_tracker).toReplaceWith(siPixelDigisClustersPreSplitting,_siPixelDigisClustersFromSoAAlpakaPhase1.clone(
+    src = "siPixelClustersPreSplittingAlpaka"
+))
+
+(alpaka & pp_on_AA & ~phase2_tracker).toReplaceWith(siPixelDigisClustersPreSplitting,_siPixelDigisClustersFromSoAAlpakaHIonPhase1.clone(
     src = "siPixelClustersPreSplittingAlpaka"
 ))
 
@@ -148,9 +157,6 @@ from RecoLocalTracker.SiPixelClusterizer.siPixelDigisClustersFromSoAAlpakaPhase2
     produceDigis = False
 ))
 
-from RecoLocalTracker.SiPixelClusterizer.siPixelDigisClustersFromSoAAlpakaPhase1_cfi import siPixelDigisClustersFromSoAAlpakaPhase1 as _siPixelDigisClustersFromSoAAlpakaPhase1
-from RecoLocalTracker.SiPixelClusterizer.siPixelDigisClustersFromSoAAlpakaPhase2_cfi import siPixelDigisClustersFromSoAAlpakaPhase2 as _siPixelDigisClustersFromSoAAlpakaPhase2
-
 alpaka.toModify(siPixelClustersPreSplitting,
     cpu = cms.EDAlias(
         siPixelDigisClustersPreSplitting = cms.VPSet(
@@ -159,12 +165,29 @@ alpaka.toModify(siPixelClustersPreSplitting,
     )
 )
 
+# These produce pixelDigiErrors in Alpaka; they are constructed here because they need
+# siPixelClustersPreSplittingAlpaka* as input
+from EventFilter.SiPixelRawToDigi.siPixelDigiErrorsFromSoAAlpaka_cfi import siPixelDigiErrorsFromSoAAlpaka as _siPixelDigiErrorsFromSoAAlpaka
+siPixelDigiErrorsAlpaka = _siPixelDigiErrorsFromSoAAlpaka.clone(
+    digiErrorSoASrc = cms.InputTag('siPixelClustersPreSplittingAlpaka'),
+    fmtErrorsSoASrc = cms.InputTag('siPixelClustersPreSplittingAlpaka'),
+    UsePhase1 = cms.bool(True)
+)
+
+siPixelDigiErrorsAlpakaSerial = siPixelDigiErrorsAlpaka.clone(
+    digiErrorSoASrc = cms.InputTag('siPixelClustersPreSplittingAlpakaSerial'),
+    fmtErrorsSoASrc = cms.InputTag('siPixelClustersPreSplittingAlpakaSerial')
+)
+
 # Run 3
 alpaka.toReplaceWith(siPixelClustersPreSplittingTask, cms.Task(
     # reconstruct the pixel clusters with alpaka
     siPixelClustersPreSplittingAlpaka,
     # reconstruct the pixel clusters with alpaka on the cpu (if requested by the validation)
     siPixelClustersPreSplittingAlpakaSerial,
+    # reconstruct pixel digis errors legacy with alpaka on serial and device
+    siPixelDigiErrorsAlpaka,
+    siPixelDigiErrorsAlpakaSerial,
     # convert from host SoA to legacy formats (digis and clusters)
     siPixelDigisClustersPreSplitting,
     # EDAlias for the clusters
@@ -177,6 +200,9 @@ alpaka.toReplaceWith(siPixelClustersPreSplittingTask, cms.Task(
     siPixelClustersPreSplittingAlpaka,
     # reconstruct the pixel clusters with alpaka from copied digis on the cpu (if requested by the validation)
     siPixelClustersPreSplittingAlpakaSerial,
+    # reconstruct pixel digis errors legacy with alpaka on serial and device
+    siPixelDigiErrorsAlpaka,
+    siPixelDigiErrorsAlpakaSerial,
     # convert the pixel digis (except errors) and clusters to the legacy format
     siPixelDigisClustersPreSplitting,
     # SwitchProducer wrapping the legacy pixel cluster producer or an alias for the pixel clusters information converted from SoA

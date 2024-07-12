@@ -15,7 +15,7 @@
 #include "G4VPhysicalVolume.hh"
 #include "G4VSolid.hh"
 
-#include "G4SystemOfUnits.hh"
+#include <CLHEP/Units/SystemOfUnits.h>
 #include "G4UnitsTable.hh"
 
 #include <sstream>

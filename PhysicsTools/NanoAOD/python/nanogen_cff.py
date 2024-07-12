@@ -89,10 +89,15 @@ def customizeNanoGEN(process):
         variables = cms.PSet(PTVars)
     )
 
-    process.rivetProducerHTXS.HepMCCollection = "generatorSmeared"
+    process.nanogenSequence.insert(0, process.genParticles2HepMCHiggsVtx)
+    process.nanogenSequence.insert(0, process.genParticles2HepMC)
+    process.genParticles2HepMCHiggsVtx.genParticles = "genParticles"
+    process.genParticles2HepMC.genParticles = "genParticles"
+
+    process.rivetProducerHTXS.HepMCCollection = "genParticles2HepMCHiggsVtx:unsmeared"
     process.genParticleTable.src = "genParticles"
     process.patJetPartonsNano.particles = "genParticles"
-    process.particleLevel.src = "generatorSmeared"
+    process.particleLevel.src = "genParticles2HepMC:unsmeared"
 
     process.genJetTable.src = "ak4GenJetsNoNu"
     process.genJetAK8Table.src = "ak8GenJetsNoNu"
@@ -100,8 +105,6 @@ def customizeNanoGEN(process):
     process.genVisTaus.srcGenParticles = "genParticles"
 
     # In case customizeNanoGENFromMini has already been called
-    process.nanogenSequence.remove(process.genParticles2HepMCHiggsVtx)
-    process.nanogenSequence.remove(process.genParticles2HepMC)
     process.nanogenSequence.remove(process.mergedGenParticles)
     process.nanogenSequence.remove(process.genIso)
     delattr(process.genParticleTable.externalVariables,"iso")

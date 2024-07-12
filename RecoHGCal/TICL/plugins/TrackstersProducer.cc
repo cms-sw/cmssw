@@ -22,8 +22,6 @@
 #include "DataFormats/HGCalReco/interface/TICLSeedingRegion.h"
 
 #include "RecoHGCal/TICL/plugins/PatternRecognitionPluginFactory.h"
-#include "PatternRecognitionbyCA.h"
-#include "PatternRecognitionbyMultiClusters.h"
 
 #include "PhysicsTools/TensorFlow/interface/TfGraphRecord.h"
 #include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
@@ -135,6 +133,11 @@ void TrackstersProducer::fillDescriptions(edm::ConfigurationDescriptions& descri
   edm::ParameterSetDescription pluginDescFastJet;
   pluginDescFastJet.addNode(edm::PluginDescription<PatternRecognitionFactory>("type", "FastJet", true));
   desc.add<edm::ParameterSetDescription>("pluginPatternRecognitionByFastJet", pluginDescFastJet);
+
+  // PassThrough Plugin
+  edm::ParameterSetDescription pluginDescPassThrough;
+  pluginDescPassThrough.addNode(edm::PluginDescription<PatternRecognitionFactory>("type", "Passthrough", true));
+  desc.add<edm::ParameterSetDescription>("pluginPatternRecognitionByPassthrough", pluginDescPassThrough);
 
   descriptions.add("trackstersProducer", desc);
 }

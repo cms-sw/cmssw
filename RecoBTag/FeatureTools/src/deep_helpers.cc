@@ -150,7 +150,8 @@ namespace btagbtvdeep {
 
   float vtx_ass_from_pfcand(const reco::PFCandidate &pfcand, int pv_ass_quality, const reco::VertexRef &pv) {
     float vtx_ass = pat::PackedCandidate::PVAssociationQuality(qualityMap[pv_ass_quality]);
-    if (pfcand.trackRef().isNonnull() && pv->trackWeight(pfcand.trackRef()) > 0.5 && pv_ass_quality == 7) {
+    if (pv.isNonnull() && pfcand.trackRef().isNonnull() && pv->trackWeight(pfcand.trackRef()) > 0.5 &&
+        pv_ass_quality == 7) {
       vtx_ass = pat::PackedCandidate::UsedInFitTight;
     }
     return vtx_ass;

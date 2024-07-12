@@ -28,13 +28,13 @@ namespace {
       return false;
   }
   unsigned int rdtscp_val = 0;
-  inline volatile unsigned long long rdtsc() { return __rdtscp(&rdtscp_val); }
+  inline unsigned long long rdtsc() { return __rdtscp(&rdtscp_val); }
 }  // namespace
 #endif
 #else   // !defined(__arm__) && !defined(__aarch64__)
 namespace {
   inline bool has_rdtscp() { return false; }
-  inline volatile unsigned long long rdtsc() { return 0; }
+  inline unsigned long long rdtsc() { return 0; }
 }  // namespace
 #endif  // !defined(__arm__) && !defined(__aarch64__)
 

@@ -25,9 +25,6 @@ void DtDigiToStubsConverter::makeStubs(MuonStubPtrs2D& muonStubsInLayers,
                                        int bxFrom,
                                        int bxTo,
                                        std::vector<std::unique_ptr<IOMTFEmulationObserver> >& observers) {
-  if (!dtPhDigis)
-    return;
-
   for (const auto& digiIt : *dtPhDigis->getContainer()) {
     DTChamberId detid(digiIt.whNum(), digiIt.stNum(), digiIt.scNum() + 1);
 
@@ -57,9 +54,6 @@ void CscDigiToStubsConverter::makeStubs(MuonStubPtrs2D& muonStubsInLayers,
                                         int bxFrom,
                                         int bxTo,
                                         std::vector<std::unique_ptr<IOMTFEmulationObserver> >& observers) {
-  if (!cscDigis)
-    return;
-
   auto chamber = cscDigis->begin();
   auto chend = cscDigis->end();
   for (; chamber != chend; ++chamber) {
@@ -87,8 +81,6 @@ void RpcDigiToStubsConverter::makeStubs(MuonStubPtrs2D& muonStubsInLayers,
                                         int bxFrom,
                                         int bxTo,
                                         std::vector<std::unique_ptr<IOMTFEmulationObserver> >& observers) {
-  if (!rpcDigis)
-    return;
   //LogTrace("l1tOmtfEventPrint") << __FUNCTION__ << ":" << __LINE__ <<" RPC HITS, processor : " << iProcessor<<" "<<std::endl;
 
   const RPCDigiCollection& rpcDigiCollection = *rpcDigis;

@@ -1,0 +1,5 @@
+<use name="FWCore/Framework"/>
+<use name="FWCore/PluginManager"/>
+<library file="*.cc" name="FWCoreTestModulesPlugins">
+  <flags EDM_PLUGIN="1"/>
+</library>

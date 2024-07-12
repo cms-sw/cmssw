@@ -146,6 +146,13 @@
   <use name="PhysicsTools/TensorFlow"/>
 </bin>
 
+<bin name="testTFEmptyInputs" file="testRunner.cpp,testEmptyInputs.cc">
+  <use name="boost_filesystem"/>
+  <use name="cppunit"/>
+  <use name="PhysicsTools/TensorFlow"/>
+</bin>
+
+
 
 <iftool name="tf_cuda_support">
   <bin name="testTFVisibleDevicesCUDA" file="testRunner.cpp,testVisibleDevicesCUDA.cc">

@@ -195,8 +195,7 @@ namespace evf {
   };
 
   FastMonitoringService::FastMonitoringService(const edm::ParameterSet& iPS, edm::ActivityRegistry& reg)
-      : MicroStateService(iPS, reg),
-        fmt_(new FastMonitoringThread()),
+      : fmt_(new FastMonitoringThread()),
         tbbMonitoringMode_(iPS.getUntrackedParameter<bool>("tbbMonitoringMode", true)),
         tbbConcurrencyTracker_(iPS.getUntrackedParameter<bool>("tbbConcurrencyTracker", true) && tbbMonitoringMode_),
         sleepTime_(iPS.getUntrackedParameter<int>("sleepTime", 1)),
@@ -651,14 +650,20 @@ namespace evf {
     microstate_[getSID(sid)] = getmInput();
     if (!tbbMonitoringMode_)
       return;
-    tmicrostate_[getTID()] = getmInput();
+    auto tid = getTID();
+    if (tid >= nThreads_)
+      return;
+    tmicrostate_[tid] = getmInput();
   }
 
   void FastMonitoringService::postSourceEvent(edm::StreamID sid) {
     microstate_[getSID(sid)] = getmFwkOvhSrc();
     if (!tbbMonitoringMode_)
       return;
-    tmicrostate_[getTID()] = getmIdle();
+    auto tid = getTID();
+    if (tid >= nThreads_)
+      return;
+    tmicrostate_[tid] = getmIdle();
   }
 
   void FastMonitoringService::preModuleEventAcquire(edm::StreamContext const& sc,
@@ -667,8 +672,11 @@ namespace evf {
     microstateAcqFlag_[getSID(sc)] = 1;
     if (!tbbMonitoringMode_)
       return;
-    tmicrostate_[getTID()] = (void*)(mcc.moduleDescription());
-    tmicrostateAcqFlag_[getTID()] = 1;
+    auto tid = getTID();
+    if (tid >= nThreads_)
+      return;
+    tmicrostate_[tid] = (void*)(mcc.moduleDescription());
+    tmicrostateAcqFlag_[tid] = 1;
   }
 
   void FastMonitoringService::postModuleEventAcquire(edm::StreamContext const& sc,
@@ -677,22 +685,31 @@ namespace evf {
     microstateAcqFlag_[getSID(sc)] = 0;
     if (!tbbMonitoringMode_)
       return;
-    tmicrostate_[getTID()] = getmIdle();
-    tmicrostateAcqFlag_[getTID()] = 0;
+    auto tid = getTID();
+    if (tid >= nThreads_)
+      return;
+    tmicrostate_[tid] = getmIdle();
+    tmicrostateAcqFlag_[tid] = 0;
   }
 
   void FastMonitoringService::preModuleEvent(edm::StreamContext const& sc, edm::ModuleCallingContext const& mcc) {
     microstate_[getSID(sc)] = (void*)(mcc.moduleDescription());
     if (!tbbMonitoringMode_)
       return;
-    tmicrostate_[getTID()] = (void*)(mcc.moduleDescription());
+    auto tid = getTID();
+    if (tid >= nThreads_)
+      return;
+    tmicrostate_[tid] = (void*)(mcc.moduleDescription());
   }
 
   void FastMonitoringService::postModuleEvent(edm::StreamContext const& sc, edm::ModuleCallingContext const& mcc) {
     microstate_[getSID(sc)] = getmFwkOvhMod();
     if (!tbbMonitoringMode_)
       return;
-    tmicrostate_[getTID()] = getmIdle();
+    auto tid = getTID();
+    if (tid >= nThreads_)
+      return;
+    tmicrostate_[tid] = getmIdle();
   }
 
   //from source
@@ -1028,10 +1045,5 @@ namespace evf {
     } else
       fmt_->jsonMonitor_->snap(ls);
   }
-
-  //compatibility
-  MicroStateService::MicroStateService(const edm::ParameterSet& iPS, edm::ActivityRegistry& reg) {}
-
-  MicroStateService::~MicroStateService() {}
 
 }  //end namespace evf

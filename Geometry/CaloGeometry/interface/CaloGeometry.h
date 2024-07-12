@@ -56,14 +56,8 @@ private:
 
   unsigned int makeIndex(DetId::Detector det, int subdet, bool& ok) const;
 
-  enum {
-    kMaxDet = 10,
-    kMinDet = 3,
-    kNDets = kMaxDet - kMinDet + 1,
-    kMaxSub = 6,
-    kNSubDets = kMaxSub + 1,
-    kLength = kNDets * kNSubDets
-  };
+  static constexpr int kMaxDet = 10, kMinDet = 3, kNDets = kMaxDet - kMinDet + 1, kMaxSub = 6, kNSubDets = kMaxSub + 1,
+                       kLength = kNDets * kNSubDets;
 };
 
 #endif

@@ -9,6 +9,7 @@ ________________________________________________________________**/
 
 // C++ standard
 #include <string>
+
 // CMS
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/DetId/interface/DetId.h"
@@ -28,6 +29,7 @@ ________________________________________________________________**/
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "TMath.h"
+
 //The class
 class AlcaPCCEventProducer : public edm::stream::EDProducer<> {
 public:
@@ -44,6 +46,10 @@ private:
   std::string trigstring_;  //specifies the trigger Rand or ZeroBias
   int countEvt_;            //counter
   int countLumi_;           //counter
+
+  const int rowsperroc = 52;
+  const int colsperroc = 80;
+  const int nROCcolumns = 8;
 
   std::unique_ptr<reco::PixelClusterCountsInEvent> thePCCob;
 };
@@ -79,14 +85,23 @@ void AlcaPCCEventProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
     }
     DetId detId = mod.id();
 
-    //--The following will be used when we make a theshold for the clusters.
-    //--Keeping this for features that may be implemented later.
-    // -- clusters on this det
-    //edmNew::DetSet<SiPixelCluster>::const_iterator  di;
-    //int nClusterCount=0;
-    //for (di = mod.begin(); di != mod.end(); ++di) {
-    //    nClusterCount++;
-    //}
+    // Iterate over Clusters in module to fill per ROC histogram
+    for (auto const& cluster : mod) {
+      for (int i = 0; i < cluster.size(); ++i) {
+        const auto pix = cluster.pixel(i);
+        // TODO: add roc threshold to config if(di.adc > fRocThreshold_) {
+        if (pix.adc > 0) {
+          int irow = pix.x / rowsperroc; /* constant column direction is along x-axis */
+          int icol = pix.y / colsperroc; /* constant row direction is along y-axis */
+          /* generate the folling roc index that is going to map with ROC id as
+          8  9  10 11 12 13 14 15
+          0  1  2  3  4  5  6  7 */
+          int key = icol + irow * nROCcolumns;
+          thePCCob->incrementRoc(((detId << 7) + key), 1);
+        }
+      }
+    }
+
     int nCluster = mod.size();
     thePCCob->increment(detId(), nCluster);
     thePCCob->setbxID(bx);

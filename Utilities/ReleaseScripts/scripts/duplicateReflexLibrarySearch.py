@@ -62,7 +62,7 @@ equivDict = \
          {'TrackInfo'             : ['reco::TrackingRecHitInfo']},
          {'EgammaCandidates'      : ['reco::GsfElectron.*','reco::Photon.*']},
          {'HcalIsolatedTrack'     : ['reco::IsolatedPixelTrackCandidate', 'reco::EcalIsolatedParticleCandidate', 'reco::HcalIsolatedTrackCandidate']},
-         {'HcalRecHit'            : ['HFRecHit','HORecHit','ZDCRecHit','HBHERecHit']},
+         {'HcalRecHit'            : ['HFRecHit','HORecHit','ZDCRecHit','HBHERecHit','HcalRecHitSoA']},
          {'PFRootEvent'           : ['EventColin::']},
          {'CaloTowers'            : ['CaloTower.*']},
          {'GsfTrackReco'          : ['GsfTrack.*']},

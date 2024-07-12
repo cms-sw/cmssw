@@ -18,7 +18,7 @@
 #include "G4TouchableHistory.hh"
 #include "G4TransportationManager.hh"
 
-#include <CLHEP/Units/GlobalSystemOfUnits.h>
+#include <CLHEP/Units/SystemOfUnits.h>
 #include <CLHEP/Units/GlobalPhysicalConstants.h>
 
 #include <cmath>

@@ -190,6 +190,10 @@ uint32_t HGCalSD::setDetUnitId(const G4Step* aStep) {
     return 0;
 
   uint32_t id = setDetUnitId(layer, module, cell, iz, hitPoint);
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HGCSim") << "ID Layer " << layer << " Module " << module << " Cell " << cell << " " << std::hex
+                             << id << std::dec << " " << HGCSiliconDetId(id);
+#endif
   if ((rejectMB_ || fiducialCut_) && id != 0) {
     auto uv = HGCSiliconDetId(id).waferUV();
 #ifdef EDM_ML_DEBUG
@@ -279,17 +283,17 @@ void HGCalSD::update(const BeginOfJob* job) {
     waferSize_ = hgcons_->waferSize(false);
     double mouseBite = hgcons_->mouseBite(false);
     guardRingOffset_ = hgcons_->guardRingOffset(false);
-    double sensorSizeOffset = hgcons_->sensorSizeOffset(false);
+    sensorSizeOffset_ = hgcons_->sensorSizeOffset(false);
     if (useOffset > 0) {
       rejectMB_ = true;
       fiducialCut_ = true;
     }
-    double mouseBiteNew = (fiducialCut_) ? (mouseBite + guardRingOffset_ + sensorSizeOffset / cos30deg_) : mouseBite;
+    double mouseBiteNew = (fiducialCut_) ? (mouseBite + guardRingOffset_ + sensorSizeOffset_ / cos30deg_) : mouseBite;
     mouseBiteCut_ = waferSize_ * tan30deg_ - mouseBiteNew;
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCSim") << "HGCalSD::Initialized with mode " << geom_mode_ << " Slope cut " << slopeMin_
                                << " top Level " << levelT1_ << ":" << levelT2_ << " useSimWt " << useSimWt_ << " wafer "
-                               << waferSize_ << ":" << mouseBite << ":" << guardRingOffset_ << ":" << sensorSizeOffset
+                               << waferSize_ << ":" << mouseBite << ":" << guardRingOffset_ << ":" << sensorSizeOffset_
                                << ":" << mouseBiteNew << ":" << mouseBiteCut_ << " useOffset " << useOffset
                                << " dd4hep " << dd4hep_;
 #endif
@@ -337,7 +341,7 @@ void HGCalSD::update(const BeginOfJob* job) {
   if ((nHC_ > 1) && calibCells_)
     newCollection(collName_[1], ps_);
   cellOffset_ = std::make_unique<HGCalCellOffset>(
-      waferSize_, hgcons_->getUVMax(0), hgcons_->getUVMax(1), guardRingOffset_, mouseBiteCut_);
+      waferSize_, hgcons_->getUVMax(0), hgcons_->getUVMax(1), guardRingOffset_, mouseBiteCut_, sensorSizeOffset_);
 }
 
 void HGCalSD::initRun() {}

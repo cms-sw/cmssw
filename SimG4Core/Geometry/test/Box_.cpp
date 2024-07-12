@@ -1,4 +1,4 @@
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include <CLHEP/Units/SystemOfUnits.h>
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDSolidShapes.h"
 #include "DetectorDescription/Core/interface/Box.h"
@@ -10,6 +10,8 @@
 #include <string>
 
 using namespace std;
+using CLHEP::cm;
+using CLHEP::cm3;
 
 class testBox : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(testBox);

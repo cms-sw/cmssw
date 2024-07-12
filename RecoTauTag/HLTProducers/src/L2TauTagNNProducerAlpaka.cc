@@ -731,15 +731,19 @@ void L2TauNNProducerAlpaka::fillPatatracks(tensorflow::Tensor& cellGridMatrix,
 }
 
 std::vector<float> L2TauNNProducerAlpaka::getTauScore(const tensorflow::Tensor& cellGridMatrix) {
-  std::vector<tensorflow::Tensor> pred_tensor;
-  tensorflow::run(L2cacheData_->session, {{inputTensorName_, cellGridMatrix}}, {outputTensorName_}, &pred_tensor);
   const int nTau = cellGridMatrix.shape().dim_size(0);
-  std::vector<float> pred_vector(nTau);
-  for (int tau_idx = 0; tau_idx < nTau; ++tau_idx) {
-    pred_vector[tau_idx] = pred_tensor[0].matrix<float>()(tau_idx, 0);
-  }
+  if (nTau == 0) {
+    return std::vector<float>();
+  } else {
+    std::vector<tensorflow::Tensor> pred_tensor;
+    tensorflow::run(L2cacheData_->session, {{inputTensorName_, cellGridMatrix}}, {outputTensorName_}, &pred_tensor);
+    std::vector<float> pred_vector(nTau);
+    for (int tau_idx = 0; tau_idx < nTau; ++tau_idx) {
+      pred_vector[tau_idx] = pred_tensor[0].matrix<float>()(tau_idx, 0);
+    }
 
-  return pred_vector;
+    return pred_vector;
+  }
 }
 
 void L2TauNNProducerAlpaka::produce(edm::Event& event, const edm::EventSetup& eventsetup) {

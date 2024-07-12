@@ -13,7 +13,7 @@
 #include "Alignment/CocoaVisMgr/interface/ALIVRMLMgr.h"
 #include "Alignment/IgCocoaFileWriter/interface/IgCocoaFileMgr.h"
 #endif
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include <CLHEP/Units/SystemOfUnits.h>
 #include "Alignment/CocoaDDLObjects/interface/CocoaSolidShapeTubs.h"
 #include "Alignment/CocoaUtilities/interface/GlobalOptionMgr.h"
 
@@ -72,6 +72,8 @@ void OptODistancemeter3dim::constructSolidShape() {
   GlobalOptionMgr* gomgr = GlobalOptionMgr::getInstance();
   gomgr->getGlobalOptionValue("VisScale", go);
 
-  theSolidShape = new CocoaSolidShapeTubs(
-      "Tubs", go * 0. * cm / m, go * 2. * cm / m, go * 5. * cm / m);  //COCOA internal units are meters
+  theSolidShape = new CocoaSolidShapeTubs("Tubs",
+                                          go * 0. * CLHEP::cm / CLHEP::m,
+                                          go * 2. * CLHEP::cm / CLHEP::m,
+                                          go * 5. * CLHEP::cm / CLHEP::m);  //COCOA internal units are meters
 }

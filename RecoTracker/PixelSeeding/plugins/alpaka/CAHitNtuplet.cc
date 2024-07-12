@@ -58,14 +58,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         cpeToken_(esConsumes(edm::ESInputTag("", iConfig.getParameter<std::string>("CPE")))),
         tokenHit_(consumes(iConfig.getParameter<edm::InputTag>("pixelRecHitSrc"))),
         tokenTrack_(produces()),
-        deviceAlgo_(iConfig) {
-    // Workaround until the ProductID problem in issue https://github.com/cms-sw/cmssw/issues/44643 is fixed
-#ifdef ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLED
-    if constexpr (std::is_same_v<TrackerTraits, pixelTopology::Phase1>) {
-      producesTemporarily("edm::DeviceProduct<alpaka_cuda_async::pixelTrack::TracksSoACollectionPhase1>");
-    }
-#endif
-  }
+        deviceAlgo_(iConfig) {}
 
   template <typename TrackerTraits>
   void CAHitNtupletAlpaka<TrackerTraits>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -93,10 +86,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   }
 
   using CAHitNtupletAlpakaPhase1 = CAHitNtupletAlpaka<pixelTopology::Phase1>;
+  using CAHitNtupletAlpakaHIonPhase1 = CAHitNtupletAlpaka<pixelTopology::HIonPhase1>;
   using CAHitNtupletAlpakaPhase2 = CAHitNtupletAlpaka<pixelTopology::Phase2>;
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
 
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/MakerMacros.h"
 
 DEFINE_FWK_ALPAKA_MODULE(CAHitNtupletAlpakaPhase1);
+DEFINE_FWK_ALPAKA_MODULE(CAHitNtupletAlpakaHIonPhase1);
 DEFINE_FWK_ALPAKA_MODULE(CAHitNtupletAlpakaPhase2);

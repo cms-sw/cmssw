@@ -4,8 +4,8 @@
 #include "SimTransport/HectorProducer/interface/Hector.h"
 
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
+#include <CLHEP/Units/SystemOfUnits.h>
+#include <CLHEP/Units/GlobalPhysicalConstants.h>
 #include "HepMC/SimpleVector.h"
 
 #include "TRandom3.h"
@@ -179,9 +179,9 @@ void Hector::add(const HepMC::GenEvent* evt, const edm::EventSetup& iSetup) {
           h_p->set4Momentum(px, py, pz, (*eventParticle)->momentum().e());
 
           // from mm to um
-          double XforPosition = (*eventParticle)->production_vertex()->position().x() / micrometer;  //um
-          double YforPosition = (*eventParticle)->production_vertex()->position().y() / micrometer;  //um
-          double ZforPosition = (*eventParticle)->production_vertex()->position().z() / meter;       //m
+          double XforPosition = (*eventParticle)->production_vertex()->position().x() / CLHEP::micrometer;  //um
+          double YforPosition = (*eventParticle)->production_vertex()->position().y() / CLHEP::micrometer;  //um
+          double ZforPosition = (*eventParticle)->production_vertex()->position().z() / CLHEP::meter;       //m
           // crossing angle (beam tilt) is not known a priory; keep now 0.0 but, in principle, can be entered as parameters
           double TXforPosition = 0.0, TYforPosition = 0.0;  //urad
 
@@ -522,7 +522,7 @@ HepMC::GenEvent* Hector::addPartToHepMC(HepMC::GenEvent* evt) {
         fi = std::atan2(tx, ty);  // tx, ty never == 0?
         energy = (*m_eAtTrPoint.find(line)).second;
 
-        time = (ddd * meter - gpart->production_vertex()->position().z() * mm);  // mm
+        time = (ddd * CLHEP::meter - gpart->production_vertex()->position().z() * CLHEP::mm);  // mm
 
         if (ddd != 0.) {
           if (m_verbosity) {

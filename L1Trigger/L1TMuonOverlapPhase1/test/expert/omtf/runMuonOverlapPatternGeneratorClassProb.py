@@ -11,11 +11,12 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
 verbose = True
 
-versionIn = "ExtraplMB1nadMB2Simplified_t17"
+versionIn = "ExtraplMB1nadMB2Simplified_t27_DTQ_2_4_mcWaw2023_OneOverPt_and_iPt2"
 #versionIn = "ExtraplMB1nadMB2DTQualAndEtaValueP1Scale_t18"
 #versionIn = "0x00011_oldSample_3_30Files"
+#Patterns_layerStat_ExtraplMB1nadMB2Simplified_t27_DTQ_2_4_mcWaw2023_OneOverPt_and_iPt2.root
 
-versionOut =  versionIn + "_classProb17_recalib2_minDP0"
+versionOut =  "0x0020_" + versionIn + "_classProb22_recalib2"
 
 if verbose: 
     process.MessageLogger = cms.Service("MessageLogger",
@@ -116,7 +117,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1))
 process.load('L1Trigger.L1TMuonOverlapPhase1.fakeOmtfParams_cff')
 process.omtfParams.configXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/hwToLogicLayer_0x0009_patGen.xml")
 process.omtfParams.patternsXMLFiles = cms.VPSet(
-        cms.PSet(patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuonOverlapPhase1/test/expert/omtf/Patterns_template.xml")), )
+        cms.PSet(patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/Patterns_template.xml")), )
 
 process.esProd = cms.EDAnalyzer("EventSetupRecordDataGetter",
    toGet = cms.VPSet(
@@ -137,7 +138,7 @@ process.simOmtfDigis.bxMax = cms.int32(0)
 process.simOmtfDigis.dumpResultToXML = cms.bool(False)
 process.simOmtfDigis.eventCaptureDebug = cms.bool(False)
 
-process.simOmtfDigis.patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuonOverlapPhase1/test/expert/omtf/Patterns_template.xml")
+process.simOmtfDigis.patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/Patterns_template.xml")
 #process.simOmtfDigis.patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuonOverlapPhase1/test/expert/omtf/Patterns_0x00012_oldSample_3_30Files_grouped1_classProb1_recalib.xml")
 #process.simOmtfDigis.patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuonOverlapPhase1/test/expert/omtf/Patterns_0x00012_oldSample_3_30Files_grouped1_classProb11_recalib2.xml")
 #process.simOmtfDigis.patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/Patterns_0x0009_oldSample_3_10Files_classProb2.xml")

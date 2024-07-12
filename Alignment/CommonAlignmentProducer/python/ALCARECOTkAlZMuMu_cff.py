@@ -51,7 +51,14 @@ ALCARECOTkAlZMuMu.TwoBodyDecaySelector.charge = 0
 ALCARECOTkAlZMuMu.TwoBodyDecaySelector.applyAcoplanarityFilter = False
 ALCARECOTkAlZMuMu.TwoBodyDecaySelector.numberOfCandidates = 1
 
-seqALCARECOTkAlZMuMu = cms.Sequence(ALCARECOTkAlZMuMuHLT+ALCARECOTkAlZMuMuDCSFilter+ALCARECOTkAlZMuMuGoodMuons+ALCARECOTkAlZMuMuRelCombIsoMuons+ALCARECOTkAlZMuMu)
+## for the GEN level information
+TkAlZMuMuGenMuonSelector = cms.EDFilter("GenParticleSelector",
+                                        src = cms.InputTag("genParticles"),
+                                        cut = cms.string("abs(pdgId) == 13"), # Select only muons
+                                        filter = cms.bool(False),
+                                        throwOnMissing = cms.untracked.bool(False))
+
+seqALCARECOTkAlZMuMu = cms.Sequence(ALCARECOTkAlZMuMuHLT+ALCARECOTkAlZMuMuDCSFilter+ALCARECOTkAlZMuMuGoodMuons+ALCARECOTkAlZMuMuRelCombIsoMuons+ALCARECOTkAlZMuMu+TkAlZMuMuGenMuonSelector)
 
 ## customizations for the pp_on_AA eras
 from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017

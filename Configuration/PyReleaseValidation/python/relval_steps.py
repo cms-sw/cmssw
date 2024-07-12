@@ -664,14 +664,55 @@ Run2018Dml2={320822: [[1,2]]}
 steps['RunEGamma2018Dml1']={'INPUT':InputInfo(dataSet='/EGamma/Run2018D-v1/RAW',label='2018D',events=100000,location='STD', ls=Run2018Dml1)}
 steps['RunEGamma2018Dml2']={'INPUT':InputInfo(dataSet='/EGamma/Run2018D-v1/RAW',label='2018D',events=100000,location='STD', ls=Run2018Dml2)}
 
-#### Run2 TauEmbed ####
-steps['RunDoubleMuonTE2016C']={'INPUT':InputInfo(dataSet='/DoubleMuon/Run2016C-v2/RAW',label='2016C',events=10000,location='STD', ls=Run2016C)}
-dataTE = {'--conditions': 'auto:run2_data', '--scenario': 'pp'}
-mcTE = {'--conditions': 'auto:run2_mc', '--scenario': 'pp'}
-steps['RAWRECOTE16'] = merge([{'-s': 'RAW2DIGI,L1Reco,RECO,PAT', '--datatier': 'FEVT', '--eventcontent': 'FEVT', '--data': '', '--era': 'Run2_2016_HIPM', '--customise':'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2016,TauAnalysis/MCEmbeddingTools/customisers.customiseSelecting',}, dataTE])
-steps['RAWRECOLHECLEANTE16'] = merge([{'-s': 'RAW2DIGI,RECO', '--data': '', '--eventcontent': 'RECO', '--datatier': 'RECO', '--era': 'Run2_2016_HIPM', '--customise': 'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2016,TauAnalysis/MCEmbeddingTools/customisers.customiseLHEandCleaning',}, dataTE])
-steps['EMBEDHADTE16'] = merge([{'cfg': 'TauAnalysis/MCEmbeddingTools/python/EmbeddingPythia8Hadronizer_cfi.py', '-s': 'GEN,SIM,DIGI,L1,DIGI2RAW,RAW2DIGI,RECO', '--processName': 'EmbeddingPythia8Hadronizer', '--eventcontent': 'RECO', '--datatier': 'RECO', '--beamspot': 'Realistic25ns13TeV2016Collision', '--customise': 'TauAnalysis/MCEmbeddingTools/customisers.customiseGenerator', '--customise_commands': '\"process.generator.nAttempts = cms.uint32(1000)\"', '--era': 'Run2_2016_HIPM',}, mcTE])
-steps['EMBEDMINIAOD16'] = merge([{'-s': 'PAT', '--data': '', '--eventcontent': 'MINIAODSIM', '--datatier': 'MINIAODSIM', '--customise': 'TauAnalysis/MCEmbeddingTools/customisers.customiseMerging', '--customise_commands': '\"process.patTrigger.processName = cms.string(\'SIMembedding\')\"', '--era': 'Run2_2016_HIPM',}, dataTE])
+#### Run2 TauEmbedding setting ####
+dataTE_2016_HIPM = {'--conditions': 'auto:run2_data', '--scenario': 'pp', '--era': 'Run2_2016_HIPM'}
+mcTE_2016_HIPM = {'--conditions': 'auto:run2_mc_pre_vfp', '--scenario': 'pp', '--era': 'Run2_2016_HIPM', '--beamspot': 'Realistic25ns13TeV2016Collision'}
+dataTE_2016 = {'--conditions': 'auto:run2_data', '--scenario': 'pp', '--era': 'Run2_2016'}
+mcTE_2016 = {'--conditions': 'auto:run2_mc', '--scenario': 'pp', '--era': 'Run2_2016', '--beamspot': 'Realistic25ns13TeV2016Collision'}
+dataTE_2017 = {'--conditions': 'auto:run2_data', '--scenario': 'pp', '--era': 'Run2_2017'}
+mcTE_2017 = {'--conditions': 'auto:phase1_2017_realistic', '--scenario': 'pp', '--era': 'Run2_2017', '--beamspot': 'Realistic25ns13TeVEarly2017Collision'}
+dataTE_2018 = {'--conditions': 'auto:run2_data', '--scenario': 'pp', '--era': 'Run2_2018'}
+mcTE_2018 = {'--conditions': 'auto:phase1_2018_realistic', '--scenario': 'pp', '--era': 'Run2_2018', '--beamspot': 'Realistic25ns13TeVEarly2018Collision'}
+embedding_selection = {'-s': 'RAW2DIGI,L1Reco,RECO,PAT', '--datatier': 'FEVT', '--eventcontent': 'FEVT', '--data': ''}
+embedding_cleaning = {'-s': 'RAW2DIGI,RECO,PAT', '--data': '', '--eventcontent': 'RAWRECO', '--datatier': 'RAWRECO'}
+embedding_genpreHLT = {'cfg': 'TauAnalysis/MCEmbeddingTools/python/EmbeddingPythia8Hadronizer_cfi.py', '-s': 'GEN,SIM,DIGI,L1,DIGI2RAW,RAW2DIGI', '--mc': '', '--eventcontent': 'RAWSIM', '--datatier': 'RAWSIM', '--geometry': 'DB:Extended', '--customise': 'TauAnalysis/MCEmbeddingTools/customisers.customiseGenerator_preHLT', '--customise_commands': '\"process.generator.nAttempts = cms.uint32(1000)\"'}
+embedding_genHLT = {'cfg': 'TauAnalysis/MCEmbeddingTools/python/EmbeddingPythia8Hadronizer_cfi.py', '-s': 'HLT:Fake2', '--mc': '','--eventcontent': 'RAWSIM', '--datatier': 'RAWSIM','--geometry': 'DB:Extended', '--customise': 'TauAnalysis/MCEmbeddingTools/customisers.customiseGenerator_HLT'}
+embedding_genpostHLT = {'cfg': 'TauAnalysis/MCEmbeddingTools/python/EmbeddingPythia8Hadronizer_cfi.py', '-s': 'RAW2DIGI,L1Reco,RECO,RECOSIM', '--mc': '', '--eventcontent': 'RAWRECOSIMHLT', '--datatier': 'RAW-RECO-SIM', '--geometry': 'DB:Extended', '--customise': 'TauAnalysis/MCEmbeddingTools/customisers.customiseGenerator_postHLT'}
+embedding_merge = {'-s': 'PAT', '--data': '', '--eventcontent': 'MINIAODSIM', '--datatier': 'MINIAODSIM', '--customise': 'TauAnalysis/MCEmbeddingTools/customisers.customiseMerging'}
+
+### Tau Embedding 2016 HIPM ###
+steps['TauEmbedding_Selection_2016_HIPM'] = merge([{'--customise':'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2016,TauAnalysis/MCEmbeddingTools/customisers.customiseSelecting'}, dataTE_2016_HIPM, embedding_selection])
+steps['TauEmbedding_Cleaning_2016_HIPM'] = merge([{'--customise': 'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2016,TauAnalysis/MCEmbeddingTools/customisers.customiseLHEandCleaning'}, dataTE_2016_HIPM, embedding_cleaning])
+steps['TauEmbedding_GenPreHLT_2016_HIPM'] = merge([mcTE_2016_HIPM, embedding_genpreHLT])
+steps['TauEmbedding_GenHLT_2016_HIPM'] = merge([mcTE_2016_HIPM, embedding_genHLT])
+steps['TauEmbedding_GenPostHLT_2016_HIPM'] = merge([mcTE_2016_HIPM, embedding_genpostHLT])
+steps['TauEmbedding_Merging_2016_HIPM'] = merge([dataTE_2016_HIPM, embedding_merge])
+
+### Tau Embedding 2016 ###
+steps['TauEmbedding_Selection_2016'] = merge([{'--customise':'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2016,TauAnalysis/MCEmbeddingTools/customisers.customiseSelecting'}, dataTE_2016, embedding_selection])
+steps['TauEmbedding_Cleaning_2016'] = merge([{'--customise': 'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2016,TauAnalysis/MCEmbeddingTools/customisers.customiseLHEandCleaning'}, dataTE_2016, embedding_cleaning])
+steps['TauEmbedding_GenPreHLT_2016'] = merge([mcTE_2016, embedding_genpreHLT])
+steps['TauEmbedding_GenHLT_2016'] = merge([mcTE_2016, embedding_genHLT])
+steps['TauEmbedding_GenPostHLT_2016'] = merge([mcTE_2016, embedding_genpostHLT])
+steps['TauEmbedding_Merging_2016'] = merge([dataTE_2016, embedding_merge])
+
+### Tau Embedding 2017 ###
+steps['TauEmbedding_Selection_2017'] = merge([{'--customise':'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2017,TauAnalysis/MCEmbeddingTools/customisers.customiseSelecting'}, dataTE_2017, embedding_selection])
+steps['TauEmbedding_Cleaning_2017'] = merge([{'--customise': 'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2017,TauAnalysis/MCEmbeddingTools/customisers.customiseLHEandCleaning'}, dataTE_2017, embedding_cleaning])
+steps['TauEmbedding_GenPreHLT_2017'] = merge([mcTE_2017, embedding_genpreHLT])
+steps['TauEmbedding_GenHLT_2017'] = merge([mcTE_2017, embedding_genHLT])
+steps['TauEmbedding_GenPostHLT_2017'] = merge([mcTE_2017, embedding_genpostHLT])
+steps['TauEmbedding_Merging_2017'] = merge([dataTE_2017, embedding_merge])
+
+### Tau Embedding 2018 ###
+steps['TauEmbedding_Selection_2018'] = merge([{'--customise':'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2018,TauAnalysis/MCEmbeddingTools/customisers.customiseSelecting'}, dataTE_2018, embedding_selection])
+steps['TauEmbedding_Cleaning_2018'] = merge([{'--customise': 'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2018,TauAnalysis/MCEmbeddingTools/customisers.customiseLHEandCleaning'}, dataTE_2018, embedding_cleaning])
+steps['TauEmbedding_GenPreHLT_2018'] = merge([mcTE_2018, embedding_genpreHLT])
+steps['TauEmbedding_GenHLT_2018'] = merge([mcTE_2018, embedding_genHLT])
+steps['TauEmbedding_GenPostHLT_2018'] = merge([mcTE_2018, embedding_genpostHLT])
+steps['TauEmbedding_Merging_2018'] = merge([dataTE_2018, embedding_merge])
+
+
 
 def gen(fragment,howMuch):
     global step1Defaults
@@ -1107,7 +1148,7 @@ steps['Cosmics_Phase2']=merge([{'cfg':'UndergroundCosmicMu_cfi.py',
                                 '--scenario':'cosmics',
                                 '--era': phase2CosInfo['Era'],
                                 '--geometry': phase2CosInfo['Geom'],
-                                '--beamspot':'HLLHC14TeV'},Kby(666,100000),step1Defaults])
+                                '--beamspot':'DBrealisticHLLHC'},Kby(666,100000),step1Defaults])
 
 steps['BeamHalo']=merge([{'cfg':'BeamHalo_cfi.py','--scenario':'cosmics'},Kby(9,100),step1Defaults])
 steps['BeamHalo_13']=merge([{'cfg':'BeamHalo_13TeV_cfi.py','--scenario':'cosmics'},Kby(9,100),step1Up2015Defaults])
@@ -2277,13 +2318,13 @@ steps['TIER0']=merge([{'--customise':'Configuration/DataProcessing/RecoTLR.custo
                        '--eventcontent':'RECO,AOD,ALCARECO,DQM',
                        '--process':'RECO'
                        },dataReco])
-steps['TIER0EXP']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,ALCAPRODUCER:@allForExpress+AlCaPCCZeroBiasFromRECO+AlCaPCCRandomFromRECO,DQM:@express,ENDJOB',
+steps['TIER0EXP']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,ALCAPRODUCER:@allForExpress+LumiPixelsMinBias+AlCaPCCZeroBiasFromRECO+AlCaPCCRandomFromRECO,DQM:@express,ENDJOB',
                           '--datatier':'ALCARECO,DQMIO',
                           '--eventcontent':'ALCARECO,DQM',
                           '--customise':'Configuration/DataProcessing/RecoTLR.customiseExpress',
                           },steps['TIER0']])
 
-steps['TIER0EXPRUN2']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,ALCAPRODUCER:@allForExpress+AlCaPCCZeroBiasFromRECO+AlCaPCCRandomFromRECO,DQM:@express,ENDJOB',
+steps['TIER0EXPRUN2']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,ALCAPRODUCER:@allForExpress+LumiPixelsMinBias+AlCaPCCZeroBiasFromRECO+AlCaPCCRandomFromRECO,DQM:@express,ENDJOB',
                           '--process':'RECO',
                           '--datatier':'ALCARECO,DQMIO',
                           '--eventcontent':'ALCARECO,DQM',
@@ -2393,25 +2434,26 @@ steps['TIER0EXPHPBS']={'-s':'RAW2DIGI,L1Reco,RECO:reconstruction_trackingOnly,AL
                           }
 
 steps['TIER0RAWSIPIXELCAL']={'-s':'RAW2DIGI,L1Reco,RECO,ALCAPRODUCER:SiPixelCalZeroBias,DQM:@express,ENDJOB',
-                          '--process':'RECO',
-                          '--scenario': 'pp',
-                          '--era':'Run2_2017',
-                          '--conditions':'auto:run2_data',
-                          '--data': '',
-                          '--datatier':'ALCARECO,DQMIO',
-                          '--eventcontent':'ALCARECO,DQM',
-                          '--customise':'Configuration/DataProcessing/RecoTLR.customiseExpress',
-                          }
+                             '--process':'ALCARECO',
+                             '--scenario': 'pp',
+                             '--era':'Run2_2017',
+                             '--conditions':'auto:run2_data',
+                             '--data': '',
+                             '--datatier':'ALCARECO,DQMIO',
+                             '--eventcontent':'ALCARECO,DQM',
+                             '--customise':'Configuration/DataProcessing/RecoTLR.customiseExpress',
+                             '--customise_commands':'"process.siPixelStatusProducer.SiPixelStatusProducerParameters.pixelClusterLabel = cms.untracked.InputTag(\'siPixelClusters::ALCARECO\')"'
+                             }
 
 steps['TIER0EXPSIPIXELCAL']={'-s':'RAW2DIGI,L1Reco,ALCAPRODUCER:SiPixelCalZeroBias,ENDJOB',
-                          '--process':'ALCARECO',
-                          '--scenario': 'pp',
-                          '--era':'Run2_2017',
-                          '--conditions':'auto:run2_data',
-                          '--data': '',
-                          '--datatier':'ALCARECO',
-                          '--eventcontent':'ALCARECO',
-                          }
+                             '--process':'ALCARECO',
+                             '--scenario': 'pp',
+                             '--era':'Run2_2017',
+                             '--conditions':'auto:run2_data',
+                             '--data': '',
+                             '--datatier':'ALCARECO',
+                             '--eventcontent':'ALCARECO',
+                             }
 
 steps['TIER0EXPPPSCAL']={'-s':'RAW2DIGI,L1Reco,ALCAPRODUCER:PPSCalTrackBasedSel,ENDJOB',
                           '--process':'ALCARECO',
@@ -2457,15 +2499,14 @@ steps['ALCASPLITHPBS']={'-s':'ALCAOUTPUT:TkAlMinBias,ALCA:PromptCalibProdBeamSpo
                         }
 
 steps['ALCASPLITSIPIXELCAL']={'-s':'ALCAOUTPUT:SiPixelCalZeroBias,ALCA:PromptCalibProdSiPixel',
-                        '--scenario':'pp',
-                        '--data':'',
-                        '--era':'Run2_2017',
-                        '--datatier':'ALCARECO',
-                        '--eventcontent':'ALCARECO',
-                        '--conditions':'auto:run2_data',
-                        '--triggerResultsProcess':'RECO',
-                        #'--filein':'file:step2.root'
-                        }
+                              '--scenario':'pp',
+                              '--data':'',
+                              '--era':'Run2_2017',
+                              '--datatier':'ALCARECO',
+                              '--eventcontent':'ALCARECO',
+                              '--conditions':'auto:run2_data',
+                              '--triggerResultsProcess':'ALCARECO',
+                              }
 
 steps['ALCASPLITPPSCAL']={'-s':'ALCAOUTPUT:PPSCalTrackBasedSel,ALCA:PromptCalibProdPPSTimingCalib',
                         '--scenario':'pp',
@@ -2474,7 +2515,7 @@ steps['ALCASPLITPPSCAL']={'-s':'ALCAOUTPUT:PPSCalTrackBasedSel,ALCA:PromptCalibP
                         '--datatier':'ALCARECO',
                         '--eventcontent':'ALCARECO',
                         '--conditions':'auto:run2_data',
-                        '--triggerResultsProcess':'RECO',
+                        '--triggerResultsProcess':'ALCARECO',
                         }
                         
 steps['ALCASPLITPPSCALRUN3']={'-s':'ALCAOUTPUT:PPSCalMaxTracks,ALCA:PromptCalibProdPPSTimingCalib',
@@ -2507,7 +2548,7 @@ steps['ALCASPLITPPSALIG']={'-s':'ALCAOUTPUT:PPSCalTrackBasedSel,ALCA:PromptCalib
                            '--datatier':'ALCARECO',
                            '--eventcontent':'ALCARECO',
                            '--conditions':'auto:run3_data_express',
-                           '--triggerResultsProcess':'RECO',
+                           '--triggerResultsProcess':'ALCARECO',
                            }
                            
 steps['ALCASPLITPPSALIGRUN3']={'-s':'ALCAOUTPUT:PPSCalMaxTracks,ALCA:PromptCalibProdPPSAlignment',
@@ -2648,7 +2689,9 @@ steps['RECODR3_reHLT_2023']=merge([{'--conditions':'auto:run3_data_prompt_relval
 steps['RECODR3_reHLT_2023B']=merge([{'--conditions':'auto:run3_data_prompt_relval', '--hltProcess':'reHLT'},steps['RECODR3']])
 
 steps['RECODR3_2023_HIN']=merge([{'--conditions':'auto:run3_data_prompt', '-s':'RAW2DIGI,L1Reco,RECO,DQM:@commonFakeHLT+@standardDQMFakeHLT', '--repacked':'', '-n':1000},steps['RECODR3_2023']])
-steps['RECODR3_2023_UPC']=merge([{'--era':'Run3_2023_UPC', '--conditions':'132X_dataRun3_Prompt_HI_LowPtPhotonReg_v2'},steps['RECODR3_2023_HIN']])
+steps['RECODR3_2023_UPC']=merge([{'--era':'Run3_2023_UPC'},steps['RECODR3_2023_HIN']])
+steps['RECODR3_HIN']=merge([{'--conditions':'auto:run3_data_prompt', '-s':'RAW2DIGI,L1Reco,RECO,DQM:@commonFakeHLT+@standardDQMFakeHLT', '--repacked':'', '-n':1000},steps['RECODR3']])
+steps['RECODR3_UPC']=merge([{'--era':'Run3_UPC'},steps['RECODR3_HIN']])
 
 steps['RECODR3Splash']=merge([{'-n': 2,
                                '-s': 'RAW2DIGI,L1Reco,RECO,PAT,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+EcalESAlign,DQM:@standardDQMFakeHLT+@miniAODDQM'
@@ -3312,7 +3355,7 @@ steps['ALCAEXPRUN2']={'-s':'ALCAOUTPUT:SiStripCalZeroBias+TkAlMinBias+LumiPixels
                   '--datatier':'ALCARECO',
                   '--eventcontent':'ALCARECO',
                   '--triggerResultsProcess': 'RECO'}
-steps['ALCAEXPRUN3']={'-s':'ALCAOUTPUT:@allForPrompt+@allForExpress,ALCA:PromptCalibProd+PromptCalibProdSiStrip+PromptCalibProdSiStripGains+PromptCalibProdSiStripGainsAAG+PromptCalibProdSiStripHitEff+PromptCalibProdSiPixelAli+PromptCalibProdSiPixelAliHG+PromptCalibProdSiPixel+PromptCalibProdSiPixelLA+PromptCalibProdBeamSpotHP+PromptCalibProdBeamSpotHPLowPU',
+steps['ALCAEXPRUN3']={'-s':'ALCAOUTPUT:@allForExpress,ALCA:PromptCalibProd+PromptCalibProdSiStrip+PromptCalibProdSiStripGains+PromptCalibProdSiStripGainsAAG+PromptCalibProdSiStripHitEff+PromptCalibProdSiPixelAli+PromptCalibProdSiPixelAliHG+PromptCalibProdSiPixel+PromptCalibProdSiPixelLA+PromptCalibProdBeamSpotHP+PromptCalibProdBeamSpotHPLowPU',
                       '--customise': 'Alignment/CommonAlignmentProducer/customizeLSNumberFilterForRelVals.doNotFilterLS',
                       '--conditions':'auto:run3_data',
                       '--datatier':'ALCARECO',
@@ -4180,6 +4223,8 @@ defaultDataSets['2021FS']='CMSSW_12_4_13-124X_mcRun3_2022_realistic_v12_2021_Fas
 defaultDataSets['2023']='CMSSW_13_0_10-130X_mcRun3_2023_realistic_withEarly2023BS_v1_2023-v'
 defaultDataSets['2023FS']='CMSSW_13_0_11-130X_mcRun3_2023_realistic_withEarly2023BS_v1_FastSim-v'
 defaultDataSets['2024']='CMSSW_14_0_0_pre3-140X_mcRun3_2024_realistic_v1_STD_2024_noPU-v'
+defaultDataSets['2024HLTOnDigi']='CMSSW_14_0_0_pre3-140X_mcRun3_2024_realistic_v1_STD_2024_noPU-v'
+defaultDataSets["2024SimOnGen"] = 'CMSSW_14_0_0_pre3-140X_mcRun3_2024_realistic_v1_STD_2024_noPU-v'
 defaultDataSets['2026D49']='CMSSW_12_0_0_pre4-113X_mcRun4_realistic_v7_2026D49noPU-v'
 defaultDataSets['2026D76']='CMSSW_12_0_0_pre4-113X_mcRun4_realistic_v7_2026D76noPU-v'
 defaultDataSets['2026D77']='CMSSW_12_1_0_pre2-113X_mcRun4_realistic_v7_2026D77noPU-v'
@@ -4187,6 +4232,7 @@ defaultDataSets['2026D88']='CMSSW_12_3_0_pre5-123X_mcRun4_realistic_v4_2026D88no
 defaultDataSets['2026D95']='CMSSW_13_1_0_pre1-130X_mcRun4_realistic_v2_2026D95noPU-v'
 defaultDataSets['2026D96']='CMSSW_13_1_0_pre1-130X_mcRun4_realistic_v2_2026D96noPU-v'
 defaultDataSets['2026D98']='CMSSW_13_2_0_pre1-131X_mcRun4_realistic_v5_2026D98noPU-v'
+defaultDataSets['2026D110']='CMSSW_14_1_0_pre3-140X_mcRun4_realistic_v4_STD_2026D110_noPU-v'
 
 puDataSets = {}
 for key, value in defaultDataSets.items(): puDataSets[key+'PU'] = value
@@ -4260,12 +4306,13 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                        '--eventcontent': 'FEVTDEBUG',
                                        '--geometry' : geom
                                        }
+    
     if beamspot is not None: upgradeStepDict['GenSim'][k]['--beamspot']=beamspot
 
     upgradeStepDict['GenSimHLBeamSpot'][k]= {'-s' : 'GEN,SIM',
                                        '-n' : 10,
-                                       '--conditions' : gt,
-                                       '--beamspot' : 'HLLHC',
+                                       '--conditions' : gt+'_13TeV',
+                                       '--beamspot' : 'DBrealisticHLLHC',
                                        '--datatier' : 'GEN-SIM',
                                        '--eventcontent': 'FEVTDEBUG',
                                        '--geometry' : geom
@@ -4274,7 +4321,7 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
     upgradeStepDict['GenSimHLBeamSpot14'][k]= {'-s' : 'GEN,SIM',
                                        '-n' : 10,
                                        '--conditions' : gt,
-                                       '--beamspot' : 'HLLHC14TeV',
+                                       '--beamspot' : 'DBrealisticHLLHC',
                                        '--datatier' : 'GEN-SIM',
                                        '--eventcontent': 'FEVTDEBUG',
                                        '--geometry' : geom
@@ -4289,6 +4336,18 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                        '--geometry' : geom
                                        }
 
+    upgradeStepDict['Sim'][k]= {'-s' : 'SIM',
+                                       '-n' : 10,
+                                       '--conditions' : gt,
+                                       '--beamspot' : 'Realistic25ns13TeVEarly2017Collision',
+                                       '--datatier' : 'SIM',
+                                       '--eventcontent': 'FEVTDEBUG',
+                                       '--geometry' : geom
+                                       }
+    
+    if beamspot is not None: upgradeStepDict['Sim'][k]['--beamspot']=beamspot
+    
+
     upgradeStepDict['Digi'][k] = {'-s':'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:%s'%(hltversion),
                                       '--conditions':gt,
                                       '--datatier':'GEN-SIM-DIGI-RAW',
@@ -4296,9 +4355,24 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                       '--eventcontent':'FEVTDEBUGHLT',
                                       '--geometry' : geom
                                       }
-
+    
+    upgradeStepDict['DigiNoHLT'][k] = {'-s':'DIGI:pdigi_valid,L1,DIGI2RAW',
+                                      '--conditions':gt,
+                                      '--datatier':'GEN-SIM-DIGI-RAW',
+                                      '-n':'10',
+                                      '--eventcontent':'FEVTDEBUGHLT',
+                                      '--geometry' : geom
+                                      }
+    
+    upgradeStepDict['HLTOnly'][k] = {'-s':'HLT:%s'%(hltversion),
+                                 '--conditions':gt,
+                                 '--datatier':'GEN-SIM-DIGI-RAW',
+                                 '-n':'10',
+                                 '--eventcontent':'FEVTDEBUGHLT',
+                                 '--geometry' : geom,
+                                 }
     # Adding Track trigger step in step2
-    upgradeStepDict['DigiTrigger'][k] = {'-s':'DIGI:pdigi_valid,L1TrackTrigger,L1,DIGI2RAW,HLT:%s'%(hltversion),
+    upgradeStepDict['DigiTrigger'][k] = {'-s':'DIGI:pdigi_valid,L1TrackTrigger,L1,L1P2GT,DIGI2RAW,HLT:%s'%(hltversion),
                                       '--conditions':gt,
                                       '--datatier':'GEN-SIM-DIGI-RAW',
                                       '-n':'10',
@@ -4404,7 +4478,6 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                       '-n':'10',
                                       '--eventcontent':'ALCARECO',
                                       '--geometry' : geom,
-                                      '--filein':'file:step3.root'
                                       }
 
     upgradeStepDict['ALCAPhase2'][k] = merge([{'-s':'ALCA:SiPixelCalSingleMuonLoose+SiPixelCalSingleMuonTight+TkAlMuonIsolated+TkAlMinBias+MuAlOverlaps+EcalESAlign+TkAlZMuMu+TkAlDiMuonAndVertex+HcalCalHBHEMuonProducerFilter+TkAlUpsilonMuMu+TkAlJpsiMuMu'},upgradeStepDict['ALCA'][k]])
@@ -4488,7 +4561,7 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
 
 for step in upgradeStepDict.keys():
     # we need to do this for each fragment
-    if ('Sim' in step and 'Fast' not in step) or ('Premix' in step) or ('Sim' not in step and 'Gen' in step):
+    if ('Sim' in step and ('Fast' not in step and step != 'Sim')) or ('Premix' in step) or ('Sim' not in step and 'Gen' in step):
         for frag,info in upgradeFragments.items():
             howMuch=info.howMuch
             for key in [key for year in upgradeKeys for key in upgradeKeys[year]]:

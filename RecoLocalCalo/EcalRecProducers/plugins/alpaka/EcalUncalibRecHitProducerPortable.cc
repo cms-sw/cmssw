@@ -87,14 +87,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         multifitParametersToken_{esConsumes()},
         ebDigisSizeHostBuf_{cms::alpakatools::make_host_buffer<uint32_t>()},
         eeDigisSizeHostBuf_{cms::alpakatools::make_host_buffer<uint32_t>()} {
-    // Workaround until the ProductID problem in issue https://github.com/cms-sw/cmssw/issues/44643 is fixed
-#ifdef ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLED
-    producesTemporarily("edm::DeviceProduct<alpaka_cuda_async::EcalUncalibratedRecHitDeviceCollection>",
-                        ps.getParameter<std::string>("recHitsLabelEB"));
-    producesTemporarily("edm::DeviceProduct<alpaka_cuda_async::EcalUncalibratedRecHitDeviceCollection>",
-                        ps.getParameter<std::string>("recHitsLabelEE"));
-#endif
-
     std::pair<double, double> EBtimeFitLimits, EEtimeFitLimits;
     EBtimeFitLimits.first = ps.getParameter<double>("EBtimeFitLimits_Lower");
     EBtimeFitLimits.second = ps.getParameter<double>("EBtimeFitLimits_Upper");

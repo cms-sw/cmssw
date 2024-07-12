@@ -456,8 +456,8 @@
                                                                                                                        \
     template <CMS_SOA_BYTE_SIZE_TYPE VIEW_ALIGNMENT = cms::soa::CacheLineSize::defaultSize,                            \
             bool VIEW_ALIGNMENT_ENFORCEMENT = cms::soa::AlignmentEnforcement::relaxed,                                 \
-            bool RESTRICT_QUALIFY = cms::soa::RestrictQualify::enabled,                                                \
-            bool RANGE_CHECKING = cms::soa::RangeChecking::disabled>                                                   \
+            bool RESTRICT_QUALIFY = cms::soa::RestrictQualify::Default,                                                \
+            bool RANGE_CHECKING = cms::soa::RangeChecking::Default>                                                    \
     struct ViewTemplateFreeParams;                                                                                     \
                                                                                                                        \
     /* dump the SoA internal structure */                                                                              \
@@ -539,7 +539,7 @@
     using ConstViewTemplate = ConstViewTemplateFreeParams<ALIGNMENT, ALIGNMENT_ENFORCEMENT, RESTRICT_QUALIFY,          \
       RANGE_CHECKING>;                                                                                                 \
                                                                                                                        \
-    using ConstView = ConstViewTemplate<cms::soa::RestrictQualify::enabled, cms::soa::RangeChecking::disabled>;        \
+    using ConstView = ConstViewTemplate<cms::soa::RestrictQualify::Default, cms::soa::RangeChecking::Default>;         \
                                                                                                                        \
     /* Generate the mutable View template */                                                                           \
     _GENERATE_SOA_TRIVIAL_VIEW(CLASS,                                                                                  \
@@ -552,7 +552,7 @@
     template <bool RESTRICT_QUALIFY, bool RANGE_CHECKING>                                                              \
     using ViewTemplate = ViewTemplateFreeParams<ALIGNMENT, ALIGNMENT_ENFORCEMENT, RESTRICT_QUALIFY, RANGE_CHECKING>;   \
                                                                                                                        \
-    using View = ViewTemplate<cms::soa::RestrictQualify::enabled, cms::soa::RangeChecking::disabled>;                  \
+    using View = ViewTemplate<cms::soa::RestrictQualify::Default, cms::soa::RangeChecking::Default>;                   \
                                                                                                                        \
     /* Trivial constuctor */                                                                                           \
     CLASS()                                                                                                            \

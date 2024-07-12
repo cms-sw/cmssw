@@ -19,8 +19,8 @@
 
 // Units and Constants
 #include "DataFormats/Math/interface/CMSUnits.h"
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include <CLHEP/Units/PhysicalConstants.h>
+#include <CLHEP/Units/SystemOfUnits.h>
 
 // forward declarations
 // For the random numbers
