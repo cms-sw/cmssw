@@ -1618,8 +1618,11 @@ void HGCalGeomParameters::loadSpecParsTrapezoid(const DDFilteredView& fv, HGCalP
   php.layerFrontBH_ = dbl_to_int(getDDDArray("LayerFrontBH", sv, 0));
   php.rMinLayerBH_ = getDDDArray("RMinLayerBH", sv, 0);
   rescale(php.rMinLayerBH_, HGCalParameters::k_ScaleFromDDD);
+  assert(php.nPhiBinBH_.size() > 1);
   php.nCellsFine_ = php.nPhiBinBH_[0];
   php.nCellsCoarse_ = php.nPhiBinBH_[1];
+  assert(0 != php.nCellsFine_);
+  assert(0 != php.nCellsCoarse_);
   php.cellSize_.emplace_back(2.0 * M_PI / php.nCellsFine_);
   php.cellSize_.emplace_back(2.0 * M_PI / php.nCellsCoarse_);
 
@@ -1707,8 +1710,11 @@ void HGCalGeomParameters::loadSpecParsTrapezoid(const cms::DDFilteredView& fv,
   php.layerFrontBH_ = dbl_to_int(fv.get<std::vector<double> >(sdTag1, "LayerFrontBH"));
   php.rMinLayerBH_ = fv.get<std::vector<double> >(sdTag1, "RMinLayerBH");
   rescale(php.rMinLayerBH_, HGCalParameters::k_ScaleFromDD4hep);
+  assert(php.nPhiBinBH_.size() > 1);
   php.nCellsFine_ = php.nPhiBinBH_[0];
   php.nCellsCoarse_ = php.nPhiBinBH_[1];
+  assert(0 != php.nCellsFine_);
+  assert(0 != php.nCellsCoarse_);
   php.cellSize_.emplace_back(2.0 * M_PI / php.nCellsFine_);
   php.cellSize_.emplace_back(2.0 * M_PI / php.nCellsCoarse_);
 
