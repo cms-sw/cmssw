@@ -81,6 +81,8 @@ DAQSource::DAQSource(edm::ParameterSet const& pset, edm::InputSourceDescription 
   //load mode class based on parameter
   if (dataModeConfig_ == "FRD") {
     dataMode_ = std::make_shared<DataModeFRD>(this);
+  } else if (dataModeConfig_ == "FRDPreUnpack") {
+    dataMode_ = std::make_shared<DataModeFRDPreUnpack>(this);
   } else if (dataModeConfig_ == "FRDStriped") {
     dataMode_ = std::make_shared<DataModeFRDStriped>(this);
   } else if (dataModeConfig_ == "ScoutingRun3") {
@@ -357,7 +359,7 @@ void DAQSource::maybeOpenNewLumiSection(const uint32_t lumiSection) {
 evf::EvFDaqDirector::FileStatus DAQSource::getNextEventFromDataBlock() {
   setMonState(inChecksumEvent);
 
-  bool found = dataMode_->nextEventView();
+  bool found = dataMode_->nextEventView(currentFile_.get());
   //file(s) completely parsed
   if (!found) {
     if (dataMode_->dataBlockInitialized()) {
@@ -525,13 +527,13 @@ evf::EvFDaqDirector::FileStatus DAQSource::getNextDataBlock() {
   unsigned char* dataPosition;
 
   //read event header, copy it to a single chunk if necessary
-  chunkEnd=  currentFile_->advance(mWakeup_, cvWakeupAll_, dataPosition, dataMode_->headerSize());
+  chunkEnd = currentFile_->advance(mWakeup_, cvWakeupAll_, dataPosition, dataMode_->headerSize());
 
   //get buffer size of current chunk (can be resized)
   uint64_t currentChunkSize = currentFile_->currentChunkSize();
 
   //prepare view based on header that was read
-  dataMode_->makeDataBlockView(dataPosition, currentChunkSize, currentFile_->fileSizes_, currentFile_->rawHeaderSize_);
+  dataMode_->makeDataBlockView(dataPosition, currentFile_.get());
 
   //check that payload size is within the file
   const size_t msgSize = dataMode_->dataBlockSize() - dataMode_->headerSize();
@@ -564,7 +566,7 @@ evf::EvFDaqDirector::FileStatus DAQSource::getNextDataBlock() {
     setMonState(inChunkReceived);
     //header and payload is moved, update view
     dataMode_->makeDataBlockView(
-        dataPosition, currentFile_->currentChunkSize(), currentFile_->fileSizes_, currentFile_->rawHeaderSize_);
+        dataPosition, currentFile_.get());
   } else {
     //everything is in a single chunk, only move pointers forward
     chunkEnd = currentFile_->advance(mWakeup_, cvWakeupAll_, dataPosition, msgSize);
@@ -1260,8 +1262,8 @@ void DAQSource::readWorker(unsigned int tid) {
           bufferLeft += last;
         }
         if ((uint64_t)last < eventChunkBlock_) {  //last read
-          edm::LogInfo("DAQSource") << "chunkUsedSize" << chunk->usedSize_ << " u-s:" << (chunk->usedSize_ - skipped)
-                                    << " ix:" << i * eventChunkBlock_ << " " << (size_t)last;
+          LogDebug("DAQSource") << "chunkUsedSize:" << chunk->usedSize_ << " u-s:" << (chunk->usedSize_ - skipped)
+                                << " ix:" << i * eventChunkBlock_ << " " << (size_t)last;
           //check if this is last block if single file, then total read size must match file size
           if (file->numFiles_ == 1 && !(chunk->usedSize_ - skipped == i * eventChunkBlock_ + (size_t)last)) {
             edm::LogError("DAQSource") << "readWorker failed to read file -: " << file->fileName_
@@ -1385,11 +1387,18 @@ void DAQSource::readWorker(unsigned int tid) {
     }
     assert(dataMode_->versionCheck());
 
-    std::unique_lock<std::mutex> lkw(mWakeup_);
+    //for models that unpack RAW data in reader thread (must fit to buffer!)
 
     //put the completed chunk in the file chunk vector at predetermined index
     file->chunks_[chunk->fileIndex_] = chunk;
-    //this is atomic to secure the sequential buffer fill before becoming available for processing)
+
+    if (dataMode_->fitToBuffer())
+      dataMode_->unpackFile(file);
+
+    //possibly not needed (except for better timing on cvWakeupAll_)
+    std::unique_lock<std::mutex> lkw(mWakeup_);
+
+    //this is atomic to ensure all previous writes are consistent
     chunk->readComplete_ = true;
 
     //wakeup for chunk

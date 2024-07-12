@@ -307,6 +307,19 @@ public:
     return chunks_[chunkid] != nullptr && chunks_[chunkid]->readComplete_;
   }
   bool advance(std::mutex &m, std::condition_variable &cv, unsigned char*& dataPosition, const size_t size);
+  bool advanceSimple(unsigned char*& dataPosition, const size_t size) {
+    size_t currentLeft = chunks_[currentChunk_]->size_ - chunkPosition_;
+    if (currentLeft < size)
+      return true;
+    dataPosition = chunks_[currentChunk_]->buf_ + chunkPosition_;
+    chunkPosition_ += size;
+    bufferPosition_ += size;
+    return false;
+  }
+  void resetPos() {
+    chunkPosition_ = 0;
+    bufferPosition_ = 0;
+  }
   void moveToPreviousChunk(const size_t size, const size_t offset);
   void rewindChunk(const size_t size);
   void unsetDeleteFile() { deleteFile_ = false; }

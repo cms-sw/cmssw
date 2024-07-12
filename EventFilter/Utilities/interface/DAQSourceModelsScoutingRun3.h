@@ -40,10 +40,9 @@ public:
   }
 
   void makeDataBlockView(unsigned char* addr,
-                         size_t maxSize,
-                         std::vector<uint64_t> const& fileSizes,
-                         size_t fileHeaderSize) override {
-    fileHeaderSize_ = fileHeaderSize;
+                         RawInputFile* rawFile) override {
+    std::vector<uint64_t> const& fileSizes = rawFile->fileSizes_;
+    fileHeaderSize_ = rawFile->rawHeaderSize_;
     numFiles_ = fileSizes.size();
 
     // initalize vectors keeping tracks of valid orbits and completed blocks
@@ -57,15 +56,15 @@ public:
     dataBlockAddrs_.clear();
     dataBlockAddrs_.push_back(addr);
     dataBlockMaxAddrs_.clear();
-    dataBlockMaxAddrs_.push_back(addr + fileSizes[0] - fileHeaderSize);
+    dataBlockMaxAddrs_.push_back(addr + fileSizes[0] - fileHeaderSize_);
     auto fileAddr = addr;
     for (unsigned int i = 1; i < fileSizes.size(); i++) {
       fileAddr += fileSizes[i - 1];
       dataBlockAddrs_.push_back(fileAddr);
-      dataBlockMaxAddrs_.push_back(fileAddr + fileSizes[i] - fileHeaderSize);
+      dataBlockMaxAddrs_.push_back(fileAddr + fileSizes[i] - fileHeaderSize_);
     }
 
-    dataBlockMax_ = maxSize;
+    dataBlockMax_ = rawFile->currentChunkSize();
     blockCompleted_ = false;
     //set event cached as we set initial address here
     bool result = makeEvents();
@@ -74,14 +73,9 @@ public:
     setDataBlockInitialized(true);
   }
 
-  bool nextEventView() override;
+  bool nextEventView(RawInputFile*) override;
   bool checksumValid() override;
   std::string getChecksumError() const override;
-
-  bool isRealData() const override {
-    assert(!events_.empty());
-    return events_[0]->isRealData();
-  }
 
   uint32_t run() const override {
     assert(!events_.empty());
@@ -93,6 +87,7 @@ public:
   bool requireHeader() const override { return true; }
 
   bool fitToBuffer() const override { return true; }
+  void unpackFile(RawInputFile* file) {}
 
   bool dataBlockInitialized() const override { return dataBlockInitialized_; }
 

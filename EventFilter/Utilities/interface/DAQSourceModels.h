@@ -41,17 +41,15 @@ public:
   virtual bool versionCheck() const = 0;
   virtual uint64_t dataBlockSize() const = 0;
   virtual void makeDataBlockView(unsigned char* addr,
-                                 size_t maxSize,
-                                 std::vector<uint64_t> const& fileSizes,
-                                 size_t fileHeaderSize) = 0;
-  virtual bool nextEventView() = 0;
+                                 RawInputFile* rawFile) = 0;
+  virtual bool nextEventView(RawInputFile*) = 0;
   virtual bool checksumValid() = 0;
   virtual std::string getChecksumError() const = 0;
-  virtual bool isRealData() const = 0;
   virtual uint32_t run() const = 0;
   virtual bool dataBlockCompleted() const = 0;
   virtual bool requireHeader() const = 0;
   virtual bool fitToBuffer() const = 0;
+  virtual void unpackFile(RawInputFile* file) = 0;
 
   virtual bool dataBlockInitialized() const = 0;
   virtual void setDataBlockInitialized(bool) = 0;
