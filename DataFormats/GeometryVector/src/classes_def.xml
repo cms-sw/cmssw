@@ -126,4 +126,7 @@
    <version ClassVersion="11" checksum="2722543385"/>
    <version ClassVersion="10" checksum="3537126144"/>
   </class>
+
+  <class name="std::pair<Vector3DBase<float,LocalTag>,Vector3DBase<float,LocalTag>>"/>
+  <class name="std::pair<Point3DBase<float,LocalTag>,Point3DBase<float,LocalTag>>"/>
 </lcgdict>
