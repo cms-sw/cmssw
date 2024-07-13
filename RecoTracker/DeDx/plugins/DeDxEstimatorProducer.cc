@@ -130,7 +130,6 @@ void DeDxEstimatorProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
     int NClusterSaturating = 0;
     DeDxHitCollection dedxHits;
 
-    dedxHits.reserve(track->recHitsSize() / 2);
     if (useDeDxHits) {
       if (usePixel)
         dedxHits = (*pixelDeDxHits)[track];

@@ -17,6 +17,7 @@ dedxHitInfo = cms.EDProducer("DeDxHitInfoProducer",
     calibrationPath    = cms.string("file:Gains.root"),
     shapeTest          = cms.bool(True),
     clusterShapeCache  = cms.InputTag("siPixelClusterShapeCache"),
+    storeMomentumAtHit = cms.bool(False),
 
     lowPtTracksPrescalePass = cms.uint32(100),   # prescale factor for low pt tracks above the dEdx cut
     lowPtTracksPrescaleFail = cms.uint32(2000), # prescale factor for low pt tracks below the dEdx cut
@@ -91,7 +92,7 @@ run3_common.toModify(dedxHitInfo,
 
 # dEdx for Run-3 UPC
 from Configuration.Eras.Modifier_run3_upc_cff import run3_upc
-run3_upc.toModify(dedxHitInfo, minTrackPt = 0)
+run3_upc.toModify(dedxHitInfo, minTrackPt = 0, storeMomentumAtHit = True)
 
 from RecoTracker.DeDx.dedxHitCalibrator_cfi import dedxHitCalibrator as _dedxHitCalibrator
 from SimGeneral.MixingModule.SiStripSimParameters_cfi import SiStripSimBlock as _SiStripSimBlock

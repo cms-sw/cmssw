@@ -30,6 +30,7 @@ private:
   // ----------member data ---------------------------
   const edm::EDGetTokenT<reco::TrackCollection> tracksToken_;
   const edm::EDGetTokenT<reco::DeDxHitInfoAss> dedxHitAssToken_;
+  const edm::EDGetTokenT<edm::ValueMap<std::vector<float>>> dedxHitMomToken_;
   const std::map<std::string, edm::EDGetTokenT<edm::ValueMap<reco::DeDxData>>> dedxEstimatorsTokens_;
   const std::map<std::string, edm::EDGetTokenT<pat::PackedCandidateCollection>> packedCandidatesTokens_;
   const std::map<std::string, edm::EDGetTokenT<edm::Association<pat::PackedCandidateCollection>>> trk2pcTokens_;
@@ -39,6 +40,7 @@ void DeDxEstimatorRekeyer::fillDescriptions(edm::ConfigurationDescriptions& desc
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("tracks", {"generalTracks"});
   desc.add<edm::InputTag>("dedxHits", {"dedxHitInfo"});
+  desc.add<edm::InputTag>("dedxMomentum", {"dedxHitInfo:momentumAtHit"});
   desc.add<std::vector<edm::InputTag>>(
       "packedCandidates",
       {edm::InputTag("packedPFCandidates"), edm::InputTag("lostTracks"), edm::InputTag("lostTracks:eleTracks")});
@@ -50,6 +52,8 @@ void DeDxEstimatorRekeyer::fillDescriptions(edm::ConfigurationDescriptions& desc
 DeDxEstimatorRekeyer::DeDxEstimatorRekeyer(const edm::ParameterSet& iConfig)
     : tracksToken_(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("tracks"))),
       dedxHitAssToken_(consumes<reco::DeDxHitInfoAss>(iConfig.getParameter<edm::InputTag>("dedxHits"))),
+      dedxHitMomToken_(
+          consumes<edm::ValueMap<std::vector<float>>>(iConfig.getParameter<edm::InputTag>("dedxMomentum"))),
       dedxEstimatorsTokens_(
           getTokens<edm::ValueMap<reco::DeDxData>>(iConfig.getParameter<std::vector<edm::InputTag>>("dedxEstimators"))),
       packedCandidatesTokens_(getTokens<pat::PackedCandidateCollection>(
@@ -60,6 +64,7 @@ DeDxEstimatorRekeyer::DeDxEstimatorRekeyer(const edm::ParameterSet& iConfig)
     produces<edm::ValueMap<reco::DeDxData>>(d.first);
   produces<reco::DeDxHitInfoCollection>();
   produces<reco::DeDxHitInfoAss>();
+  produces<edm::ValueMap<std::vector<float>>>("momentumAtHit");
 }
 
 void DeDxEstimatorRekeyer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
@@ -102,18 +107,23 @@ void DeDxEstimatorRekeyer::produce(edm::StreamID, edm::Event& iEvent, const edm:
   }
 
   // Rekey dEdx hit info
+  const auto& dedxHitMom = iEvent.get(dedxHitMomToken_);
   const auto& dedxHitAss = iEvent.get(dedxHitAssToken_);
   const auto& dedxHitInfoHandle = iEvent.getRefBeforePut<reco::DeDxHitInfoCollection>();
   auto dedxHitInfoAssociation = std::make_unique<reco::DeDxHitInfoAss>(dedxHitInfoHandle);
   reco::DeDxHitInfoAss::Filler filler(*dedxHitInfoAssociation);
   auto resultdedxHitColl = std::make_unique<reco::DeDxHitInfoCollection>();
   resultdedxHitColl->reserve(pcTrkMap.size() > 0 ? pcTrkMap.size() * pcTrkMap[0].second.size() : 0);
+  std::vector<std::vector<float>> momenta;
+  momenta.reserve(resultdedxHitColl->capacity());
   // Loop over packed candidates
   for (const auto& h : pcTrkMap) {
     std::vector<int> indices(h.first->size(), -1);
     for (const auto& p : h.second) {
       indices[p.first.key()] = resultdedxHitColl->size();
-      resultdedxHitColl->emplace_back(*dedxHitAss[p.second]);
+      const auto& dedxHit = dedxHitAss[p.second];
+      resultdedxHitColl->emplace_back(*dedxHit);
+      momenta.emplace_back(dedxHitMom[dedxHit]);
     }
     filler.insert(h.first, indices.begin(), indices.end());
   }
@@ -121,6 +131,12 @@ void DeDxEstimatorRekeyer::produce(edm::StreamID, edm::Event& iEvent, const edm:
   // Fill the association map and put it into the event
   filler.fill();
   iEvent.put(std::move(dedxHitInfoAssociation));
+  // Fill the value map and put it into the event
+  auto dedxMomenta = std::make_unique<edm::ValueMap<std::vector<float>>>();
+  edm::ValueMap<std::vector<float>>::Filler mfiller(*dedxMomenta);
+  mfiller.insert(dedxHitCollHandle, momenta.begin(), momenta.end());
+  mfiller.fill();
+  iEvent.put(std::move(dedxMomenta), "momentumAtHit");
 }
 
 //define this as a plug-in
