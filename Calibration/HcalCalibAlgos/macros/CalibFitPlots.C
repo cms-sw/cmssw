@@ -2240,10 +2240,10 @@ void PlotHistCorrFactor(char* infile,
         h->SetBinContent(bin, val);
         h->SetBinError(bin, dvl);
         nent++;
-	chi2 += (((val - 1.0) / dvl) * ((val - 1.0) / dvl));
+        chi2 += (((val - 1.0) / dvl) * ((val - 1.0) / dvl));
       }
     }
-    std::cout << "Depth = " << (j + 1) <<  " chi2 = " << chi2 << "/" << nent << std::endl;
+    std::cout << "Depth = " << (j + 1) << " chi2 = " << chi2 << "/" << nent << std::endl;
     if (nent > nmin) {
       fits++;
       dy += 0.025;
@@ -2383,7 +2383,7 @@ void PlotHistCorrFactor(char* infile,
       chi2 += (((val - 1.0) / dvl) * ((val - 1.0) / dvl));
     }
   }
-  std::cout << "Depth = " << depth <<  " chi2 = " << chi2 << "/" << nent << std::endl;
+  std::cout << "Depth = " << depth << " chi2 = " << chi2 << "/" << nent << std::endl;
   if (nent > nmin) {
     fits++;
     dy += 0.025;
@@ -2658,7 +2658,7 @@ void PlotHistCorrFactors(char* infile1,
             ob->Delete();
           TH1D* h = new TH1D(name, name, nbin, etamin, etamax);
           double sumNum(0), sumDen(0), chi2(0);
-	  int npt(0);
+          int npt(0);
           std::map<int, cfactors>::const_iterator ktr = cfacs[ih].begin();
           for (std::map<int, cfactors>::const_iterator itr = cfacs[0].begin(); itr != cfacs[0].end(); ++itr, ++ktr) {
             int dep = (itr->second).depth;
@@ -2674,13 +2674,14 @@ void PlotHistCorrFactors(char* infile1,
               h->SetBinError(bin, dvl);
               sumNum += (val / (dvl * dvl));
               sumDen += (1.0 / (dvl * dvl));
-	      ++npt;
-	      chi2 += (((val - 1.0) / dvl) * ((val - 1.0) / dvl));
+              ++npt;
+              chi2 += (((val - 1.0) / dvl) * ((val - 1.0) / dvl));
             }
           }
           double fit = (sumDen > 0) ? (sumNum / sumDen) : 1.0;
-	  std::cout << texts[ih] << " Depth = " << (j + 1) << " Fit to Pol0: " << fit << " chi2: " << chi2 << "/" << npt << std::endl;
-	  h->SetLineColor(colors[ih]);
+          std::cout << texts[ih] << " Depth = " << (j + 1) << " Fit to Pol0: " << fit << " chi2: " << chi2 << "/" << npt
+                    << std::endl;
+          h->SetLineColor(colors[ih]);
           h->SetMarkerColor(colors[ih]);
           h->SetMarkerStyle(mtype[j]);
           h->SetMarkerSize(0.9);
@@ -2890,7 +2891,7 @@ void PlotHistCorr2Factors(char* infile1,
           ob->Delete();
         TH1D* h = new TH1D(name, name, nbin, etamin, etamax);
         double sumNum(0), sumDen(0), chi2(0);
-	int npt(0);
+        int npt(0);
         std::map<int, cfactors>::const_iterator ktr = cfacs[ih].begin();
         for (std::map<int, cfactors>::const_iterator itr = cfacs[0].begin(); itr != cfacs[0].end(); ++itr, ++ktr) {
           int dep = (itr->second).depth;
@@ -2905,8 +2906,8 @@ void PlotHistCorr2Factors(char* infile1,
             h->SetBinError(bin, dvl);
             sumNum += (val / (dvl * dvl));
             sumDen += (1.0 / (dvl * dvl));
-	    ++npt;
-	    chi2 += (((val - 1.0) / dvl) * ((val - 1.0) / dvl));
+            ++npt;
+            chi2 += (((val - 1.0) / dvl) * ((val - 1.0) / dvl));
           }
         }
         double fit = (sumDen > 0) ? (sumNum / sumDen) : 1.0;
@@ -3133,7 +3134,7 @@ void PlotHistCorrDFactors(char* infile1,
           ob->Delete();
         TH1D* h = new TH1D(name, name, nbin, etamin, etamax);
         double sumNum(0), sumDen(0), chi2(0);
-	int npt(0);
+        int npt(0);
         std::map<int, cfactors>::const_iterator ktr = cfacs[ih].begin();
         for (std::map<int, cfactors>::const_iterator itr = cfacs[0].begin(); itr != cfacs[0].end(); ++itr, ++ktr) {
           int dep = (itr->second).depth;
@@ -3148,12 +3149,13 @@ void PlotHistCorrDFactors(char* infile1,
             h->SetBinError(bin, dvl);
             sumNum += (val / (dvl * dvl));
             sumDen += (1.0 / (dvl * dvl));
-	    ++npt;
-	    chi2 += (((val - 1.0) / dvl) * ((val - 1.0) / dvl));
+            ++npt;
+            chi2 += (((val - 1.0) / dvl) * ((val - 1.0) / dvl));
           }
         }
         double fit = (sumDen > 0) ? (sumNum / sumDen) : 1.0;
-        std::cout << texts[ih] << " Depth = " << depth << " Fit to Pol0: " << fit << " chi2 = " << chi2 << "/" << npt << std::endl;
+        std::cout << texts[ih] << " Depth = " << depth << " Fit to Pol0: " << fit << " chi2 = " << chi2 << "/" << npt
+                  << std::endl;
         h->SetLineColor(colors[ih]);
         h->SetMarkerColor(colors[ih]);
         h->SetMarkerStyle(mtype[depth - 1]);
