@@ -8,7 +8,7 @@ process = cms.Process('HARVESTING',Phase2)
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
-process.load('Configuration.Geometry.GeometryExtended2023D17Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D110Reco_cff')
 process.load('Configuration.StandardSequences.DQMSaverAtRunEnd_cff')
 process.load('Configuration.StandardSequences.Harvesting_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
@@ -40,7 +40,7 @@ process.configurationMetadata = cms.untracked.PSet(
 
 # Other statements
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T33', '')
 
 # Path and EndPath definitions
 process.dqmsave_step = cms.Path(process.DQMSaver)
