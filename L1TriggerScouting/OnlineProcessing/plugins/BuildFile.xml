@@ -1,0 +1,9 @@
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/PluginManager"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="CommonTools/UtilAlgos"/>
+<use name="DataFormats/L1Trigger"/>
+<use name="DataFormats/L1Scouting"/>
+<use name="L1TriggerScouting/Utilities"/>
+<flags EDM_PLUGIN="1"/>
