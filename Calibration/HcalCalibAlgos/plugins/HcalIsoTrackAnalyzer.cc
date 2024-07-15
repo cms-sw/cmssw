@@ -46,6 +46,7 @@ private:
 
   const double pTrackLow_, pTrackHigh_;
   const int useRaw_, dataType_, unCorrect_;
+  const bool fillInRange_;
   const edm::InputTag labelIsoTkVar_, labelIsoTkEvt_;
   const std::vector<int> debEvents_;
   const edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> tok_htopo_;
@@ -88,6 +89,7 @@ HcalIsoTrackAnalyzer::HcalIsoTrackAnalyzer(const edm::ParameterSet& iConfig)
       useRaw_(iConfig.getUntrackedParameter<int>("useRaw", 0)),
       dataType_(iConfig.getUntrackedParameter<int>("dataType", 0)),
       unCorrect_(iConfig.getUntrackedParameter<int>("unCorrect", 0)),
+      fillInRange_(iConfig.getUntrackedParameter<bool>("fillInRange", false)),
       labelIsoTkVar_(iConfig.getParameter<edm::InputTag>("isoTrackVarLabel")),
       labelIsoTkEvt_(iConfig.getParameter<edm::InputTag>("isoTrackEvtLabel")),
       debEvents_(iConfig.getParameter<std::vector<int>>("debugEvents")),
@@ -109,8 +111,9 @@ HcalIsoTrackAnalyzer::HcalIsoTrackAnalyzer(const edm::ParameterSet& iConfig)
 
   edm::LogVerbatim("HcalIsoTrack") << "Parameters read from config file \n\t momentumLow_ " << pTrackLow_
                                    << "\t momentumHigh_ " << pTrackHigh_ << "\t useRaw_ " << useRaw_
-                                   << "\t dataType_      " << dataType_ << "\t unCorrect " << unCorrect_ << " and "
-                                   << debEvents_.size() << " events to be debugged";
+                                   << "\t dataType_      " << dataType_ << "\t unCorrect " << unCorrect_
+                                   << "\t fillInRange " << fillInRange_ << "\t and " << debEvents_.size()
+                                   << " events to be debugged";
 }
 
 HcalIsoTrackAnalyzer::~HcalIsoTrackAnalyzer() {
@@ -256,12 +259,18 @@ void HcalIsoTrackAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup con
       if (debug)
         edm::LogVerbatim("HcalIsoTrack") << "eHcal:eHcal10:eHCal30 " << t_eHcal << ":" << t_eHcal10 << t_eHcal30;
 #endif
-      tree->Fill();
-      edm::LogVerbatim("HcalIsoTrackX") << "Run " << t_Run << " Event " << t_Event << " p " << t_p;
-
+      bool select(true);
+      if (fillInRange_) {
+        if ((t_p < pTrackLow_) || (t_p > pTrackHigh_))
+          select = false;
+      }
+      if (select) {
+        tree->Fill();
+        edm::LogVerbatim("HcalIsoTrackX") << "Run " << t_Run << " Event " << t_Event << " p " << t_p;
+      }
       if (t_p < pTrackLow_) {
         ++nLow_;
-      } else if (t_p < pTrackHigh_) {
+      } else if (t_p > pTrackHigh_) {
         ++nHigh_;
       } else {
         ++nRange_;
@@ -402,6 +411,7 @@ void HcalIsoTrackAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& desc
   desc.addUntracked<int>("useRaw", 0);
   desc.addUntracked<int>("dataType", 0);
   desc.addUntracked<int>("unCorrect", 0);
+  desc.addUntracked<bool>("fillInRange", false);
   desc.add<edm::InputTag>("isoTrackVarLabel", edm::InputTag("alcaHcalIsotrkProducer", "HcalIsoTrack"));
   desc.add<edm::InputTag>("isoTrackEvtLabel", edm::InputTag("alcaHcalIsotrkProducer", "HcalIsoTrackEvent"));
   std::vector<int> events;
