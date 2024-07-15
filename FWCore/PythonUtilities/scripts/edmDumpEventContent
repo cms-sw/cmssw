@@ -71,6 +71,7 @@ class Branch (object):
         self.label      = pieces[2]
         self.process    = pieces[3]
         self.fullname   = "_".join (pieces)
+        self.splitlevel = branchInfo.GetSplitLevel()
         # if we're past a regex list, then make sure we've got a match
         if not regexList:
             # nothing more to do
@@ -108,7 +109,8 @@ class Branch (object):
         lengthDict = { 'type'    : [7, 35],
                        'module'  : [7, 25],
                        'label'   : [7, 15],
-                       'process' : [7, 15] }
+                       'process' : [7, 15],
+                       'fullname': [7, 50]}
         # Since we want this script to print out the columns in the
         # order that we want and not some random order, we specify
         # that order here.
@@ -138,7 +140,13 @@ class Branch (object):
                     Branch.form += ')-%ds   ' % lengthDict[piece][0]
         if Branch.mode == 'all':
             # name
-            Branch.form += '     %(fullname)s'
+            Branch.form += '     %('
+            if useMin:
+                Branch.form += 'fullname)-%ds' % min ( lengthDict['fullname'] )
+            else:
+                Branch.form += 'fullname)-%ds' % lengthDict['fullname'][0]
+            # split level
+            Branch.form += '     %(splitlevel)s'
 
 
     @staticmethod
@@ -149,7 +157,8 @@ class Branch (object):
                                'module'   : 'Module',
                                'label'    : 'Label',
                                'process'  : 'Process',
-                               'fullname' : 'Full Name'}
+                               'fullname' : 'Full Name',
+                               'splitlevel' : 'Split level'}
         print(title)
         print('-' * len(title))
         for branch in branchList:
@@ -164,7 +173,7 @@ if __name__ == "__main__":
                               help='print out only branch names')
     nameAllGroup.add_argument('--all',  dest='all',  action='store_true',
                               help='Print out everything: type, module, label, '\
-                              'process, and branch name')
+                              'process, branch name, and branch split level')
     parser.add_argument('--lfn', dest='lfn', action='store_true',
                         help="Force LFN2PFN translation (usually not necessary)")
     lumiRunGroup = parser.add_mutually_exclusive_group()
