@@ -1,10 +1,10 @@
 ###############################################################################
 # Way to use this:
-#   cmsRun g4OverlapCheck2026DD4hep_cfg.py geometry=D92 tol=0.1
+#   cmsRun g4OverlapCheck2026DD4hep_cfg.py geometry=D110 tol=0.01
 #
-#   Options for geometry D86, D88, D91, D92, D93, D94, D95, D96, D98, D99,
-#                        D100, D101, D102, D103, D104, D105, D106, D107,
-#                        D108, D109, D110, D111, D11, D113
+#   Options for geometry D95, D96, D98, D99, D100, D101, D102, D103, D104,
+#                        D105, D106, D107, D108, D109, D110, D111, D112, D113,
+#                        D114, D115
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -15,10 +15,10 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 ### SETUP OPTIONS
 options = VarParsing.VarParsing('standard')
 options.register('geometry',
-                 "D88",
+                 "D110",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D86, D88, D91, D92, D93, D94, D95, D96, D98, D99, D100, D101, D102, D103, D104, D105, D106, D107, D108, D109, D110, D111, D112, D113")
+                  "geometry of operations: D95, D96, D98, D99, D100, D101, D102, D103, D104, D105, D106, D107, D108, D109, D110, D111, D112, D113, D114, D115")
 options.register('tol',
                  0.01,
                  VarParsing.VarParsing.multiplicity.singleton,
@@ -35,7 +35,7 @@ print(options)
 # Use the options
 
 from Configuration.ProcessModifiers.dd4hep_cff import dd4hep
-if (options.geometry == "D94"):
+if (options.geometry == "D115"):
     from Configuration.Eras.Era_Phase2C20I13M9_cff import Phase2C20I13M9
     process = cms.Process('OverlapCheck',Phase2C20I13M9,dd4hep)
 else:

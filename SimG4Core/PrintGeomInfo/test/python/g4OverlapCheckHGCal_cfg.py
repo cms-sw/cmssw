@@ -2,7 +2,7 @@
 # Way to use this:
 #   cmsRun g4OverlapCheckHGCal_cfg.py geometry=D88 tol=0.1
 #
-#   Options for geometry D102, D103, D104, D108, D109, D110
+#   Options for geometry D102, D103, D105, D107, D108, D110, D114
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -16,7 +16,7 @@ options.register('geometry',
                  "D110",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D102, D103, D104, D108, D109, D110")
+                  "geometry of operations: D102, D103, D105, D107, D108, D110, D114")
 options.register('tol',
                  0.01,
                  VarParsing.VarParsing.multiplicity.singleton,
