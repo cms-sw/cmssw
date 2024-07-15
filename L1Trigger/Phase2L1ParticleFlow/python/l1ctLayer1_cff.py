@@ -11,7 +11,7 @@ from L1Trigger.Phase2L1ParticleFlow.l1TkEgAlgoEmulator_cfi import tkEgAlgoParame
 
 l1tLayer1Barrel = cms.EDProducer("L1TCorrelatorLayer1Producer",
     tracks = cms.InputTag('l1tPFTracksFromL1Tracks'),
-    muons = cms.InputTag('l1tSAMuonsGmt','promptSAMuons'),
+    muons = cms.InputTag('l1tSAMuonsGmt','prompt'),
     emClusters = cms.VInputTag(cms.InputTag('l1tPFClustersFromL1EGClusters:selected')),
     hadClusters = cms.VInputTag(cms.InputTag('l1tPFClustersFromCombinedCaloHCal:calibrated')),
     vtxCollection = cms.InputTag("l1tVertexFinderEmulator","L1VerticesEmulation"),
@@ -132,7 +132,7 @@ _hgcalSectors = cms.VPSet(
 
 l1tLayer1HGCal = cms.EDProducer("L1TCorrelatorLayer1Producer",
     tracks = cms.InputTag('l1tPFTracksFromL1Tracks'),
-    muons = cms.InputTag('l1tSAMuonsGmt','promptSAMuons'),
+    muons = cms.InputTag('l1tSAMuonsGmt','prompt'),
     emClusters = cms.VInputTag(cms.InputTag('l1tPFClustersFromHGC3DClusters:egamma')), # used only for E/gamma
     hadClusters = cms.VInputTag(cms.InputTag('l1tPFClustersFromHGC3DClusters')),
     vtxCollection = cms.InputTag("l1tVertexFinderEmulator","L1VerticesEmulation"),
@@ -268,7 +268,7 @@ l1tLayer1HGCalElliptic = l1tLayer1HGCal.clone(
 )
 
 l1tLayer1HGCalNoTK = cms.EDProducer("L1TCorrelatorLayer1Producer",
-    muons = cms.InputTag('l1tSAMuonsGmt','promptSAMuons'),
+    muons = cms.InputTag('l1tSAMuonsGmt','prompt'),
     emClusters = cms.VInputTag(cms.InputTag('l1tPFClustersFromHGC3DClusters:egamma')), # used only for E/gamma
     hadClusters = cms.VInputTag(cms.InputTag('l1tPFClustersFromHGC3DClusters')),
     vtxCollection = cms.InputTag("l1tVertexFinderEmulator","L1VerticesEmulation"),
@@ -360,7 +360,7 @@ l1tLayer1HGCalNoTK = cms.EDProducer("L1TCorrelatorLayer1Producer",
 )
 
 l1tLayer1HF = cms.EDProducer("L1TCorrelatorLayer1Producer",
-    muons = cms.InputTag('l1tSAMuonsGmt','promptSAMuons'),
+    muons = cms.InputTag('l1tSAMuonsGmt','prompt'),
     hadClusters = cms.VInputTag(cms.InputTag('l1tPFClustersFromCombinedCaloHF:calibrated')),
     vtxCollection = cms.InputTag("l1tVertexFinderEmulator","L1VerticesEmulation"),
     nVtx = cms.int32(1),    

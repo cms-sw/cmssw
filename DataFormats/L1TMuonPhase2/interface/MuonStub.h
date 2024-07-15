@@ -79,6 +79,28 @@ namespace l1t {
     inline int quality() const { return quality_; }
     /// return tag (second TS tag)
     inline int id() const { return id_; }
+    inline int index() const { return id_; }
+    /// return  address
+    inline int address() const {
+      int addr = id_ | (phiRegion_ << 2);
+      if (etaRegion_ >= 0) {
+        return addr | (etaRegion_ << 8);
+      } else {
+        int twos_comp = ((-etaRegion_) ^ 0xf) + 1;
+        return addr | (twos_comp << 8);
+      }
+    }
+
+    inline int kmtf_address() const {
+      int addr = id_ | (phiRegion_ << 2);
+      if (etaRegion_ >= 0) {
+        return addr | (etaRegion_ << 6);
+      } else {
+        int twos_comp = ((-etaRegion_) ^ 0x7) + 1;
+        return addr | (twos_comp << 6);
+      }
+    }
+
     /// return bunch crossing
     inline int bxNum() const { return bxNum_; }
 

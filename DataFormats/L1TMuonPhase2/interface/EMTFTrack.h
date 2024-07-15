@@ -41,6 +41,7 @@ namespace l1t::phase2 {
     void setEmtfBeta(int32_t aEmtfBeta) { emtf_beta_ = aEmtfBeta; }
     void setEmtfModeV1(int16_t aEmtfModeV1) { emtf_mode_v1_ = aEmtfModeV1; }
     void setEmtfModeV2(int16_t aEmtfModeV2) { emtf_mode_v2_ = aEmtfModeV2; }
+    void setEmtfQuality(int16_t aEmtfQuality) { emtf_quality_ = aEmtfQuality; }
 
     void setSiteHits(const site_hits_t& aSiteHits) { site_hits_ = aSiteHits; }
     void setSiteSegs(const site_segs_t& aSiteSegs) { site_segs_ = aSiteSegs; }
@@ -71,6 +72,7 @@ namespace l1t::phase2 {
     int32_t emtfBeta() const { return emtf_beta_; }
     int16_t emtfModeV1() const { return emtf_mode_v1_; }
     int16_t emtfModeV2() const { return emtf_mode_v2_; }
+    int16_t emtfQuality() const { return emtf_quality_; }
 
     const site_hits_t& siteHits() const { return site_hits_; }
     const site_segs_t& siteSegs() const { return site_segs_; }
@@ -101,6 +103,7 @@ namespace l1t::phase2 {
     int32_t emtf_beta_;
     int16_t emtf_mode_v1_;
     int16_t emtf_mode_v2_;
+    int16_t emtf_quality_;
 
     site_hits_t site_hits_;
     site_segs_t site_segs_;

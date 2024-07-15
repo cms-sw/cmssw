@@ -34,6 +34,8 @@ namespace emtf::phase2::algo {
     int findEMTFModeV1(const track_t::site_mask_t&) const;
 
     int findEMTFModeV2(const track_t::site_mask_t&) const;
+
+    int findEMTFQuality(const track_t&, const int&, const int&) const;
   };
 
 }  // namespace emtf::phase2::algo

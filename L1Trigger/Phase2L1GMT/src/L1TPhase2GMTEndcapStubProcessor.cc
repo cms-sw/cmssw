@@ -22,7 +22,8 @@ L1TPhase2GMTEndcapStubProcessor::~L1TPhase2GMTEndcapStubProcessor() {}
 
 l1t::MuonStub L1TPhase2GMTEndcapStubProcessor::buildCSCOnlyStub(const CSCDetId& detid,
                                                                 const CSCCorrelatedLCTDigi& digi,
-                                                                const L1TMuon::GeometryTranslator* translator) {
+                                                                const L1TMuon::GeometryTranslator* translator,
+                                                                unsigned int tag) {
   int endcap = detid.endcap();
   int station = detid.station();
   int chamber = detid.chamber();
@@ -62,7 +63,7 @@ l1t::MuonStub L1TPhase2GMTEndcapStubProcessor::buildCSCOnlyStub(const CSCDetId& 
   else if (station == 4)  //ME4/2
     tfLayer = 3;
 
-  l1t::MuonStub stub(wheel, sector, station, tfLayer, phi, 0, 0, bx, quality, eta1, 0, 1, 0);
+  l1t::MuonStub stub(wheel, sector, station, tfLayer, phi, 0, tag, bx, quality, eta1, 0, 1, 0);
 
   stub.setOfflineQuantities(gp.phi().value(), 0.0, gp.eta(), 0.0);
   return stub;
@@ -250,8 +251,10 @@ l1t::MuonStubCollection L1TPhase2GMTEndcapStubProcessor::makeStubs(
   for (; chamber != chend; ++chamber) {
     auto digi = (*chamber).second.first;
     auto dend = (*chamber).second.second;
+    unsigned int tag = 0;
     for (; digi != dend; ++digi) {
-      l1t::MuonStub stub = buildCSCOnlyStub((*chamber).first, *digi, t);
+      l1t::MuonStub stub = buildCSCOnlyStub((*chamber).first, *digi, t, tag);
+      tag = tag + 1;
       if (stub.bxNum() >= minBX_ && stub.bxNum() <= maxBX_)
         cscStubs.push_back(stub);
     }
@@ -276,65 +279,34 @@ l1t::MuonStubCollection L1TPhase2GMTEndcapStubProcessor::makeStubs(
   l1t::MuonStubCollection combinedStubs = combineStubs(cscStubs, rpcStubs);
 
   if (verbose_) {
-    printf("CSC Stubs\n");
+    edm::LogInfo("EndcapStub") << "CSC Stubs";
     for (const auto& stub : cscStubs)
-      printf(
-          "CSC Stub bx=%d TF=%d etaRegion=%d phiRegion=%d depthRegion=%d  coord1=%f,%d coord2=%f,%d eta1=%f,%d "
-          "eta2=%f,%d quality=%d etaQuality=%d\n",
-          stub.bxNum(),
-          stub.tfLayer(),
-          stub.etaRegion(),
-          stub.phiRegion(),
-          stub.depthRegion(),
-          stub.offline_coord1(),
-          stub.coord1(),
-          stub.offline_coord2(),
-          stub.coord2(),
-          stub.offline_eta1(),
-          stub.eta1(),
-          stub.offline_eta2(),
-          stub.eta2(),
-          stub.quality(),
-          stub.etaQuality());
-    printf("RPC Stubs\n");
+      edm::LogInfo("EndcapStub") << "CSC Stub bx=" << stub.bxNum() << " TF=" << stub.tfLayer()
+                                 << " etaRegion=" << stub.etaRegion() << " phiRegion=" << stub.phiRegion()
+                                 << " depthRegion=" << stub.depthRegion() << "  coord1=" << stub.offline_coord1() << ","
+                                 << stub.coord1() << " coord2=" << stub.offline_coord2() << "," << stub.coord2()
+                                 << " eta1=" << stub.offline_eta1() << "," << stub.eta1()
+                                 << " eta2=" << stub.offline_eta2() << "," << stub.eta2()
+                                 << " quality=" << stub.quality() << " etaQuality=" << stub.etaQuality();
+
+    edm::LogInfo("EndcapStub") << "RPC Stubs";
     for (const auto& stub : rpcStubs)
-      printf(
-          "RPC Stub bx=%d TF=%d etaRegion=%d phiRegion=%d depthRegion=%d  coord1=%f,%d coord2=%f,%d eta1=%f,%d "
-          "eta2=%f,%d quality=%d etaQuality=%d\n",
-          stub.bxNum(),
-          stub.tfLayer(),
-          stub.etaRegion(),
-          stub.phiRegion(),
-          stub.depthRegion(),
-          stub.offline_coord1(),
-          stub.coord1(),
-          stub.offline_coord2(),
-          stub.coord2(),
-          stub.offline_eta1(),
-          stub.eta1(),
-          stub.offline_eta2(),
-          stub.eta2(),
-          stub.quality(),
-          stub.etaQuality());
+      edm::LogInfo("EndcapStub") << "RPC Stub bx=" << stub.bxNum() << " TF=" << stub.tfLayer()
+                                 << " etaRegion=" << stub.etaRegion() << " phiRegion=" << stub.phiRegion()
+                                 << " depthRegion=" << stub.depthRegion() << "  coord1=" << stub.offline_coord1() << ","
+                                 << stub.coord1() << " coord2=" << stub.offline_coord2() << "," << stub.coord2()
+                                 << " eta1=" << stub.offline_eta1() << "," << stub.eta1()
+                                 << " eta2=" << stub.offline_eta2() << "," << stub.eta2()
+                                 << " quality=" << stub.quality() << " etaQuality=" << stub.etaQuality();
+
     for (const auto& stub : combinedStubs)
-      printf(
-          "Combined Stub bx=%d TF=%d etaRegion=%d phiRegion=%d depthRegion=%d  coord1=%f,%d coord2=%f,%d eta1=%f,%d "
-          "eta2=%f,%d quality=%d etaQuality=%d\n",
-          stub.bxNum(),
-          stub.tfLayer(),
-          stub.etaRegion(),
-          stub.phiRegion(),
-          stub.depthRegion(),
-          stub.offline_coord1(),
-          stub.coord1(),
-          stub.offline_coord2(),
-          stub.coord2(),
-          stub.offline_eta1(),
-          stub.eta1(),
-          stub.offline_eta2(),
-          stub.eta2(),
-          stub.quality(),
-          stub.etaQuality());
+      edm::LogInfo("EndcapStub") << "Combined Stub bx=" << stub.bxNum() << " TF=" << stub.tfLayer()
+                                 << " etaRegion=" << stub.etaRegion() << " phiRegion=" << stub.phiRegion()
+                                 << " depthRegion=" << stub.depthRegion() << "  coord1=" << stub.offline_coord1() << ","
+                                 << stub.coord1() << " coord2=" << stub.offline_coord2() << "," << stub.coord2()
+                                 << " eta1=" << stub.offline_eta1() << "," << stub.eta1()
+                                 << " eta2=" << stub.offline_eta2() << "," << stub.eta2()
+                                 << " quality=" << stub.quality() << " etaQuality=" << stub.etaQuality();
   }
 
   return combinedStubs;
