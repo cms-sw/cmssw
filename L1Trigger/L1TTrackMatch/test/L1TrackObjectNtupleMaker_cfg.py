@@ -27,8 +27,8 @@ runVtxNN = True
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
-process.load('Configuration.Geometry.GeometryExtended2026D95Reco_cff')
-process.load('Configuration.Geometry.GeometryExtended2026D95_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D110Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D110_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
@@ -61,7 +61,7 @@ process.Timing = cms.Service("Timing",
   useJobReport = cms.untracked.bool(False)
 )
 
-process.TFileService = cms.Service("TFileService", fileName = cms.string('GTTObjects_ttbar200PU_v2p2.root'), closeFileFast = cms.untracked.bool(True))
+process.TFileService = cms.Service("TFileService", fileName = cms.string('GTTObjects_ttbar200PU_Spring23.root'), closeFileFast = cms.untracked.bool(True))
 
 
 ############################################################
@@ -277,6 +277,7 @@ process.L1TrackNtuple = cms.EDAnalyzer('L1TrackObjectNtupleMaker',
         TrackMHTExtendedInputTag = cms.InputTag("l1tTrackerHTMissExtended","L1TrackerHTMissExtended"),
         TrackMHTEmuInputTag = cms.InputTag("l1tTrackerEmuHTMiss",process.l1tTrackerEmuHTMiss.L1MHTCollectionName.value()),
         TrackMHTEmuExtendedInputTag = cms.InputTag("l1tTrackerEmuHTMissExtended",process.l1tTrackerEmuHTMissExtended.L1MHTCollectionName.value()),
+        SimVertexInputTag = cms.InputTag("g4SimHits",""),
         GenParticleInputTag = cms.InputTag("genParticles",""),
         RecoVertexInputTag=cms.InputTag("l1tVertexFinder", "L1Vertices"),
         RecoVertexEmuInputTag=cms.InputTag("l1tVertexFinderEmulator", "L1VerticesEmulation"),
