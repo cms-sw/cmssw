@@ -10,7 +10,6 @@
   <class name="std::vector&lt;pat::TriggerObject&gt;::const_iterator" />
   <class name="edm::Wrapper&lt;std::vector&lt;pat::TriggerObject&gt; &gt;" />
   <class name="pat::TriggerObjectRef" />
-  <class name="std::pair&lt;std::string, pat::TriggerObjectRef&gt;" />
   <class name="std::map&lt;std::string, pat::TriggerObjectRef&gt;" />
   <class name="pat::TriggerObjectRefProd" />
   <class name="edm::Wrapper&lt;pat::TriggerObjectRefProd&gt;" />
@@ -21,7 +20,6 @@
   <class name="edm::reftobase::RefHolder&lt;pat::TriggerObjectRef&gt;" />
   <class name="edm::Wrapper&lt;edm::Association&lt;std::vector&lt;pat::TriggerObject&gt; &gt; &gt;" />
   <class name="edm::RefProd&lt;edm::Association&lt;std::vector&lt;pat::TriggerObject&gt; &gt; &gt;" />
-  <class name="std::pair&lt;std::string, edm::RefProd&lt;edm::Association&lt;std::vector&lt;pat::TriggerObject&gt; &gt; &gt; &gt;" />
   <class name="std::map&lt;std::string, edm::RefProd&lt;edm::Association&lt;std::vector&lt;pat::TriggerObject&gt; &gt; &gt; &gt;" />
   <class name="std::map&lt;std::string, edm::RefProd&lt;edm::Association&lt;std::vector&lt;pat::TriggerObject&gt; &gt; &gt; &gt;::const_iterator" />
   <class name="edm::Wrapper&lt;std::map&lt;std::string, edm::RefProd&lt;edm::Association&lt;std::vector&lt;pat::TriggerObject&gt; &gt; &gt; &gt; &gt;" />

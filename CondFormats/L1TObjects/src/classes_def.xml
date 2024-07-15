@@ -124,7 +124,6 @@
     <field name="pta_threshold" mapping="blob" />
   </class>
   <class name="L1MuDTEtaPattern"/>
-  <class name="std::pair<short,L1MuDTEtaPattern>"/>
   <class name="std::map<short,L1MuDTEtaPattern>"/>
   <class name="std::map<short,L1MuDTEtaPattern>::value_type"/>
   <class name="L1MuDTEtaPatternLut">
@@ -234,7 +233,6 @@
   <class name="L1GtPsbSetup">
    <field name="m_gtPsbSetup" mapping="blob" />
   </class>
-  <class name="std::pair<int, std::vector<L1GtObject> >"/>  
   <class name="std::map<int, std::vector<L1GtObject> >"/>  
   <class name="std::map<int, std::vector<L1GtObject> >::value_type"/>  
   <class name="L1GtCondition"/>
@@ -288,7 +286,6 @@
   <class name="L1GtAlgorithm"/>
   <class name="std::map<std::string, L1GtAlgorithm>"/>
   <class name="std::map<std::string, L1GtAlgorithm>::value_type"/>
-  <class name="std::pair<std::string, L1GtAlgorithm>"/>
   <class name="L1GtTriggerMenu" class_version="L1GtTriggerMenu_V01">
     <field name="m_conditionMap" transient="true" />
     <field name="m_algorithmAliasMap" mapping="blob" />

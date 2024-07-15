@@ -4,7 +4,6 @@
 </class>
 <class name="std::vector<RPCDigi>"/>
 <class name="std::map<RPCDetId,std::vector<RPCDigi> >"/>
-<class name="std::pair<RPCDetId,std::vector<RPCDigi> >"/>
 <class name="MuonDigiCollection<RPCDetId,RPCDigi>"/> 
 <class name="edm::Wrapper<MuonDigiCollection<RPCDetId,RPCDigi>>" splitLevel="0"/> 
 
@@ -18,7 +17,6 @@
  <version ClassVersion="10" checksum="1528446863"/>
 </class>
 <class name="edm::Wrapper<LinkBoardElectronicIndex>"/>
-<class name="std::pair<LinkBoardElectronicIndex,int>"/>
 <class name="edm::Wrapper< std::pair<LinkBoardElectronicIndex,int> >"/>
 <class name="std::vector< std::pair<LinkBoardElectronicIndex, int> >"/> 
 <class name="edm::Wrapper< std::vector< std::pair<LinkBoardElectronicIndex, int> > >"/> 
@@ -28,8 +26,6 @@
  <class name="std::vector<RPCDigiL1Link>"/>
  <class name="edm::Wrapper< std::vector<RPCDigiL1Link > >"/>
 
-<!-- StdDictionaries: class name="std::pair<unsigned int, ::uint32_t>" / -->
-<class name="std::pair<std::pair<unsigned int, ::uint32_t>, unsigned int>" />
 <class name="std::map<std::pair<unsigned int, ::uint32_t>, unsigned int>" />
 <class name="RPCAMCLinkCounters" ClassVersion="3">
  <version ClassVersion="3" checksum="1674895127" />

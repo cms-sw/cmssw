@@ -126,7 +126,6 @@
     <![CDATA[sip3d = 0;]]>
   </ioread>
   
-  <class name="std::pair<edm::RefToBase<reco::Track>, reco::SoftLeptonProperties>"/>
   <class name="reco::TemplatedSoftLeptonTagInfo<edm::RefToBase<reco::Track> >::LeptonMap"/>
   <class name="reco::SoftLeptonTagInfo" />
   <class name="reco::SoftLeptonTagInfoCollection"/>
@@ -136,7 +135,6 @@
   <class name="reco::SoftLeptonTagInfoRefVector"/>
   <class name="edm::Wrapper<reco::SoftLeptonTagInfoCollection>"/>
 
-  <class name="std::pair<edm::Ptr<reco::Candidate>, reco::SoftLeptonProperties>"/>
   <class name="reco::TemplatedSoftLeptonTagInfo<edm::Ptr<reco::Candidate> >::LeptonMap"/>
   <class name="reco::CandSoftLeptonTagInfo" />
   <class name="reco::CandSoftLeptonTagInfoCollection"/>
@@ -150,7 +148,6 @@
   <class name="reco::CATopJetProperties" ClassVersion="10">
    <version ClassVersion="10" checksum="4096516518"/>
   </class>
-  <class name="std::pair<edm::RefToBase<reco::Jet>, reco::CATopJetProperties>"/>
 
   <class name="reco::CATopJetTagInfo" ClassVersion="11">
    <version ClassVersion="10" checksum="3059833435"/>
@@ -165,7 +162,6 @@
   <class name="reco::HTTTopJetProperties" ClassVersion="3">
     <version ClassVersion="3" checksum="3737009156"/>
   </class>
-  <class name="std::pair<edm::RefToBase<reco::Jet>, reco::HTTTopJetProperties>"/>
  
   <class name="reco::HTTTopJetTagInfo" ClassVersion="3">
     <version ClassVersion="3" checksum="3013029993"/>
@@ -178,7 +174,6 @@
   <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::HTTTopJetTagInfoRef>" />
   <class name="edm::reftobase::RefHolder<reco::HTTTopJetTagInfoRef>" />
 
-  <class name="std::pair< reco::btau::TaggingVariableName, float >"/>
   <class name="std::vector<std::pair<reco::btau::TaggingVariableName,float> >"/>
   <class name="reco::TaggingVariableList" ClassVersion="10">
    <version ClassVersion="10" checksum="846629862"/>

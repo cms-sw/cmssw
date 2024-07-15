@@ -35,7 +35,6 @@
   <class name="std::vector<edm::FwdPtr<CaloTower> >"/>
 
   <class name="std::vector<CaloTowerDetId>"/>
-  <class name="std::pair<uint8_t, CaloTowerDetId>"/>
   <class name="std::vector<std::pair<uint8_t, CaloTowerDetId> >"/>
 
   <!--NOTE: the declaration of AtomicPtrCache are a temporary work around until ROOT 6 where they will not be needed -->

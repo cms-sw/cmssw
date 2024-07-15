@@ -10,7 +10,6 @@
   </class>
   <class name="edm::Wrapper<std::vector<std::pair<unsigned long,edm::Ptr<reco::CaloCluster> > > >"/>
   <class name="std::vector<std::pair<unsigned long,edm::Ptr<reco::CaloCluster> > >"/>
-  <class name="std::pair<unsigned long, edm::Ptr<reco::CaloCluster> >"/>
   <class name="edm::Ptr<CaloRecHit>"/>
   <class name="edm::Ptr<reco::CaloCluster>"/>
   <class name="edm::PtrVector<reco::CaloCluster>"/>

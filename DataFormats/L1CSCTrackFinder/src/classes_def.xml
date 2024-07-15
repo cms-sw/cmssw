@@ -25,12 +25,10 @@
 
    <class name="std::vector<csc::L1Track>"/>
    <class name="std::vector<csc::L1TrackId>"/>
-   <class name="std::pair<csc::L1Track,MuonDigiCollection<CSCDetId,CSCCorrelatedLCTDigi> >"/>
    <class name="std::vector<csctf::TrackStub>"/>
    <class name="CSCTriggerContainer<csctf::TrackStub>"/>
 
    <class name="std::vector<L1CSCSPStatusDigi>"/>
-   <class name="std::pair<int,std::vector<L1CSCSPStatusDigi> >"/>
 
    <class name="std::vector<std::pair<csc::L1Track,MuonDigiCollection<CSCDetId,CSCCorrelatedLCTDigi> > >"/>
 

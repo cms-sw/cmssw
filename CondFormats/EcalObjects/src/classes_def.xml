@@ -203,9 +203,7 @@
 <class name="EcalWeightSet"/>
 
 <class name="EcalTBWeights"/>
-<class name="std::pair<EcalXtalGroupId, EcalTBWeights::EcalTDCId>"/>
 <class name="std::map<std::pair<EcalXtalGroupId, EcalTBWeights::EcalTDCId>, EcalWeightSet>"/>
-<class name="std::pair<const std::pair<EcalXtalGroupId, EcalTBWeights::EcalTDCId>, EcalWeightSet>"/>
 
 <class name="EcalSampleMask"/>
 
@@ -220,21 +218,17 @@
 
 <class name="EcalTPGFineGrainConstEB"/>
 <class name="std::map<uint32_t, EcalTPGFineGrainConstEB>"/>
-<class name="std::pair<const uint32_t, EcalTPGFineGrainConstEB>"/>
 <class name="EcalTPGFineGrainEBIdMap"/>
 <class name="EcalTPGFineGrainStripEE"/>
 <class name="EcalTPGFineGrainStripEE::Item"/>
 <class name="std::map<uint32_t, EcalTPGFineGrainStripEE::Item>"/>
-<class name="std::pair<const uint32_t, EcalTPGFineGrainStripEE::Item>"/>
 <class name="EcalTPGFineGrainTowerEE"/>
 <class name="EcalTPGTowerStatus"/>
 <class name="std::map<uint32_t, uint16_t>"/>
-<class name="std::pair<const uint32_t, uint16_t>"/>
 <class name="EcalTPGGroups"/>
 
 <class name="EcalTPGLut"/>
 <class name="std::map<uint32_t, EcalTPGLut>"/>
-<class name="std::pair<const uint32_t, EcalTPGLut>"/>
 <class name="EcalTPGLutIdMap"/>
 
 <class name="EcalTPGSlidingWindow"/>
@@ -245,7 +239,6 @@
 
 <class name="EcalTPGWeights"/>
 <class name="std::map<uint32_t, EcalTPGWeights>"/>
-<class name="std::pair<const uint32_t, EcalTPGWeights>"/>
 <class name="EcalTPGStripStatus"/>
 <class name="EcalTPGSpike"/>
 
@@ -253,7 +246,6 @@
 <class name="EcalEBPhase2TPGTimeWeightIdMap"/>
 <class name="EcalEBPhase2TPGAmplWeights"/>
 <class name="std::map<uint32_t, EcalEBPhase2TPGAmplWeights>"/>
-<class name="std::pair<const uint32_t, EcalEBPhase2TPGAmplWeights>"/>
 
 <class name="EcalTPGFineGrainEBGroup"/>
 <class name="EcalTPGLutGroup"/>
@@ -262,7 +254,6 @@
 <class name="EcalTPGPhysicsConst"/>
 <class name="EcalTPGPhysicsConst::Item"/>
 <class name="std::map<uint32_t, EcalTPGPhysicsConst::Item>"/>
-<class name="std::pair<const uint32_t, EcalTPGPhysicsConst::Item>"/>
 
 <class name="EcalSRSettings" class_version="0">
   <field name="deltaEta_" mapping="blob" />

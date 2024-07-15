@@ -46,7 +46,6 @@
   <class name="edm::Wrapper<tt::Streams>"/>
   <class name="tt::TTTracks"/>
   <class name="edm::Wrapper<tt::TTTracks>"/>
-  <class name="std::pair<const TTTrackRef, TTTrackRef>"/>
   <class name="tt::TTTrackRefMap"/>
   <class name="edm::Wrapper<tt::TTTrackRefMap>"/>
   <class name="TTDTC"/>

@@ -154,8 +154,6 @@
   <class name="std::vector<PTrackerSimHit::Hit>"/>
   <class name="edm::Wrapper<PTrackerSimHit>"/>
   
-  <!--<class name="std::pair<float,float>"/>-->
-
   <class name="MaterialAccountingStep" ClassVersion="10">
    <version ClassVersion="10" checksum="1239697155"/>
   </class>

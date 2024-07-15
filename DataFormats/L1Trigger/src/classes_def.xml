@@ -32,7 +32,6 @@
     <version ClassVersion="10" checksum="892944969"/>
   </class>
   <class name="l1t::P2GTAlgoBlockMap"/>
-  <class name="std::pair<const std::string, l1t::P2GTAlgoBlock>" />
   <class name="edm::Wrapper<l1t::P2GTAlgoBlockMap>"/>
 
 

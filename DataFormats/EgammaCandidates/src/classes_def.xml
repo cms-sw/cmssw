@@ -305,7 +305,6 @@
   <class name="edm::helpers::Key<edm::RefProd<std::vector<reco::Electron> > >" />
 
 
-  <class name="std::pair<reco::GsfElectronRef,double>"/>
   <class name="std::vector<std::pair<reco::GsfElectronRef,double> >"/>
 
   <class name="reco::GsfElectronIsoCollection">
@@ -316,7 +315,6 @@
   <class name="reco::GsfElectronIsoCollectionRefVector"/>
   <class name="edm::Wrapper<reco::GsfElectronIsoCollection>"/>
 
-  <class name="std::pair<reco::GsfElectronRef,int>"/>
   <class name="std::vector<std::pair<reco::GsfElectronRef,int> >"/>
 
   <class name="reco::GsfElectronIsoNumCollection">

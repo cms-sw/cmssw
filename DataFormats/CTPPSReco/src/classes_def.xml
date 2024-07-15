@@ -21,7 +21,6 @@
   <class name="std::vector<TotemRPRecHit>"/>
   <class name="std::vector<const TotemRPRecHit*>"/>
   <class name="std::map<int, edm::DetSetVector<TotemRPRecHit>>"/>
-  <class name="std::pair<const int, edm::DetSetVector<TotemRPRecHit>>"/>
   <class name="edm::Wrapper<std::map<int, edm::DetSetVector<TotemRPRecHit>>>"/>
 
   <class name="TotemRPUVPattern" ClassVersion="3">
@@ -110,7 +109,6 @@
   <class name="edm::DetSetVector<CTPPSDiamondRecHit>"/>
   <class name="edm::Wrapper<edm::DetSetVector<CTPPSDiamondRecHit> >"/>
   <class name="edm::Wrapper<std::vector<CTPPSDiamondRecHit> >"/>
-  <class name="std::pair<const int, edm::DetSetVector<CTPPSDiamondRecHit>>"/>
   <class name="std::map<int, edm::DetSetVector<CTPPSDiamondRecHit>>"/>
   <class name="edm::Wrapper<std::map<int, edm::DetSetVector<CTPPSDiamondRecHit>>>"/>
 
@@ -172,7 +170,6 @@
   <class name="edm::DetSetVector<CTPPSPixelRecHit>"/>
   <class name="edm::Wrapper<edm::DetSetVector<CTPPSPixelRecHit> >"/>
   <class name="std::map<int, edm::DetSetVector<CTPPSPixelRecHit>>"/>
-  <class name="std::pair<const int, edm::DetSetVector<CTPPSPixelRecHit>>"/>
   <class name="edm::Wrapper<std::map<int, edm::DetSetVector<CTPPSPixelRecHit>>>"/>
 
   <class name="CTPPSPixelLocalTrack" ClassVersion="4">

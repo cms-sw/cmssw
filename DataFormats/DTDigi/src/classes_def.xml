@@ -5,7 +5,6 @@
 </class>
 <class name="std::vector<DTDigi>"/>
 <class name="std::map<DTLayerId,std::vector<DTDigi> >"/>
-<class name="std::pair<DTLayerId,std::vector<DTDigi> >"/>
 <class name="MuonDigiCollection<DTLayerId,DTDigi>"/> 
 <class name="edm::Wrapper<MuonDigiCollection<DTLayerId,DTDigi>>" splitLevel="0"/> 
 
@@ -14,7 +13,6 @@
 </class>
 <class name="std::vector<DTLocalTrigger>"/>
 <class name="std::map<DTChamberId,std::vector<DTLocalTrigger> >"/>
-<class name="std::pair<DTChamberId,std::vector<DTLocalTrigger> >"/>
 <class name="MuonDigiCollection<DTChamberId,DTLocalTrigger>"/> 
 <class name="edm::Wrapper<MuonDigiCollection<DTChamberId,DTLocalTrigger>>" splitLevel="0"/> 
 
@@ -48,7 +46,6 @@
  <version ClassVersion="10" checksum="1333834137"/>
 </class>
 <class name="std::vector<DTROBHeaderWord>"/>
-<class name="std::pair<int,DTROBHeaderWord>"/>
 <class name="std::vector<std::pair<int,DTROBHeaderWord> >"/>
 
 <class name="DTROBTrailerWord" ClassVersion="10">
@@ -92,49 +89,42 @@
  <version ClassVersion="10" checksum="2971120991"/>
 </class>
 <class name="std::vector<DTTDCHeaderWord>"/>
-<class name="std::pair<int,DTTDCHeaderWord>"/>
 <class name="std::vector<std::pair<int,DTTDCHeaderWord> >"/>
   
 <class name="DTTDCTrailerWord" ClassVersion="10">
  <version ClassVersion="10" checksum="4063588459"/>
 </class>
 <class name="std::vector<DTTDCTrailerWord>"/>
-<class name="std::pair<int,DTTDCTrailerWord>"/>
 <class name="std::vector<std::pair<int,DTTDCTrailerWord> >"/>
 
 <class name="DTTDCMeasurementWord" ClassVersion="10">
  <version ClassVersion="10" checksum="2938068322"/>
 </class>
 <class name="std::vector<DTTDCMeasurementWord>"/>
-<class name="std::pair<int,DTTDCMeasurementWord>"/>
 <class name="std::vector<std::pair<int,DTTDCMeasurementWord> >"/>
   
 <class name="DTTDCErrorWord" ClassVersion="10">
  <version ClassVersion="10" checksum="2204123462"/>
 </class>
 <class name="std::vector<DTTDCErrorWord>"/>
-<class name="std::pair<int,DTTDCErrorWord>"/>
 <class name="std::vector<std::pair<int,DTTDCErrorWord> >"/>
 
 <class name="DTLocalTriggerHeaderWord" ClassVersion="10">
  <version ClassVersion="10" checksum="4112781649"/>
 </class>
 <class name="std::vector<DTLocalTriggerHeaderWord>"/>
-<class name="std::pair<DTLocalTriggerHeaderWord,int>"/>
 <class name="std::vector<std::pair<DTLocalTriggerHeaderWord,int> >"/>
   
 <class name="DTLocalTriggerTrailerWord" ClassVersion="10">
  <version ClassVersion="10" checksum="3193603137"/>
 </class>
 <class name="std::vector<DTLocalTriggerTrailerWord>"/>
-<class name="std::pair<DTLocalTriggerTrailerWord,int>"/>
 <class name="std::vector<std::pair<DTLocalTriggerTrailerWord,int> >"/>
 
 <class name="DTLocalTriggerDataWord" ClassVersion="10">
  <version ClassVersion="10" checksum="1544939352"/>
 </class>
 <class name="std::vector<DTLocalTriggerDataWord>"/>
-<class name="std::pair<DTLocalTriggerDataWord,int>"/>
 <class name="std::vector<std::pair<DTLocalTriggerDataWord,int> >"/>
 
 <class name="DTLocalTriggerSectorCollectorHeaderWord" ClassVersion="10">

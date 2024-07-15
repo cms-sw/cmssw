@@ -55,17 +55,14 @@
  </class>
  <class name="edm::ProductRegistry::Transients" ClassVersion="0"/>
  <class name="std::map<edm::BranchKey,edm::BranchDescription>"/>
- <class name="std::pair<edm::BranchKey,edm::BranchDescription>"/>
  <class name="edm::BranchKey" ClassVersion="10">
   <version ClassVersion="10" checksum="3014148246"/>
  </class>
  <class name="std::set<edm::BranchID>"/>
  <class name="std::map<edm::BranchID, std::set<edm::BranchID> >"/>
- <class name="std::pair<edm::BranchID, std::set<edm::BranchID> >"/>
  <class name="std::vector<edm::BranchID>"/>
  <class name="std::vector<edm::ProductID>"/>
  <class name="edm::VecArray<edm::ProductID, 2>"/>
- <class name="std::pair<edm::ProductID, unsigned int>" />
  <class name="std::vector<std::pair<edm::ProductID, unsigned int> >" />
  <class name="std::vector<edm::EventID>"/>
  <class name="std::vector<std::vector<edm::EventID> >"/>
@@ -158,8 +155,6 @@
  <class name="std::vector<edm::ParameterSetID >"/>
  <class name="std::vector<std::vector<edm::ParameterSetID > >"/>
  <class name="std::map<edm::ParameterSetID,edm::ParameterSetBlob>"/>
- <class name="std::pair<edm::ParameterSetID,edm::ParameterSetBlob>"/>
- <class name="std::pair<const edm::ParameterSetID,edm::ParameterSetBlob>"/>
  <class name="edm::ProcessConfigurationID"/>
  <class name="std::vector<edm::ProcessConfigurationID>"/>
  <class name="edm::ParentageID"/>
@@ -171,7 +166,6 @@
  <class name="edm::Parentage::Transients" ClassVersion="0"/>
 
  <class name="std::map<edm::ProcessHistoryID,edm::ProcessHistory>"/>
- <class name="std::pair<edm::ProcessHistoryID,edm::ProcessHistory>"/>
  <class name="edm::EventAux" ClassVersion="10">
   <version ClassVersion="10" checksum="549403294"/>
  </class>
@@ -204,7 +198,6 @@
    <field name="id_" transient="true"/>
    <field name="processConfigurationPtr_" transient="true"/>
  </class>
- <class name="std::pair<edm::ModuleDescriptionID,edm::ModuleDescription>"/>
 
  <class name="edm::ESRecordAuxiliary" ClassVersion="10">
   <version ClassVersion="10" checksum="2903606143"/>

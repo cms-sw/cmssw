@@ -13,10 +13,7 @@
   <class name="reco::PFTauDiscriminatorByIsolationRefVector"/>
   <class name="edm::Wrapper<reco::PFTauDiscriminatorByIsolation>"/>
   
-  <class name="std::pair<reco::PFTauRef, int>"/>
   <class name="std::vector<std::pair<reco::PFTauRef, int> >" />
-
-  <class name="std::pair<reco::PFTauRef, float>"/>
   <class name="std::vector<std::pair<reco::PFTauRef, float> >" />
 
   <class name="reco::PFTauDiscriminatorBase">
@@ -55,10 +52,7 @@
   <class name="reco::JetPiZeroAssociationRefVector"/>
   <class name="edm::Wrapper<reco::JetPiZeroAssociation>"/>
 
-  <class name="std::pair<reco::PFJetRef, std::vector<reco::RecoTauPiZero> >"/>
   <class name="std::vector<std::pair<reco::PFJetRef, std::vector<reco::RecoTauPiZero> > >" />
-
-  <class name="std::pair<reco::JetBaseRef, std::vector<reco::RecoTauPiZero> >"/>
   <class name="std::vector<std::pair<reco::JetBaseRef, std::vector<reco::RecoTauPiZero> > >" />
 
   <class name="reco::PFJetChargedHadronAssociationBase">
@@ -76,10 +70,7 @@
   <class name="reco::PFJetChargedHadronAssociationRefVector"/>
   <class name="edm::Wrapper<reco::PFJetChargedHadronAssociation>"/>
 
-  <class name="std::pair<reco::PFJetRef, std::vector<reco::PFRecoTauChargedHadron> >"/>
   <class name="std::vector<std::pair<reco::PFJetRef, std::vector<reco::PFRecoTauChargedHadron> > >" />
-
-  <class name="std::pair<reco::JetBaseRef, std::vector<reco::PFRecoTauChargedHadron> >"/>
   <class name="std::vector<std::pair<reco::JetBaseRef, std::vector<reco::PFRecoTauChargedHadron> > >" />
 
   <class name="reco::PFTauDecayModeAssociation">
@@ -90,7 +81,6 @@
   <class name="reco::PFTauDecayModeAssociationRefVector"/>
   <class name="edm::Wrapper<reco::PFTauDecayModeAssociation>"/>
 
-  <class name="std::pair<reco::PFTauRef, reco::PFTauDecayMode>"/>
   <class name="std::vector<std::pair<reco::PFTauRef, reco::PFTauDecayMode> >" />
 
   <class name="reco::PFTauTransverseImpactParameter" ClassVersion="2">
@@ -149,7 +139,6 @@
   <class name="reco::PFTauTIPAssociationRefProd"/>
   <class name="reco::PFTauTIPAssociationRefVector"/>
   <class name="edm::Wrapper<reco::PFTauTIPAssociation>"/>
-  <class name="std::pair<reco::PFTauRef, reco::PFTauTransverseImpactParameterRef >"/>
   <class name="std::vector<std::pair<reco::PFTauRef,  reco::PFTauTransverseImpactParameterRef > >" />
 
   <class name="reco::PFTauVertexAssociation">
@@ -159,7 +148,6 @@
   <class name="reco::PFTauVertexAssociationRefProd"/>
   <class name="reco::PFTauVertexAssociationRefVector"/>
   <class name="edm::Wrapper<reco::PFTauVertexAssociation>"/>
-  <class name="std::pair<reco::PFTauRef, reco::VertexRef>"/>
   <class name="std::vector<std::pair<reco::PFTauRef, reco::VertexRef> >" />
 
   <class name="reco::PFTauVertexVAssociation">
@@ -169,7 +157,6 @@
   <class name="reco::PFTauVertexVAssociationRefProd"/>
   <class name="reco::PFTauVertexVAssociationRefVector"/>
   <class name="edm::Wrapper<reco::PFTauVertexVAssociation>"/>
-  <class name="std::pair<reco::PFTauRef, std::vector<reco::VertexRef> >"/>
   <class name="std::vector<std::pair<reco::PFTauRef, std::vector<reco::VertexRef> > >" />
 
   <class name="reco::PFTau3ProngSummary"/>
@@ -213,7 +200,6 @@
   <class name="reco::PFTau3ProngSumAssociationRefProd"/>
   <class name="reco::PFTau3ProngSumAssociationRefVector"/>
   <class name="edm::Wrapper<reco::PFTau3ProngSumAssociation>"/>
-  <class name="std::pair<reco::PFTauRef, std::vector<reco::PFTau3ProngSummaryRef> >"/>
   <class name="std::vector<std::pair<reco::PFTauRef, std::vector<reco::PFTau3ProngSummaryRef> > >" />
 
 <!--   Needed for boosted tau reconstruction -->

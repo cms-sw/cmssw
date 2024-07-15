@@ -41,8 +41,6 @@
   <class name="edm::RefProd<TtSemiLeptonicEvent>" />
   <class name="edm::RefProd<TtFullHadronicEvent>" />
 
-  <class name="std::pair<WDecay::LeptonType, WDecay::LeptonType>" />
-  <class name="std::pair<reco::CompositeCandidate, std::vector<int> >" />
   <class name="std::vector<std::pair<reco::CompositeCandidate, std::vector<int> > >" />
   <class name="edm::Wrapper<std::vector<std::pair<reco::CompositeCandidate, std::vector<int> > > >" />
 

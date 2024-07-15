@@ -10,7 +10,6 @@
 <class name="ESStripGroupId"/>
 <class name="ESTBWeights"/>
 <class name="std::map< ESStripGroupId ,ESWeightSet >"/>
-<class name="std::pair< ESStripGroupId, ESWeightSet >"/>
 <class name="std::vector<ESStripGroupId>"/>
 
 <class name="ESADCToGeVConstant"/>

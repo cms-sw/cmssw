@@ -424,7 +424,6 @@
   <class name="edm::AssociationVector<edm::RefProd<std::vector<reco::Track> >,std::vector<std::vector<reco::DeDxHit> >,edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >,unsigned int,edm::helper::AssociationIdenticalKeyReference>" >
     <field name="transientVector_" transient="true"/>
   </class>
-  <class name="std::pair<edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >,std::vector<reco::DeDxHit> >" />
      <!--   <class name="reco::DeDxDataCollection"/> -->
      <class name="reco::DeDxData" ClassVersion="10">
       <version ClassVersion="10" checksum="204721063"/>
@@ -448,7 +447,6 @@
 
      <class name="std::vector<edm::RefToBase<reco::Track> >" />
 
-     <class name="std::pair<edm::RefToBase<reco::Track>,double>" />
      <class name="std::vector<std::pair<edm::RefToBase<reco::Track>,double> >" />
 
      <class name="edm::reftobase::BaseVectorHolder<reco::Track>" />
@@ -469,23 +467,17 @@
      </class>
 
      <class name="std::vector<std::pair<edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >,float> >" />
-     <class name="std::pair<edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >,float>" />
 
 
      <class name="std::vector<std::pair<edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >,int> >" />
-     <class name="std::pair<edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >,int>" />
 
 
-     <class name="std::pair<reco::Track,reco::Track>"/>
      <class name="edm::Wrapper<std::pair<reco::Track,reco::Track> >"/>
-     <class name="std::pair<TrackCandidate,std::pair<reco::Track,reco::Track> >" />
      <class name="edm::Wrapper<std::pair<TrackCandidate,std::pair<reco::Track,reco::Track> > >" />
      <class name="std::vector<std::pair<TrackCandidate,std::pair<reco::Track,reco::Track> > >"/>
      <class name="edm::Wrapper<std::vector<std::pair<TrackCandidate,std::pair<reco::Track,reco::Track> > > >"/>
 
-     <class name="std::pair<edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >,edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> > >"/>
      <class name="edm::Wrapper<std::pair<edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >,edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> > > >"/>
-     <class name="std::pair<TrackCandidate,std::pair<edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >,edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> > > >" />
      <class name="edm::Wrapper<std::pair<TrackCandidate,std::pair<edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >,edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> > > > >" />
      <class name="std::vector<std::pair<TrackCandidate,std::pair<edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >,edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> > > > >"/>
      <class name="edm::Wrapper<std::vector<std::pair<TrackCandidate,std::pair<edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >,edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> > > > > >"/>

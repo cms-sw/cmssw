@@ -7,7 +7,6 @@
 
  <class name="HcalPedestal"/>
  <class name="std::vector<HcalPedestal>"/>
- <class name="std::pair<std::string, std::vector<HcalPedestal> >"/>
  <class name="std::vector<std::pair<std::string, std::vector<HcalPedestal> > >"/>
  <class name="HcalCondObjectContainer<HcalPedestal>">
   <field name="HBcontainer" mapping="blob" />
@@ -23,7 +22,6 @@
 
  <class name="HcalPedestalWidth"/>
  <class name="std::vector<HcalPedestalWidth>"/>
- <class name="std::pair<std::string, std::vector<HcalPedestalWidth> >"/>
  <class name="std::vector<std::pair<std::string, std::vector<HcalPedestalWidth> > >"/>
  <class name="HcalCondObjectContainer<HcalPedestalWidth>">
   <field name="HBcontainer" mapping="blob" />
@@ -39,7 +37,6 @@
 
  <class name="HcalGain"/>
  <class name="std::vector<HcalGain>"/>
- <class name="std::pair<std::string, std::vector<HcalGain> >"/>
  <class name="std::vector<std::pair<std::string, std::vector<HcalGain> > >"/>
  <class name="HcalCondObjectContainer<HcalGain>">
   <field name="HBcontainer" mapping="blob" />
@@ -55,7 +52,6 @@
 
  <class name="HcalGainWidth"/>
  <class name="std::vector<HcalGainWidth>"/>
- <class name="std::pair<std::string, std::vector<HcalGainWidth> >"/>
  <class name="std::vector<std::pair<std::string, std::vector<HcalGainWidth> > >"/>
  <class name="HcalCondObjectContainer<HcalGainWidth>">
   <field name="HBcontainer" mapping="blob" />
@@ -71,7 +67,6 @@
 
  <class name="HcalPFCut"/>
  <class name="std::vector<HcalPFCut>"/>
- <class name="std::pair<std::string, std::vector<HcalPFCut> >"/>
  <class name="std::vector<std::pair<std::string, std::vector<HcalPFCut> > >"/>
  <class name="HcalCondObjectContainer<HcalPFCut>">
   <field name="HBcontainer" mapping="blob" />
@@ -90,7 +85,6 @@
  </class>
 
  <class name="std::vector<HcalQIECoder>"/>
- <class name="std::pair<std::string, std::vector<HcalQIECoder> >"/>
  <class name="std::vector<std::pair<std::string, std::vector<HcalQIECoder> > >"/>
  <class name="HcalCondObjectContainer<HcalQIECoder>">
   <field name="HBcontainer" mapping="blob" />
@@ -109,7 +103,6 @@
 
  <class name="HcalCalibrationQIECoder"/>
  <class name="std::vector<HcalCalibrationQIECoder>"/>
- <class name="std::pair<std::string, std::vector<HcalCalibrationQIECoder> >"/>
  <class name="std::vector<std::pair<std::string, std::vector<HcalCalibrationQIECoder> > >"/>
  <class name="HcalCondObjectContainer<HcalCalibrationQIECoder>">
   <field name="HBcontainer" mapping="blob" />
@@ -125,7 +118,6 @@
 
  <class name="HcalQIEType"/>
  <class name="std::vector<HcalQIEType>"/>
- <class name="std::pair<std::string, std::vector<HcalQIEType> >"/>
  <class name="std::vector<std::pair<std::string, std::vector<HcalQIEType> > >"/>
  <class name="HcalCondObjectContainer<HcalQIEType>">
   <field name="HBcontainer" mapping="blob" />
@@ -141,7 +133,6 @@
 
  <class name="HcalSiPMParameter"/>
  <class name="std::vector<HcalSiPMParameter>"/>
- <class name="std::pair<std::string, std::vector<HcalSiPMParameter> >"/>
  <class name="std::vector<std::pair<std::string, std::vector<HcalSiPMParameter> > >"/>
  <class name="HcalCondObjectContainer<HcalSiPMParameter>">
   <field name="HBcontainer" mapping="blob" />
@@ -178,7 +169,6 @@
 
  <class name="HcalChannelStatus"/>
  <class name="std::vector<HcalChannelStatus>"/>
- <class name="std::pair<std::string, std::vector<HcalChannelStatus> >"/>
  <class name="std::vector<std::pair<std::string, std::vector<HcalChannelStatus> > >"/>
  <class name="HcalCondObjectContainer<HcalChannelStatus>">
   <field name="HBcontainer" mapping="blob" />
@@ -194,7 +184,6 @@
 
  <class name="HcalZSThreshold"/>
  <class name="std::vector<HcalZSThreshold>"/>
- <class name="std::pair<std::string, std::vector<HcalZSThreshold> >"/>
  <class name="std::vector<std::pair<std::string, std::vector<HcalZSThreshold> > >"/>
  <class name="HcalCondObjectContainer<HcalZSThreshold>">
   <field name="HBcontainer" mapping="blob" />
@@ -210,7 +199,6 @@
 
  <class name="HcalRespCorr"/>
  <class name="std::vector<HcalRespCorr>"/>
- <class name="std::pair<std::string, std::vector<HcalRespCorr> >"/>
  <class name="std::vector<std::pair<std::string, std::vector<HcalRespCorr> > >"/>
  <class name="HcalCondObjectContainer<HcalRespCorr>">
   <field name="HBcontainer" mapping="blob" />
@@ -226,7 +214,6 @@
 
  <class name="HcalLUTCorr"/>
  <class name="std::vector<HcalLUTCorr>"/>
- <class name="std::pair<std::string, std::vector<HcalLUTCorr> >"/>
  <class name="std::vector<std::pair<std::string, std::vector<HcalLUTCorr> > >"/>
  <class name="HcalCondObjectContainer<HcalLUTCorr>">
   <field name="HBcontainer" mapping="blob" />
@@ -242,7 +229,6 @@
 
  <class name="HcalPFCorr"/>
  <class name="std::vector<HcalPFCorr>"/>
- <class name="std::pair<std::string, std::vector<HcalPFCorr> >"/>
  <class name="std::vector<std::pair<std::string, std::vector<HcalPFCorr> > >"/>
  <class name="HcalCondObjectContainer<HcalPFCorr>">
   <field name="HBcontainer" mapping="blob" />
@@ -258,7 +244,6 @@
 
  <class name="HcalL1TriggerObject"/>
  <class name="std::vector<HcalL1TriggerObject>"/>
- <class name="std::pair<std::string, std::vector<HcalL1TriggerObject> >"/>
  <class name="std::vector<std::pair<std::string, std::vector<HcalL1TriggerObject> > >"/>
  <class name="HcalCondObjectContainer<HcalL1TriggerObject>">
   <field name="HBcontainer" mapping="blob" />
@@ -274,7 +259,6 @@
 
  <class name="HcalTimeCorr"/>
  <class name="std::vector<HcalTimeCorr>"/>
- <class name="std::pair<std::string, std::vector<HcalTimeCorr> >"/>
  <class name="std::vector<std::pair<std::string, std::vector<HcalTimeCorr> > >"/>
  <class name="HcalCondObjectContainer<HcalTimeCorr>">
   <field name="HBcontainer" mapping="blob" />
@@ -290,7 +274,6 @@
 
  <class name="HcalValidationCorr"/>
  <class name="std::vector<HcalValidationCorr>"/>
- <class name="std::pair<std::string, std::vector<HcalValidationCorr> >"/>
  <class name="std::vector<std::pair<std::string, std::vector<HcalValidationCorr> > >"/>
  <class name="HcalCondObjectContainer<HcalValidationCorr>">
   <field name="HBcontainer" mapping="blob" />
@@ -306,7 +289,6 @@
 
  <class name="HcalLutMetadatum"/>
  <class name="std::vector<HcalLutMetadatum>"/>
- <class name="std::pair<std::string, std::vector<HcalLutMetadatum> >"/>
  <class name="std::vector<std::pair<std::string, std::vector<HcalLutMetadatum> > >"/>
  <class name="HcalCondObjectContainer<HcalLutMetadatum>">
   <field name="HBcontainer" mapping="blob" />
@@ -340,7 +322,6 @@
 
  <class name="HcalRecoParam"/>
  <class name="std::vector<HcalRecoParam>"/>
- <class name="std::pair<std::string, std::vector<HcalRecoParam> >"/>
  <class name="std::vector<std::pair<std::string, std::vector<HcalRecoParam> > >"/>
  <class name="HcalCondObjectContainer<HcalRecoParam>">
   <field name="HBcontainer" mapping="blob" />
@@ -357,7 +338,6 @@
 
  <class name="HcalZDCLowGainFraction"/>
  <class name="std::vector<HcalZDCLowGainFraction>"/>
- <class name="std::pair<std::string, std::vector<HcalZDCLowGainFraction> >"/>
  <class name="std::vector<std::pair<std::string, std::vector<HcalZDCLowGainFraction> > >"/>
  <class name="HcalCondObjectContainer<HcalZDCLowGainFraction>">
   <field name="HBcontainer" mapping="blob" />
@@ -374,7 +354,6 @@
 
  <class name="HcalTimingParam"/>
  <class name="std::vector<HcalTimingParam>"/>
- <class name="std::pair<std::string, std::vector<HcalTimingParam> >"/>
  <class name="std::vector<std::pair<std::string, std::vector<HcalTimingParam> > >"/>
  <class name="HcalCondObjectContainer<HcalTimingParam>">
   <field name="HBcontainer" mapping="blob" />
@@ -390,7 +369,6 @@
 
  <class name="HcalLongRecoParam"/>
  <class name="std::vector<HcalLongRecoParam>"/>
- <class name="std::pair<std::string, std::vector<HcalLongRecoParam> >"/>
  <class name="std::vector<std::pair<std::string, std::vector<HcalLongRecoParam> > >"/>
  <class name="HcalCondObjectContainer<HcalLongRecoParam>">
   <field name="HBcontainer" mapping="blob" />
@@ -406,7 +384,6 @@
 
  <class name="HcalMCParam"/>
  <class name="std::vector<HcalMCParam>"/>
- <class name="std::pair<std::string, std::vector<HcalMCParam> >"/>
  <class name="std::vector<std::pair<std::string, std::vector<HcalMCParam> > >"/>
  <class name="HcalCondObjectContainer<HcalMCParam>">
   <field name="HBcontainer" mapping="blob" />
@@ -421,7 +398,6 @@
  <class name="HcalMCParams" class_version="0"/>
 
  <class name="std::vector<HcalTPChannelParameter>"/>
- <class name="std::pair<std::string, std::vector<HcalTPChannelParameter> >"/>
  <class name="std::vector<std::pair<std::string, std::vector<HcalTPChannelParameter> > >"/>
  <class name="HcalCondObjectContainer<HcalTPChannelParameter>">
   <field name="HBcontainer" mapping="blob" />
@@ -439,7 +415,6 @@
 
  <class name="HcalFlagHFDigiTimeParam"/>
  <class name="std::vector<HcalFlagHFDigiTimeParam>"/>
- <class name="std::pair<std::string, std::vector<HcalFlagHFDigiTimeParam> >"/>
  <class name="std::vector<std::pair<std::string, std::vector<HcalFlagHFDigiTimeParam> > >"/>
  <class name="HcalCondObjectContainer<HcalFlagHFDigiTimeParam>">
   <field name="HBcontainer" mapping="blob" />

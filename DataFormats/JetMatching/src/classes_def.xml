@@ -3,7 +3,6 @@
    <version ClassVersion="10" checksum="1683584268"/>
   </class>
   <class name="std::vector<reco::JetFlavourInfo>"/>
-  <class name="std::pair<edm::RefToBase<reco::Jet>, reco::JetFlavourInfo>"/>
   <class name="std::vector<std::pair<edm::RefToBase<reco::Jet>, reco::JetFlavourInfo> >"/>
   <class name="reco::JetFlavourInfoMatchingCollectionBase">
     <field name="transientVector_" transient="true"/>
@@ -26,7 +25,6 @@
    <version ClassVersion="10" checksum="1787336562"/>
   </class>
   <class name="std::vector<reco::JetFlavour>"/>
-  <class name="std::pair<edm::RefToBase<reco::Jet>, reco::JetFlavour>"/>
   <class name="std::vector<std::pair<edm::RefToBase<reco::Jet>, reco::JetFlavour> >"/>
   <class name="reco::JetFlavourMatchingCollectionBase">
     <field name="transientVector_" transient="true"/>
@@ -46,7 +44,6 @@
    <version ClassVersion="10" checksum="4065573666"/>
   </class>
   <class name="std::vector<reco::MatchedPartons>"/>
-  <class name="std::pair<edm::RefToBase<reco::Jet>, reco::MatchedPartons>"/>
   <class name="std::vector<std::pair<edm::RefToBase<reco::Jet>, reco::MatchedPartons> >"/>
   <class name="reco::JetMatchedPartonsCollectionBase">
     <field name="transientVector_" transient="true"/>  

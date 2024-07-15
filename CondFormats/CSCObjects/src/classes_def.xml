@@ -84,7 +84,6 @@
  </class>
 
  <class name="std::map< int, CSCMapItem::MapItem >"/>
- <class name="std::pair< const int, CSCMapItem::MapItem >"/>
 
  <class name="CSCChamberIndex">
    <field name ="ch_index" mapping = "blob"/>
