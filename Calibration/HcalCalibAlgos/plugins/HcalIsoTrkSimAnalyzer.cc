@@ -333,11 +333,11 @@ HcalIsoTrkSimAnalyzer::HcalIsoTrkSimAnalyzer(const edm::ParameterSet& iConfig)
                                    << "\t prescaleHigh_ " << prescaleHigh_ << "\n\t useRaw_ " << useRaw_
                                    << "\t ignoreTrigger_ " << ignoreTrigger_ << "\n\t useL1Trigegr_ " << useL1Trigger_
                                    << "\t dataType_      " << dataType_ << "\t mode_          " << mode_
-                                   << "\t unCorrect_     " << unCorrect_ << "\t collapseDepth_ " << collapseDepth_ << "\t fillTreeRange " << fillTreeRange_
-                                   << "\t L1TrigName_    " << l1TrigName_ << "\nThreshold flag used " << usePFThresh_
-                                   << " value for EB " << hitEthrEB_ << " EE " << hitEthrEE0_ << ":" << hitEthrEE1_
-                                   << ":" << hitEthrEE2_ << ":" << hitEthrEE3_ << ":" << hitEthrEELo_ << ":"
-                                   << hitEthrEEHi_;
+                                   << "\t unCorrect_     " << unCorrect_ << "\t collapseDepth_ " << collapseDepth_
+                                   << "\t fillTreeRange " << fillTreeRange_ << "\t L1TrigName_    " << l1TrigName_
+                                   << "\nThreshold flag used " << usePFThresh_ << " value for EB " << hitEthrEB_
+                                   << " EE " << hitEthrEE0_ << ":" << hitEthrEE1_ << ":" << hitEthrEE2_ << ":"
+                                   << hitEthrEE3_ << ":" << hitEthrEELo_ << ":" << hitEthrEEHi_;
   edm::LogVerbatim("HcalIsoTrack") << "Process " << processName_ << " L1Filter:" << l1Filter_
                                    << " L2Filter:" << l2Filter_ << " L3Filter:" << l3Filter_;
   for (unsigned int k = 0; k < trigNames_.size(); ++k) {
@@ -1184,10 +1184,10 @@ std::array<int, 3> HcalIsoTrkSimAnalyzer::fillTree(std::vector<math::XYZTLorentz
             accept = true;
           }
         }
-	if (fillTreeRange_) {
-	  if ((t_p < pTrackLow_) || (t_p > pTrackHigh_))
-	    accept = false;
-	}
+        if (fillTreeRange_) {
+          if ((t_p < pTrackLow_) || (t_p > pTrackHigh_))
+            accept = false;
+        }
         if (accept) {
           tree->Fill();
           nSave++;

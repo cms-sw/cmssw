@@ -111,8 +111,9 @@ HcalIsoTrackAnalyzer::HcalIsoTrackAnalyzer(const edm::ParameterSet& iConfig)
 
   edm::LogVerbatim("HcalIsoTrack") << "Parameters read from config file \n\t momentumLow_ " << pTrackLow_
                                    << "\t momentumHigh_ " << pTrackHigh_ << "\t useRaw_ " << useRaw_
-                                   << "\t dataType_      " << dataType_ << "\t unCorrect " << unCorrect_ << "\t fillInRange " << fillInRange_ << "\t and "
-                                   << debEvents_.size() << " events to be debugged";
+                                   << "\t dataType_      " << dataType_ << "\t unCorrect " << unCorrect_
+                                   << "\t fillInRange " << fillInRange_ << "\t and " << debEvents_.size()
+                                   << " events to be debugged";
 }
 
 HcalIsoTrackAnalyzer::~HcalIsoTrackAnalyzer() {
@@ -260,12 +261,12 @@ void HcalIsoTrackAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup con
 #endif
       bool select(true);
       if (fillInRange_) {
-	if ((t_p < pTrackLow_) || (t_p < pTrackHigh_))
-	  select = false;
+        if ((t_p < pTrackLow_) || (t_p < pTrackHigh_))
+          select = false;
       }
       if (select) {
-	tree->Fill();
-	edm::LogVerbatim("HcalIsoTrackX") << "Run " << t_Run << " Event " << t_Event << " p " << t_p;
+        tree->Fill();
+        edm::LogVerbatim("HcalIsoTrackX") << "Run " << t_Run << " Event " << t_Event << " p " << t_p;
       }
       if (t_p < pTrackLow_) {
         ++nLow_;
