@@ -471,6 +471,9 @@ steps['RunCharmonium2018D']={'INPUT':InputInfo(dataSet='/Charmonium/Run2018D-v1/
 #### PPS run3 2022B
 steps['RunRawPPS2022B']={'INPUT':InputInfo(dataSet='/AlCaPPS/Run2022B-v1/RAW',label='2022B',events=100000,location='STD', ls={355207: [[1, 100]]})}
 steps['RunRawPPS2022A']={'INPUT':InputInfo(dataSet='/AlCaPPS/Run2022A-v1/RAW',label='2022A',events=100000,location='STD', ls={354332: [[1, 100]]})}
+#### PPS run3 2024E
+steps['RunRawPPS2024E']={'INPUT':InputInfo(dataSet='/AlCaPPSPrompt/Run2024E-v1/RAW',label='2024E',events=100000,location='STD', ls={380470: [[1, 100]]})}
+steps['RunRawPPSReco2024E']={'INPUT':InputInfo(dataSet='/ZeroBias/Run2024E-v1/RAW',label='2024E',events=100000,location='STD', ls={381380: [[1, 100]]})}
 
 # UL AOD
 steps['RunJetHT2018D_reminiaodUL']={'INPUT':InputInfo(dataSet='/JetHT/Run2018D-12Nov2019_UL2018-v4/AOD',label='2018DrmaodUL',events=100000,location='STD', ls=Run2018D)}
@@ -2697,6 +2700,7 @@ steps['RECODR3Splash']=merge([{'-n': 2,
                                '-s': 'RAW2DIGI,L1Reco,RECO,PAT,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+EcalESAlign,DQM:@standardDQMFakeHLT+@miniAODDQM'
                               },steps['RECODR3']])
 
+steps['RECODR3PPS']=merge([{'-n':'1000', '--conditions':'auto:run3_data_prompt', '-s':'RAW2DIGI:ctppsRawToDigi,RECO:recoCTPPS,DQM:@ctpps'},steps['RECODR3']])
 steps['RECOCOSDRUN3']=merge([{'--conditions':'auto:run3_data','--era':'Run3'},steps['RECOCOSD']])
 
 steps['RECOCOSDPROMPTRUN3']=merge([{'--conditions':'auto:run3_data_prompt',
@@ -3759,6 +3763,7 @@ steps['HARVESTData_Patatrack_AllGPU_Validation_2023'] = merge([{'--data':'',
                                                                 '--era': 'Run3',
                                                                 '--procModifiers': 'gpuValidation'},steps['HARVESTDRUN3']])
 
+steps['HARVESTDR3_PPSOnly'] = merge([{'-s':'HARVESTING:@ctpps'},steps['HARVESTDR3']])
 
 #MC
 steps['HARVEST']={'-s':'HARVESTING:validationHarvestingNoHLT+dqmHarvestingFakeHLT',
