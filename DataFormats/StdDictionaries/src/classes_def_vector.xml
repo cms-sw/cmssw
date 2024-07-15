@@ -22,12 +22,14 @@
  <class name="std::vector<std::pair<std::basic_string<char>,int> >"/>
  <class name="std::vector<std::pair<std::basic_string<char>,std::basic_string<char> > >"/>
  <class name="std::vector<std::pair<std::vector<std::pair<double,std::vector<double> > >,bool> >"/>
+ <class name="std::vector<std::pair<std::pair<unsigned int,unsigned int>,std::pair<unsigned int,unsigned int> > >"/>
  <class name="std::vector<std::pair<unsigned int,bool> >"/>
  <class name="std::vector<std::pair<unsigned int,double> >"/>
  <class name="std::vector<std::pair<unsigned int,float> >"/>
  <class name="std::vector<std::pair<unsigned int,int> >"/>
  <class name="std::vector<std::pair<unsigned int,unsigned int> >"/>
  <class name="std::vector<std::pair<unsigned long long,std::basic_string<char> > >"/>
+ <class name="std::vector<std::pair<unsigned long long,float>>"/>
  <class name="std::vector<std::vector<double> >"/>
  <class name="std::vector<std::vector<float> >"/>
  <class name="std::vector<std::vector<int> >"/>

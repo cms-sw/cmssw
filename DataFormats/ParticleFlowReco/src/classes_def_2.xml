@@ -257,8 +257,6 @@
 
   <class name="std::vector<reco::PFDisplacedVertex::VertexTrackType>"/>
 
-  <class name="std::vector<std::pair<std::pair<unsigned int,unsigned int>,std::pair<unsigned int,unsigned int> > >"/>
-
   <class name="reco::PreId" ClassVersion="10">
    <version ClassVersion="10" checksum="1753132977"/>
   </class>
