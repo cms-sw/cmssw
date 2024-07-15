@@ -38,46 +38,21 @@
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/ServiceRegistry/interface/SystemBounds.h"
 
-#include "FWCore/PluginManager/interface/PluginManager.h"
-#include "FWCore/PluginManager/interface/standard.h"
-
 #include "FWCore/ParameterSetReader/interface/ProcessDescImpl.h"
 #include "FWCore/ParameterSet/interface/ProcessDesc.h"
 #include "FWCore/ParameterSet/interface/validateTopLevelParameterSets.h"
 
 #include "FWCore/Utilities/interface/ExceptionCollector.h"
 
-#include "FWCore/Concurrency/interface/ThreadsController.h"
 #include "FWCore/Concurrency/interface/FinalWaitingTask.h"
 
-#include "DataFormats/Provenance/interface/ParentageRegistry.h"
+#include "oneTimeInitialization.h"
 
 #define xstr(s) str(s)
 #define str(s) #s
 
 namespace edm {
   namespace test {
-
-    namespace {
-
-      bool oneTimeInitializationImpl() {
-        edmplugin::PluginManager::configure(edmplugin::standard::config());
-
-        static std::unique_ptr<edm::ThreadsController> tsiPtr = std::make_unique<edm::ThreadsController>(1);
-
-        // register the empty parentage vector , once and for all
-        ParentageRegistry::instance()->insertMapped(Parentage());
-
-        // register the empty parameter set, once and for all.
-        ParameterSet().registerIt();
-        return true;
-      }
-
-      bool oneTimeInitialization() {
-        static const bool s_init{oneTimeInitializationImpl()};
-        return s_init;
-      }
-    }  // namespace
 
     //
     // constructors and destructor
@@ -88,7 +63,7 @@ namespace edm {
           historyAppender_(std::make_unique<HistoryAppender>()),
           moduleRegistry_(std::make_shared<ModuleRegistry>()) {
       //Setup various singletons
-      (void)oneTimeInitialization();
+      (void)testprocessor::oneTimeInitialization();
 
       ProcessDescImpl desc(iConfig.pythonConfiguration(), false);
 

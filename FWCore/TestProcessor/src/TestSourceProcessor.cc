@@ -27,6 +27,9 @@
 #include "FWCore/Concurrency/interface/FinalWaitingTask.h"
 
 #include "DataFormats/Provenance/interface/ParentageRegistry.h"
+
+#include "oneTimeInitialization.h"
+
 namespace {
   using namespace edm;
 
@@ -104,6 +107,9 @@ namespace edm::test {
       : globalControl_(oneapi::tbb::global_control::max_allowed_parallelism, 1),
         arena_(1),
         historyAppender_(std::make_unique<HistoryAppender>()) {
+    //Setup various singletons
+    (void)testprocessor::oneTimeInitialization();
+
     ProcessDescImpl desc(iConfig, false);
 
     auto psetPtr = desc.parameterSet();
