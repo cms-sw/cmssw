@@ -320,10 +320,13 @@ CondDBESSource::CondDBESSource(const edm::ParameterSet& iConfig)
     (*b).second->proxy(0)->loadMore(visitor);
 
     /// required by eventsetup
-    EventSetupRecordKey recordKey(EventSetupRecordKey::TypeTag::findType((*b).first));
+    EventSetupRecordKey recordKey = b->second->recordKey();
     if (recordKey.type() != EventSetupRecordKey::TypeTag()) {
       findingRecordWithKey(recordKey);
       usingRecordWithKey(recordKey);
+    } else {
+      edm::LogWarning("CondDBESSource") << "Failed to load key for record " << b->first
+                                        << ". No data from this record will be available.";
     }
   }
 
