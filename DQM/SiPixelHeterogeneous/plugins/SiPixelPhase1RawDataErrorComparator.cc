@@ -284,7 +284,7 @@ void SiPixelPhase1RawDataErrorComparator::bookHistograms(DQMStore::IBooker& iBoo
                                 log10(1000.));
 
   for (const auto& element : errorCodeToStringMap) {
-    h_nFEDErrors_[element.first] = iBook.book2I(fmt::sprintf("nFED%i_Errors", element.first),
+    h_nFEDErrors_[element.first] = iBook.book2I(fmt::sprintf("nFED%i_Errors", static_cast<int>(element.first)),
                                                 fmt::sprintf("n. of %ss per event; CPU; GPU", element.second),
                                                 1000,
                                                 -0.5,
