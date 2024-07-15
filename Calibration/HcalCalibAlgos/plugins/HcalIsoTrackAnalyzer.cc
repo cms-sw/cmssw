@@ -261,7 +261,7 @@ void HcalIsoTrackAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup con
 #endif
       bool select(true);
       if (fillInRange_) {
-        if ((t_p < pTrackLow_) || (t_p < pTrackHigh_))
+        if ((t_p < pTrackLow_) || (t_p > pTrackHigh_))
           select = false;
       }
       if (select) {
@@ -270,7 +270,7 @@ void HcalIsoTrackAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup con
       }
       if (t_p < pTrackLow_) {
         ++nLow_;
-      } else if (t_p < pTrackHigh_) {
+      } else if (t_p > pTrackHigh_) {
         ++nHigh_;
       } else {
         ++nRange_;
