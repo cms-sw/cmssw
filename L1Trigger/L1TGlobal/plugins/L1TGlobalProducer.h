@@ -199,6 +199,9 @@ private:
 
   // switch to load muon showers in the global board
   bool m_useMuonShowers;
+
+  //switch to save axo scores in global board
+  bool m_produceAXOL1TLScore;
 };
 
 #endif  // L1TGlobalProducer_h

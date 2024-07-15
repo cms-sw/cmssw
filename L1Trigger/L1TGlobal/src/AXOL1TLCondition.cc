@@ -85,6 +85,9 @@ void l1t::AXOL1TLCondition::setGtAXOL1TLTemplate(const AXOL1TLTemplate* caloTemp
 ///   set the pointer to uGT GlobalBoard
 void l1t::AXOL1TLCondition::setuGtB(const GlobalBoard* ptrGTB) { m_gtGTB = ptrGTB; }
 
+/// set score for score saving
+void l1t::AXOL1TLCondition::setScore(const float scoreval) const { m_savedscore = scoreval; }
+
 const bool l1t::AXOL1TLCondition::evaluateCondition(const int bxEval) const {
   bool condResult = false;
   int useBx = bxEval + m_gtAXOL1TLTemplate->condRelativeBx();
@@ -236,6 +239,8 @@ const bool l1t::AXOL1TLCondition::evaluateCondition(const int bxEval) const {
   result = ADModelResult.first;
   loss = ADModelResult.second;
   score = ((loss).to_float()) * 16.0;  //scaling to match threshold
+  //save score to class variable in case score saving needed
+  setScore(score);
 
   //number of objects/thrsholds to check
   int iCondition = 0;  // number of conditions: there is only one

@@ -19,6 +19,13 @@
   <class name="edm::Wrapper<GlobalExtBlkBxCollection>"/>
   <class name="std::vector<GlobalExtBlk>"/>
 
+  <class name="AXOL1TLScore" ClassVersion="3">
+   <version ClassVersion="3" checksum="1744705474"/>
+  </class>
+  <class name="AXOL1TLScoreBxCollection"/>
+  <class name="edm::Wrapper<AXOL1TLScoreBxCollection>"/>
+  <class name="std::vector<AXOL1TLScore>"/>
+  
   <class name="GlobalObjectMapRecord" ClassVersion="10">
    <version ClassVersion="10" checksum="1219328086"/>
   </class>
@@ -55,6 +62,11 @@
   <class name="GlobalAlgBlkRefPairBxCollection"/>
   <class name="edm::Wrapper<GlobalAlgBlkRefPairBxCollection>"/>
 
+  <class name="AXOL1TLScoreRef"/>
+  <class name="std::vector<AXOL1TLScoreRef>"/>
+  <class name="AXOL1TLScoreRefBxCollection"/>
+  <class name="edm::Wrapper<AXOL1TLScoreRefBxCollection>"/>
+  
 </lcgdict>
 
 
