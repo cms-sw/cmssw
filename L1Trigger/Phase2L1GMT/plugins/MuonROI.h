@@ -13,7 +13,8 @@ namespace Phase2L1GMT {
 
   class MuonROI {
   public:
-    MuonROI(int bx, uint charge, uint pt, uint quality) : bx_(bx), charge_(charge), pt_(pt), quality_(quality) {}
+    MuonROI(int bx, uint charge, uint pt, uint quality)
+        : bx_(bx), charge_(charge), pt_(pt), quality_(quality), isGlobal_(false), offline_pt_(0.f) {}
 
     const int bx() const { return bx_; }
 
