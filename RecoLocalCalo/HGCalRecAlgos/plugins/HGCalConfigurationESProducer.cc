@@ -77,13 +77,16 @@ public:
 
   //std::optional<HGCalConfiguration> produce(const HGCalModuleConfigurationRcd& iRecord) {
   std::shared_ptr<HGCalConfiguration> produce(const HGCalModuleConfigurationRcd& iRecord) {
-    std::cout << "HGCalConfigurationESProducer::produce: fedjson=" << fedjson_ << std::endl;
-    std::cout << "HGCalConfigurationESProducer::produce: modjson=" << modjson_ << std::endl;
+    
     auto const& moduleMap = iRecord.getRecord<HGCalElectronicsMappingRcd>().get(indexToken_);
-
+ 
     // Retrieve values from custom JSON format (see HGCalCalibrationESProducer)
-    std::ifstream fedfile(fedjson_); // e.g. HGCalCommissioning/LocalCalibration/data/config_feds.json
-    std::ifstream modfile(modjson_); // e.g. HGCalCommissioning/LocalCalibration/data/config_econds.json
+    edm::FileInPath fedfip(fedjson_);          // e.g. HGCalCommissioning/LocalCalibration/data/config_feds.json
+    edm::FileInPath modfip(modjson_);          // e.g. HGCalCommissioning/LocalCalibration/data/config_econds.json
+    std::cout << "HGCalConfigurationESProducer::produce: fedjson=" << fedfip.fullPath() << std::endl;
+    std::cout << "HGCalConfigurationESProducer::produce: modjson=" << modfip.fullPath() << std::endl;
+    std::ifstream fedfile(fedfip.fullPath()); 
+    std::ifstream modfile(modfip.fullPath());     
     json fed_config_data = json::parse(fedfile);
     json mod_config_data = json::parse(modfile);
 
