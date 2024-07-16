@@ -624,8 +624,7 @@ protected:
   inline Float_t restrictAngle(const Float_t fTheta, const Float_t fStart);
   inline std::string getNameDirLayer(ME3IdsKey key3);
   inline std::string getNameDirLayer(ME4IdsKey key4);
-
-  inline std::string getNameDirChamber(ME3IdsKey key3);
+  inline std::string getNameDirChamber(ME4IdsKey key4);
 
 
   const GEMGeometry *GEMGeometry_;
@@ -639,6 +638,9 @@ protected:
   std::map<ME3IdsKey, bool> MEMap2AbsReWithEtaCheck_;
   /************/
   std::map<ME3IdsKey, bool> MEMap2WithChCheck_;
+  /************/
+  /************/
+  std::map<ME4IdsKey, bool> MEMap2WithEtaChCheck_;
   /************/
   std::map<ME3IdsKey, bool> MEMap3Check_;
   std::map<ME4IdsKey, bool> MEMap4Check_;
