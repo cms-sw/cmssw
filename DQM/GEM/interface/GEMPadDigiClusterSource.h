@@ -49,7 +49,7 @@ private:
 
   //int ProcessWithMEMap2WithEtaCh(BookingHelper& bh, ME4IdsKey key) override;
 
-  int ProcessWithMEMap3WithChamber(BookingHelper& bh, ME4IdsKey key) override;
+  int ProcessWithMEMap4WithChamber(BookingHelper& bh, ME4IdsKey key) override;
 
   const static int nNumBitDigiOcc_ = 16384;
 

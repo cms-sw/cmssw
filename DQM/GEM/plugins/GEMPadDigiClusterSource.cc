@@ -78,7 +78,7 @@ int GEMPadDigiClusterSource::ProcessWithMEMap2WithChamber(BookingHelper& bh, ME3
   return 0;
 }
 
-int GEMPadDigiClusterSource::ProcessWithMEMap3WithChamber(BookingHelper& bh, ME4IdsKey key) {
+int GEMPadDigiClusterSource::ProcessWithMEMap4WithChamber(BookingHelper& bh, ME4IdsKey key) {
   ME3IdsKey key3 = key4Tokey3(key);
   MEStationInfo& stationInfo = mapStationInfo_[key3];
 
