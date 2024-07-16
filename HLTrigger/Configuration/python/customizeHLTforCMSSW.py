@@ -352,6 +352,17 @@ def customizeHLTfor44746(process):
             mod.l1EGCand = cms.InputTag('hltEgammaCandidatesPPOnAA')
     return process
 
+def customizeHLTFor45479(process):
+
+    ca_builders = ["CAHitNtupletAlpakaPhase1@alpaka", "alpaka_serial_sync::CAHitNtupletAlpakaPhase1"]
+
+    for ca_builder in ca_builders:
+        for producer_name in producers_by_type(process, ca_builder):
+            producer = getattr(process,producer_name.label_())
+            producer.phiCuts = cms.vint32( 522, 730, 730, 522, 626, 626, 522, 522, 626, 626, 626, 522, 522, 522, 522, 522, 522, 522, 522 , 522, 522)
+
+    return process
+
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
@@ -363,5 +374,6 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     process = checkHLTfor43774(process)
     process = customizeHLTfor45302(process)
     process = customizeHLTfor44746(process)
+    process = customizeHLTFor45479(process)
 
     return process
