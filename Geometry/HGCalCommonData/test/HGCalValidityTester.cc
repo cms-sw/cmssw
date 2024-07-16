@@ -184,7 +184,8 @@ void HGCalValidityTester::beginRun(edm::Run const &iRun, edm::EventSetup const &
       HGCSiliconDetId id(detIds_[k].first);
       layer = id.layer();
       zside = id.zside();
-      xy = cons->locateCell(zside, layer, id.waferU(), id.waferV(), id.cellU(), id.cellV(), true, true, false, false);
+      xy = cons->locateCell(
+          zside, layer, id.waferU(), id.waferV(), id.cellU(), id.cellV(), true, true, false, false, false);
       valid = cons->isValidHex8(layer, id.waferU(), id.waferV(), id.cellU(), id.cellV(), false);
       auto cell = cons->assignCellHex(zside * xy.first, xy.second, zside, layer, true, false, false);
       HGCSiliconDetId newId(id.det(), id.zside(), cell[2], id.layer(), cell[0], cell[1], cell[3], cell[4]);

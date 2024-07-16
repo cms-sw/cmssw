@@ -172,7 +172,7 @@ void HGCalNumberingTester::analyze(const edm::Event& iEvent, const edm::EventSet
       } else {
         std::array<int, 5> kxy, lxy;
         kxy = hgdc.assignCellHex(localx, localy, zside, i + loff, reco_, false, false);
-        xy = hgdc.locateCell(zside, i + loff, kxy[0], kxy[1], kxy[3], kxy[4], reco_, true, false, false);
+        xy = hgdc.locateCell(zside, i + loff, kxy[0], kxy[1], kxy[3], kxy[4], reco_, true, false, false, false);
         lxy = hgdc.assignCellHex(xy.first, xy.second, zside, i + loff, reco_, false, false);
         flg = (kxy == lxy) ? " " : " ***** Error *****";
         edm::LogVerbatim("HGCalGeom") << "Input: (" << localx << "," << localy << ", " << i + loff
@@ -182,7 +182,7 @@ void HGCalNumberingTester::analyze(const edm::Event& iEvent, const edm::EventSet
                                       << lxy[3] << ":" << lxy[4] << ") Dist "
                                       << hgdc.distFromEdgeHex(scl * localx, scl * localy, scl * zpos) << " " << flg;
         kxy = hgdc.assignCellHex(-localx, -localy, zside, i + loff, reco_, false, false);
-        xy = hgdc.locateCell(zside, i + loff, kxy[0], kxy[1], kxy[3], kxy[4], reco_, true, false, false);
+        xy = hgdc.locateCell(zside, i + loff, kxy[0], kxy[1], kxy[3], kxy[4], reco_, true, false, false, false);
         lxy = hgdc.assignCellHex(xy.first, xy.second, zside, i + loff, reco_, false, false);
         flg = (kxy == lxy) ? " " : " ***** Error *****";
         edm::LogVerbatim("HGCalGeom") << "Input: (" << -localx << "," << -localy << ", " << i + loff

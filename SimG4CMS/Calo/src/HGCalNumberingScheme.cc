@@ -210,7 +210,7 @@ bool HGCalNumberingScheme::checkPosition(uint32_t index, const G4ThreeVector& po
     HGCSiliconDetId id = HGCSiliconDetId(index);
     lay = id.layer();
     xy = hgcons_.locateCell(
-        id.zside(), lay, id.waferU(), id.waferV(), id.cellU(), id.cellV(), false, true, false, false);
+        id.zside(), lay, id.waferU(), id.waferV(), id.cellU(), id.cellV(), false, true, false, false, false);
     z1 = hgcons_.waferZ(lay, false);
     ok = true;
     tolR = 14.0;
@@ -253,7 +253,7 @@ bool HGCalNumberingScheme::checkPosition(uint32_t index, const G4ThreeVector& po
         double wt(0), xx(zside * pos.x());
         int waferU, waferV, cellU, cellV, waferType;
         hgcons_.waferFromPosition(xx, pos.y(), zside, lay, waferU, waferV, cellU, cellV, waferType, wt, false, true);
-        xy = hgcons_.locateCell(zside, lay, waferU, waferV, cellU, cellV, false, true, false, true);
+        xy = hgcons_.locateCell(zside, lay, waferU, waferV, cellU, cellV, false, true, false, false, true);
         double dx = (xx - xy.first);
         double dy = (pos.y() - xy.second);
         double dR = std::sqrt(dx * dx + dy * dy);

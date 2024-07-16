@@ -483,7 +483,7 @@ void HGCHitValidation::analyzeHGCalSimHit(edm::Handle<std::vector<PCaloHit>> con
       celltype = detId.type();
       layer = detId.layer();
       zside = detId.zside();
-      xy = hgcCons_[idet]->locateCell(zside, layer, wafer, wafer2, cell, cell2, false, true, false, false);
+      xy = hgcCons_[idet]->locateCell(zside, layer, wafer, wafer2, cell, cell2, false, true, false, false, false);
     } else if (hgcCons_[idet]->tileTrapezoid()) {
       HGCScintillatorDetId detId = HGCScintillatorDetId(id);
       subdet = (int)(detId.det());
