@@ -28,7 +28,6 @@ process.dqmSaverPB.runNumber = options.runNumber
 process.load("DQMServices.Components.DQMProvInfo_cfi")
 
 
-process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load('RecoLocalMuon.GEMCSCSegment.gemcscSegments_cff')
@@ -44,7 +43,6 @@ process.muonGEMDigis.useDBEMap = True
 process.muonGEMDigis.keepDAQStatus = True
 
 process.gemRecHits.ge21Off = cms.bool(False)
-process.MessageLogger.cerr.FwkReport.reportEvery = 1
 
 process.GEMDigiSource.runType = "online"
 process.GEMRecHitSource.runType = "online"
