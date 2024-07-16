@@ -34,6 +34,13 @@ static int skipWhitespace(std::istream &in) {
 }
 
 namespace lhef {
+  const bool operator==(const LHERunInfo::Process &lhs, const LHERunInfo::Process &rhs) {
+    return (lhs.process() == rhs.process());
+  }
+
+  const bool operator<(const LHERunInfo::Process &lhs, const LHERunInfo::Process &rhs) {
+    return (lhs.process() < rhs.process());
+  }
 
   LHERunInfo::LHERunInfo(std::istream &in) {
     in >> heprup.IDBMUP.first >> heprup.IDBMUP.second >> heprup.EBMUP.first >> heprup.EBMUP.second >>
@@ -526,14 +533,6 @@ namespace lhef {
     }
 
     return std::make_pair(pdfA, pdfB);
-  }
-
-  const bool operator==(const LHERunInfo::Process &lhs, const LHERunInfo::Process &rhs) {
-    return (lhs.process() == rhs.process());
-  }
-
-  const bool operator<(const LHERunInfo::Process &lhs, const LHERunInfo::Process &rhs) {
-    return (lhs.process() < rhs.process());
   }
 
 }  // namespace lhef
