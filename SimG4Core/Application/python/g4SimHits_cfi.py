@@ -700,7 +700,8 @@ run3_common.toModify( g4SimHits,
 ## Disable PPS from Run 3 PbPb runs and enable ZDC 
 ##
 from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
-pp_on_PbPb_run3.toModify(g4SimHits, LHCTransport = False)
+from Configuration.Eras.Modifier_run3_upc_cff import run3_upc
+(pp_on_PbPb_run3 | run3_upc).toModify(g4SimHits, LHCTransport = False)
 #                         SteppingAction = dict(
 #                             CMStoZDCtransport = True) )
 
