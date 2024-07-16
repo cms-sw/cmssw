@@ -472,7 +472,7 @@ steps['RunCharmonium2018D']={'INPUT':InputInfo(dataSet='/Charmonium/Run2018D-v1/
 steps['RunRawPPS2022B']={'INPUT':InputInfo(dataSet='/AlCaPPS/Run2022B-v1/RAW',label='2022B',events=100000,location='STD', ls={355207: [[1, 100]]})}
 steps['RunRawPPS2022A']={'INPUT':InputInfo(dataSet='/AlCaPPS/Run2022A-v1/RAW',label='2022A',events=100000,location='STD', ls={354332: [[1, 100]]})}
 #### PPS run3 2024E
-steps['RunRawPPS2024E']={'INPUT':InputInfo(dataSet='/AlCaPPSPrompt/Run2024E-v1/RAW',label='2024E',events=100000,location='STD', ls={380470: [[1, 100]]})}
+steps['RunRawPPS2024E']={'INPUT':InputInfo(dataSet='/AlCaPPSPrompt/Run2024D-v1/RAW',label='2024E',events=100000,location='STD', ls={380470: [[1, 100]]})}
 steps['RunRawPPSReco2024E']={'INPUT':InputInfo(dataSet='/ZeroBias/Run2024E-v1/RAW',label='2024E',events=100000,location='STD', ls={381380: [[1, 100]]})}
 
 # UL AOD
