@@ -59,6 +59,7 @@ private:
                   const float trackMomentum,
                   const LocalVector& trackDirection,
                   reco::DeDxHitInfo& hitDeDxInfo,
+                  std::vector<float>& hitMomentum,
                   const LocalPoint& hitLocalPos);
 
   // ----------member data ---------------------------
@@ -76,6 +77,7 @@ private:
   const bool useCalibration_;
   const bool doShapeTest_;
   const bool usePixelShape_;
+  const bool storeMomentumAtHit_;
 
   const unsigned int lowPtTracksPrescalePass_, lowPtTracksPrescaleFail_;
   GenericTruncatedAverageDeDxEstimator lowPtTracksEstimator_;
@@ -116,6 +118,7 @@ DeDxHitInfoProducer::DeDxHitInfoProducer(const edm::ParameterSet& iConfig)
       useCalibration_(iConfig.getParameter<bool>("useCalibration")),
       doShapeTest_(iConfig.getParameter<bool>("shapeTest")),
       usePixelShape_(not iConfig.getParameter<edm::InputTag>("clusterShapeCache").label().empty()),
+      storeMomentumAtHit_(iConfig.getParameter<bool>("storeMomentumAtHit")),
       lowPtTracksPrescalePass_(iConfig.getParameter<uint32_t>("lowPtTracksPrescalePass")),
       lowPtTracksPrescaleFail_(iConfig.getParameter<uint32_t>("lowPtTracksPrescaleFail")),
       lowPtTracksEstimator_(iConfig.getParameter<edm::ParameterSet>("lowPtTracksEstimatorParameters")),
@@ -129,6 +132,8 @@ DeDxHitInfoProducer::DeDxHitInfoProducer(const edm::ParameterSet& iConfig)
   produces<reco::DeDxHitInfoCollection>();
   produces<reco::DeDxHitInfoAss>();
   produces<edm::ValueMap<int>>("prescale");
+  if (storeMomentumAtHit_)
+    produces<edm::ValueMap<std::vector<float>>>("momentumAtHit");
 
   if (!usePixel_ && !useStrip_)
     edm::LogError("DeDxHitsProducer") << "No Pixel Hits NOR Strip Hits will be saved.  Running this module is useless";
@@ -160,6 +165,7 @@ void DeDxHitInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 
   std::vector<int> indices;
   std::vector<int> prescales;
+  std::vector<std::vector<float>> hitMomenta;
   uint64_t state[2] = {iEvent.id().event(), iEvent.id().luminosityBlock()};
   for (unsigned int j = 0; j < trackCollection.size(); j++) {
     const reco::Track& track = trackCollection[j];
@@ -181,6 +187,7 @@ void DeDxHitInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     }
 
     reco::DeDxHitInfo hitDeDxInfo;
+    std::vector<float> hitMomentum;
     auto const& trajParams = track.extra()->trajParams();
     auto hb = track.recHitsBegin();
     for (unsigned int h = 0; h < track.recHitsSize(); h++) {
@@ -188,8 +195,10 @@ void DeDxHitInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
       if (!trackerHitRTTI::isFromDet(*recHit))
         continue;
 
-      processHit(recHit, track.p(), trajParams[h].direction(), hitDeDxInfo, trajParams[h].position());
+      const auto& traj = trajParams[h];
+      processHit(recHit, traj.momentum().mag(), traj.direction(), hitDeDxInfo, hitMomentum, traj.position());
     }
+    assert(!storeMomentumAtHit_ || hitMomentum.size() == hitDeDxInfo.size());
 
     if (!passPt) {
       std::vector<DeDxHit> hits;
@@ -230,6 +239,8 @@ void DeDxHitInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     }
     indices.push_back(resultdedxHitColl->size());
     resultdedxHitColl->push_back(hitDeDxInfo);
+    if (storeMomentumAtHit_)
+      hitMomenta.push_back(hitMomentum);
   }
   ///////////////////////////////////////
 
@@ -247,6 +258,14 @@ void DeDxHitInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   pfiller.insert(dedxHitCollHandle, prescales.begin(), prescales.end());
   pfiller.fill();
   iEvent.put(std::move(dedxPrescale), "prescale");
+
+  if (storeMomentumAtHit_) {
+    auto dedxMomenta = std::make_unique<edm::ValueMap<std::vector<float>>>();
+    edm::ValueMap<std::vector<float>>::Filler mfiller(*dedxMomenta);
+    mfiller.insert(dedxHitCollHandle, hitMomenta.begin(), hitMomenta.end());
+    mfiller.fill();
+    iEvent.put(std::move(dedxMomenta), "momentumAtHit");
+  }
 }
 
 void DeDxHitInfoProducer::processRec(reco::DeDxHitInfo& hitDeDxInfo,
@@ -279,6 +298,7 @@ void DeDxHitInfoProducer::processHit(const TrackingRecHit* recHit,
                                      const float trackMomentum,
                                      const LocalVector& trackDirection,
                                      reco::DeDxHitInfo& hitDeDxInfo,
+                                     std::vector<float>& hitMomentum,
                                      const LocalPoint& hitLocalPos) {
   auto const& thit = static_cast<BaseTrackerRecHit const&>(*recHit);
   if (!thit.isValid())
@@ -327,10 +347,14 @@ void DeDxHitInfoProducer::processHit(const TrackingRecHit* recHit,
     const SiStripMatchedRecHit2D* matchedHit = dynamic_cast<const SiStripMatchedRecHit2D*>(recHit);
     if (!matchedHit)
       return;
+    if (storeMomentumAtHit_)
+      hitMomentum.push_back(trackMomentum);
 
     processRec(hitDeDxInfo, matchedHit->monoHit(), hitLocalPos, trackDirection, cosineAbs);
     processRec(hitDeDxInfo, matchedHit->stereoHit(), hitLocalPos, trackDirection, cosineAbs);
   }
+  if (storeMomentumAtHit_ && (clus.isPixel() || clus.isStrip()))
+    hitMomentum.push_back(trackMomentum);
 }
 
 //define this as a plug-in
