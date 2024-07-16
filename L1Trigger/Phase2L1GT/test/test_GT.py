@@ -118,56 +118,9 @@ process.GToutput = cms.OutputModule("PoolOutputModule",
 
 process.pGToutput = cms.EndPath(process.GToutput) 
 
-
-process.BoardDataInput = cms.EDAnalyzer("L1GTObjectBoardWriter",
-  GTTPromptJets = cms.InputTag("l1tTrackJetsEmulation", "L1TrackJets"),
-    GTTDisplacedJets = cms.InputTag("l1tTrackJetsExtendedEmulation", "L1TrackJetsExtended"),
-    GTTPromptHtSum = cms.InputTag("l1tTrackerEmuHTMiss", "L1TrackerEmuHTMiss"),
-    GTTDisplacedHtSum = cms.InputTag("l1tTrackerEmuHTMissExtended", "L1TrackerEmuHTMissExtended"),
-    GTTEtSum = cms.InputTag("l1tTrackerEmuEtMiss","L1TrackerEmuEtMiss"),
-    GTTPrimaryVert = cms.InputTag("l1tVertexFinderEmulator", "L1VerticesEmulation"),
-    GMTSaPromptMuons = cms.InputTag("l1tSAMuonsGmt", "promptSAMuons"),
-    GMTSaDisplacedMuons = cms.InputTag("l1tSAMuonsGmt", "displacedSAMuons"),
-    GMTTkMuons = cms.InputTag("l1tTkMuonsGmtLowPtFix", "l1tTkMuonsGmtLowPtFix"),
-    CL2JetsSC4 = cms.InputTag("l1tSC4PFL1PuppiCorrectedEmulator"),
-    CL2JetsSC8 = cms.InputTag("l1tSC8PFL1PuppiCorrectedEmulator"),
-    CL2Electrons = cms.InputTag("l1tLayer2EG", "L1CtTkElectron"),
-    CL2Photons = cms.InputTag("l1tLayer2EG", "L1CtTkEm"),
-    CL2Taus = cms.InputTag("l1tNNTauProducerPuppi", "L1PFTausNN"),
-    CL2EtSum = cms.InputTag("l1tMETPFProducer"),
-    CL2HtSum = cms.InputTag("l1tSC4PFL1PuppiCorrectedEmulatorMHT"),
-    filename = cms.string("inputPattern"),
-    platform = cms.string("VU13P"),
-    maxFrames = cms.uint32(1024),
-    bufferFileType = cms.string("input")
-)
+process.load('L1Trigger.Phase2L1GT.l1tGTBoardWriterVU13P_cff')
 
 process.pBoardDataInput = cms.EndPath(process.BoardDataInput)
-
-
-process.BoardDataOutputObjects = cms.EDAnalyzer("L1GTObjectBoardWriter",
-  GTTPromptJets = cms.InputTag("l1tTrackJetsEmulation", "L1TrackJets"),
-    GTTDisplacedJets = cms.InputTag("l1tTrackJetsExtendedEmulation", "L1TrackJetsExtended"),
-    GTTPromptHtSum = cms.InputTag("l1tTrackerEmuHTMiss", "L1TrackerEmuHTMiss"),
-    GTTDisplacedHtSum = cms.InputTag("l1tTrackerEmuHTMissExtended", "L1TrackerEmuHTMissExtended"),
-    GTTEtSum = cms.InputTag("l1tTrackerEmuEtMiss","L1TrackerEmuEtMiss"),
-    GTTPrimaryVert = cms.InputTag("l1tVertexFinderEmulator", "L1VerticesEmulation"),
-    GMTSaPromptMuons = cms.InputTag("l1tSAMuonsGmt", "promptSAMuons"),
-    GMTSaDisplacedMuons = cms.InputTag("l1tSAMuonsGmt", "displacedSAMuons"),
-    GMTTkMuons = cms.InputTag("l1tTkMuonsGmtLowPtFix", "l1tTkMuonsGmtLowPtFix"),
-    CL2JetsSC4 = cms.InputTag("l1tSC4PFL1PuppiCorrectedEmulator"),
-    CL2JetsSC8 = cms.InputTag("l1tSC8PFL1PuppiCorrectedEmulator"),
-    CL2Electrons = cms.InputTag("l1tLayer2EG", "L1CtTkElectron"),
-    CL2Photons = cms.InputTag("l1tLayer2EG", "L1CtTkEm"),
-    CL2Taus = cms.InputTag("l1tNNTauProducerPuppi", "L1PFTausNN"),
-    CL2EtSum = cms.InputTag("l1tMETPFProducer"),
-    CL2HtSum = cms.InputTag("l1tSC4PFL1PuppiCorrectedEmulatorMHT"),
-    filename = cms.string("outputObjectPattern"),
-    platform = cms.string("VU13P"),
-    maxFrames = cms.uint32(1024),
-    bufferFileType = cms.string("output")
-)
-
 process.pBoardDataOutputObjects = cms.EndPath(process.BoardDataOutputObjects)
 
 
