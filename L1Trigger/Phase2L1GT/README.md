@@ -116,8 +116,11 @@ Possible cuts on single quantities are:
 | `maxRelIsolationPt` |  $\mathrm{isolationPT} < X \cdot p_T$ | `cms.double` | `ceil(X * pT_lsb * 2**18 / isolationPT)` |
 | `minPrimVertDz`* | $\| z_0 - Z_{0,i} \| > X $ | `cms.double` | `floor(X / z0_lsb)` |
 | `maxPrimVertDz`* | $\| z_0 - Z_{0,i} \| < X $ | `cms.double` | `ceil(X / z0_lsb)` |
+| `minPtMultiplicityCut`** | $\sum \left( p_T > X\right) \geq N$ | `cms.double` | `floor(X / pT_lsb)` |
 
 \* : To select a $Z_0$ index $i$ from the `GTTPrimaryVert` collection for the comparison use `primVertex = cms.uint32(i)`. This parameter is mandatory when using a `maxPrimVertDz` cut.
+
+\** : Requires additional parameter $N$ with `minPtMultiplicityN = cms.uint32(N)`.
 
 ### $\eta$-regional cuts
 
