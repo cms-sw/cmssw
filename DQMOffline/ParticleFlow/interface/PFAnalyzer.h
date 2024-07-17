@@ -26,6 +26,8 @@
 
 #include "DataFormats/Common/interface/TriggerResults.h"
 
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
+
 
 
 #include "DataFormats/JetReco/interface/Jet.h"
@@ -100,7 +102,9 @@ private:
               int nPF = 0;
               for(auto pfCand: pfCands){
                 // We use X to indicate all
-                if(pfCand.particleId() == pfType || pfType == reco::PFCandidate::ParticleType::X) nPF++;
+                if(pfCand.particleId() == pfType || pfType == reco::PFCandidate::ParticleType::X) {
+                  nPF++;
+                }
               }
               return nPF;
            }
@@ -261,6 +265,8 @@ private:
   edm::EDGetTokenT<std::vector<reco::Vertex>> vertexToken_;
   edm::EDGetTokenT<reco::PFJetCollection> pfJetsToken_;
 
+  edm::EDGetTokenT<GenEventInfoProduct> tok_ew_;
+
 
   edm::InputTag theTriggerResultsLabel_;
   edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken_;
@@ -297,9 +303,10 @@ private:
   // The observable name should have an entry in m_funcMap to define how
   // it can be retrieved from a PFCandidate.
   vstring m_cutList;
+  std::vector<std::vector<std::string> > m_fullCutList;
   //std::vector<double> m_cutMins;
   //std::vector<double> m_cutMaxes;
-  std::vector<std::vector<double> > m_binList;
+  std::vector<std::vector<std::vector<double> > > m_binList;
 
   // Information on what cuts should be applied to PFJets, in the case that we 
   // match PFCs to jets.In the config file, this should come as a comma-separated list of 
@@ -315,6 +322,8 @@ private:
   // The dR radius used to match PFCs to jets.
   // Making this configurable is useful in case you want to look at the core of a jet.
   double m_matchingRadius;
+
+  std::vector<std::string> m_pfNames;
 
 
 };
