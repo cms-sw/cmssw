@@ -26,14 +26,26 @@ CloseByParticleGunProducer::CloseByParticleGunProducer(const ParameterSet& pset)
     : BaseFlatGunProducer(pset), m_fieldToken(esConsumes()) {
   ParameterSet pgun_params = pset.getParameter<ParameterSet>("PGunParameters");
   fControlledByEta = pgun_params.getParameter<bool>("ControlledByEta");
+  fControlledByREta = pgun_params.getParameter<bool>("ControlledByREta");
+  if(fControlledByEta and fControlledByREta)
+    LogError("CloseByParticleGunProducer") << " Conflicting configuration, cannot have both ControlledByEta and ControlledByREta ";
+
   fVarMax = pgun_params.getParameter<double>("VarMax");
   fVarMin = pgun_params.getParameter<double>("VarMin");
   fMaxVarSpread = pgun_params.getParameter<bool>("MaxVarSpread");
+  fLogSpacedVar = pgun_params.getParameter<bool>("LogSpacedVar");
   fFlatPtGeneration = pgun_params.getParameter<bool>("FlatPtGeneration");
   if (fVarMin < 1 && !fFlatPtGeneration)
     LogError("CloseByParticleGunProducer") << " Please choose a minimum energy greater than 1 GeV, otherwise time "
                                               "information may be invalid or not reliable";
-  if (fControlledByEta) {
+  if (fVarMin < 0 && fLogSpacedVar)
+    LogError("CloseByParticleGunProducer") << " Minimum energy must be greater than zero for log spacing";
+  else{
+      log_fVarMin = std::log(fVarMin);
+      log_fVarMax = std::log(fVarMax);
+  }
+
+  if (fControlledByEta || fControlledByREta) {
     fEtaMax = pgun_params.getParameter<double>("MaxEta");
     fEtaMin = pgun_params.getParameter<double>("MinEta");
     if (fEtaMax <= fEtaMin)
@@ -44,8 +56,13 @@ CloseByParticleGunProducer::CloseByParticleGunProducer(const ParameterSet& pset)
     if (fRMax <= fRMin)
       LogError("CloseByParticleGunProducer") << " Please fix RMin and RMax values in the configuration";
   }
-  fZMax = pgun_params.getParameter<double>("ZMax");
-  fZMin = pgun_params.getParameter<double>("ZMin");
+  if(!fControlledByREta){
+      fZMax = pgun_params.getParameter<double>("ZMax");
+      fZMin = pgun_params.getParameter<double>("ZMin");
+
+      if (fZMax <= fZMin)
+          LogError("CloseByParticleGunProducer") << " Please fix ZMin and ZMax values in the configuration";
+  }
   fDelta = pgun_params.getParameter<double>("Delta");
   fPhiMin = pgun_params.getParameter<double>("MinPhi");
   fPhiMax = pgun_params.getParameter<double>("MaxPhi");
@@ -81,10 +98,12 @@ void CloseByParticleGunProducer::fillDescriptions(ConfigurationDescriptions& des
   {
     edm::ParameterSetDescription psd0;
     psd0.add<bool>("ControlledByEta", false);
+    psd0.add<bool>("ControlledByREta", false);
     psd0.add<double>("Delta", 10);
     psd0.add<double>("VarMax", 200.0);
     psd0.add<double>("VarMin", 25.0);
     psd0.add<bool>("MaxVarSpread", false);
+    psd0.add<bool>("LogSpacedVar", false);
     psd0.add<bool>("FlatPtGeneration", false);
     psd0.add<double>("MaxEta", 2.7);
     psd0.add<double>("MaxPhi", 3.14159265359);
@@ -129,17 +148,27 @@ void CloseByParticleGunProducer::produce(Event& e, const EventSetup& es) {
   unsigned int numParticles = fRandomShoot ? CLHEP::RandFlat::shoot(engine, 1, fNParticles) : fNParticles;
 
   double phi = CLHEP::RandFlat::shoot(engine, fPhiMin, fPhiMax);
-  double fZ = CLHEP::RandFlat::shoot(engine, fZMin, fZMax);
+  double fZ;
   double fR, fEta;
   double fT;
 
-  if (!fControlledByEta) {
-    fR = CLHEP::RandFlat::shoot(engine, fRMin, fRMax);
-    fEta = asinh(fZ / fR);
-  } else {
-    fEta = CLHEP::RandFlat::shoot(engine, fEtaMin, fEtaMax);
-    fR = (fZ / sinh(fEta));
+  if(!fControlledByREta){
+    fZ = CLHEP::RandFlat::shoot(engine, fZMin, fZMax);
+
+    if (!fControlledByEta) {
+      fR = CLHEP::RandFlat::shoot(engine, fRMin, fRMax);
+      fEta = asinh(fZ / fR);
+    } else {
+      fEta = CLHEP::RandFlat::shoot(engine, fEtaMin, fEtaMax);
+      fR = (fZ / sinh(fEta));
+    }
   }
+  else{
+      fR = CLHEP::RandFlat::shoot(engine, fRMin, fRMax);
+      fEta = CLHEP::RandFlat::shoot(engine, fEtaMin, fEtaMax);
+      fZ = sinh(fEta)/fR;
+  }
+
 
   if (fUseDeltaT) {
     fT = CLHEP::RandFlat::shoot(engine, fTMin, fTMax);
@@ -161,6 +190,12 @@ void CloseByParticleGunProducer::produce(Event& e, const EventSetup& es) {
     double fVar;
     if (numParticles > 1 && fMaxVarSpread)
       fVar = fVarMin + ip * (fVarMax - fVarMin) / (numParticles - 1);
+    else if(fLogSpacedVar){
+
+      double fVar_log = CLHEP::RandFlat::shoot(engine, log_fVarMin, log_fVarMax);
+      fVar = std::exp(fVar_log);
+    }
+
     else
       fVar = CLHEP::RandFlat::shoot(engine, fVarMin, fVarMax);
 
