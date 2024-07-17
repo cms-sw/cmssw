@@ -53,6 +53,8 @@ namespace torch_common {
       }
     }
 
+    ~DeviceStreamGuard() { end(); }
+
   private:
     c10::cuda::CUDAStream previous_;
     bool set_ = true;
