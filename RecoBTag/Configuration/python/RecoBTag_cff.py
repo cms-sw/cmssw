@@ -114,7 +114,8 @@ _pfBTaggingTask_run3 = cms.Task(
     pixelClusterTagInfos,
 
     pfParticleNetAK4TaskForRECO,
-    pfParticleNetTask
+    pfParticleNetTask,
+    pfUnifiedParticleTransformerAK4Task
 )
 _pfCTaggingTask_run3 = cms.Task(
     inclusiveCandidateVertexingCvsLTask,
