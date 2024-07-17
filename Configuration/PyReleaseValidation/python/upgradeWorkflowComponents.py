@@ -697,24 +697,32 @@ upgradeWFs['ticl_FastJet'].step4 = {'--procModifiers': 'fastJetTICL'}
 
 class UpgradeWorkflow_ticl_v5(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
+        if ('Digi' in step and 'NoHLT' not in step) or ('HLTOnly' in step):
+            stepDict[stepName][k] = merge([self.step2, stepDict[step][k]])
         if 'RecoGlobal' in step:
             stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
         if 'HARVESTGlobal' in step:
             stepDict[stepName][k] = merge([self.step4, stepDict[step][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
         return (fragment=="TTbar_14TeV" or 'CloseByP' in fragment or 'Eta1p7_2p7' in fragment) and '2026' in key
+
 upgradeWFs['ticl_v5'] = UpgradeWorkflow_ticl_v5(
     steps = [
+        'HLTOnly',
+        'DigiTrigger',
         'RecoGlobal',
         'HARVESTGlobal'
     ],
     PU = [
+        'HLTOnly',
+        'DigiTrigger',
         'RecoGlobal',
         'HARVESTGlobal'
     ],
     suffix = '_ticl_v5',
     offset = 0.203,
 )
+upgradeWFs['ticl_v5'].step2 = {'--procModifiers': 'ticl_v5'}
 upgradeWFs['ticl_v5'].step3 = {'--procModifiers': 'ticl_v5'}
 upgradeWFs['ticl_v5'].step4 = {'--procModifiers': 'ticl_v5'}
 
