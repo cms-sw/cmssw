@@ -3,6 +3,7 @@
 #   cmsRun runMaterialBudgetVolumeXML_cfg.py type=DDD
 #
 #   Options for type DDD, DD4hep
+#   Options for geometry 2021, 2023, 2024
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -12,6 +13,11 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 ####################################################################
 ### SETUP OPTIONS
 options = VarParsing.VarParsing('standard')
+options.register('geometry',
+                 "2021",
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.string,
+                  "geometry of operations: 2021, 2023, 2024")
 options.register('type',
                  "DDD",
                   VarParsing.VarParsing.multiplicity.singleton,
@@ -30,13 +36,13 @@ import FWCore.ParameterSet.Config as cms
 if (options.type == "DDD"):
     from Configuration.Eras.Era_Run3_DDD_cff import Run3_DDD
     process = cms.Process('PROD',Run3_DDD)
-    geomFile = "Configuration.Geometry.GeometryExtended2021Reco_cff"
-    fileName = "matbdgRun3dddXML.root"
+    geomFile = "Configuration.Geometry.GeometryExtended" + options.geometry + "Reco_cff"
+    fileName = "matbdg" + options.geometry + "dddXML.root"
 else:
     from Configuration.Eras.Era_Run3_dd4hep_cff import Run3_dd4hep
     process = cms.Process('PROD',Run3_dd4hep)
-    geomFile = "Configuration.Geometry.GeometryDD4hepExtended2021Reco_cff"
-    fileName = "matbdgRun3ddhepXML.root"
+    geomFile = "Configuration.Geometry.GeometryDD4hepExtended" + options.geometry + "Reco_cff"
+    fileName = "matbdg" + options.geometry + "ddhepXML.root"
 
 print("Geometry file Name: ", geomFile)
 print("Root file Name:     ", fileName)
