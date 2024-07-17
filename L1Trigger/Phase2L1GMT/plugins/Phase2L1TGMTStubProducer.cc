@@ -111,12 +111,6 @@ void Phase2L1TGMTStubProducer::produce(edm::Event& iEvent, const edm::EventSetup
   l1t::MuonStubCollection stubs;
   l1t::MuonStubCollection stubsKMTF;
 
-  uint count0 = 0;
-  uint count1 = 0;
-  uint count2 = 0;
-  uint count3 = 0;
-  uint count4 = 0;
-
   l1t::MuonStubCollection stubsEndcap = procEndcap_->makeStubs(*cscDigis, *rpcDigis, translator_, iSetup);
   for (auto& stub : stubsEndcap) {
     stubs.push_back(stub);

@@ -440,7 +440,6 @@ void KMTFCore::propagate(l1t::KMTFTrack& track) {
   if (KBound < -(pow(2, BITSCURV - 3) - 1))
     KBound = -(pow(2, BITSCURV - 3) - 1);
 
-  int deltaK = 0;
   int KNew = K;
   if (step == 1) {
     ap_ufixed<17, 0> eLoss = ap_ufixed<17, 0>(eLoss_[step - 1]);
@@ -1114,9 +1113,7 @@ uint KMTFCore::etaStubRank(const l1t::MuonStubRef& stub) {
 }
 
 void KMTFCore::calculateEta(l1t::KMTFTrack& track) {
-  uint pattern = track.hitPattern();
   int wheel = track.stubs()[0]->etaRegion();
-  uint awheel = fabs(wheel);
   int sign = 1;
   if (wheel < 0)
     sign = -1;
@@ -1147,7 +1144,6 @@ uint KMTFCore::matchAbs(std::map<uint, uint>& info, uint i, uint j) {
 }
 
 int KMTFCore::ptLUT(int K) {
-  int charge = (K >= 0) ? +1 : -1;
   float lsb = 1.25 / float(1 << (BITSCURV - 1));
   float FK = fabs(K);
   int pt = 0;
