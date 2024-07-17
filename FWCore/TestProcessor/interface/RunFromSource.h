@@ -25,6 +25,8 @@
 #include "FWCore/TestProcessor/interface/TestHandle.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Utilities/interface/TypeID.h"
+#include "FWCore/ServiceRegistry/interface/ServiceToken.h"
+#include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 
 // forward declarations
 
@@ -34,13 +36,16 @@ namespace edm {
 
     class RunFromSource {
     public:
-      RunFromSource(std::shared_ptr<RunPrincipal const> iPrincipal) : principal_(iPrincipal) {}
+      RunFromSource(std::shared_ptr<RunPrincipal const> iPrincipal, edm::ServiceToken iToken)
+          : principal_(iPrincipal), token_(iToken) {}
 
       // ---------- const member functions ---------------------
       template <typename T>
       TestHandle<T> get(std::string const& iModule,
                         std::string const& iInstanceLabel,
                         std::string const& iProcess) const {
+        ServiceRegistry::Operate operate(token_);
+
         auto h = principal_->getByLabel(
             edm::PRODUCT_TYPE, edm::TypeID(typeid(T)), iModule, iInstanceLabel, iProcess, nullptr, nullptr, nullptr);
         if (h.failedToGet()) {
@@ -58,6 +63,7 @@ namespace edm {
     private:
       // ---------- member data --------------------------------
       std::shared_ptr<RunPrincipal const> principal_;
+      edm::ServiceToken token_;
     };
   }  // namespace test
 }  // namespace edm

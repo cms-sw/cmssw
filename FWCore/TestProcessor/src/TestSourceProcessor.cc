@@ -161,11 +161,14 @@ namespace edm::test {
     actReg_ = items.actReg_;
     branchIDListHelper_ = items.branchIDListHelper();
     thinnedAssociationsHelper_ = items.thinnedAssociationsHelper();
+    processConfiguration_ = items.processConfiguration();
+
     processContext_.setProcessConfiguration(processConfiguration_.get());
     preg_ = items.preg();
     principalCache_.setNumberOfConcurrentPrincipals(preallocations_);
 
     preg_->setFrozen();
+    mergeableRunProductProcesses_.setProcessesWithMergeableRunProducts(*preg_);
 
     for (unsigned int index = 0; index < preallocations_.numberOfStreams(); ++index) {
       // Reusable event principal
@@ -174,7 +177,8 @@ namespace edm::test {
       principalCache_.insert(std::move(ep));
     }
     for (unsigned int index = 0; index < preallocations_.numberOfRuns(); ++index) {
-      auto rp = std::make_unique<RunPrincipal>(preg_, *processConfiguration_, historyAppender_.get(), index);
+      auto rp = std::make_unique<RunPrincipal>(
+          preg_, *processConfiguration_, historyAppender_.get(), index, true, &mergeableRunProductProcesses_);
       principalCache_.insert(std::move(rp));
     }
     for (unsigned int index = 0; index < preallocations_.numberOfLuminosityBlocks(); ++index) {
@@ -190,12 +194,28 @@ namespace edm::test {
     source_->doBeginJob();
   }
 
+  TestSourceProcessor::~TestSourceProcessor() {
+    //make the services available
+    ServiceRegistry::Operate operate(serviceToken_);
+    try {
+      source_.reset();
+    } catch (std::exception const& iExcept) {
+      std::cerr << " caught exception while destroying TestSourceProcessor\n" << iExcept.what();
+    }
+  }
+
   edm::InputSource::ItemTypeInfo TestSourceProcessor::findNextTransition() {
+    //make the services available
+    ServiceRegistry::Operate operate(serviceToken_);
+
     lastTransition_ = source_->nextItemType();
     return lastTransition_;
   }
 
   std::shared_ptr<FileBlock> TestSourceProcessor::openFile() {
+    //make the services available
+    ServiceRegistry::Operate operate(serviceToken_);
+
     size_t size = preg_->size();
     fb_ = source_->readFile();
     if (size < preg_->size()) {
@@ -217,6 +237,9 @@ namespace edm::test {
           << "closeFile given a FileBlock that does not correspond to the one returned by openFile";
     }
     if (fb_) {
+      //make the services available
+      ServiceRegistry::Operate operate(serviceToken_);
+
       source_->closeFile(fb_.get(), false);
     }
   }
@@ -225,12 +248,15 @@ namespace edm::test {
     if (lastTransition_.itemType() != edm::InputSource::ItemType::IsRun) {
       throw cms::Exception("NotARun") << "The last transition is " << name(lastTransition_.itemType()) << " not a Run";
     }
+    //make the services available
+    ServiceRegistry::Operate operate(serviceToken_);
+
     //NOTE: should probably handle merging as well
     runPrincipal_ = principalCache_.getAvailableRunPrincipalPtr();
     runPrincipal_->setAux(*source_->runAuxiliary());
     source_->readRun(*runPrincipal_, *historyAppender_);
 
-    return edm::test::RunFromSource(runPrincipal_);
+    return edm::test::RunFromSource(runPrincipal_, serviceToken_);
   }
 
   edm::test::LuminosityBlockFromSource TestSourceProcessor::readLuminosityBlock() {
@@ -239,12 +265,15 @@ namespace edm::test {
           << "The last transition is " << name(lastTransition_.itemType()) << " not a LuminosityBlock";
     }
 
+    //make the services available
+    ServiceRegistry::Operate operate(serviceToken_);
+
     lumiPrincipal_ = principalCache_.getAvailableLumiPrincipalPtr();
     assert(lumiPrincipal_);
     lumiPrincipal_->setAux(*source_->luminosityBlockAuxiliary());
     source_->readLuminosityBlock(*lumiPrincipal_, *historyAppender_);
 
-    return edm::test::LuminosityBlockFromSource(lumiPrincipal_);
+    return edm::test::LuminosityBlockFromSource(lumiPrincipal_, serviceToken_);
   }
 
   edm::test::EventFromSource TestSourceProcessor::readEvent() {
@@ -252,12 +281,14 @@ namespace edm::test {
       throw cms::Exception("NotAnEvent") << "The last transition is " << name(lastTransition_.itemType())
                                          << " not a Event";
     }
+    //make the services available
+    ServiceRegistry::Operate operate(serviceToken_);
 
     auto& event = principalCache_.eventPrincipal(0);
     StreamContext streamContext(event.streamID(), &processContext_);
 
     source_->readEvent(event, streamContext);
 
-    return edm::test::EventFromSource(event);
+    return edm::test::EventFromSource(event, serviceToken_);
   }
 }  // namespace edm::test

@@ -34,6 +34,8 @@
 #include "FWCore/Framework/interface/PrincipalCache.h"
 #include "FWCore/Framework/interface/SignallingProductRegistry.h"
 #include "FWCore/Framework/interface/PreallocationConfiguration.h"
+#include "FWCore/Framework/interface/MergeableRunProductProcesses.h"
+
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ProcessContext.h"
 #include "FWCore/ServiceRegistry/interface/ServiceLegacy.h"
@@ -49,6 +51,7 @@ namespace edm::test {
   class TestSourceProcessor {
   public:
     TestSourceProcessor(std::string const& iConfig, ServiceToken iToken = ServiceToken());
+    ~TestSourceProcessor();
 
     InputSource::ItemTypeInfo findNextTransition();
 
@@ -62,7 +65,6 @@ namespace edm::test {
     edm::test::EventFromSource readEvent();
 
   private:
-    std::unique_ptr<edm::InputSource> source_;
     edm::InputSource::ItemTypeInfo lastTransition_;
 
     oneapi::tbb::global_control globalControl_;
@@ -77,12 +79,15 @@ namespace edm::test {
 
     std::shared_ptr<ProcessConfiguration const> processConfiguration_;
     ProcessContext processContext_;
+    MergeableRunProductProcesses mergeableRunProductProcesses_;
 
     ProcessHistoryRegistry processHistoryRegistry_;
     std::unique_ptr<HistoryAppender> historyAppender_;
 
     PrincipalCache principalCache_;
     PreallocationConfiguration preallocations_;
+
+    std::unique_ptr<edm::InputSource> source_;
 
     std::shared_ptr<RunPrincipal> runPrincipal_;
     std::shared_ptr<LuminosityBlockPrincipal> lumiPrincipal_;
