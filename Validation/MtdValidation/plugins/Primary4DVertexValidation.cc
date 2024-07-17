@@ -252,8 +252,8 @@ private:
                                  const unsigned int&);
   void printSimVtxRecoVtxInfo(const struct Primary4DVertexValidation::simPrimaryVertex&,
                               const struct Primary4DVertexValidation::recoPrimaryVertex&);
-  const bool mvaTPSel(const TrackingParticle&);
-  const bool mvaRecSel(const reco::TrackBase&, const reco::Vertex&, const double&, const double&);
+  const bool trkTPSelLV(const TrackingParticle&);
+  const bool trkRecSel(const reco::TrackBase&);
 
   // ----------member data ---------------------------
 
@@ -281,6 +281,8 @@ private:
   static constexpr double minThrSumPt2_ = 1.e-3;
   static constexpr double minThrMetPt_ = 1.e-3;
   static constexpr double minThrSumPz_ = 1.e-4;
+  static constexpr double rBTL_ = 110.0;
+  static constexpr double zETL_ = 290.0;
 
   static constexpr float c_cm_ns = geant_units::operators::convertMmToCm(CLHEP::c_light);  // [mm/ns] -> [cm/ns]
 
@@ -327,21 +329,21 @@ private:
   edm::ESGetToken<HepPDT::ParticleDataTable, edm::DefaultRecord> pdtToken_;
 
   // histogram declaration
-  MonitorElement* meMVATrackEffPtTot_;
-  MonitorElement* meMVATrackMatchedEffPtTot_;
-  MonitorElement* meMVATrackMatchedEffPtMtd_;
-  MonitorElement* meMVATrackEffEtaTot_;
-  MonitorElement* meMVATrackMatchedEffEtaTot_;
-  MonitorElement* meMVATrackMatchedEffEtaMtd_;
-  MonitorElement* meMVATrackResTot_;
-  MonitorElement* meMVATrackPullTot_;
+  MonitorElement* meTrackEffPtTot_;
+  MonitorElement* meTrackMatchedTPEffPtTot_;
+  MonitorElement* meTrackMatchedTPEffPtMtd_;
+  MonitorElement* meTrackEffEtaTot_;
+  MonitorElement* meTrackMatchedTPEffEtaTot_;
+  MonitorElement* meTrackMatchedTPEffEtaMtd_;
+  MonitorElement* meTrackMatchedTPResTot_;
+  MonitorElement* meTrackMatchedTPPullTot_;
   MonitorElement* meTrackResTot_;
   MonitorElement* meTrackPullTot_;
   MonitorElement* meTrackRes_[3];
   MonitorElement* meTrackPull_[3];
   MonitorElement* meTrackResMass_[3];
   MonitorElement* meTrackResMassTrue_[3];
-  MonitorElement* meMVATrackZposResTot_;
+  MonitorElement* meTrackMatchedTPZposResTot_;
   MonitorElement* meTrackZposResTot_;
   MonitorElement* meTrackZposRes_[3];
   MonitorElement* meTrack3DposRes_[3];
@@ -560,18 +562,22 @@ void Primary4DVertexValidation::bookHistograms(DQMStore::IBooker& ibook,
                                                edm::EventSetup const& iSetup) {
   ibook.setCurrentFolder(folder_);
   // --- histograms booking
-  meMVATrackEffPtTot_ = ibook.book1D("MVAEffPtTot", "Pt of tracks associated to LV; track pt [GeV] ", 110, 0., 11.);
-  meMVATrackEffEtaTot_ = ibook.book1D("MVAEffEtaTot", "Eta of tracks associated to LV; track eta ", 66, 0., 3.3);
-  meMVATrackMatchedEffPtTot_ =
-      ibook.book1D("MVAMatchedEffPtTot", "Pt of tracks associated to LV matched to TP; track pt [GeV] ", 110, 0., 11.);
-  meMVATrackMatchedEffPtMtd_ = ibook.book1D(
-      "MVAMatchedEffPtMtd", "Pt of tracks associated to LV matched to TP with time; track pt [GeV] ", 110, 0., 11.);
-  meMVATrackMatchedEffEtaTot_ =
-      ibook.book1D("MVAMatchedEffEtaTot", "Eta of tracks associated to LV matched to TP; track eta ", 66, 0., 3.3);
-  meMVATrackMatchedEffEtaMtd_ = ibook.book1D(
-      "MVAMatchedEffEtaMtd", "Eta of tracks associated to LV matched to TP with time; track eta ", 66, 0., 3.3);
-  meMVATrackResTot_ = ibook.book1D(
-      "MVATrackRes", "t_{rec} - t_{sim} for tracks from LV MVA sel.; t_{rec} - t_{sim} [ns] ", 120, -0.15, 0.15);
+  meTrackEffPtTot_ = ibook.book1D("EffPtTot", "Pt of tracks associated to LV; track pt [GeV] ", 110, 0., 11.);
+  meTrackEffEtaTot_ = ibook.book1D("EffEtaTot", "Eta of tracks associated to LV; track eta ", 66, 0., 3.3);
+  meTrackMatchedTPEffPtTot_ =
+      ibook.book1D("MatchedTPEffPtTot", "Pt of tracks associated to LV matched to TP; track pt [GeV] ", 110, 0., 11.);
+  meTrackMatchedTPEffPtMtd_ = ibook.book1D(
+      "MatchedTPEffPtMtd", "Pt of tracks associated to LV matched to TP with time; track pt [GeV] ", 110, 0., 11.);
+  meTrackMatchedTPEffEtaTot_ =
+      ibook.book1D("MatchedTPEffEtaTot", "Eta of tracks associated to LV matched to TP; track eta ", 66, 0., 3.3);
+  meTrackMatchedTPEffEtaMtd_ = ibook.book1D(
+      "MatchedTPEffEtaMtd", "Eta of tracks associated to LV matched to TP with time; track eta ", 66, 0., 3.3);
+  meTrackMatchedTPResTot_ =
+      ibook.book1D("MatchedTPTrackRes",
+                   "t_{rec} - t_{sim} for tracks associated to LV matched to TP; t_{rec} - t_{sim} [ns] ",
+                   120,
+                   -0.15,
+                   0.15);
   meTrackResTot_ = ibook.book1D("TrackRes", "t_{rec} - t_{sim} for tracks; t_{rec} - t_{sim} [ns] ", 120, -0.15, 0.15);
   meTrackRes_[0] = ibook.book1D(
       "TrackRes-LowMVA", "t_{rec} - t_{sim} for tracks with MVA < 0.5; t_{rec} - t_{sim} [ns] ", 100, -1., 1.);
@@ -602,8 +608,8 @@ void Primary4DVertexValidation::bookHistograms(DQMStore::IBooker& ibook,
                                           -1.,
                                           1.);
   }
-  meMVATrackPullTot_ =
-      ibook.book1D("MVATrackPull", "Pull for tracks from LV MAV sel.; (t_{rec}-t_{sim})/#sigma_{t}", 50, -5., 5.);
+  meTrackMatchedTPPullTot_ = ibook.book1D(
+      "MatchedTPTrackPull", "Pull for tracks associated to LV matched to TP; (t_{rec}-t_{sim})/#sigma_{t}", 50, -5., 5.);
   meTrackPullTot_ = ibook.book1D("TrackPull", "Pull for tracks; (t_{rec}-t_{sim})/#sigma_{t}", 100, -10., 10.);
   meTrackPull_[0] =
       ibook.book1D("TrackPull-LowMVA", "Pull for tracks with MVA < 0.5; (t_{rec}-t_{sim})/#sigma_{t}", 100, -10., 10.);
@@ -611,8 +617,12 @@ void Primary4DVertexValidation::bookHistograms(DQMStore::IBooker& ibook,
       "TrackPull-MediumMVA", "Pull for tracks with 0.5 < MVA < 0.8; (t_{rec}-t_{sim})/#sigma_{t}", 100, -10., 10.);
   meTrackPull_[2] =
       ibook.book1D("TrackPull-HighMVA", "Pull for tracks with MVA > 0.8; (t_{rec}-t_{sim})/#sigma_{t}", 100, -10., 10.);
-  meMVATrackZposResTot_ = ibook.book1D(
-      "MVATrackZposResTot", "Z_{PCA} - Z_{sim} for tracks from LV MVA sel.;Z_{PCA} - Z_{sim} [cm] ", 50, -0.1, 0.1);
+  meTrackMatchedTPZposResTot_ =
+      ibook.book1D("MatchedTPTrackZposResTot",
+                   "Z_{PCA} - Z_{sim} for tracks associated to LV matched to TP;Z_{PCA} - Z_{sim} [cm] ",
+                   50,
+                   -0.1,
+                   0.1);
   meTrackZposResTot_ =
       ibook.book1D("TrackZposResTot", "Z_{PCA} - Z_{sim} for tracks;Z_{PCA} - Z_{sim} [cm] ", 50, -0.5, 0.5);
   meTrackZposRes_[0] = ibook.book1D(
@@ -2073,7 +2083,7 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
         unsigned int nJets = 0, nJetsnoPU = 0, nJetsnoFake = 0;
         for (auto iTrack = vertex->tracks_begin(); iTrack != vertex->tracks_end(); ++iTrack) {
           if (trackAssoc[*iTrack] == -1) {
-            LogTrace("mtdTracks") << "Extended track not associated";
+            edm::LogWarning("mtdTracks") << "Extended track not associated";
             continue;
           }
 
@@ -2081,12 +2091,12 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
             continue;
           bool noCrack = std::abs((*iTrack)->eta()) < trackMaxBtlEta_ || std::abs((*iTrack)->eta()) > trackMinEtlEta_;
 
-          bool selectRecoTrk = mvaRecSel(**iTrack, *vertex, t0Safe[*iTrack], sigmat0Safe[*iTrack]);
+          bool selectRecoTrk = trkRecSel(**iTrack);
           if (selectedLVMatching && selectRecoTrk) {
             if (noCrack) {
-              meMVATrackEffPtTot_->Fill((*iTrack)->pt());
+              meTrackEffPtTot_->Fill((*iTrack)->pt());
             }
-            meMVATrackEffEtaTot_->Fill(std::abs((*iTrack)->eta()));
+            meTrackEffEtaTot_->Fill(std::abs((*iTrack)->eta()));
           }
 
           auto tp_info = getMatchedTP(*iTrack, vsim).first;
@@ -2176,26 +2186,26 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
             }
 
             // select TPs associated to the signal event
-            bool selectTP = mvaTPSel(**tp_info);
+            bool selectTP = trkTPSelLV(**tp_info);
 
             if (selectedLVMatching && selectRecoTrk && selectTP) {
-              meMVATrackZposResTot_->Fill((*iTrack)->vz() - vzsim);
+              meTrackMatchedTPZposResTot_->Fill((*iTrack)->vz() - vzsim);
               if (noCrack) {
-                meMVATrackMatchedEffPtTot_->Fill((*iTrack)->pt());
+                meTrackMatchedTPEffPtTot_->Fill((*iTrack)->pt());
               }
-              meMVATrackMatchedEffEtaTot_->Fill(std::abs((*iTrack)->eta()));
+              meTrackMatchedTPEffEtaTot_->Fill(std::abs((*iTrack)->eta()));
             }
 
             if (sigmat0Safe[*iTrack] == -1)
               continue;
 
             if (selectedLVMatching && selectRecoTrk && selectTP) {
-              meMVATrackResTot_->Fill(t0Safe[*iTrack] - vtsim);
-              meMVATrackPullTot_->Fill((t0Safe[*iTrack] - vtsim) / sigmat0Safe[*iTrack]);
+              meTrackMatchedTPResTot_->Fill(t0Safe[*iTrack] - vtsim);
+              meTrackMatchedTPPullTot_->Fill((t0Safe[*iTrack] - vtsim) / sigmat0Safe[*iTrack]);
               if (noCrack) {
-                meMVATrackMatchedEffPtMtd_->Fill((*iTrack)->pt());
+                meTrackMatchedTPEffPtMtd_->Fill((*iTrack)->pt());
               }
-              meMVATrackMatchedEffEtaMtd_->Fill(std::abs((*iTrack)->eta()));
+              meTrackMatchedTPEffEtaMtd_->Fill(std::abs((*iTrack)->eta()));
 
               unsigned int noPIDtype = 0;
               bool noPID = false, isPi = false, isK = false, isP = false;
@@ -2818,24 +2828,26 @@ void Primary4DVertexValidation::printSimVtxRecoVtxInfo(
   }
 }
 
-const bool Primary4DVertexValidation::mvaTPSel(const TrackingParticle& tp) {
+const bool Primary4DVertexValidation::trkTPSelLV(const TrackingParticle& tp) {
   bool match = false;
   if (tp.status() != 1) {
     return match;
   }
-  match = tp.charge() != 0 && tp.pt() > pTcut_ && std::abs(tp.eta()) < etacutGEN_;
+
+  auto x_pv = tp.parentVertex()->position().x();
+  auto y_pv = tp.parentVertex()->position().y();
+  auto z_pv = tp.parentVertex()->position().z();
+
+  auto r_pv = std::sqrt(x_pv * x_pv + y_pv * y_pv);
+
+  match =
+      tp.charge() != 0 && std::abs(tp.eta()) < etacutGEN_ && tp.pt() > pTcut_ && r_pv < rBTL_ && std::abs(z_pv) < zETL_;
   return match;
 }
 
-const bool Primary4DVertexValidation::mvaRecSel(const reco::TrackBase& trk,
-                                                const reco::Vertex& vtx,
-                                                const double& t0,
-                                                const double& st0) {
+const bool Primary4DVertexValidation::trkRecSel(const reco::TrackBase& trk) {
   bool match = false;
-  match = trk.pt() > pTcut_ && std::abs(trk.eta()) < etacutREC_ && std::abs(trk.vz() - vtx.z()) <= deltaZcut_;
-  if (st0 > 0.) {
-    match = match && std::abs(t0 - vtx.t()) < 3. * st0;
-  }
+  match = std::abs(trk.eta()) <= etacutREC_ && trk.pt() > pTcut_;
   return match;
 }
 
