@@ -405,7 +405,7 @@ def customizeHLTfor44778(process):
             mod = getattr(process, modLabel)
             mod.l1EGCand = cms.InputTag('hltEgammaCandidatesPPOnAA')
 
-def customizeHLTForThisPR(process):
+def customizeHLTFor45478(process):
 
     ca_builders = ["CAHitNtupletAlpakaPhase1@alpaka", "alpaka_serial_sync::CAHitNtupletAlpakaPhase1"]
 
@@ -429,6 +429,6 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     process = customizeHLTfor45063(process)
     process = customizeHLTfor45206(process)
     process = customizeHLTfor44778(process)
-    process = customizeHLTForThisPR(process)
+    process = customizeHLTFor45478(process)
     
     return process

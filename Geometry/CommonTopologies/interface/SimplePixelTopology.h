@@ -161,34 +161,16 @@ namespace phase1PixelTopology {
       4, 6, 7, 9                     // Jumping Forward (21)
   };
 
-  HOST_DEVICE_CONSTANT int16_t phicuts[nPairs]{phi0p05,
-                                               phi0p07,
-                                               phi0p07,
-                                               phi0p05,
-                                               phi0p06,
-                                               phi0p06,
-                                               phi0p05,
-                                               phi0p05,
-                                               phi0p06,
-                                               phi0p06,
-                                               phi0p06,
-                                               phi0p05,
-                                               phi0p05,
-                                               phi0p05,
-                                               phi0p05,
-                                               phi0p05,
-                                               phi0p05,
-                                               phi0p05,
-                                               phi0p05,
-					                                     phi0p05,
-  					                                   phi0p05};
+  HOST_DEVICE_CONSTANT int16_t phicuts[nPairs]{phi0p05, phi0p07, phi0p07, phi0p05, phi0p06, phi0p06, phi0p05,
+                                               phi0p05, phi0p06, phi0p06, phi0p06, phi0p05, phi0p05, phi0p05,
+                                               phi0p05, phi0p05, phi0p05, phi0p05, phi0p05, phi0p05, phi0p05};
 
-  HOST_DEVICE_CONSTANT float minz[nPairs] = {
-      -20., 0., -30., -22., 10., -30., -70., -70., -22., 15., -30, -70., -70., -20., -22., 0, -30., 10., -30., -70., -70.};
-  HOST_DEVICE_CONSTANT float maxz[nPairs] = {
-      20., 30., 0., 22., 30., -10., 70., 70., 22., 30., -15., 70., 70., 20., 22., 30., 0., 30., 10., 70., 70.};
-  HOST_DEVICE_CONSTANT float maxr[nPairs] = {
-      20., 9., 9., 20., 7., 7., 5., 5., 20., 6., 6., 5., 5., 20., 20., 9., 9., 7., 7., 9., 9.};
+  HOST_DEVICE_CONSTANT float minz[nPairs] = {-20., 0.,   -30., -22., 10., -30., -70., -70., -22., 15., -30,
+                                             -70., -70., -20., -22., 0,   -30., 10.,  -30., -70., -70.};
+  HOST_DEVICE_CONSTANT float maxz[nPairs] = {20., 30., 0.,  22., 30., -10., 70., 70., 22., 30., -15.,
+                                             70., 70., 20., 22., 30., 0.,   30., 10., 70., 70.};
+  HOST_DEVICE_CONSTANT float maxr[nPairs] = {20., 9., 9.,  20., 7., 7., 5., 5., 20., 6., 6.,
+                                             5.,  5., 20., 20., 9., 9., 7., 7., 9.,  9.};
 
   static constexpr uint32_t layerStart[numberOfLayers + 1] = {0,
                                                               96,
@@ -471,9 +453,9 @@ namespace pixelTopology {
     static constexpr int minYsizeB1 = 36;
     static constexpr int minYsizeB2 = 28;
 
-    static constexpr int nPairsForQuadruplets = 13;                     // quadruplets require hits in all layers
+    static constexpr int nPairsForQuadruplets = 13;                         // quadruplets require hits in all layers
     static constexpr int nPairsForTriplets = nPairsForQuadruplets + 2 + 2;  // include barrel "jumping" layer pairs
-    static constexpr int nPairs = nPairsForTriplets + 4;                // include forward "jumping" layer pairs
+    static constexpr int nPairs = nPairsForTriplets + 4;                    // include forward "jumping" layer pairs
 
     static constexpr int maxDYsize12 = 28;
     static constexpr int maxDYsize = 20;
