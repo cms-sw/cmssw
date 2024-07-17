@@ -617,12 +617,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                     outputGPU.chi2()[gch] = -9999.f;
 
                   // check as in cpu version if mahi is not needed
-                  // FIXME: KNOWN ISSUE: observed a problem when rawCharge and pedestal
-                  // are basically equal and generate -0.00000...
-                  // needs to be treated properly
-                  if (!(shrEnergyM0TotalAccum[lch] > 0 && energym0_per_ts_gain0 > ts4Thresh)) {
-                    // do not need to run mahi minimization
-                    //outputEnergy[gch] = 0; energy already inited to 0
+                  // (use "not" and ">", instead of "<=", to ensure that a NaN value will pass the check, and the hit be flagged as invalid)
+                  if (not(energym0_per_ts_gain0 > ts4Thresh)) {
                     outputGPU.chi2()[gch] = -9999.f;
                   }
                 }
@@ -700,6 +696,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                   outputGPU.detId()[gch] = id;
                   outputGPU.energyM0()[gch] = method0_energy;
                   outputGPU.timeM0()[gch] = time;
+
+                  // check as in cpu version if mahi is not needed
+                  // FIXME: KNOWN ISSUE: observed a problem when rawCharge and pedestal
+                  // are basically equal and generate -0.00000...
+                  // needs to be treated properly
+                  // (use "not" and ">", instead of "<=", to ensure that a NaN value will pass the check, and the hit be flagged as invalid)
+                  if (not(shrEnergyM0TotalAccum[lch] > 0)) {
+                    outputGPU.chi2()[gch] = -9999.f;
+                  }
 
 #ifdef HCAL_MAHI_GPUDEBUG
                   printf("tsTOT = %f tstrig = %f ts4Thresh = %f\n",
