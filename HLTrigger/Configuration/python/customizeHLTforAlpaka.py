@@ -275,11 +275,15 @@ def customizeHLTforAlpakaParticleFlowClustering(process):
 def customizeHLTforAlpakaPFSoA(process):
 
     # avoid the conversion from SoA to legacy to SoA for the HCAL rechits
-    process.hltParticleFlowRecHitHBHESoA.producers[0].src = 'hltHbheRecoSoA'
-    process.hltParticleFlowRecHitHBHESoASerialSync.producers[0].src = 'hltHbheRecoSoASerialSync'
+    if 'hltParticleFlowRecHitHBHESoA' in process._Process__producers:
+      process.hltParticleFlowRecHitHBHESoA.producers[0].src = 'hltHbheRecoSoA'
+    if 'hltParticleFlowRecHitHBHESoASerialSync' in process._Process__producers:
+      process.hltParticleFlowRecHitHBHESoASerialSync.producers[0].src = 'hltHbheRecoSoASerialSync'
 
-    del process.hltHbheRecHitSoA
-    del process.hltHbheRecHitSoASerialSync
+    if 'hltHbheRecHitSo' in process._Process__producers:
+      del process.hltHbheRecHitSoA
+    if 'hltHbheRecHitSoASerialSync' in process._Process__producers:
+      del process.hltHbheRecHitSoASerialSync
 
     return process
 
