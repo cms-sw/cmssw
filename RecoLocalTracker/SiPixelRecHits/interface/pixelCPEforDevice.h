@@ -234,17 +234,16 @@ namespace pixelCPEforDevice {
     if (cp.minCol[ic] == 0 || cp.maxCol[ic] == uint32_t(detParams.nCols - 1))
       cp.ysize[ic] = -cp.ysize[ic];
 
-    // apply the lorentz offset correction
-    float xoff = 0.5f * float(detParams.nRows) * comParams.thePitchX;
-    float yoff = 0.5f * float(detParams.nCols) * comParams.thePitchY;
-
-    //correction for bigpixels for phase1
-    xoff = xoff + TrackerTraits::bigPixXCorrection * comParams.thePitchX;
-    yoff = yoff + TrackerTraits::bigPixYCorrection * comParams.thePitchY;
-
-    // apply the lorentz offset correction
-    auto xPos = detParams.shiftX + (comParams.thePitchX * 0.5f * float(mx)) - xoff;
-    auto yPos = detParams.shiftY + (comParams.thePitchY * 0.5f * float(my)) - yoff;
+    // Compute the position relative to the center of the module, taking into account the corrections for
+    // the Phase 1 big pixels, the module pitch, and the Lorentz shift.
+    // Use an explicit FMA instruction instead of simply (position * pitch + shift) to make sure that
+    // different compiler optimizations do not produce different code on different architectures.
+    float xPos = std::fmaf(0.5f * ((float)mx - (float)detParams.nRows) - TrackerTraits::bigPixXCorrection,
+                           comParams.thePitchX,
+                           detParams.shiftX);
+    float yPos = std::fmaf(0.5f * ((float)my - (float)detParams.nCols) - TrackerTraits::bigPixYCorrection,
+                           comParams.thePitchY,
+                           detParams.shiftY);
 
     float cotalpha = 0, cotbeta = 0;
 
@@ -252,7 +251,7 @@ namespace pixelCPEforDevice {
 
     auto thickness = detParams.isBarrel ? comParams.theThicknessB : comParams.theThicknessE;
 
-    auto xcorr = correction(cp.maxRow[ic] - cp.minRow[ic],
+    auto xCorr = correction(cp.maxRow[ic] - cp.minRow[ic],
                             cp.q_f_X[ic],
                             cp.q_l_X[ic],
                             llxl,
@@ -264,7 +263,7 @@ namespace pixelCPEforDevice {
                             TrackerTraits::isBigPixX(cp.minRow[ic]),
                             TrackerTraits::isBigPixX(cp.maxRow[ic]));
 
-    auto ycorr = correction(cp.maxCol[ic] - cp.minCol[ic],
+    auto yCorr = correction(cp.maxCol[ic] - cp.minCol[ic],
                             cp.q_f_Y[ic],
                             cp.q_l_Y[ic],
                             llyl,
@@ -276,8 +275,8 @@ namespace pixelCPEforDevice {
                             TrackerTraits::isBigPixY(cp.minCol[ic]),
                             TrackerTraits::isBigPixY(cp.maxCol[ic]));
 
-    cp.xpos[ic] = xPos + xcorr;
-    cp.ypos[ic] = yPos + ycorr;
+    cp.xpos[ic] = xPos + xCorr;
+    cp.ypos[ic] = yPos + yCorr;
   }
 
   template <typename TrackerTraits>
