@@ -16,7 +16,7 @@
 #include "FWCore/Framework/interface/ESProducts.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
 //
-// class declaration
+// here class declaration
 //
 
 class Phase2L1TGMTStubProducer : public edm::stream::EDProducer<> {
