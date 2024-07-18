@@ -131,7 +131,7 @@ constexpr float approx_logf(float x) {
 
   //x = std::max(std::min(x,MAXNUMF),0.f);
   float res = unsafe_logf<DEGREE>(x);
-  res = (x < MAXNUMF) ? res : std::numeric_limits<float>::infinity();
+  res = (x < MAXNUMF) ? res : std::numeric_limits<float>::max();
   return (x > 0) ? res : std::numeric_limits<float>::quiet_NaN();
 }
 
