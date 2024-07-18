@@ -51,7 +51,7 @@ protected:
   //	physics vs calib processing switch
   bool _calibProcessing;
   int _thresh_calib_nbadq;
-
+  int _NBadQEvent; 
   //	vector of HcalElectronicsId for FEDs
   std::vector<uint32_t> _vhashFEDs;
 
@@ -77,6 +77,7 @@ protected:
 
   hcaldqm::Container2D _cSummaryvsLS_FED;    // online only
   hcaldqm::ContainerSingle2D _cSummaryvsLS;  // online only
+  hcaldqm::ContainerSingle2D _cBadQ_FEDvsLSmod60;  // online only
 };
 
 #endif
