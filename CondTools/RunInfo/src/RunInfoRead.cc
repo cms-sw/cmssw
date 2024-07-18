@@ -23,9 +23,9 @@
 #include <cmath>
 
 namespace {
-  const std::string dot(".");
+  //const std::string dot(".");
   const std::string quote("\"");
-  const std::string bNOTb(" NOT ");
+  //const std::string bNOTb(" NOT ");
   const std::string squoted(const std::string& s) { return quote + s + quote; }
   //now strings for the tables and columns to be queried
   const std::string sParameterTable("RUNSESSION_PARAMETER");
