@@ -28,7 +28,7 @@ CloseByParticleGunProducer::CloseByParticleGunProducer(const ParameterSet& pset)
   fControlledByEta = pgun_params.getParameter<bool>("ControlledByEta");
   fControlledByREta = pgun_params.getParameter<bool>("ControlledByREta");
   if(fControlledByEta and fControlledByREta)
-    LogError("CloseByParticleGunProducer") << " Conflicting configuration, cannot have both ControlledByEta and ControlledByREta ";
+    throw cms::Exception("CloseByParticleGunProducer") << " Conflicting configuration, cannot have both ControlledByEta and ControlledByREta ";
 
   fVarMax = pgun_params.getParameter<double>("VarMax");
   fVarMin = pgun_params.getParameter<double>("VarMin");
@@ -36,10 +36,10 @@ CloseByParticleGunProducer::CloseByParticleGunProducer(const ParameterSet& pset)
   fLogSpacedVar = pgun_params.getParameter<bool>("LogSpacedVar");
   fFlatPtGeneration = pgun_params.getParameter<bool>("FlatPtGeneration");
   if (fVarMin < 1 && !fFlatPtGeneration)
-    LogError("CloseByParticleGunProducer") << " Please choose a minimum energy greater than 1 GeV, otherwise time "
+    throw cms::Exception("CloseByParticleGunProducer") << " Please choose a minimum energy greater than 1 GeV, otherwise time "
                                               "information may be invalid or not reliable";
   if (fVarMin < 0 && fLogSpacedVar)
-    LogError("CloseByParticleGunProducer") << " Minimum energy must be greater than zero for log spacing";
+    throw cms::Exception("CloseByParticleGunProducer") << " Minimum energy must be greater than zero for log spacing";
   else{
       log_fVarMin = std::log(fVarMin);
       log_fVarMax = std::log(fVarMax);
@@ -49,19 +49,19 @@ CloseByParticleGunProducer::CloseByParticleGunProducer(const ParameterSet& pset)
     fEtaMax = pgun_params.getParameter<double>("MaxEta");
     fEtaMin = pgun_params.getParameter<double>("MinEta");
     if (fEtaMax <= fEtaMin)
-      LogError("CloseByParticleGunProducer") << " Please fix MinEta and MaxEta values in the configuration";
+      throw cms::Exception("CloseByParticleGunProducer") << " Please fix MinEta and MaxEta values in the configuration";
   } else {
     fRMax = pgun_params.getParameter<double>("RMax");
     fRMin = pgun_params.getParameter<double>("RMin");
     if (fRMax <= fRMin)
-      LogError("CloseByParticleGunProducer") << " Please fix RMin and RMax values in the configuration";
+      throw cms::Exception("CloseByParticleGunProducer") << " Please fix RMin and RMax values in the configuration";
   }
   if(!fControlledByREta){
       fZMax = pgun_params.getParameter<double>("ZMax");
       fZMin = pgun_params.getParameter<double>("ZMin");
 
       if (fZMax <= fZMin)
-          LogError("CloseByParticleGunProducer") << " Please fix ZMin and ZMax values in the configuration";
+          throw cms::Exception("CloseByParticleGunProducer") << " Please fix ZMin and ZMax values in the configuration";
   }
   fDelta = pgun_params.getParameter<double>("Delta");
   fPhiMin = pgun_params.getParameter<double>("MinPhi");
@@ -69,7 +69,7 @@ CloseByParticleGunProducer::CloseByParticleGunProducer(const ParameterSet& pset)
   fPointing = pgun_params.getParameter<bool>("Pointing");
   fOverlapping = pgun_params.getParameter<bool>("Overlapping");
   if (fFlatPtGeneration && !fPointing)
-    LogError("CloseByParticleGunProducer")
+    throw cms::Exception("CloseByParticleGunProducer")
         << " Can't generate non pointing FlatPt samples; please disable FlatPt generation or generate pointing sample";
   fRandomShoot = pgun_params.getParameter<bool>("RandomShoot");
   fNParticles = pgun_params.getParameter<int>("NParticles");
@@ -80,7 +80,7 @@ CloseByParticleGunProducer::CloseByParticleGunProducer(const ParameterSet& pset)
   fTMax = pgun_params.getParameter<double>("TMax");
   fTMin = pgun_params.getParameter<double>("TMin");
   if (fTMax <= fTMin)
-    LogError("CloseByParticleGunProducer") << " Please fix TMin and TMax values in the configuration";
+    throw cms::Exception("CloseByParticleGunProducer") << " Please fix TMin and TMax values in the configuration";
   // set a fixed time offset for the particles
   fOffsetFirst = pgun_params.getParameter<double>("OffsetFirst");
 
