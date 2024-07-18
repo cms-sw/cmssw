@@ -78,8 +78,8 @@ private:
 
   bool passesEventSelection(const edm::Event& iEvent);
 
-  int getPFBin(const reco::PFCandidate pfCand);
-  int getJetBin(const reco::PFJet jetCand);
+  int getPFBin(const reco::PFCandidate pfCand, int i);
+  int getJetBin(const reco::PFJet jetCand, int i);
 
 
   int getBinNumber(double binVal, std::vector<double> bins);
@@ -272,7 +272,7 @@ private:
   edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken_;
 
 
-  std::vector<std::string> m_allSuffixes;
+  std::vector<std::vector<std::string> > m_allSuffixes;
   std::vector<std::string> m_allJetSuffixes;
 
   // The directory where the output is stored

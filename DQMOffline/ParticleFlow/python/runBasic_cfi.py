@@ -61,7 +61,7 @@ PFAnalyzer = DQMEDAnalyzer("PFAnalyzer",
       cutList     = cms.vstring(
                                 '[pt;1;0;10000]',
                                 '[pt;1;0;10000][eta;1;-5;5]',
-                                '[pt;1;0;1;2;4;10;10000]',
+                                '[pt;0;1;2;4;10;10000]',
                                ),
 
       # This is a list of multidimensional cuts on the jets that are applied for the plots.
