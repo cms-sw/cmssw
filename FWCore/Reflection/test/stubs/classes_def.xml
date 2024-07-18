@@ -1,0 +1,6 @@
+<lcgdict>
+  <class name="edmtest::reflection::IntObject" ClassVersion="3">
+    <version ClassVersion="3" checksum="427917710"/>
+  </class>
+  <class name="edm::Wrapper<edmtest::reflection::IntObject>"/>
+</lcgdict>
