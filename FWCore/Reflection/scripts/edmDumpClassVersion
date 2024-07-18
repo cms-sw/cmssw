@@ -3,7 +3,7 @@
 import json
 import argparse
 
-import FWCore.Utilities.ClassesDefXmlUtils as ClassesDefUtils
+import FWCore.Reflection.ClassesDefXmlUtils as ClassesDefUtils
 
 def main(args):
     ClassesDefUtils.initROOT(args.library)
