@@ -564,8 +564,8 @@ protected:
   virtual int ProcessWithMEMap2WithEtaCh(BookingHelper &bh, ME4IdsKey key) { return 0; };
   /*********************/
 
-  virtual int ProcessWithMEMap4WithChamber(BookingHelper &bh, ME4IdsKey key) { return 0; };   // must be overrided
-  virtual int ProcessWithMEMap5WithChamber(BookingHelper &bh, ME5IdsKey key) { return 0; };   // must be overrided
+  virtual int ProcessWithMEMap4WithChamber(BookingHelper &bh, ME4IdsKey key) { return 0; };  // must be overrided
+  virtual int ProcessWithMEMap5WithChamber(BookingHelper &bh, ME5IdsKey key) { return 0; };  // must be overrided
 
   int keyToRegion(ME2IdsKey key) { return std::get<0>(key); };
   int keyToRegion(ME3IdsKey key) { return std::get<0>(key); };
@@ -625,7 +625,6 @@ protected:
   inline std::string getNameDirLayer(ME3IdsKey key3);
   inline std::string getNameDirLayer(ME4IdsKey key4);
   inline std::string getNameDirChamber(ME4IdsKey key4);
-
 
   const GEMGeometry *GEMGeometry_;
   edm::ESGetToken<GEMGeometry, MuonGeometryRecord> geomToken_;

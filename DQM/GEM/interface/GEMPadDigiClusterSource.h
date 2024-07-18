@@ -44,7 +44,6 @@ private:
   int ProcessWithMEMap2(BookingHelper& bh, ME2IdsKey key) override;
   int ProcessWithMEMap3(BookingHelper& bh, ME3IdsKey key) override;
 
-
   int ProcessWithMEMap2WithChamber(BookingHelper& bh, ME3IdsKey key) override;
 
   //int ProcessWithMEMap2WithEtaCh(BookingHelper& bh, ME4IdsKey key) override;
@@ -60,14 +59,14 @@ private:
   MEMap3Inf mapPadDiffPerCh_;
   MEMap3Inf mapBXDiffPerCh_;
   MEMap3Inf mapPadBXDiffPerCh_;
-  
+
   MEMap4Inf mapPadBXDiffPerEtaCh_;
   MEMap4Inf mapPadDigiOccPerCh_;
-  MEMap4Inf mapPadBxPerCh_ ;
+  MEMap4Inf mapPadBxPerCh_;
   MEMap4Inf mapPadCLSPerCh_;
   MEMap4Inf mapPadDiffPerEtaCh_;
   MEMap4Inf mapBXMidPerCh_;
-  MEMap4Inf mapBXCLSPerCh_ ;
+  MEMap4Inf mapBXCLSPerCh_;
   std::string strFolderMain_;
 
   Int_t nBXMin_, nBXMax_;
