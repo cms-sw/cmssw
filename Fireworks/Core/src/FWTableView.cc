@@ -188,7 +188,7 @@ static const TGPicture *arrow_down_disabled(bool iBackgroundIsBlack) {
 //
 static const std::string kTableView = "TableView";
 static const std::string kCollection = "collection";
-static const std::string kColumns = "columns";
+//static const std::string kColumns = "columns";
 static const std::string kSortColumn = "sortColumn";
 static const std::string kDescendingSort = "descendingSort";
 
