@@ -76,8 +76,11 @@ if [ "$use_gridpack_env" != false ]; then
     elif egrep -q "scram_arch_version=[^$]" runcmsgrid.sh; then
         sing=$(grep "scram_arch_version=[^$]" runcmsgrid.sh | sed -E 's/^[^0-9]*([0-9]{1,2}).*/\1/')
     fi
-    if [ -n "${sing}" ]; then
+    arch=$(echo ${SCRAM_ARCH} | sed -E 's/^[^0-9]*([0-9]{1,2}).*/\1/')
+    if [ -n "${sing}" ] && [ "${sing}" -ne "${arch}" ]; then
         sing="cmssw-el"${sing}" --"
+    else
+        unset sing
     fi
 fi
 
