@@ -1,4 +1,4 @@
-#if !defined(FWCore_TestProcessor_oneTimeInitialization_h)
+#ifndef FWCore_TestProcessor_oneTimeInitialization_h
 #define FWCore_TestProcessor_oneTimeInitialization_h
 
 //Used to initialize the plugin manager
