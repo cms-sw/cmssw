@@ -14,6 +14,7 @@ class XmlParser(object):
         self._file = filename
         self.classes = dict()
         self._presentClass = None
+        self._presentClassForVersion = None
         self._includeNonVersionedClasses = includeNonVersionedClasses
         self._normalizeClassNames = normalizeClassNames
         self.readClassesDefXML()
@@ -42,22 +43,34 @@ class XmlParser(object):
     def start_element(self,name,attrs):
         if name in ('class','struct'):
             if 'name' in attrs:
+                self._presentClass=attrs['name']
+                normalizedName = self.genNName(attrs['name'])
                 if 'ClassVersion' in attrs:
-                    normalizedName = self.genNName(attrs['name'])
                     self.classes[normalizedName]=[attrs['name'],int(attrs['ClassVersion']),[]]
-                    self._presentClass=normalizedName
+                    self._presentClassForVersion=normalizedName
                 elif self._includeNonVersionedClasses:
                     # skip transient data products
                     if not ('persistent' in attrs and attrs['persistent'] == "false"):
-                        normalizedName = self.genNName(attrs['name'])
                         self.classes[normalizedName]=[attrs['name'],-1,[]]
+            else:
+                raise RuntimeError(f"There is an element '{name}' without 'name' attribute.")
         if name == 'version':
-            self.classes[self._presentClass][XmlParser.versionsToChecksumIndex].append([int(attrs['ClassVersion']),
-                                                                                    int(attrs['checksum'])])
+            if self._presentClassForVersion is None:
+                raise RuntimeError(f"Class element for type '{self._presentClass}' contains a 'version' element, but 'ClassVersion' attribute is missing from the 'class' element")
+            try:
+                classVersion = int(attrs['ClassVersion'])
+            except KeyError:
+                raise RuntimeError(f"Version element for type '{self._presentClass}' is missing 'ClassVersion' attribute")
+            try:
+                checksum = int(attrs['checksum'])
+            except KeyError:
+                raise RuntimeError(f"Version element for type '{self._presentClass}' is missing 'checksum' attribute")
+            self.classes[self._presentClassForVersion][XmlParser.versionsToChecksumIndex].append([classVersion, checksum])
         pass
     def end_element(self,name):
         if name in ('class','struct'):
             self._presentClass = None
+            self._presentClassForVersion = None
     def genNName(self, name ):
         if not self._normalizeClassNames:
             return name
