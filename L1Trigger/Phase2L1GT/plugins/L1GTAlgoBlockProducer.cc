@@ -337,7 +337,7 @@ private:
   std::shared_ptr<std::unordered_map<std::string, unsigned int>> globalBeginRun(edm::Run const&,
                                                                                 edm::EventSetup const&) const override;
 
-  void globalEndRun(edm::Run const&, edm::EventSetup const&) {}
+  void globalEndRun(edm::Run const&, edm::EventSetup const&) override {}
 
   edm::GetterOfProducts<P2GTCandidateVectorRef> getterOfPassedReferences_;
   std::map<std::string, AlgoDefinition> algoDefinitions_;

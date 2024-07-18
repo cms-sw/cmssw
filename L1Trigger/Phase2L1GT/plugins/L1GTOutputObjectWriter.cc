@@ -269,42 +269,35 @@ static std::vector<ap_uint<64>> vpack(const Args&... vobjects) {
 void L1GTOutputObjectWriter::analyze(const edm::Event& event, const edm::EventSetup&) {
   std::map<std::string, std::vector<std::unique_ptr<L1TGT_BaseInterface>>> outputObjects;
 
-  outputObjects.emplace("GCTNonIsoEg", std::move(fillCollection<L1TGT_Common3Vector<64>>(event, gctNonIsoEgToken_)));
-  outputObjects.emplace("GCTIsoEg", std::move(fillCollection<L1TGT_Common3Vector<64>>(event, gctIsoEgToken_)));
-  outputObjects.emplace("GCTJets", std::move(fillCollection<L1TGT_Common3Vector<64>>(event, gctJetsToken_)));
-  outputObjects.emplace("GCTTaus", std::move(fillCollection<L1TGT_GCT_tau6p6>(event, gctTausToken_)));
-  outputObjects.emplace("GCTHtSum", std::move(fillCollection<L1TGT_CommonSum>(event, gctHtSumToken_)));
-  outputObjects.emplace("GCTEtSum", std::move(fillCollection<L1TGT_CommonSum>(event, gctEtSumToken_)));
+  outputObjects.emplace("GCTNonIsoEg", fillCollection<L1TGT_Common3Vector<64>>(event, gctNonIsoEgToken_));
+  outputObjects.emplace("GCTIsoEg", fillCollection<L1TGT_Common3Vector<64>>(event, gctIsoEgToken_));
+  outputObjects.emplace("GCTJets", fillCollection<L1TGT_Common3Vector<64>>(event, gctJetsToken_));
+  outputObjects.emplace("GCTTaus", fillCollection<L1TGT_GCT_tau6p6>(event, gctTausToken_));
+  outputObjects.emplace("GCTHtSum", fillCollection<L1TGT_CommonSum>(event, gctHtSumToken_));
+  outputObjects.emplace("GCTEtSum", fillCollection<L1TGT_CommonSum>(event, gctEtSumToken_));
   outputObjects.emplace("GMTSaPromptMuons",
-                        std::move(fillCollection<L1TGT_GMT_PromptDisplacedMuon>(event, gmtSaPromptMuonsToken_)));
+                        fillCollection<L1TGT_GMT_PromptDisplacedMuon>(event, gmtSaPromptMuonsToken_));
   outputObjects.emplace("GMTSaDisplacedMuons",
-                        std::move(fillCollection<L1TGT_GMT_PromptDisplacedMuon>(event, gmtSaDisplacedMuonsToken_)));
-  outputObjects.emplace("GMTTkMuons", std::move(fillCollection<L1TGT_GMT_TrackMatchedmuon>(event, gmtTkMuonsToken_)));
-  outputObjects.emplace("GMTTopo", std::move(fillCollection<L1TGT_GMT_TopoObject>(event, gmtTopoToken_)));
-  outputObjects.emplace("GTTPromptJets", std::move(fillCollection<L1TGT_GTT_PromptJet>(event, gttPromptJetsToken_)));
-  outputObjects.emplace("GTTDisplacedJets",
-                        std::move(fillCollection<L1TGT_GTT_DisplacedJet>(event, gttDisplacedJetsToken_)));
-  outputObjects.emplace("GTTPhiCandidates",
-                        std::move(fillCollection<L1TGT_GTT_LightMeson>(event, gttPhiCandidatesToken_)));
-  outputObjects.emplace("GTTRhoCandidates",
-                        std::move(fillCollection<L1TGT_GTT_LightMeson>(event, gttRhoCandidatesToken_)));
-  outputObjects.emplace("GTTBsCandidates",
-                        std::move(fillCollection<L1TGT_GTT_LightMeson>(event, gttBsCandidatesToken_)));
-  outputObjects.emplace("GTTHadronicTaus",
-                        std::move(fillCollection<L1TGT_GTT_HadronicTau>(event, gttHadronicTausToken_)));
-  outputObjects.emplace("GTTPrimaryVert",
-                        std::move(fillCollection<L1TGT_GTT_PrimaryVert>(event, gttPrimaryVertToken_)));
-  outputObjects.emplace("GTTPromptHtSum", std::move(fillCollection<L1TGT_CommonSum>(event, gttPromptHtSumToken_)));
-  outputObjects.emplace("GTTDisplacedHtSum",
-                        std::move(fillCollection<L1TGT_CommonSum>(event, gttDisplacedHtSumToken_)));
-  outputObjects.emplace("GTTEtSum", std::move(fillCollection<L1TGT_CommonSum>(event, gttEtSumToken_)));
-  outputObjects.emplace("CL2JetsSC4", std::move(fillCollection<L1TGT_CL2_Jet>(event, cl2JetsSc4Token_)));
-  outputObjects.emplace("CL2JetsSC8", std::move(fillCollection<L1TGT_CL2_Jet>(event, cl2JetsSc8Token_)));
-  outputObjects.emplace("CL2Taus", std::move(fillCollection<L1TGT_CL2_Tau>(event, cl2TausToken_)));
-  outputObjects.emplace("CL2Electrons", std::move(fillCollection<L1TGT_CL2_Electron>(event, cl2ElectronsToken_)));
-  outputObjects.emplace("CL2Photons", std::move(fillCollection<L1TGT_CL2_Photon>(event, cl2PhotonsToken_)));
-  outputObjects.emplace("CL2HtSum", std::move(fillCollection<L1TGT_CommonSum>(event, cl2HtSumToken_)));
-  outputObjects.emplace("CL2EtSum", std::move(fillCollection<L1TGT_CommonSum>(event, cl2EtSumToken_)));
+                        fillCollection<L1TGT_GMT_PromptDisplacedMuon>(event, gmtSaDisplacedMuonsToken_));
+  outputObjects.emplace("GMTTkMuons", fillCollection<L1TGT_GMT_TrackMatchedmuon>(event, gmtTkMuonsToken_));
+  outputObjects.emplace("GMTTopo", fillCollection<L1TGT_GMT_TopoObject>(event, gmtTopoToken_));
+  outputObjects.emplace("GTTPromptJets", fillCollection<L1TGT_GTT_PromptJet>(event, gttPromptJetsToken_));
+  outputObjects.emplace("GTTDisplacedJets", fillCollection<L1TGT_GTT_DisplacedJet>(event, gttDisplacedJetsToken_));
+  outputObjects.emplace("GTTPhiCandidates", fillCollection<L1TGT_GTT_LightMeson>(event, gttPhiCandidatesToken_));
+  outputObjects.emplace("GTTRhoCandidates", fillCollection<L1TGT_GTT_LightMeson>(event, gttRhoCandidatesToken_));
+  outputObjects.emplace("GTTBsCandidates", fillCollection<L1TGT_GTT_LightMeson>(event, gttBsCandidatesToken_));
+  outputObjects.emplace("GTTHadronicTaus", fillCollection<L1TGT_GTT_HadronicTau>(event, gttHadronicTausToken_));
+  outputObjects.emplace("GTTPrimaryVert", fillCollection<L1TGT_GTT_PrimaryVert>(event, gttPrimaryVertToken_));
+  outputObjects.emplace("GTTPromptHtSum", fillCollection<L1TGT_CommonSum>(event, gttPromptHtSumToken_));
+  outputObjects.emplace("GTTDisplacedHtSum", fillCollection<L1TGT_CommonSum>(event, gttDisplacedHtSumToken_));
+  outputObjects.emplace("GTTEtSum", fillCollection<L1TGT_CommonSum>(event, gttEtSumToken_));
+  outputObjects.emplace("CL2JetsSC4", fillCollection<L1TGT_CL2_Jet>(event, cl2JetsSc4Token_));
+  outputObjects.emplace("CL2JetsSC8", fillCollection<L1TGT_CL2_Jet>(event, cl2JetsSc8Token_));
+  outputObjects.emplace("CL2Taus", fillCollection<L1TGT_CL2_Tau>(event, cl2TausToken_));
+  outputObjects.emplace("CL2Electrons", fillCollection<L1TGT_CL2_Electron>(event, cl2ElectronsToken_));
+  outputObjects.emplace("CL2Photons", fillCollection<L1TGT_CL2_Photon>(event, cl2PhotonsToken_));
+  outputObjects.emplace("CL2HtSum", fillCollection<L1TGT_CommonSum>(event, cl2HtSumToken_));
+  outputObjects.emplace("CL2EtSum", fillCollection<L1TGT_CommonSum>(event, cl2EtSumToken_));
 
   std::map<demo::LinkId, std::vector<ap_uint<64>>> eventData;
 
