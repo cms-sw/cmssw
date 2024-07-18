@@ -8,6 +8,7 @@ from DQM.GEM.GEMPadDigiClusterSource_cfi import *
 
 GEMDQM = cms.Sequence(
   GEMDigiSource
+  *GEMPadDigiClusterSource
   *GEMRecHitSource
   *GEMDAQStatusSource
   +GEMDQMHarvester
