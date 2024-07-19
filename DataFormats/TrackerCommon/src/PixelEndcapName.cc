@@ -353,13 +353,8 @@ PixelModuleName::ModuleType PixelEndcapName::moduleType() const {
   return type;
 }
 
-bool PixelEndcapName::operator==(const PixelModuleName& o) const {
-  if (!o.isBarrel()) {
-    const PixelEndcapName* other = dynamic_cast<const PixelEndcapName*>(&o);
-    return (other && thePart == other->thePart && theDisk == other->theDisk && theBlade == other->theBlade &&
-            thePannel == other->thePannel && thePlaquette == other->thePlaquette);
-  } else
-    return false;
+bool PixelEndcapName::operator==(const PixelModuleName& other) const {
+  return other.isBarrel() ? false : (dynamic_cast<const PixelEndcapName&>(other) == *this);
 }
 
 string PixelEndcapName::name() const {
