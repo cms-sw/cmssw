@@ -123,6 +123,8 @@ bool HGCalParametersFromDD::build(const DDCompactView* cpv,
         php.mouseBite_ = HGCalParameters::k_ScaleFromDDD * getDDDValue("MouseBite", sv2);
         php.useOffset_ = static_cast<int>(getDDDValue("UseOffset", sv2));
         php.waferR_ = HGCalParameters::k_ScaleToDDD * php.waferSize_ * tan30deg_;
+        assert(php.nCellsFine_ != 0);
+        assert(php.nCellsCoarse_ != 0);
         php.cellSize_.emplace_back(HGCalParameters::k_ScaleToDDD * php.waferSize_ / php.nCellsFine_);
         php.cellSize_.emplace_back(HGCalParameters::k_ScaleToDDD * php.waferSize_ / php.nCellsCoarse_);
 #ifdef EDM_ML_DEBUG
@@ -355,6 +357,8 @@ bool HGCalParametersFromDD::build(const cms::DDCompactView* cpv,
       tempD = fv.get<std::vector<double> >(namet, "UseOffset");
       php.useOffset_ = static_cast<int>(tempD[0]);
       php.waferR_ = HGCalParameters::k_ScaleToDDD * php.waferSize_ * tan30deg_;
+      assert(php.nCellsFine_ != 0);
+      assert(php.nCellsCoarse_ != 0);
       php.cellSize_.emplace_back(HGCalParameters::k_ScaleToDDD * php.waferSize_ / php.nCellsFine_);
       php.cellSize_.emplace_back(HGCalParameters::k_ScaleToDDD * php.waferSize_ / php.nCellsCoarse_);
 #ifdef EDM_ML_DEBUG
@@ -496,6 +500,7 @@ void HGCalParametersFromDD::getCellPosition(HGCalParameters& php, int type) {
   std::vector<int> indtypes;
 #endif
   int N = (type == 1) ? php.nCellsCoarse_ : php.nCellsFine_;
+  assert(N != 0);
   double R = php.waferSize_ / (3 * N);
   double r = 0.5 * R * sqrt(3.0);
   int n2 = N / 2;
