@@ -1,4 +1,5 @@
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
+#include "Geometry/HcalCommonData/interface/HcalTopologyMode.h"
 #include "CondFormats/HcalObjects/interface/HcalCondObjectContainer.h"
 #include "DataFormats/HcalDetId/interface/HcalCastorDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalCalibDetId.h"
@@ -9,9 +10,12 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 HcalCondObjectContainerBase::HcalCondObjectContainerBase(const HcalTopology* topo)
-    : packedIndexVersion_(0), topo_(topo) {
-  if (topo)
+  : packedIndexVersion_(0), topo_(topo), kSizeForDenseIndexing_(HcalZDCDetId::kSizeForDenseIndexingRun1) {
+  if (topo) {
     packedIndexVersion_ = topo->topoVersion();
+    HcalTopologyMode::Mode mode = topo->mode();
+    kSizeForDenseIndexing_ = (((mode == HcalTopologyMode::Run3) || (mode == HcalTopologyMode::Run4)) ? HcalZDCDetId::kSizeForDenseIndexingRun3 : HcalZDCDetId::kSizeForDenseIndexingRun1);
+  }
 }
 
 void HcalCondObjectContainerBase::setTopo(const HcalTopology* topo) {
@@ -19,6 +23,8 @@ void HcalCondObjectContainerBase::setTopo(const HcalTopology* topo) {
     edm::LogError("HCAL") << std::string("Inconsistent dense packing between current topology (") << topo->topoVersion()
                           << ") and calibration object (" << packedIndexVersion_ << ")";
   topo_ = topo;
+  packedIndexVersion_ = topo_->topoVersion();
+  kSizeForDenseIndexing_ = ((packedIndexVersion_ >= 10) ? HcalZDCDetId::kSizeForDenseIndexingRun3 : HcalZDCDetId::kSizeForDenseIndexingRun1);
 }
 
 unsigned int HcalCondObjectContainerBase::indexFor(DetId fId) const {
@@ -114,7 +120,7 @@ unsigned int HcalCondObjectContainerBase::sizeFor(DetId fId) const {
     if (fId.subdetId() == HcalCastorDetId::SubdetectorId) {
       retval = HcalCastorDetId::kSizeForDenseIndexing;
     } else if (fId.subdetId() == HcalZDCDetId::SubdetectorId) {
-      retval = HcalZDCDetId::kSizeForDenseIndexing;
+      retval = kSizeForDenseIndexing_;;
     }
   }
   return retval;
