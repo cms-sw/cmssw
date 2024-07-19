@@ -44,6 +44,9 @@ uint32_t CaloGenericDetId::sizeForDenseIndexing() const {
   } else if (isCaloTower()) {
     edm::LogError("CaloGenericDetIdError") << "No support for CaloTower in CaloGenericDetId";
     throw cms::Exception("No support");
+//  } else if (isZDC()) {
+//    edm::LogError("CaloGenericDetIdError") << "No support for ZDC in CaloGenericDetId";
+//    throw cms::Exception("No support for ZDC");
   }
 
   return (isEB() ? EBDetId::kSizeForDenseIndexing

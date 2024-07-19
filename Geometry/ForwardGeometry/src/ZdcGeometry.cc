@@ -17,21 +17,25 @@ typedef CaloCellGeometry::Tr3D Tr3D;
 
 typedef CaloSubdetectorGeometry::CCGFloat CCGFloat;
 
-//#define EDM_ML_DEBUG
+#define EDM_ML_DEBUG
 
 ZdcGeometry::ZdcGeometry()
-    : theTopology(new ZdcTopology),
+    : k_NumberOfCellsForCornersN(HcalZDCDetId::kSizeForDenseIndexingRun1),
+      theTopology(nullptr),
       lastReqDet_(DetId::Detector(0)),
       lastReqSubdet_(0),
       m_ownsTopology(true),
-      m_cellVec(k_NumberOfCellsForCorners) {}
+      m_cellVec(k_NumberOfCellsForCornersN) {
+  edm::LogWarning("HCalGeom") << "ZdcGeometry::Wrong constructor called";
+}
 
 ZdcGeometry::ZdcGeometry(const ZdcTopology* topology)
-    : theTopology(topology),
+    : k_NumberOfCellsForCornersN(topology->kSizeForDenseIndexing()),
+      theTopology(topology),
       lastReqDet_(DetId::Detector(0)),
       lastReqSubdet_(0),
       m_ownsTopology(false),
-      m_cellVec(k_NumberOfCellsForCorners) {}
+      m_cellVec(k_NumberOfCellsForCornersN) {}
 
 ZdcGeometry::~ZdcGeometry() {
   if (m_ownsTopology)

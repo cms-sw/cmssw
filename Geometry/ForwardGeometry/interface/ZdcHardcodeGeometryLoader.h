@@ -17,11 +17,11 @@ class ZdcHardcodeGeometryLoader {
 public:
   typedef CaloSubdetectorGeometry* ReturnType;
 
-  ZdcHardcodeGeometryLoader();
+  //  ZdcHardcodeGeometryLoader();
   explicit ZdcHardcodeGeometryLoader(const ZdcTopology& ht);
-  virtual ~ZdcHardcodeGeometryLoader() { delete theTopology; }
+  ~ZdcHardcodeGeometryLoader() {}
 
-  virtual ReturnType load(DetId::Detector det, int subdet);
+  ReturnType load(DetId::Detector det, int subdet);
   ReturnType load();
   void setAddRPD(bool flag) { m_zdcAddRPD = flag; }
 
@@ -30,7 +30,7 @@ private:
   void fill(HcalZDCDetId::Section section, CaloSubdetectorGeometry* cg);
   void makeCell(const HcalZDCDetId& detId, CaloSubdetectorGeometry* geom) const;
 
-  ZdcTopology* theTopology;
+  //  ZdcTopology* theTopology;
   const ZdcTopology* extTopology;
   bool m_zdcAddRPD;
   float theEMSectiondX;
