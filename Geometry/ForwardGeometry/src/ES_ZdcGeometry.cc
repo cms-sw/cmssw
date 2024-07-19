@@ -4,4 +4,3 @@
 
 TYPELOOKUP_DATA_REG(ZdcTopology);
 TYPELOOKUP_DATA_REG(ZdcGeometry);
-

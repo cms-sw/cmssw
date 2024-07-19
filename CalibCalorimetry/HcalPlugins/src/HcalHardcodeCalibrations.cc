@@ -34,7 +34,9 @@ using namespace cms;
 
 namespace {
 
-  const std::vector<HcalGenericDetId>& allCells(const HcalTopology& hcaltopology, const ZdcTopology& zdctopology, bool killHE = false) {
+  const std::vector<HcalGenericDetId>& allCells(const HcalTopology& hcaltopology,
+                                                const ZdcTopology& zdctopology,
+                                                bool killHE = false) {
     static std::vector<HcalGenericDetId> result;
     int maxDepth = hcaltopology.maxDepth();
 
@@ -212,7 +214,8 @@ HcalHardcodeCalibrations::HcalHardcodeCalibrations(const edm::ParameterSet& iCon
       findingRecord<HcalPedestalsRcd>();
     }
     if ((objectName == "EffectivePedestalWidths") || all) {
-      auto c = setWhatProduced(this, &HcalHardcodeCalibrations::produceEffectivePedestalWidths, edm::es::Label("effective"));
+      auto c =
+          setWhatProduced(this, &HcalHardcodeCalibrations::produceEffectivePedestalWidths, edm::es::Label("effective"));
       topoTokens_[kEffectivePedestalWidths] = c.consumes();
       zdcTopoTokens_[kEffectivePedestalWidths] = c.consumes();
       findingRecord<HcalPedestalWidthsRcd>();
@@ -395,7 +398,10 @@ void HcalHardcodeCalibrations::setIntervalFor(const edm::eventsetup::EventSetupR
 }
 
 std::unique_ptr<HcalPedestals> HcalHardcodeCalibrations::producePedestals_(
-    const HcalPedestalsRcd& rec, const edm::ESGetToken<HcalTopology, HcalRecNumberingRecord>& token, const edm::ESGetToken<ZdcTopology, HcalRecNumberingRecord>& zdctoken, bool eff) {
+    const HcalPedestalsRcd& rec,
+    const edm::ESGetToken<HcalTopology, HcalRecNumberingRecord>& token,
+    const edm::ESGetToken<ZdcTopology, HcalRecNumberingRecord>& zdctoken,
+    bool eff) {
   std::string seff = eff ? "Effective" : "";
   edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produce" << seff << "Pedestals-> ...";
 
@@ -411,7 +417,10 @@ std::unique_ptr<HcalPedestals> HcalHardcodeCalibrations::producePedestals_(
 }
 
 std::unique_ptr<HcalPedestalWidths> HcalHardcodeCalibrations::producePedestalWidths_(
-    const HcalPedestalWidthsRcd& rec, const edm::ESGetToken<HcalTopology, HcalRecNumberingRecord>& token, const edm::ESGetToken<ZdcTopology, HcalRecNumberingRecord>& zdctoken, bool eff) {
+    const HcalPedestalWidthsRcd& rec,
+    const edm::ESGetToken<HcalTopology, HcalRecNumberingRecord>& token,
+    const edm::ESGetToken<ZdcTopology, HcalRecNumberingRecord>& zdctoken,
+    bool eff) {
   std::string seff = eff ? "Effective" : "";
   edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produce" << seff << "PedestalWidths-> ...";
   auto const& topo = rec.get(token);
@@ -439,7 +448,8 @@ std::unique_ptr<HcalPedestalWidths> HcalHardcodeCalibrations::producePedestalWid
 
 std::unique_ptr<HcalPedestalWidths> HcalHardcodeCalibrations::produceEffectivePedestalWidths(
     const HcalPedestalWidthsRcd& rec) {
-  return producePedestalWidths_(rec, topoTokens_[kEffectivePedestalWidths], zdcTopoTokens_[kEffectivePedestalWidths], true);
+  return producePedestalWidths_(
+      rec, topoTokens_[kEffectivePedestalWidths], zdcTopoTokens_[kEffectivePedestalWidths], true);
 }
 
 std::unique_ptr<HcalGains> HcalHardcodeCalibrations::produceGains(const HcalGainsRcd& rec) {
