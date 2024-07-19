@@ -27,8 +27,9 @@ CloseByParticleGunProducer::CloseByParticleGunProducer(const ParameterSet& pset)
   ParameterSet pgun_params = pset.getParameter<ParameterSet>("PGunParameters");
   fControlledByEta = pgun_params.getParameter<bool>("ControlledByEta");
   fControlledByREta = pgun_params.getParameter<bool>("ControlledByREta");
-  if(fControlledByEta and fControlledByREta)
-    throw cms::Exception("CloseByParticleGunProducer") << " Conflicting configuration, cannot have both ControlledByEta and ControlledByREta ";
+  if (fControlledByEta and fControlledByREta)
+    throw cms::Exception("CloseByParticleGunProducer")
+        << " Conflicting configuration, cannot have both ControlledByEta and ControlledByREta ";
 
   fVarMax = pgun_params.getParameter<double>("VarMax");
   fVarMin = pgun_params.getParameter<double>("VarMin");
@@ -36,13 +37,14 @@ CloseByParticleGunProducer::CloseByParticleGunProducer(const ParameterSet& pset)
   fLogSpacedVar = pgun_params.getParameter<bool>("LogSpacedVar");
   fFlatPtGeneration = pgun_params.getParameter<bool>("FlatPtGeneration");
   if (fVarMin < 1 && !fFlatPtGeneration)
-    throw cms::Exception("CloseByParticleGunProducer") << " Please choose a minimum energy greater than 1 GeV, otherwise time "
-                                              "information may be invalid or not reliable";
+    throw cms::Exception("CloseByParticleGunProducer")
+        << " Please choose a minimum energy greater than 1 GeV, otherwise time "
+           "information may be invalid or not reliable";
   if (fVarMin < 0 && fLogSpacedVar)
     throw cms::Exception("CloseByParticleGunProducer") << " Minimum energy must be greater than zero for log spacing";
-  else{
-      log_fVarMin = std::log(fVarMin);
-      log_fVarMax = std::log(fVarMax);
+  else {
+    log_fVarMin = std::log(fVarMin);
+    log_fVarMax = std::log(fVarMax);
   }
 
   if (fControlledByEta || fControlledByREta) {
@@ -56,12 +58,12 @@ CloseByParticleGunProducer::CloseByParticleGunProducer(const ParameterSet& pset)
     if (fRMax <= fRMin)
       throw cms::Exception("CloseByParticleGunProducer") << " Please fix RMin and RMax values in the configuration";
   }
-  if(!fControlledByREta){
-      fZMax = pgun_params.getParameter<double>("ZMax");
-      fZMin = pgun_params.getParameter<double>("ZMin");
+  if (!fControlledByREta) {
+    fZMax = pgun_params.getParameter<double>("ZMax");
+    fZMin = pgun_params.getParameter<double>("ZMin");
 
-      if (fZMax <= fZMin)
-          throw cms::Exception("CloseByParticleGunProducer") << " Please fix ZMin and ZMax values in the configuration";
+    if (fZMax <= fZMin)
+      throw cms::Exception("CloseByParticleGunProducer") << " Please fix ZMin and ZMax values in the configuration";
   }
   fDelta = pgun_params.getParameter<double>("Delta");
   fPhiMin = pgun_params.getParameter<double>("MinPhi");
@@ -152,7 +154,7 @@ void CloseByParticleGunProducer::produce(Event& e, const EventSetup& es) {
   double fR, fEta;
   double fT;
 
-  if(!fControlledByREta){
+  if (!fControlledByREta) {
     fZ = CLHEP::RandFlat::shoot(engine, fZMin, fZMax);
 
     if (!fControlledByEta) {
@@ -162,13 +164,11 @@ void CloseByParticleGunProducer::produce(Event& e, const EventSetup& es) {
       fEta = CLHEP::RandFlat::shoot(engine, fEtaMin, fEtaMax);
       fR = (fZ / sinh(fEta));
     }
+  } else {
+    fR = CLHEP::RandFlat::shoot(engine, fRMin, fRMax);
+    fEta = CLHEP::RandFlat::shoot(engine, fEtaMin, fEtaMax);
+    fZ = sinh(fEta) / fR;
   }
-  else{
-      fR = CLHEP::RandFlat::shoot(engine, fRMin, fRMax);
-      fEta = CLHEP::RandFlat::shoot(engine, fEtaMin, fEtaMax);
-      fZ = sinh(fEta)/fR;
-  }
-
 
   if (fUseDeltaT) {
     fT = CLHEP::RandFlat::shoot(engine, fTMin, fTMax);
@@ -190,8 +190,7 @@ void CloseByParticleGunProducer::produce(Event& e, const EventSetup& es) {
     double fVar;
     if (numParticles > 1 && fMaxVarSpread)
       fVar = fVarMin + ip * (fVarMax - fVarMin) / (numParticles - 1);
-    else if(fLogSpacedVar){
-
+    else if (fLogSpacedVar) {
       double fVar_log = CLHEP::RandFlat::shoot(engine, log_fVarMin, log_fVarMax);
       fVar = std::exp(fVar_log);
     }
