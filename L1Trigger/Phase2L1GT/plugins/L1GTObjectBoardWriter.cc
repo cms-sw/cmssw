@@ -263,7 +263,7 @@ void L1GTObjectBoardWriter::analyze(const edm::Event& event, const edm::EventSet
                           packCollection(gmtSaPromptMuons) + packCollection(gmtSaDisplacedMuons) +
                               packCollection(gmtTkMuons) + std::vector<ap_uint<64>>(12, 0)},
                          {{"CL2", 3}, packCollection(cl2Electrons) + packCollection(cl2Photons)},
-                         {{"GTT", 3}, std::vector<ap_uint<64>>(38, 0)},
+                         {{"GTT", 3}, std::vector<ap_uint<64>>(39, 0)},
                          {{"GTT", 4}, std::vector<ap_uint<64>>(36, 0) + packCollection(gttPrimaryVertices)}}});
   } else {
     std::map<demo::LinkId, std::vector<ap_uint<64>>> eventData;
