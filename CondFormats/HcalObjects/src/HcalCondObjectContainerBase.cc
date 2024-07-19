@@ -10,11 +10,13 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 HcalCondObjectContainerBase::HcalCondObjectContainerBase(const HcalTopology* topo)
-  : packedIndexVersion_(0), topo_(topo), kSizeForDenseIndexing_(HcalZDCDetId::kSizeForDenseIndexingRun1) {
+    : packedIndexVersion_(0), topo_(topo), kSizeForDenseIndexing_(HcalZDCDetId::kSizeForDenseIndexingRun1) {
   if (topo) {
     packedIndexVersion_ = topo->topoVersion();
     HcalTopologyMode::Mode mode = topo->mode();
-    kSizeForDenseIndexing_ = (((mode == HcalTopologyMode::Run3) || (mode == HcalTopologyMode::Run4)) ? HcalZDCDetId::kSizeForDenseIndexingRun3 : HcalZDCDetId::kSizeForDenseIndexingRun1);
+    kSizeForDenseIndexing_ = (((mode == HcalTopologyMode::Run3) || (mode == HcalTopologyMode::Run4))
+                                  ? HcalZDCDetId::kSizeForDenseIndexingRun3
+                                  : HcalZDCDetId::kSizeForDenseIndexingRun1);
   }
 }
 
@@ -24,7 +26,8 @@ void HcalCondObjectContainerBase::setTopo(const HcalTopology* topo) {
                           << ") and calibration object (" << packedIndexVersion_ << ")";
   topo_ = topo;
   packedIndexVersion_ = topo_->topoVersion();
-  kSizeForDenseIndexing_ = ((packedIndexVersion_ >= 10) ? HcalZDCDetId::kSizeForDenseIndexingRun3 : HcalZDCDetId::kSizeForDenseIndexingRun1);
+  kSizeForDenseIndexing_ =
+      ((packedIndexVersion_ >= 10) ? HcalZDCDetId::kSizeForDenseIndexingRun3 : HcalZDCDetId::kSizeForDenseIndexingRun1);
 }
 
 unsigned int HcalCondObjectContainerBase::indexFor(DetId fId) const {
@@ -120,7 +123,8 @@ unsigned int HcalCondObjectContainerBase::sizeFor(DetId fId) const {
     if (fId.subdetId() == HcalCastorDetId::SubdetectorId) {
       retval = HcalCastorDetId::kSizeForDenseIndexing;
     } else if (fId.subdetId() == HcalZDCDetId::SubdetectorId) {
-      retval = kSizeForDenseIndexing_;;
+      retval = kSizeForDenseIndexing_;
+      ;
     }
   }
   return retval;

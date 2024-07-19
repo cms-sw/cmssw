@@ -164,8 +164,9 @@ bool ZdcTopology::validRaw(const HcalZDCDetId& id) const {
     ok = false;
   else if (id.channel() <= 0)
     ok = false;
-//else if (!(id.section() == HcalZDCDetId::EM || id.section() == HcalZDCDetId::HAD || id.section() == HcalZDCDetId::LUM))
-  else if (!(id.section() == HcalZDCDetId::EM || id.section() == HcalZDCDetId::HAD || id.section()== HcalZDCDetId::LUM || id.section()== HcalZDCDetId::RPD))
+  //else if (!(id.section() == HcalZDCDetId::EM || id.section() == HcalZDCDetId::HAD || id.section() == HcalZDCDetId::LUM))
+  else if (!(id.section() == HcalZDCDetId::EM || id.section() == HcalZDCDetId::HAD ||
+             id.section() == HcalZDCDetId::LUM || id.section() == HcalZDCDetId::RPD))
     ok = false;
   else if (id.section() == HcalZDCDetId::EM && id.channel() > HcalZDCDetId::kDepEM)
     ok = false;
@@ -360,5 +361,6 @@ int ZdcTopology::lastCell(HcalZDCDetId::Section section) const {
 }
 
 uint32_t ZdcTopology::kSizeForDenseIndexing() const {
-  return (mode_ >= HcalTopologyMode::Mode::Run3 ? HcalZDCDetId::kSizeForDenseIndexingRun3 : HcalZDCDetId::kSizeForDenseIndexingRun1);
+  return (mode_ >= HcalTopologyMode::Mode::Run3 ? HcalZDCDetId::kSizeForDenseIndexingRun3
+                                                : HcalZDCDetId::kSizeForDenseIndexingRun1);
 }

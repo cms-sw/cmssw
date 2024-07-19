@@ -45,7 +45,7 @@ protected:
     return HcalOtherSubdetector((id.rawId() >> 20) & 0x1F);
   }
   std::string textForId(const DetId& id) const;
-  
+
 private:
   const HcalTopology* topo_ COND_TRANSIENT;
   uint32_t kSizeForDenseIndexing_ COND_TRANSIENT;

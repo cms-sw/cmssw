@@ -69,9 +69,13 @@ protected:
 
   std::unique_ptr<HcalPedestals> producePedestals_(const HcalPedestalsRcd& rcd,
                                                    const edm::ESGetToken<HcalTopology, HcalRecNumberingRecord>&,
-						   const edm::ESGetToken<ZdcTopology, HcalRecNumberingRecord>&,
+                                                   const edm::ESGetToken<ZdcTopology, HcalRecNumberingRecord>&,
                                                    bool eff);
-  std::unique_ptr<HcalPedestalWidths> producePedestalWidths_(const HcalPedestalWidthsRcd& rcd, const edm::ESGetToken<HcalTopology, HcalRecNumberingRecord>&, const edm::ESGetToken<ZdcTopology, HcalRecNumberingRecord>&, bool eff);
+  std::unique_ptr<HcalPedestalWidths> producePedestalWidths_(
+      const HcalPedestalWidthsRcd& rcd,
+      const edm::ESGetToken<HcalTopology, HcalRecNumberingRecord>&,
+      const edm::ESGetToken<ZdcTopology, HcalRecNumberingRecord>&,
+      bool eff);
   std::unique_ptr<HcalPedestals> producePedestals(const HcalPedestalsRcd& rcd);
   std::unique_ptr<HcalPedestalWidths> producePedestalWidths(const HcalPedestalWidthsRcd& rcd);
   std::unique_ptr<HcalPedestals> produceEffectivePedestals(const HcalPedestalsRcd& rcd);

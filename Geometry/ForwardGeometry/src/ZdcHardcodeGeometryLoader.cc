@@ -12,9 +12,7 @@ ZdcHardcodeGeometryLoader::ZdcHardcodeGeometryLoader() : theTopology(new ZdcTopo
   init();
 }
 */
-ZdcHardcodeGeometryLoader::ZdcHardcodeGeometryLoader(const ZdcTopology& ht) : extTopology(&ht) {
-  init();
-}
+ZdcHardcodeGeometryLoader::ZdcHardcodeGeometryLoader(const ZdcTopology& ht) : extTopology(&ht) { init(); }
 
 void ZdcHardcodeGeometryLoader::init() {}
 

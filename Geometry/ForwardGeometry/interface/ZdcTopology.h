@@ -55,7 +55,7 @@ public:
 
   uint32_t kSizeForDenseIndexing() const;
   bool validDenseIndex(uint32_t din) const { return (din < kSizeForDenseIndexing()); }
-  
+
 private:
   bool validRaw(const HcalZDCDetId& id) const;
 

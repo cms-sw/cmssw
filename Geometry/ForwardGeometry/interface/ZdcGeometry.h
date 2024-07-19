@@ -23,7 +23,8 @@ public:
   typedef PZdcRcd PGeometryRecord;
   typedef HcalZDCDetId DetIdType;
 
-  static constexpr int k_NumberOfCellsForCorners = HcalZDCDetId::kSizeForDenseIndexing;  uint32_t k_NumberOfCellsForCornersN;
+  static constexpr int k_NumberOfCellsForCorners = HcalZDCDetId::kSizeForDenseIndexing;
+  uint32_t k_NumberOfCellsForCornersN;
 
   static constexpr int k_NumberOfShapes = 3;
 

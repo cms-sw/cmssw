@@ -84,7 +84,8 @@ std::vector<HcalHardcodeGeometryLoader::HBHOCellParameters> HcalHardcodeGeometry
                            HBRMAX};
   float slhcDepths[4] = {HBRMIN, 214., 239., HBRMAX};
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HCalGeom") << "FlexiGeometryLoader called for " << topology.mode() << ":" << HcalTopologyMode::SLHC << ":" << HcalTopologyMode::Run3 << ":" << HcalTopologyMode::Run4;
+  edm::LogVerbatim("HCalGeom") << "FlexiGeometryLoader called for " << topology.mode() << ":" << HcalTopologyMode::SLHC
+                               << ":" << HcalTopologyMode::Run3 << ":" << HcalTopologyMode::Run4;
 #endif
   std::vector<HcalHardcodeGeometryLoader::HBHOCellParameters> result;
   for (int iring = 1; iring <= 16; ++iring) {
@@ -361,7 +362,8 @@ std::vector<HcalHardcodeGeometryLoader::HECellParameters> HcalHardcodeGeometryLo
 #endif
         int stepPhi = (iring >= topology.firstHEDoublePhiRing() ? 2 : 1);
         int deltaPhi = (iring >= topology.firstHEDoublePhiRing() ? 10 : 5);
-        if ((topology.mode() != HcalTopologyMode::SLHC) && (topology.mode() != HcalTopologyMode::Run4) && (iring == topology.lastHERing() - 1) && (idepth == ndepth - 1)) {
+        if ((topology.mode() != HcalTopologyMode::SLHC) && (topology.mode() != HcalTopologyMode::Run4) &&
+            (iring == topology.lastHERing() - 1) && (idepth == ndepth - 1)) {
 #ifdef EDM_ML_DEBUG
           edm::LogVerbatim("HCalGeom") << "HE iEta " << iring << " Depth " << depthIndex << " Eta " << etamin << ":"
                                        << etaBounds[iringm16 + 2];
