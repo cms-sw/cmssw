@@ -8,6 +8,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "GeneratorInterface/Core/interface/BaseHadronizer.h"
 
+#include <CepGen/Core/ParametersList.h>
 #include <CepGen/Generator.h>
 
 namespace gen {
