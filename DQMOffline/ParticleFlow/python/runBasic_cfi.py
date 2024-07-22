@@ -56,8 +56,14 @@ PFAnalyzer = DQMEDAnalyzer("PFAnalyzer",
       # conventions as the observables.
       #
       # Since we may want to test multiple sets of cuts simultaneously, 
-      # these are separated by '['
-      #cutList     = cms.vstring('pt;0;1;5;10;100',
+      # these are separated by '[' 
+      # For example, for 
+      # cutList     = cms.vstring('[pt;1;0;10000]'),
+      # there is one histogram made for PFCs with 0 < pT < 10000.
+      # Similarly, for cutList     = cms.vstring('[pt;1;0;10000]', '[pt;1;05;10000][eta;1;-5;5]'),
+      # there is one histogram made for PFCs with 0 < pT < 10000,
+      # and one histogram made for PFCs with 5 < pT < 10000 and -5 < eta < 5.
+     
       cutList     = cms.vstring(
                                 '[pt;1;0;10000]',
                                 '[pt;1;0;10000][eta;1;-5;5]',

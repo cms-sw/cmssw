@@ -230,8 +230,9 @@ void PFAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun
     float binMin = atof(m_eventObservables[i].substr(0, pos).c_str());
     m_eventObservables[i].erase(0, pos + 1);
 
-    float binMax = atof(m_eventObservables[i].c_str());
-    m_eventObservables[i] = observableName;
+    pos = m_eventObservables[i].find(";");
+    float binMax = atof(m_eventObservables[i].substr(0, pos).c_str());
+    m_eventObservables[i].erase(0, pos + 1);
 
     pos = m_eventObservables[i].find(";");
     int nBinsJet = atoi(m_eventObservables[i].substr(0, pos).c_str());
