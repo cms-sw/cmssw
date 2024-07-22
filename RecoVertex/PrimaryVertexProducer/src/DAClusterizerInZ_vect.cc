@@ -502,7 +502,7 @@ bool DAClusterizerInZ_vect::merge(vertex_t& y, track_t& tks, double& beta) const
     }
 #endif
 
-    if (rho > 0) {
+    if (rho > 1.e-100) {
       y.zvtx[k] = (y.rho[k] * y.zvtx[k] + y.rho[k + 1] * y.zvtx[k + 1]) / rho;
     } else {
       y.zvtx[k] = 0.5 * (y.zvtx[k] + y.zvtx[k + 1]);
@@ -662,6 +662,9 @@ bool DAClusterizerInZ_vect::split(const double beta, track_t& tks, vertex_t& y, 
 
   std::vector<std::pair<double, unsigned int>> critical;
   for (unsigned int k = 0; k < nv; k++) {
+    if (y.sw[k] < 1.0e-100) {
+      continue;
+    }
     double Tc = 2 * y.swE[k] / y.sw[k];
     if (beta * Tc > threshold) {
       critical.push_back(make_pair(Tc, k));
@@ -706,6 +709,9 @@ bool DAClusterizerInZ_vect::split(const double beta, track_t& tks, vertex_t& y, 
       }
     }
 
+    if ((p1 + p2) < 1.e-100) {
+      continue;
+    }
     if (w1 > 0) {
       z1 = z1 / w1;
     } else {
