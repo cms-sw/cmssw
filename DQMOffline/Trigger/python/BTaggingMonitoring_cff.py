@@ -330,23 +330,6 @@ BTagMonitor_PFJetFwd40_DeepJet = hltBTVmonitoring.clone(
     )
 )
 
-BTagMonitor_PFJetFwd40_UParT = hltBTVmonitoring.clone(
-    FolderName = 'HLT/BTV/PFJet/PFJetFwd40_UParTAK4',
-    nmuons = 0,
-    nelectrons = 0,
-    njets = 1,
-    jetSelection = 'pt>30 & abs(eta)>2.7 & abs(eta)<5.0',
-    bjetSelection = 'pt>20 & abs(eta)>2.7 & abs(eta)<5.0',
-    btagAlgos = ["pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:BvsAll"], 
-    numGenericTriggerEventPSet = dict(hltPaths = ['HLT_PFJetFwd40_v*']),
-    histoPSet = dict(
-        jetPtBinning = [0,30,35,40,45,50,60,70,100,150,200,400,700,1000,1500,3000],
-        jetEtaBinning = [-5.0,-4.7,-4.4,-4.1,-3.8,-3.5,-3.2,-2.9,-2.7,-2.4,-2.1,0.0,2.1,2.4,2.7,2.9,3.2,3.5,3.8,4.1,4.4,4.7,5.0],
-        jetEtaBinning2D = [-5.0,-4.7,-4.4,-4.1,-3.8,-3.5,-3.2,-2.9,-2.7,-2.4,-2.1,0.0,2.1,2.4,2.7,2.9,3.2,3.5,3.8,4.1,4.4,4.7,5.0],
-        etaPSet = dict(nbins=50, xmin=-5.0, xmax=5.0)
-    )
-)
-
 # PFJetFwd AK8
 BTagMonitor_AK8PFJetFwd40_DeepJet = hltBTVmonitoring.clone(
     FolderName = 'HLT/BTV/PFJet/AK8PFJetFwd40',
@@ -402,6 +385,5 @@ btvHLTDQMSourceExtra = cms.Sequence(
   + BTagMonitor_PFJet40_UParT
   + BTagMonitor_AK8PFJet40
   + BTagMonitor_PFJetFwd40_DeepJet
-  + BTagMonitor_PFJetFwd40_UParT    
   + BTagMonitor_AK8PFJetFwd40_DeepJet
 )
