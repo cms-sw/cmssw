@@ -65,6 +65,10 @@ public:
 
   /// check equality of modules from datamemebers
   bool operator==(const PixelModuleName&) const override;
+  bool operator==(const PixelEndcapName& other) const {
+    return (thePart == other.thePart && theDisk == other.theDisk && theBlade == other.theBlade &&
+            thePannel == other.thePannel && thePlaquette == other.thePlaquette);
+  }
 
 private:
   HalfCylinder thePart;

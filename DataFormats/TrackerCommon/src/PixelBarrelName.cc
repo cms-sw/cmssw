@@ -719,13 +719,8 @@ PixelModuleName::ModuleType PixelBarrelName::moduleType() const {
   return isHalfModule() ? PixelBarrelName::v1x8 : PixelBarrelName::v2x8;
 }
 
-bool PixelBarrelName::operator==(const PixelModuleName& o) const {
-  if (o.isBarrel()) {
-    const PixelBarrelName* other = dynamic_cast<const PixelBarrelName*>(&o);
-    return (other && thePart == other->thePart && theLayer == other->theLayer && theModule == other->theModule &&
-            theLadder == other->theLadder);
-  } else
-    return false;
+bool PixelBarrelName::operator==(const PixelModuleName& other) const {
+  return other.isBarrel() ? (dynamic_cast<const PixelBarrelName&>(other) == *this) : false;
 }
 
 string PixelBarrelName::name() const {
