@@ -6,9 +6,7 @@
  *
  */
 
-
 #include "DQMOffline/ParticleFlow/interface/PFAnalyzer.h"
-
 
 // ***********************************************************
 PFAnalyzer::PFAnalyzer(const edm::ParameterSet& pSet) {
@@ -503,9 +501,7 @@ void PFAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
     const unsigned int nTrig(triggerNames.size());
     for (unsigned int i = 0; i < nTrig; ++i) {
-      if (triggerNames.triggerName(i).find(highPtJetExpr_.label()) !=
-              std::string::npos &&
-          triggerResults->accept(i)){
+      if (triggerNames.triggerName(i).find(highPtJetExpr_.label()) != std::string::npos && triggerResults->accept(i)) {
         JetHiPass = 1;
       }
     }
@@ -530,10 +526,8 @@ void PFAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
       if (fabs(v->z()) > 24.0)
         continue;
       ++numPV;
-
     }
   }
-
 
   if (!JetHiPass)
     return;
