@@ -22,6 +22,5 @@
     <use name="jemalloc"/>
     <flags CXXFLAGS="-O0"/>
   </bin>
+  <test name="TestPerfToolsModuleAllocMonitor" command="runModuleAlloc.sh"/>
 </ifrelease>
-
-<test name="TestPerfToolsModuleAllocMonitor" command="runModuleAlloc.sh"/>
