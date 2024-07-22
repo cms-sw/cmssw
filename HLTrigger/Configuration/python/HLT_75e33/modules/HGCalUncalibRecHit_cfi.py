@@ -59,3 +59,5 @@ HGCalUncalibRecHit = cms.EDProducer("HGCalUncalibRecHitProducer",
     algo = cms.string('HGCalUncalibRecHitWorkerWeights')
 )
 
+from Configuration.ProcessModifiers.ticl_v5_cff import ticl_v5
+ticl_v5.toModify(HGCalUncalibRecHit, computeLocalTime = cms.bool(True))

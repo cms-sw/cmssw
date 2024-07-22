@@ -118,7 +118,6 @@ TICLCandidateProducer::TICLCandidateProducer(const edm::ParameterSet &ps)
       clustersTime_token_(
           consumes<edm::ValueMap<std::pair<float, float>>>(ps.getParameter<edm::InputTag>("layer_clustersTime"))),
       tracks_token_(consumes<std::vector<reco::Track>>(ps.getParameter<edm::InputTag>("tracks"))),
-      inputTimingToken_(consumes<MtdHostCollection>(ps.getParameter<edm::InputTag>("timingSoA"))),
       muons_token_(consumes<std::vector<reco::Muon>>(ps.getParameter<edm::InputTag>("muons"))),
       useMTDTiming_(ps.getParameter<bool>("useMTDTiming")),
       useTimingAverage_(ps.getParameter<bool>("useTimingAverage")),

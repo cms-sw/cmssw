@@ -106,10 +106,11 @@ ticlTrackstersCLUE3DHighL1Seeded = cms.EDProducer("TrackstersProducer",
     eid_min_cluster_energy = cms.double(1),
     eid_n_layers = cms.int32(50),
     eid_n_clusters = cms.int32(10),
+    computeLocalTime = cms.bool(False),
     doPidCut = cms.bool(True),
     cutHadProb = cms.double(999.),
     type = cms.string('CLUE3D')
-  
+
     ),
     pluginPatternRecognitionByFastJet = cms.PSet(
         algo_verbosity = cms.int32(0),
@@ -127,3 +128,6 @@ ticlTrackstersCLUE3DHighL1Seeded = cms.EDProducer("TrackstersProducer",
     tfDnnLabel = cms.string('tracksterSelectionTf'),
     time_layerclusters = cms.InputTag("hgcalMergeLayerClustersL1Seeded","timeLayerCluster")
 )
+
+from Configuration.ProcessModifiers.ticl_v5_cff import ticl_v5
+ticl_v5.toModify(ticlTrackstersCLUE3DHighL1Seeded.pluginPatternRecognitionByCLUE3D, computeLocalTime = cms.bool(True), doPidCut = cms.bool(False))
