@@ -4,9 +4,10 @@ from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 PFAnalyzer = DQMEDAnalyzer("PFAnalyzer",
     pfJetCollection        = cms.InputTag("ak4PFJetsCHS"),
     pfCandidates             = cms.InputTag("particleFlow"),
-    PVCollection             = cms.InputTag("offlinePrimaryVerticesWithBS"),
+    PVCollection             = cms.InputTag("offlinePrimaryVertices"),
 
     TriggerResultsLabel        = cms.InputTag("TriggerResults::HLT"),
+    TriggerName = cms.InputTag("HLT_PFJet450"),
 
 
     pfAnalysis = cms.PSet(
@@ -66,8 +67,7 @@ PFAnalyzer = DQMEDAnalyzer("PFAnalyzer",
      
       cutList     = cms.vstring(
                                 '[pt;1;0;10000]',
-                                '[pt;1;0;10000][eta;1;-5;5]',
-                                '[pt;0;1;2;4;10;10000]',
+                                '[pt;0;1;2;4;10;50;10000]',
                                ),
 
       # This is a list of multidimensional cuts on the jets that are applied for the plots.
@@ -75,7 +75,7 @@ PFAnalyzer = DQMEDAnalyzer("PFAnalyzer",
       # The first is the observable name, corresponding to a key in m_jetFuncMap 
       # in PFAnalysis. The last values are the bins, following the same
       # conventions as the observables.
-      jetCutList     = cms.vstring('pt;20;50;100;10000'),
+      jetCutList     = cms.vstring('pt;20;50;100;450;10000'),
     )
 
 
