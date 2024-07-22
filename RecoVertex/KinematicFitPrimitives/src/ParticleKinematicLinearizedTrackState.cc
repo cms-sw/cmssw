@@ -55,7 +55,7 @@ TrackCharge ParticleKinematicLinearizedTrackState::charge() const { return part-
 
 RefCountedKinematicParticle ParticleKinematicLinearizedTrackState::particle() const { return part; }
 
-bool ParticleKinematicLinearizedTrackState::operator==(LinearizedTrackState<6>& other) const {
+bool ParticleKinematicLinearizedTrackState::operator==(const LinearizedTrackState<6>& other) const {
   const ParticleKinematicLinearizedTrackState* otherP =
       dynamic_cast<const ParticleKinematicLinearizedTrackState*>(&other);
   if (otherP == nullptr) {
