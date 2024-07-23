@@ -47,6 +47,7 @@ public:
     pt_min_ = ps_trk.getParameter<double>("pt_min");
     pt_min_prim_ = ps_trk.getParameter<double>("pt_min_prim");
     dxy_ = ps_trk.getParameter<double>("dxy");
+    qoverpError_max_ = ps_trk.getParameter<double>("qoverpError_max");
   }
 
   /// sets debug printout flag
@@ -137,7 +138,7 @@ private:
 
   double pt_min_prim_;
   double dxy_;
-
+  double qoverpError_max_;
   /// Max number of expected vertexCandidates in the event
   /// Used to allocate the memory and avoid multiple copy
   unsigned vertexCandidatesSize_;
