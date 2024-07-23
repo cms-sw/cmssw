@@ -12,7 +12,7 @@ class TestProcess(cms.Process):
           self._test_endpath = cms.EndPath(mod,task)
     def fillProcessDesc(self, processPSet):
         if self.__dict__["_TestProcess__moduleToTest"] is None:
-            raise LogicError("moduleToTest was not called")
+            raise RuntimeError("moduleToTest was not called")
         for p in self.paths.iterkeys():
             if p != "_test_path":
                 delattr(self,p)
