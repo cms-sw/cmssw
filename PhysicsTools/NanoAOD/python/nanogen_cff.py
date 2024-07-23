@@ -57,6 +57,10 @@ def nanoGenCommonCustomize(process):
     setGenPhiPrecision(process, CandVars.phi.precision)
     setGenMassPrecision(process, CandVars.mass.precision)
 
+    for output in ("NANOEDMAODSIMoutput", "NANOAODSIMoutput"):
+        if hasattr(process, output):
+            getattr(process, output).outputCommands.append("drop edmTriggerResults_*_*_*")
+
 def customizeNanoGENFromMini(process):
     process.nanogenSequence.insert(0, process.genParticles2HepMCHiggsVtx)
     process.nanogenSequence.insert(0, process.genParticles2HepMC)
@@ -71,6 +75,7 @@ def customizeNanoGENFromMini(process):
     process.genParticleTable.src = "prunedGenParticles"
     process.patJetPartonsNano.particles = "prunedGenParticles"
     process.particleLevel.src = "genParticles2HepMC:unsmeared"
+    process.genIso.genPart = "prunedGenParticles"
 
     process.genJetTable.src = "slimmedGenJets"
     process.genJetAK8Table.src = "slimmedGenJetsAK8"
