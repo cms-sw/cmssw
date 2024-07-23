@@ -20,7 +20,7 @@
 //                           of the outputs
 //
 //  HGCalConvert 3 infile outfile1 outfile2 laymin cassette debug
-//               4 infile outfile1 outfile2 laymin nlayers cassette debug
+//               4 infile outfile1 outfile2 laymin cassette nlayers debug
 //  infile   (const char*)   Input file from Katya (modified by Chris)
 //                           containing layer #. ring #, start and end
 //                           of ring radius, SiPM size, 4 hexadecimal
@@ -33,9 +33,9 @@
 //                           the ddAlgorithm part
 //  laymin   (int)           First layer number of the HE part
 //                           (28 for versions: V14, V15; 26 for V16, V17)
-//  nlayers  (int)           Number of scintillator layers (14 for v19)
 //  cassette (int)           Cassettes are used in geometry definition
 //                           (0 if none, 1 if 12 cassettes are used)
+//  nlayers  (int)           Number of scintillator layers (14 for v19)
 //  debug    (int)           Two digit integer to set debug for each
 //                           of the outputs
 //
@@ -1701,6 +1701,32 @@ void ConvertScintillatorV1::convert(const char* infile, const char* outfile1, co
 
     //Now write for the second file
     std::ofstream fout(outfile2);
+    // Write the ring specification first
+    l1 = 0;
+    fout << "  <Vector name=" << apost << "NPhiLayer" << apost << " type=" << apost << "numeric" << apost
+         << " nEntries=" << apost << layPhiS.size() << apost << ">";
+    for (it0 = layPhiS.begin(); it0 != layPhiS.end(); ++it0) {
+      std::string last = ((l1 + 1) == layPhiS.size()) ? " " : ",";
+      if (l1 % 10 == 0)
+        fout << "\n    " << std::setw(6) << std::setprecision(4) << (it0->second).first << last;
+      else
+        fout << std::setw(6) << std::setprecision(4) << (it0->second).first << last;
+      ++l1;
+    }
+    fout << "\n  </Vector>\n";
+    l2 = 0;
+    fout << "  <Vector name=" << apost << "ScintRetract" << apost << " type=" << apost << "numeric" << apost
+         << " nEntries=" << apost << layPhiS.size() << apost << ">";
+    for (it0 = layPhiS.begin(); it0 != layPhiS.end(); ++it0) {
+      std::string last = ((l2 + 1) == layPhiS.size()) ? " " : ",";
+      if (l2 % 6 == 0)
+        fout << "\n    " << std::setw(8) << std::setprecision(6) << (it0->second).second << "*mm" << last;
+      else
+        fout << std::setw(8) << std::setprecision(6) << (it0->second).second << "*mm" << last;
+      ++l2;
+    }
+    fout << "\n  </Vector>\n";
+    // Now write the remaining parts
     makeTitle(
         fout, "Tile6", module6, ringR6, lmin6, lmax6, HGCalProperty::kHGCalFineTilePhis, 1, (((debug / 10) % 10) > 0));
     makeTitle(fout, "Tile", module, ringR, lmin, lmax, HGCalProperty::kHGCalTilePhis, 0, (((debug / 10) % 10) > 0));
