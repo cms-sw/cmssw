@@ -87,7 +87,7 @@ public:
 
   RefCountedKinematicParticle particle() const;
 
-  bool operator==(LinearizedTrackState<6>& other) const override;
+  bool operator==(const LinearizedTrackState<6>& other) const override;
 
   bool hasError() const override;
 
