@@ -5,7 +5,6 @@ from PhysicsTools.NanoAOD.simplePATJetFlatTableProducer_cfi import simplePATJetF
 
 from RecoJets.JetProducers.hfJetShowerShape_cfi import hfJetShowerShape
 from RecoJets.JetProducers.PileupJetID_cfi import pileupJetIdCalculator, pileupJetId
-from RecoJets.JetProducers.PileupJetID_cfi import _chsalgos_81x, _chsalgos_94x, _chsalgos_102x
 
 from PhysicsTools.NanoAOD.common_cff import Var, P4Vars
 from PhysicsTools.NanoAOD.jetsAK4_CHS_cff import jetTable, jetCorrFactorsNano, updatedJets, finalJets, qgtagger

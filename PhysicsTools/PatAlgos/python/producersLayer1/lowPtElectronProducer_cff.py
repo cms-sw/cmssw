@@ -60,12 +60,6 @@ makePatLowPtElectrons = cms.Sequence(makePatLowPtElectronsTask)
 # Modifiers
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 fastSim.toModify(patLowPtElectrons, embedTrack = False)
-from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
-from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_94XFall17
-(run2_miniAOD_80XLegacy | run2_miniAOD_94XFall17).toModify(patLowPtElectrons,
-                                                           electronSource = "gedGsfElectrons",
-                                                           genParticleMatch = "electronMatch"
-                                                           )
 
 # For run2_miniAOD_UL: (1) rekey, (2) rerun ID, (3) apply energy regression
 from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL

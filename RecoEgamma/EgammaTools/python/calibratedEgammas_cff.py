@@ -26,12 +26,6 @@ run2_egamma_2017.toModify(calibratedEgammaSettings,correctionFile = _correctionF
 from Configuration.Eras.Modifier_run2_egamma_2018_cff import run2_egamma_2018
 run2_egamma_2018.toModify(calibratedEgammaSettings,correctionFile = _correctionFile2018UL)
 
-from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
-run2_miniAOD_80XLegacy.toModify(calibratedEgammaSettings,correctionFile = _correctionFile2016Legacy)
-
-from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_94XFall17
-run2_miniAOD_94XFall17.toModify(calibratedEgammaSettings,correctionFile = _correctionFile2017Nov17)
-
 calibratedEgammaPatSettings = calibratedEgammaSettings.clone(
     recHitCollectionEB = 'reducedEgamma:reducedEBRecHits',
     recHitCollectionEE = 'reducedEgamma:reducedEERecHits'
