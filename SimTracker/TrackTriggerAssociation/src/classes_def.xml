@@ -13,10 +13,6 @@
 
     <class name="edm::Wrapper<TTTrackAssociationMap<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >" />
   
-    <class name="std::map<std::basic_string<char>, unsigned long long, std::less<std::basic_string<char> >, std::allocator<std::pair<const std::basic_string<char>, unsigned long long> > >" />
-                                            
-    <class name="std::map<int, int, std::less<int>, std::allocator<std::pair<const int, int> > >" />
-        
     <class name="std::map<int, HepMC::GenVertex *, std::greater<int>, std::allocator<std::pair<const int, HepMC::GenVertex *> > >" />
                                                     
     <class name="std::map<int, HepMC::GenParticle *, std::less<int>, std::allocator<std::pair<const int, HepMC::GenParticle *> > >" />
