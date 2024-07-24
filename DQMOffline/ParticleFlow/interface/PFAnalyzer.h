@@ -47,6 +47,9 @@
 
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
+
+
+
 class PFAnalyzer : public DQMEDAnalyzer {
 public:
   /// Constructor
@@ -65,6 +68,7 @@ public:
   void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
 
 private:
+  struct binInfo;
   // A map between an observable name and a function that obtains that observable from a  PFCandidate.
   // This allows us to construct more complicated observables easily, and have it more configurable
   // in the config file.
@@ -76,6 +80,8 @@ private:
       m_jetWideFuncMap;
   std::map<std::string, std::function<double(const reco::PFCandidate, const reco::PFJet)>> m_pfInJetFuncMap;
   std::map<std::string, std::function<double(const reco::PFJet)>> m_jetFuncMap;
+
+  binInfo getBinInfo(std::string);
 
   // Book MonitorElements
   void bookMESetSelection(std::string, DQMStore::IBooker&);
@@ -277,7 +283,7 @@ private:
   edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken_;
 
   std::vector<std::vector<std::string>> m_allSuffixes;
-  std::vector<std::string> m_allJetSuffixes;
+  std::vector<std::vector<std::string>> m_allJetSuffixes;
 
   // The directory where the output is stored
   std::string m_directory;
@@ -289,6 +295,7 @@ private:
   edm::ParameterSet parameters_;
 
   typedef std::vector<std::string> vstring;
+  typedef std::vector<double> vDouble;
   // Information on which observables to make histograms for.
   // In the config file, this should come as a comma-separated list of
   // the observable name, the number of bins for the histogram, and
@@ -298,6 +305,10 @@ private:
   vstring m_observables;
   vstring m_eventObservables;
   vstring m_pfInJetObservables;
+
+  vstring m_observableNames;
+  vstring m_eventObservableNames;
+  vstring m_pfInJetObservableNames;
 
   // Information on what cuts should be applied to PFCandidates that are
   // being monitored. In the config file, this should come as a comma-separated list of
@@ -314,7 +325,10 @@ private:
   // The observable name should have an entry in m_jetFuncMap to define how
   // it can be retrieved from a PFJet.
   vstring m_jetCutList;
-  std::vector<std::vector<double>> m_jetBinList;
+  std::vector<std::vector<std::string>> m_fullJetCutList;
+  std::vector<std::vector<std::vector<double>>> m_jetBinList;
+
+  vDouble m_npvBins;
 
   // The dR radius used to match PFCs to jets.
   // Making this configurable is useful in case you want to look at the core of a jet.
@@ -322,4 +336,7 @@ private:
 
   std::vector<std::string> m_pfNames;
 };
+
+struct PFAnalyzer::binInfo{std::string observable; std::string axisName; int nBins; double binMin; double binMax;};
+
 #endif

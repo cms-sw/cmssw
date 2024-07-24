@@ -11,6 +11,8 @@ PFAnalyzer = DQMEDAnalyzer("PFAnalyzer",
 
 
     pfAnalysis = cms.PSet(
+      # Bins of NPV for plots
+      NPVBins = cms.vdouble(0, 25, 45, 100),
 
       # A list of observables for which plots should be made.
       # The format should be a list of semicolon-separated values.
@@ -75,7 +77,12 @@ PFAnalyzer = DQMEDAnalyzer("PFAnalyzer",
       # The first is the observable name, corresponding to a key in m_jetFuncMap 
       # in PFAnalysis. The last values are the bins, following the same
       # conventions as the observables.
-      jetCutList     = cms.vstring('pt;20;50;100;450;10000'),
+      #
+      # Just like for cutList, multiple sets of cuts can be applied, using the same formulation.
+      jetCutList     = cms.vstring(
+                                   '[pt;20;50;100;450;10000]',
+                                   '[pt;20;10000]'
+                                  ),
     )
 
 
