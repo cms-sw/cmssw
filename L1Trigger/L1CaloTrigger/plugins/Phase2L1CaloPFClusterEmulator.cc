@@ -221,7 +221,6 @@ void Phase2L1CaloPFClusterEmulator::produce(edm::Event& iEvent, const edm::Event
       ieta = nHfEta / 2 + (hit.id().ieta() - (l1t::CaloTools::kHFBegin + 1));
     }
     int iphi = hit.id().iphi() - 1;  // HF phi runs between 1-72
-    //std::cout<<ieta<<"\t"<<l1t::CaloTools::towerEta(hit.id().ieta())<<"\t"<<iphi<<"\t"<<l1t::CaloTools::towerPhi(ieta, iphi)<<std::endl;
     // split tower energy
     hfTowers[2 * ieta][iphi] = et / 2;
     hfTowers[2 * ieta + 1][iphi] = et / 2;
@@ -242,13 +241,6 @@ void Phase2L1CaloPFClusterEmulator::produce(edm::Event& iEvent, const edm::Event
     }
   }
 
-  //  for (int iphi = 0; iphi < nHfPhi; iphi++) {
-  //    for (int ieta = 0; ieta < 2*nHfEta; ieta++) {
-  //      std::cout<<hfTowers[ieta][iphi]<<"  ";
-  //    }
-  //    std::cout<<"\n";
-  //  }
-
   for (int ieta = 0; ieta < 2 * nHfEta; ieta++) {
     for (int iphi = 0; iphi < nHfPhi / 6; iphi++) {
       if (ieta < nHfEta) {
@@ -268,16 +260,6 @@ void Phase2L1CaloPFClusterEmulator::produce(edm::Event& iEvent, const edm::Event
       }
     }
   }
-
-  //  for (int k = 0; k < 12; k++) {
-  //    std::cout<<"------------"<<std::endl;
-  //    for (int iphi = 0; iphi < 12; iphi++) {
-  //      for (int ieta = 0; ieta < 24; ieta++) {
-  //        std::cout<<regionsHF[k][ieta][iphi]<<"  ";
-  //      }
-  //      std::cout<<"\n";
-  //    }
-  //  }
 
   float temporaryHF[nHfEta][nHfPhi / 6];
   int etaoffsetHF = 0;

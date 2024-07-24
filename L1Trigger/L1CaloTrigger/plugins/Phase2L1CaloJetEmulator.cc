@@ -353,7 +353,6 @@ void Phase2L1CaloJetEmulator::produce(edm::Event& iEvent, const edm::EventSetup&
   float hfEta[nHfEta][nHfPhi];
   float hfPhi[nHfEta][nHfPhi];
   for (int iphi = 0; iphi < nHfPhi; iphi++) {
-    //std::cout<<iphi<<"\t"<<l1t::CaloTools::towerPhi(30, iphi)<<std::endl;
     for (int ieta = 0; ieta < nHfEta; ieta++) {
       hfTowers[2 * ieta][iphi] = 0;
       hfTowers[2 * ieta + 1][iphi] = 0;
@@ -364,7 +363,6 @@ void Phase2L1CaloJetEmulator::produce(edm::Event& iEvent, const edm::EventSetup&
         temp = ieta - nHfEta / 2 + l1t::CaloTools::kHFBegin + 1;
       hfEta[ieta][iphi] = l1t::CaloTools::towerEta(temp);
       hfPhi[ieta][iphi] = l1t::CaloTools::towerPhi(temp, iphi + 1);
-      //if(iphi==0) std::cout<<l1t::CaloTools::towerPhi(temp, iphi)<<std::endl;
     }
   }
 
@@ -381,7 +379,6 @@ void Phase2L1CaloJetEmulator::produce(edm::Event& iEvent, const edm::EventSetup&
       ieta = nHfEta / 2 + (hit.id().ieta() - (l1t::CaloTools::kHFBegin + 1));
     }
     int iphi = hit.id().iphi() - 1;  // HF phi runs between 1-72
-    //std::cout<<hit.id().ieta()<<"\t"<<ieta<<"\t"<<iphi<<std::endl;
     if (abs(hit.id().ieta()) <= 33 && abs(hit.id().ieta()) >= 29)
       et = et - all_nvtx_to_PU_sub_funcs["hf"]["er29to33"].Eval(EstimatedNvtx);
     if (abs(hit.id().ieta()) <= 37 && abs(hit.id().ieta()) >= 34)
@@ -390,9 +387,7 @@ void Phase2L1CaloJetEmulator::produce(edm::Event& iEvent, const edm::EventSetup&
       et = et - all_nvtx_to_PU_sub_funcs["hf"]["er38to41"].Eval(EstimatedNvtx);
     if (et < 0)
       et = 0;
-    //if (et > 1.)
-    //  hfTowers[ieta][iphi] = et;  // suppress <= 1 GeV towers
-    //  split tower energy
+    // split tower energy
     hfTowers[2 * ieta][iphi] = et / 2;
     hfTowers[2 * ieta + 1][iphi] = et / 2;
     if ((ieta < 2 || ieta >= nHfEta - 2) && iphi % 4 == 2) {
