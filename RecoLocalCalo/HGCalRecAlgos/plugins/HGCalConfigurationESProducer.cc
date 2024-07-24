@@ -27,8 +27,10 @@ public:
     : //edm::ESProducer(iConfig),
       fedjson_(iConfig.getParameter<std::string>("fedjson")),
       modjson_(iConfig.getParameter<std::string>("modjson")) {
-    if (iConfig.exists("passthroughMode"))
-      passthroughMode_ = iConfig.getParameter<int32_t>("passthroughMode");
+    if (iConfig.exists("bePassthroughMode"))
+      bePassthroughMode_ = iConfig.getParameter<int32_t>("bePassthroughMode");
+    if (iConfig.exists("econPassthroughMode"))
+      econPassthroughMode_ = iConfig.getParameter<int32_t>("econPassthroughMode");
     if (iConfig.exists("cbHeaderMarker"))
       cbHeaderMarker_ = iConfig.getParameter<int32_t>("cbHeaderMarker");
     if (iConfig.exists("slinkHeaderMarker"))
@@ -37,6 +39,8 @@ public:
       econdHeaderMarker_ = iConfig.getParameter<int32_t>("econdHeaderMarker");
     if (iConfig.exists("charMode"))
       charMode_ = iConfig.getParameter<int32_t>("charMode");
+    if (iConfig.exists("gain"))
+      gain_ = iConfig.getParameter<int32_t>("gain");
     auto cc = setWhatProduced(this);
     //findingRecord<HGCalModuleConfigurationRcd>();
     indexToken_ = cc.consumes(iConfig.getParameter<edm::ESInputTag>("indexSource"));
@@ -48,11 +52,13 @@ public:
     //desc.add<edm::FileInPath>("filename")->setComment("JSON file with FED configuration parameters");
     desc.add<std::string>("fedjson","")->setComment("JSON file with FED configuration parameters");
     desc.add<std::string>("modjson","")->setComment("JSON file with ECOND configuration parameters");
-    desc.addOptional<int32_t>("passthroughMode",-1)->setComment("Manual override for mismatch passthrough mode");
+    desc.addOptional<int32_t>("bePassthroughMode",-1)->setComment("Manual override for mismatch passthrough mode in the BE");
+    desc.addOptional<int32_t>("econPassthroughMode",-1)->setComment("Manual override passthrough mode in the ECON-D");
     desc.addOptional<int32_t>("cbHeaderMarker",-1)->setComment("Manual override for capture block header marker (BEO, e.g 0x7f)");
     desc.addOptional<int32_t>("slinkHeaderMarker",-1)->setComment("Manual override for S-link header marker (BEO, e.g 0x55)");
     desc.addOptional<int32_t>("econdHeaderMarker",-1)->setComment("Manual override for ECON-D header marker (BEO, e.g 0x154)");
-    desc.addOptional<int32_t>("charMode",-1)->setComment("Manual override for ECON-D characterization mode");
+    desc.addOptional<int32_t>("charMode",-1)->setComment("Manual override for ROC characterization mode");
+    desc.addOptional<int32_t>("gain",-1)->setComment("Manual override for ROC gain");
     descriptions.addWithDefaultLabel(desc);
   }
 
@@ -109,7 +115,7 @@ public:
       if (!fed_config_data.contains(sfedid))
         edm::LogWarning("HGCalConfigurationESProducer") << " Did not find FED index " << sfedid
                                                         << " in JSON file " << fedjson_ << "...";
-      fed.mismatchPassthroughMode = getint(fed_config_data[sfedid]["mismatchPassthroughMode"],passthroughMode_);   // ignore ECON-D packet mismatches
+      fed.mismatchPassthroughMode = getint(fed_config_data[sfedid]["mismatchPassthroughMode"], bePassthroughMode_);   // ignore ECON-D packet mismatches
       fed.cbHeaderMarker          = gethex(fed_config_data[sfedid]["cbHeaderMarker"],         cbHeaderMarker_);    // begin of event marker/identifier for capture block
       fed.slinkHeaderMarker       = gethex(fed_config_data[sfedid]["slinkHeaderMarker"],      slinkHeaderMarker_); // begin of event marker/identifier for S-link
 
@@ -124,8 +130,22 @@ public:
                                                           << ") for ECON-D module with typecode " << typecode << " and id=" << modid << "!";
         if (modid >= fed.econds.size())
           fed.econds.resize(modid+1);
-        HGCalECONDConfig_t mod;
+
+	//ECON-D configuration
+	HGCalECONDConfig_t mod;
         mod.headerMarker = gethex(mod_config_data[typecode]["headerMarker"],econdHeaderMarker_); // begin of event marker/identifier for capture block
+	mod.passThrough = getint(mod_config_data[typecode]["passthrough"],econPassthroughMode_); //
+
+	//add the individual ROC config
+	size_t nerx(mod_config_data[typecode]["Gain"].size());
+	std::vector<HGCalROCConfig_t> rocs(nerx/2);
+	for(size_t i=0; i<nerx; i+=2) {
+	  size_t iroc = size_t(i/2);
+	  rocs[iroc].charMode = getint(mod_config_data[typecode]["CalibrationSC"][i], charMode_);
+	  rocs[iroc].gain = getint(mod_config_data[typecode]["Gain"][i], 1);
+	}	
+	mod.rocs = rocs;
+		
         fed.econds[modid] = mod; // add to FED's vector of HGCalECONDConfig_t ECON-D modules
       }
 
@@ -145,11 +165,13 @@ private:
   HGCalConfiguration config_; // container class holding FED structs of ECON-D structs of eRx structs
   const std::string fedjson_; // JSON file
   const std::string modjson_; // JSON file
-  int32_t passthroughMode_; // for manual override
+  int32_t bePassthroughMode_; // for manual override
   int32_t cbHeaderMarker_; // for manual override
   int32_t slinkHeaderMarker_; // for manual override
   int32_t econdHeaderMarker_; // for manual override
+  int32_t econPassthroughMode_; // for manual override
   int32_t charMode_; // for manual override
+  int32_t gain_; // for manual override
 };
 
 
