@@ -9,7 +9,6 @@
 // Update: George Karathanasis, CU Boulder
 //         2/4/2024
 
-
 // system include files
 #include <memory>
 #include <numeric>
