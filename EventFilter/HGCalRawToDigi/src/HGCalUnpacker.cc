@@ -105,6 +105,7 @@ void HGCalUnpacker::parseFEDData(unsigned fedId,
     ++ptr;
     // parse Capture Block body (ECON-Ds)
     for (uint32_t econdIdx = 0; econdIdx < HGCalMappingModuleIndexer::maxECONDperCB_; econdIdx++) {
+
       auto econd_pkt_status = (cb_header >> (3 * econdIdx)) & 0b111;
       LogDebug("[HGCalUnpacker]") << "fedId = " << fedId << ", captureblockIdx = " << captureblockIdx << ", econdIdx = " << econdIdx
                 << ", econd_pkt_status = " << econd_pkt_status;
@@ -112,13 +113,14 @@ void HGCalUnpacker::parseFEDData(unsigned fedId,
         // always increment the global ECON-D index (unless inactive/unconnected)
         globalECONDIdx++;
       }
+      
       bool pkt_exists =
-          (econd_pkt_status == backend::ECONDPacketStatus::Normal) ||
-          (econd_pkt_status == backend::ECONDPacketStatus::PayloadCRCError) ||
-          (econd_pkt_status == backend::ECONDPacketStatus::EventIDMismatch) ||
-          (econd_pkt_status == backend::ECONDPacketStatus::BCIDOrbitIDMismatch);  // TODO: `BCIDOrbitIDMismatch`
+	(econd_pkt_status == backend::ECONDPacketStatus::Normal) ||
+	(econd_pkt_status == backend::ECONDPacketStatus::PayloadCRCError) ||
+	(econd_pkt_status == backend::ECONDPacketStatus::EventIDMismatch) ||
+	(fedConfig.mismatchPassthroughMode && econd_pkt_status == backend::ECONDPacketStatus::BCIDOrbitIDMismatch);
       if (!pkt_exists) {
-        continue;
+	continue;
       }
 
       // ECON-D header (two 32b words)
@@ -131,10 +133,12 @@ void HGCalUnpacker::parseFEDData(unsigned fedId,
       if (((econd_headers[0] >> ECOND_FRAME::HEADER_POS) & ECOND_FRAME::HEADER_MASK) !=
           fedConfig.econds[globalECONDIdx].headerMarker) {
         econdInfo.view()[ECONDdenseIdx].exception() = 3;
-        throw cms::Exception("CorruptData")
-            << "Expected a ECON-D header at word " << std::dec << (uint32_t)(ptr - header) << "/0x" << std::hex
-            << (uint32_t)(ptr - header) << " (marker: 0x" << fedConfig.econds[globalECONDIdx].headerMarker
-            << "), got 0x" << econd_headers[0] << ".";
+
+	//DO NOT THROW!! just flag as exception and try to continue
+        //throw cms::Exception("CorruptData")
+        //    << "Expected a ECON-D header at word " << std::dec << (uint32_t)(ptr - header) << "/0x" << std::hex
+	//     << (uint32_t)(ptr - header) << " (marker: 0x" << fedConfig.econds[globalECONDIdx].headerMarker
+        //    << "), got 0x" << econd_headers[0] << ".";
       }
       ++ptr;
 
@@ -151,7 +155,8 @@ void HGCalUnpacker::parseFEDData(unsigned fedId,
                              (((econd_headers[1] >> ECOND_FRAME::BITS_POS) & 0b1) << ECONDFlag::BITS_POS);
       econdInfo.view()[ECONDdenseIdx].payloadLength() = (uint16_t)econd_payload_length;
       econdInfo.view()[ECONDdenseIdx].econdFlag() = (uint8_t)econdFlag;
-
+      econdInfo.view()[ECONDdenseIdx].exception() = 0;
+      
       // convert ECON-D packets into 32b words -- need to swap the order of the two 32b words in the 64b word
       auto econd_payload = to_econd_payload(ptr, econd_payload_length);
 
@@ -162,8 +167,8 @@ void HGCalUnpacker::parseFEDData(unsigned fedId,
                 << ", econd_headers = " << std::hex << std::setfill('0') << std::setw(8) << econd_headers[0] << " "
                 << econd_headers[1] << std::dec << ", econd_payload_length = " << econd_payload_length;
 
-      //quality check for ECON-D
-      if (econd_pkt_status != 0b000 || (((econd_headers[0] >> ECOND_FRAME::HT_POS) & ECOND_FRAME::HT_MASK) >= 0b10) ||
+      //quality check for ECON-D (no need to check again econd_pkt_status here again)
+      if ((((econd_headers[0] >> ECOND_FRAME::HT_POS) & ECOND_FRAME::HT_MASK) >= 0b10) ||
           (((econd_headers[0] >> ECOND_FRAME::EBO_POS) & ECOND_FRAME::EBO_MASK) >= 0b10) ||
           (((econd_headers[0] >> ECOND_FRAME::BITM_POS) & 0b1) == 0) ||
           (((econd_headers[0] >> ECOND_FRAME::BITM_POS) & 0b1) == 0) || econd_payload_length == 0 || headerOnlyMode) {
@@ -209,6 +214,7 @@ void HGCalUnpacker::parseFEDData(unsigned fedId,
 
             // check if the channel has data
             if (((erxHeader >> channelIdx) & 1) == 0) {
+	      //digis.view()[denseIdx].flags() =  FIXME! set flag as suppressed
               continue;
             }
 
@@ -263,12 +269,14 @@ void HGCalUnpacker::parseFEDData(unsigned fedId,
             uint32_t denseIdx = moduleIndexer.getIndexForModuleData(fedId, globalECONDIdx, erxIdx, channelIdx);
 
             // check if the channel has data
-            if (((erxHeader >> channelIdx) & 1) == 0) {
+	    if (((erxHeader >> channelIdx) & 1) == 0) {
+	      //digis.view()[denseIdx].flags() =  FIXME! set flag as suppressed
               continue;
             }
-            // check if in characteristic mode
+
+            // check if in characterization mode
             if (fedConfig.econds[globalECONDIdx].rocs[erxIdx / 2].charMode) {
-              //characteristic mode
+              //characterization mode
               digis.view()[denseIdx].tctp() = (econd_payload[iword] >> 30) & 0b11;
               digis.view()[denseIdx].adcm1() = 0;
               digis.view()[denseIdx].adc() = (econd_payload[iword] >> 20) & 0b1111111111;
@@ -276,7 +284,8 @@ void HGCalUnpacker::parseFEDData(unsigned fedId,
               digis.view()[denseIdx].toa() = econd_payload[iword] & 0b1111111111;
               digis.view()[denseIdx].cm() = cmSum;
               digis.view()[denseIdx].flags() = 0;
-            } else {
+
+	    } else {
               //not characteristic mode
               digis.view()[denseIdx].tctp() = (econd_payload[iword] >> 30) & 0b11;
 
@@ -298,13 +307,14 @@ void HGCalUnpacker::parseFEDData(unsigned fedId,
       }
       // end of ECON-D parsing
       if (iword != econd_payload_length - 1) {
-        econdInfo.view()[ECONDdenseIdx].exception() = 5;
-        throw cms::Exception("CorruptData")
-            << "Mismatch between unpacked and expected ECON-D #" << (int)globalECONDIdx << " payload length\n"
-            << "  unpacked payload length=" << iword + 1 << "\n"
-            << "  expected payload length=" << econd_payload_length;
+        econdInfo.view()[ECONDdenseIdx].exception() = 5;	
+	//SHOULD NOT THROW!!!!
+        //throw cms::Exception("CorruptData")
+        //    << "Mismatch between unpacked and expected ECON-D #" << (int)globalECONDIdx << " payload length\n"
+        //    << "  unpacked payload length=" << iword + 1 << "\n"
+        //    << "  expected payload length=" << econd_payload_length;
       }
-      econdInfo.view()[ECONDdenseIdx].exception() = 0;
+
     }
     // skip the padding word as capture blocks are padded to 128b
     if (std::distance(ptr, header) % 2) {

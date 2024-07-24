@@ -16,6 +16,7 @@
  */
 struct HGCalROCConfig_t { // configuration for ECON eRX (one half of HGROC)
   uint32_t charMode;       // characterization mode; determines data fields in ROC dataframe
+  uint32_t gain;           // pre-amp gain used
   //uint32_t clockPhase;     // fine adjustment of the phase within the 40 MHz
   //uint32_t L1AcceptOffset; // coarse adjustment to get the peak in the right place
   //uint32_t injChannels;    // injected channels for injection scan: 2b word to identify if connected or not+info no capacitor chosen
@@ -24,6 +25,7 @@ struct HGCalROCConfig_t { // configuration for ECON eRX (one half of HGROC)
 };
 struct HGCalECONDConfig_t { // configuration for ECON-D
   uint32_t headerMarker; // begin of event marker/identifier for ECON-D
+  uint32_t passThrough; //pass through mode (this is just as check as it'll be in the ECON-D header anyway)
   std::vector<HGCalROCConfig_t> rocs;
   COND_SERIALIZABLE;
 };
