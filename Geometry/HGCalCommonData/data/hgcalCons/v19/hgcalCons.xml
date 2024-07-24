@@ -166,7 +166,7 @@
   <SpecPar name="HGCalHEScintillatorSensitive">
     <PartSelector path="//HGCalHEScintillatorSensitive.*"/>
     <Parameter name="Volume" value="HGCalHEScintillatorSensitive" eval="false"/>
-    <Parameter name="GeometryMode" value="HGCalGeometryMode::TrapezoidFinCell" eval="false"/>
+    <Parameter name="GeometryMode" value="HGCalGeometryMode::TrapezoidFineCell" eval="false"/>
     <Parameter name="LevelZSide"          value="3"/>
     <Parameter name="LevelTop"            value="9"/>
     <Parameter name="LevelTop"            value="11"/>
