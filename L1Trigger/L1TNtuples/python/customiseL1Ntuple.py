@@ -99,6 +99,19 @@ def L1NtupleNanoDST(process):
 
     return process
 
+def L1NtupleMINI(process):
+
+    L1NtupleTFileOut(process)
+
+    process.load('L1Trigger.L1TNtuples.L1NtupleMINI_cff')
+    process.l1ntuplenano = cms.Path(
+        process.L1NtupleMINI
+    )
+    process.schedule.append(process.l1ntuplenano)
+
+    return process
+
+
 def L1NtupleNANO(process):
 
     L1NtupleTFileOut(process)
