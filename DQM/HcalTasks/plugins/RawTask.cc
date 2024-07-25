@@ -18,7 +18,7 @@ RawTask::RawTask(edm::ParameterSet const& ps)
   _vflags[fBcnMsm] = flag::Flag("BcnMsm");
   _vflags[fBadQ] = flag::Flag("BadQ");
   _vflags[fOrnMsm] = flag::Flag("OrnMsm");
-  _NBadQEvent =0;
+  _nBadQEvent =0;
 }
 
 /* virtual */ void RawTask::bookHistograms(DQMStore::IBooker& ib, edm::Run const& r, edm::EventSetup const& es) {
@@ -233,9 +233,9 @@ RawTask::RawTask(edm::ParameterSet const& ps)
   //	a comment below is left on purpose!
   //_cBadQualityvsBX.fill(bx, creport->badQualityDigis());
   int Nbadq = creport->badQualityDigis();
-  if (lumiCache->EvtCntLS == 1) _NBadQEvent=0;  // Reset at the beginning of each new LS
-  if (Nbadq >0)_NBadQEvent++;
-  //std::cout << " Nbadq  "<<  Nbadq   << " NBadQEvent  " <<_NBadQEvent<< std::endl;
+  if (lumiCache->EvtCntLS == 1) _nBadQEvent=0;  // Reset at the beginning of each new LS
+  if (Nbadq >0)_nBadQEvent++;
+  //std::cout << " Nbadq  "<<  Nbadq   << " nBadQEvent  " <<_nBadQEvent<< std::endl;
   for (std::vector<DetId>::const_iterator it = creport->bad_quality_begin(); it != creport->bad_quality_end(); ++it) {
     //	skip non HCAL det ids
     if (!HcalGenericDetId(*it).isHcalDetId())
@@ -437,7 +437,7 @@ std::shared_ptr<hcaldqm::Cache> RawTask::globalBeginLuminosityBlock(edm::Luminos
       //else if (_xBadQLS.get(eid) > 0){
       // Following line added due to https://gitlab.cern.ch/cmshcal/docs/-/issues/233
       // BadQ > (5%) of number of events in this LS.
-      else if (double(_xBadQLS.get(eid)) > 0 && double(_NBadQEvent) > double(0.05 * _evsPerLS)){
+      else if (double(_xBadQLS.get(eid)) > 0 && double(_nBadQEvent) > double(0.05 * _evsPerLS)){
       _vflags[fBadQ]._state = flag::fPROBLEMATIC;
 	
       }
@@ -454,7 +454,7 @@ std::shared_ptr<hcaldqm::Cache> RawTask::globalBeginLuminosityBlock(edm::Luminos
       _cSummaryvsLS_FED.setBinContent(eid, _currentLS, int(iflag), ft->_state);
       
       if (ft->_name =="BadQ"){
-	   if (!hcaldqm::utilities::isFEDHO(eid) && fed != 1136 && ft->_state !=3 ){_cBadQ_FEDvsLSmod60.setBinContent(eid, _currentLS % 60, (double(_NBadQEvent )/double(_evsPerLS))*100);
+	   if (!hcaldqm::utilities::isFEDHO(eid) && fed != 1136 && ft->_state !=3 ){_cBadQ_FEDvsLSmod60.setBinContent(eid, _currentLS % 60, (double(_nBadQEvent )/double(_evsPerLS))*100);
 	   }
       }
 	  fSum += (*ft);
