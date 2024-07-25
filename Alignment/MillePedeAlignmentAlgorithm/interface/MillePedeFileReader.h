@@ -15,6 +15,9 @@
 #include "CondFormats/PCLConfig/interface/AlignPCLThresholdsHG.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelTopologyMap.h"
 
+/*** Quality ****/
+#include "CondFormats/SiPixelObjects/interface/SiPixelQuality.h"
+
 struct mpPCLresults {
 private:
   bool m_isHG;
@@ -65,7 +68,8 @@ public:  //====================================================================
   explicit MillePedeFileReader(const edm::ParameterSet&,
                                const std::shared_ptr<const PedeLabelerBase>&,
                                const std::shared_ptr<const AlignPCLThresholdsHG>&,
-                               const std::shared_ptr<const PixelTopologyMap>&);
+                               const std::shared_ptr<const PixelTopologyMap>&,
+                               const std::shared_ptr<const SiPixelQuality>&);
 
   virtual ~MillePedeFileReader() = default;
 
@@ -160,6 +164,9 @@ private:
 
   // PixelTopologyMap
   const std::shared_ptr<const PixelTopologyMap> pixelTopologyMap_;
+
+  // SiPixelQuality
+  const std::shared_ptr<const SiPixelQuality> quality_;
 
   // input directory name
   std::string dirName_;

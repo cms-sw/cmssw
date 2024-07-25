@@ -31,6 +31,7 @@ MillePedeDQMModule ::MillePedeDQMModule(const edm::ParameterSet& config)
       ptpToken_(esConsumes<edm::Transition::BeginRun>()),
       ptitpToken_(esConsumes<edm::Transition::BeginRun>()),
       aliThrToken_(esConsumes<edm::Transition::BeginRun>()),
+      siPixelQualityToken_(esConsumes<edm::Transition::BeginRun>()),
       geomToken_(esConsumes<edm::Transition::BeginRun>()),
       outputFolder_(config.getParameter<std::string>("outputFolder")),
       mpReaderConfig_(config.getParameter<edm::ParameterSet>("MillePedeFileReader")),
@@ -181,6 +182,11 @@ void MillePedeDQMModule ::beginRun(const edm::Run&, const edm::EventSetup& setup
   const PTrackerAdditionalParametersPerDet* ptitp = &setup.getData(ptitpToken_);
   const TrackerGeometry* geom = &setup.getData(geomToken_);
 
+  // Retrieve the SiPixelQuality object from setup
+  const SiPixelQuality& qual = setup.getData(siPixelQualityToken_);
+  // Create a new SiPixelQuality object on the heap using the copy constructor
+  pixelQuality_ = std::make_shared<SiPixelQuality>(qual);
+
   pixelTopologyMap_ = std::make_shared<PixelTopologyMap>(geom, tTopo);
 
   // take the thresholds from DB
@@ -203,8 +209,11 @@ void MillePedeDQMModule ::beginRun(const edm::Run&, const edm::EventSetup& setup
   std::shared_ptr<PedeLabelerBase> pedeLabeler{PedeLabelerPluginFactory::get()->create(
       labelerPlugin, PedeLabelerBase::TopLevelAlignables(tracker_.get(), nullptr, nullptr), labelerConfig)};
 
-  mpReader_ = std::make_unique<MillePedeFileReader>(
-      mpReaderConfig_, pedeLabeler, std::shared_ptr<const AlignPCLThresholdsHG>(myThresholds), pixelTopologyMap_);
+  mpReader_ = std::make_unique<MillePedeFileReader>(mpReaderConfig_,
+                                                    pedeLabeler,
+                                                    std::shared_ptr<const AlignPCLThresholdsHG>(myThresholds),
+                                                    pixelTopologyMap_,
+                                                    pixelQuality_);
 }
 
 void MillePedeDQMModule ::fillStatusHisto(MonitorElement* statusHisto) {

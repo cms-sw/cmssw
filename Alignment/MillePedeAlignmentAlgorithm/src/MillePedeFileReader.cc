@@ -16,10 +16,12 @@
 MillePedeFileReader ::MillePedeFileReader(const edm::ParameterSet& config,
                                           const std::shared_ptr<const PedeLabelerBase>& pedeLabeler,
                                           const std::shared_ptr<const AlignPCLThresholdsHG>& theThresholds,
-                                          const std::shared_ptr<const PixelTopologyMap>& pixelTopologyMap)
+                                          const std::shared_ptr<const PixelTopologyMap>& pixelTopologyMap,
+                                          const std::shared_ptr<const SiPixelQuality>& pixelQualityMap)
     : pedeLabeler_(pedeLabeler),
       theThresholds_(theThresholds),
       pixelTopologyMap_(pixelTopologyMap),
+      quality_(pixelQualityMap),
       dirName_(config.getParameter<std::string>("fileDir")),
       millePedeEndFile_(config.getParameter<std::string>("millePedeEndFile")),
       millePedeLogFile_(config.getParameter<std::string>("millePedeLogFile")),

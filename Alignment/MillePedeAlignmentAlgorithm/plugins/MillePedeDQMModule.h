@@ -34,6 +34,10 @@
 /*** Thresholds from DB ***/
 #include "CondFormats/DataRecord/interface/AlignPCLThresholdsHGRcd.h"
 
+/*** Quality from DB ***/
+#include "CondFormats/SiPixelObjects/interface/SiPixelQuality.h"
+#include "CondFormats/DataRecord/interface/SiPixelQualityFromDbRcd.h"
+
 /*** DQM ***/
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -100,6 +104,7 @@ private:  //===================================================================
   const edm::ESGetToken<PTrackerParameters, PTrackerParametersRcd> ptpToken_;
   const edm::ESGetToken<PTrackerAdditionalParametersPerDet, PTrackerAdditionalParametersPerDetRcd> ptitpToken_;
   const edm::ESGetToken<AlignPCLThresholdsHG, AlignPCLThresholdsHGRcd> aliThrToken_;
+  const edm::ESGetToken<SiPixelQuality, SiPixelQualityFromDbRcd> siPixelQualityToken_;
   const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
 
   const std::string outputFolder_;
@@ -107,6 +112,7 @@ private:  //===================================================================
   std::unique_ptr<AlignableTracker> tracker_;
   std::unique_ptr<MillePedeFileReader> mpReader_;
   std::shared_ptr<PixelTopologyMap> pixelTopologyMap_;
+  std::shared_ptr<SiPixelQuality> pixelQuality_;
 
   std::vector<std::pair<std::string, int>> layerVec;
 
