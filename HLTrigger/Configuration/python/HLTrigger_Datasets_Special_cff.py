@@ -12,7 +12,6 @@ streamPhysicsCommissioning_datasetCommissioning_selector.throw      = cms.bool(F
 streamPhysicsCommissioning_datasetCommissioning_selector.triggerConditions = cms.vstring(
     'HLT_IsoTrackHB_v13',
     'HLT_IsoTrackHE_v13',
-    'HLT_L1BptxXOR_v3',
     'HLT_L1SingleMuCosmics_EMTF_v3'
 )
 
@@ -331,96 +330,6 @@ streamPhysicsSpecialRandom1_datasetSpecialRandom3_selector.hltResults = cms.Inpu
 streamPhysicsSpecialRandom1_datasetSpecialRandom3_selector.l1tResults = cms.InputTag('')
 streamPhysicsSpecialRandom1_datasetSpecialRandom3_selector.throw      = cms.bool(False)
 streamPhysicsSpecialRandom1_datasetSpecialRandom3_selector.triggerConditions = cms.vstring('HLT_Random_HighRate_v1')
-
-
-# stream PhysicsSpecialRandom10
-
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsSpecialRandom10_datasetSpecialRandom20_selector
-streamPhysicsSpecialRandom10_datasetSpecialRandom20_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamPhysicsSpecialRandom10_datasetSpecialRandom20_selector.l1tResults = cms.InputTag('')
-streamPhysicsSpecialRandom10_datasetSpecialRandom20_selector.throw      = cms.bool(False)
-streamPhysicsSpecialRandom10_datasetSpecialRandom20_selector.triggerConditions = cms.vstring('HLT_Random_HighRate_v1')
-
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsSpecialRandom10_datasetSpecialRandom21_selector
-streamPhysicsSpecialRandom10_datasetSpecialRandom21_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamPhysicsSpecialRandom10_datasetSpecialRandom21_selector.l1tResults = cms.InputTag('')
-streamPhysicsSpecialRandom10_datasetSpecialRandom21_selector.throw      = cms.bool(False)
-streamPhysicsSpecialRandom10_datasetSpecialRandom21_selector.triggerConditions = cms.vstring('HLT_Random_HighRate_v1')
-
-
-# stream PhysicsSpecialRandom11
-
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsSpecialRandom11_datasetSpecialRandom22_selector
-streamPhysicsSpecialRandom11_datasetSpecialRandom22_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamPhysicsSpecialRandom11_datasetSpecialRandom22_selector.l1tResults = cms.InputTag('')
-streamPhysicsSpecialRandom11_datasetSpecialRandom22_selector.throw      = cms.bool(False)
-streamPhysicsSpecialRandom11_datasetSpecialRandom22_selector.triggerConditions = cms.vstring('HLT_Random_HighRate_v1')
-
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsSpecialRandom11_datasetSpecialRandom23_selector
-streamPhysicsSpecialRandom11_datasetSpecialRandom23_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamPhysicsSpecialRandom11_datasetSpecialRandom23_selector.l1tResults = cms.InputTag('')
-streamPhysicsSpecialRandom11_datasetSpecialRandom23_selector.throw      = cms.bool(False)
-streamPhysicsSpecialRandom11_datasetSpecialRandom23_selector.triggerConditions = cms.vstring('HLT_Random_HighRate_v1')
-
-
-# stream PhysicsSpecialRandom12
-
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsSpecialRandom12_datasetSpecialRandom24_selector
-streamPhysicsSpecialRandom12_datasetSpecialRandom24_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamPhysicsSpecialRandom12_datasetSpecialRandom24_selector.l1tResults = cms.InputTag('')
-streamPhysicsSpecialRandom12_datasetSpecialRandom24_selector.throw      = cms.bool(False)
-streamPhysicsSpecialRandom12_datasetSpecialRandom24_selector.triggerConditions = cms.vstring('HLT_Random_HighRate_v1')
-
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsSpecialRandom12_datasetSpecialRandom25_selector
-streamPhysicsSpecialRandom12_datasetSpecialRandom25_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamPhysicsSpecialRandom12_datasetSpecialRandom25_selector.l1tResults = cms.InputTag('')
-streamPhysicsSpecialRandom12_datasetSpecialRandom25_selector.throw      = cms.bool(False)
-streamPhysicsSpecialRandom12_datasetSpecialRandom25_selector.triggerConditions = cms.vstring('HLT_Random_HighRate_v1')
-
-
-# stream PhysicsSpecialRandom13
-
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsSpecialRandom13_datasetSpecialRandom26_selector
-streamPhysicsSpecialRandom13_datasetSpecialRandom26_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamPhysicsSpecialRandom13_datasetSpecialRandom26_selector.l1tResults = cms.InputTag('')
-streamPhysicsSpecialRandom13_datasetSpecialRandom26_selector.throw      = cms.bool(False)
-streamPhysicsSpecialRandom13_datasetSpecialRandom26_selector.triggerConditions = cms.vstring('HLT_Random_HighRate_v1')
-
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsSpecialRandom13_datasetSpecialRandom27_selector
-streamPhysicsSpecialRandom13_datasetSpecialRandom27_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamPhysicsSpecialRandom13_datasetSpecialRandom27_selector.l1tResults = cms.InputTag('')
-streamPhysicsSpecialRandom13_datasetSpecialRandom27_selector.throw      = cms.bool(False)
-streamPhysicsSpecialRandom13_datasetSpecialRandom27_selector.triggerConditions = cms.vstring('HLT_Random_HighRate_v1')
-
-
-# stream PhysicsSpecialRandom14
-
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsSpecialRandom14_datasetSpecialRandom28_selector
-streamPhysicsSpecialRandom14_datasetSpecialRandom28_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamPhysicsSpecialRandom14_datasetSpecialRandom28_selector.l1tResults = cms.InputTag('')
-streamPhysicsSpecialRandom14_datasetSpecialRandom28_selector.throw      = cms.bool(False)
-streamPhysicsSpecialRandom14_datasetSpecialRandom28_selector.triggerConditions = cms.vstring('HLT_Random_HighRate_v1')
-
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsSpecialRandom14_datasetSpecialRandom29_selector
-streamPhysicsSpecialRandom14_datasetSpecialRandom29_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamPhysicsSpecialRandom14_datasetSpecialRandom29_selector.l1tResults = cms.InputTag('')
-streamPhysicsSpecialRandom14_datasetSpecialRandom29_selector.throw      = cms.bool(False)
-streamPhysicsSpecialRandom14_datasetSpecialRandom29_selector.triggerConditions = cms.vstring('HLT_Random_HighRate_v1')
-
-
-# stream PhysicsSpecialRandom15
-
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsSpecialRandom15_datasetSpecialRandom30_selector
-streamPhysicsSpecialRandom15_datasetSpecialRandom30_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamPhysicsSpecialRandom15_datasetSpecialRandom30_selector.l1tResults = cms.InputTag('')
-streamPhysicsSpecialRandom15_datasetSpecialRandom30_selector.throw      = cms.bool(False)
-streamPhysicsSpecialRandom15_datasetSpecialRandom30_selector.triggerConditions = cms.vstring('HLT_Random_HighRate_v1')
-
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsSpecialRandom15_datasetSpecialRandom31_selector
-streamPhysicsSpecialRandom15_datasetSpecialRandom31_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamPhysicsSpecialRandom15_datasetSpecialRandom31_selector.l1tResults = cms.InputTag('')
-streamPhysicsSpecialRandom15_datasetSpecialRandom31_selector.throw      = cms.bool(False)
-streamPhysicsSpecialRandom15_datasetSpecialRandom31_selector.triggerConditions = cms.vstring('HLT_Random_HighRate_v1')
 
 
 # stream PhysicsSpecialRandom2

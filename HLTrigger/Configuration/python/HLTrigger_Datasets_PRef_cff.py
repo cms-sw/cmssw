@@ -82,7 +82,10 @@ streamPhysicsPPRefDoubleMuon0_datasetPPRefDoubleMuon0_selector.l1tResults = cms.
 streamPhysicsPPRefDoubleMuon0_datasetPPRefDoubleMuon0_selector.throw      = cms.bool(False)
 streamPhysicsPPRefDoubleMuon0_datasetPPRefDoubleMuon0_selector.triggerConditions = cms.vstring(
     'HLT_PPRefL1DoubleMu0_Open_v5',
+    'HLT_PPRefL1DoubleMu0_SQ_v1',
     'HLT_PPRefL1DoubleMu0_v5',
+    'HLT_PPRefL1DoubleMu2_SQ_v1',
+    'HLT_PPRefL1DoubleMu2_v1',
     'HLT_PPRefL2DoubleMu0_Open_v5',
     'HLT_PPRefL2DoubleMu0_v5',
     'HLT_PPRefL3DoubleMu0_Open_v7',
@@ -98,7 +101,10 @@ streamPhysicsPPRefDoubleMuon1_datasetPPRefDoubleMuon1_selector.l1tResults = cms.
 streamPhysicsPPRefDoubleMuon1_datasetPPRefDoubleMuon1_selector.throw      = cms.bool(False)
 streamPhysicsPPRefDoubleMuon1_datasetPPRefDoubleMuon1_selector.triggerConditions = cms.vstring(
     'HLT_PPRefL1DoubleMu0_Open_v5',
+    'HLT_PPRefL1DoubleMu0_SQ_v1',
     'HLT_PPRefL1DoubleMu0_v5',
+    'HLT_PPRefL1DoubleMu2_SQ_v1',
+    'HLT_PPRefL1DoubleMu2_v1',
     'HLT_PPRefL2DoubleMu0_Open_v5',
     'HLT_PPRefL2DoubleMu0_v5',
     'HLT_PPRefL3DoubleMu0_Open_v7',
@@ -114,7 +120,10 @@ streamPhysicsPPRefDoubleMuon2_datasetPPRefDoubleMuon2_selector.l1tResults = cms.
 streamPhysicsPPRefDoubleMuon2_datasetPPRefDoubleMuon2_selector.throw      = cms.bool(False)
 streamPhysicsPPRefDoubleMuon2_datasetPPRefDoubleMuon2_selector.triggerConditions = cms.vstring(
     'HLT_PPRefL1DoubleMu0_Open_v5',
+    'HLT_PPRefL1DoubleMu0_SQ_v1',
     'HLT_PPRefL1DoubleMu0_v5',
+    'HLT_PPRefL1DoubleMu2_SQ_v1',
+    'HLT_PPRefL1DoubleMu2_v1',
     'HLT_PPRefL2DoubleMu0_Open_v5',
     'HLT_PPRefL2DoubleMu0_v5',
     'HLT_PPRefL3DoubleMu0_Open_v7',
@@ -130,7 +139,10 @@ streamPhysicsPPRefDoubleMuon3_datasetPPRefDoubleMuon3_selector.l1tResults = cms.
 streamPhysicsPPRefDoubleMuon3_datasetPPRefDoubleMuon3_selector.throw      = cms.bool(False)
 streamPhysicsPPRefDoubleMuon3_datasetPPRefDoubleMuon3_selector.triggerConditions = cms.vstring(
     'HLT_PPRefL1DoubleMu0_Open_v5',
+    'HLT_PPRefL1DoubleMu0_SQ_v1',
     'HLT_PPRefL1DoubleMu0_v5',
+    'HLT_PPRefL1DoubleMu2_SQ_v1',
+    'HLT_PPRefL1DoubleMu2_v1',
     'HLT_PPRefL2DoubleMu0_Open_v5',
     'HLT_PPRefL2DoubleMu0_v5',
     'HLT_PPRefL3DoubleMu0_Open_v7',
