@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 # Customization for running on HCAL local run data
-#   - Call from cmsDriver.py with: `--customise DPGAnalysis/HcalNanoAOD/customise_hcalLocal_cff.customiseHcalLocal`
+#   - Call from cmsDriver.py with: `--customise DPGAnalysis/HcalNanoAOD/customiseHcalLocal_cff.customiseHcalLocal`
 def customiseHcalLocal(process):
     input_files = process.source.fileNames
     max_events = process.maxEvents.input
@@ -11,6 +11,8 @@ def customiseHcalLocal(process):
         firstLuminosityBlockForEachRun = cms.untracked.VLuminosityBlockID([]),
     )
     process.hcalDigis.InputLabel = cms.InputTag('source')
+
+    # Uncomment if ZDC digis (QIE10, nTS=10) are causing problems
     #process.hcalDigis.saveQIE10DataNSamples = cms.untracked.vint32(10) 
     #process.hcalDigis.saveQIE10DataTags = cms.untracked.vstring("ZDC")
 
