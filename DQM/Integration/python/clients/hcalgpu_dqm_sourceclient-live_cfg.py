@@ -108,8 +108,8 @@ process.load('DQM.HcalTasks.HcalQualityTests_cfi')
 #	New Style Modules
 #-------------------------------------
 oldsubsystem = subsystem
-process.hcalGPUComparisonTask.tagHBHE_ref = "hltHbherecoLegacy"
-process.hcalGPUComparisonTask.tagHBHE_target = "hltHbherecoFromGPU"
+process.hcalGPUComparisonTask.tagHBHE_ref = "hltHbherecoSerialSync"
+process.hcalGPUComparisonTask.tagHBHE_target = "hltHbhereco"
 process.hcalGPUComparisonTask.runkeyVal = runType
 process.hcalGPUComparisonTask.runkeyName = runTypeName
 
