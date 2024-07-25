@@ -1,72 +1,72 @@
 <lcgdict>
-  <class name="FWPhysicsObjectDesc"/>
-  <class name="FWEventItem"/>
-  <class name="FWDisplayProperties"/>
-  <class name="FWGeometry"/>
-  <class name="FWGeometry::Range"/>
-  <class name="TEveElementIter"/>
-  <class name="FWGUIManager"/>
-  <class name="FWDetailViewManager"/>
-  <class name="FWEveViewManager"/>
-  <class name="FWConfiguration"/>
-  <class name="FWParameterSetterBase"/>
-  <class name="FWDoubleParameterSetter"/>
-  <class name="FWDoubleParameter"/>
-  <class name="FWGenericParameterWithRange<double>"/>
-  <class name="FWGenericParameterWithRange<long>"/>
-  <class name="FWGenericParameter<std::string>"/>
-  <class name="FWGenericParameter<bool>"/>
-  <class name="FWBoolParameterSetter"/>
-  <class name="FWStringParameterSetter"/>
-  <class name="FWLongParameterSetter"/>
-  <class name="FWEnumParameterSetter"/>
-  <class name="FWEnumParameter"/>
-  <class name="FWConfiguration::KeyValues"/>
-  <class name="CSGAction"/>
-  <class name="CmsShowMain"/>
-  <class name="FWViewBase"/>
-  <class name="FWTableView"/>
-  <class name="FWTriggerTableView"/>
-  <class name="FWGUIEventSelector"/>
-  <class name="FWTEventList"/>
-  <class name="FWTSelectorToEventList"/>
-  <class name="FWEveDigitSetScalableMarker"/>
-  <class name="FWEveDigitSetScalableMarkerGL"/>
-  <class name="FW3DViewDistanceMeasureTool"/>
-  <class name="FWGUIEventDataAdder"/>
-  <class name="CSGConnector"/>
-  <class name="FWIntValueListenerBase"/>
-  <class name="FWColorFrame"/>
-  <class name="FWColorPopup"/>
-  <class name="FWColorRow"/>
-  <class name="FWColorSelect"/>
-  <class name="FWNumberEntryField"/>
-  <class name="FWCollectionSummaryWidget"/>
-  <class name="FWSummaryManager"/>
-  <class name="FWCompactVerticalLayout"/>
-  <class name="FWModelContextMenuHandler"/>
-  <class name="CmsShowEDI"/>
-  <class name="FWViewEnergyScaleEditor"/>
-  <class name="CmsShowSearchFiles"/>
-  <class name="FWGUISubviewArea"/>
-  <class name="CmsShowMainFrame"/>
-  <class name="FWGUIValidatingTextEntry"/>
-  <class name="CmsShowModelPopup"/>
-  <class name="FWGUIEventFilter"/>
-  <class name="CmsShowCommonPopup"/>
-  <class name="CmsShowViewPopup"/>
-  <class name="FWInvMassDialog"/>
-  <class name="FWEveText"/>
-  <class name="FWEveTextProjected"/>
-  <class name="FWEveTextGL"/>
-  <class name="FWGeometryTableViewBase"/>
-  <class name="FWGeometryTableView"/>
-  <class name="FWOverlapTableView"/>
-  <class name="FWGeoTopNode"/>
-  <class name="FWEveOverlap"/>
-  <class name="FWEveDetectorGeo"/>
-  <class name="FWGeoTopNodeGL"/>
-  <class name="FWPartialConfigGUI"/>
-  <class name="FWPartialConfigLoadGUI"/>
-  <class name="FWPartialConfigSaveGUI"/>
+  <class name="FWPhysicsObjectDesc" persistent="false"/>
+  <class name="FWEventItem" persistent="false"/>
+  <class name="FWDisplayProperties" persistent="false"/>
+  <class name="FWGeometry" persistent="false"/>
+  <class name="FWGeometry::Range" persistent="false"/>
+  <class name="TEveElementIter" persistent="false"/>
+  <class name="FWGUIManager" persistent="false"/>
+  <class name="FWDetailViewManager" persistent="false"/>
+  <class name="FWEveViewManager" persistent="false"/>
+  <class name="FWConfiguration" persistent="false"/>
+  <class name="FWParameterSetterBase" persistent="false"/>
+  <class name="FWDoubleParameterSetter" persistent="false"/>
+  <class name="FWDoubleParameter" persistent="false"/>
+  <class name="FWGenericParameterWithRange<double>" persistent="false"/>
+  <class name="FWGenericParameterWithRange<long>" persistent="false"/>
+  <class name="FWGenericParameter<std::string>" persistent="false"/>
+  <class name="FWGenericParameter<bool>" persistent="false"/>
+  <class name="FWBoolParameterSetter" persistent="false"/>
+  <class name="FWStringParameterSetter" persistent="false"/>
+  <class name="FWLongParameterSetter" persistent="false"/>
+  <class name="FWEnumParameterSetter" persistent="false"/>
+  <class name="FWEnumParameter" persistent="false"/>
+  <class name="FWConfiguration::KeyValues" persistent="false"/>
+  <class name="CSGAction" persistent="false"/>
+  <class name="CmsShowMain" persistent="false"/>
+  <class name="FWViewBase" persistent="false"/>
+  <class name="FWTableView" persistent="false"/>
+  <class name="FWTriggerTableView" persistent="false"/>
+  <class name="FWGUIEventSelector" persistent="false"/>
+  <class name="FWTEventList" persistent="false"/>
+  <class name="FWTSelectorToEventList" persistent="false"/>
+  <class name="FWEveDigitSetScalableMarker" persistent="false"/>
+  <class name="FWEveDigitSetScalableMarkerGL" persistent="false"/>
+  <class name="FW3DViewDistanceMeasureTool" persistent="false"/>
+  <class name="FWGUIEventDataAdder" persistent="false"/>
+  <class name="CSGConnector" persistent="false"/>
+  <class name="FWIntValueListenerBase" persistent="false"/>
+  <class name="FWColorFrame" persistent="false"/>
+  <class name="FWColorPopup" persistent="false"/>
+  <class name="FWColorRow" persistent="false"/>
+  <class name="FWColorSelect" persistent="false"/>
+  <class name="FWNumberEntryField" persistent="false"/>
+  <class name="FWCollectionSummaryWidget" persistent="false"/>
+  <class name="FWSummaryManager" persistent="false"/>
+  <class name="FWCompactVerticalLayout" persistent="false"/>
+  <class name="FWModelContextMenuHandler" persistent="false"/>
+  <class name="CmsShowEDI" persistent="false"/>
+  <class name="FWViewEnergyScaleEditor" persistent="false"/>
+  <class name="CmsShowSearchFiles" persistent="false"/>
+  <class name="FWGUISubviewArea" persistent="false"/>
+  <class name="CmsShowMainFrame" persistent="false"/>
+  <class name="FWGUIValidatingTextEntry" persistent="false"/>
+  <class name="CmsShowModelPopup" persistent="false"/>
+  <class name="FWGUIEventFilter" persistent="false"/>
+  <class name="CmsShowCommonPopup" persistent="false"/>
+  <class name="CmsShowViewPopup" persistent="false"/>
+  <class name="FWInvMassDialog" persistent="false"/>
+  <class name="FWEveText" persistent="false"/>
+  <class name="FWEveTextProjected" persistent="false"/>
+  <class name="FWEveTextGL" persistent="false"/>
+  <class name="FWGeometryTableViewBase" persistent="false"/>
+  <class name="FWGeometryTableView" persistent="false"/>
+  <class name="FWOverlapTableView" persistent="false"/>
+  <class name="FWGeoTopNode" persistent="false"/>
+  <class name="FWEveOverlap" persistent="false"/>
+  <class name="FWEveDetectorGeo"  persistent="false"/>
+  <class name="FWGeoTopNodeGL" persistent="false"/>
+  <class name="FWPartialConfigGUI" persistent="false"/>
+  <class name="FWPartialConfigLoadGUI" persistent="false"/>
+  <class name="FWPartialConfigSaveGUI" persistent="false"/>
 </lcgdict>
