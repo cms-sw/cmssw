@@ -47,9 +47,6 @@
 
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
-
-
-
 class PFAnalyzer : public DQMEDAnalyzer {
 public:
   /// Constructor
@@ -337,6 +334,12 @@ private:
   std::vector<std::string> m_pfNames;
 };
 
-struct PFAnalyzer::binInfo{std::string observable; std::string axisName; int nBins; double binMin; double binMax;};
+struct PFAnalyzer::binInfo {
+  std::string observable;
+  std::string axisName;
+  int nBins;
+  double binMin;
+  double binMax;
+};
 
 #endif
