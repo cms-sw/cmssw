@@ -88,8 +88,11 @@ HLT_PPRefGEDPhoton60_v*          # CMSHLT-2883
 HLT_PPRefGEDPhoton60_EB_v*       # CMSHLT-2883
 
 HLT_PPRefL1DoubleMu0_v*          # CMSHLT-2883
+HLT_PPRefL1DoubleMu0_SQ_v*       # CMSHLT-3323
 HLT_PPRefL1DoubleMu0_Open_v*     # CMSHLT-2883
 HLT_PPRefL1SingleMu0_Cosmics_v*  # CMSHLT-2883
+HLT_PPRefL1DoubleMu2_v*          # CMSHLT-3323
+HLT_PPRefL1DoubleMu2_SQ_v*       # CMSHLT-3323
 HLT_PPRefL1SingleMu7_v*          # CMSHLT-2883
 HLT_PPRefL1SingleMu12_v*         # CMSHLT-2883
 HLT_PPRefL2DoubleMu0_v*          # CMSHLT-2883

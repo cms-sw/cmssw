@@ -34,7 +34,12 @@ HLTriggerFinalPath
 
 ALCALumiPixelsCountsExpressOutput
 ALCALumiPixelsCountsGatedOutput
-ALCALumiPixelsCountsPromptOutput
+ALCALumiPixelsCountsPromptHighRate0Output  # CMSHLT-3307
+ALCALumiPixelsCountsPromptHighRate1Output  # CMSHLT-3307
+ALCALumiPixelsCountsPromptHighRate2Output  # CMSHLT-3307
+ALCALumiPixelsCountsPromptHighRate3Output  # CMSHLT-3307
+ALCALumiPixelsCountsPromptHighRate4Output  # CMSHLT-3307
+ALCALumiPixelsCountsPromptHighRate5Output  # CMSHLT-3307
 ALCAP0Output
 ALCAPHISYMOutput
 ALCAPPSExpressOutput
