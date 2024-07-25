@@ -18,7 +18,7 @@ RawTask::RawTask(edm::ParameterSet const& ps)
   _vflags[fBcnMsm] = flag::Flag("BcnMsm");
   _vflags[fBadQ] = flag::Flag("BadQ");
   _vflags[fOrnMsm] = flag::Flag("OrnMsm");
-  _nBadQEvent =0;
+  _nBadQEvent = 0;
 }
 
 /* virtual */ void RawTask::bookHistograms(DQMStore::IBooker& ib, edm::Run const& r, edm::EventSetup const& es) {
@@ -133,11 +133,11 @@ RawTask::RawTask(edm::ParameterSet const& ps)
                                new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fState),
                                0);
       _cBadQ_FEDvsLSmod60.initialize(_name,
-                             "BadQ_FEDvsLSmod60",
-                             new hcaldqm::quantity::LumiSection(60),
-                             new hcaldqm::quantity::FEDQuantity(vFEDs),
-                             new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),
-                             0);
+                                     "BadQ_FEDvsLSmod60",
+                                     new hcaldqm::quantity::LumiSection(60),
+                                     new hcaldqm::quantity::FEDQuantity(vFEDs),
+                                     new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),
+                                     0);
       //	FED Size vs LS
       _cDataSizevsLS_FED.initialize(_name,
                                     "DataSizevsLS",
@@ -214,7 +214,6 @@ RawTask::RawTask(edm::ParameterSet const& ps)
   _currentLS = lumiCache->currentLS;
   _xQuality.reset();
   _xQuality = lumiCache->xQuality;
-  
   /*
 	 *	For Calibration/Abort Gap Processing
 	 *	check if the #channels taht are bad from the unpacker 
@@ -233,8 +232,10 @@ RawTask::RawTask(edm::ParameterSet const& ps)
   //	a comment below is left on purpose!
   //_cBadQualityvsBX.fill(bx, creport->badQualityDigis());
   int Nbadq = creport->badQualityDigis();
-  if (lumiCache->EvtCntLS == 1) _nBadQEvent=0;  // Reset at the beginning of each new LS
-  if (Nbadq >0)_nBadQEvent++;
+  if (lumiCache->EvtCntLS == 1) 
+    _nBadQEvent = 0;  // Reset at the beginning of each new LS
+  if (Nbadq >0)
+    _nBadQEvent++;
   for (std::vector<DetId>::const_iterator it = creport->bad_quality_begin(); it != creport->bad_quality_end(); ++it) {
     //	skip non HCAL det ids
     if (!HcalGenericDetId(*it).isHcalDetId())
@@ -253,8 +254,8 @@ RawTask::RawTask(edm::ParameterSet const& ps)
     _cBadQuality_depth.fill(HcalDetId(*it));
     //	ONLINE ONLY!
     if (_ptype == fOnline)
-	//Number of BadQualityDigis
-	_xBadQLS.get(eid)++;
+      //Number of BadQualityDigis
+      _xBadQLS.get(eid)++;
     //std::cout << " event _xBadQLS "<<  double(_xBadQLS.get(eid)) << std::endl;
     if (_ptype != fOffline) {  // hidefed2crate
       if (!eid.isVMEid()) {
@@ -413,10 +414,10 @@ std::shared_ptr<hcaldqm::Cache> RawTask::globalBeginLuminosityBlock(edm::Luminos
       for (uint32_t iflag = 0; iflag < _vflags.size(); iflag++)
         _cSummaryvsLS_FED.setBinContent(eid, _currentLS, int(iflag), int(flag::fNCDAQ));
       _cSummaryvsLS.setBinContent(eid, _currentLS, int(flag::fNCDAQ));
-      if (!hcaldqm::utilities::isFEDHO(eid) && fed != 1136 ) _cBadQ_FEDvsLSmod60.setBinContent(eid, _currentLS % 60, int(flag::fNCDAQ));
+      if (!hcaldqm::utilities::isFEDHO(eid) && fed != 1136 ) 
+	_cBadQ_FEDvsLSmod60.setBinContent(eid, _currentLS % 60, int(flag::fNCDAQ));
       continue;
     }
-    
     //	FED is @cDAQ
     if (hcaldqm::utilities::isFEDHBHE(eid) || hcaldqm::utilities::isFEDHF(eid) || hcaldqm::utilities::isFEDHO(eid)) {
       if (_xEvnMsmLS.get(eid) > 0)
@@ -437,8 +438,7 @@ std::shared_ptr<hcaldqm::Cache> RawTask::globalBeginLuminosityBlock(edm::Luminos
       // Following line added due to https://gitlab.cern.ch/cmshcal/docs/-/issues/233
       // BadQ > (5%) of number of events in this LS.
       else if (double(_xBadQLS.get(eid)) > 0 && double(_nBadQEvent) > double(0.05 * _evsPerLS)){
-      _vflags[fBadQ]._state = flag::fPROBLEMATIC;
-	
+        _vflags[fBadQ]._state = flag::fPROBLEMATIC;
       }
       else
         _vflags[fBadQ]._state = flag::fGOOD;
@@ -450,13 +450,13 @@ std::shared_ptr<hcaldqm::Cache> RawTask::globalBeginLuminosityBlock(edm::Luminos
     //	- sum them all up in summary flag for this FED
     //	- reset each flag right after using it
     for (std::vector<flag::Flag>::iterator ft = _vflags.begin(); ft != _vflags.end(); ++ft) {
-      _cSummaryvsLS_FED.setBinContent(eid, _currentLS, int(iflag), ft->_state);
-      
+      _cSummaryvsLS_FED.setBinContent(eid, _currentLS, int(iflag), ft->_state);      
       if (ft->_name =="BadQ"){
-	   if (!hcaldqm::utilities::isFEDHO(eid) && fed != 1136 && ft->_state !=3 ){_cBadQ_FEDvsLSmod60.setBinContent(eid, _currentLS % 60, (double(_nBadQEvent )/double(_evsPerLS))*100);
-	   }
+	if (!hcaldqm::utilities::isFEDHO(eid) && fed != 1136 && ft->_state !=3 ){
+	  _cBadQ_FEDvsLSmod60.setBinContent(eid, _currentLS % 60, (double(_nBadQEvent )/double(_evsPerLS))*100);
+	}
       }
-	  fSum += (*ft);
+      fSum += (*ft);
       iflag++;
 
       //	this is the MUST! We don't keep flags per FED, reset
