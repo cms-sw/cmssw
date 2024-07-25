@@ -152,6 +152,7 @@ private:
   std::string getStringFromHLS(PclHLS HLS);
   int getIndexForHG(align::ID id, PclHLS HLS);
   void initializeIndexHelper();
+  bool isAlignableActive(const Alignable* alignable, const std::shared_ptr<const SiPixelQuality>& pixelQual);
 
   //========================== PRIVATE DATA ====================================
   //============================================================================
