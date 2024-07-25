@@ -9,7 +9,7 @@ SiStripApproximateCluster::SiStripApproximateCluster(const SiStripCluster& clust
                                                      bool peakFilter) {
   barycenter_ = std::round(cluster.barycenter() * 10);
   width_ = cluster.size();
-  avgCharge_ = cluster.charge() / cluster.size();
+  avgCharge_ = (cluster.charge() + cluster.size()/2)/ cluster.size();
   filter_ = false;
   isSaturated_ = false;
   peakFilter_ = peakFilter;
