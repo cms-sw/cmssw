@@ -52,7 +52,7 @@ protected:
   bool _calibProcessing;
   int _thresh_calib_nbadq;
   int _nBadQEvent; 
-  //	vector of HcalElectronicsId for FEDs
+  //	 vector of HcalElectronicsId for FEDs
   std::vector<uint32_t> _vhashFEDs;
 
   //	Filters
@@ -75,8 +75,8 @@ protected:
   hcaldqm::Container2D _cOrnMsm_ElectronicsuTCA;
   hcaldqm::ContainerXXX<uint32_t> _xEvnMsmLS, _xBcnMsmLS, _xOrnMsmLS, _xBadQLS;
 
-  hcaldqm::Container2D _cSummaryvsLS_FED;    // online only
-  hcaldqm::ContainerSingle2D _cSummaryvsLS;  // online only
+  hcaldqm::Container2D _cSummaryvsLS_FED;          // online only
+  hcaldqm::ContainerSingle2D _cSummaryvsLS;        // online only
   hcaldqm::ContainerSingle2D _cBadQ_FEDvsLSmod60;  // online only
 };
 
