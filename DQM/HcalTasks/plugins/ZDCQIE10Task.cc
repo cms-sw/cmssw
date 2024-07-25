@@ -475,12 +475,12 @@ void ZDCQIE10Task::_process(edm::Event const& e, edm::EventSetup const& es) {
       if (did.zside() > 0) {
         _cADC_PM[1]->Fill(digi[i].adc());
         _cADC_vs_TS_PM[1]->Fill(i, digi[i].adc());
-        sample[1][i] = constants::adc2fc[digi[i].adc()];
+        sample[1][i] = constants::adc2fC[digi[i].adc()];
         if (i == 1) {
-          sample_ZDCp_TS1 = constants::adc2fc[digi[i].adc()];
+          sample_ZDCp_TS1 = constants::adc2fC[digi[i].adc()];
         }
         if (i == 2) {
-          sample_ZDCp_TS2 = constants::adc2fc[digi[i].adc()];
+          sample_ZDCp_TS2 = constants::adc2fC[digi[i].adc()];
         }
 
       }
@@ -488,24 +488,24 @@ void ZDCQIE10Task::_process(edm::Event const& e, edm::EventSetup const& es) {
       else {
         _cADC_PM[0]->Fill(digi[i].adc());
         _cADC_vs_TS_PM[0]->Fill(i, digi[i].adc());
-        sample[0][i] = constants::adc2fc[digi[i].adc()];
+        sample[0][i] = constants::adc2fC[digi[i].adc()];
         if (i == 1) {
-          sample_ZDCm_TS1 = constants::adc2fc[digi[i].adc()];
+          sample_ZDCm_TS1 = constants::adc2fC[digi[i].adc()];
         }
         if (i == 2) {
-          sample_ZDCm_TS2 = constants::adc2fc[digi[i].adc()];
+          sample_ZDCm_TS2 = constants::adc2fC[digi[i].adc()];
         }
       }
 
       // iter over all samples
       if (_cADC_EChannel.find(did()) != _cADC_EChannel.end()) {
         _cADC_EChannel[did()]->Fill(digi[i].adc());
-        _cfC_EChannel[did()]->Fill(constants::adc2fc[digi[i].adc()]);
+        _cfC_EChannel[did()]->Fill(constants::adc2fC[digi[i].adc()]);
         _cTDC_EChannel[did()]->Fill(digi[i].le_tdc());
       }
       if (_cADC_vs_TS_EChannel.find(did()) != _cADC_vs_TS_EChannel.end()) {
         _cADC_vs_TS_EChannel[did()]->Fill(i, digi[i].adc());
-        _cfC_vs_TS_EChannel[did()]->Fill(i, constants::adc2fc[digi[i].adc()]);
+        _cfC_vs_TS_EChannel[did()]->Fill(i, constants::adc2fC[digi[i].adc()]);
       }
       _cZDC_CapIDS[0]->Fill(digi[i].capid());
     }
