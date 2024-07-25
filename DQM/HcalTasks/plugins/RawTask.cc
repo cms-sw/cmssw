@@ -235,7 +235,6 @@ RawTask::RawTask(edm::ParameterSet const& ps)
   int Nbadq = creport->badQualityDigis();
   if (lumiCache->EvtCntLS == 1) _nBadQEvent=0;  // Reset at the beginning of each new LS
   if (Nbadq >0)_nBadQEvent++;
-  //std::cout << " Nbadq  "<<  Nbadq   << " nBadQEvent  " <<_nBadQEvent<< std::endl;
   for (std::vector<DetId>::const_iterator it = creport->bad_quality_begin(); it != creport->bad_quality_end(); ++it) {
     //	skip non HCAL det ids
     if (!HcalGenericDetId(*it).isHcalDetId())
