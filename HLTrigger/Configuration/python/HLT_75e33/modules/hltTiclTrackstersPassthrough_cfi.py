@@ -1,17 +1,18 @@
 import FWCore.ParameterSet.Config as cms
 
-ticlTrackstersCLUE3DHigh = cms.EDProducer("TrackstersProducer",
+hltTiclTrackstersPassthrough = cms.EDProducer("TrackstersProducer",
     detector = cms.string('HGCAL'),
-    filtered_mask = cms.InputTag("filteredLayerClustersCLUE3DHigh","CLUE3DHigh"),
-    itername = cms.string('CLUE3DHigh'),
+    filtered_mask = cms.InputTag("hltFilteredLayerClustersPassthrough","Passthrough"),
+    itername = cms.string('PassThrough'),
     layer_clusters = cms.InputTag("hgcalMergeLayerClusters"),
     layer_clusters_hfnose_tiles = cms.InputTag("ticlLayerTileHFNose"),
     layer_clusters_tiles = cms.InputTag("ticlLayerTileProducer"),
     mightGet = cms.optional.untracked.vstring,
-    original_mask = cms.InputTag("hgcalMergeLayerClusters","InitialLayerClustersMask"),
-    patternRecognitionBy = cms.string('CLUE3D'),
+    original_mask = cms.InputTag("ticlTrackstersCLUE3DHigh"),
+    patternRecognitionBy = cms.string('Passthrough'),
     pluginPatternRecognitionByCA = cms.PSet(
         algo_verbosity = cms.int32(0),
+        computeLocalTime = cms.bool(True),
         eid_input_name = cms.string('input'),
         eid_min_cluster_energy = cms.double(1),
         eid_n_clusters = cms.int32(10),
@@ -39,82 +40,38 @@ ticlTrackstersCLUE3DHigh = cms.EDProducer("TrackstersProducer",
         type = cms.string('CA')
     ),
     pluginPatternRecognitionByCLUE3D = cms.PSet(
-    algo_verbosity = cms.int32(0),
-    criticalDensity = cms.vdouble(
-      0.6,
-      0.6,
-      0.6
-    ),
-    criticalSelfDensity = cms.vdouble(
-      0.15,
-      0.15,
-      0.15
-    ),
-    densitySiblingLayers = cms.vint32(
-      3,
-      3,
-      3
-    ),
-    densityEtaPhiDistanceSqr = cms.vdouble(
-      0.0008,
-      0.0008,
-      0.0008
-    ),
-    densityXYDistanceSqr = cms.vdouble(
-      3.24,
-      3.24,
-      3.24
-    ),
-    kernelDensityFactor = cms.vdouble(
-      0.2,
-      0.2,
-      0.2
-    ),
-    densityOnSameLayer = cms.bool(False),
-    nearestHigherOnSameLayer = cms.bool(False),
-    useAbsoluteProjectiveScale = cms.bool(True),
-    useClusterDimensionXY = cms.bool(False),
-    rescaleDensityByZ = cms.bool(False),
-    criticalEtaPhiDistance = cms.vdouble(
-      0.025,
-      0.025,
-      0.025
-    ),
-    criticalXYDistance = cms.vdouble(
-      1.8,
-      1.8,
-      1.8
-    ),
-    criticalZDistanceLyr = cms.vint32(
-      5,
-      5,
-      5
-    ),
-    outlierMultiplier = cms.vdouble(
-      2,
-      2,
-      2
-    ),
-    minNumLayerCluster = cms.vint32(
-      2,
-      2,
-      2
-    ),
-    eid_input_name = cms.string('input'),
-    eid_output_name_energy = cms.string('output/regressed_energy'),
-    eid_output_name_id = cms.string('output/id_probabilities'),
-    eid_min_cluster_energy = cms.double(1),
-    eid_n_layers = cms.int32(50),
-    eid_n_clusters = cms.int32(10),
-    computeLocalTime = cms.bool(False),
-    doPidCut = cms.bool(True),
-    cutHadProb = cms.double(999.),
-    type = cms.string('CLUE3D')
-
+        algo_verbosity = cms.int32(0),
+        computeLocalTime = cms.bool(True),
+        criticalDensity = cms.vdouble(4, 4, 4),
+        criticalEtaPhiDistance = cms.vdouble(0.025, 0.025, 0.025),
+        criticalSelfDensity = cms.vdouble(0.15, 0.15, 0.15),
+        criticalXYDistance = cms.vdouble(1.8, 1.8, 1.8),
+        criticalZDistanceLyr = cms.vint32(5, 5, 5),
+        cutHadProb = cms.double(0.5),
+        densityEtaPhiDistanceSqr = cms.vdouble(0.0008, 0.0008, 0.0008),
+        densityOnSameLayer = cms.bool(False),
+        densitySiblingLayers = cms.vint32(3, 3, 3),
+        densityXYDistanceSqr = cms.vdouble(3.24, 3.24, 3.24),
+        doPidCut = cms.bool(False),
+        eid_input_name = cms.string('input'),
+        eid_min_cluster_energy = cms.double(1),
+        eid_n_clusters = cms.int32(10),
+        eid_n_layers = cms.int32(50),
+        eid_output_name_energy = cms.string('output/regressed_energy'),
+        eid_output_name_id = cms.string('output/id_probabilities'),
+        kernelDensityFactor = cms.vdouble(0.2, 0.2, 0.2),
+        minNumLayerCluster = cms.vint32(2, 2, 2),
+        nearestHigherOnSameLayer = cms.bool(False),
+        outlierMultiplier = cms.vdouble(2, 2, 2),
+        rescaleDensityByZ = cms.bool(False),
+        type = cms.string('CLUE3D'),
+        useAbsoluteProjectiveScale = cms.bool(True),
+        useClusterDimensionXY = cms.bool(False)
     ),
     pluginPatternRecognitionByFastJet = cms.PSet(
         algo_verbosity = cms.int32(0),
         antikt_radius = cms.double(0.09),
+        computeLocalTime = cms.bool(True),
         eid_input_name = cms.string('input'),
         eid_min_cluster_energy = cms.double(1),
         eid_n_clusters = cms.int32(10),
@@ -124,10 +81,11 @@ ticlTrackstersCLUE3DHigh = cms.EDProducer("TrackstersProducer",
         minNumLayerCluster = cms.int32(5),
         type = cms.string('FastJet')
     ),
+    pluginPatternRecognitionByPassthrough = cms.PSet(
+        algo_verbosity = cms.int32(0),
+        type = cms.string('Passthrough')
+    ),
     seeding_regions = cms.InputTag("ticlSeedingGlobal"),
     tfDnnLabel = cms.string('tracksterSelectionTf'),
     time_layerclusters = cms.InputTag("hgcalMergeLayerClusters","timeLayerCluster")
 )
-
-from Configuration.ProcessModifiers.ticl_v5_cff import ticl_v5
-ticl_v5.toModify(ticlTrackstersCLUE3DHigh.pluginPatternRecognitionByCLUE3D, computeLocalTime = cms.bool(True), doPidCut = cms.bool(False))

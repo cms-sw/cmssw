@@ -32,3 +32,6 @@ pfTICL = cms.EDProducer("PFTICLProducer",
     useMTDTiming = cms.bool(False),
     useTimingAverage = cms.bool(False)
 )
+
+from Configuration.ProcessModifiers.ticl_v5_cff import ticl_v5
+ticl_v5.toModify(pfTICL, ticlCandidateSrc = cms.InputTag('hltTiclCandidate'), isTICLv5 = cms.bool(True))
