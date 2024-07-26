@@ -10,7 +10,6 @@
     <Numeric name="OrientationTypes" value="6"/>
     <Numeric name="PartialTypes"     value="11"/>
     <Numeric name="PlaceOffset"      value="6"/>
-    <Numeric name="NPhiBinScint"     value="[hgcal:NPhiBinBH]"/>
     <Numeric name="ForFireWorks"     value="0"/>
     <Numeric name="FirstLayer"       value="[hgcal:FirstMixedLayer]"/>
     <Numeric name="AbsorberMode"     value="1"/>
@@ -960,6 +959,15 @@
           -1.81*mm,     6.76*mm,    -4.95*mm,     4.95*mm,    -6.76*mm,     1.81*mm,
           -6.76*mm,    -1.81*mm,    -4.95*mm,    -4.95*mm,    -1.81*mm,    -6.76*mm,
            1.81*mm,    -6.76*mm,     4.95*mm,    -4.95*mm,     6.76*mm,    -1.81*mm
+    </Vector>
+    <Vector name="NPhiLayer" type="numeric" nEntries="14">
+         432,   432,   432,   432,   288,   288,   288,   288,   288,   288,
+         288,   288,   288,   288 
+    </Vector>
+    <Vector name="ScintRetract" type="numeric" nEntries="14">
+             4*mm,       4*mm,       4*mm,       4*mm,       4*mm,       4*mm,
+             4*mm,       4*mm,       4*mm,       4*mm,       4*mm,       4*mm,
+             4*mm,       4*mm 
     </Vector>
     <Vector name="Tile6RMin" type="numeric" nEntries="24">
        1537.06*mm, 1559.91*mm, 1582.76*mm, 1605.61*mm, 1629.48*mm, 1653.35*mm,

@@ -20,8 +20,10 @@
   <Constant name="ScintillatorThickness" value="3.0*mm"/>
   <Constant name="NumberOfCellsFine"     value="12"/>
   <Constant name="NumberOfCellsCoarse"   value="8"/>
+  <Constant name="NPhiBinBHFine"         value="432"/>
   <Constant name="NPhiBinBH"             value="288"/>
   <Constant name="FirstMixedLayer"       value="8"/>
+  <Constant name="FirstMixedCoarseLayer" value="12"/>
   <Constant name="LayerRotation"         value="-30*deg"/>
   <Constant name="CalibCellRHD"          value="2.04*mm"/>
   <Constant name="CalibCellRLD"          value="3.05*mm"/>

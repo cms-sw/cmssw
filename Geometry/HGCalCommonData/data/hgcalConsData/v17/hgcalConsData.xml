@@ -3798,6 +3798,10 @@
             0*mm,        0*mm,        0*mm,        0*mm,        0*mm,        0*mm,
             0*mm,        0*mm,        0*mm,        0*mm,        0*mm,        0*mm
   </Vector>
+  <Vector name="NPhiLayer" type="numeric" nEntries="14">
+       288,   288,   288,   288,   288,   288,   288,   288,   288,   288,
+       288,   288,   288,   288 
+  </Vector>
   <Vector name="TileRMin" type="numeric" nEntries="42">
      1037.83*mm, 1060.98*mm, 1084.12*mm,  1108.3*mm, 1132.48*mm, 1157.73*mm,
      1182.99*mm, 1209.37*mm, 1235.75*mm, 1263.31*mm, 1290.87*mm, 1319.66*mm,
