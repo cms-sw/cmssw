@@ -1,10 +1,6 @@
 <lcgdict>
-    <class name="tt::StubAssociation">
-        <field name="nullTPPtrs_" transient="true"/>
-        <field name="nullTTStubRefs_" transient="true"/>
-    </class>
-    <class name="std::map<TTStubRef, std::vector<TPPtr>>"/>
-    <class name="std::map<TPPtr, std::vector<TTStubRef>>"/>
-    <class name="edm::Wrapper<tt::StubAssociation>"/>
-
+    <class name="tt::StubAssociation" persistent="false"/>
+    <class name="std::map<TTStubRef, std::vector<TPPtr>>" persistent="false"/>
+    <class name="std::map<TPPtr, std::vector<TTStubRef>>" persistent="false"/>
+    <class name="edm::Wrapper<tt::StubAssociation>" persistent="false"/>
 </lcgdict>
