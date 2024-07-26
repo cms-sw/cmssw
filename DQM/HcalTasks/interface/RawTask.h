@@ -51,9 +51,9 @@ protected:
   //	physics vs calib processing switch
   bool _calibProcessing;
   int _thresh_calib_nbadq;
-  int _nBadQEvent; 
-  //	  vector of HcalElectronicsId for FEDs
-  std::vector<uint32_t> _vhashFEDs;
+  int _nBadQEvent;                                                                                                                 
+   //     vector of HcalElectronicsId for FEDs                                                                                      
+   std::vector<uint32_t> _vhashFEDs;   
 
   //	Filters
   hcaldqm::filter::HashFilter _filter_VME;
