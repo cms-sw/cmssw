@@ -413,8 +413,8 @@ std::shared_ptr<hcaldqm::Cache> RawTask::globalBeginLuminosityBlock(edm::Luminos
       // not @cDAQ
       for (uint32_t iflag = 0; iflag < _vflags.size(); iflag++)
         _cSummaryvsLS_FED.setBinContent(eid, _currentLS, int(iflag), int(flag::fNCDAQ));
-        _cSummaryvsLS.setBinContent(eid, _currentLS, int(flag::fNCDAQ));
-      if (!hcaldqm::utilities::isFEDHO(eid) && fed != 1136 ) 
+      _cSummaryvsLS.setBinContent(eid, _currentLS, int(flag::fNCDAQ));
+      if (!hcaldqm::utilities::isFEDHO(eid) && fed != 1136) 
 	_cBadQ_FEDvsLSmod60.setBinContent(eid, _currentLS % 60, int(flag::fNCDAQ));
       continue;
     }
@@ -450,8 +450,8 @@ std::shared_ptr<hcaldqm::Cache> RawTask::globalBeginLuminosityBlock(edm::Luminos
     for (std::vector<flag::Flag>::iterator ft = _vflags.begin(); ft != _vflags.end(); ++ft) {
       _cSummaryvsLS_FED.setBinContent(eid, _currentLS, int(iflag), ft->_state);      
       if (ft->_name =="BadQ") {
-	if (!hcaldqm::utilities::isFEDHO(eid) && fed != 1136 && ft->_state !=3 ) {
-	  _cBadQ_FEDvsLSmod60.setBinContent(eid, _currentLS % 60, (double(_nBadQEvent )/double(_evsPerLS))*100);
+        if (!hcaldqm::utilities::isFEDHO(eid) && fed != 1136 && ft->_state !=3 ) {
+	  _cBadQ_FEDvsLSmod60.setBinContent(eid, _currentLS % 60, (double(_nBadQEvent) / double(_evsPerLS)) * 100);
 	}
       }
       fSum += (*ft);
