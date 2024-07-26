@@ -22,7 +22,7 @@ TkMuonTkIsoEle720 = l1tGTDoubleObjectCond.clone(
         maxEta = cms.double(2.4),
         regionsAbsEtaLowerBounds=cms.vdouble(0,0.83,1.24),
         regionsMinPt=cms.vdouble(7,7,7),
-        minQualityScore = cms.uint32(0),
+        qualityFlags = cms.uint32(0b0001),
     ),
     collection2 = cms.PSet(
         tag = cms.InputTag("l1tGTProducer", "CL2Electrons"),
@@ -44,7 +44,7 @@ TkMuonTkEle723 = l1tGTDoubleObjectCond.clone(
         maxEta = cms.double(2.4),
         regionsAbsEtaLowerBounds=cms.vdouble(0,0.83,1.24),
         regionsMinPt=cms.vdouble(7,7,7),
-        minQualityScore = cms.uint32(0),
+        qualityFlags = cms.uint32(0b0001),
     ),
     collection2 = cms.PSet(
         tag = cms.InputTag("l1tGTProducer", "CL2Electrons"),
@@ -87,7 +87,7 @@ TkMuonDoubleTkEle61717 = l1tGTTripleObjectCond.clone(
         maxEta = cms.double(2.4),
         regionsAbsEtaLowerBounds=cms.vdouble(0,0.83,1.24),
         regionsMinPt=cms.vdouble(6,6,6),
-        minQualityScore = cms.uint32(0),
+        qualityFlags = cms.uint32(0b0001),
     ),
     collection2 = cms.PSet(
         tag = cms.InputTag("l1tGTProducer", "CL2Electrons"),
@@ -122,7 +122,7 @@ DoubleTkMuonTkEle559 = l1tGTTripleObjectCond.clone(
         maxEta = cms.double(2.4),
         regionsAbsEtaLowerBounds=cms.vdouble(0,0.83,1.24),
         regionsMinPt=cms.vdouble(5,5,5),
-        minQualityScore = cms.uint32(0),
+        qualityFlags = cms.uint32(0b0001),
     ),
     collection2 = cms.PSet(
         tag = cms.InputTag("l1tGTProducer", "GMTTkMuons"),
@@ -130,7 +130,7 @@ DoubleTkMuonTkEle559 = l1tGTTripleObjectCond.clone(
         maxEta = cms.double(2.4),
         regionsAbsEtaLowerBounds=cms.vdouble(0,0.83,1.24),
         regionsMinPt=cms.vdouble(5,5,5),
-        minQualityScore = cms.uint32(0),
+        qualityFlags = cms.uint32(0b0001),
     ),
     collection3 = cms.PSet(
         tag = cms.InputTag("l1tGTProducer", "CL2Electrons"),
