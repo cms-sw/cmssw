@@ -96,6 +96,9 @@
   <class name="edm::Wrapper<edm::AssociationMap<edm::OneToManyWithQualityGeneric<edm::View<reco::Track>,vector<TrackingParticle>,double,unsigned int,edm::RefToBaseProd<reco::Track>,edm::RefProd<vector<TrackingParticle> >,edm::RefToBase<reco::Track>,edm::Ref<vector<TrackingParticle>,TrackingParticle,edm::refhelper::FindUsingAdvance<vector<TrackingParticle>,TrackingParticle> > > > >" />
   <class name="edm::Wrapper<edm::AssociationMap<edm::OneToManyWithQualityGeneric<vector<TrackingParticle>,edm::View<reco::Track>,double,unsigned int,edm::RefProd<vector<TrackingParticle> >,edm::RefToBaseProd<reco::Track>,edm::Ref<vector<TrackingParticle>,TrackingParticle,edm::refhelper::FindUsingAdvance<vector<TrackingParticle>,TrackingParticle> >,edm::RefToBase<reco::Track> > > >" />
 
+  <class name="std::pair<TrackingParticleRef, TrackPSimHitRef>"/>
+  <class name="std::vector<std::pair<TrackingParticleRef, TrackPSimHitRef> >"/>
+  <class name="edm::Wrapper<std::vector<std::pair<TrackingParticleRef, TrackPSimHitRef> > >" />
 
   <class name="hgcal::SimToRecoCollectionWithMultiClusters" >
     <field name="transientMap_" transient="true"/>
