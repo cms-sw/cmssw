@@ -1384,8 +1384,8 @@ void ConvertScintillatorV1::convert(const char* infile, const char* outfile1, co
                       << hex3 << " " << hex4 << " " << hex5 << " " << hex6 << std::dec << std::endl;
           if (layer > layMin_) {
             tile tl(sipm, type, nphi, hex1, hex2, hex3, hex4, hex5, hex6);
-            int index = HGCalTileIndex::tileIndex(layer - layMin_, ring + 1, 0);
             if (nPhiS[layer] == 4) {
+              int index = HGCalTileIndex::tileIndex(layer - layMin_, ring + 1, 0);
               lmin = std::min((layer - layMin_), lmin);
               lmax = std::max((layer - layMin_), lmax);
               module[index] = tl;
@@ -1393,20 +1393,19 @@ void ConvertScintillatorV1::convert(const char* infile, const char* outfile1, co
               if (layerRing.find(layer) == layerRing.end()) {
                 layerRing[layer] = std::pair<int, int>(ring, ring);
               } else {
-                lmin = std::min((layer - layMin_), lmin);
-                lmax = std::max((layer - layMin_), lmax);
                 int rmin = std::min(ring, layerRing[layer].first);
                 int rmax = std::max(ring, layerRing[layer].second);
                 layerRing[layer] = std::pair<int, int>(rmin, rmax);
               }
             } else {
+              int index = HGCalTileIndex::tileIndex(layer - layMin_, ring + 1, 1);
+              lmin6 = std::min((layer - layMin_), lmin6);
+              lmax6 = std::max((layer - layMin_), lmax6);
               module6[index] = tl;
               ringR6[ring] = std::pair<double, double>(rstart, rend);
               if (layerRing6.find(layer) == layerRing6.end()) {
                 layerRing6[layer] = std::pair<int, int>(ring, ring);
               } else {
-                lmin6 = std::min((layer - layMin_), lmin6);
-                lmax6 = std::max((layer - layMin_), lmax6);
                 int rmin = std::min(ring, layerRing6[layer].first);
                 int rmax = std::max(ring, layerRing6[layer].second);
                 layerRing6[layer] = std::pair<int, int>(rmin, rmax);
@@ -1558,10 +1557,10 @@ void ConvertScintillatorV1::convert(const char* infile, const char* outfile1, co
       ++k1;
       if ((debug % 10) > 0)
         std::cout << "Tile " << HGCalTileIndex::tileLayer(itr->first) << ":" << HGCalTileIndex::tileRing(itr->first)
-                  << " Type " << (itr->second).type << " Area " << (itr->second).sipm << std::hex << " HEX "
-                  << (itr->second).hex[0] << " " << (itr->second).hex[1] << " " << (itr->second).hex[2] << " "
-                  << (itr->second).hex[3] << " " << (itr->second).hex[4] << " " << (itr->second).hex[5] << std::dec
-                  << "\n";
+                  << ":" << HGCalTileIndex::tilePhi(itr->first) << ":" << std::hex << itr->first << std::dec << " Type "
+                  << (itr->second).type << " Area " << (itr->second).sipm << std::hex << " HEX " << (itr->second).hex[0]
+                  << " " << (itr->second).hex[1] << " " << (itr->second).hex[2] << " " << (itr->second).hex[3] << " "
+                  << (itr->second).hex[4] << " " << (itr->second).hex[5] << std::dec << "\n";
     }
     for (itr = module.begin(); itr != module.end(); ++itr) {
       std::string last = ((k1 + 1) == (module6.size() + module.size())) ? " " : ",";
@@ -1572,9 +1571,10 @@ void ConvertScintillatorV1::convert(const char* infile, const char* outfile1, co
       ++k1;
       if ((debug % 10) > 0)
         std::cout << "Tile " << HGCalTileIndex::tileLayer(itr->first) << ":" << HGCalTileIndex::tileRing(itr->first)
-                  << " Type " << (itr->second).type << " Area " << (itr->second).sipm << std::hex << " HEX "
-                  << (itr->second).hex[0] << " " << (itr->second).hex[1] << " " << (itr->second).hex[2] << " "
-                  << (itr->second).hex[3] << std::dec << "\n";
+                  << ":" << HGCalTileIndex::tilePhi(itr->first) << ":" << std::hex << itr->first << std::dec << " Type "
+                  << (itr->second).type << " Area " << (itr->second).sipm << std::hex << " HEX " << (itr->second).hex[0]
+                  << " " << (itr->second).hex[1] << " " << (itr->second).hex[2] << " " << (itr->second).hex[3]
+                  << std::dec << "\n";
     }
     fOut << "\n  </Vector>\n";
     fOut << "  <Vector name=" << apost << "TileProperty" << apost << " type=" << apost << "numeric" << apost
