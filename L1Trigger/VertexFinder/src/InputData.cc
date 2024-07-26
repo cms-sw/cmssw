@@ -6,8 +6,8 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
 #include "SimDataFormats/Track/interface/SimTrack.h"
-#include "SimTracker/TrackTriggerAssociation/interface/TTClusterAssociationMap.h"
-#include "SimTracker/TrackTriggerAssociation/interface/TTStubAssociationMap.h"
+#include "SimDataFormats/Associations/interface/TTClusterAssociationMap.h"
+#include "SimDataFormats/Associations/interface/TTStubAssociationMap.h"
 #include "L1Trigger/VertexFinder/interface/AnalysisSettings.h"
 #include "L1Trigger/VertexFinder/interface/InputData.h"
 

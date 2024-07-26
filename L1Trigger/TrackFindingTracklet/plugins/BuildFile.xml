@@ -3,6 +3,7 @@
   <use name="L1Trigger/TrackFindingTracklet"/>
   <use name="MagneticField/Engine"/>
   <use name="MagneticField/Records"/>
+  <use name="SimDataFormats/Associations"/>
   <flags EDM_PLUGIN="1"/>
   <flags CXXFLAGS="-DUSEHYBRID"/>
 </library>

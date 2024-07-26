@@ -11,7 +11,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
-#include "SimTracker/TrackTriggerAssociation/interface/TTClusterAssociationMap.h"
+#include "SimDataFormats/Associations/interface/TTClusterAssociationMap.h"
 #include "SimTracker/Common/interface/TrackingParticleSelector.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/Common/interface/Ptr.h"

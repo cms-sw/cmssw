@@ -19,3 +19,4 @@
 #include "SimDataFormats/Associations/interface/MtdSimLayerClusterToRecoClusterAssociationMap.h"
 #include "SimDataFormats/Associations/interface/MtdRecoClusterToSimLayerClusterAssociator.h"
 #include "SimDataFormats/Associations/interface/MtdSimLayerClusterToTPAssociator.h"
+#include "SimDataFormats/Associations/interface/TTTypes.h"

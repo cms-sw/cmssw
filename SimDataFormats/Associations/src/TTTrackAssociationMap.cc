@@ -5,7 +5,7 @@
  *           in the source file.
  */
 
-#include "SimTracker/TrackTriggerAssociation/interface/TTTrackAssociationMap.h"
+#include "SimDataFormats/Associations/interface/TTTrackAssociationMap.h"
 
 /// Operations
 template <>

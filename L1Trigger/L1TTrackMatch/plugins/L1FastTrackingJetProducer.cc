@@ -34,7 +34,7 @@
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
 //mc
-#include "SimTracker/TrackTriggerAssociation/interface/TTTrackAssociationMap.h"
+#include "SimDataFormats/Associations/interface/TTTrackAssociationMap.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 
 #include <fastjet/JetDefinition.hh>

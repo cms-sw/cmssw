@@ -9,7 +9,7 @@
 #include "L1Trigger/VertexFinder/interface/TP.h"
 // TTStubAssociationMap.h forgets to two needed files, so must include them here ...
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
-#include "SimTracker/TrackTriggerAssociation/interface/TTTrackAssociationMap.h"
+#include "SimDataFormats/Associations/interface/TTTrackAssociationMap.h"
 
 class TrackerGeometry;
 class TrackerTopology;

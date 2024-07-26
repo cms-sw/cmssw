@@ -33,7 +33,7 @@
 
 // truth object
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
-#include "SimTracker/TrackTriggerAssociation/interface/TTStubAssociationMap.h"
+#include "SimDataFormats/Associations/interface/TTStubAssociationMap.h"
 
 // geometry
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"

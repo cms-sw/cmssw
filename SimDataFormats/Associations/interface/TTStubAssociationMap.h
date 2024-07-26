@@ -15,8 +15,8 @@
  *  (tidy up: Ian Tomalin, 2020)
  */
 
-#ifndef L1_TRACK_TRIGGER_STUB_ASSOCIATION_FORMAT_H
-#define L1_TRACK_TRIGGER_STUB_ASSOCIATION_FORMAT_H
+#ifndef SimDataFormats_Associations_TTStubAssociationMap_h
+#define SimDataFormats_Associations_TTStubAssociationMap_h
 
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefProd.h"
@@ -28,16 +28,14 @@
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/Phase2TrackerDigi/interface/Phase2TrackerDigi.h"
-//#include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"  /// NOTE: this is needed even if it seems not
 #include "DataFormats/L1TrackTrigger/interface/TTStub.h"
-#include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLink.h"
 #include "SimDataFormats/Track/interface/SimTrack.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
-#include "SimTracker/TrackTriggerAssociation/interface/TTClusterAssociationMap.h"
+#include "SimDataFormats/Associations/interface/TTClusterAssociationMap.h"
 
 // Templated aliases
 template <typename T>

@@ -31,7 +31,7 @@
 #include "DataFormats/L1Trigger/interface/Vertex.h"
 
 // MC
-#include "SimTracker/TrackTriggerAssociation/interface/TTTrackAssociationMap.h"
+#include "SimDataFormats/Associations/interface/TTTrackAssociationMap.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 
 // geometry

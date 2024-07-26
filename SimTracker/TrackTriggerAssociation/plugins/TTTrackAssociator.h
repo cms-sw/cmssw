@@ -26,12 +26,13 @@
 
 #include "L1Trigger/TrackTrigger/interface/classNameFinder.h"
 #include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
-#include "SimTracker/TrackTriggerAssociation/interface/TTStubAssociationMap.h"
-#include "SimTracker/TrackTriggerAssociation/interface/TTTrackAssociationMap.h"
-#include "SimTracker/TrackTriggerAssociation/plugins/TTStubAssociator.h"
-#include "SimTracker/TrackTriggerAssociation/plugins/TTClusterAssociator.h"
+#include "SimDataFormats/Associations/interface/TTStubAssociationMap.h"
+#include "SimDataFormats/Associations/interface/TTTrackAssociationMap.h"
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
+
+#include "TTStubAssociator.h"
+#include "TTClusterAssociator.h"
 
 #include <memory>
 #include <map>

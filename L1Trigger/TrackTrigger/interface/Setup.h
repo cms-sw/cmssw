@@ -20,7 +20,7 @@
 #include "CondFormats/SiPhase2TrackerObjects/interface/TrackerDetToDTCELinkCablingMap.h"
 #include "SimTracker/Common/interface/TrackingParticleSelector.h"
 
-#include "SimTracker/TrackTriggerAssociation/interface/TTTypes.h"
+#include "SimDataFormats/Associations/interface/TTTypes.h"
 #include "DataFormats/L1TrackTrigger/interface/TTDTC.h"
 #include "L1Trigger/TrackTrigger/interface/SensorModule.h"
 #include "L1Trigger/TrackTrigger/interface/SetupRcd.h"
