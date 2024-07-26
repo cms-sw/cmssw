@@ -232,7 +232,7 @@ RawTask::RawTask(edm::ParameterSet const& ps)
   //	a comment below is left on purpose!
   //_cBadQualityvsBX.fill(bx, creport->badQualityDigis());
   int Nbadq = creport->badQualityDigis();
-  if (lumiCache->EvtCntLS == 1) 
+  if (lumiCache->EvtCntLS == 1)
     _nBadQEvent = 0;  // Reset at the beginning of each new LS
   if (Nbadq > 0)
     _nBadQEvent++;
@@ -414,7 +414,7 @@ std::shared_ptr<hcaldqm::Cache> RawTask::globalBeginLuminosityBlock(edm::Luminos
       for (uint32_t iflag = 0; iflag < _vflags.size(); iflag++)
         _cSummaryvsLS_FED.setBinContent(eid, _currentLS, int(iflag), int(flag::fNCDAQ));
       _cSummaryvsLS.setBinContent(eid, _currentLS, int(flag::fNCDAQ));
-      if (!hcaldqm::utilities::isFEDHO(eid) && fed != 1136) 
+      if (!hcaldqm::utilities::isFEDHO(eid) && fed != 1136)
 	_cBadQ_FEDvsLSmod60.setBinContent(eid, _currentLS % 60, int(flag::fNCDAQ));
       continue;
     }
@@ -437,7 +437,7 @@ std::shared_ptr<hcaldqm::Cache> RawTask::globalBeginLuminosityBlock(edm::Luminos
       //else if (_xBadQLS.get(eid) > 0){
       // Following line added due to https://gitlab.cern.ch/cmshcal/docs/-/issues/233
       // BadQ > (5%) of number of events in this LS.
-      else if (double(_xBadQLS.get(eid)) > 0 && double(_nBadQEvent) > double(0.05 * _evsPerLS)) { 
+      else if (double(_xBadQLS.get(eid)) > 0 && double(_nBadQEvent) > double(0.05 * _evsPerLS)) {
         _vflags[fBadQ]._state = flag::fPROBLEMATIC;
       } else
         _vflags[fBadQ]._state = flag::fGOOD;
@@ -448,11 +448,11 @@ std::shared_ptr<hcaldqm::Cache> RawTask::globalBeginLuminosityBlock(edm::Luminos
     //	- sum them all up in summary flag for this FED
     //	- reset each flag right after using it
     for (std::vector<flag::Flag>::iterator ft = _vflags.begin(); ft != _vflags.end(); ++ft) {
-      _cSummaryvsLS_FED.setBinContent(eid, _currentLS, int(iflag), ft->_state);      
-      if (ft->_name =="BadQ") {
-        if (!hcaldqm::utilities::isFEDHO(eid) && fed != 1136 && ft->_state !=3 ) {
-	  _cBadQ_FEDvsLSmod60.setBinContent(eid, _currentLS % 60, (double(_nBadQEvent) / double(_evsPerLS)) * 100);
-	}
+      _cSummaryvsLS_FED.setBinContent(eid, _currentLS, int(iflag), ft->_state);                                                    
+      if (ft->_name == "BadQ") {                                                                                                   
+        if (!hcaldqm::utilities::isFEDHO(eid) && fed != 1136 && ft->_state != 3) {                                                 
+          _cBadQ_FEDvsLSmod60.setBinContent(eid, _currentLS % 60, (double(_nBadQEvent) / double(_evsPerLS)) * 100);                
+        }                                                                                                                
       }
       fSum += (*ft);
       iflag++;
