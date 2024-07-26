@@ -52,7 +52,7 @@ protected:
   bool _calibProcessing;
   int _thresh_calib_nbadq;
   int _nBadQEvent; 
-  //	 vector of HcalElectronicsId for FEDs
+  //	  vector of HcalElectronicsId for FEDs
   std::vector<uint32_t> _vhashFEDs;
 
   //	Filters
