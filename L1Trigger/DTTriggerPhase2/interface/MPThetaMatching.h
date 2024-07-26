@@ -14,7 +14,6 @@
 // Class declarations
 // ===============================================================================
 
-
 class MPThetaMatching : public MPFilter {
 public:
   // Constructors and destructor
@@ -29,6 +28,11 @@ public:
            std::vector<cmsdt::metaPrimitive> &outMPaths) override;
   void run(edm::Event &iEvent,
            const edm::EventSetup &iEventSetup,
+           std::vector<cmsdt::metaPrimitive> &allMPaths,
+           std::vector<cmsdt::metaPrimitive> &inMPaths,
+           std::vector<cmsdt::metaPrimitive> &outMPaths) override{};
+  void run(edm::Event &iEvent,
+           const edm::EventSetup &iEventSetup,
            MuonPathPtrs &inMPath,
            MuonPathPtrs &outMPath) override{};
 
@@ -38,33 +42,34 @@ public:
 
   // Public attributes
 
-   float vwire = 24.4 ; // cm/ns
-//   float zFE[5] = {-654., -389., 123., 389., 654.}; //cm
-//   float xFE[3] = {199/2., 245/2., 303/2.};//cm
-   float zFE[5] = {-658.9, -393.3, 126.4, 393.3, 658.9}; //cm
-   float xFE[3] = {218/2., 266.8/2., 315/2.};//cm
-   float ZRES_CONV = 65536. / 1500;
+  float vwire = 24.4;                                    // cm/ns
+                                                         //   float zFE[5] = {-654., -389., 123., 389., 654.}; //cm
+                                                         //   float xFE[3] = {199/2., 245/2., 303/2.};//cm
+  float zFE[5] = {-658.9, -393.3, 126.4, 393.3, 658.9};  //cm
+  float xFE[3] = {218 / 2., 266.8 / 2., 315 / 2.};       //cm
+  float ZRES_CONV = 65536. / 1500;
 
 private:
   // Private methods
   std::vector<cmsdt::metaPrimitive> filter(std::vector<cmsdt::metaPrimitive> inMPs,
-                                                       int th_option, 
-                                                       int th_quality, 
-                                                       double shift_back);
+                                           int th_option,
+                                           int th_quality,
+                                           double shift_back);
 
-  bool isThereThetaMPInChamber(int sector,int wheel,int station,std::vector<cmsdt::metaPrimitive> thetaMPs);
-  // Lambda function to compare pairs based on the float value, ascending order
-  static bool compare(const std::pair<cmsdt::metaPrimitive, float>& a, const std::pair<cmsdt::metaPrimitive, float>& b) {
-        return a.second < b.second;
-    };
+  bool isThereThetaMPInChamber(int sector, int wheel, int station, std::vector<cmsdt::metaPrimitive> thetaMPs);
+  std::vector<cmsdt::metaPrimitive> getBestThetaMPInChamber(std::vector<cmsdt::metaPrimitive> thetaMPs);
+
+  // Function to compare pairs based on the float value, ascending order
+  static bool compare(const std::pair<cmsdt::metaPrimitive, float> &a,
+                      const std::pair<cmsdt::metaPrimitive, float> &b) {
+    return a.second < b.second;
+  };
 
   // Private attributes
   const bool debug_;
   int th_option_;
-  int th_quality_;                                                                                                       
+  int th_quality_;
   int scenario_;
- 
-
 };
 
 #endif
