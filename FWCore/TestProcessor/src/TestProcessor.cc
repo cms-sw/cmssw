@@ -50,6 +50,8 @@
 
 #include "oneTimeInitialization.h"
 
+#include <mutex>
+
 #define xstr(s) str(s)
 #define str(s) #s
 
@@ -432,10 +434,9 @@ namespace edm {
       actReg_->eventSetupConfigurationSignal_(esp_->recordsToResolverIndices(), processContext_);
       //NOTE: this may throw
       //checkForModuleDependencyCorrectness(pathsAndConsumesOfModules, false);
-      actReg_->preBeginJobSignal_(pathsAndConsumesOfModules, processContext_);
 
-      schedule_->beginJob(*preg_, esp_->recordsToResolverIndices(), *processBlockHelper_);
-      actReg_->postBeginJobSignal_();
+      schedule_->beginJob(
+          *preg_, esp_->recordsToResolverIndices(), *processBlockHelper_, pathsAndConsumesOfModules, processContext_);
 
       for (unsigned int i = 0; i < preallocations_.numberOfStreams(); ++i) {
         schedule_->beginStream(i);
@@ -765,13 +766,14 @@ namespace edm {
       // Collects exceptions, so we don't throw before all operations are performed.
       ExceptionCollector c(
           "Multiple exceptions were thrown while executing endJob. An exception message follows for each.\n");
+      std::mutex collectorMutex;
 
       //make the services available
       ServiceRegistry::Operate operate(serviceToken_);
 
       //NOTE: this really should go elsewhere in the future
       for (unsigned int i = 0; i < preallocations_.numberOfStreams(); ++i) {
-        c.call([this, i]() { this->schedule_->endStream(i); });
+        schedule_->endStream(i, c, collectorMutex);
       }
       auto actReg = actReg_.get();
       c.call([actReg]() { actReg->preEndJobSignal_(); });

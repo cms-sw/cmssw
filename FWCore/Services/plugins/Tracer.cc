@@ -65,7 +65,13 @@ namespace edm {
 
       void preBeginJob(PathsAndConsumesOfModulesBase const&, ProcessContext const&);
       void postBeginJob();
+      void preEndJob();
       void postEndJob();
+
+      void preBeginStream(StreamContext const&);
+      void postBeginStream(StreamContext const&);
+      void preEndStream(StreamContext const&);
+      void postEndStream(StreamContext const&);
 
       void preSourceEvent(StreamID);
       void postSourceEvent(StreamID);
@@ -269,7 +275,13 @@ Tracer::Tracer(ParameterSet const& iPS, ActivityRegistry& iRegistry)
 
   iRegistry.watchPreBeginJob(this, &Tracer::preBeginJob);
   iRegistry.watchPostBeginJob(this, &Tracer::postBeginJob);
+  iRegistry.watchPreEndJob(this, &Tracer::preEndJob);
   iRegistry.watchPostEndJob(this, &Tracer::postEndJob);
+
+  iRegistry.watchPreBeginStream(this, &Tracer::preBeginStream);
+  iRegistry.watchPostBeginStream(this, &Tracer::postBeginStream);
+  iRegistry.watchPreEndStream(this, &Tracer::preEndStream);
+  iRegistry.watchPostEndStream(this, &Tracer::postEndStream);
 
   iRegistry.watchPreSourceEvent(this, &Tracer::preSourceEvent);
   iRegistry.watchPostSourceEvent(this, &Tracer::postSourceEvent);
@@ -605,8 +617,28 @@ void Tracer::postBeginJob() {
   LogAbsolute("Tracer") << TimeStamper(printTimestamps_) << indention_ << " finished: begin job";
 }
 
+void Tracer::preEndJob() {
+  LogAbsolute("Tracer") << TimeStamper(printTimestamps_) << indention_ << " starting: end job";
+}
+
 void Tracer::postEndJob() {
   LogAbsolute("Tracer") << TimeStamper(printTimestamps_) << indention_ << " finished: end job";
+}
+
+void Tracer::preBeginStream(StreamContext const& sc) {
+  LogAbsolute("Tracer") << TimeStamper(printTimestamps_) << indention_ << " starting: begin stream " << sc.streamID();
+}
+
+void Tracer::postBeginStream(StreamContext const& sc) {
+  LogAbsolute("Tracer") << TimeStamper(printTimestamps_) << indention_ << " finished: begin stream " << sc.streamID();
+}
+
+void Tracer::preEndStream(StreamContext const& sc) {
+  LogAbsolute("Tracer") << TimeStamper(printTimestamps_) << indention_ << " starting: end stream " << sc.streamID();
+}
+
+void Tracer::postEndStream(StreamContext const& sc) {
+  LogAbsolute("Tracer") << TimeStamper(printTimestamps_) << indention_ << " finished: end stream " << sc.streamID();
 }
 
 void Tracer::preSourceEvent(StreamID sid) {

@@ -8,6 +8,7 @@
 #include "FWCore/Framework/interface/SignallingProductRegistry.h"
 #include "FWCore/Framework/interface/ESRecordsToProductResolverIndices.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
+#include "FWCore/ServiceRegistry/interface/GlobalContext.h"
 #include "FWCore/ServiceRegistry/interface/ProcessContext.h"
 #include "FWCore/Sources/interface/VectorInputSourceDescription.h"
 #include "FWCore/Sources/interface/VectorInputSourceFactory.h"
@@ -202,13 +203,15 @@ namespace edm {
     input_->doBeginJob();
     if (provider_.get() != nullptr) {
       edm::ServiceRegistry::Operate guard(*serviceToken_);
-      provider_->beginJob(*productRegistry_, iES);
+      GlobalContext globalContext(GlobalContext::Transition::kBeginJob, processContext_.get());
+      provider_->beginJob(*productRegistry_, iES, globalContext);
     }
   }
 
   void PileUp::beginStream(edm::StreamID) {
     auto iID = eventPrincipal_->streamID();  // each producer has its own workermanager, so use default streamid
     streamContext_.reset(new StreamContext(iID, processContext_.get()));
+    streamContext_->setTransition(StreamContext::Transition::kBeginStream);
     if (provider_.get() != nullptr) {
       edm::ServiceRegistry::Operate guard(*serviceToken_);
       provider_->beginStream(iID, *streamContext_);
@@ -216,10 +219,26 @@ namespace edm {
   }
 
   void PileUp::endStream() {
+    ExceptionCollector exceptionCollector(
+        "Multiple exceptions were thrown while executing PileUp::endStream. An exception message follows for "
+        "each.\n");
+    endStream(exceptionCollector);
+
+    if (exceptionCollector.hasThrown()) {
+      exceptionCollector.rethrow();
+    }
+  }
+
+  void PileUp::endStream(ExceptionCollector& exceptionCollector) {
     if (provider_.get() != nullptr) {
       edm::ServiceRegistry::Operate guard(*serviceToken_);
-      provider_->endStream(streamContext_->streamID(), *streamContext_);
-      provider_->endJob();
+      streamContext_->setTransition(StreamContext::Transition::kEndStream);
+      provider_->endStream(streamContext_->streamID(), *streamContext_, exceptionCollector);
+      // This is kind of strange, end of job running as part of endStream multiple times...
+      // For the moment, I'm leaving this as is but maybe we should think about this...
+      // I think nothing uses this code anymore anyway...
+      GlobalContext globalContext(GlobalContext::Transition::kEndJob, processContext_.get());
+      provider_->endJob(exceptionCollector, globalContext);
     }
     input_->doEndJob();
   }
@@ -229,6 +248,7 @@ namespace edm {
       runPrincipal_.reset(new RunPrincipal(productRegistry_, *processConfiguration_, nullptr, 0));
       runPrincipal_->setAux(run.runAuxiliary());
       edm::ServiceRegistry::Operate guard(*serviceToken_);
+      streamContext_->setTransition(StreamContext::Transition::kBeginRun);
       provider_->beginRun(*runPrincipal_, setup.impl(), run.moduleCallingContext(), *streamContext_);
     }
   }
@@ -239,6 +259,7 @@ namespace edm {
       lumiPrincipal_->setRunPrincipal(runPrincipal_);
       setRandomEngine(lumi);
       edm::ServiceRegistry::Operate guard(*serviceToken_);
+      streamContext_->setTransition(StreamContext::Transition::kBeginLuminosityBlock);
       provider_->beginLuminosityBlock(*lumiPrincipal_, setup.impl(), lumi.moduleCallingContext(), *streamContext_);
     }
   }
@@ -246,12 +267,14 @@ namespace edm {
   void PileUp::endRun(const edm::Run& run, const edm::EventSetup& setup) {
     if (provider_.get() != nullptr) {
       edm::ServiceRegistry::Operate guard(*serviceToken_);
+      streamContext_->setTransition(StreamContext::Transition::kEndRun);
       provider_->endRun(*runPrincipal_, setup.impl(), run.moduleCallingContext(), *streamContext_);
     }
   }
   void PileUp::endLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup& setup) {
     if (provider_.get() != nullptr) {
       edm::ServiceRegistry::Operate guard(*serviceToken_);
+      streamContext_->setTransition(StreamContext::Transition::kEndLuminosityBlock);
       provider_->endLuminosityBlock(*lumiPrincipal_, setup.impl(), lumi.moduleCallingContext(), *streamContext_);
     }
   }
@@ -262,6 +285,7 @@ namespace edm {
       eventPrincipal_->setLuminosityBlockPrincipal(lumiPrincipal_.get());
       eventPrincipal_->setRunAndLumiNumber(lumiPrincipal_->run(), lumiPrincipal_->luminosityBlock());
       edm::ServiceRegistry::Operate guard(*serviceToken_);
+      streamContext_->setTransition(StreamContext::Transition::kEvent);
       provider_->setupPileUpEvent(*eventPrincipal_, setup.impl(), *streamContext_);
     }
   }

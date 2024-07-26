@@ -267,8 +267,11 @@ int main(int argc, const char* argv[]) {
         TaskCleanupSentry sentry{proc.get()};
 
         alwaysAddContext = false;
+
+        proc.on();
         context = "Calling beginJob";
         proc->beginJob();
+
         // EventSetupsController uses pointers to the ParameterSet
         // owned by ProcessDesc while it is dealing with sharing of
         // ESProducers among the top-level process and the
@@ -276,17 +279,15 @@ int main(int argc, const char* argv[]) {
         // alive until the beginJob transition has finished.
         processDesc.reset();
 
-        alwaysAddContext = false;
         context =
             "Calling EventProcessor::runToCompletion (which does almost everything after beginJob and before endJob)";
-        proc.on();
         auto status = proc->runToCompletion();
         if (status == edm::EventProcessor::epSignal) {
           returnCode = edm::errors::CaughtSignal;
         }
-        proc.off();
 
-        context = "Calling endJob";
+        proc.off();
+        context = "Calling endJob and endStream";
         proc->endJob();
       });
       return returnCode;

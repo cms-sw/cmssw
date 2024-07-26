@@ -75,7 +75,9 @@
 #include "FWCore/MessageLogger/interface/JobReport.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistryfwd.h"
+#include "FWCore/ServiceRegistry/interface/ServiceToken.h"
 #include "FWCore/ServiceRegistry/interface/StreamContext.h"
 #include "FWCore/Concurrency/interface/FunctorTask.h"
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
@@ -88,8 +90,10 @@
 #include "FWCore/Utilities/interface/propagate_const.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 
+#include <exception>
 #include <map>
 #include <memory>
+#include <mutex>
 #include <set>
 #include <string>
 #include <vector>
@@ -111,8 +115,6 @@ namespace edm {
   class PathStatusInserter;
   class EndPathStatusInserter;
   class PreallocationConfiguration;
-  class WaitingTaskHolder;
-
   class ConditionalTaskHelper;
 
   namespace service {
@@ -123,7 +125,6 @@ namespace edm {
   public:
     typedef std::vector<std::string> vstring;
     typedef std::vector<Path> TrigPaths;
-    typedef std::vector<Path> NonTrigPaths;
     typedef std::shared_ptr<HLTGlobalStatus> TrigResPtr;
     typedef std::shared_ptr<HLTGlobalStatus const> TrigResConstPtr;
     typedef std::shared_ptr<Worker> WorkerPtr;
@@ -162,7 +163,7 @@ namespace edm {
                                bool cleaningUpAfterException = false);
 
     void beginStream();
-    void endStream();
+    void endStream(ExceptionCollector& collector, std::mutex& collectorMutex) noexcept;
 
     StreamID streamID() const { return streamID_; }
 
@@ -306,12 +307,9 @@ namespace edm {
     void preScheduleSignal(StreamContext const*) const;
 
     template <typename T>
-    void postScheduleSignal(StreamContext const*, ServiceWeakToken const&, std::exception_ptr&) const noexcept;
+    void postScheduleSignal(StreamContext const*, std::exception_ptr&) const noexcept;
 
-    void handleException(StreamContext const&,
-                         ServiceWeakToken const&,
-                         bool cleaningUpAfterException,
-                         std::exception_ptr&) const noexcept;
+    void handleException(StreamContext const&, bool cleaningUpAfterException, std::exception_ptr&) const noexcept;
 
     WorkerManager workerManagerBeginEnd_;
     WorkerManager workerManagerRuns_;
@@ -370,11 +368,15 @@ namespace edm {
     auto doneTask = make_waiting_task([this, iHolder = std::move(iHolder), cleaningUpAfterException, weakToken](
                                           std::exception_ptr const* iPtr) mutable {
       std::exception_ptr excpt;
-      if (iPtr) {
-        excpt = *iPtr;
-        handleException(streamContext_, weakToken, cleaningUpAfterException, excpt);
-      }
-      postScheduleSignal<T>(&streamContext_, weakToken, excpt);
+      {
+        ServiceRegistry::Operate op(weakToken.lock());
+
+        if (iPtr) {
+          excpt = *iPtr;
+          handleException(streamContext_, cleaningUpAfterException, excpt);
+        }
+        postScheduleSignal<T>(&streamContext_, excpt);
+      }  // release service token before calling doneWaiting
       iHolder.doneWaiting(excpt);
     });
 
@@ -391,7 +393,10 @@ namespace edm {
             preScheduleSignal<T>(&streamContext_);
             workerManager->resetAll();
           } catch (...) {
-            h.doneWaiting(std::current_exception());
+            // Just remember the exception at this point,
+            // let the destructor of h call doneWaiting() so the
+            // ServiceRegistry::Operator object is destroyed first
+            h.presetTaskAsFailed(std::current_exception());
             return;
           }
 
@@ -430,13 +435,9 @@ namespace edm {
 
   template <typename T>
   void StreamSchedule::postScheduleSignal(StreamContext const* streamContext,
-                                          ServiceWeakToken const& weakToken,
                                           std::exception_ptr& excpt) const noexcept {
     try {
-      convertException::wrap([this, &weakToken, streamContext]() {
-        ServiceRegistry::Operate op(weakToken.lock());
-        T::postScheduleSignal(actReg_.get(), streamContext);
-      });
+      convertException::wrap([this, streamContext]() { T::postScheduleSignal(actReg_.get(), streamContext); });
     } catch (cms::Exception& ex) {
       if (not excpt) {
         std::ostringstream ost;

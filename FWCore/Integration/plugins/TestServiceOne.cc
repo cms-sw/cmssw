@@ -57,8 +57,35 @@ namespace edmtest {
   TestServiceOne::TestServiceOne(edm::ParameterSet const& iPS, edm::ActivityRegistry& iRegistry)
       : verbose_(iPS.getUntrackedParameter<bool>("verbose")),
         printTimestamps_(iPS.getUntrackedParameter<bool>("printTimestamps")) {
+    iRegistry.watchPreBeginJob(this, &TestServiceOne::preBeginJob);
+    iRegistry.watchPostBeginJob(this, &TestServiceOne::postBeginJob);
+    iRegistry.watchPreEndJob(this, &TestServiceOne::preEndJob);
+    iRegistry.watchPostEndJob(this, &TestServiceOne::postEndJob);
+
+    iRegistry.watchPreModuleBeginJob(this, &TestServiceOne::preModuleBeginJob);
+    iRegistry.watchPostModuleBeginJob(this, &TestServiceOne::postModuleBeginJob);
+    iRegistry.watchPreModuleEndJob(this, &TestServiceOne::preModuleEndJob);
+    iRegistry.watchPostModuleEndJob(this, &TestServiceOne::postModuleEndJob);
+
+    iRegistry.watchPreBeginStream(this, &TestServiceOne::preBeginStream);
+    iRegistry.watchPostBeginStream(this, &TestServiceOne::postBeginStream);
+    iRegistry.watchPreEndStream(this, &TestServiceOne::preEndStream);
+    iRegistry.watchPostEndStream(this, &TestServiceOne::postEndStream);
+
+    iRegistry.watchPreModuleBeginStream(this, &TestServiceOne::preModuleBeginStream);
+    iRegistry.watchPostModuleBeginStream(this, &TestServiceOne::postModuleBeginStream);
+    iRegistry.watchPreModuleEndStream(this, &TestServiceOne::preModuleEndStream);
+    iRegistry.watchPostModuleEndStream(this, &TestServiceOne::postModuleEndStream);
+
     iRegistry.watchPreBeginProcessBlock(this, &TestServiceOne::preBeginProcessBlock);
+    iRegistry.watchPostBeginProcessBlock(this, &TestServiceOne::postBeginProcessBlock);
     iRegistry.watchPreEndProcessBlock(this, &TestServiceOne::preEndProcessBlock);
+    iRegistry.watchPostEndProcessBlock(this, &TestServiceOne::postEndProcessBlock);
+
+    iRegistry.watchPreModuleBeginProcessBlock(this, &TestServiceOne::preModuleBeginProcessBlock);
+    iRegistry.watchPostModuleBeginProcessBlock(this, &TestServiceOne::postModuleBeginProcessBlock);
+    iRegistry.watchPreModuleEndProcessBlock(this, &TestServiceOne::preModuleEndProcessBlock);
+    iRegistry.watchPostModuleEndProcessBlock(this, &TestServiceOne::postModuleEndProcessBlock);
 
     iRegistry.watchPreStreamBeginLumi(this, &TestServiceOne::preStreamBeginLumi);
     iRegistry.watchPostStreamBeginLumi(this, &TestServiceOne::postStreamBeginLumi);
@@ -115,15 +142,211 @@ namespace edmtest {
     descriptions.add("TestServiceOne", desc);
   }
 
-  void TestServiceOne::preBeginProcessBlock(GlobalContext const&) {
+  void TestServiceOne::preBeginJob(edm::PathsAndConsumesOfModulesBase const&, edm::ProcessContext const&) {
+    ++nPreBeginJob_;
     if (verbose_) {
-      edm::LogAbsolute("TestServiceOne") << "test message from TestServiceOne::preBeginProcessBlock";
+      edm::LogAbsolute out("TestServiceOne");
+      out << globalIndent << "TestServiceOne::preBeginJob " << TimeStamper(printTimestamps_);
     }
   }
 
-  void TestServiceOne::preEndProcessBlock(GlobalContext const&) {
+  void TestServiceOne::postBeginJob() {
+    ++nPostBeginJob_;
     if (verbose_) {
-      edm::LogAbsolute("TestServiceOne") << "test message from TestServiceOne::preEndProcessBlock";
+      edm::LogAbsolute out("TestServiceOne");
+      out << globalIndent << "TestServiceOne::postBeginJob " << TimeStamper(printTimestamps_);
+    }
+  }
+
+  void TestServiceOne::preEndJob() {
+    ++nPreEndJob_;
+    if (verbose_) {
+      edm::LogAbsolute out("TestServiceOne");
+      out << globalIndent << "TestServiceOne::preEndJob " << TimeStamper(printTimestamps_);
+    }
+  }
+
+  void TestServiceOne::postEndJob() {
+    ++nPostEndJob_;
+    if (verbose_) {
+      edm::LogAbsolute out("TestServiceOne");
+      out << globalIndent << "TestServiceOne::postEndJob " << TimeStamper(printTimestamps_);
+    }
+  }
+
+  void TestServiceOne::preModuleBeginJob(edm::ModuleDescription const& desc) {
+    ++nPreModuleBeginJob_;
+    if (verbose_) {
+      edm::LogAbsolute out("TestServiceOne");
+      out << globalModuleIndent << "TestServiceOne::preModuleBeginJob " << TimeStamper(printTimestamps_)
+          << " label = " << desc.moduleLabel();
+    }
+  }
+
+  void TestServiceOne::postModuleBeginJob(edm::ModuleDescription const& desc) {
+    ++nPostModuleBeginJob_;
+    if (verbose_) {
+      edm::LogAbsolute out("TestServiceOne");
+      out << globalModuleIndent << "TestServiceOne::postModuleBeginJob " << TimeStamper(printTimestamps_)
+          << " label = " << desc.moduleLabel();
+    }
+  }
+
+  void TestServiceOne::preModuleEndJob(edm::ModuleDescription const& desc) {
+    ++nPreModuleEndJob_;
+    if (verbose_) {
+      edm::LogAbsolute out("TestServiceOne");
+      out << globalModuleIndent << "TestServiceOne::preModuleEndJob " << TimeStamper(printTimestamps_)
+          << " label = " << desc.moduleLabel();
+    }
+  }
+
+  void TestServiceOne::postModuleEndJob(edm::ModuleDescription const& desc) {
+    ++nPostModuleEndJob_;
+    if (verbose_) {
+      edm::LogAbsolute out("TestServiceOne");
+      out << globalModuleIndent << "TestServiceOne::postModuleEndJob " << TimeStamper(printTimestamps_)
+          << " label = " << desc.moduleLabel();
+    }
+  }
+
+  void TestServiceOne::preBeginStream(edm::StreamContext const& sc) {
+    ++nPreBeginStream_;
+    if (verbose_) {
+      edm::LogAbsolute out("TestServiceOne");
+      out << streamIndent << "TestServiceOne::preBeginStream " << TimeStamper(printTimestamps_)
+          << " stream = " << sc.streamID();
+    }
+  }
+
+  void TestServiceOne::postBeginStream(edm::StreamContext const& sc) {
+    ++nPostBeginStream_;
+    if (verbose_) {
+      edm::LogAbsolute out("TestServiceOne");
+      out << streamIndent << "TestServiceOne::postBeginStream " << TimeStamper(printTimestamps_)
+          << " stream = " << sc.streamID();
+    }
+  }
+
+  void TestServiceOne::preEndStream(edm::StreamContext const& sc) {
+    ++nPreEndStream_;
+    if (verbose_) {
+      edm::LogAbsolute out("TestServiceOne");
+      out << streamIndent << "TestServiceOne::preEndStream " << TimeStamper(printTimestamps_)
+          << " stream = " << sc.streamID();
+    }
+  }
+
+  void TestServiceOne::postEndStream(edm::StreamContext const& sc) {
+    ++nPostEndStream_;
+    if (verbose_) {
+      edm::LogAbsolute out("TestServiceOne");
+      out << streamIndent << "TestServiceOne::postEndStream " << TimeStamper(printTimestamps_)
+          << " stream = " << sc.streamID();
+    }
+  }
+
+  void TestServiceOne::preModuleBeginStream(edm::StreamContext const& sc, edm::ModuleCallingContext const& mcc) {
+    ++nPreModuleBeginStream_;
+    if (verbose_) {
+      edm::LogAbsolute out("TestServiceOne");
+      out << streamModuleIndent << "TestServiceOne::preModuleBeginStream " << TimeStamper(printTimestamps_)
+          << " stream = " << sc.streamID() << " label = " << mcc.moduleDescription()->moduleLabel();
+    }
+  }
+
+  void TestServiceOne::postModuleBeginStream(edm::StreamContext const& sc, edm::ModuleCallingContext const& mcc) {
+    ++nPostModuleBeginStream_;
+    if (verbose_) {
+      edm::LogAbsolute out("TestServiceOne");
+      out << streamModuleIndent << "TestServiceOne::postModuleBeginStream " << TimeStamper(printTimestamps_)
+          << " stream = " << sc.streamID() << " label = " << mcc.moduleDescription()->moduleLabel();
+    }
+  }
+
+  void TestServiceOne::preModuleEndStream(edm::StreamContext const& sc, edm::ModuleCallingContext const& mcc) {
+    ++nPreModuleEndStream_;
+    if (verbose_) {
+      edm::LogAbsolute out("TestServiceOne");
+      out << streamModuleIndent << "TestServiceOne::preModuleEndStream " << TimeStamper(printTimestamps_)
+          << " stream = " << sc.streamID() << " label = " << mcc.moduleDescription()->moduleLabel();
+    }
+  }
+
+  void TestServiceOne::postModuleEndStream(edm::StreamContext const& sc, edm::ModuleCallingContext const& mcc) {
+    ++nPostModuleEndStream_;
+    if (verbose_) {
+      edm::LogAbsolute out("TestServiceOne");
+      out << streamModuleIndent << "TestServiceOne::postModuleEndStream " << TimeStamper(printTimestamps_)
+          << " stream = " << sc.streamID() << " label = " << mcc.moduleDescription()->moduleLabel();
+    }
+  }
+
+  void TestServiceOne::preBeginProcessBlock(edm::GlobalContext const&) {
+    ++nPreBeginProcessBlock_;
+    if (verbose_) {
+      edm::LogAbsolute out("TestServiceOne");
+      out << globalIndent << "TestServiceOne::preBeginProcessBlock " << TimeStamper(printTimestamps_);
+    }
+  }
+
+  void TestServiceOne::postBeginProcessBlock(edm::GlobalContext const&) {
+    ++nPostBeginProcessBlock_;
+    if (verbose_) {
+      edm::LogAbsolute out("TestServiceOne");
+      out << globalIndent << "TestServiceOne::postBeginProcessBlock " << TimeStamper(printTimestamps_);
+    }
+  }
+
+  void TestServiceOne::preEndProcessBlock(edm::GlobalContext const&) {
+    ++nPreEndProcessBlock_;
+    if (verbose_) {
+      edm::LogAbsolute out("TestServiceOne");
+      out << globalIndent << "TestServiceOne::preEndProcessBlock " << TimeStamper(printTimestamps_);
+    }
+  }
+
+  void TestServiceOne::postEndProcessBlock(edm::GlobalContext const&) {
+    ++nPostEndProcessBlock_;
+    if (verbose_) {
+      edm::LogAbsolute out("TestServiceOne");
+      out << globalIndent << "TestServiceOne::postEndProcessBlock " << TimeStamper(printTimestamps_);
+    }
+  }
+
+  void TestServiceOne::preModuleBeginProcessBlock(edm::GlobalContext const&, edm::ModuleCallingContext const& mcc) {
+    ++nPreModuleBeginProcessBlock_;
+    if (verbose_) {
+      edm::LogAbsolute out("TestServiceOne");
+      out << globalModuleIndent << "TestServiceOne::preModuleBeginProcessBlock " << TimeStamper(printTimestamps_)
+          << " label = " << mcc.moduleDescription()->moduleLabel();
+    }
+  }
+
+  void TestServiceOne::postModuleBeginProcessBlock(edm::GlobalContext const&, edm::ModuleCallingContext const& mcc) {
+    ++nPostModuleBeginProcessBlock_;
+    if (verbose_) {
+      edm::LogAbsolute out("TestServiceOne");
+      out << globalModuleIndent << "TestServiceOne::postModuleBeginProcessBlock " << TimeStamper(printTimestamps_)
+          << " label = " << mcc.moduleDescription()->moduleLabel();
+    }
+  }
+
+  void TestServiceOne::preModuleEndProcessBlock(edm::GlobalContext const&, edm::ModuleCallingContext const& mcc) {
+    ++nPreModuleEndProcessBlock_;
+    if (verbose_) {
+      edm::LogAbsolute out("TestServiceOne");
+      out << globalModuleIndent << "TestServiceOne::preModuleEndProcessBlock " << TimeStamper(printTimestamps_)
+          << " label = " << mcc.moduleDescription()->moduleLabel();
+    }
+  }
+
+  void TestServiceOne::postModuleEndProcessBlock(edm::GlobalContext const&, edm::ModuleCallingContext const& mcc) {
+    ++nPostModuleEndProcessBlock_;
+    if (verbose_) {
+      edm::LogAbsolute out("TestServiceOne");
+      out << globalModuleIndent << "TestServiceOne::postModuleEndProcessBlock " << TimeStamper(printTimestamps_)
+          << " label = " << mcc.moduleDescription()->moduleLabel();
     }
   }
 
@@ -466,6 +689,36 @@ namespace edmtest {
           << " run = " << gc.luminosityBlockID().run();
     }
   }
+
+  unsigned int TestServiceOne::nPreBeginJob() const { return nPreBeginJob_.load(); }
+  unsigned int TestServiceOne::nPostBeginJob() const { return nPostBeginJob_.load(); }
+  unsigned int TestServiceOne::nPreEndJob() const { return nPreEndJob_.load(); }
+  unsigned int TestServiceOne::nPostEndJob() const { return nPostEndJob_.load(); }
+
+  unsigned int TestServiceOne::nPreModuleBeginJob() const { return nPreModuleBeginJob_.load(); }
+  unsigned int TestServiceOne::nPostModuleBeginJob() const { return nPostModuleBeginJob_.load(); }
+  unsigned int TestServiceOne::nPreModuleEndJob() const { return nPreModuleEndJob_.load(); }
+  unsigned int TestServiceOne::nPostModuleEndJob() const { return nPostModuleEndJob_.load(); }
+
+  unsigned int TestServiceOne::nPreBeginStream() const { return nPreBeginStream_.load(); }
+  unsigned int TestServiceOne::nPostBeginStream() const { return nPostBeginStream_.load(); }
+  unsigned int TestServiceOne::nPreEndStream() const { return nPreEndStream_.load(); }
+  unsigned int TestServiceOne::nPostEndStream() const { return nPostEndStream_.load(); }
+
+  unsigned int TestServiceOne::nPreModuleBeginStream() const { return nPreModuleBeginStream_.load(); }
+  unsigned int TestServiceOne::nPostModuleBeginStream() const { return nPostModuleBeginStream_.load(); }
+  unsigned int TestServiceOne::nPreModuleEndStream() const { return nPreModuleEndStream_.load(); }
+  unsigned int TestServiceOne::nPostModuleEndStream() const { return nPostModuleEndStream_.load(); }
+
+  unsigned int TestServiceOne::nPreBeginProcessBlock() const { return nPreBeginProcessBlock_.load(); }
+  unsigned int TestServiceOne::nPostBeginProcessBlock() const { return nPostBeginProcessBlock_.load(); }
+  unsigned int TestServiceOne::nPreEndProcessBlock() const { return nPreEndProcessBlock_.load(); }
+  unsigned int TestServiceOne::nPostEndProcessBlock() const { return nPostEndProcessBlock_.load(); }
+
+  unsigned int TestServiceOne::nPreModuleBeginProcessBlock() const { return nPreModuleBeginProcessBlock_.load(); }
+  unsigned int TestServiceOne::nPostModuleBeginProcessBlock() const { return nPostModuleBeginProcessBlock_.load(); }
+  unsigned int TestServiceOne::nPreModuleEndProcessBlock() const { return nPreModuleEndProcessBlock_.load(); }
+  unsigned int TestServiceOne::nPostModuleEndProcessBlock() const { return nPostModuleEndProcessBlock_.load(); }
 
   unsigned int TestServiceOne::nPreStreamBeginLumi() const { return nPreStreamBeginLumi_.load(); }
   unsigned int TestServiceOne::nPostStreamBeginLumi() const { return nPostStreamBeginLumi_.load(); }

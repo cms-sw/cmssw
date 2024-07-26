@@ -23,6 +23,7 @@
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
+#include "FWCore/ServiceRegistry/interface/GlobalContext.h"
 #include "FWCore/ServiceRegistry/interface/ParentContext.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
@@ -390,7 +391,8 @@ void testOneOutputModule::testTransitions(std::shared_ptr<T> iMod, Expectations 
 
   iMod->doPreallocate(m_preallocConfig);
   edm::WorkerT<edm::one::OutputModuleBase> w{iMod, m_desc, m_params.actions_};
-  w.beginJob();
+  edm::GlobalContext globalContext(edm::GlobalContext::Transition::kBeginJob, nullptr);
+  w.beginJob(globalContext);
   edm::OutputModuleCommunicatorT<edm::one::OutputModuleBase> comm(iMod.get());
   for (auto& keyVal : m_transToFunc) {
     testTransition(iMod, &w, &comm, keyVal.first, iExpect, keyVal.second);

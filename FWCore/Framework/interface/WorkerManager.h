@@ -5,11 +5,13 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/UnscheduledCallProducer.h"
 #include "FWCore/Framework/interface/WorkerRegistry.h"
+#include "FWCore/ServiceRegistry/interface/ParentContext.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistryfwd.h"
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 
 #include <memory>
+#include <mutex>
 #include <set>
 #include <string>
 #include <utility>
@@ -70,12 +72,12 @@ namespace edm {
 
     void beginJob(ProductRegistry const& iRegistry,
                   eventsetup::ESRecordsToProductResolverIndices const&,
-                  ProcessBlockHelperBase const&);
-    void endJob();
-    void endJob(ExceptionCollector& collector);
+                  ProcessBlockHelperBase const&,
+                  GlobalContext const&);
+    void endJob(ExceptionCollector&, GlobalContext const&);
 
-    void beginStream(StreamID iID, StreamContext& streamContext);
-    void endStream(StreamID iID, StreamContext& streamContext);
+    void beginStream(StreamID, StreamContext const&);
+    void endStream(StreamID, StreamContext const&, ExceptionCollector&, std::mutex& collectorMutex) noexcept;
 
     AllWorkers const& allWorkers() const { return allWorkers_; }
     AllWorkers const& unscheduledWorkers() const { return unscheduled_.workers(); }

@@ -43,6 +43,7 @@ the worker is reset().
 #include "FWCore/ServiceRegistry/interface/PathContext.h"
 #include "FWCore/ServiceRegistry/interface/PlaceInPathContext.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
+#include "FWCore/ServiceRegistry/interface/ServiceRegistryfwd.h"
 #include "FWCore/Concurrency/interface/SerialTaskQueueChain.h"
 #include "FWCore/Concurrency/interface/LimitedTaskQueue.h"
 #include "FWCore/Concurrency/interface/FunctorTask.h"
@@ -76,8 +77,6 @@ namespace edm {
   class ModuleProcessName;
   class ProductResolverIndexHelper;
   class ProductResolverIndexAndSkipBit;
-  class StreamID;
-  class StreamContext;
   class ProductRegistry;
   class ThinnedAssociationsHelper;
 
@@ -179,10 +178,10 @@ namespace edm {
 
     void callWhenDoneAsync(WaitingTaskHolder task) { waitingTasks_.add(std::move(task)); }
     void skipOnPath(EventPrincipal const& iEvent);
-    void beginJob();
-    void endJob();
-    void beginStream(StreamID id, StreamContext& streamContext);
-    void endStream(StreamID id, StreamContext& streamContext);
+    void beginJob(GlobalContext const&);
+    void endJob(GlobalContext const&);
+    void beginStream(StreamID, StreamContext const&);
+    void endStream(StreamID, StreamContext const&);
     void respondToOpenInputFile(FileBlock const& fb) { implRespondToOpenInputFile(fb); }
     void respondToCloseInputFile(FileBlock const& fb) { implRespondToCloseInputFile(fb); }
     void respondToCloseOutputFile() { implRespondToCloseOutputFile(); }
@@ -986,6 +985,7 @@ namespace edm {
         cpp.preModuleSignal();
         auto returnValue = iWorker->implDoBeginProcessBlock(info.principal(), mcc);
         cpp.postModuleSignal();
+        iWorker->beginSucceeded_ = true;
         return returnValue;
       }
       static void esPrefetchAsync(
@@ -1028,11 +1028,16 @@ namespace edm {
                        ActivityRegistry* actReg,
                        ModuleCallingContext const* mcc,
                        Arg::Context const* context) {
-        ModuleSignalSentry<Arg> cpp(actReg, context, mcc);
-        cpp.preModuleSignal();
-        auto returnValue = iWorker->implDoEndProcessBlock(info.principal(), mcc);
-        cpp.postModuleSignal();
-        return returnValue;
+        if (iWorker->beginSucceeded_) {
+          iWorker->beginSucceeded_ = false;
+
+          ModuleSignalSentry<Arg> cpp(actReg, context, mcc);
+          cpp.preModuleSignal();
+          auto returnValue = iWorker->implDoEndProcessBlock(info.principal(), mcc);
+          cpp.postModuleSignal();
+          return returnValue;
+        }
+        return true;
       }
       static void esPrefetchAsync(
           Worker*, WaitingTaskHolder, ServiceToken const&, ProcessBlockTransitionInfo const&, Transition) noexcept {}
