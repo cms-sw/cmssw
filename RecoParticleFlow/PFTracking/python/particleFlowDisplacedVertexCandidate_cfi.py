@@ -39,7 +39,7 @@ particleFlowDisplacedVertexCandidate = cms.EDProducer("PFDisplacedVertexCandidat
     # PFDisplacedVertex timing
         pt_min_prim = cms.double(.8),
         dxy = cms.double(.2),
-        
+        qoverpError_max =cms.double(1.0e+7)
     )                                                     
                                    
 )
