@@ -1,7 +1,7 @@
 // Authors: Izaak Neutelings (May 2024)
 // Sources: https://docs.google.com/spreadsheets/d/13G7sOjssqw4B5AtOcQV3g0W01oZUOMM6Hm_DduxBEPU
-#ifndef CondFormats_HGCalObjects_HGCalCondSerializableConfig_h
-#define CondFormats_HGCalObjects_HGCalCondSerializableConfig_h
+#ifndef CondFormats_HGCalObjects_HGCalConfiguraton_h
+#define CondFormats_HGCalObjects_HGCalConfiguraton_h
 #include "CondFormats/Serialization/interface/Serializable.h"
 #include "CondFormats/HGCalObjects/interface/HGCalMappingModuleIndexer.h"
 #include <map>
