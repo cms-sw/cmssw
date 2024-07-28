@@ -9,11 +9,8 @@
 
 #include "DataFormats/MuonDetId/interface/DTLayerId.h"
 #include "DataFormats/DTRecHit/interface/DTRecHit1DPair.h"
-#include "DataFormats/Common/interface/RangeMap.h"
-#include "DataFormats/Common/interface/ClonePolicy.h"
-#include "DataFormats/Common/interface/OwnVector.h"
-#include <functional>
+#include "DataFormats/Common/interface/IdToHitRange.h"
 
-typedef edm::RangeMap<DTLayerId, edm::OwnVector<DTRecHit1DPair> > DTRecHitCollection;
+typedef edm::IdToHitRange<DTLayerId, DTRecHit1DPair> DTRecHitCollection;
 
 #endif

@@ -3,6 +3,7 @@
    <version ClassVersion="11" checksum="1427930561"/>
    <version ClassVersion="10" checksum="1566132205"/>
   </class>
+  <class name="std::vector<DTChamberId>"/>
   <class name="DTSuperLayerId" ClassVersion="12">
    <version ClassVersion="12" checksum="4252195609"/>
    <version ClassVersion="11" checksum="95429957"/>
@@ -13,6 +14,7 @@
    <version ClassVersion="11" checksum="2590490736"/>
    <version ClassVersion="10" checksum="3694998457"/>
   </class>
+  <class name="std::vector<DTLayerId>"/>
   <class name="DTWireId" ClassVersion="12">
    <version ClassVersion="12" checksum="3971842612"/>
    <version ClassVersion="11" checksum="4110044256"/>
@@ -22,10 +24,12 @@
    <version ClassVersion="11" checksum="1194325071"/>
    <version ClassVersion="10" checksum="56607943"/>
   </class>
+  <class name="std::vector<CSCDetId>"/>
   <class name="RPCDetId" ClassVersion="11">
    <version ClassVersion="11" checksum="2362875019"/>
    <version ClassVersion="10" checksum="3608243239"/>
   </class>
+  <class name="std::vector<RPCDetId>"/>
   <class name="RPCCompDetId" ClassVersion="10">
    <version ClassVersion="10" checksum="2407084845"/>
   </class>
@@ -49,6 +53,7 @@
     ]]>
    </ioread>
   </class>
+  <class name="std::vector<GEMDetId>"/>
   <class name="ME0DetId" ClassVersion="11">
    <version ClassVersion="11" checksum="1292662416"/>
    <version ClassVersion="10" checksum="388194174"/>
