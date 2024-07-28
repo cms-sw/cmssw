@@ -94,13 +94,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     //printf("TestHGCalRecHitESProducers::produce: time to load calibParamDevice from calib ESProducers: %f seconds\n", duration(start,now()));
 
     // Check if there are new conditions and read them
-    if (configWatcher_.check(iSetup)){
+    if (configWatcher_.check(iSetup)) {
       std::cout << "TestHGCalRecHitESProducers::produce: moduleMap.getMaxDataSize()=" << moduleMap.getMaxDataSize()
                 << ", moduleMap.getMaxERxSize()=" << moduleMap.getMaxERxSize() << std::endl;
-      
+
       // ESProducer for global HGCal configuration (structs) with header markers, etc.
       auto nfeds = config.feds.size(); // number of FEDs
-      std::cout << "TestHGCalRecHitESProducers::produce: nfeds=" << nfeds << std::endl;
+      std::cout << "TestHGCalRecHitESProducers::produce: config=" << config << std::endl;
+      std::cout << "TestHGCalRecHitESProducers::produce: nfeds=" << nfeds << ", config=" << config << std::endl;
       for (std::size_t fedid = 0; fedid < nfeds; ++fedid) {
         auto fed = config.feds[fedid]; // HGCalFedConfig_t
         auto nmods = fed.econds.size(); // number of ECON-Ds for this FED
@@ -117,32 +118,31 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                     << std::setw(14) << int2hex(mod.headerMarker) << std::endl;
         }
       }
-      
+
       // Alpaka ESProducer for SoA with configuration parameters with gains
       int size = configParamDevice.view().metadata().size();
       std::cout << "TestHGCalRecHitESProducers::produce: device size=" << size << std::endl;
       std::cout << "  imod  gain" << std::endl;
-      for(int imod=0; imod<size; imod++) {
+      for (int imod=0; imod<size; imod++) {
         if(imod>=250) break;
         std::cout << std::setw(6) << imod
           << std::setw(6) << uint32_t(configParamDevice.view()[imod].gain()) << std::endl;
       }
-      
+
       // Alpaka ESProducer for SoA with calibration parameters with pedestals, etc.
       size = calibParamDevice.view().metadata().size();
       std::cout << "TestHGCalRecHitESProducers::produce: device size=" << size << std::endl;
-      std::cout << "  idx   hex  ADC_ped  CM_slope  CM_ped  BXm1_slope" << std::endl;
-      for(int idx=0; idx<size; idx++) {
+      std::cout << "   idx    hex     ADC_ped   CM_slope   CM_ped   BXm1_slope" << std::endl;
+      for (int idx=0; idx<size; idx++) {
         if(idx>=250) break;
-        std::cout << std::setw(5) << idx << std::setw(6) << int2hex(idx) << std::dec
-          << std::setw(9)  << calibParamDevice.view()[idx].ADC_ped()
-          << std::setw(10) << calibParamDevice.view()[idx].CM_slope()
-          << std::setw(8)  << calibParamDevice.view()[idx].CM_ped()
-          << std::setw(12) << calibParamDevice.view()[idx].BXm1_slope()
-          // << std::setw(6) << calibParamDevice.view()[idx].BXm1_offset() // redundant
+        std::cout << std::setw(6) << idx << std::setw(7) << int2hex(idx) << std::dec
+          << std::setw(12) << calibParamDevice.view()[idx].ADC_ped()
+          << std::setw(11) << calibParamDevice.view()[idx].CM_slope()
+          << std::setw(9)  << calibParamDevice.view()[idx].CM_ped()
+          << std::setw(13) << calibParamDevice.view()[idx].BXm1_slope()
           << std::endl;
       }
-      
+
     }
 
   }

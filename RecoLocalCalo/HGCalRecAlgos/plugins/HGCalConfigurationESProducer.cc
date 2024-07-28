@@ -62,15 +62,26 @@ public:
     descriptions.addWithDefaultLabel(desc);
   }
 
+  static bool checkkeys(json data, std::string firstkey, std::vector<std::string> keys, std::string fname) {
+    // check if json contains key
+    bool iscomplete = true;
+    for (auto const& key: keys) {
+      if (not data[firstkey].contains(key)) {
+        edm::LogWarning("HGCalConfigurationESProducer::checkkeys")
+          << " JSON is missing key '" << key << "' for " << firstkey << "!" << " Please check file " << fname;
+        iscomplete = false;
+      }
+    }
+    return iscomplete;
+  }
+
   static int32_t gethex(std::string value, int32_t value_override) {
     // get value, and override if value_override>=0
-    //std::cout << "HGCalConfigurationESProducer::gethex: value=" << value << ", override=" << value_override << std::endl;
     return (value_override>=0 ? value_override : std::stoi(value,NULL,16));
   }
 
   static int32_t getint(int32_t value, int32_t value_override) {
     // get value, and override if value_override>=0
-    //std::cout << "HGCalConfigurationESProducer::getint: value=" << value << ", override=" << value_override << std::endl;
     return (value_override>=0 ? value_override : value);
   }
 
@@ -81,12 +92,11 @@ public:
   //  return (value_override>=0 ? (T) value_override : value);
   //}
 
-  //std::optional<HGCalConfiguration> produce(const HGCalModuleConfigurationRcd& iRecord) {
   std::shared_ptr<HGCalConfiguration> produce(const HGCalModuleConfigurationRcd& iRecord) {
     
     auto const& moduleMap = iRecord.getRecord<HGCalElectronicsMappingRcd>().get(indexToken_);
  
-    // Retrieve values from custom JSON format (see HGCalCalibrationESProducer)
+    // retrieve values from custom JSON format (see HGCalCalibrationESProducer)
     edm::FileInPath fedfip(fedjson_);          // e.g. HGCalCommissioning/LocalCalibration/data/config_feds.json
     edm::FileInPath modfip(modjson_);          // e.g. HGCalCommissioning/LocalCalibration/data/config_econds.json
     std::cout << "HGCalConfigurationESProducer::produce: fedjson=" << fedfip.fullPath() << std::endl;
@@ -96,61 +106,92 @@ public:
     json fed_config_data = json::parse(fedfile);
     json mod_config_data = json::parse(modfile);
 
-    // Loop over FEDs in indexer & fill configuration structs: FED > ECON-D > eRx
-    config_ = HGCalConfiguration(); // container class holding FED structs of ECON-D structs of eRx structs
-    auto feds = moduleMap.fedReadoutSequences_;
-    //std::cout << "HGCalConfigurationESProducer::produce:   nfeds=" << feds.size() << std::endl;
-    for (std::size_t fedid = 0; fedid < feds.size(); ++fedid) {
-      // follow indexing by HGCalMappingModuleIndexer
-      // https://github.com/CMS-HGCAL/cmssw/blob/dev/hackathon_base_CMSSW_14_1_X/CondFormats/HGCalObjects/interface/HGCalMappingModuleIndexer.h
-      // https://github.com/CMS-HGCAL/cmssw/blob/dev/hackathon_base_CMSSW_14_1_X/EventFilter/HGCalRawToDigi/plugins/HGCalRawToDigi.cc#L107-L111
+    // consistency check
+    uint32_t nfeds = moduleMap.getNFED();
+    uint32_t ntot_mods, ntot_rocs;
+    const std::vector<std::string> fedkeys = { "mismatchPassthroughMode", "cbHeaderMarker", "slinkHeaderMarker", "econds" };
+    const std::vector<std::string> modkeys = { "headerMarker", "passthrough", "Gain", "CalibrationSC" };
+    if ( nfeds != fed_config_data.size() )
+      edm::LogWarning("HGCalConfigurationESProducer") << "Total number of FEDs found in JSON file "
+       << fedjson_ << " (" << fed_config_data.size() << ") does not match indexer (" << nfeds << ")";
 
-      // Fill FED configurations
-      auto fedrs = moduleMap.fedReadoutSequences_[fedid];
-      if (fedrs.readoutTypes_.size() == 0) // check if FED exists (non-empty)
-        continue; // skip non-existent FED
+    // loop over FEDs in indexer & fill configuration structs: FED > ECON-D > eRx
+    // follow indexing by HGCalMappingModuleIndexer
+    // https://github.com/CMS-HGCAL/cmssw/blob/dev/hackathon_base_CMSSW_14_1_X/CondFormats/HGCalObjects/interface/HGCalMappingModuleIndexer.h
+    // https://github.com/CMS-HGCAL/cmssw/blob/dev/hackathon_base_CMSSW_14_1_X/EventFilter/HGCalRawToDigi/plugins/HGCalRawToDigi.cc#L107-L111
+    config_ = HGCalConfiguration(); // container class holding FED structs of ECON-D structs of eRx structs
+    for (std::size_t fedid = 0; fedid < moduleMap.getMaxFEDSize(); ++fedid) {
+
+      // sanity checks
       //std::cout << "HGCalConfigurationESProducer::produce:   fed=" << fedid << std::endl;
-      HGCalFedConfig_t fed;
-      std::string sfedid = std::to_string(fedid);
+      if (moduleMap.fedReadoutSequences_[fedid].readoutTypes_.size() == 0) // check if FED exists (non-empty)
+        continue; // skip non-existent FED
+      std::string sfedid = std::to_string(fedid); // key in JSON dictionary must be string
       if (!fed_config_data.contains(sfedid))
         edm::LogWarning("HGCalConfigurationESProducer") << " Did not find FED index " << sfedid
                                                         << " in JSON file " << fedjson_ << "...";
+      checkkeys(fed_config_data,sfedid,fedkeys,fedjson_);
+
+      // fill FED configurations
+      HGCalFedConfig_t fed;
       fed.mismatchPassthroughMode = getint(fed_config_data[sfedid]["mismatchPassthroughMode"], bePassthroughMode_);   // ignore ECON-D packet mismatches
       fed.cbHeaderMarker          = gethex(fed_config_data[sfedid]["cbHeaderMarker"],         cbHeaderMarker_);    // begin of event marker/identifier for capture block
       fed.slinkHeaderMarker       = gethex(fed_config_data[sfedid]["slinkHeaderMarker"],      slinkHeaderMarker_); // begin of event marker/identifier for S-link
 
-      // Loop over ECON-D modules in JSON
-      //for (std::size_t modid = 0; modid < fedrs.readoutTypes_.size(); ++modid) { 
+      // loop over ECON-D modules in JSON
       for (const std::string typecode: fed_config_data[sfedid]["econds"]) { // loop over module typecodes in JSON file (e.g. "ML-F3PT-TX-0003")
         //std::cout << "HGCalConfigurationESProducer::produce:     typecode=" << typecode << std::endl;
-        const auto& [fedid2,modid] = moduleMap.getFedAndModuleIndex(typecode);
+
+        // sanity checks for ECON-Ds
+        ntot_mods++;
+        const auto& [fedid2,imod] = moduleMap.getIndexForFedAndModule(typecode);
         if (fedid != fedid2)
           edm::LogWarning("HGCalConfigurationESProducer") << " FED index from HGCalMappingModuleIndexer (" << fedid
                                                           << ") does not match that of the JSON file (" << fedid2 << ", " << fedjson_ 
-                                                          << ") for ECON-D module with typecode " << typecode << " and id=" << modid << "!";
-        if (modid >= fed.econds.size())
-          fed.econds.resize(modid+1);
+                                                          << ") for ECON-D module with typecode " << typecode << " and id=" << imod << "!";
+        checkkeys(mod_config_data,typecode,modkeys,modjson_);
+        if (imod >= fed.econds.size())
+          fed.econds.resize(imod+1);
 
-	//ECON-D configuration
-	HGCalECONDConfig_t mod;
+	    // fill ECON-D configuration
+	    HGCalECONDConfig_t mod;
         mod.headerMarker = gethex(mod_config_data[typecode]["headerMarker"],econdHeaderMarker_); // begin of event marker/identifier for capture block
-	mod.passThrough = getint(mod_config_data[typecode]["passthrough"],econPassthroughMode_); //
+	    mod.passThrough = getint(mod_config_data[typecode]["passthrough"],econPassthroughMode_);
 
-	//add the individual ROC config
-	size_t nerx(mod_config_data[typecode]["Gain"].size());
-	std::vector<HGCalROCConfig_t> rocs(nerx/2);
-	for(size_t i=0; i<nerx; i+=2) {
-	  size_t iroc = size_t(i/2);
-	  rocs[iroc].charMode = getint(mod_config_data[typecode]["CalibrationSC"][i], charMode_);
-	  rocs[iroc].gain = getint(mod_config_data[typecode]["Gain"][i], 1);
-	}	
-	mod.rocs = rocs;
-		
-        fed.econds[modid] = mod; // add to FED's vector of HGCalECONDConfig_t ECON-D modules
+	    // sanity checks for eRx half-ROCs
+        uint32_t nrocs  = moduleMap.getMaxERxSize(fedid,imod);
+        uint32_t nrocs2 = mod_config_data[typecode]["Gain"].size();
+        if (nrocs != nrocs2)
+          edm::LogWarning("HGCalConfigurationESProducer")
+            << " Number of eRx ROCs for ECON-D " << typecode << " in " << fedjson_ << " (" << nrocs2
+            << ") does not match that of the indexer for fedid" << fedid << " & imod=" << imod <<" (" << nrocs << ")!";
+        mod.rocs.resize(nrocs);
+
+        // fill eRX (half-ROC) configuration
+        for (uint32_t iroc = 0; iroc < nrocs; iroc++) {
+          ntot_rocs++;
+          HGCalROCConfig_t roc;
+          roc.gain     = (uint8_t) mod_config_data[typecode]["Gain"][iroc];
+          //roc.charMode = getint(mod_config_data[typecode]["characMode"],charMode_);
+          roc.charMode = getint(mod_config_data[typecode]["CalibrationSC"][iroc],charMode_);
+          //roc.charMode = mod_config_data[typecode]["CalibrationSC"];
+          mod.rocs[iroc] = roc; // add to ECON-D's vector<HGCalROCConfig_t> of eRx half-ROCs
+        }
+        fed.econds[imod] = mod; // add to FED's vector<HGCalECONDConfig_t> of ECON-D modules
+
       }
 
       config_.feds.push_back(fed); // add to config's vector of HGCalFedConfig_t FEDs
     }
+
+    // consistency check
+    if ( ntot_mods != moduleMap.getMaxModuleSize() )
+      edm::LogWarning("HGCalConfigurationESProducer") << "Total number of ECON-D modules found in JSON file "
+       << modjson_ << " (" << ntot_mods << ") does not match indexer (" << moduleMap.getMaxModuleSize() << ")";
+    if ( ntot_rocs != moduleMap.getMaxERxSize() )
+      edm::LogWarning("HGCalConfigurationESProducer") << "Total number of FEDs found in JSON file "
+       << modjson_ << " (" << ntot_rocs << ") does not match indexer (" << moduleMap.getMaxERxSize() << ")";
+
     return std::shared_ptr<HGCalConfiguration>(&config_, edm::do_nothing_deleter());
   }  // end of produce()
 
