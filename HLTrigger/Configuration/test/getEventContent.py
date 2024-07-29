@@ -114,7 +114,6 @@ def printHLTriggerEventContentCff(process):
       'hltOutputALCAPPSPrompt',
       'hltOutputALCALumiPixelsCountsExpress',
       'hltOutputALCALumiPixelsCountsPrompt',
-      'hltOutputRPCMON',
     ],
     'hltOutputMON_cff': [
       'hltOutputA',
@@ -167,8 +166,6 @@ def printHLTriggerEventContentCff(process):
     hltOutputALCA_cff.block_hltOutputALCALumiPixelsCountsExpress = cms.PSet(outputCommands = cms.untracked.vstring( 'drop *' ))
   if not hasattr(hltOutputALCA_cff,'block_hltOutputALCALumiPixelsCountsPrompt'):
     hltOutputALCA_cff.block_hltOutputALCALumiPixelsCountsPrompt = cms.PSet(outputCommands = cms.untracked.vstring( 'drop *' ))
-  if not hasattr(hltOutputALCA_cff,'block_hltOutputRPCMON'):
-    hltOutputALCA_cff.block_hltOutputRPCMON = cms.PSet(outputCommands = cms.untracked.vstring( 'drop *' ))
   hltDebugWithAlCaOutputBlocks = (
     # the DQM and HLTMON streams have the HLT debug outputs used online
     hltOutputMON_cff.block_hltOutputA.outputCommands,
@@ -182,7 +179,6 @@ def printHLTriggerEventContentCff(process):
     hltOutputALCA_cff.block_hltOutputALCAPPSPrompt.outputCommands,
     hltOutputALCA_cff.block_hltOutputALCALumiPixelsCountsExpress.outputCommands,
     hltOutputALCA_cff.block_hltOutputALCALumiPixelsCountsPrompt.outputCommands,
-    hltOutputALCA_cff.block_hltOutputRPCMON.outputCommands,
   )
   hltDebugWithAlCaOutputContent = buildPSet(hltDebugWithAlCaOutputBlocks)
 
