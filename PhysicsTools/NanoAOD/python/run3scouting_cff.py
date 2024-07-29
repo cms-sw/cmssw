@@ -223,6 +223,32 @@ metScoutingTable = cms.EDProducer("GlobalVariablesTableProducer",
     )
 )
 
+# from 2024, there are two scouting muon collections
+
+# muonVtx
+muonVtxScoutingTable = muonScoutingTable.clone(
+    src = cms.InputTag("hltScoutingMuonPackerVtx"),
+    name = cms.string("ScoutingMuonVtx"),
+    doc  = cms.string("Scouting Muon Vtx information"),
+)
+displacedvertexVtxScoutingTable = displacedvertexScoutingTable.clone(
+    src = cms.InputTag("hltScoutingMuonPackerVtx", "displacedVtx"),
+    name = cms.string("ScoutingMuonVtxDisplacedVertex"),
+    doc  = cms.string("Scouting Muon Vtx DisplacedVertex information"),
+)
+
+# muonNoVtx
+muonNoVtxScoutingTable = muonScoutingTable.clone(
+    src = cms.InputTag("hltScoutingMuonPackerNoVtx"),
+    name = cms.string("ScoutingMuonNoVtx"),
+    doc  = cms.string("Scouting Muon NoVtx information"),
+)
+displacedvertexNoVtxScoutingTable = displacedvertexScoutingTable.clone(
+    src = cms.InputTag("hltScoutingMuonPackerNoVtx", "displacedVtx"),
+    name = cms.string("ScoutingMuonNoVtxDisplacedVertex"),
+    doc  = cms.string("Scouting Muon NoVtx DisplacedVertex information"),
+)
+
 ################
 # Scouting particles
 
