@@ -2,7 +2,7 @@
 #define RDPSCP_H
 // performance test
 #if !defined(__arm__) && !defined(__aarch64__) && !defined(__powerpc64__) && !defined(__PPC64__) && \
-    !defined(__powerpc__)
+    !defined(__powerpc__) && !defined(__riscv)
 #include <x86intrin.h>
 #include <cpuid.h>
 #ifdef __clang__
