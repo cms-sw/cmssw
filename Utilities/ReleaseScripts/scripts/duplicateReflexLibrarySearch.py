@@ -32,10 +32,10 @@ typedefsDict = \
 equivDict = \
      [
          {'SelectorUtils': ['VersionedSelector']},
-         {'Associations': ['TTTrackTruthPair', 'edm::Wrapper.+edm::AssociationMap.+TrackingParticle', 'MtdSimLayerCluster.+TrackingParticle', 'TrackingParticle.+MtdSimLayerCluster']},
+         {'Associations': ['TTTrackTruthPair', 'edm::Wrapper.+edm::AssociationMap.+TrackingParticle', 'MtdSimLayerCluster.+TrackingParticle', 'TrackingParticle.+MtdSimLayerCluster',
+                           '(TTClusterAssociationMap|TTStubAssociationMap|TTTrackAssociationMap|TrackingParticle).*Phase2TrackerDigi',
+                           '(TTStub|TTCluster|TTTrack).*Phase2TrackerDigi.*TrackingParticle']},
          {'TrajectoryState'         : ['TrajectoryStateOnSurface']},
-         {'TrackTriggerAssociation' : ['(TTClusterAssociationMap|TTStubAssociationMap|TTTrackAssociationMap|TrackingParticle).*Phase2TrackerDigi',
-                                       '(TTStub|TTCluster|TTTrack).*Phase2TrackerDigi.*TrackingParticle']},
          {'L1TrackTrigger'        : ['(TTStub|TTCluster|TTTrack).*Phase2TrackerDigi']},
          {'L1TCalorimeterPhase2'  : ['l1tp2::CaloTower.*']},
          {'L1TCalorimeter'        : ['l1t::CaloTower.*']},
