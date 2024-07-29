@@ -27,6 +27,7 @@ process.dqmSaverPB.runNumber = options.runNumber
 
 process.load("DQMServices.Components.DQMProvInfo_cfi")
 
+
 process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load('RecoLocalMuon.GEMCSCSegment.gemcscSegments_cff')
@@ -46,6 +47,7 @@ process.gemRecHits.ge21Off = cms.bool(False)
 process.GEMDigiSource.runType = "online"
 process.GEMRecHitSource.runType = "online"
 process.GEMDAQStatusSource.runType = "online"
+process.GEMPadDigiClusterSource.runType = "online"
 
 # from csc_dqm_sourceclient-live_cfg.py
 process.CSCGeometryESModule.useGangedStripsInME1a = False
