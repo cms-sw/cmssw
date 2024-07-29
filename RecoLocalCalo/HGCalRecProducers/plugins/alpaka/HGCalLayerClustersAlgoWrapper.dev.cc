@@ -26,16 +26,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         queue, dc, kappa, outlierDeltaFactor, false);
 
     // Initialize output memory to 0
-    auto delta = cms::alpakatools::make_device_view<float>(alpaka::getDev(queue), outputs.delta(), size);
+    auto delta = cms::alpakatools::make_device_view<float>(queue, outputs.delta(), size);
     alpaka::memset(queue, delta, 0x0);
-    auto rho = cms::alpakatools::make_device_view<float>(alpaka::getDev(queue), outputs.rho(), size);
+    auto rho = cms::alpakatools::make_device_view<float>(queue, outputs.rho(), size);
     alpaka::memset(queue, rho, 0x0);
-    auto nearestHigher =
-        cms::alpakatools::make_device_view<unsigned int>(alpaka::getDev(queue), outputs.nearestHigher(), size);
+    auto nearestHigher = cms::alpakatools::make_device_view<unsigned int>(queue, outputs.nearestHigher(), size);
     alpaka::memset(queue, nearestHigher, 0x0);
-    auto clusterIndex = cms::alpakatools::make_device_view<int>(alpaka::getDev(queue), outputs.clusterIndex(), size);
+    auto clusterIndex = cms::alpakatools::make_device_view<int>(queue, outputs.clusterIndex(), size);
     alpaka::memset(queue, clusterIndex, kInvalidClusterByte);
-    auto isSeed = cms::alpakatools::make_device_view<uint8_t>(alpaka::getDev(queue), outputs.isSeed(), size);
+    auto isSeed = cms::alpakatools::make_device_view<uint8_t>(queue, outputs.isSeed(), size);
     alpaka::memset(queue, isSeed, 0x0);
 
     algoStandalone.makeClustersCMSSW(size,
