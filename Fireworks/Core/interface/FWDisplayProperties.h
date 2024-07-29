@@ -63,7 +63,6 @@ public:
 
   /** Notice that transparency in root is in the range [0, 100] */
   void setTransparency(Char_t transparency) {
-    transparency = transparency < 0 ? 0 : transparency;
     transparency = transparency > 100 ? 100 : transparency;
     m_transparency = transparency;
   }
