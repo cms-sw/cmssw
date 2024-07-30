@@ -332,9 +332,9 @@ def customizeHLTforDQMGPUvsCPUPixel(process):
     )
 
     # PixelRecHits: 'GPUvsCPU' comparisons
-    process.hltPixelRecHitsSoACompareGPUvsCPU = cms.EDProducer('SiPixelPhase1CompareRecHitsSoAAlpaka',
-        pixelHitsSrcHost = cms.InputTag('hltSiPixelRecHitsSoASerialSync'),
-        pixelHitsSrcDevice = cms.InputTag('hltSiPixelRecHitsSoA'),
+    process.hltPixelRecHitsSoACompareGPUvsCPU = cms.EDProducer('SiPixelPhase1CompareRecHits',
+        pixelHitsReferenceSoA = cms.InputTag('hltSiPixelRecHitsSoASerialSync'),
+        pixelHitsTargetSoA = cms.InputTag('hltSiPixelRecHitsSoA'),
         topFolderName = cms.string('SiPixelHeterogeneous/PixelRecHitsCompareGPUvsCPU'),
         minD2cut = cms.double(1.0e-4)
     )
@@ -353,11 +353,11 @@ def customizeHLTforDQMGPUvsCPUPixel(process):
         useQualityCut = cms.bool(True)
     )
 
-    process.hltPixelTracksSoACompareGPUvsCPU = cms.EDProducer("SiPixelPhase1CompareTrackSoAAlpaka",
+    process.hltPixelTracksSoACompareGPUvsCPU = cms.EDProducer("SiPixelPhase1CompareTracks",
         deltaR2cut = cms.double(0.04),
         minQuality = cms.string('loose'),
-        pixelTrackSrcHost = cms.InputTag("hltPixelTracksSoASerialSync"),
-        pixelTrackSrcDevice = cms.InputTag("hltPixelTracksSoA"),
+        pixelTrackReferenceSoA = cms.InputTag("hltPixelTracksSoASerialSync"),
+        pixelTrackTargetSoA = cms.InputTag("hltPixelTracksSoA"),
         topFolderName = cms.string('SiPixelHeterogeneous/PixelTrackCompareGPUvsCPU'),
         useQualityCut = cms.bool(True)
     )
@@ -374,11 +374,11 @@ def customizeHLTforDQMGPUvsCPUPixel(process):
         topFolderName = cms.string('SiPixelHeterogeneous/PixelVertexGPU')
     )
 
-    process.hltPixelVertexSoACompareGPUvsCPU = cms.EDProducer("SiPixelCompareVertexSoAAlpaka",
+    process.hltPixelVertexSoACompareGPUvsCPU = cms.EDProducer("SiPixelCompareVertices",
         beamSpotSrc = cms.InputTag("hltOnlineBeamSpot"),
         dzCut = cms.double(1),
-        pixelVertexSrcHost = cms.InputTag("hltPixelVerticesSoASerialSync"),
-        pixelVertexSrcDevice = cms.InputTag("hltPixelVerticesSoA"),
+        pixelVertexReferenceSoA = cms.InputTag("hltPixelVerticesSoASerialSync"),
+        pixelVertexTargetSoA = cms.InputTag("hltPixelVerticesSoA"),
         topFolderName = cms.string('SiPixelHeterogeneous/PixelVertexCompareGPUvsCPU')
     )
 
