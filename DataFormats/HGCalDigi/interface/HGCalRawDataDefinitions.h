@@ -106,6 +106,15 @@ namespace hgcal {
     SLINK_STATUS_MASK = 0xffff,
     SLINK_STATUS_POS = 0,
   };
+
+  enum DIGI_FLAG {
+    FULL_READOUT = 0x0000,
+    ZS_ADCm1 = 0x0001,
+    ZS_ToA = 0x0002,
+    ZS_ToA_ADCm1 = 0x0003,
+    ZS_ADC = 0x0004,
+    Invalid = 0x0005
+  };
 }  // namespace hgcal
 
 #endif

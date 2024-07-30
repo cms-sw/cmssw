@@ -11,6 +11,7 @@
 #ifndef EventFilter_HGCalRawToDigi_HGCalUnpacker_h
 #define EventFilter_HGCalRawToDigi_HGCalUnpacker_h
 
+#include "DataFormats/HGCalDigi/interface/HGCalRawDataDefinitions.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/HGCalDigi/interface/HGCalDigiHost.h"
 #include "DataFormats/HGCalDigi/interface/HGCalECONDInfoHost.h"
@@ -130,7 +131,22 @@ private:
                                             0b1111111111,
                                             0b1111111111,
                                             0b1111111111};
-
+  constexpr static uint16_t flags_[16] = {hgcal::DIGI_FLAG::ZS_ToA,
+                                          hgcal::DIGI_FLAG::ZS_ToA_ADCm1,
+                                          hgcal::DIGI_FLAG::ZS_ToA,
+                                          hgcal::DIGI_FLAG::ZS_ADCm1,
+                                          hgcal::DIGI_FLAG::FULL_READOUT,
+                                          hgcal::DIGI_FLAG::FULL_READOUT,
+                                          hgcal::DIGI_FLAG::FULL_READOUT,
+                                          hgcal::DIGI_FLAG::FULL_READOUT,
+                                          hgcal::DIGI_FLAG::Invalid,
+                                          hgcal::DIGI_FLAG::Invalid,
+                                          hgcal::DIGI_FLAG::Invalid,
+                                          hgcal::DIGI_FLAG::Invalid,
+                                          hgcal::DIGI_FLAG::FULL_READOUT,
+                                          hgcal::DIGI_FLAG::FULL_READOUT,
+                                          hgcal::DIGI_FLAG::FULL_READOUT,
+                                          hgcal::DIGI_FLAG::FULL_READOUT};
   constexpr static uint32_t erxBodyBits_[16] = {24, 16, 24, 24, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32};
 
   // HGCalUnpackerConfig config_;
