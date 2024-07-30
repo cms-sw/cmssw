@@ -7,10 +7,19 @@ namespace edmtest::reflection {
     IntObject();
     IntObject(int v) : value_(v) {}
 
+#ifdef FWCORE_REFLECTION_TEST_INTOBJECT_V4
+    void set(int v) {
+      value_ = v;
+      set_ = true;
+    }
+#endif
     int get() const { return value_; }
 
   private:
     int value_ = 0;
+#ifdef FWCORE_REFLECTION_TEST_INTOBJECT_V4
+    bool set_ = false;
+#endif
   };
 }  // namespace edmtest::reflection
 

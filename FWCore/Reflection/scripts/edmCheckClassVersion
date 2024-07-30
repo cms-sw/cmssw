@@ -113,7 +113,7 @@ if options.generate and not foundRootDoesNotMatchError and not missingDict:
             if normName is not None:
                 indent = l.find('<')
                 #this is a class with a problem
-                classVersion = p.classes[normName][XmlParser.classVersionIndex]
+                classVersion = p.classes[normName][ClassesDefUtils.XmlParser.classVersionIndex]
                 code,checksum,rootClassVersion = foundErrors[normName]
                 hasNoSubElements = (-1 != l.find('/>'))
                 if code == ClassesDefUtils.errorMustUpdateClassVersion:
