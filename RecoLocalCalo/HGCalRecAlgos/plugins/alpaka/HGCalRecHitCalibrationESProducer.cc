@@ -81,12 +81,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         //          << configHost.view().metadata().size() << std::endl;
 
         // load dense indexing
-        const uint32_t size = moduleMap.getMaxDataSize(); // channel-level size
-        const uint32_t nmod = moduleMap.getMaxERxSize(); // ROC-level size (number of ECON eRx)
-        hgcalrechit::HGCalCalibParamHost product(size, cms::alpakatools::host());
+        const uint32_t nchans = moduleMap.getMaxDataSize(); // channel-level size
+        //const uint32_t nmod = moduleMap.getMaxERxSize(); // ROC-level size (number of ECON eRx)
+        hgcalrechit::HGCalCalibParamHost product(nchans, cms::alpakatools::host());
         //product.view().map() = moduleMap; // set dense indexing in SoA (now redundant & NOT thread safe !?)
-        std::cout << "HGCalCalibrationESProducer::produce: moduleMap.getMaxDataSize()=" << size
-                  << ", moduleMap.getMaxERxSize()=" << nmod << std::endl;
+        //std::cout << "HGCalCalibrationESProducer::produce: moduleMap.getMaxDataSize()=" << nchans
+        //          << ", moduleMap.getMaxERxSize()=" << nmod << std::endl;
 
         // load calib parameters from JSON
         std::cout << "HGCalCalibrationESProducer::produce: filename_=" << filename_ << std::endl;
@@ -100,8 +100,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           const uint32_t offset = moduleMap.getIndexForModuleData(module); // convert module typecode to dense index for this module
           const uint32_t nrows = calib_data[module]["Channel"].size(); // number of channels to compare with JSON arrays
           const uint32_t nrocs = config.feds[ifed].econds[imod].rocs.size(); // number of channels to compare with JSON arrays
-          std::cout << "HGCalCalibrationESProducer::produce: calib_data[\"" << module << "\"][\"Channel\"].size() = "
-                    << nrows  << ", offset=" << offset << ", nrocs=" << nrocs << std::endl;
+          //std::cout << "HGCalCalibrationESProducer::produce: calib_data[\"" << module << "\"][\"Channel\"].size() = "
+          //          << nrows  << ", offset=" << offset << ", nrocs=" << nrocs << std::endl;
 
           // check number of channels & ROCs make sense
           uint32_t nchans = (nrows%39==0 ? 39 : 37); // number of channels per eRx (37 excl. common modes)
@@ -115,8 +115,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             const uint32_t i_gain = config.feds[ifed].econds[imod].rocs[iroc].gain-1; // index of JSON array corresponding to (index,gain) = (0,80fC), (1,160fC), (2,320fC)
             const uint32_t offset_arr = iroc*nchans; // dense index offset for JSON array (input to SoA)
             const uint32_t offset_soa = offset + offset_arr; // dense index offset for SoA
-            std::cout << "HGCalCalibrationESProducer::produce:   iroc=" << iroc << ", nchans=" << nchans
-                      << " => offset_soa=" << offset_soa << ", offset_arr=" << offset_arr << std::endl;
+            //std::cout << "HGCalCalibrationESProducer::produce:   iroc=" << iroc << ", nchans=" << nchans
+            //          << " => offset_soa=" << offset_soa << ", offset_arr=" << offset_arr << std::endl;
             if (offset_arr+nchans>nrows) {
               edm::LogWarning("HGCalCalibrationESProducer") << " offset + nchannels_per_eRx = " << offset_arr << " + " << nchans
                                                             << " = " << offset_arr+nchans << " > " << nrows << " = nchannels ";

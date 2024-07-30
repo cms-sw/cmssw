@@ -61,9 +61,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         // load dense indexing
         const uint32_t nERx = moduleMap.getMaxERxSize(); // half-ROC-level size
         hgcalrechit::HGCalConfigParamHost product(nERx, cms::alpakatools::host());
-        std::cout << "HGCalConfigurationESProducer::produce: moduleMap.getMaxDataSize()=" << moduleMap.getMaxDataSize()
-                  << ", moduleMap.getMaxERxSize()=" << nERx
-                  << ", moduleMap.getMaxModuleSize()=" << moduleMap.getMaxModuleSize() << std::endl;
+        //std::cout << "HGCalConfigurationESProducer::produce: moduleMap.getMaxDataSize()=" << moduleMap.getMaxDataSize()
+        //          << ", moduleMap.getMaxERxSize()=" << nERx
+        //          << ", moduleMap.getMaxModuleSize()=" << moduleMap.getMaxModuleSize() << std::endl;
 
         // fill SoA with gain
         if ( gain_ > 0 ) { // fill with single value from user override

@@ -99,16 +99,16 @@ public:
     // retrieve values from custom JSON format (see HGCalCalibrationESProducer)
     edm::FileInPath fedfip(fedjson_);          // e.g. HGCalCommissioning/LocalCalibration/data/config_feds.json
     edm::FileInPath modfip(modjson_);          // e.g. HGCalCommissioning/LocalCalibration/data/config_econds.json
-    std::cout << "HGCalConfigurationESProducer::produce: fedjson=" << fedfip.fullPath() << std::endl;
-    std::cout << "HGCalConfigurationESProducer::produce: modjson=" << modfip.fullPath() << std::endl;
+    //std::cout << "HGCalConfigurationESProducer::produce: fedjson=" << fedfip.fullPath() << std::endl;
+    //std::cout << "HGCalConfigurationESProducer::produce: modjson=" << modfip.fullPath() << std::endl;
     std::ifstream fedfile(fedfip.fullPath()); 
     std::ifstream modfile(modfip.fullPath());     
-    json fed_config_data = json::parse(fedfile);
-    json mod_config_data = json::parse(modfile);
+    const json fed_config_data = json::parse(fedfile);
+    const json mod_config_data = json::parse(modfile);
 
     // consistency check
     uint32_t nfeds = moduleMap.getNFED();
-    uint32_t ntot_mods, ntot_rocs;
+    uint32_t ntot_mods = 0, ntot_rocs = 0;
     const std::vector<std::string> fedkeys = { "mismatchPassthroughMode", "cbHeaderMarker", "slinkHeaderMarker", "econds" };
     const std::vector<std::string> modkeys = { "headerMarker", "passthrough", "Gain", "CalibrationSC" };
     if ( nfeds != fed_config_data.size() )
@@ -130,7 +130,7 @@ public:
       if (!fed_config_data.contains(sfedid))
         edm::LogWarning("HGCalConfigurationESProducer") << " Did not find FED index " << sfedid
                                                         << " in JSON file " << fedjson_ << "...";
-      checkkeys(fed_config_data,sfedid,fedkeys,fedjson_);
+      checkkeys(fed_config_data,sfedid,fedkeys,fedjson_); // check required keys are in the JSON, warn otherwise
 
       // fill FED configurations
       HGCalFedConfig_t fed;
@@ -149,7 +149,7 @@ public:
           edm::LogWarning("HGCalConfigurationESProducer") << " FED index from HGCalMappingModuleIndexer (" << fedid
                                                           << ") does not match that of the JSON file (" << fedid2 << ", " << fedjson_ 
                                                           << ") for ECON-D module with typecode " << typecode << " and id=" << imod << "!";
-        checkkeys(mod_config_data,typecode,modkeys,modjson_);
+        checkkeys(mod_config_data,typecode,modkeys,modjson_); // check required keys are in the JSON, warn otherwise
         if (imod >= fed.econds.size())
           fed.econds.resize(imod+1);
 
@@ -189,7 +189,7 @@ public:
       edm::LogWarning("HGCalConfigurationESProducer") << "Total number of ECON-D modules found in JSON file "
        << modjson_ << " (" << ntot_mods << ") does not match indexer (" << moduleMap.getMaxModuleSize() << ")";
     if ( ntot_rocs != moduleMap.getMaxERxSize() )
-      edm::LogWarning("HGCalConfigurationESProducer") << "Total number of FEDs found in JSON file "
+      edm::LogWarning("HGCalConfigurationESProducer") << "Total number of eRx half-ROCs found in JSON file "
        << modjson_ << " (" << ntot_rocs << ") does not match indexer (" << moduleMap.getMaxERxSize() << ")";
 
     return std::shared_ptr<HGCalConfiguration>(&config_, edm::do_nothing_deleter());
