@@ -1,7 +1,6 @@
 #define G__DICTIONARY
 
 #define SMATRIX_USE_CONSTEXPR
-#include <Math/SVector.h>
 #include <Math/SMatrix.h>
 
 #include "DataFormats/Math/interface/LorentzVector.h"
@@ -9,15 +8,12 @@
 #include "Math/PxPyPzE4D.h"
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "Math/Cartesian3D.h"
-#include "Math/Polar3D.h"
-#include "Math/CylindricalEta3D.h"
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/Math/interface/Vector.h"
 #include "DataFormats/Math/interface/Error.h"
 #include "DataFormats/Math/interface/Matrix.h"
 #include "DataFormats/Math/interface/libminifloat.h"
 #include "DataFormats/Common/interface/Wrapper.h"
-#include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 #include <vector>
 
