@@ -40,6 +40,7 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "EventFilter/L1TXRawToDigi/interface/UCTDAQRawData.h"
 #include "EventFilter/L1TXRawToDigi/interface/UCTAMCRawData.h"
+#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
 class L1TCaloLayer1Summary : public DQMEDAnalyzer {
 public:

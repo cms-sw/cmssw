@@ -16,7 +16,7 @@ void L1TCaloLayer1Summary::analyze(const edm::Event& iEvent, const edm::EventSet
   edm::Handle<FEDRawDataCollection> fedRawDataCollection;
   iEvent.getByToken(fedRawData_, fedRawDataCollection);
   if (fedRawDataCollection.isValid()) {
-    for (int iFed = 1354; iFed < 1360; iFed += 2) {
+    for (int iFed = FEDNumbering::MINRCTFEDID + 4; iFed < FEDNumbering::MAXRCTFEDID; iFed += 2) {
       const FEDRawData& fedRawData = fedRawDataCollection->FEDData(iFed);
       if (fedRawData.size() == 0) {
         continue;
@@ -26,9 +26,7 @@ void L1TCaloLayer1Summary::analyze(const edm::Event& iEvent, const edm::EventSet
 
       if (daqData.nAMCs() == 7) {
         UCTAMCRawData amcSlot7(daqData.amcPayload(3));
-        if (amcSlot7.amcNo() != 7) {
-          std::cout << "Wrong AMC No: " << amcSlot7.amcNo() << std::endl;
-        } else {
+        if (amcSlot7.amcNo() == 7) {
           histoSlot7MinusDaqBxid->Fill(amcSlot7.BXID() - daqData.BXID());
         }
       }
@@ -37,11 +35,18 @@ void L1TCaloLayer1Summary::analyze(const edm::Event& iEvent, const edm::EventSet
 
   L1CaloRegionCollection caloLayer1Regions = iEvent.get(caloLayer1RegionsToken_);
   L1CaloRegionCollection simRegions = iEvent.get(simRegionsToken_);
-
-  bool foundMatrix[2][18][18] = {};
-  int etMatrix[2][18][18] = {};
-
   int nRegions = caloLayer1Regions.size();
+
+  unsigned int maxEtaIdx = 0;
+  for (int iRegion = 0; iRegion < nRegions; iRegion++) {
+    if (maxEtaIdx < caloLayer1Regions[iRegion].gctEta()) {
+      maxEtaIdx = caloLayer1Regions[iRegion].gctEta();
+    }
+  }
+  int matrixSize = maxEtaIdx + 1;
+
+  bool foundMatrix[2][matrixSize][matrixSize] = {};
+  int etMatrix[2][matrixSize][matrixSize] = {};
   for (int iRegion = 0; iRegion < nRegions; iRegion++) {
     L1CaloRegion cRegion = caloLayer1Regions[iRegion];
     L1CaloRegion sRegion = simRegions[iRegion];
@@ -52,8 +57,8 @@ void L1TCaloLayer1Summary::analyze(const edm::Event& iEvent, const edm::EventSet
     etMatrix[1][sRegion.gctEta()][sRegion.gctPhi()] = sRegion.et();
   }
   int iRegion = 0;
-  for (int iEta = 0; iEta < 18; iEta++) {
-    for (int iPhi = 0; iPhi < 18; iPhi++) {
+  for (int iEta = 0; iEta < matrixSize; iEta++) {
+    for (int iPhi = 0; iPhi < matrixSize; iPhi++) {
       if (foundMatrix[0][iEta][iPhi] && foundMatrix[1][iEta][iPhi]) {
         histoCaloRegions->Fill(iRegion, etMatrix[0][iEta][iPhi]);
         histoSimRegions->Fill(iRegion, etMatrix[1][iEta][iPhi]);
@@ -69,19 +74,9 @@ void L1TCaloLayer1Summary::analyze(const edm::Event& iEvent, const edm::EventSet
 
   histoSimCICADAScore->Fill(simCICADAScore);
   histoCaloMinusSim->Fill(caloCICADAScore - simCICADAScore);
-
-  uint32_t bx0Idx;
-  if (gtCICADAScores.size() == 30) {
-    bx0Idx = 12;
-  } else if (gtCICADAScores.size() == 5) {
-    bx0Idx = 2;
-  } else {
-    bx0Idx = 2;
-  }
-
   histoCaloLayer1CICADAScore->Fill(caloCICADAScore);
-  histoGtCICADAScore->Fill(gtCICADAScores[bx0Idx]);
-  histoCaloMinusGt->Fill(gtCICADAScores[bx0Idx] - caloCICADAScore);
+  histoGtCICADAScore->Fill(gtCICADAScores.at(0, 0));
+  histoCaloMinusGt->Fill(gtCICADAScores.at(0, 0) - caloCICADAScore);
 }
 
 void L1TCaloLayer1Summary::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, edm::EventSetup const&) {
@@ -105,17 +100,16 @@ void L1TCaloLayer1Summary::bookHistograms(DQMStore::IBooker& ibooker, edm::Run c
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void L1TCaloLayer1Summary::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
+  // l1tCaloLayer1Summary
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
-  descriptions.addDefault(desc);
-
-  //Specify that only 'tracks' is allowed
-  //To use, remove the default given above and uncomment below
-  //edm::ParameterSetDescription desc;
-  //desc.addUntracked<edm::InputTag>("tracks", edm::InputTag("ctfWithMaterialTracks"));
-  //descriptions.addWithDefaultLabel(desc);
+  desc.add<edm::InputTag>("caloLayer1CICADAScore", edm::InputTag("caloLayer1Digis", "CICADAScore"));
+  desc.add<edm::InputTag>("gtCICADAScore", edm::InputTag("gtTestcrateStage2Digis", "CICADAScore"));
+  desc.add<edm::InputTag>("simCICADAScore", edm::InputTag("simCaloStage2Layer1Summary", "CICADAScore"));
+  desc.add<edm::InputTag>("caloLayer1Regions", edm::InputTag("caloLayer1Digis"));
+  desc.add<edm::InputTag>("simRegions", edm::InputTag("simCaloStage2Layer1Digis"));
+  desc.add<edm::InputTag>("fedRawDataLabel", edm::InputTag("rawDataCollector"));
+  desc.add<std::string>("histFolder", "L1T/L1TCaloLayer1Summary");
+  descriptions.add("l1tCaloLayer1Summary", desc);
 }
 
 //define this as a plug-in
