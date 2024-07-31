@@ -89,7 +89,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         //          << ", moduleMap.getMaxERxSize()=" << nmod << std::endl;
 
         // load calib parameters from JSON
-        std::cout << "HGCalCalibrationESProducer::produce: filename_=" << filename_ << std::endl;
+        //std::cout << "HGCalCalibrationESProducer::produce: filename_=" << filename_ << std::endl;
         std::ifstream infile(filename_);
         json calib_data = json::parse(infile);
         for (const auto& it: calib_data.items()) { // loop over module typecodes in JSON file
