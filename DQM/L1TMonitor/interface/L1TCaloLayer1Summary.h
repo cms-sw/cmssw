@@ -5,14 +5,14 @@
 //
 /**\class L1TCaloLayer1Summary L1TCaloLayer1Summary.cc Demo/L1TCaloLayer1Summary/plugins/L1TCaloLayer1Summary.cc
 
- Description: [one line class summary]
+ Description: DQM Analyzer for CaloLayer1 regions and CICADAScore
 
  Implementation:
-     [Notes on implementation]
+     This module uses emulator sequence for CaloLayer1.
 */
 //
 // Original Author:  Max Zhao <max.zhao@princeton.edu>
-//         Created:  Wed, 10 Jul 2024 08:52:01 GMT
+//         Created:  31 Jul 2024
 //
 //
 
@@ -40,19 +40,17 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "EventFilter/L1TXRawToDigi/interface/UCTDAQRawData.h"
 #include "EventFilter/L1TXRawToDigi/interface/UCTAMCRawData.h"
+#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
 class L1TCaloLayer1Summary : public DQMEDAnalyzer {
 public:
   explicit L1TCaloLayer1Summary(const edm::ParameterSet&);
-  ~L1TCaloLayer1Summary() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  // void beginJob() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker&, const edm::Run&, const edm::EventSetup&) override;
-  // void endJob() override;
 
   // ----------member data ---------------------------
   edm::EDGetTokenT<l1t::CICADABxCollection> caloLayer1CICADAScoreToken_;
@@ -71,9 +69,6 @@ private:
   dqm::reco::MonitorElement* histoCaloRegions;
   dqm::reco::MonitorElement* histoSimRegions;
   dqm::reco::MonitorElement* histoCaloMinusSimRegions;
-
-  // dqm::reco::MonitorElement* bigVectors[30];
-  // dqm::reco::MonitorElement* bigVectorsMinus[30];
 
   std::string histFolder_;
 };
