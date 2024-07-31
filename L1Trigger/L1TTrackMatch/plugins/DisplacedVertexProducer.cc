@@ -1,6 +1,9 @@
 #include "L1Trigger/L1TTrackMatch/interface/DisplacedVertexProducer.h"
 
-bool ComparePtTrack(Track_Parameters a, Track_Parameters b) { return a.pt > b.pt; }
+bool ComparePtTrack(std::pair<Track_Parameters, edm::Ptr<TrackingParticle>> a,
+                    std::pair<Track_Parameters, edm::Ptr<TrackingParticle>> b) {
+  return a.first.pt > b.first.pt;
+}
 
 Double_t dist(Double_t x1, Double_t y1, Double_t x2 = 0, Double_t y2 = 0) {  // Distance between 2 points
   return (TMath::Sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2)));
@@ -14,7 +17,7 @@ Double_t dist_TPs(Track_Parameters a, Track_Parameters b) {
   float R1 = a.rho;  // Radii of the circles
   float R2 = b.rho;
   float R = dist(x1, y1, x2, y2);  // Distance between centers
-  if ((R >= (R1 - R2)) && (R <= (R1 + R2))) {
+  if ((R >= fabs(R1 - R2)) && (R <= (R1 + R2))) {
     return (0);
   } else if (R == 0) {
     return (-99999.0);
@@ -103,10 +106,25 @@ Int_t calcVertex(Track_Parameters a, Track_Parameters b, Double_t& x_vtx, Double
 DisplacedVertexProducer::DisplacedVertexProducer(const edm::ParameterSet& iConfig)
     : ttTrackMCTruthToken_(consumes<TTTrackAssociationMap<Ref_Phase2TrackerDigi_>>(
           iConfig.getParameter<edm::InputTag>("mcTruthTrackInputTag"))),
-      trackToken_(consumes<TTTrackRefCollection>(iConfig.getParameter<edm::InputTag>("l1TracksInputTag"))),
+      trackToken_(consumes<std::vector<TTTrack<Ref_Phase2TrackerDigi_>>>(
+          iConfig.getParameter<edm::InputTag>("l1TracksInputTag"))),
       outputTrackCollectionName_(iConfig.getParameter<std::string>("l1TrackVertexCollectionName")),
       ONNXmodel_(iConfig.getParameter<std::string>("ONNXmodel")),
-      ONNXInputName_(iConfig.getParameter<std::string>("ONNXInputName")) {
+      ONNXInputName_(iConfig.getParameter<std::string>("ONNXInputName")),
+      cutSet_(iConfig.getParameter<edm::ParameterSet>("cutSet")),
+      chi2rzMax_(cutSet_.getParameter<double>("chi2rzMax")),
+      dispMVAMin_(cutSet_.getParameter<double>("dispMVAMin")),
+      promptMVAMin_(cutSet_.getParameter<double>("promptMVAMin")),
+      ptMin_(cutSet_.getParameter<double>("ptMin")),
+      etaMax_(cutSet_.getParameter<double>("etaMax")),
+      dispD0Min_(cutSet_.getParameter<double>("dispD0Min")),
+      promptMVADispTrackMin_(cutSet_.getParameter<double>("promptMVADispTrackMin")),
+      overlapEtaMin_(cutSet_.getParameter<double>("overlapEtaMin")),
+      overlapEtaMax_(cutSet_.getParameter<double>("overlapEtaMax")),
+      overlapNStubsMin_(cutSet_.getParameter<int>("overlapNStubsMin")),
+      diskEtaMin_(cutSet_.getParameter<double>("diskEtaMin")),
+      diskD0Min_(cutSet_.getParameter<double>("diskD0Min")),
+      barrelD0Min_(cutSet_.getParameter<double>("barrelD0Min")) {
   //--- Define EDM output to be written to file (if required)
   produces<l1t::DisplacedTrackVertexCollection>(outputTrackCollectionName_);
   runTime_ = std::make_unique<cms::Ort::ONNXRuntime>(this->ONNXmodel_);
@@ -115,16 +133,16 @@ DisplacedVertexProducer::DisplacedVertexProducer(const edm::ParameterSet& iConfi
 void DisplacedVertexProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   edm::Handle<TTTrackAssociationMap<Ref_Phase2TrackerDigi_>> MCTruthTTTrackHandle;
   iEvent.getByToken(ttTrackMCTruthToken_, MCTruthTTTrackHandle);
-  edm::Handle<TTTrackRefCollection> TTTrackHandle;
+  edm::Handle<std::vector<TTTrack<Ref_Phase2TrackerDigi_>>> TTTrackHandle;
   iEvent.getByToken(trackToken_, TTTrackHandle);
-  TTTrackRefCollection::const_iterator iterL1Track;
+  std::vector<TTTrack<Ref_Phase2TrackerDigi_>>::const_iterator iterL1Track;
   int this_l1track = 0;
-  std::vector<Track_Parameters> selectedTracks;
-  std::vector<edm::Ptr<TrackingParticle>> selectedTPs;
+  std::vector<std::pair<Track_Parameters, edm::Ptr<TrackingParticle>>> selectedTracksWithTruth;
 
   for (iterL1Track = TTTrackHandle->begin(); iterL1Track != TTTrackHandle->end(); iterL1Track++) {
     edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_>> l1track_ptr(TTTrackHandle, this_l1track);
     this_l1track++;
+
     float pt = l1track_ptr->momentum().perp();
     float eta = l1track_ptr->momentum().eta();
     float phi = l1track_ptr->momentum().phi();
@@ -142,42 +160,59 @@ void DisplacedVertexProducer::produce(edm::StreamID, edm::Event& iEvent, const e
     std::vector<edm::Ref<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>>, TTStub<Ref_Phase2TrackerDigi_>>>
         stubRefs = l1track_ptr->getStubRefs();
     int nstub = (int)stubRefs.size();
-    //std::cout<<"track params: "<<pt<<" "<<-d0<<" "<<z0<<" "<<eta<<" "<<phi<<" "<<rinv<<" "<<this_l1track<<" "<<nstub<<" "<<chi2rphi<<" "<<chi2rz<<" "<<bendchi2<<" "<<MVA1<<" "<<MVA2<<std::endl;
-    Track_Parameters track = Track_Parameters(pt,
-                                              -d0,
-                                              z0,
-                                              eta,
-                                              phi,
-                                              -99999,
-                                              -999,
-                                              -999,
-                                              -999,
-                                              rinv,
-                                              (this_l1track - 1),
-                                              nullptr,
-                                              nstub,
-                                              chi2rphi,
-                                              chi2rz,
-                                              bendchi2,
-                                              MVA1,
-                                              MVA2);
-    selectedTracks.push_back(track);
-    edm::Ptr<TrackingParticle> my_tp = MCTruthTTTrackHandle->findTrackingParticlePtr(l1track_ptr);
-    selectedTPs.push_back(my_tp);
+    if (chi2rz < chi2rzMax_ && MVA2 > dispMVAMin_ && MVA1 > promptMVAMin_ && pt > ptMin_ && fabs(eta) < etaMax_) {
+      if (fabs(d0) > dispD0Min_) {
+        if (MVA1 <= promptMVADispTrackMin_)
+          continue;
+      }
+      if (fabs(eta) > overlapEtaMin_ && fabs(eta) < overlapEtaMax_) {
+        if (nstub <= overlapNStubsMin_)
+          continue;
+      }
+      if (fabs(eta) > diskEtaMin_) {
+        if (fabs(d0) <= diskD0Min_)
+          continue;
+      }
+      if (fabs(eta) <= diskEtaMin_) {
+        if (fabs(d0) <= barrelD0Min_)
+          continue;
+      }
+
+      Track_Parameters track = Track_Parameters(pt,
+                                                -d0,
+                                                z0,
+                                                eta,
+                                                phi,
+                                                -99999,
+                                                -999,
+                                                -999,
+                                                -999,
+                                                rinv,
+                                                (this_l1track - 1),
+                                                nullptr,
+                                                nstub,
+                                                chi2rphi,
+                                                chi2rz,
+                                                bendchi2,
+                                                MVA1,
+                                                MVA2);
+
+      edm::Ptr<TrackingParticle> my_tp = MCTruthTTTrackHandle->findTrackingParticlePtr(l1track_ptr);
+      selectedTracksWithTruth.push_back(std::make_pair(track, my_tp));
+    }
   }
 
-  //std::cout<<"num selected tracks: "<<selectedTracks.size()<<std::endl;
-  sort(selectedTracks.begin(), selectedTracks.end(), ComparePtTrack);
+  sort(selectedTracksWithTruth.begin(), selectedTracksWithTruth.end(), ComparePtTrack);
   std::unique_ptr<l1t::DisplacedTrackVertexCollection> product(new std::vector<l1t::DisplacedTrackVertex>());
-  for (int i = 0; i < int(selectedTracks.size() - 1); i++) {
-    for (int j = i + 1; j < int(selectedTracks.size()); j++) {
-      if (dist_TPs(selectedTracks[i], selectedTracks[j]) != 0)
+  for (int i = 0; i < int(selectedTracksWithTruth.size() - 1); i++) {
+    for (int j = i + 1; j < int(selectedTracksWithTruth.size()); j++) {
+      if (dist_TPs(selectedTracksWithTruth[i].first, selectedTracksWithTruth[j].first) != 0)
         continue;
       Double_t x_dv_trk = -9999.0;
       Double_t y_dv_trk = -9999.0;
       Double_t z_dv_trk = -9999.0;
-      edm::Ptr<TrackingParticle> tp_i = selectedTPs[i];
-      edm::Ptr<TrackingParticle> tp_j = selectedTPs[j];
+      edm::Ptr<TrackingParticle> tp_i = selectedTracksWithTruth[i].second;
+      edm::Ptr<TrackingParticle> tp_j = selectedTracksWithTruth[j].second;
       bool isReal = false;
       if (!tp_i.isNull() && !tp_j.isNull()) {
         bool isHard_i = false;
@@ -188,15 +223,18 @@ void DisplacedVertexProducer::produce(edm::StreamID, edm::Event& iEvent, const e
         }
 
         if (tp_i->eventId().event() == 0 && tp_j->eventId().event() == 0 && fabs(tp_i->vx() - tp_j->vx()) < 0.0001 &&
-            fabs(tp_i->vy() - tp_j->vy()) < 0.0001 && fabs(tp_i->vz() - tp_j->vz()) < 0.0001 && isHard_i && isHard_j) {
+            fabs(tp_i->vy() - tp_j->vy()) < 0.0001 && fabs(tp_i->vz() - tp_j->vz()) < 0.0001 && isHard_i && isHard_j &&
+            ((tp_i->charge() + tp_j->charge()) == 0)) {
           isReal = true;
         }
       }
 
-      int inTraj = calcVertex(selectedTracks[i], selectedTracks[j], x_dv_trk, y_dv_trk, z_dv_trk);
-      Vertex_Parameters vertex = Vertex_Parameters(x_dv_trk, y_dv_trk, z_dv_trk, selectedTracks[i], selectedTracks[j]);
-      l1t::DisplacedTrackVertex outputVertex = l1t::DisplacedTrackVertex(selectedTracks[i].index,
-                                                                         selectedTracks[j].index,
+      int inTraj =
+          calcVertex(selectedTracksWithTruth[i].first, selectedTracksWithTruth[j].first, x_dv_trk, y_dv_trk, z_dv_trk);
+      Vertex_Parameters vertex = Vertex_Parameters(
+          x_dv_trk, y_dv_trk, z_dv_trk, selectedTracksWithTruth[i].first, selectedTracksWithTruth[j].first);
+      l1t::DisplacedTrackVertex outputVertex = l1t::DisplacedTrackVertex(selectedTracksWithTruth[i].first.index,
+                                                                         selectedTracksWithTruth[j].first.index,
                                                                          i,
                                                                          j,
                                                                          inTraj,
@@ -218,24 +256,24 @@ void DisplacedVertexProducer::produce(edm::StreamID, edm::Event& iEvent, const e
       float minD0 = vertex.a.d0;
       if (fabs(vertex.b.d0) < fabs(minD0))
         minD0 = vertex.b.d0;
-      std::vector<float> Transformed_features = {selectedTracks[i].pt,
-                                                 selectedTracks[j].pt,
-                                                 selectedTracks[i].eta,
-                                                 selectedTracks[j].eta,
-                                                 selectedTracks[i].phi,
-                                                 selectedTracks[j].phi,
-                                                 selectedTracks[i].d0,
-                                                 selectedTracks[j].d0,
-                                                 selectedTracks[i].z0,
-                                                 selectedTracks[j].z0,
-                                                 selectedTracks[i].chi2rz,
-                                                 selectedTracks[j].chi2rz,
-                                                 selectedTracks[i].bendchi2,
-                                                 selectedTracks[j].bendchi2,
-                                                 selectedTracks[i].MVA1,
-                                                 selectedTracks[j].MVA1,
-                                                 selectedTracks[i].MVA2,
-                                                 selectedTracks[j].MVA2,
+      std::vector<float> Transformed_features = {selectedTracksWithTruth[i].first.pt,
+                                                 selectedTracksWithTruth[j].first.pt,
+                                                 selectedTracksWithTruth[i].first.eta,
+                                                 selectedTracksWithTruth[j].first.eta,
+                                                 selectedTracksWithTruth[i].first.phi,
+                                                 selectedTracksWithTruth[j].first.phi,
+                                                 selectedTracksWithTruth[i].first.d0,
+                                                 selectedTracksWithTruth[j].first.d0,
+                                                 selectedTracksWithTruth[i].first.z0,
+                                                 selectedTracksWithTruth[j].first.z0,
+                                                 selectedTracksWithTruth[i].first.chi2rz,
+                                                 selectedTracksWithTruth[j].first.chi2rz,
+                                                 selectedTracksWithTruth[i].first.bendchi2,
+                                                 selectedTracksWithTruth[j].first.bendchi2,
+                                                 selectedTracksWithTruth[i].first.MVA1,
+                                                 selectedTracksWithTruth[j].first.MVA1,
+                                                 selectedTracksWithTruth[i].first.MVA2,
+                                                 selectedTracksWithTruth[j].first.MVA2,
                                                  vertex.d_T,
                                                  vertex.R_T,
                                                  vertex.cos_T,
