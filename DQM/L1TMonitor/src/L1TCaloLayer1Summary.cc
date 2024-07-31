@@ -1,14 +1,15 @@
 #include "DQM/L1TMonitor/interface/L1TCaloLayer1Summary.h"
 
 L1TCaloLayer1Summary::L1TCaloLayer1Summary(const edm::ParameterSet& iConfig)
-    : caloLayer1CICADAScoreToken_(consumes<l1t::CICADABxCollection>(iConfig.getParameter<edm::InputTag>("caloLayer1CICADAScore"))),
-    gtCICADAScoreToken_(consumes<l1t::CICADABxCollection>(iConfig.getParameter<edm::InputTag>("gtCICADAScore"))),
-    simCICADAScoreToken_(consumes<l1t::CICADABxCollection>(iConfig.getParameter<edm::InputTag>("simCICADAScore"))),
-    caloLayer1RegionsToken_(consumes<L1CaloRegionCollection>(iConfig.getParameter<edm::InputTag>("caloLayer1Regions"))),
-    simRegionsToken_(consumes<L1CaloRegionCollection>(iConfig.getParameter<edm::InputTag>("simRegions"))),
-    fedRawData_(consumes<FEDRawDataCollection>(iConfig.getParameter<edm::InputTag>("fedRawDataLabel"))),
-    histFolder_(iConfig.getParameter<std::string>("histFolder")) {
-}
+    : caloLayer1CICADAScoreToken_(
+          consumes<l1t::CICADABxCollection>(iConfig.getParameter<edm::InputTag>("caloLayer1CICADAScore"))),
+      gtCICADAScoreToken_(consumes<l1t::CICADABxCollection>(iConfig.getParameter<edm::InputTag>("gtCICADAScore"))),
+      simCICADAScoreToken_(consumes<l1t::CICADABxCollection>(iConfig.getParameter<edm::InputTag>("simCICADAScore"))),
+      caloLayer1RegionsToken_(
+          consumes<L1CaloRegionCollection>(iConfig.getParameter<edm::InputTag>("caloLayer1Regions"))),
+      simRegionsToken_(consumes<L1CaloRegionCollection>(iConfig.getParameter<edm::InputTag>("simRegions"))),
+      fedRawData_(consumes<FEDRawDataCollection>(iConfig.getParameter<edm::InputTag>("fedRawDataLabel"))),
+      histFolder_(iConfig.getParameter<std::string>("histFolder")) {}
 
 // ------------ method called for each event  ------------
 void L1TCaloLayer1Summary::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -88,16 +89,18 @@ void L1TCaloLayer1Summary::bookHistograms(DQMStore::IBooker& ibooker, edm::Run c
   histoSlot7MinusDaqBxid = ibooker.book1D("slot7BXID", "Slot 7- DAQ BXID", 50, -20, 20);
 
   ibooker.setCurrentFolder(histFolder_ + "/CICADAScore");
-  histoCaloLayer1CICADAScore = ibooker.book1D("caloLayer1CICADAScore" , "CaloLayer1 CICADAScore" , 50 , 0 , 200 );
-  histoGtCICADAScore = ibooker.book1D("gtCICADAScore" , "GT CICADAScore at BX0" , 50 , 0 , 200 );
-  histoCaloMinusGt = ibooker.book1D("caloMinusGtCICADAScore" , "CaloLayer1 - GT CICADAScore at BX0", 50, -50, 50);
-  histoSimCICADAScore = ibooker.book1D("simCaloLayer1CICADAScore" , "simCaloLayer1 CICADAScore" , 50 , 0 , 200 );
-  histoCaloMinusSim = ibooker.book1D("caloMinusSimCICADAScore" , "CaloLayer1 - simCaloLayer1 CICADAScore", 50, -50, 50);
+  histoCaloLayer1CICADAScore = ibooker.book1D("caloLayer1CICADAScore", "CaloLayer1 CICADAScore", 50, 0, 200);
+  histoGtCICADAScore = ibooker.book1D("gtCICADAScore", "GT CICADAScore at BX0", 50, 0, 200);
+  histoCaloMinusGt = ibooker.book1D("caloMinusGtCICADAScore", "CaloLayer1 - GT CICADAScore at BX0", 50, -50, 50);
+  histoSimCICADAScore = ibooker.book1D("simCaloLayer1CICADAScore", "simCaloLayer1 CICADAScore", 50, 0, 200);
+  histoCaloMinusSim = ibooker.book1D("caloMinusSimCICADAScore", "CaloLayer1 - simCaloLayer1 CICADAScore", 50, -50, 50);
 
   ibooker.setCurrentFolder(histFolder_ + "/Regions");
-  histoCaloMinusSimRegions = ibooker.book2D("caloMinusSumRegions", "CaloLayer1 - simCaloLayer1 Regions;Region;ET", 252, -0.5, 252.5, 100, -400, 400);
+  histoCaloMinusSimRegions = ibooker.book2D(
+      "caloMinusSumRegions", "CaloLayer1 - simCaloLayer1 Regions;Region;ET", 252, -0.5, 252.5, 100, -400, 400);
   histoCaloRegions = ibooker.book2D("caloLayer1Regions", "CaloLayer1 Regions;Region;ET", 252, -0.5, 252.5, 100, 0, 800);
-  histoSimRegions = ibooker.book2D("simCaloLayer1Regions", "simCaloLayer1 Regions;Region;ET", 252, -0.5, 252.5, 100, 0, 800);
+  histoSimRegions =
+      ibooker.book2D("simCaloLayer1Regions", "simCaloLayer1 Regions;Region;ET", 252, -0.5, 252.5, 100, 0, 800);
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
