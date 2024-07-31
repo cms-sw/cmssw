@@ -1010,17 +1010,22 @@ namespace mkfit {
             float new_q, new_phi, new_ddphi, new_ddq;
             bool prop_fail;
 
+            //X bool dumpehit = false;
+
             if (L.is_barrel()) {
               const Hit &hit = L.refHit(hi_orig);
               unsigned int mid = hit.detIDinLayer();
               const ModuleInfo &mi = LI.module_info(mid);
-	      
+
               // Original condition, for phase2
               // if (L.layer_id() >= 4 && L.layer_id() <= 9 && std::abs(mp_is.z) > 10.f) {
-	      
+
               // This could work well instead of prop-to-r, too. Limit to 0.05 rad, 2.85 deg.
               if (std::abs(mi.zdir(2)) > 0.05f) {
-	      
+
+                //X printf("On layer %d, z=%.2f, pT=%.2f --- mid=%u mid-fixed=%u (n_mod=%d)\n",
+                //X   L.layer_id(), mp_is.z, 1.0f/mp_is.inv_pt, hit.detIDinLayer(), mid, LI.n_modules());
+
                 prop_fail = mp_is.propagate_to_plane(mp::PA_Line, mi, mp_s, true);
                 new_q = mp_s.z;
                 /*
@@ -1033,22 +1038,27 @@ namespace mkfit {
                 new_ddq = std::abs(new_ddq);
                 */
                 new_ddq = std::abs(new_q - L.hit_q(hi));
-                // dq from z direction is actually projected, so just take plain dz.
-	      
+                // dq from z direction is actually projected ... so just take plain dz.
+
+                //X printf("  New ddq=%.4f, not-on-plane=%.4f, old-style=%.4f\n",
+                //X         new_ddq, std::abs(new_q - L.hit_q(hi)), std::abs(mp_is.z - L.hit_q(hi)));
+                //X dumpehit = true;
+
               } else {
                 prop_fail = mp_is.propagate_to_r(mp::PA_Exact, L.hit_qbar(hi), mp_s, true);
                 new_q = mp_s.z;
                 new_ddq = std::abs(new_q - L.hit_q(hi));
-	      }
+              }
             } else {
               prop_fail = mp_is.propagate_to_z(mp::PA_Exact, L.hit_qbar(hi), mp_s, true);
               new_q = std::hypot(mp_s.x, mp_s.y);
-	      new_ddq = std::abs(new_q - L.hit_q(hi));
+              new_ddq = std::abs(new_q - L.hit_q(hi));
             }
 
             new_phi = vdt::fast_atan2f(mp_s.y, mp_s.x);
             new_ddphi = cdist(std::abs(new_phi - L.hit_phi(hi)));
-            bool dqdphi_presel = new_ddq < B.dq_track[itrack] + DDQ_PRESEL_FAC * L.hit_q_half_length(hi) &&
+
+            bool dqdphi_presel = new_ddq < 3.5f*(B.dq_track[itrack] + DDQ_PRESEL_FAC * L.hit_q_half_length(hi)) &&
                                  new_ddphi < B.dphi_track[itrack] + DDPHI_PRESEL_FAC * 0.0123f;
 
             // clang-format off
@@ -1087,6 +1097,14 @@ namespace mkfit {
                 false, IdxChi2List()
               });
               ci.hmi.back().ic2list.reset(); // zero initialize
+
+              //X if (dumpehit) {
+              //   printf("Was a %s hit. presel=%d q-presel=%d phi-presel=%d, q_hl=%.3f, track_dq=%.3f\n",
+              //          (sim_lbl == hit_lbl) ? "GOOD" : "BAD", dqdphi_presel,
+              //          new_ddq < B.dq_track[itrack] + DDQ_PRESEL_FAC * L.hit_q_half_length(hi),
+              //          new_ddphi < B.dphi_track[itrack] + DDPHI_PRESEL_FAC * 0.0123f,
+              //          L.hit_q_half_length(hi), B.dq_track[itrack]);
+              //X }
 
               bool new_dec = dqdphi_presel && !prop_fail;
               ++ci.n_all_hits;
