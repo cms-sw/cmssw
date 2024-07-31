@@ -182,18 +182,13 @@ void RPCRecHitValid::bookHistograms(DQMStore::IBooker &booker, edm::Run const &r
       if (!roll)
         continue;
 
-      // RPCGeomServ rpcSrv(roll->id());
       const int rawId = roll->geographicalId().rawId();
-      // if ( !roll->specs()->isRPC() ) { cout << "\nNoRPC : " << rpcSrv.name()
-      // << ' ' << rawId << endl; continue; }
 
       if (roll->isBarrel()) {
         detIdToIndexMapBarrel_[rawId] = nRPCRollBarrel;
-        // rollIdToNameMapBarrel_[rawId] = rpcSrv.name();
         ++nRPCRollBarrel;
       } else {
         detIdToIndexMapEndcap_[rawId] = nRPCRollEndcap;
-        // rollIdToNameMapEndcap_[rawId] = rpcSrv.name();
         ++nRPCRollEndcap;
       }
     }
@@ -244,10 +239,6 @@ void RPCRecHitValid::bookHistograms(DQMStore::IBooker &booker, edm::Run const &r
     const RPCDetId rpcDetId = static_cast<const RPCDetId>(rawId);
     const RPCRoll *roll = dynamic_cast<const RPCRoll *>(rpcGeom->roll(rpcDetId));
 
-    // RPCGeomServ rpcSrv(roll->id());
-    // if ( !roll->specs()->isRPC() ) { cout << "\nNoRPC : " << rpcSrv.name() <<
-    // ' ' << rawId << endl; continue; }
-
     const StripTopology &topol = roll->specificTopology();
     const double area = topol.stripLength() * topol.nstrips() * topol.pitch();
 
@@ -260,10 +251,6 @@ void RPCRecHitValid::bookHistograms(DQMStore::IBooker &booker, edm::Run const &r
 
     const RPCDetId rpcDetId = static_cast<const RPCDetId>(rawId);
     const RPCRoll *roll = dynamic_cast<const RPCRoll *>(rpcGeom->roll(rpcDetId));
-
-    // RPCGeomServ rpcSrv(roll->id());
-    // if ( !roll->specs()->isRPC() ) { cout << "\nNoRPC : " << rpcSrv.name() <<
-    // ' ' << rawId << endl; continue; }
 
     const StripTopology &topol = roll->specificTopology();
     const double area = topol.stripLength() * topol.nstrips() * topol.pitch();
@@ -318,7 +305,7 @@ void RPCRecHitValid::analyze(const edm::Event &event, const edm::EventSetup &eve
   typedef std::vector<TrackPSimHitRef> SimHitRefs;
 
   // TrackingParticles with (and without) RPC simHits
-  SimHitRefs muonSimHits, pthrSimHits;
+  SimHitRefs muonSimHits;
 
   for (int i = 0, n = simParticleHandle->size(); i < n; ++i) {
     TrackingParticleRef simParticle(simParticleHandle, i);
@@ -349,8 +336,8 @@ void RPCRecHitValid::analyze(const edm::Event &event, const edm::EventSetup &eve
       int nRPCHitBarrel = 0;
       int nRPCHitEndcap = 0;
       for (const auto &simHit : simHitsFromParticle) {
-        const RPCDetId rpcDetId = static_cast<const RPCDetId>(simHit->detUnitId());
-        const RPCRoll *roll = dynamic_cast<const RPCRoll *>(rpcGeom->roll(rpcDetId));
+        const RPCDetId rpcDetId{simHit->detUnitId()};
+        const RPCRoll *roll = rpcGeom->roll(rpcDetId);
         if (!roll)
           continue;
 
@@ -431,10 +418,7 @@ void RPCRecHitValid::analyze(const edm::Event &event, const edm::EventSetup &eve
 
     const int region = roll->id().region();
     const int ring = roll->id().ring();
-    // const int sector = roll->id().sector();
     const int station = roll->id().station();
-    // const int layer = roll->id().layer();
-    // const int subSector = roll->id().subsector();
 
     if (region == 0) {
       ++nRefHitBarrel;
@@ -466,10 +450,7 @@ void RPCRecHitValid::analyze(const edm::Event &event, const edm::EventSetup &eve
 
     const int region = roll->id().region();
     const int ring = roll->id().ring();
-    // const int sector = roll->id().sector();
     const int station = roll->id().station();
-    // const int layer = roll->id().layer();
-    // const int subSector = roll->id().subsector();
 
     const double time = recHitIter->timeError() >= 0 ? recHitIter->time() : recHitIter->BunchX() * 25;
 
@@ -524,15 +505,13 @@ void RPCRecHitValid::analyze(const edm::Event &event, const edm::EventSetup &eve
   SimToRecHitMap simToRecHitMap;
 
   for (const auto &simHit : muonSimHits) {
-    const RPCDetId simDetId = static_cast<const RPCDetId>(simHit->detUnitId());
-    // const RPCRoll* simRoll = dynamic_cast<const
-    // RPCRoll*>(rpcGeom->roll(simDetId));
+    const RPCDetId simDetId{simHit->detUnitId()};
 
     const double simX = simHit->localPosition().x();
 
     for (RecHitIter recHitIter = recHitHandle->begin(); recHitIter != recHitHandle->end(); ++recHitIter) {
-      const RPCDetId recDetId = static_cast<const RPCDetId>(recHitIter->rpcId());
-      const RPCRoll *recRoll = dynamic_cast<const RPCRoll *>(rpcGeom->roll(recDetId));
+      const RPCDetId recDetId{recHitIter->rpcId()};
+      const RPCRoll *recRoll = rpcGeom->roll(recDetId);
       if (!recRoll)
         continue;
 
@@ -568,19 +547,13 @@ void RPCRecHitValid::analyze(const edm::Event &event, const edm::EventSetup &eve
 
     const int region = roll->id().region();
     const int ring = roll->id().ring();
-    // const int sector = roll->id().sector();
     const int station = roll->id().station();
-    // const int layer = roll->id().layer();
-    // const int subsector = roll->id().subsector();
 
     const double simX = simHit->localPosition().x();
     const double recX = recHitIter->localPosition().x();
     const double errX = sqrt(recHitIter->localPositionError().xx());
     const double dX = recX - simX;
     const double pull = errX == 0 ? -999 : dX / errX;
-
-    // const GlobalPoint simPos = roll->toGlobal(simHitIter->localPosition());
-    // const GlobalPoint recPos = roll->toGlobal(recHitIter->localPosition());
 
     if (region == 0) {
       ++nMatchHitBarrel;
