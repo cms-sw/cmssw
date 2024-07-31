@@ -59,7 +59,6 @@
   </class>
   <class name="std::vector<l1t::TkTripletWord>"/>
   <class name="edm::Wrapper<std::vector<l1t::TkTripletWord> >"/>
-  <class name="edm::Wrapper<l1t::TkTripletWordCollection>"/>
 
   <class name="l1t::EGamma" ClassVersion="14">
    <version ClassVersion="14" checksum="1235149790"/>
