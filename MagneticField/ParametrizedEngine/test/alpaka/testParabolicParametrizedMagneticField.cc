@@ -6,6 +6,7 @@
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/FWLite/interface/Record.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "CLHEP/Geometry/Vector3D.h"
 
 #include "MagneticField/ParametrizedEngine/interface/alpaka/ParabolicParametrizedMagneticField.h"
 
@@ -24,11 +25,11 @@ using namespace alpaka;
 using namespace ALPAKA_ACCELERATOR_NAMESPACE;
 using namespace ALPAKA_ACCELERATOR_NAMESPACE::magneticFieldParabolicPortable;
 using Vector3f = Eigen::Matrix<float, 3, 1>;
+using Vec3 = CLHEP::Hep3Vector;
 
 struct MagneticFieldKernel {
   template <typename TAcc, typename T>
-  ALPAKA_FN_ACC void operator()(
-      TAcc const& acc, T const* __restrict__ in, T* __restrict__ out, size_t size) const {
+  ALPAKA_FN_ACC void operator()(TAcc const& acc, T const* __restrict__ in, T* __restrict__ out, size_t size) const {
     for (auto index : cms::alpakatools::uniform_elements(acc, size)) {
       out[index][0] = 0;
       out[index][1] = 0;
@@ -38,6 +39,15 @@ struct MagneticFieldKernel {
 };
 
 int main() {
+
+  // get the list of devices on the current platform
+  auto const& devices = cms::alpakatools::devices<Platform>();
+  if (devices.empty()) {
+    std::cerr << "No devices available for the " EDM_STRINGIZE(ALPAKA_ACCELERATOR_NAMESPACE) " backend, "
+      "the test will be skipped.\n";
+    exit(EXIT_FAILURE);
+  }
+
   ifstream file;
   edm::FileInPath mydata("MagneticField/Engine/data/Regression/referenceField_160812_RII_3_8T.bin");
   file.open(mydata.fullPath().c_str(), ios::binary);
@@ -55,8 +65,8 @@ int main() {
           file.read((char*)&by, sizeof(float)) && file.read((char*)&bz, sizeof(float))))
       break;
 
-    const auto gp = GlobalPoint(px, py, pz);
-    if (gp.perp2() > Parameters::max_radius2 || fabs(gp.z()) > Parameters::max_z)
+    const auto point = Vec3(px, py, pz);
+    if (isValid(point))
       continue;
 
     points.push_back(Vector3f(px, py, pz));
@@ -79,7 +89,7 @@ int main() {
   int fail = 0;
 
   // run the test on each device
-  for (auto const& device : cms::alpakatools::devices<Platform>()) {
+  for (auto const& device : devices) {
     auto queue = Queue(device);
     // allocate input and output buffers on the device
     auto points_dev = cms::alpakatools::make_device_buffer<float[]>(queue, size);
@@ -100,21 +110,21 @@ int main() {
     alpaka::wait(queue);
 
     // check the results
-    for (uint i=0; i<points.size(); i++) {
+    for (uint i = 0; i < points.size(); i++) {
       const auto point = points[i];
       const auto referenceB = referenceB_vec[i];
       const auto out_host_element = out_host[i];
       GlobalVector parametricB(out_host_element[0], out_host_element[1], out_host_element[2]);
-      if ((referenceB - parametricB).mag() > resolution) {
+      float delta = (referenceB - parametricB).mag();
+      if (delta > resolution) {
         ++fail;
-        float delta = (referenceB - parametricB).mag();
         if (delta > maxdelta)
           maxdelta = delta;
         if (fail < 10) {
           const GlobalPoint gp(point(0), point(1), point(2));
           cout << " Discrepancy at point  # " << count + 1 << ": " << gp << ", R " << gp.perp() << ", Phi " << gp.phi()
                << ", delta: " << referenceB - parametricB << " " << delta << endl;
-          cout << " Old: " << referenceB << ", New: " << parametricB << endl;
+          cout << " Reference: " << referenceB << ", Approximation: " << parametricB << endl;
         } else if (fail == 10) {
           cout << "..." << endl;
         }
@@ -122,6 +132,7 @@ int main() {
     }
 
     if (fail != 0)
-      throw cms::Exception("RegressionFailure") << "MF regression found: at least " << fail << " failures";
+      throw cms::Exception("RegressionFailure") << "MF regression found: " << fail << " failures; max delta = "
+        << maxdelta << endl;
   }
 }
