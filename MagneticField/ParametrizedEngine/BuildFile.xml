@@ -2,7 +2,6 @@
 <use name="FWCore/ParameterSet"/>
 <use name="MagneticField/Engine"/>
 <use name="MagneticField/UniformEngine"/>
-<use name="HeterogeneousCore/AlpakaInterface"/>
 <export>
   <lib name="1"/>
 </export>

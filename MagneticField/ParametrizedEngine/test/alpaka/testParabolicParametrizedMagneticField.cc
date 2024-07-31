@@ -39,7 +39,6 @@ struct MagneticFieldKernel {
 };
 
 int main() {
-
   // get the list of devices on the current platform
   auto const& devices = cms::alpakatools::devices<Platform>();
   if (devices.empty()) {
@@ -132,7 +131,7 @@ int main() {
     }
 
     if (fail != 0)
-      throw cms::Exception("RegressionFailure") << "MF regression found: " << fail << " failures; max delta = "
-        << maxdelta << endl;
+      throw cms::Exception("RegressionFailure")
+          << "MF regression found: " << fail << " failures; max delta = " << maxdelta << endl;
   }
 }
