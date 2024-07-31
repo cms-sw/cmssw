@@ -263,8 +263,8 @@ unsigned TritonClient::batchSize() const { return batchMode_ == TritonBatchMode:
 bool TritonClient::setBatchSize(unsigned bsize) {
   if (batchMode_ == TritonBatchMode::Rectangular) {
     if (bsize > maxOuterDim_) {
-      edm::LogWarning(fullDebugName_) << "Requested batch size " << bsize << " exceeds server-specified max batch size "
-                                      << maxOuterDim_ << ". Batch size will remain as " << outerDim_;
+      throw TritonException("LocalFailure")
+          << "Requested batch size " << bsize << " exceeds server-specified max batch size " << maxOuterDim_ << ".";
       return false;
     } else {
       outerDim_ = bsize;
