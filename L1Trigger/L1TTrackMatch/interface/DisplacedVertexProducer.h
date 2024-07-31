@@ -207,16 +207,17 @@ private:
   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
 private:
-  typedef TTTrack<Ref_Phase2TrackerDigi_> L1Track;
-  typedef std::vector<L1Track> TTTrackCollection;
-  typedef edm::Ref<TTTrackCollection> TTTrackRef;
-  typedef edm::RefVector<TTTrackCollection> TTTrackRefCollection;
   const edm::EDGetTokenT<TTTrackAssociationMap<Ref_Phase2TrackerDigi_>> ttTrackMCTruthToken_;
-  const edm::EDGetTokenT<TTTrackRefCollection> trackToken_;
+  const edm::EDGetTokenT<std::vector<TTTrack<Ref_Phase2TrackerDigi_>>> trackToken_;
   const std::string outputTrackCollectionName_;
   const std::string qualityAlgorithm_;
   const std::string ONNXmodel_;
   const std::string ONNXInputName_;
+  const edm::ParameterSet cutSet_;
+  const double chi2rzMax_, dispMVAMin_, promptMVAMin_, ptMin_, etaMax_, dispD0Min_, promptMVADispTrackMin_,
+      overlapEtaMin_, overlapEtaMax_;
+  const int overlapNStubsMin_;
+  const double diskEtaMin_, diskD0Min_, barrelD0Min_;
   std::unique_ptr<cms::Ort::ONNXRuntime> runTime_;
 };
 
