@@ -45,8 +45,17 @@ void L1TCaloLayer1Summary::analyze(const edm::Event& iEvent, const edm::EventSet
   }
   int matrixSize = maxEtaIdx + 1;
 
-  bool foundMatrix[2][matrixSize][matrixSize] = {};
-  int etMatrix[2][matrixSize][matrixSize] = {};
+  bool foundMatrix[2][matrixSize][matrixSize];
+  int etMatrix[2][matrixSize][matrixSize];
+  for (int i = 0; i < 2; i++) {
+    for (int j = 0; j < matrixSize; j++) {
+      for (int k = 0; k < matrixSize; k++) {
+        foundMatrix[i][j][k] = false;
+        etMatrix[i][j][k] = 0;
+      }
+    }
+  }
+
   for (int iRegion = 0; iRegion < nRegions; iRegion++) {
     L1CaloRegion cRegion = caloLayer1Regions[iRegion];
     L1CaloRegion sRegion = simRegions[iRegion];
