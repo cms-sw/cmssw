@@ -6,8 +6,6 @@
 #include <algorithm>
 #include <cassert>
 
-#include <vdt/vdtMath.h>
-
 #ifdef MATH_STS
 #include <iostream>
 #endif
