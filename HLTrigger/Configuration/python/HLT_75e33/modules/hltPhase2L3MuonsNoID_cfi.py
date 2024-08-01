@@ -61,14 +61,7 @@ hltPhase2L3MuonsNoID = cms.EDProducer("MuonIdProducer",
             useMuon = cms.bool(False),
             usePreshower = cms.bool(False)
         ),
-        #UseRecHitsFlag = cms.bool(False)
-        EcalRecHitThresh = cms.bool(False),
-        HcalCutsFromDB = cms.bool(False),
-        UseEcalRecHitsFlag = cms.bool(False),
-        UseHcalRecHitsFlag = cms.bool(False),
-        UseHORecHitsFlag = cms.bool(False),
-        MaxSeverityHB = cms.int32(9),
-        MaxSeverityHE = cms.int32(9)
+        UseRecHitsFlag = cms.bool(False)
     ),
     JetExtractorPSet = cms.PSet(
         ComponentName = cms.string('JetExtractor'),
