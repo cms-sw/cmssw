@@ -111,7 +111,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::particleFlowRecHitProducer {
       if (subdet == HcalEndcap)
         return detId2denseIdHE(detId);
 
-      printf("invalid detId: %u\n", detId);
+      printf("invalid Hcal detId: %u\n", detId);
       return kInvalidDenseId;
     }
   };
@@ -197,7 +197,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::particleFlowRecHitProducer {
       if (subdet == EcalEndcap)
         return Barrel::kSize + Endcap::denseIndex(detId);
 
-      printf("invalid detId: %u\n", detId);
+      printf("invalid Ecal detId: %u\n", detId);
       return kInvalidDenseId;
     }
 
