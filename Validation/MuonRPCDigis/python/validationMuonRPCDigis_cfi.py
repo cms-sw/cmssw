@@ -9,10 +9,7 @@ validationMuonRPCDigis = DQMEDAnalyzer('RPCDigiValid',
     simHitTag = cms.untracked.InputTag("g4SimHits", "MuonRPCHits"),
 
     # Flag to turn on/off timing plots
-    digiTime = cms.untracked.bool(False),
-
-    # Name of the root file which will contain the histos
-    outputFile = cms.untracked.string('')
+    digiTime = cms.untracked.bool(False)
 )
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
