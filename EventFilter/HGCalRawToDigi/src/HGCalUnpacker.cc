@@ -188,6 +188,10 @@ void HGCalUnpacker::parseFEDData(unsigned fedId,
         for (uint32_t erxIdx = 0; erxIdx < erxMax; erxIdx++) {
           // check if the eRx is enabled
           if ((enabledErx >> erxIdx & 1) == 0) {
+            for (uint32_t channelIdx = 0; channelIdx < maxChPerErxNonCM; channelIdx++) {
+              uint32_t denseIdx = moduleIndexer.getIndexForModuleData(fedId, globalECONDIdx, erxIdx, channelIdx);
+              digis.view()[denseIdx].flags() = hgcal::DIGI_FLAG::ZS_ADC;
+            }
             continue;
           }
           LogDebug("[HGCalUnpacker]") << "fedId = " << fedId << ", captureblockIdx = " << captureblockIdx
@@ -245,6 +249,10 @@ void HGCalUnpacker::parseFEDData(unsigned fedId,
         for (uint32_t erxIdx = 0; erxIdx < erxMax; erxIdx++) {
           // check if the eRx is enabled
           if ((enabledErx >> erxIdx & 1) == 0) {
+            for (uint32_t channelIdx = 0; channelIdx < maxChPerErxNonCM; channelIdx++) {
+              uint32_t denseIdx = moduleIndexer.getIndexForModuleData(fedId, globalECONDIdx, erxIdx, channelIdx);
+              digis.view()[denseIdx].flags() = hgcal::DIGI_FLAG::Inactive;
+            }
             continue;
           }
           LogDebug("[HGCalUnpacker]") << "fedId = " << fedId << ", captureblockIdx = " << captureblockIdx
