@@ -10,11 +10,6 @@
   <class name="edm::Wrapper<std::vector<MomentumConstraint> >" persistent="false"/>
   <class name="edm::RefProd<std::vector<MomentumConstraint> >"/>
 
-  <class name="VertexConstraint"/>
-  <class name="std::vector<VertexConstraint>"/>
-  <class name="edm::Wrapper<std::vector<VertexConstraint> >" persistent="false"/>
-  <class name="edm::RefProd<std::vector<VertexConstraint> >"/>
-
   <class name="edm::AssociationMap<edm::OneToOne<std::vector<Trajectory>,std::vector<reco::Track>,unsigned short > >" >
     <field name="transientMap_" transient="true"/>
   </class>
@@ -68,7 +63,4 @@
   <class name="TrajAnnealing"/>
   <class name="std::vector<TrajAnnealing>"/>
   <class name="edm::Wrapper<std::vector<TrajAnnealing> >" persistent="false"/>
-
-  <!-- This next spec should not really be here, but it is a workaround for a ROOT6 problem (Danilo Piparo).-->
-  <class name="GlobalErrorBase<double,ErrorMatrixTag>" />
 </lcgdict>
