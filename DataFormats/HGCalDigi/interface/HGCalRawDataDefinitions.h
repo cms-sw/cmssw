@@ -108,12 +108,17 @@ namespace hgcal {
   };
 
   enum DIGI_FLAG {
+    //Flags for normal ECON-D
     FULL_READOUT = 0x0000,
     ZS_ADCm1 = 0x0001,
     ZS_ToA = 0x0002,
     ZS_ToA_ADCm1 = 0x0003,
     ZS_ADC = 0x0004,
-    Invalid = 0x0005
+    Invalid = 0x0005,
+    //Flags for passthrough ECON-D
+    Normal = 0x8000,
+    Characterization = 0x8001,
+    Inactive = 0x8002,
   };
 }  // namespace hgcal
 
