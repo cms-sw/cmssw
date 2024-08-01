@@ -124,7 +124,7 @@ void RPCDigiValid::analyze(const Event &event, const EventSetup &eventSetup) {
       }
 
       // Fill timing information
-      if ( isDigiTimeAvailable_ ) {
+      if (isDigiTimeAvailable_) {
         const double digiTime = digiIt->hasTime() ? digiIt->time() : digiIt->bx() * 25;
         hDigiTimeAll_->Fill(digiTime);
         if (digiIt->hasTime()) {
@@ -241,7 +241,7 @@ void RPCDigiValid::bookHistograms(DQMStore::IBooker &booker, edm::Run const &run
   hBxDisc_4Min_ = booker.book1D("BxDisc_4Min", "BxDisc_4Min", 20, -10., 10.);
 
   // Timing informations
-  if ( isDigiTimeAvailable_ ) {
+  if (isDigiTimeAvailable_) {
     hDigiTimeAll_ =
         booker.book1D("DigiTimeAll", "Digi time including present electronics;Digi time (ns)", 100, -12.5, 12.5);
     hDigiTime_ = booker.book1D("DigiTime", "Digi time only with timing information;Digi time (ns)", 100, -12.5, 12.5);
