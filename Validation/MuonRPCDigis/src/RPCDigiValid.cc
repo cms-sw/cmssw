@@ -26,6 +26,8 @@ RPCDigiValid::RPCDigiValid(const ParameterSet &ps) {
   rpcDigiToken_ = consumes<RPCDigiCollection>(
       ps.getUntrackedParameter<edm::InputTag>("rpcDigiTag", edm::InputTag("simMuonRPCDigis")));
 
+  isDigiTimeAvailable_ = ps.getUntrackedParameter<bool>("digiTime", false);
+
   rpcGeomToken_ = esConsumes();
 }
 
@@ -122,14 +124,16 @@ void RPCDigiValid::analyze(const Event &event, const EventSetup &eventSetup) {
       }
 
       // Fill timing information
-      const double digiTime = digiIt->hasTime() ? digiIt->time() : digiIt->bx() * 25;
-      hDigiTimeAll_->Fill(digiTime);
-      if (digiIt->hasTime()) {
-        hDigiTime_->Fill(digiTime);
-        if (roll->isIRPC())
-          hDigiTimeIRPC_->Fill(digiTime);
-        else
-          hDigiTimeNoIRPC_->Fill(digiTime);
+      if ( isDigiTimeAvailable_ ) {
+        const double digiTime = digiIt->hasTime() ? digiIt->time() : digiIt->bx() * 25;
+        hDigiTimeAll_->Fill(digiTime);
+        if (digiIt->hasTime()) {
+          hDigiTime_->Fill(digiTime);
+          if (roll->isIRPC())
+            hDigiTimeIRPC_->Fill(digiTime);
+          else
+            hDigiTimeNoIRPC_->Fill(digiTime);
+        }
       }
 
       // Keep digi position
@@ -237,11 +241,13 @@ void RPCDigiValid::bookHistograms(DQMStore::IBooker &booker, edm::Run const &run
   hBxDisc_4Min_ = booker.book1D("BxDisc_4Min", "BxDisc_4Min", 20, -10., 10.);
 
   // Timing informations
-  hDigiTimeAll_ =
-      booker.book1D("DigiTimeAll", "Digi time including present electronics;Digi time (ns)", 100, -12.5, 12.5);
-  hDigiTime_ = booker.book1D("DigiTime", "Digi time only with timing information;Digi time (ns)", 100, -12.5, 12.5);
-  hDigiTimeIRPC_ = booker.book1D("DigiTimeIRPC", "IRPC Digi time;Digi time (ns)", 100, -12.5, 12.5);
-  hDigiTimeNoIRPC_ = booker.book1D("DigiTimeNoIRPC", "non-IRPC Digi time;Digi time (ns)", 100, -12.5, 12.5);
+  if ( isDigiTimeAvailable_ ) {
+    hDigiTimeAll_ =
+        booker.book1D("DigiTimeAll", "Digi time including present electronics;Digi time (ns)", 100, -12.5, 12.5);
+    hDigiTime_ = booker.book1D("DigiTime", "Digi time only with timing information;Digi time (ns)", 100, -12.5, 12.5);
+    hDigiTimeIRPC_ = booker.book1D("DigiTimeIRPC", "IRPC Digi time;Digi time (ns)", 100, -12.5, 12.5);
+    hDigiTimeNoIRPC_ = booker.book1D("DigiTimeNoIRPC", "non-IRPC Digi time;Digi time (ns)", 100, -12.5, 12.5);
+  }
 
   // SimHit and Digi multiplicity per roll
   hNSimHitPerRoll_ = booker.book1D("NSimHitPerRoll", "SimHit multiplicity per Roll;Multiplicity", 10, 0, 10);
