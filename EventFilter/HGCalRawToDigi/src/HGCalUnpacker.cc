@@ -19,9 +19,6 @@ void HGCalUnpacker::parseFEDData(unsigned fedId,
                                  hgcaldigi::HGCalDigiHost& digis,
                                  hgcaldigi::HGCalECONDInfoHost& econdInfo,
                                  bool headerOnlyMode) {
-  // number of non-CM channels (= 37)
-  constexpr uint16_t maxChPerErxNonCM = HGCalMappingCellIndexer::maxChPerErx_ - 2;
-
   // ReadoutSequence object for this FED
   const auto& fedReadoutSequence = moduleIndexer.fedReadoutSequences_[fedId];
   // Configuration object for this FED
@@ -188,10 +185,6 @@ void HGCalUnpacker::parseFEDData(unsigned fedId,
         for (uint32_t erxIdx = 0; erxIdx < erxMax; erxIdx++) {
           // check if the eRx is enabled
           if ((enabledErx >> erxIdx & 1) == 0) {
-            for (uint32_t channelIdx = 0; channelIdx < maxChPerErxNonCM; channelIdx++) {
-              uint32_t denseIdx = moduleIndexer.getIndexForModuleData(fedId, globalECONDIdx, erxIdx, channelIdx);
-              digis.view()[denseIdx].flags() = hgcal::DIGI_FLAG::ZS_ADC;
-            }
             continue;
           }
           LogDebug("[HGCalUnpacker]") << "fedId = " << fedId << ", captureblockIdx = " << captureblockIdx
@@ -214,12 +207,11 @@ void HGCalUnpacker::parseFEDData(unsigned fedId,
 
           // parse erx body (channel data)
           uint32_t iBit = 0;
-          for (uint32_t channelIdx = 0; channelIdx < maxChPerErxNonCM; channelIdx++) {
+          for (uint32_t channelIdx = 0; channelIdx < HGCalMappingCellIndexer::maxChPerErx_; channelIdx++) {
             uint32_t denseIdx = moduleIndexer.getIndexForModuleData(fedId, globalECONDIdx, erxIdx, channelIdx);
 
             // check if the channel has data
             if (((erxHeader >> channelIdx) & 1) == 0) {
-              digis.view()[denseIdx].flags() = hgcal::DIGI_FLAG::ZS_ADC;
               continue;
             }
 
@@ -249,10 +241,6 @@ void HGCalUnpacker::parseFEDData(unsigned fedId,
         for (uint32_t erxIdx = 0; erxIdx < erxMax; erxIdx++) {
           // check if the eRx is enabled
           if ((enabledErx >> erxIdx & 1) == 0) {
-            for (uint32_t channelIdx = 0; channelIdx < maxChPerErxNonCM; channelIdx++) {
-              uint32_t denseIdx = moduleIndexer.getIndexForModuleData(fedId, globalECONDIdx, erxIdx, channelIdx);
-              digis.view()[denseIdx].flags() = hgcal::DIGI_FLAG::Inactive;
-            }
             continue;
           }
           LogDebug("[HGCalUnpacker]") << "fedId = " << fedId << ", captureblockIdx = " << captureblockIdx
@@ -274,12 +262,11 @@ void HGCalUnpacker::parseFEDData(unsigned fedId,
           iword += 2;
 
           // parse erx body (channel data)
-          for (uint32_t channelIdx = 0; channelIdx < maxChPerErxNonCM; channelIdx++) {
+          for (uint32_t channelIdx = 0; channelIdx < HGCalMappingCellIndexer::maxChPerErx_; channelIdx++) {
             uint32_t denseIdx = moduleIndexer.getIndexForModuleData(fedId, globalECONDIdx, erxIdx, channelIdx);
 
             // check if the channel has data
             if (((erxHeader >> channelIdx) & 1) == 0) {
-              digis.view()[denseIdx].flags() = hgcal::DIGI_FLAG::Inactive;
               continue;
             }
 

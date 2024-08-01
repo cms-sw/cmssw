@@ -12,6 +12,7 @@
 #include "DataFormats/HGCalDigi/interface/HGCalElectronicsId.h"
 #include "DataFormats/HGCalDigi/interface/HGCalDigiHost.h"
 #include "DataFormats/HGCalDigi/interface/HGCalECONDInfoHost.h"
+#include "DataFormats/HGCalDigi/interface/HGCalRawDataDefinitions.h"
 
 #include "CondFormats/DataRecord/interface/HGCalElectronicsMappingRcd.h"
 #include "CondFormats/HGCalObjects/interface/HGCalMappingModuleIndexer.h"
@@ -112,6 +113,9 @@ void HGCalRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
   // retrieve the FED raw data
   const auto& raw_data = iEvent.get(fedRawToken_);
 
+  for(int32_t i=0; i < digis.view().metadata().size();i++){
+    digis.view()[i].flags() = hgcal::DIGI_FLAG::NotAvailable;
+  }
   for (unsigned fedId = 0; fedId < moduleIndexer_.nfeds_; ++fedId) {
     const auto& fed_data = raw_data.FEDData(fedId);
     if (fed_data.size() == 0)
