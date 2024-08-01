@@ -29,9 +29,18 @@
   <class name="edm::Wrapper<edm::AssociationMap<edm::OneToOne<reco::TrackCollection,std::vector<MomentumConstraint>,unsigned int> > >" />
   <class name="edm::Wrapper<edm::AssociationMap<edm::OneToOne<reco::TrackCollection,std::vector<VertexConstraint>,unsigned int> > >"/>
 
-  <class pattern="edm::Ref<edm::AssociationMap<*>"/>
-  <class pattern="edm::RefProd<edm::AssociationMap<*>"/>
-  <class pattern="edm::RefVector<edm::AssociationMap<*>"/>
+  <class name="edm::Ref<edm::AssociationMap<edm::OneToOne<std::vector<Trajectory>,std::vector<reco::Track>,unsigned short> > >"/>
+  <class name="edm::Ref<edm::AssociationMap<edm::OneToOne<reco::TrackCollection,std::vector<MomentumConstraint>,unsigned int> > >"/>
+  <class name="edm::Ref<edm::AssociationMap<edm::OneToOne<reco::TrackCollection,std::vector<VertexConstraint>,unsigned int> > >"/>
+
+  <class name="edm::RefProd<edm::AssociationMap<edm::OneToOne<std::vector<Trajectory>,std::vector<reco::Track>,unsigned short> > >"/>
+  <class name="edm::RefProd<edm::AssociationMap<edm::OneToOne<reco::TrackCollection,std::vector<MomentumConstraint>,unsigned int> > >"/>
+  <class name="edm::RefProd<edm::AssociationMap<edm::OneToOne<reco::TrackCollection,std::vector<VertexConstraint>,unsigned int> > >"/>
+
+  <class name="edm::RefVector<edm::AssociationMap<edm::OneToOne<std::vector<Trajectory>,std::vector<reco::Track>,unsigned short> > >"/>
+  <class name="edm::RefVector<edm::AssociationMap<edm::OneToOne<reco::TrackCollection,std::vector<MomentumConstraint>,unsigned int> > >"/>
+  <class name="edm::RefVector<edm::AssociationMap<edm::OneToOne<reco::TrackCollection,std::vector<VertexConstraint>,unsigned int> > >"/>
+
   <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<Trajectory> >,edm::RefProd<std::vector<reco::Track> > >"/>
   <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<reco::Track> >,edm::RefProd<std::vector<MomentumConstraint> > >"/>
   <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<reco::Track> >,edm::RefProd<std::vector<VertexConstraint> > >"/>
