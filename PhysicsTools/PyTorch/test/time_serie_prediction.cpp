@@ -26,7 +26,7 @@ int main(int /*argc*/, char* /*argv*/[]) {
     std::cout << pair.key() << ": " << pair.value() << std::endl;
   }
 
-  std::cout << net.forward(torch::ones({2, 4})) << std::endl;
+  std::cout << net.forward(torch::ones({2, 4}).to(device)) << std::endl;
 
   return 0;
 }
