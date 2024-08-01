@@ -92,6 +92,7 @@ TritonService::TritonService(const edm::ParameterSet& pset, edm::ActivityRegistr
   areg.watchPostEndJob(this, &TritonService::postEndJob);
 
   //check for server specified in SITECONF
+  //(temporary solution, to be replaced with entry in site-local-config.xml or similar)
   std::string siteconf_address(edm::getEnvironmentVariable(Server::siteconfName + "_HOST"));
   std::string siteconf_port(edm::getEnvironmentVariable(Server::siteconfName + "_PORT"));
   if (!siteconf_address.empty() and !siteconf_port.empty()) {
@@ -318,7 +319,7 @@ void TritonService::preBeginJob(edm::PathsAndConsumesOfModulesBase const&, edm::
   if (rv != 0) {
     edm::LogError("TritonService") << output;
     printFallbackServerLog<edm::LogError>();
-    throw cms::Exception("FallbackFailed")
+    throw edm::Exception(edm::errors::ExternalFailure)
         << "TritonService: Starting the fallback server failed with exit code " << rv;
   } else if (verbose_)
     edm::LogInfo("TritonService") << output;
@@ -333,11 +334,11 @@ void TritonService::preBeginJob(edm::PathsAndConsumesOfModulesBase const&, edm::
       else if (chosenDevice == "gpu")
         server.type = TritonServerType::LocalGPU;
       else
-        throw cms::Exception("FallbackFailed")
+        throw edm::Exception(edm::errors::ExternalFailure)
             << "TritonService: unsupported device choice " << chosenDevice << " for fallback server, log follows:\n"
             << output;
     } else
-      throw cms::Exception("FallbackFailed")
+      throw edm::Exception(edm::errors::ExternalFailure)
           << "TritonService: unknown device choice for fallback server, log follows:\n"
           << output;
   }
@@ -351,8 +352,9 @@ void TritonService::preBeginJob(edm::PathsAndConsumesOfModulesBase const&, edm::
   if (!portNum.empty())
     server.url += ":" + portNum;
   else
-    throw cms::Exception("FallbackFailed") << "TritonService: Unknown port for fallback server, log follows:\n"
-                                           << output;
+    throw edm::Exception(edm::errors::ExternalFailure)
+        << "TritonService: Unknown port for fallback server, log follows:\n"
+        << output;
 }
 
 void TritonService::notifyCallStatus(bool status) const {
