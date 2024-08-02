@@ -20,7 +20,14 @@ public:
   };
   struct tileInfo {
     int32_t type, sipm, cassette, hex[6];
-    tileInfo(int32_t t = 0, int32_t s = 0, int32_t h1 = 0, int32_t h2 = 0, int32_t h3 = 0, int32_t h4 = 0, int32_t h5 = 0, int32_t h6 = 0)
+    tileInfo(int32_t t = 0,
+             int32_t s = 0,
+             int32_t h1 = 0,
+             int32_t h2 = 0,
+             int32_t h3 = 0,
+             int32_t h4 = 0,
+             int32_t h5 = 0,
+             int32_t h6 = 0)
         : type(t), sipm(s) {
       hex[0] = h1;
       hex[1] = h2;

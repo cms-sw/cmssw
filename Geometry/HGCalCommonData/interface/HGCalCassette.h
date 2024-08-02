@@ -10,9 +10,9 @@ public:
   HGCalCassette(int cassette, const std::vector<double>& shifts) { setParameter(cassette, shifts, true); }
   HGCalCassette() {}
 
-  void setParameter(int cassette, const std::vector<double>& shifts, bool both=true);
+  void setParameter(int cassette, const std::vector<double>& shifts, bool both = true);
   void setParameterScint(const std::vector<double>& shifts);
-  std::pair<double, double> getShift(int layer, int zside, int cassette, bool scnt=false) const;
+  std::pair<double, double> getShift(int layer, int zside, int cassette, bool scnt = false) const;
   static int cassetteIndex(int det, int layer, int zside, int cassette);
   static int cassetteType(int det, int zside, int cassette);
 

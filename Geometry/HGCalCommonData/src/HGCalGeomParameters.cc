@@ -1649,7 +1649,8 @@ void HGCalGeomParameters::loadSpecParsTrapezoid(const DDFilteredView& fv, HGCalP
   loadSpecParsTrapezoid(php);
 
   // tile parameters from Katja's file
-  if ((php.waferMaskMode_ == scintillatorFile) || (php.waferMaskMode_ == scintillatorCassette) || (php.waferMaskMode_ == scintillatorFineCell)) {
+  if ((php.waferMaskMode_ == scintillatorFile) || (php.waferMaskMode_ == scintillatorCassette) ||
+      (php.waferMaskMode_ == scintillatorFineCell)) {
     std::vector<int> tileIndx, tileProperty;
     std::vector<int> tileHEX1, tileHEX2, tileHEX3, tileHEX4, tileHEX5, tileHEX6;
     std::vector<double> tileRMin, tileRMax, tileRMinFine, tileRMaxFine;
@@ -1682,9 +1683,9 @@ void HGCalGeomParameters::loadSpecParsTrapezoid(const DDFilteredView& fv, HGCalP
       rescale(rectract, HGCalParameters::k_ScaleFromDDD);
       double dphi = M_PI / php.cassettes_;
       for (int k = 0; k < php.cassettes_; ++k) {
-	double phi = (2 * k + 1) * dphi;
-	cassetteShift.emplace_back(rectract[k] * cos(phi));
-	cassetteShift.emplace_back(rectract[k] * sin(phi));
+        double phi = (2 * k + 1) * dphi;
+        cassetteShift.emplace_back(rectract[k] * cos(phi));
+        cassetteShift.emplace_back(rectract[k] * sin(phi));
       }
     } else if (php.waferMaskMode_ == scintillatorCassette) {
       if (php.cassettes_ > 0)
@@ -1764,7 +1765,8 @@ void HGCalGeomParameters::loadSpecParsTrapezoid(const cms::DDFilteredView& fv,
   loadSpecParsTrapezoid(php);
 
   // tile parameters from Katja's file
-  if ((php.waferMaskMode_ == scintillatorFile) || (php.waferMaskMode_ == scintillatorCassette) || (php.waferMaskMode_ == scintillatorFineCell)) {
+  if ((php.waferMaskMode_ == scintillatorFile) || (php.waferMaskMode_ == scintillatorCassette) ||
+      (php.waferMaskMode_ == scintillatorFineCell)) {
     std::vector<int> tileIndx, tileProperty;
     std::vector<int> tileHEX1, tileHEX2, tileHEX3, tileHEX4, tileHEX5, tileHEX6;
     std::vector<double> tileRMin, tileRMax, tileRMinFine, tileRMaxFine;
@@ -1808,36 +1810,36 @@ void HGCalGeomParameters::loadSpecParsTrapezoid(const cms::DDFilteredView& fv,
       php.nphiFineCassette_ = php.nCellsFine_ / php.cassettes_;
       std::vector<double> rectract;
       for (auto const& it : vmap) {
-	if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), "TileHEX5")) {
-	  for (const auto& i : it.second)
-	    tileHEX5.emplace_back(std::round(i));
-	} else if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), "TileHEX6")) {
-	  for (const auto& i : it.second)
-	    tileHEX6.emplace_back(std::round(i));
-	} else if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), "TileRMin6")) {
-	  for (const auto& i : it.second)
-	    tileRMinFine.emplace_back(i);
-	  rescale(tileRMinFine, HGCalParameters::k_ScaleFromDDD);
-	} else if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), "TileRMax6")) {
-	  for (const auto& i : it.second)
-	    tileRMaxFine.emplace_back(i);
-	  rescale(tileRMaxFine, HGCalParameters::k_ScaleFromDDD);
-	} else if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), "TileRingMin6")) {
-	  for (const auto& i : it.second)
-	    tileRingMinFine.emplace_back(std::round(i));
-	} else if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), "TileRingMax6")) {
-	  for (const auto& i : it.second)
-	    tileRingMaxFine.emplace_back(std::round(i));
-	} else if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), "ScintRetract")) {
-	  for (const auto& i : it.second)
-	    rectract.emplace_back(i);
-	  double dphi = M_PI / php.cassettes_;
-	  for (int k = 0; k < php.cassettes_; ++k) {
-	    double phi = (2 * k + 1) * dphi;
-	    cassetteShift.emplace_back(rectract[k] * cos(phi));
-	    cassetteShift.emplace_back(rectract[k] * sin(phi));
-	  }
-	}
+        if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), "TileHEX5")) {
+          for (const auto& i : it.second)
+            tileHEX5.emplace_back(std::round(i));
+        } else if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), "TileHEX6")) {
+          for (const auto& i : it.second)
+            tileHEX6.emplace_back(std::round(i));
+        } else if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), "TileRMin6")) {
+          for (const auto& i : it.second)
+            tileRMinFine.emplace_back(i);
+          rescale(tileRMinFine, HGCalParameters::k_ScaleFromDDD);
+        } else if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), "TileRMax6")) {
+          for (const auto& i : it.second)
+            tileRMaxFine.emplace_back(i);
+          rescale(tileRMaxFine, HGCalParameters::k_ScaleFromDDD);
+        } else if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), "TileRingMin6")) {
+          for (const auto& i : it.second)
+            tileRingMinFine.emplace_back(std::round(i));
+        } else if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), "TileRingMax6")) {
+          for (const auto& i : it.second)
+            tileRingMaxFine.emplace_back(std::round(i));
+        } else if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), "ScintRetract")) {
+          for (const auto& i : it.second)
+            rectract.emplace_back(i);
+          double dphi = M_PI / php.cassettes_;
+          for (int k = 0; k < php.cassettes_; ++k) {
+            double phi = (2 * k + 1) * dphi;
+            cassetteShift.emplace_back(rectract[k] * cos(phi));
+            cassetteShift.emplace_back(rectract[k] * sin(phi));
+          }
+        }
       }
     } else if (php.waferMaskMode_ == scintillatorCassette) {
       for (auto const& it : vmap) {
@@ -1954,7 +1956,8 @@ void HGCalGeomParameters::loadSpecParsTrapezoid(HGCalParameters& php,
   for (unsigned int k = 0; k < tileRingMinFine.size(); ++k) {
     php.tileRingFineRange_.emplace_back(tileRingMinFine[k], tileRingMaxFine[k]);
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "TileRingFineRange[" << k << "] " << tileRingMinFine[k] << ":" << tileRingMaxFine[k];
+    edm::LogVerbatim("HGCalGeom") << "TileRingFineRange[" << k << "] " << tileRingMinFine[k] << ":"
+                                  << tileRingMaxFine[k];
 #endif
   }
   for (unsigned k = 0; k < tileRingMin.size(); ++k) {
