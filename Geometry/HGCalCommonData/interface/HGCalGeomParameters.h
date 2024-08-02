@@ -105,6 +105,7 @@ public:
   constexpr static int siliconCassetteEE = 5;
   constexpr static int siliconCassetteHE = 6;
   constexpr static int scintillatorCassette = 7;
+  constexpr static int scintillatorFineCell = 8;
 
 private:
   void loadGeometryHexagon(const std::map<int, HGCalGeomParameters::layerParameters>& layers,
@@ -136,10 +137,16 @@ private:
                              const std::vector<int>& tileHEX2,
                              const std::vector<int>& tileHEX3,
                              const std::vector<int>& tileHEX4,
+                             const std::vector<int>& tileHEX5,
+                             const std::vector<int>& tileHEX6,
                              const std::vector<double>& tileRMin,
                              const std::vector<double>& tileRMax,
+                             const std::vector<double>& tileRMinFine,
+                             const std::vector<double>& tileRMaxFine,
                              const std::vector<int>& tileRingMin,
-                             const std::vector<int>& tileRingMax);
+                             const std::vector<int>& tileRingMax,
+                             const std::vector<int>& tileRingMinFine,
+                             const std::vector<int>& tileRingMaxFine);
   std::vector<double> getDDDArray(const std::string& str, const DDsvalues_type& sv, const int nmin);
   std::pair<double, double> cellPosition(const std::vector<cellParameters>& wafers,
                                          std::vector<cellParameters>::const_iterator& itrf,

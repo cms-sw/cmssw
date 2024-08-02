@@ -11,7 +11,8 @@
     <Numeric name="PartialTypes"     value="11"/>
     <Numeric name="PlaceOffset"      value="6"/>
     <Numeric name="ForFireWorks"     value="0"/>
-    <Numeric name="FirstLayer"       value="[hgcal:FirstMixedLayer]"/>
+    <Numeric name="FirstFineLayer"   value="[hgcal:FirstMixedLayer]"/>
+    <Numeric name="FirstCoarseLayer" value="[hgcal:FirstMixedCoarseLayer]"/>
     <Numeric name="AbsorberMode"     value="1"/>
     <Numeric name="SensitiveMode"    value="1"/>
     <Numeric name="zMinBlock"        value="[hgcal:zHGCalHEmix1]"/>
