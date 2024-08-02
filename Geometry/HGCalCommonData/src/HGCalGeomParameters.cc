@@ -1648,7 +1648,8 @@ void HGCalGeomParameters::loadSpecParsTrapezoid(const DDFilteredView& fv, HGCalP
 
   loadSpecParsTrapezoid(php);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "WaferMaskMode " << php.waferMaskMode_ << " Compare " << scintillatorFile << ":" << scintillatorCassette << ":" << scintillatorFineCell;
+  edm::LogVerbatim("HGCalGeom") << "WaferMaskMode " << php.waferMaskMode_ << " Compare " << scintillatorFile << ":"
+                                << scintillatorCassette << ":" << scintillatorFineCell;
 #endif
   // tile parameters from Katja's file
   if ((php.waferMaskMode_ == scintillatorFile) || (php.waferMaskMode_ == scintillatorCassette) ||
@@ -1940,7 +1941,8 @@ void HGCalGeomParameters::loadSpecParsTrapezoid(HGCalParameters& php,
     edm::LogVerbatim("HGCalGeom") << "Tile[" << k << ":" << tileIndx[k] << "] "
                                   << " Type " << HGCalProperty::tileType(tileProperty[k]) << " SiPM "
                                   << HGCalProperty::tileSiPM(tileProperty[k]) << " HEX " << std::hex << tileHEX1[k]
-                                  << ":" << tileHEX2[k] << ":" << tileHEX3[k] << ":" << tileHEX4[k] << ":" << hex5 << ":" << hex6<< std::dec;
+                                  << ":" << tileHEX2[k] << ":" << tileHEX3[k] << ":" << tileHEX4[k] << ":" << hex5
+                                  << ":" << hex6 << std::dec;
 #endif
   }
 
