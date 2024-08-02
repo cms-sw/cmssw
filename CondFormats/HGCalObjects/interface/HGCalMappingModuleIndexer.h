@@ -189,34 +189,34 @@ public:
      if the index in the readout sequence is unknown alternative methods which take the (capture block, econd idx) are provided
      which will find first what should be the internal dense index (index in the readout sequence)
    */
-  uint32_t getIndexForModule(uint32_t fedid, uint32_t nmod) const {
-    return fedReadoutSequences_[fedid].modOffsets_[nmod];
+  uint32_t getIndexForModule(uint32_t fedid, uint32_t modid) const {
+    return fedReadoutSequences_[fedid].modOffsets_[modid];
   };
   uint32_t getIndexForModule(uint32_t fedid, uint16_t captureblockIdx, uint16_t econdIdx) const {
-    uint32_t nmod = denseIndexingFor(fedid, captureblockIdx, econdIdx);
-    return getIndexForModule(fedid, nmod);
+    uint32_t modid = denseIndexingFor(fedid, captureblockIdx, econdIdx);
+    return getIndexForModule(fedid, modid);
   };
   //uint32_t getIndexForModule(HGCalElectronicsId id) const {
   //  return getIndexForModule(id.localFEDId(),id.captureBlock(),id.econdIdx());
   //};
   uint32_t getIndexForModule(std::string typecode) const {
-    const auto& [fedId,modId] = getIndexForFedAndModule(typecode); // (fedId,modId)
-    return getIndexForModule(fedId, modId);
+    const auto& [fedid,modId] = getIndexForFedAndModule(typecode); // (fedId,modId)
+    return getIndexForModule(fedid, modId);
   };
-  uint32_t getIndexForModuleErx(uint32_t fedid, uint32_t nmod, uint32_t erxidx) const {
-    return fedReadoutSequences_[fedid].erxOffsets_[nmod] + erxidx;
+  uint32_t getIndexForModuleErx(uint32_t fedid, uint32_t modid, uint32_t erxidx) const {
+    return fedReadoutSequences_[fedid].erxOffsets_[modid] + erxidx;
   };
   uint32_t getIndexForModuleErx(uint32_t fedid, uint16_t captureblockIdx, uint16_t econdIdx, uint32_t erxidx) const {
-    uint32_t nmod = denseIndexingFor(fedid, captureblockIdx, econdIdx);
-    return getIndexForModuleErx(fedid, nmod, erxidx);
+    uint32_t modid = denseIndexingFor(fedid, captureblockIdx, econdIdx);
+    return getIndexForModuleErx(fedid, modid, erxidx);
   }
-  uint32_t getIndexForModuleData(uint32_t fedid, uint32_t nmod, uint32_t erxidx, uint32_t chidx) const {
-    return fedReadoutSequences_[fedid].chDataOffsets_[nmod] + erxidx * HGCalMappingCellIndexer::maxChPerErx_ + chidx;
+  uint32_t getIndexForModuleData(uint32_t fedid, uint32_t modid, uint32_t erxidx, uint32_t chidx) const {
+    return fedReadoutSequences_[fedid].chDataOffsets_[modid] + erxidx * HGCalMappingCellIndexer::maxChPerErx_ + chidx;
   };
   uint32_t getIndexForModuleData(
       uint32_t fedid, uint16_t captureblockIdx, uint16_t econdIdx, uint32_t erxidx, uint32_t chidx) const {
-    uint32_t nmod = denseIndexingFor(fedid, captureblockIdx, econdIdx);
-    return getIndexForModuleData(fedid, nmod, erxidx, chidx);
+    uint32_t modid = denseIndexingFor(fedid, captureblockIdx, econdIdx);
+    return getIndexForModuleData(fedid, modid, erxidx, chidx);
   };
   uint32_t getIndexForModuleData(HGCalElectronicsId id) const {
     return id.isCM() ? getIndexForModuleErx(id.localFEDId(),id.captureBlock(),id.econdIdx(),id.econdeRx()) : 
@@ -249,10 +249,13 @@ public:
                     [](auto fedrs) { return fedrs.readoutTypes_.size() != 0; });
   }
   uint32_t getMaxFEDSize() const { return fedReadoutSequences_.size(); }
-  uint32_t getMaxModuleSize() const { return maxModulesIdx_; }
+  uint32_t getMaxModuleSize() const { return maxModulesIdx_; } // total number of ECON-Ds (useful for setting ECON-D SoA size)
+  uint32_t getMaxModuleSize(uint32_t fedid) const { // number of ECON-Ds for given FED ids
+    return fedReadoutSequences_[fedid].readoutTypes_.size();
+  }
   uint32_t getMaxERxSize() const { return maxErxIdx_; } // total number of eRx half-ROCs (useful for setting config SoA size)
-  uint32_t getMaxERxSize(uint32_t fedid, uint32_t nmod) const { // number of eRx half-ROCs for given FED & ECON-D ids
-    auto modtype_val = fedReadoutSequences_[fedid].readoutTypes_[nmod];
+  uint32_t getMaxERxSize(uint32_t fedid, uint32_t modid) const { // number of eRx half-ROCs for given FED & ECON-D ids
+    auto modtype_val = fedReadoutSequences_[fedid].readoutTypes_[modid];
     return globalTypesNErx_[modtype_val];
   }
   uint32_t getMaxDataSize() const { return maxDataIdx_; } // total number of channels (useful for setting calib SoA size)
@@ -260,10 +263,12 @@ public:
   /**
      @short return type ECON-D Module
    */
-  int getTypeForModule(uint32_t fedid, uint32_t nmod) const { return fedReadoutSequences_[fedid].readoutTypes_[nmod]; }
+  int getTypeForModule(uint32_t fedid, uint32_t modid) const {
+    return fedReadoutSequences_[fedid].readoutTypes_[modid];
+  }
   int getTypeForModule(uint32_t fedid, uint16_t captureblockIdx, uint16_t econdIdx) const {
-    uint32_t nmod = denseIndexingFor(fedid, captureblockIdx, econdIdx);
-    return getTypeForModule(fedid, nmod);
+    uint32_t modid = denseIndexingFor(fedid, captureblockIdx, econdIdx);
+    return getTypeForModule(fedid, modid);
   }
 
   ///< internal indexer
