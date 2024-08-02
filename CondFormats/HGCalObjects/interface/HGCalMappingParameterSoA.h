@@ -51,6 +51,20 @@ namespace hgcal {
                       SOA_COLUMN(uint32_t, detid))
   using HGCalMappingCellParamSoA = HGCalMappingCellParamSoALayout<>;
 
+  // Generate structure of channel-level arrays (SoA) layout with module mapping information
+  GENERATE_SOA_LAYOUT(HGCalDenseIndexInfoSoALayout,
+                      SOA_COLUMN(uint32_t, fedId),
+                      SOA_COLUMN(uint32_t, fedReadoutSeq),
+                      SOA_COLUMN(uint32_t, detid),
+                      SOA_COLUMN(uint32_t, eleid),
+                      SOA_COLUMN(uint32_t, modInfoIdx),
+                      SOA_COLUMN(uint32_t, cellInfoIdx),
+                      SOA_COLUMN(uint32_t, chNumber),
+                      SOA_COLUMN(float, x),
+                      SOA_COLUMN(float, y),
+                      SOA_COLUMN(float, z))
+  using HGCalDenseIndexInfoSoA = HGCalDenseIndexInfoSoALayout<>;
+
 }  // namespace hgcal
 
 #endif  // CondFormats_HGCalObjects_interface_HGCalMappingParameterSoA_h
