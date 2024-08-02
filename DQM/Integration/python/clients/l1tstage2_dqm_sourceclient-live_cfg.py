@@ -178,30 +178,6 @@ process.schedule = cms.Schedule(
 )
 
 #--------------------------------------------------
-# L1T Emulator
-
-process.load('Configuration.StandardSequences.Services_cff')
-process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
-process.load('FWCore.MessageService.MessageLogger_cfi')
-process.load('Configuration.EventContent.EventContent_cff')
-process.load('Configuration.StandardSequences.MagneticField_cff')
-process.load('Configuration.StandardSequences.EndOfProcess_cff')
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.load('L1Trigger.Configuration.SimL1Emulator_cff')
-process.load('L1Trigger.Configuration.CaloTriggerPrimitives_cff')
-process.load('EventFilter.L1TXRawToDigi.caloLayer1Stage2Digis_cfi')
-process.load('SimCalorimetry.HcalTrigPrimProducers.hcaltpdigi_cff')
-process.load('CalibCalorimetry.CaloTPG.CaloTPGTranscoder_cfi')
-
-from PhysicsTools.PatAlgos.tools.helpers import associatePatAlgosToolsTask
-associatePatAlgosToolsTask(process)
-
-from L1Trigger.Configuration.customiseReEmul import L1TReEmulFromRAW
-process = L1TReEmulFromRAW(process)
-
-process.simCaloStage2Layer1Summary.caloLayer1Regions = cms.InputTag("caloLayer1Digis", "")
-
-#--------------------------------------------------
 # Process Customizations
 
 from DQM.Integration.config.online_customizations_cfi import *
