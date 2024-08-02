@@ -1647,7 +1647,9 @@ void HGCalGeomParameters::loadSpecParsTrapezoid(const DDFilteredView& fv, HGCalP
   php.layerCenter_ = dbl_to_int(fv.vector("LayerCenter"));
 
   loadSpecParsTrapezoid(php);
-
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HGCalGeom") << "WaferMaskMode " << php.waferMaskMode_ << " Compare " << scintillatorFile << ":" << scintillatorCassette << ":" << scintillatorFineCell;
+#endif
   // tile parameters from Katja's file
   if ((php.waferMaskMode_ == scintillatorFile) || (php.waferMaskMode_ == scintillatorCassette) ||
       (php.waferMaskMode_ == scintillatorFineCell)) {
@@ -1924,19 +1926,21 @@ void HGCalGeomParameters::loadSpecParsTrapezoid(HGCalParameters& php,
                                                 const std::vector<int>& tileRingMaxFine) {
   // tile parameters from Katja's file
   for (unsigned int k = 0; k < tileIndx.size(); ++k) {
+    int hex5 = (k < tileHEX5.size()) ? tileHEX5[k] : 0;
+    int hex6 = (k < tileHEX6.size()) ? tileHEX6[k] : 0;
     php.tileInfoMap_[tileIndx[k]] = HGCalParameters::tileInfo(HGCalProperty::tileType(tileProperty[k]),
                                                               HGCalProperty::tileSiPM(tileProperty[k]),
                                                               tileHEX1[k],
                                                               tileHEX2[k],
                                                               tileHEX3[k],
                                                               tileHEX4[k],
-                                                              tileHEX5[k],
-                                                              tileHEX6[k]);
+                                                              hex5,
+                                                              hex6);
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "Tile[" << k << ":" << tileIndx[k] << "] "
                                   << " Type " << HGCalProperty::tileType(tileProperty[k]) << " SiPM "
                                   << HGCalProperty::tileSiPM(tileProperty[k]) << " HEX " << std::hex << tileHEX1[k]
-                                  << ":" << tileHEX2[k] << ":" << tileHEX3[k] << ":" << tileHEX4[k] << std::dec;
+                                  << ":" << tileHEX2[k] << ":" << tileHEX3[k] << ":" << tileHEX4[k] << ":" << hex5 << ":" << hex6<< std::dec;
 #endif
   }
 
