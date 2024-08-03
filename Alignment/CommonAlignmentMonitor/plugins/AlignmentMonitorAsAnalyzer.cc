@@ -41,7 +41,7 @@
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
-#include "Geometry/CommonTopologies/interface/GeometryAligner.h"
+#include "Geometry/GeometryAligner/interface/GeometryAligner.h"
 #include "CondFormats/GeometryObjects/interface/PTrackerParameters.h"
 #include "Geometry/Records/interface/PTrackerParametersRcd.h"
 #include "Geometry/Records/interface/PTrackerAdditionalParametersPerDetRcd.h"
