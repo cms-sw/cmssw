@@ -31,7 +31,7 @@ options.register('params',f"{datadir}/level0_calib_params.json",mytype=VarParsin
 options.register('modules',
                  #"Geometry/HGCalMapping/data/ModuleMaps/modulelocator_test.txt", # test beam with six modules
                  #"Geometry/HGCalMapping/data/ModuleMaps/modulelocator_test_2mods.txt", # only first two modules, fedId=49
-                 "HGCalCommissioning/SystemTestEventFilters/data/ModuleMaps/modulelocator_test_2mods.txt", # fedId=0
+                 "HGCalCommissioning/Configuration/data/ModuleMaps/modulelocator_test_2mods.txt", # fedId=0
                  mytype=VarParsing.varType.string,
                  info="Path to module mapper. Absolute, or relative to CMSSW src directory")
 options.register('sicells','Geometry/HGCalMapping/data/CellMaps/WaferCellMapTraces.txt',mytype=VarParsing.varType.string,

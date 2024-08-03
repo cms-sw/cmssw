@@ -250,7 +250,7 @@ public:
   }
   uint32_t getMaxFEDSize() const { return fedReadoutSequences_.size(); }
   uint32_t getMaxModuleSize() const { return maxModulesIdx_; } // total number of ECON-Ds (useful for setting ECON-D SoA size)
-  uint32_t getMaxModuleSize(uint32_t fedid) const { // number of ECON-Ds for given FED ids
+  uint32_t getMaxModuleSize(uint32_t fedid) const { // number of ECON-Ds for given FED id
     return fedReadoutSequences_[fedid].readoutTypes_.size();
   }
   uint32_t getMaxERxSize() const { return maxErxIdx_; } // total number of eRx half-ROCs (useful for setting config SoA size)
