@@ -15,6 +15,7 @@ ________________________________________________________________**/
 #include "CondFormats/DataRecord/interface/BeamSpotTransientObjectsRcd.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerEvmReadoutRecord.h"
 #include "DataFormats/Scalers/interface/BeamSpotOnline.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -119,8 +120,8 @@ void BeamSpotOnlineProducer::produce(Event& iEvent, const EventSetup& iSetup) {
       reco::BeamSpot::Point apoint(f * spotDB.x(), f * spotDB.y(), f * spotDB.z());
 
       reco::BeamSpot::CovarianceMatrix matrix;
-      for (int i = 0; i < 7; ++i) {
-        for (int j = 0; j < 7; ++j) {
+      for (int i = 0; i < reco::BeamSpot::dimension; ++i) {
+        for (int j = 0; j < reco::BeamSpot::dimension; ++j) {
           matrix(i, j) = spotDB.covariance(i, j);
         }
       }
@@ -209,8 +210,8 @@ void BeamSpotOnlineProducer::produce(Event& iEvent, const EventSetup& iSetup) {
     reco::BeamSpot::Point apoint(spotDB->x(), spotDB->y(), spotDB->z());
 
     reco::BeamSpot::CovarianceMatrix matrix;
-    for (int i = 0; i < 7; ++i) {
-      for (int j = 0; j < 7; ++j) {
+    for (int i = 0; i < reco::BeamSpot::dimension; ++i) {
+      for (int j = 0; j < reco::BeamSpot::dimension; ++j) {
         matrix(i, j) = spotDB->covariance(i, j);
       }
     }
@@ -222,6 +223,11 @@ void BeamSpotOnlineProducer::produce(Event& iEvent, const EventSetup& iSetup) {
     aSpot.setEmittanceY(spotDB->emittanceY());
     aSpot.setbetaStar(spotDB->betaStar());
     aSpot.setType(reco::BeamSpot::Tracker);
+
+    GlobalError bse(aSpot.rotatedCovariance3D());
+    if ((bse.cxx() <= 0.) || (bse.cyy() <= 0.) || (bse.czz() <= 0.)) {
+      edm::LogError("UnusableBeamSpot") << "Beamspot from fallback to DB with invalid errors: " << aSpot.covariance();
+    }
   }
 
   *result = aSpot;
