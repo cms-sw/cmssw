@@ -29,7 +29,6 @@
 <use name="Validation/EcalHits"/>
 <use name="Validation/Geometry"/>
 <use name="Validation/HcalHits"/>
-<use name="Validation/HGCalValidation"/>
 <use name="geant4static"/>
 <use name="g4hepemstatic"/>
 <flags DROP_DEP="geant4core"/>
