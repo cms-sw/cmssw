@@ -34,7 +34,6 @@
 <use name="FWCore/Utilities"/>
 <use name="Geometry/CaloGeometry"/>
 <use name="Geometry/CommonDetUnit" source_only="1"/>
-<use name="Geometry/CommonTopologies"/>
 <use name="Geometry/Records"/>
 <use name="Geometry/TrackerGeometryBuilder"/>
 <use name="Geometry/TrackerNumberingBuilder"/>
@@ -52,7 +51,6 @@
 <use name="TrackingTools/TrackFitters"/>
 <use name="TrackingTools/TrajectoryState"/>
 <use name="TrackingTools/TransientTrack"/>
-<use name="Geometry/GeometryAligner"/>
 <use name="root"/>
 <use name="rootcore"/>
 <use name="rootmath"/>

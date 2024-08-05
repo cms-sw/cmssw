@@ -5,7 +5,6 @@
 <use name="FWCore/ParameterSet"/>
 <use name="Geometry/MuonNumbering"/>
 <use name="Geometry/Records"/>
-<use name="Geometry/GeometryAligner"/>
 <library name="GEMGeometryPlugins" file="GEMGeometryESModule.cc">
   <use name="DetectorDescription/Core"/>
   <use name="DetectorDescription/DDCMS"/>
