@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 import sys
-from Configuration.Eras.Era_Run3_cff import Run3
-process = cms.Process("L1TStage2DQM", Run3)
+from Configuration.Eras.Era_Run3_2024_cff import Run3_2024
+process = cms.Process("L1TStage2DQM", Run3_2024)
 
 unitTest = False
 if 'unitTest=True' in sys.argv:
