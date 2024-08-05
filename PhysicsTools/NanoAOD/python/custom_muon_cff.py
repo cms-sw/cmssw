@@ -205,7 +205,7 @@ def AddVariablesForMuon(proc):
 
     # TuneP related variables
     proc.muonTable.variables.tuneP_pt = Var("? tunePMuonBestTrack().isNonnull() && tunePMuonBestTrack().isAvailable() ? tunePMuonBestTrack().pt() : -99", float, doc = "pT from tunePMuonBestTrack")
-    proc.muonTable.variables.tuneP_pterr = Var("? tunePMuonBestTrack().isNonnull() && tunePMuonBestTrack().isAvailable() ? tunePMuonBestTrack().ptError() : -99", float, doc = "pTerr from tunePMuonBestTrack")
+    # tuneP_ptErr is now moved to standard NanoAODs
     proc.muonTable.variables.tuneP_eta = Var("? tunePMuonBestTrack().isNonnull() && tunePMuonBestTrack().isAvailable() ? tunePMuonBestTrack().eta(): -99", float, doc="tunePMuonBestTrack Eta")
     proc.muonTable.variables.tuneP_phi = Var("? tunePMuonBestTrack().isNonnull() && tunePMuonBestTrack().isAvailable() ? tunePMuonBestTrack().phi(): -99", float, doc="tunePMuonBestTrack Phi")
     proc.muonTable.variables.tuneP_charge = Var("? tunePMuonBestTrack().isNonnull() && tunePMuonBestTrack().isAvailable() ? tunePMuonBestTrack().charge(): -99", float, doc="tunePMuonBestTrack() charge")
@@ -298,29 +298,28 @@ def AddTriggerObjectBits(process):
                 mksel("filter('hltDoubleMu4JpsiDisplacedL3Filtered')","hltDoubleMu4JpsiDisplacedL3Filtered"), #5
                 mksel("filter('hltDisplacedmumuFilterDoubleMu4Jpsi')","hltDisplacedmumuFilterDoubleMu4Jpsi"), #6
                 mksel("filter('hltJpsiTkVertexFilter')","hltJpsiTkVertexFilter"), #7
-                mksel("filter('hltL3crIsoL1sSingleMu22L1f0L2f10QL3f24QL3trkIsoFiltered0p07')","hltL3crIsoL1sSingleMu22L1f0L2f10QL3f24QL3trkIsoFiltered0p07"), #8
-                mksel("filter('hltL3crIsoL1sSingleMu22L1f0L2f10QL3f24QL3trkIsoFiltered0p08')","hltL3crIsoL1sSingleMu22L1f0L2f10QL3f24QL3trkIsoFiltered0p08"), #9
-                mksel("filter('hltL3fL1DoubleMu155fPreFiltered8')","hltL3fL1DoubleMu155fPreFiltered8"), #10
-                mksel("filter('hltL3fL1DoubleMu155fFiltered17')","hltL3fL1DoubleMu155fFiltered17"), #11
-                mksel("filter('hltDiMuon178RelTrkIsoFiltered0p4')","hltDiMuon178RelTrkIsoFiltered0p4"), #12
-                mksel("filter('hltDiMuon178RelTrkIsoFiltered0p4DzFiltered0p2')","hltDiMuon178RelTrkIsoFiltered0p4DzFiltered0p2"), #13
-                mksel("filter('hltDiMuon178RelTrkIsoVVLFiltered')","hltDiMuon178RelTrkIsoVVLFiltered"), #14
-                mksel("filter('hltDiMuon178RelTrkIsoVVLFilteredDzFiltered0p2')","hltDiMuon178RelTrkIsoVVLFilteredDzFiltered0p2"), #15
-                mksel("filter('hltDiMuon178Mass3p8Filtered')","hltDiMuon178Mass3p8Filtered"), #16
-                mksel("filter('hltL3fL1sMu22Or25L1f0L2f10QL3Filtered50Q')","hltL3fL1sMu22Or25L1f0L2f10QL3Filtered50Q"), #17
-                mksel("filter('hltL2fOldL1sMu22or25L1f0L2Filtered10Q')","hltL2fOldL1sMu22or25L1f0L2Filtered10Q"), #18
-                mksel("filter('hltL3fL1sMu22Or25L1f0L2f10QL3Filtered100Q')","hltL3fL1sMu22Or25L1f0L2f10QL3Filtered100Q"), #19
-                mksel("filter('hltL3fL1sMu25f0TkFiltered100Q')","hltL3fL1sMu25f0TkFiltered100Q"), #20
-                mksel("filter('hltL3fL1sMu15DQlqL1f0L2f10L3Filtered17')","hltL3fL1sMu15DQlqL1f0L2f10L3Filtered17"), #21
-                mksel("filter('hltL3fL1sMu1lqL1f0L2f10L3Filtered17TkIsoFiltered0p4')","hltL3fL1sMu1lqL1f0L2f10L3Filtered17TkIsoFiltered0p4"), #22
-                mksel("filter('hltL3fL1sMu1lqL1f0L2f10L3Filtered17TkIsoVVLFiltered')","hltL3fL1sMu1lqL1f0L2f10L3Filtered17TkIsoVVLFiltered"), #23
-                mksel("filter('hltL3fL1sMu5L1f0L2f5L3Filtered8')","hltL3fL1sMu5L1f0L2f5L3Filtered8"), #24
-                mksel("filter('hltL3fL1sMu5L1f0L2f5L3Filtered8TkIsoFiltered0p4')","hltL3fL1sMu5L1f0L2f5L3Filtered8TkIsoFiltered0p4"), #25
-                mksel("filter('hltL3fL1sMu5L1f0L2f5L3Filtered8TkIsoVVLFiltered')","hltL3fL1sMu5L1f0L2f5L3Filtered8TkIsoVVLFiltered"), #26
-                mksel("filter('hltL3fL1sMu15DQlqL1f0L2f10L3Filtered12')","hltL3fL1sMu15DQlqL1f0L2f10L3Filtered12"), #27
-                mksel("filter('hltL3fL1sMu15DQlqL1f0L2f10L3Filtered15')","hltL3fL1sMu15DQlqL1f0L2f10L3Filtered15"), #28
-                mksel("filter('hltL3fL1sMu15DQlqL1f0L2f10L3Filtered19')","hltL3fL1sMu15DQlqL1f0L2f10L3Filtered19"), #29
-                mksel("filter('hltL3fL1sMu15DQlqL1f0L2f10L3Filtered19')","hltL3fL1sMu15DQlqL1f0L2f10L3Filtered19") #30
+                mksel("filter('hltL3crIsoL1sSingleMu22L1f0L2f10QL3f24QL3trkIsoFiltered')","hltL3crIsoL1sSingleMu22L1f0L2f10QL3f24QL3trkIsoFiltered"), #8
+                mksel("filter('hltL3fL1DoubleMu155fPreFiltered8')","hltL3fL1DoubleMu155fPreFiltered8"), #9
+                mksel("filter('hltL3fL1DoubleMu155fFiltered17')","hltL3fL1DoubleMu155fFiltered17"), #10
+                mksel("filter('hltDiMuon178RelTrkIsoFiltered0p4')","hltDiMuon178RelTrkIsoFiltered0p4"), #11
+                mksel("filter('hltDiMuon178RelTrkIsoFiltered0p4DzFiltered0p2')","hltDiMuon178RelTrkIsoFiltered0p4DzFiltered0p2"), #12
+                mksel("filter('hltDiMuon178RelTrkIsoVVLFiltered')","hltDiMuon178RelTrkIsoVVLFiltered"), #13
+                mksel("filter('hltDiMuon178RelTrkIsoVVLFilteredDzFiltered0p2')","hltDiMuon178RelTrkIsoVVLFilteredDzFiltered0p2"), #14
+                mksel("filter('hltDiMuon178Mass3p8Filtered')","hltDiMuon178Mass3p8Filtered"), #15
+                mksel("filter('hltL3fL1sMu22Or25L1f0L2f10QL3Filtered50Q')","hltL3fL1sMu22Or25L1f0L2f10QL3Filtered50Q"), #16
+                mksel("filter('hltL2fOldL1sMu22or25L1f0L2Filtered10Q')","hltL2fOldL1sMu22or25L1f0L2Filtered10Q"), #17
+                mksel("filter('hltL3fL1sMu22Or25L1f0L2f10QL3Filtered100Q')","hltL3fL1sMu22Or25L1f0L2f10QL3Filtered100Q"), #18
+                mksel("filter('hltL3fL1sMu25f0TkFiltered100Q')","hltL3fL1sMu25f0TkFiltered100Q"), #19
+                mksel("filter('hltL3fL1sMu15DQlqL1f0L2f10L3Filtered17')","hltL3fL1sMu15DQlqL1f0L2f10L3Filtered17"), #20
+                mksel("filter('hltL3fL1sMu1lqL1f0L2f10L3Filtered17TkIsoFiltered0p4')","hltL3fL1sMu1lqL1f0L2f10L3Filtered17TkIsoFiltered0p4"), #21
+                mksel("filter('hltL3fL1sMu1lqL1f0L2f10L3Filtered17TkIsoVVLFiltered')","hltL3fL1sMu1lqL1f0L2f10L3Filtered17TkIsoVVLFiltered"), #22
+                mksel("filter('hltL3fL1sMu5L1f0L2f5L3Filtered8')","hltL3fL1sMu5L1f0L2f5L3Filtered8"), #23
+                mksel("filter('hltL3fL1sMu5L1f0L2f5L3Filtered8TkIsoFiltered0p4')","hltL3fL1sMu5L1f0L2f5L3Filtered8TkIsoFiltered0p4"), #24
+                mksel("filter('hltL3fL1sMu5L1f0L2f5L3Filtered8TkIsoVVLFiltered')","hltL3fL1sMu5L1f0L2f5L3Filtered8TkIsoVVLFiltered"), #25
+                mksel("filter('hltL3fL1sMu15DQlqL1f0L2f10L3Filtered12')","hltL3fL1sMu15DQlqL1f0L2f10L3Filtered12"), #26
+                mksel("filter('hltL3fL1sMu15DQlqL1f0L2f10L3Filtered15')","hltL3fL1sMu15DQlqL1f0L2f10L3Filtered15"), #27
+                mksel("filter('hltL3fL1sMu15DQlqL1f0L2f10L3Filtered19')","hltL3fL1sMu15DQlqL1f0L2f10L3Filtered19"), #28
+                mksel("filter('hltL3fL1sMu15DQlqL1f0L2f10L3Filtered19')","hltL3fL1sMu15DQlqL1f0L2f10L3Filtered19") #29
             )
         )
 
