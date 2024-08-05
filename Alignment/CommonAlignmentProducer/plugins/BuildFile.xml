@@ -2,8 +2,8 @@
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
 <library name="AlignmentCommonAlignmentFakeProducers" file="FakeAlignment*.cc">
-  <use name="CondFormats/Alignment"/>
   <use name="CondFormats/AlignmentRecord"/>
+  <use name="CondFormats/Alignment"/>
 </library>
 
 <library name="AlignmentCommonAlignmentProducerPlugin" file="AlignmentProducer.cc">
@@ -45,11 +45,11 @@
   <use name="TrackPropagation/SteppingHelixPropagator"/>
   <use name="TrackPropagation/RungeKutta"/>
   <use name="CondFormats/AlignmentRecord"/>
-  <use name="CondFormats/Alignment"/>
   <use name="CondCore/DBOutputService"/>
   <use name="DataFormats/DetId"/>
   <use name="DataFormats/TrackReco"/>
   <use name="RecoMuon/TransientTrackingRecHit"/>
+  <use name="CLHEP"/>
 </library>
 
 <library file="LSNumberFilter.cc" name="AlignmentCommonAlignmentProducerFilter">
