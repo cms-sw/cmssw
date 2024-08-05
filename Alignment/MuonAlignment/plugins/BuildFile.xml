@@ -2,6 +2,7 @@
   <use name="Alignment/MuonAlignment" />
   <use name="Geometry/DTGeometry" />
   <use name="Geometry/CSCGeometry" />
+  <use name="Geometry/GeometryAligner"/>
   <flags EDM_PLUGIN="1" />
 </library>
 
@@ -11,6 +12,7 @@
   <use name="FWCore/MessageLogger"/>
   <use name="Alignment/CommonAlignment"/>
   <use name="Alignment/MuonAlignment"/>
+  <use name="Geometry/GeometryAligner"/>
   <flags EDM_PLUGIN="1"/>
 </library>
 
@@ -23,6 +25,7 @@
   <use name="Geometry/DTGeometry"/>
   <use name="Geometry/CSCGeometry"/>
   <use name="Geometry/Records"/>
+  <use name="Geometry/GeometryAligner"/>
   <use name="clhep"/>
   <flags EDM_PLUGIN="1"/>
 </library>
@@ -35,6 +38,7 @@
   <use name="DataFormats/MuonDetId"/>
   <use name="Alignment/CommonAlignment"/>
   <use name="Alignment/MuonAlignment"/>
+  <use name="Geometry/GeometryAligner"/>
   <flags EDM_PLUGIN="1"/>
 </library>
 
@@ -49,5 +53,6 @@
   <use name="FWCore/MessageLogger"/>
   <use name="CondFormats/Alignment"/>
   <use name="DataFormats/MuonDetId"/>
+  <use name="Geometry/GeometryAligner"/>
   <flags EDM_PLUGIN="1"/>
 </library>

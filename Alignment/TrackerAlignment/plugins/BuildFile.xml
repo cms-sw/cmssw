@@ -14,6 +14,7 @@
   <use name="FWCore/ServiceRegistry"/>
   <use name="Geometry/Records"/>
   <use name="Geometry/TrackerGeometryBuilder"/>
+  <use name="Geometry/GeometryAligner"/>
   <flags EDM_PLUGIN="1"/>
 </library>
 
@@ -23,6 +24,7 @@
   <use name="DataFormats/Alignment"/>
   <use name="RecoTracker/TransientTrackingRecHit"/>
   <use name="Utilities/General"/>
+  <use name="Geometry/GeometryAligner"/>
   <flags EDM_PLUGIN="1"/>
 </library>
 
@@ -43,6 +45,7 @@
   <use name="Geometry/TrackerGeometryBuilder"/>
   <use name="Geometry/CommonDetUnit" source_only="1"/>
   <use name="Geometry/CommonTopologies"/>
+  <use name="Geometry/GeometryAligner"/>
   <use name="root"/>
   <flags EDM_PLUGIN="1"/>
 </library>
@@ -59,6 +62,7 @@
   <use name="DataFormats/TrackerCommon"/>
   <use name="Geometry/Records"/>
   <use name="Geometry/TrackerGeometryBuilder"/>
+  <use name="Geometry/GeometryAligner"/>
   <use name="CLHEP"/>
   <flags EDM_PLUGIN="1"/>
 </library>
@@ -79,6 +83,7 @@
   <use name="DataFormats/Common"/>
   <use name="DataFormats/TrackReco"/>
   <use name="Geometry/TrackerNumberingBuilder"/>
+  <use name="Geometry/GeometryAligner"/>
   <use name="root"/>
   <flags EDM_PLUGIN="1"/>
 </library>

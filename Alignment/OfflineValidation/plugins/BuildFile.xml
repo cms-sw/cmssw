@@ -52,6 +52,7 @@
 <use name="TrackingTools/TrackFitters"/>
 <use name="TrackingTools/TrajectoryState"/>
 <use name="TrackingTools/TransientTrack"/>
+<use name="Geometry/GeometryAligner"/>
 <use name="root"/>
 <use name="rootcore"/>
 <use name="rootmath"/>
