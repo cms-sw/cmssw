@@ -22,7 +22,7 @@
 //        pLow and pHigh and save the canvases
 //
 // .L CalibPlotProperties.C+g
-//  CalibSplit c1(fname, dirname, outFileName, pmin, pmax, debug);
+//  CalibSplit c1(fname, dirname, outFileName, pmin, pmax, runMin, runMax, debug);
 //  c1.Loop(nentries);
 //
 //        This will split the tree and keep for tacks with momenta between
@@ -138,6 +138,8 @@
 //   outFileName (std::string)= name of the file containing saved tree
 //   pmin (double)            = minimum track momentum (40.0)
 //   pmax (double)            = maximum track momentum (60.0)
+//   runMin (int)             = minimum run number (-1) | if -1, no check on
+//   runMax (int)             = maximum run number (-1) | run number not done
 //   debug (bool)             = debug flag (false)
 //////////////////////////////////////////////////////////////////////////////
 #include <TROOT.h>
@@ -1812,6 +1814,8 @@ public:
              const std::string &outFileName,
              double pmin = 40.0,
              double pmax = 60.0,
+	     int runMin = -1,
+	     int runMax = -1,
              bool debug = false);
   virtual ~CalibSplit();
   virtual Int_t Cut(Long64_t entry);
@@ -1827,23 +1831,27 @@ public:
 private:
   const std::string fname_, dirnm_, outFileName_;
   const double pmin_, pmax_;
+  const int runMin_, runMax_;
   const bool debug_;
+  bool checkRun_;
   TFile *outputFile_;
   TDirectoryFile *outputDir_;
   TTree *outputTree_;
 };
 
-CalibSplit::CalibSplit(
-    const char *fname, const std::string &dirnm, const std::string &outFileName, double pmin, double pmax, bool debug)
+CalibSplit::CalibSplit(const char *fname, const std::string &dirnm, const std::string &outFileName, double pmin, double pmax, int runMin, int runMax, bool debug)
     : fname_(fname),
       dirnm_(dirnm),
       outFileName_(outFileName),
       pmin_(pmin),
       pmax_(pmax),
+      runMin_(runMin),
+      runMax_(runMax),
       debug_(debug),
       outputFile_(nullptr),
       outputDir_(nullptr),
       outputTree_(nullptr) {
+  checkRun_ = ((runMin_ < 0) || (runMax_ < 0)) ? false : true;
   char treeName[400];
   sprintf(treeName, "%s/CalibTree", dirnm.c_str());
   TChain *chain = new TChain(treeName);
@@ -2075,6 +2083,10 @@ void CalibSplit::Loop(Long64_t nentries) {
       std::cout << "Entry " << jentry << " Run " << t_Run << " Event " << t_Event << std::endl;
     ++kount;
     bool select = ((t_p >= pmin_) && (t_p < pmax_));
+    if (select && checkRun_) {
+      if ((t_Run < runMin_) || (t_Run > runMax_))
+	select = false;
+    }
     if (!select) {
       ++reject;
       if (debug_)
