@@ -1814,8 +1814,8 @@ public:
              const std::string &outFileName,
              double pmin = 40.0,
              double pmax = 60.0,
-	     int runMin = -1,
-	     int runMax = -1,
+             int runMin = -1,
+             int runMax = -1,
              bool debug = false);
   virtual ~CalibSplit();
   virtual Int_t Cut(Long64_t entry);
@@ -1839,7 +1839,14 @@ private:
   TTree *outputTree_;
 };
 
-CalibSplit::CalibSplit(const char *fname, const std::string &dirnm, const std::string &outFileName, double pmin, double pmax, int runMin, int runMax, bool debug)
+CalibSplit::CalibSplit(const char *fname,
+                       const std::string &dirnm,
+                       const std::string &outFileName,
+                       double pmin,
+                       double pmax,
+                       int runMin,
+                       int runMax,
+                       bool debug)
     : fname_(fname),
       dirnm_(dirnm),
       outFileName_(outFileName),
@@ -2085,7 +2092,7 @@ void CalibSplit::Loop(Long64_t nentries) {
     bool select = ((t_p >= pmin_) && (t_p < pmax_));
     if (select && checkRun_) {
       if ((t_Run < runMin_) || (t_Run > runMax_))
-	select = false;
+        select = false;
     }
     if (!select) {
       ++reject;
