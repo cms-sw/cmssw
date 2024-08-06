@@ -71,7 +71,7 @@
       materials:Copper, materials:StainlessSteel, materials:Epoxy, 
       materials:Lead</Vector>
     <Vector name="LayerThickness" type="numeric" nEntries="4">
-      0.1*mm, 0.3*mm,  0.05*mm, 2.77*mm</Vector>
+      0.1*mm, 0.3*mm,  0.05*mm, 4.97*mm</Vector>
     <Vector name="LayerType" type="numeric" nEntries="7"> 
       0, 1, 2, 3, 2, 1, 0</Vector>
     <Numeric name="ShiftTop"         value="[shiftTop]"/>
@@ -111,7 +111,7 @@
       materials:Copper, materials:StainlessSteel, materials:Epoxy, 
       materials:Lead</Vector>
     <Vector name="LayerThickness" type="numeric" nEntries="4">
-      0.1*mm, 0.3*mm,  0.05*mm, 2.77*mm</Vector>
+      0.1*mm, 0.3*mm,  0.05*mm, 8.22*mm</Vector>
     <Vector name="LayerType" type="numeric" nEntries="7"> 
       0, 1, 2, 3, 2, 1, 0</Vector>
     <Numeric name="ShiftTop"         value="[shiftTop]"/>
