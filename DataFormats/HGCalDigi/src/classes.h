@@ -8,5 +8,5 @@
 #include "DataFormats/HGCalDigi/interface/HGCalDigiHost.h"
 #include "DataFormats/HGCalDigi/interface/HGCalDigiSoA.h"
 #include "DataFormats/HGCalDigi/interface/HGCalFlaggedECONDInfo.h"
-#include "DataFormats/HGCalDigi/interface/HGCalECONDInfoHost.h"
-#include "DataFormats/HGCalDigi/interface/HGCalECONDInfoSoA.h"
+#include "DataFormats/HGCalDigi/interface/HGCalECONDPacketInfoHost.h"
+#include "DataFormats/HGCalDigi/interface/HGCalECONDPacketInfoSoA.h"

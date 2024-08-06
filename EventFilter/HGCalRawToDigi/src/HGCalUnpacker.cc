@@ -1,7 +1,7 @@
 #include "EventFilter/HGCalRawToDigi/interface/HGCalUnpacker.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/HGCalDigi/interface/HGCalDigiHost.h"
-#include "DataFormats/HGCalDigi/interface/HGCalECONDInfoHost.h"
+#include "DataFormats/HGCalDigi/interface/HGCalECONDPacketInfoHost.h"
 #include "DataFormats/HGCalDigi/interface/HGCalRawDataDefinitions.h"
 #include "CondFormats/HGCalObjects/interface/HGCalMappingModuleIndexer.h"
 #include "CondFormats/HGCalObjects/interface/HGCalMappingCellIndexer.h"
@@ -17,7 +17,7 @@ void HGCalUnpacker::parseFEDData(unsigned fedId,
                                  const HGCalMappingModuleIndexer& moduleIndexer,
                                  const HGCalConfiguration& config,
                                  hgcaldigi::HGCalDigiHost& digis,
-                                 hgcaldigi::HGCalECONDInfoHost& econdInfo,
+                                 hgcaldigi::HGCalECONDPacketInfoHost& econdPacketInfo,
                                  bool headerOnlyMode) {
   // ReadoutSequence object for this FED
   const auto& fedReadoutSequence = moduleIndexer.fedReadoutSequences_[fedId];
@@ -63,8 +63,8 @@ void HGCalUnpacker::parseFEDData(unsigned fedId,
   if (((slink_header >> (BACKEND_FRAME::SLINK_BOE_POS + 32)) & BACKEND_FRAME::SLINK_BOE_MASK) !=
       fedConfig.slinkHeaderMarker) {
     uint32_t ECONDdenseIdx = moduleIndexer.getIndexForModule(fedId, 0);
-    econdInfo.view()[ECONDdenseIdx].exception() = 1;
-    econdInfo.view()[ECONDdenseIdx].location() = 0;
+    econdPacketInfo.view()[ECONDdenseIdx].exception() = 1;
+    econdPacketInfo.view()[ECONDdenseIdx].location() = 0;
     throw cms::Exception("CorruptData") << "Expected a S-Link header (BOE: 0x" << std::hex
                                         << fedConfig.slinkHeaderMarker << "), got 0x" << std::hex
                                         << ((slink_header >> (BACKEND_FRAME::SLINK_BOE_POS + 32)) &
@@ -91,8 +91,8 @@ void HGCalUnpacker::parseFEDData(unsigned fedId,
     if (((cb_header >> (BACKEND_FRAME::CAPTUREBLOCK_RESERVED_POS + 32)) & BACKEND_FRAME::CAPTUREBLOCK_RESERVED_MASK) !=
         fedConfig.cbHeaderMarker) {
       uint32_t ECONDdenseIdx = moduleIndexer.getIndexForModule(fedId, 0);
-      econdInfo.view()[ECONDdenseIdx].exception() = 2;
-      econdInfo.view()[ECONDdenseIdx].location() = (uint32_t)(ptr - header);
+      econdPacketInfo.view()[ECONDdenseIdx].exception() = 2;
+      econdPacketInfo.view()[ECONDdenseIdx].location() = (uint32_t)(ptr - header);
       throw cms::Exception("CorruptData")
           << "Expected a capture block header at word " << std::dec << (uint32_t)(ptr - header) << "/0x" << std::hex
           << (uint32_t)(ptr - header) << " (reserved word: 0x" << fedConfig.cbHeaderMarker << "), got 0x"
@@ -125,11 +125,11 @@ void HGCalUnpacker::parseFEDData(unsigned fedId,
                                   << std::setfill('0') << std::setw(16) << *ptr << std::dec;
       auto econd_headers = to_32b_words(ptr);
       uint32_t ECONDdenseIdx = moduleIndexer.getIndexForModule(fedId, globalECONDIdx);
-      econdInfo.view()[ECONDdenseIdx].location() = (uint32_t)(ptr - header);
+      econdPacketInfo.view()[ECONDdenseIdx].location() = (uint32_t)(ptr - header);
       // sanity check
       if (((econd_headers[0] >> ECOND_FRAME::HEADER_POS) & ECOND_FRAME::HEADER_MASK) !=
           fedConfig.econds[globalECONDIdx].headerMarker) {
-        econdInfo.view()[ECONDdenseIdx].exception() = 3;
+        econdPacketInfo.view()[ECONDdenseIdx].exception() = 3;
 
         //DO NOT THROW!! just flag as exception and try to continue
         //throw cms::Exception("CorruptData")
@@ -139,20 +139,20 @@ void HGCalUnpacker::parseFEDData(unsigned fedId,
       }
       ++ptr;
 
-      econdInfo.view()[ECONDdenseIdx].cbFlag() = (uint8_t)(econd_pkt_status);
+      econdPacketInfo.view()[ECONDdenseIdx].cbFlag() = (uint8_t)(econd_pkt_status);
       // ECON-D payload length (num of 32b words)
       // NOTE: in the capture blocks, ECON-D packets do not have the trailing IDLE word
       const auto econd_payload_length = ((econd_headers[0] >> ECOND_FRAME::PAYLOAD_POS) & ECOND_FRAME::PAYLOAD_MASK);
       if (econd_payload_length > 469) {
-        econdInfo.view()[ECONDdenseIdx].exception() = 4;
+        econdPacketInfo.view()[ECONDdenseIdx].exception() = 4;
         throw cms::Exception("CorruptData")
             << "Unpacked payload length=" << econd_payload_length << " exceeds the maximal length=469";
       }
       const auto econdFlag = ((econd_headers[0] >> ECOND_FRAME::BITT_POS) & 0b1111111) +
-                             (((econd_headers[1] >> ECOND_FRAME::BITS_POS) & 0b1) << ECONDFlag::BITS_POS);
-      econdInfo.view()[ECONDdenseIdx].payloadLength() = (uint16_t)econd_payload_length;
-      econdInfo.view()[ECONDdenseIdx].econdFlag() = (uint8_t)econdFlag;
-      econdInfo.view()[ECONDdenseIdx].exception() = 0;
+                             (((econd_headers[1] >> ECOND_FRAME::BITS_POS) & 0b1) << hgcaldigi::ECONDFlag::BITS_POS);
+      econdPacketInfo.view()[ECONDdenseIdx].payloadLength() = (uint16_t)econd_payload_length;
+      econdPacketInfo.view()[ECONDdenseIdx].econdFlag() = (uint8_t)econdFlag;
+      econdPacketInfo.view()[ECONDdenseIdx].exception() = 0;
 
       // convert ECON-D packets into 32b words -- need to swap the order of the two 32b words in the 64b word
       auto econd_payload = to_econd_payload(ptr, econd_payload_length);
@@ -302,7 +302,7 @@ void HGCalUnpacker::parseFEDData(unsigned fedId,
       }
       // end of ECON-D parsing
       if (iword != econd_payload_length - 1) {
-        econdInfo.view()[ECONDdenseIdx].exception() = 5;
+        econdPacketInfo.view()[ECONDdenseIdx].exception() = 5;
         //SHOULD NOT THROW!!!!
         //throw cms::Exception("CorruptData")
         //    << "Mismatch between unpacked and expected ECON-D #" << (int)globalECONDIdx << " payload length\n"
@@ -320,8 +320,8 @@ void HGCalUnpacker::parseFEDData(unsigned fedId,
   // TODO
   if (ptr + 2 != trailer) {
     uint32_t ECONDdenseIdx = moduleIndexer.getIndexForModule(fedId, 0);
-    econdInfo.view()[ECONDdenseIdx].exception() = 6;
-    econdInfo.view()[ECONDdenseIdx].location() = 0;
+    econdPacketInfo.view()[ECONDdenseIdx].exception() = 6;
+    econdPacketInfo.view()[ECONDdenseIdx].location() = 0;
     throw cms::Exception("CorruptData") << "Error finding the S-link trailer, expected at" << std::dec
                                         << (uint32_t)(trailer - header) << "/0x" << std::hex
                                         << (uint32_t)(trailer - header) << "Unpacked trailer at" << std::dec
