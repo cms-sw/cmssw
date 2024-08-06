@@ -1,6 +1,11 @@
+<use name="rootcore"/>
+<use name="eigen"/>
+<use name="DataFormats/Portable"/>
 <use name="DataFormats/Common"/>
 <use name="DataFormats/ForwardDetId"/>
 <use name="DataFormats/DetId"/>
+<use name="HeterogeneousCore/AlpakaInterface"/>
+<flags ALPAKA_BACKENDS="!serial"/>
 <export>
   <lib name="1"/>
 </export>
