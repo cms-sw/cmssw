@@ -75,13 +75,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           uint32_t fedId = fedRS.id;
           for(size_t imod=0; imod<fedRS.moduleLUT_.size(); imod++) {
             
-            //get the index of the module info, the number of words expected
-            //and the first channel dense index
-            int modIdx = fedRS.readoutTypes_[imod];
-            uint32_t nch = modIndexer.globalTypesNWords_[modIdx];
+            //the number of words expected, the first channel dense index
+	    int modTypeIdx = fedRS.readoutTypes_[imod];
+	    uint32_t nch = modIndexer.globalTypesNWords_[modTypeIdx];
             int off = fedRS.chDataOffsets_[imod];
 
-            //get necessary module info 
+            //get additional necessary module info
+	    int modIdx = modIndexer.getIndexForModule(fedId,imod); 
             auto module_row = moduleInfo.view()[modIdx];
             bool isSiPM =  module_row.isSiPM();
             uint16_t typeidx = module_row.typeidx();
@@ -115,9 +115,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
               auto cell_row = cellInfo.view()[cellIdx];
               row.eleid() = eleid + cell_row.eleid();              
 
-              //assign det id only for full cells
+              //assign det id only for full and calibration cells
               row.detid() = 0;
-              if(cell_row.t()==1) {
+              if(cell_row.t()==1 || cell_row.t()==0) {
                 if (isSiPM) {
                   row.detid() = ::hgcal::mappingtools::getSiPMDetId(
                     module_row.zside(), module_row.plane(), module_row.i2(), module_row.celltype(), 
