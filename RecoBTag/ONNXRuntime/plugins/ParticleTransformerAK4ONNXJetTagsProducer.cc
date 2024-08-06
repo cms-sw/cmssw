@@ -30,7 +30,7 @@ public:
 
   static std::unique_ptr<ONNXRuntime> initializeGlobalCache(const edm::ParameterSet&);
   static void globalEndJob(const ONNXRuntime*);
- 
+
 private:
   typedef std::vector<reco::ParticleTransformerAK4TagInfo> TagInfoCollection;
   typedef reco::JetTagCollection JetTagCollection;

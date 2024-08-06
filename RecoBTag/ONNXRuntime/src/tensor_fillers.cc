@@ -138,7 +138,8 @@ namespace btagbtvdeep {
     *(++ptr) = neighbourTrack_features.dphi_PCAjetDirs;
   }
 
-  std::vector<float> inputs_parT(const btagbtvdeep::ChargedCandidateFeatures& c_pf_features, parT::InputFeatures ifeature) {
+  std::vector<float> inputs_parT(const btagbtvdeep::ChargedCandidateFeatures& c_pf_features,
+                                 parT::InputFeatures ifeature) {
     std::vector<float> inputs;
     if (ifeature == parT::kChargedCandidates) {
       inputs.push_back(c_pf_features.btagPf_trackEtaRel);
@@ -157,8 +158,7 @@ namespace btagbtvdeep {
       inputs.push_back(c_pf_features.puppiw);
       inputs.push_back(c_pf_features.chi2);
       inputs.push_back(c_pf_features.quality);
-    }
-    else if (ifeature == parT::kChargedCandidates4Vec) {
+    } else if (ifeature == parT::kChargedCandidates4Vec) {
       inputs.push_back(c_pf_features.px);
       inputs.push_back(c_pf_features.py);
       inputs.push_back(c_pf_features.pz);
@@ -167,7 +167,8 @@ namespace btagbtvdeep {
     return inputs;
   }
 
-  std::vector<float> inputs_parT(const btagbtvdeep::NeutralCandidateFeatures& n_pf_features, parT::InputFeatures ifeature) {
+  std::vector<float> inputs_parT(const btagbtvdeep::NeutralCandidateFeatures& n_pf_features,
+                                 parT::InputFeatures ifeature) {
     std::vector<float> inputs;
     if (ifeature == parT::kNeutralCandidates) {
       inputs.push_back(n_pf_features.ptrel);
@@ -178,17 +179,17 @@ namespace btagbtvdeep {
       inputs.push_back(n_pf_features.hadFrac);
       inputs.push_back(n_pf_features.drminsv);
       inputs.push_back(n_pf_features.puppiw);
-    }
-    else if (ifeature == parT::kNeutralCandidates4Vec) {
+    } else if (ifeature == parT::kNeutralCandidates4Vec) {
       inputs.push_back(n_pf_features.px);
       inputs.push_back(n_pf_features.py);
       inputs.push_back(n_pf_features.pz);
-      inputs.push_back(n_pf_features.e);   
+      inputs.push_back(n_pf_features.e);
     }
     return inputs;
   }
 
-  std::vector<float> inputs_parT(const btagbtvdeep::SecondaryVertexFeatures& sv_features, parT::InputFeatures ifeature) {
+  std::vector<float> inputs_parT(const btagbtvdeep::SecondaryVertexFeatures& sv_features,
+                                 parT::InputFeatures ifeature) {
     std::vector<float> inputs;
     if (ifeature == parT::kVertices) {
       inputs.push_back(sv_features.pt);
@@ -205,12 +206,11 @@ namespace btagbtvdeep {
       inputs.push_back(sv_features.d3dsig);
       inputs.push_back(sv_features.costhetasvpv);
       inputs.push_back(sv_features.enratio);
-    }
-    else if (ifeature == parT::kVertices4Vec) {
+    } else if (ifeature == parT::kVertices4Vec) {
       inputs.push_back(sv_features.px);
       inputs.push_back(sv_features.py);
       inputs.push_back(sv_features.pz);
-      inputs.push_back(sv_features.e);   
+      inputs.push_back(sv_features.e);
     }
     return inputs;
   }

@@ -32,38 +32,34 @@ namespace deepvertex {
 namespace parT {
 
   enum InputFeatures {
-    kBegin=0,
-    kChargedCandidates=kBegin,
-    kNeutralCandidates=1,
-    kVertices=2,
-    kChargedCandidates4Vec=3,
-    kNeutralCandidates4Vec=4,
-    kVertices4Vec=5,
-    kEnd=6
+    kBegin = 0,
+    kChargedCandidates = kBegin,
+    kNeutralCandidates = 1,
+    kVertices = 2,
+    kChargedCandidates4Vec = 3,
+    kNeutralCandidates4Vec = 4,
+    kVertices4Vec = 5,
+    kEnd = 6
   };
- 
+
   constexpr unsigned n_cpf_accept = 25;
   constexpr unsigned n_npf_accept = 25;
-  constexpr unsigned n_sv_accept = 5; 
+  constexpr unsigned n_sv_accept = 5;
 
-  const std::map<InputFeatures, unsigned int> N_InputFeatures{
-    {kChargedCandidates, 16},
-    {kNeutralCandidates, 8},
-    {kVertices, 14},
-    {kChargedCandidates4Vec, 4},
-    {kNeutralCandidates4Vec, 4},
-    {kVertices4Vec, 4}
-  };
+  const std::map<InputFeatures, unsigned int> N_InputFeatures{{kChargedCandidates, 16},
+                                                              {kNeutralCandidates, 8},
+                                                              {kVertices, 14},
+                                                              {kChargedCandidates4Vec, 4},
+                                                              {kNeutralCandidates4Vec, 4},
+                                                              {kVertices4Vec, 4}};
 
-  const std::map<InputFeatures, unsigned int> N_AcceptedFeatures{
-    {kChargedCandidates, n_cpf_accept},
-    {kNeutralCandidates, n_npf_accept},
-    {kVertices, n_sv_accept},
-    {kChargedCandidates4Vec, n_cpf_accept},
-    {kNeutralCandidates4Vec, n_npf_accept},
-    {kVertices4Vec, n_sv_accept}
-  };
+  const std::map<InputFeatures, unsigned int> N_AcceptedFeatures{{kChargedCandidates, n_cpf_accept},
+                                                                 {kNeutralCandidates, n_npf_accept},
+                                                                 {kVertices, n_sv_accept},
+                                                                 {kChargedCandidates4Vec, n_cpf_accept},
+                                                                 {kNeutralCandidates4Vec, n_npf_accept},
+                                                                 {kVertices4Vec, n_sv_accept}};
 
-} // namespace parT
+}  // namespace parT
 
 #endif
