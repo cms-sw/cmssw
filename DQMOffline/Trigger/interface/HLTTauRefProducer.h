@@ -24,6 +24,7 @@
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
 #include "DataFormats/TauReco/interface/TauDiscriminatorContainer.h"
+#include "DataFormats/PatCandidates/interface/Tau.h"
 
 // ELECTRON includes
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
@@ -71,10 +72,12 @@ private:
   edm::EDGetTokenT<reco::PFTauCollection> PFTaus_;
   std::vector<edm::EDGetTokenT<reco::PFTauDiscriminator>> PFTauDis_;
   std::vector<edm::EDGetTokenT<reco::TauDiscriminatorContainer>> PFTauDisCont_;
+  edm::EDGetTokenT<edm::View<pat::Tau>> PATTaus_;
   std::vector<std::string> PFTauDisContWPs_;
   edm::ProcessHistoryID phID_;
   bool doPFTaus_;
   double ptMinPFTau_, etaMinPFTau_, etaMaxPFTau_, phiMinPFTau_, phiMaxPFTau_;
+  std::vector<std::string> discriminatorNames;
 
   edm::EDGetTokenT<reco::GsfElectronCollection> Electrons_;
   bool doElectrons_;
