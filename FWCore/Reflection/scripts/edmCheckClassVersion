@@ -46,99 +46,110 @@ def checkDictionaries(name):
 
     return missingDict
 
-#Setup the options
-from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
-oparser = ArgumentParser(formatter_class=ArgumentDefaultsHelpFormatter)
-oparser.add_argument("-d","--check_dictionaries", dest="checkdict",action="store_true",default=False,
-                     help="check that all required dictionaries are loaded")
-oparser.add_argument("-l","--lib", dest="library", type=str,
-                     help="specify the library to load. If not set classes are found using the PluginManager")
-oparser.add_argument("-x","--xml_file", dest="xmlfile",default="./classes_def.xml", type=str,
-                     help="the classes_def.xml file to read")
-oparser.add_argument("-g","--generate_new",dest="generate", action="store_true",default=False,
-                     help="instead of issuing errors, generate a new classes_def.xml file.")
+def checkClassDefinitions(classes, checkdict):
+    missingDict = 0
+    foundErrors = dict()
+    for name,info in classes.items():
+        errorCode,rootClassVersion,classChecksum = ClassesDefUtils.checkClass(name,info[ClassesDefUtils.XmlParser.classVersionIndex],info[ClassesDefUtils.XmlParser.versionsToChecksumIndex])
+        if errorCode != ClassesDefUtils.noError:
+            foundErrors[name]=(errorCode,classChecksum,rootClassVersion)
+        if checkdict :
+            missingDict += checkDictionaries(name)
+    return (missingDict, foundErrors)
 
-options=oparser.parse_args()
-
-ClassesDefUtils.initROOT(options.library)
-if options.library is None and options.checkdict:
-    print ("Dictionary checks require a specific library")
-
-missingDict = 0
-
-ClassesDefUtils.initCheckClass()
-
-try:
-    p = ClassesDefUtils.XmlParser(options.xmlfile)
-except RuntimeError as e:
-    print(f"Parsing {options.xmlfile} failed: {e}")
-    sys.exit(1)
-foundErrors = dict()
-for name,info in p.classes.items():
-    errorCode,rootClassVersion,classChecksum = ClassesDefUtils.checkClass(name,info[ClassesDefUtils.XmlParser.classVersionIndex],info[ClassesDefUtils.XmlParser.versionsToChecksumIndex])
-    if errorCode != ClassesDefUtils.noError:
-        foundErrors[name]=(errorCode,classChecksum,rootClassVersion)
-    if options.checkdict :
-        missingDict += checkDictionaries(name)
-
-foundRootDoesNotMatchError = False
-originalToNormalizedNames = dict()
-for name,retValues in foundErrors.items():
-    origName = p.classes[name][ClassesDefUtils.XmlParser.originalNameIndex]
-    originalToNormalizedNames[origName]=name
-    code = retValues[0]
-    classVersion = p.classes[name][ClassesDefUtils.XmlParser.classVersionIndex]
-    classChecksum = retValues[1]
-    rootClassVersion = retValues[2]
-    if code == ClassesDefUtils.errorRootDoesNotMatchClassDef:
-        foundRootDoesNotMatchError=True
-        print ("error: for class '"+name+"' ROOT says the ClassVersion is "+str(rootClassVersion)+" but classes_def.xml says it is "+str(classVersion)+". Are you sure everything compiled correctly?")
-    elif code == ClassesDefUtils.errorMustUpdateClassVersion and not options.generate:
-        print ("error: class '"+name+"' has a different checksum for ClassVersion "+str(classVersion)+". Increment ClassVersion to "+str(classVersion+1)+" and assign it to checksum "+str(classChecksum))
-    elif not options.generate:
-        print ("error:class '"+name+"' needs to include the following as part of its 'class' declaration")
-        print ('   <version ClassVersion="'+str(classVersion)+'" checksum="'+str(classChecksum)+'"/>')
+def checkErrors(foundErrors, classes, generate):
+    foundRootDoesNotMatchError = False
+    originalToNormalizedNames = dict()
+    for name,retValues in foundErrors.items():
+        origName = classes[name][ClassesDefUtils.XmlParser.originalNameIndex]
+        originalToNormalizedNames[origName]=name
+        code = retValues[0]
+        classVersion = classes[name][ClassesDefUtils.XmlParser.classVersionIndex]
+        classChecksum = retValues[1]
+        rootClassVersion = retValues[2]
+        if code == ClassesDefUtils.errorRootDoesNotMatchClassDef:
+            foundRootDoesNotMatchError=True
+            print ("error: for class '"+name+"' ROOT says the ClassVersion is "+str(rootClassVersion)+" but classes_def.xml says it is "+str(classVersion)+". Are you sure everything compiled correctly?")
+        elif code == ClassesDefUtils.errorMustUpdateClassVersion and not generate:
+            print ("error: class '"+name+"' has a different checksum for ClassVersion "+str(classVersion)+". Increment ClassVersion to "+str(classVersion+1)+" and assign it to checksum "+str(classChecksum))
+        elif not generate:
+            print ("error:class '"+name+"' needs to include the following as part of its 'class' declaration")
+            print ('   <version ClassVersion="'+str(classVersion)+'" checksum="'+str(classChecksum)+'"/>')
+    return (foundRootDoesNotMatchError, originalToNormalizedNames)
 
 
-if options.generate and not foundRootDoesNotMatchError and not missingDict:
-    f = open(options.xmlfile)
-    outFile = open('classes_def.xml.generated','w')
-    out = ''
-    for l in f.readlines():
-        newLine = l
-        if -1 != l.find('<class') and -1 != l.find('ClassVersion'):
-            splitArgs = l.split('"')
-            name = splitArgs[1]
-            normName = originalToNormalizedNames.get(name,None)
-            if normName is not None:
-                indent = l.find('<')
-                #this is a class with a problem
-                classVersion = p.classes[normName][XmlParser.classVersionIndex]
-                code,checksum,rootClassVersion = foundErrors[normName]
-                hasNoSubElements = (-1 != l.find('/>'))
-                if code == ClassesDefUtils.errorMustUpdateClassVersion:
-                    classVersion += 1
-                    parts = splitArgs[:]
-                    indexToClassVersion = 0
-                    for pt in parts:
-                        indexToClassVersion +=1
-                        if -1 != pt.find('ClassVersion'):
-                            break
-                    parts[indexToClassVersion]=str(classVersion)
-                    newLine = '"'.join(parts)
+def generate(oldfile, newfile, originalToNormalizedNames, classes, foundErrors):
+    with open(oldfile) as f, open(newfile, 'w') as outFile:
+        out = ''
+        for l in f.readlines():
+            newLine = l
+            if -1 != l.find('<class') and -1 != l.find('ClassVersion'):
+                splitArgs = l.split('"')
+                name = splitArgs[1]
+                normName = originalToNormalizedNames.get(name,None)
+                if normName is not None:
+                    indent = l.find('<')
+                    #this is a class with a problem
+                    classVersion = classes[normName][ClassesDefUtils.XmlParser.classVersionIndex]
+                    code,checksum,rootClassVersion = foundErrors[normName]
+                    hasNoSubElements = (-1 != l.find('/>'))
+                    if code == ClassesDefUtils.errorMustUpdateClassVersion:
+                        classVersion += 1
+                        parts = splitArgs[:]
+                        indexToClassVersion = 0
+                        for pt in parts:
+                            indexToClassVersion +=1
+                            if -1 != pt.find('ClassVersion'):
+                                break
+                        parts[indexToClassVersion]=str(classVersion)
+                        newLine = '"'.join(parts)
 
-                if hasNoSubElements:
-                    newLine = newLine.replace('/','')
-                out +=newLine
-                newLine =' '*indent+' <version ClassVersion="'+str(classVersion)+'" checksum="'+str(checksum)+'"/>\n'
-                if hasNoSubElements:
-                    out += newLine
-                    newLine=' '*indent+'</class>\n'
-        out +=newLine
+                    if hasNoSubElements:
+                        newLine = newLine.replace('/','')
+                    out +=newLine
+                    newLine =' '*indent+' <version ClassVersion="'+str(classVersion)+'" checksum="'+str(checksum)+'"/>\n'
+                    if hasNoSubElements:
+                        out += newLine
+                        newLine=' '*indent+'</class>\n'
+            out +=newLine
 
-    outFile.writelines(out)
+        outFile.writelines(out)
 
-if (len(foundErrors)>0 and not options.generate) or (options.generate and foundRootDoesNotMatchError) or missingDict:
-   import sys
-   sys.exit(1)
+def main(args):
+    ClassesDefUtils.initROOT(args.library)
+    if args.library is None and args.checkdict:
+        print ("Dictionary checks require a specific library")
+    ClassesDefUtils.initCheckClass()
+
+    try:
+        p = ClassesDefUtils.XmlParser(args.xmlfile)
+    except RuntimeError as e:
+        print(f"Parsing {args.xmlfile} failed: {e}")
+        return(1)
+
+    (missingDict, foundErrors) = checkClassDefinitions(p.classes, args.checkdict)
+    (foundRootDoesNotMatchError, originalToNormalizedNames) = checkErrors(foundErrors, p.classes, args.generate)
+
+    if (len(foundErrors)>0 and not args.generate) or (args.generate and foundRootDoesNotMatchError) or missingDict:
+        return 1
+
+    if args.generate:
+        generate(args.xmlfile, 'classes_def.xml.generated', originalToNormalizedNames, p.classes, foundErrors)
+
+    return 0
+
+if __name__ == "__main__":
+    from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
+    parser = ArgumentParser(formatter_class=ArgumentDefaultsHelpFormatter)
+    parser.add_argument("-d","--check_dictionaries", dest="checkdict",action="store_true",default=False,
+                         help="check that all required dictionaries are loaded")
+    parser.add_argument("-l","--lib", dest="library", type=str,
+                         help="specify the library to load. If not set classes are found using the PluginManager")
+    parser.add_argument("-x","--xml_file", dest="xmlfile",default="./classes_def.xml", type=str,
+                         help="the classes_def.xml file to read")
+    parser.add_argument("-g","--generate_new",dest="generate", action="store_true",default=False,
+                         help="instead of issuing errors, generate a new classes_def.xml file.")
+
+    args = parser.parse_args()
+    sys.exit(main(args))
 
