@@ -14,7 +14,7 @@
 #include "DataFormats/HGCalDigi/interface/HGCalRawDataDefinitions.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/HGCalDigi/interface/HGCalDigiHost.h"
-#include "DataFormats/HGCalDigi/interface/HGCalECONDInfoHost.h"
+#include "DataFormats/HGCalDigi/interface/HGCalECONDPacketInfoHost.h"
 #include "CondFormats/HGCalObjects/interface/HGCalMappingModuleIndexer.h"
 #include "CondFormats/HGCalObjects/interface/HGCalConfiguration.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -36,7 +36,7 @@ public:
                     const HGCalMappingModuleIndexer& moduleIndexer,
                     const HGCalConfiguration& config,
                     hgcaldigi::HGCalDigiHost& digis,
-                    hgcaldigi::HGCalECONDInfoHost& econdInfo,
+                    hgcaldigi::HGCalECONDPacketInfoHost& econdPacketInfo,
                     bool headerOnlyMode = false);
 
 private:

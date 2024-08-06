@@ -11,7 +11,7 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/HGCalDigi/interface/HGCalElectronicsId.h"
 #include "DataFormats/HGCalDigi/interface/HGCalDigiHost.h"
-#include "DataFormats/HGCalDigi/interface/HGCalECONDInfoHost.h"
+#include "DataFormats/HGCalDigi/interface/HGCalECONDPacketInfoHost.h"
 #include "DataFormats/HGCalDigi/interface/HGCalRawDataDefinitions.h"
 
 #include "CondFormats/DataRecord/interface/HGCalElectronicsMappingRcd.h"
@@ -39,7 +39,7 @@ private:
 
   // output tokens
   const edm::EDPutTokenT<hgcaldigi::HGCalDigiHost> digisToken_;
-  const edm::EDPutTokenT<hgcaldigi::HGCalECONDInfoHost> econdInfoToken_;
+  const edm::EDPutTokenT<hgcaldigi::HGCalECONDPacketInfoHost> econdPacketInfoToken_;
 
   // TODO @hqucms
   // what else do we want to output?
@@ -73,7 +73,7 @@ private:
 HGCalRawToDigi::HGCalRawToDigi(const edm::ParameterSet& iConfig)
     : fedRawToken_(consumes<FEDRawDataCollection>(iConfig.getParameter<edm::InputTag>("src"))),
       digisToken_(produces<hgcaldigi::HGCalDigiHost>()),
-      econdInfoToken_(produces<hgcaldigi::HGCalECONDInfoHost>()),
+      econdPacketInfoToken_(produces<hgcaldigi::HGCalECONDPacketInfoHost>()),
       // flaggedRawDataToken_(produces<HGCalFlaggedECONDInfoCollection>("UnpackerFlags")),
       // elecDigisToken_(produces<HGCalElecDigiCollection>("DIGI")),
       // elecCMsToken_(produces<HGCalElecDigiCollection>("CM")),
@@ -105,7 +105,7 @@ void HGCalRawToDigi::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetu
 
 void HGCalRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   hgcaldigi::HGCalDigiHost digis(moduleIndexer_.getMaxDataSize(), cms::alpakatools::host());
-  hgcaldigi::HGCalECONDInfoHost econdInfo(moduleIndexer_.getMaxModuleSize(), cms::alpakatools::host());
+  hgcaldigi::HGCalECONDPacketInfoHost econdPacketInfo(moduleIndexer_.getMaxModuleSize(), cms::alpakatools::host());
   // std::cout << "Created DIGIs SOA with " << digis.view().metadata().size() << " entries" << std::endl;
 
   // TODO @hqucms
@@ -120,7 +120,7 @@ void HGCalRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
     const auto& fed_data = raw_data.FEDData(fedId);
     if (fed_data.size() == 0)
       continue;
-    unpacker_.parseFEDData(fedId, fed_data, moduleIndexer_, config_, digis, econdInfo, /*headerOnlyMode*/ false);
+    unpacker_.parseFEDData(fedId, fed_data, moduleIndexer_, config_, digis, econdPacketInfo, /*headerOnlyMode*/ false);
   }
 
   // TODO @hqucms
@@ -195,7 +195,7 @@ void HGCalRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
 
   // put information to the event
   iEvent.emplace(digisToken_, std::move(digis));
-  iEvent.emplace(econdInfoToken_,std::move(econdInfo));
+  iEvent.emplace(econdPacketInfoToken_,std::move(econdPacketInfo));
   // iEvent.emplace(flaggedRawDataToken_, std::move(flagged_econds));
   // iEvent.emplace(elecDigisToken_, std::move(elec_digis));
   // iEvent.emplace(elecCMsToken_, std::move(elec_cms));

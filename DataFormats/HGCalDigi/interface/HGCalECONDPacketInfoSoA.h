@@ -1,5 +1,5 @@
-#ifndef DataFormats_HGCalDigi_interface_HGCalECONDInfoSoA_h
-#define DataFormats_HGCalDigi_interface_HGCalECONDInfoSoA_h
+#ifndef DataFormats_HGCalDigi_interface_HGCalECONDPacketInfoSoA_h
+#define DataFormats_HGCalDigi_interface_HGCalECONDPacketInfoSoA_h
 
 #include <Eigen/Core>
 #include <Eigen/Dense>
@@ -8,20 +8,39 @@
 #include "DataFormats/SoATemplate/interface/SoALayout.h"
 #include "DataFormats/SoATemplate/interface/SoAView.h"
 
-enum ECONDFlag {
-  BITT_POS = 0,
-  BITM_POS = 1,
-  EBO_POS = 2,
-  EBO_MASK = 0b11,
-  HT_POS = 4,
-  HT_MASK = 0b11,
-  BITE_POS = 6,
-  BITS_POS = 7
-};
-
 namespace hgcaldigi {
+  // enum for getting ECONDFlag
+  enum ECONDFlag {
+    BITT_POS = 0,
+    BITM_POS = 1,
+    EBO_POS = 2,
+    EBO_MASK = 0b11,
+    HT_POS = 4,
+    HT_MASK = 0b11,
+    BITE_POS = 6,
+    BITS_POS = 7
+  };
+  // functions to parse ECONDFlag
+  bool truncatedFlag(uint8_t econdFlag){
+    return ((econdFlag>>hgcaldigi::ECONDFlag::BITT_POS) & 0b1);
+  }
+  bool matchFlag(uint8_t econdFlag){
+    return ((econdFlag>>hgcaldigi::ECONDFlag::BITM_POS) & 0b1);
+  }
+  uint8_t eboFlag(uint8_t econdFlag){
+    return ((econdFlag>>hgcaldigi::ECONDFlag::EBO_POS) & hgcaldigi::ECONDFlag::EBO_MASK);
+  }
+  uint8_t htFlag(uint8_t econdFlag){
+    return ((econdFlag>>hgcaldigi::ECONDFlag::HT_POS) & hgcaldigi::ECONDFlag::HT_MASK);
+  }
+  bool expectedFlag(uint8_t econdFlag){
+    return ((econdFlag>>hgcaldigi::ECONDFlag::BITE_POS) & 0b1);
+  }
+  bool StatFlag(uint8_t econdFlag){
+    return ((econdFlag>>hgcaldigi::ECONDFlag::BITS_POS) & 0b1);
+  }
   // Generate structure of arrays (SoA) layout with Digi dataformat
-  GENERATE_SOA_LAYOUT(HGCalECONDInfoSoALayout,
+  GENERATE_SOA_LAYOUT(HGCalECONDPacketInfoSoALayout,
                       // Capture block information:
                       // 0b000: Normal packet
                       // 0b001: No ECOND packet. Packet was detected and discarded because too large (>250)
@@ -57,7 +76,7 @@ namespace hgcaldigi {
                       // If exception found before ECON-D, this would be 0
                       // Otherwise the payload length of the ECON-D
                       SOA_COLUMN(uint16_t, payloadLength))
-  using HGCalECONDInfoSoA = HGCalECONDInfoSoALayout<>;
+  using HGCalECONDPacketInfoSoA = HGCalECONDPacketInfoSoALayout<>;
 }  // namespace hgcaldigi
 
 #endif

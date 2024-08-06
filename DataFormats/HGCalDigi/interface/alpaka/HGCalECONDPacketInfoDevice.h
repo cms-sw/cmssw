@@ -1,8 +1,8 @@
-#ifndef DataFormats_HGCalDigi_interface_alpaka_HGCalECONDInfoDevice_h
-#define DataFormats_HGCalDigi_interface_alpaka_HGCalECONDInfoDevice_h
+#ifndef DataFormats_HGCalDigi_interface_alpaka_HGCalECONDPacketInfoDevice_h
+#define DataFormats_HGCalDigi_interface_alpaka_HGCalECONDPacketInfoDevice_h
 
 #include "DataFormats/Portable/interface/alpaka/PortableCollection.h"
-#include "DataFormats/HGCalDigi/interface/HGCalECONDInfoSoA.h"
+#include "DataFormats/HGCalDigi/interface/HGCalECONDPacketInfoSoA.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
@@ -14,7 +14,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     using namespace ::hgcaldigi;
 
     // SoA in device global memory
-    using HGCalECONDInfoDevice = PortableCollection<HGCalECONDInfoSoA>;
+    using HGCalECONDPacketInfoDevice = PortableCollection<HGCalECONDPacketInfoSoA>;
 
   }  // namespace hgcaldigi
 

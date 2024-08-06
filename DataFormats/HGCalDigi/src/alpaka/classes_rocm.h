@@ -2,5 +2,5 @@
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/HGCalDigi/interface/HGCalDigiSoA.h"
 #include "DataFormats/HGCalDigi/interface/alpaka/HGCalDigiDevice.h"
-#include "DataFormats/HGCalDigi/interface/HGCalECONDInfoSoA.h"
-#include "DataFormats/HGCalDigi/interface/alpaka/HGCalECONDInfoDevice.h"
+#include "DataFormats/HGCalDigi/interface/HGCalECONDPacketInfoSoA.h"
+#include "DataFormats/HGCalDigi/interface/alpaka/HGCalECONDPacketInfoDevice.h"
