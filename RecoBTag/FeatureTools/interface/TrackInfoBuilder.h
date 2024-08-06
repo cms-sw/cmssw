@@ -31,6 +31,7 @@ namespace btagbtvdeep {
     const float getTrackSip2dVal() const { return trackSip2dVal_; }
     const float getTrackSip3dSig() const { return trackSip3dSig_; }
     const float getTrackSip3dVal() const { return trackSip3dVal_; }
+    const float getTrackJetDecayLen() const { return trackJetDecayLen_; }
 
   private:
     edm::ESHandle<TransientTrackBuilder> builder_;
@@ -50,6 +51,7 @@ namespace btagbtvdeep {
 
     float trackJetDistVal_;
     float trackJetDistSig_;
+    float trackJetDecayLen_;
   };
 
 }  // namespace btagbtvdeep

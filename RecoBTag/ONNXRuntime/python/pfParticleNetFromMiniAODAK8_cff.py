@@ -17,7 +17,7 @@ pfParticleNetFromMiniAODAK8TagInfos = ParticleNetFeatureEvaluator.clone(
 pfParticleNetFromMiniAODAK8JetTags = boostedJetONNXJetTagsProducer.clone(
     src = 'pfParticleNetFromMiniAODAK8TagInfos',
     preprocess_json = 'RecoBTag/Combined/data/ParticleNetFromMiniAODAK8/preprocess.json',
-    model_path = 'RecoBTag/Combined/data/ParticleNetFromMiniAODAK8/particle-net.onnx',
+    model_path = 'RecoBTag/Combined/data/ParticleNetFromMiniAODAK8/modelfile/model.onnx',
     flav_names = ['probHtt','probHtm','probHte','probHbb', 'probHcc', 'probHqq', 'probHgg','probQCD2hf','probQCD1hf','probQCD0hf','masscorr'],
 )
 

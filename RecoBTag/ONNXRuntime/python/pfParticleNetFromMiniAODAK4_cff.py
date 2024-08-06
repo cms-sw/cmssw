@@ -41,28 +41,28 @@ pfParticleNetFromMiniAODAK4PuppiForwardTagInfos = ParticleNetFeatureEvaluator.cl
 pfParticleNetFromMiniAODAK4CHSCentralJetTags = boostedJetONNXJetTagsProducer.clone(
     src = 'pfParticleNetFromMiniAODAK4CHSCentralTagInfos',
     preprocess_json = 'RecoBTag/Combined/data/ParticleNetFromMiniAODAK4/CHS/Central/preprocess.json',
-    model_path = 'RecoBTag/Combined/data/ParticleNetFromMiniAODAK4/CHS/Central/particle-net.onnx',
+    model_path = 'RecoBTag/Combined/data/ParticleNetFromMiniAODAK4/CHS/Central/modelfile/model.onnx',
     flav_names = ['probmu','probele','probtaup1h0p','probtaup1h1p','probtaup1h2p','probtaup3h0p','probtaup3h1p','probtaum1h0p','probtaum1h1p','probtaum1h2p','probtaum3h0p','probtaum3h1p','probb','probc','probuds','probg','ptcorr','ptreshigh','ptreslow','ptnu'],
 )
 
 pfParticleNetFromMiniAODAK4CHSForwardJetTags = boostedJetONNXJetTagsProducer.clone(
     src = 'pfParticleNetFromMiniAODAK4CHSForwardTagInfos',
     preprocess_json = 'RecoBTag/Combined/data/ParticleNetFromMiniAODAK4/CHS/Forward/preprocess.json',
-    model_path = 'RecoBTag/Combined/data/ParticleNetFromMiniAODAK4/CHS/Forward/particle-net.onnx',
+    model_path = 'RecoBTag/Combined/data/ParticleNetFromMiniAODAK4/CHS/Forward/modelfile/model.onnx',
     flav_names = ['probq','probg','ptcorr','ptreshigh','ptreslow','ptnu'],
 )
 
 pfParticleNetFromMiniAODAK4PuppiCentralJetTags = boostedJetONNXJetTagsProducer.clone(
     src = 'pfParticleNetFromMiniAODAK4PuppiCentralTagInfos',
     preprocess_json = 'RecoBTag/Combined/data/ParticleNetFromMiniAODAK4/PUPPI/Central/preprocess.json',
-    model_path = 'RecoBTag/Combined/data/ParticleNetFromMiniAODAK4/PUPPI/Central/particle-net.onnx',
+    model_path = 'RecoBTag/Combined/data/ParticleNetFromMiniAODAK4/PUPPI/Central/modelfile/model.onnx',
     flav_names = ['probmu','probele','probtaup1h0p','probtaup1h1p','probtaup1h2p','probtaup3h0p','probtaup3h1p','probtaum1h0p','probtaum1h1p','probtaum1h2p','probtaum3h0p','probtaum3h1p','probb','probc','probuds','probg','ptcorr','ptreshigh','ptreslow','ptnu'],
 )
 
 pfParticleNetFromMiniAODAK4PuppiForwardJetTags = boostedJetONNXJetTagsProducer.clone(
     src = 'pfParticleNetFromMiniAODAK4PuppiForwardTagInfos',
     preprocess_json = 'RecoBTag/Combined/data/ParticleNetFromMiniAODAK4/PUPPI/Forward/preprocess.json',
-    model_path = 'RecoBTag/Combined/data/ParticleNetFromMiniAODAK4/PUPPI/Forward/particle-net.onnx',
+    model_path = 'RecoBTag/Combined/data/ParticleNetFromMiniAODAK4/PUPPI/Forward/modelfile/model.onnx',
     flav_names = ['probq','probg','ptcorr','ptreshigh','ptreslow','ptnu'],
 )
 
