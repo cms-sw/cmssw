@@ -44,7 +44,8 @@ bool HGCalParametersFromDD::build(const DDCompactView* cpv,
                                   << HGCalGeometryMode::Trapezoid << ":" << HGCalGeometryMode::TrapezoidFile << ":"
                                   << HGCalGeometryMode::TrapezoidModule << ":" << HGCalGeometryMode::Hexagon8Cassette
                                   << ":" << HGCalGeometryMode::TrapezoidCassette << ":"
-                                  << HGCalGeometryMode::Hexagon8CalibCell;
+                                  << HGCalGeometryMode::Hexagon8CalibCell << ":"
+                                  << HGCalGeometryMode::TrapezoidFineCell;
 #endif
     php.levelZSide_ = 3;        // Default level for ZSide
     php.detectorType_ = 0;      // These two parameters are
@@ -192,7 +193,8 @@ bool HGCalParametersFromDD::build(const DDCompactView* cpv,
       geom->loadWaferHexagon8(php);
     } else if ((php.mode_ == HGCalGeometryMode::Trapezoid) || (php.mode_ == HGCalGeometryMode::TrapezoidFile) ||
                (php.mode_ == HGCalGeometryMode::TrapezoidModule) ||
-               (php.mode_ == HGCalGeometryMode::TrapezoidCassette)) {
+               (php.mode_ == HGCalGeometryMode::TrapezoidCassette) ||
+               (php.mode_ == HGCalGeometryMode::TrapezoidFineCell)) {
       // Load maximum eta & top level
       php.levelT_ = dbl_to_int(getDDDArray("LevelTop", sv));
       php.levelZSide_ = static_cast<int>(getDDDValue("LevelZSide", sv));
@@ -207,9 +209,11 @@ bool HGCalParametersFromDD::build(const DDCompactView* cpv,
       php.sensorSizeOffset_ = php.guardRingOffset_ = php.useOffset_ = 0;
       php.waferMaskMode_ = static_cast<int>(getDDDValue("WaferMaskMode", sv));
       php.waferZSide_ = static_cast<int>(getDDDValue("WaferZside", sv));
-      if ((php.mode_ == HGCalGeometryMode::TrapezoidModule) || (php.mode_ == HGCalGeometryMode::TrapezoidCassette))
+      if ((php.mode_ == HGCalGeometryMode::TrapezoidModule) || (php.mode_ == HGCalGeometryMode::TrapezoidCassette) ||
+          (php.mode_ == HGCalGeometryMode::TrapezoidFineCell))
         php.useSimWt_ = static_cast<int>(getDDDValue("UseSimWt", sv));
-      if (php.waferMaskMode_ == HGCalGeomParameters::scintillatorCassette)
+      if ((php.waferMaskMode_ == HGCalGeomParameters::scintillatorCassette) ||
+          (php.waferMaskMode_ == HGCalGeomParameters::scintillatorFineCell))
         php.cassettes_ = getDDDValue("Cassettes", sv);
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HGCalGeom") << "Top levels " << php.levelT_[0] << ":" << php.levelT_[1] << " first layers "
@@ -278,7 +282,8 @@ bool HGCalParametersFromDD::build(const cms::DDCompactView* cpv,
                                   << HGCalGeometryMode::Trapezoid << ":" << HGCalGeometryMode::TrapezoidFile << ":"
                                   << HGCalGeometryMode::TrapezoidModule << ":" << HGCalGeometryMode::Hexagon8Cassette
                                   << ":" << HGCalGeometryMode::TrapezoidCassette << ":"
-                                  << HGCalGeometryMode::Hexagon8CalibCell;
+                                  << HGCalGeometryMode::Hexagon8CalibCell << ":"
+                                  << HGCalGeometryMode::TrapezoidFineCell;
 #endif
     php.levelZSide_ = 3;        // Default level for ZSide
     php.detectorType_ = 0;      // These two parameters are
@@ -431,7 +436,8 @@ bool HGCalParametersFromDD::build(const cms::DDCompactView* cpv,
       geom->loadWaferHexagon8(php);
     } else if ((php.mode_ == HGCalGeometryMode::Trapezoid) || (php.mode_ == HGCalGeometryMode::TrapezoidFile) ||
                (php.mode_ == HGCalGeometryMode::TrapezoidModule) ||
-               (php.mode_ == HGCalGeometryMode::TrapezoidCassette)) {
+               (php.mode_ == HGCalGeometryMode::TrapezoidCassette) ||
+               (php.mode_ == HGCalGeometryMode::TrapezoidFineCell)) {
       // Load maximum eta & top level
       php.levelT_ = dbl_to_int(fv.get<std::vector<double> >(name, "LevelTop"));
       tempD = fv.get<std::vector<double> >(name, "LevelZSide");
@@ -454,11 +460,13 @@ bool HGCalParametersFromDD::build(const cms::DDCompactView* cpv,
       php.waferMaskMode_ = static_cast<int>(tempD[0]);
       tempD = fv.get<std::vector<double> >(name, "WaferZside");
       php.waferZSide_ = static_cast<int>(tempD[0]);
-      if ((php.mode_ == HGCalGeometryMode::TrapezoidModule) || (php.mode_ == HGCalGeometryMode::TrapezoidCassette)) {
+      if ((php.mode_ == HGCalGeometryMode::TrapezoidModule) || (php.mode_ == HGCalGeometryMode::TrapezoidCassette) ||
+          (php.mode_ == HGCalGeometryMode::TrapezoidFineCell)) {
         tempD = fv.get<std::vector<double> >(name, "UseSimWt");
         php.useSimWt_ = tempD[0];
       }
-      if (php.waferMaskMode_ == HGCalGeomParameters::scintillatorCassette) {
+      if ((php.waferMaskMode_ == HGCalGeomParameters::scintillatorCassette) ||
+          (php.waferMaskMode_ == HGCalGeomParameters::scintillatorFineCell)) {
         tempD = fv.get<std::vector<double> >(name, "Cassettes");
         php.cassettes_ = static_cast<int>(tempD[0]);
       }

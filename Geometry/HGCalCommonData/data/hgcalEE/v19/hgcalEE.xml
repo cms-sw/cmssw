@@ -351,7 +351,8 @@
       HGCalEECoolingPlate, HGCalEEStainlessSteelCover, HGCalEELayerF, 
       HGCalEELayerB</Vector>
     <Vector name="Thickness" type="numeric" nEntries="7">
-      3.67*mm, 5.87*mm,  9.12*mm, 6.05*mm, 1.0*mm, [hgcal:ModuleThicknessEE], 
+      [hgcal:thickEEAbsorber1], [hgcal:thickEEAbsorber2], [hgcal:thickEEAbsorber3],
+      [hgcal:thickEECooling], 1.0*mm, [hgcal:ModuleThicknessEE],
       [hgcal:ModuleThicknessEE]</Vector>
     <Vector name="Layers" type="numeric" nEntries="13"> 
       4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5</Vector>
