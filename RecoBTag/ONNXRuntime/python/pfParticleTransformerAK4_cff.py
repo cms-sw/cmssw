@@ -14,8 +14,8 @@ particleTransformerAK4SonicTriton.toReplaceWith(pfParticleTransformerAK4JetTags,
     Client = cms.PSet(
         timeout = cms.untracked.uint32(300),
         mode = cms.string("Async"),
-        modelName = cms.string("particletransformer_AK4"), # double check
-        modelConfigPath = cms.FileInPath("RecoBTag/Combined/data/models/particletransformer_AK4/config.pbtxt"), # this is SONIC, not currently in the CMSSW, so the models/ will be copied to this location privately
+        modelName = cms.string("particletransformer_AK4"),
+        modelConfigPath = cms.FileInPath("RecoBTag/Combined/data/models/particletransformer_AK4/config.pbtxt"),
         modelVersion = cms.string(""),
         verbose = cms.untracked.bool(False),
         allowedTries = cms.untracked.uint32(0),
