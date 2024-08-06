@@ -682,7 +682,8 @@ phase2_tracker.toModify(FEVTDEBUGHLTEventContent,
                             'keep *_hltPhase2PixelTracks_*_*',
                             'keep *_hltPhase2PixelVertices_*_*',
                             'keep *_hltGeneralTracks_*_*',
-                            'keep *_hltOfflinePrimaryVertices_*_*'
+                            'keep *_hltOfflinePrimaryVertices_*_*',
+                            'keep *_hltHGCalRecHit_*_*'
                         ])
 
 phase2_common.toModify(FEVTDEBUGHLTEventContent,
