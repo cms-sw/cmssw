@@ -10,7 +10,7 @@
 
 namespace hgcal {
 
-  // Generate structure of channel-level arrays (SoA) layout with module mapping information
+  // Generate structure of module-level (ECON-D) arrays (SoA) layout with module mapping information
   GENERATE_SOA_LAYOUT(HGCalMappingModuleParamSoALayout,
                       SOA_COLUMN(bool, valid),
                       SOA_COLUMN(bool, zside),
