@@ -86,8 +86,8 @@ public:
                                                      << fedid_ << "," << modid_ << ")! Overwriting with ("
                                                      << fedid << "," << idx << ")...";
       }
-      //std::cout << "HGCalMappingModuleIndexer::processNewModule: Adding typecode=\"" << typecode
-      //          << "\" with fedid=" << fedid << ", idx=" << idx << "..." << std::endl;
+      LogDebug("HGCalMappingModuleIndexer") << "HGCalMappingModuleIndexer::processNewModule: Adding typecode=\"" << typecode
+					    << "\" with fedid=" << fedid << ", idx=" << idx << " (will be re-indexed after finalize)";
       typecodeMap_[typecode] = std::make_pair(fedid,idx);
     }
   }
@@ -120,34 +120,40 @@ public:
     //now go through the FEDs and ascribe the offsets per module in the readout sequence
     std::vector<uint32_t> typeCounters(globalTypesCounter_.size(), 0);
     for (auto &fedit : fedReadoutSequences_) {
-      //assign the indexing in the look-up table
+      //assign the final indexing in the look-up table depending on which ECON-D's are really present
       size_t nconn(0);
       fedit.moduleLUT_.resize(fedit.readoutTypes_.size(), -1);
       for (size_t i = 0; i < fedit.readoutTypes_.size(); i++) {
         if (fedit.readoutTypes_[i] == -1)
           continue;  //unexisting
+
+	reassignTypecodeLocation(fedit.id,i,nconn);
         fedit.moduleLUT_[i] = nconn;
         nconn++;
       }
-
+      
       //remove unexisting ECONs building a final compact readout sequence
-      std::remove_if(
-          fedit.readoutTypes_.begin(), fedit.readoutTypes_.end(), [&](int val) -> bool { return val == -1; });
-
-      //assign the final offsets at the different levels
+      fedit.readoutTypes_.erase(
+	    std::remove_if(
+		 fedit.readoutTypes_.begin(), fedit.readoutTypes_.end(), [&](int val) -> bool { return val == -1; }
+	    ),
+	    fedit.readoutTypes_.end()
+      );
+      
+      //resize vectors to their final size and set final values
       size_t nmods = fedit.readoutTypes_.size();
       fedit.modOffsets_.resize(nmods, 0);
       fedit.erxOffsets_.resize(nmods, 0);
       fedit.chDataOffsets_.resize(nmods, 0);
       fedit.enabledErx_.resize(nmods, 0);
-
+      
       for (size_t i = 0; i < nmods; i++) {
-        uint32_t type_val = fedit.readoutTypes_[i];
-
+        int type_val = fedit.readoutTypes_[i];
+	
         //module offset : global offset for this type + current index for this type
         uint32_t baseMod_offset = moduleOffsets_[type_val] + typeCounters[type_val];
         fedit.modOffsets_[i] = baseMod_offset;  // + internalMod_offset;
-
+	
         //erx-level offset : global offset of e-Rx of this type + #e-Rrx * current index for this type
         uint32_t baseErx_offset = erxOffsets_[type_val];
         uint32_t internalErx_offset = globalTypesNErx_[type_val] * typeCounters[type_val];
@@ -161,10 +167,10 @@ public:
         //enabled erx flags
         //FIXME: assume all eRx are enabled now
         fedit.enabledErx_[i] = (0b1 << globalTypesNErx_[type_val]) - 0b1;
-
         typeCounters[type_val]++;
       }
     }
+
   }
 
   /**
@@ -305,6 +311,19 @@ private:
     return uint32_t(dense_idx);
   }
 
+  /**
+     @short when finalize is called, empty entries are removed and they may need to be re-assigned for the real final number of modules
+   */
+  void reassignTypecodeLocation(uint32_t fedid, uint32_t cur_modIdx, uint32_t new_modIx) {
+    std::pair<uint32_t,uint32_t> val(fedid,cur_modIdx), newval(fedid,new_modIx);
+    
+    for(auto it : typecodeMap_) {
+      if(it.second != val) continue;
+      typecodeMap_[it.first] = newval;      
+      break;
+    }
+  }
+  
   COND_SERIALIZABLE;
 };
 

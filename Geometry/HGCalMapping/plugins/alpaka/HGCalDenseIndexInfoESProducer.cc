@@ -73,8 +73,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         for(auto fedRS : modIndexer.fedReadoutSequences_) {
 
           uint32_t fedId = fedRS.id;
-          for(size_t imod=0; imod<fedRS.moduleLUT_.size(); imod++) {
-            
+          for(size_t imod=0; imod<fedRS.readoutTypes_.size(); imod++) {
+
             //the number of words expected, the first channel dense index
 	    int modTypeIdx = fedRS.readoutTypes_[imod];
 	    uint32_t nch = modIndexer.globalTypesNWords_[modTypeIdx];
@@ -101,6 +101,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
               //finalize assigning the dense index
               uint32_t denseIdx = off + ich;
+
               auto row = denseIdxInfo.view()[denseIdx];
               
               //fill the fields
@@ -140,7 +141,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
               }
             }  // end cell loop
+
           }  // end module loop
+
         } // end fed readout sequence loop
 
         return denseIdxInfo;
