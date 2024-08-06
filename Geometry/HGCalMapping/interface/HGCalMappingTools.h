@@ -5,6 +5,7 @@
 #include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
 #include "DataFormats/HGCalDigi/interface/HGCalElectronicsId.h"
 #include <map>
+#include <algorithm>
 
 namespace hgcal {
 
@@ -33,7 +34,7 @@ namespace hgcal {
       HGCalEntityAttr getAttr(std::string col, HGCalEntityRow &row) {
         auto it = columnIndex_.find(col);
         if (it == columnIndex_.end()) {
-          throw cms::Exception("ValueError") << "Request for unknown column " << col;
+	    throw cms::Exception("ValueError") << "Request for unknown column " << col;
         }
         return row[it->second];
       }
@@ -41,7 +42,8 @@ namespace hgcal {
       float getIntAttr(std::string col, HGCalEntityRow &row) { return atoi(getAttr(col, row).c_str()); }
       const std::vector<HGCalEntityRow> &getEntries() { return entities_; }
       HGCalEntityRow getColumnNames() { return colNames_; }
-
+      bool hasColumn(std::string col) { return std::find(colNames_.begin(), colNames_.end(), col) != colNames_.end(); }
+      
     private:
       HGCalEntityRow colNames_;
       std::map<HGCalEntityAttr, size_t> columnIndex_;

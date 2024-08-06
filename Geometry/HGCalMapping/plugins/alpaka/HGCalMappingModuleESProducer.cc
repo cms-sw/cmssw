@@ -71,6 +71,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           int plane = pmap.getIntAttr("plane", row);
           int i1 = pmap.getIntAttr("u", row);
           int i2 = pmap.getIntAttr("v", row);
+	  int irot = pmap.hasColumn("irot") ? pmap.getIntAttr("irot", row) : 0;
           uint32_t eleid = HGCalElectronicsId((zside > 0), fedid, captureblockidx, econdidx, 0, 0).raw();
           uint32_t detid(0);
 
@@ -88,6 +89,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           module.plane() = plane;
           module.i1() = i1;
           module.i2() = i2;
+	  module.irot() = (char)irot;
           module.typeidx() = typeidx;
           module.fedid() = fedid;
           module.slinkidx() = pmap.getIntAttr("slinkidx", row);

@@ -181,7 +181,7 @@ void HGCalMappingESSourceTester::analyze(const edm::Event& iEvent, const edm::Ev
       continue;
     validModules++;
     printf(
-        "\t idx=%d zside=%d isSiPM=%d plane=%d i1=%d i2=%d celltype=%d typeidx=%d fedid=%d localfedid=%d "
+        "\t idx=%d zside=%d isSiPM=%d plane=%d i1=%d i2=%d irot=%d celltype=%d typeidx=%d fedid=%d localfedid=%d "
         "captureblock=%d capturesblockidx=%d econdidx=%d eleid=0x%x detid=0x%d\n",
         i,
         imod.zside(),
@@ -189,6 +189,7 @@ void HGCalMappingESSourceTester::analyze(const edm::Event& iEvent, const edm::Ev
         imod.plane(),
         imod.i1(),
         imod.i2(),
+	imod.irot(),
         imod.celltype(),
         imod.typeidx(),
         imod.fedid(),
