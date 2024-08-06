@@ -28,6 +28,11 @@
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 
+
+#include "DataFormats/GEMDigi/interface/GEMVFATStatusCollection.h"
+#include "DataFormats/GEMDigi/interface/GEMOHStatusCollection.h"
+//#include "DataFormats/GEMDigi/interface/GEMAMCStatusCollection.h"
+
 #include <vector>
 #include <string>
 #include <map>
@@ -68,6 +73,14 @@ protected:
   const double m_borderCut;
   const double m_dxCut;
   const bool m_detailedAnalysis;
+  
+  const bool kMaskChamberWithError_;
+
+
+  const edm::EDGetTokenT<GEMOHStatusCollection> kGEMOHStatusCollectionToken_;
+  const edm::EDGetTokenT<GEMVFATStatusCollection> kGEMVFATStatusCollectionToken_;
+  //const edm::EDGetTokenT<GEMAMCStatusCollection> kGEMAMCStatusCollectionToken_;
+
 
 private:
   const edm::EDGetTokenT<std::vector<reco::Vertex>> m_primaryVerticesToken;

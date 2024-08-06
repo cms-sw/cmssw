@@ -1109,13 +1109,7 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent,
       for (const auto& gemRecHit : *gemHitHandle_) {
         reco::MuonGEMHitMatch gemHitMatch;
 
-        if (GEMDetId(gemRecHit.gemId().region(),
-                     gemRecHit.gemId().ring(),
-                     gemRecHit.gemId().station(),
-                     gemRecHit.gemId().layer(),
-                     gemRecHit.gemId().chamber(),
-                     0)
-                .rawId() != chamber.id.rawId())
+        if (gemRecHit.gemId().rawId() != chamber.id.rawId())
           continue;
 
         gemHitMatch.x = gemRecHit.localPosition().x();
@@ -1532,13 +1526,6 @@ void MuonIdProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   edm::ParameterSetDescription descCalo;
   descCalo.setAllowAnything();
   descCalo.add<edm::ParameterSetDescription>("TrackAssociatorParameters", descTrkAsoPar);
-  descCalo.add<bool>("UseEcalRecHitsFlag", false);
-  descCalo.add<bool>("UseHcalRecHitsFlag", false);
-  descCalo.add<bool>("UseHORecHitsFlag", false);
-  descCalo.add<bool>("EcalRecHitThresh", false);
-  descCalo.add<bool>("HcalCutsFromDB", false);
-  descCalo.add<int>("MaxSeverityHB", 9);
-  descCalo.add<int>("MaxSeverityHE", 9);
   desc.add<edm::ParameterSetDescription>("CaloExtractorPSet", descCalo);
 
   descriptions.addDefault(desc);
