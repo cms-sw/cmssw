@@ -105,7 +105,7 @@ void BeamSpotOnlineProducer::produce(Event& iEvent, const EventSetup& iSetup) {
     auto const& spotDB = iSetup.getData(beamTransientToken_);
     if (spotDB.beamType() != 2) {
       if (shoutMODE && beamTransientRcdESWatcher_.check(iSetup)) {
-        edm::LogWarning("BeamSpotFromDB")
+        edm::LogWarning("BeamSpotOnlineProducer")
             << "Online Beam Spot producer falls back to DB value because the ESProducer returned a fake beamspot ";
       }
       fallBackToDB = true;
@@ -181,7 +181,7 @@ void BeamSpotOnlineProducer::produce(Event& iEvent, const EventSetup& iSetup) {
       if (spotOnline.x() == 0 && spotOnline.y() == 0 && spotOnline.z() == 0 && spotOnline.width_x() == 0 &&
           spotOnline.width_y() == 0) {
         if (shoutMODE) {
-          edm::LogWarning("BeamSpotFromDB")
+          edm::LogWarning("BeamSpotOnlineProducer")
               << "Online Beam Spot producer falls back to DB value because the scaler values are zero ";
         }
         fallBackToDB = true;
@@ -189,7 +189,7 @@ void BeamSpotOnlineProducer::produce(Event& iEvent, const EventSetup& iSetup) {
       double r2 = spotOnline.x() * spotOnline.x() + spotOnline.y() * spotOnline.y();
       if (std::abs(spotOnline.z()) >= theMaxZ || r2 >= theMaxR2) {
         if (shoutMODE) {
-          edm::LogError("BeamSpotFromDB")
+          edm::LogError("BeamSpotOnlineProducer")
               << "Online Beam Spot producer falls back to DB value because the scaler values are too big to be true :"
               << spotOnline.x() << " " << spotOnline.y() << " " << spotOnline.z();
         }
