@@ -677,8 +677,12 @@ approxSiStripClusters.toModify(FEVTDEBUGHLTEventContent,
                               ])
 phase2_tracker.toModify(FEVTDEBUGHLTEventContent,
                         outputCommands = FEVTDEBUGHLTEventContent.outputCommands+[
+                            'keep *_hltSiPixelClusters_*_*',
+                            'keep *_hltSiPhase2Clusters_*_*',
                             'keep *_hltPhase2PixelTracks_*_*',
-                            'keep *_hltPhase2PixelVertices_*_*'
+                            'keep *_hltPhase2PixelVertices_*_*',
+                            'keep *_hltGeneralTracks_*_*',
+                            'keep *_hltOfflinePrimaryVertices_*_*'
                         ])
 
 phase2_common.toModify(FEVTDEBUGHLTEventContent,
