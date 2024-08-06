@@ -1,4 +1,5 @@
 <use name="DQM/SiStripCommissioningSources"/>
+<use name="CondFormats/Alignment"/>
 
 <library file="*.cc" name="DQMSiStripCommissioningSourcesPlugins">
   <use name="DataFormats/SiStripCommon"/>
