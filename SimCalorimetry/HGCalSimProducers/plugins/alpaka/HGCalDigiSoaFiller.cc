@@ -19,7 +19,7 @@
 #include "DataFormats/HGCalDigi/interface/alpaka/HGCalDigiDevice.h"
 #include "CondFormats/DataRecord/interface/HGCalElectronicsMappingRcd.h"
 #include "CondFormats/HGCalObjects/interface/HGCalMappingModuleIndexer.h"
-#include "CondFormats/HGCalObjects/interface/HGCalMappingCellIndexer.h"
+//#include "CondFormats/HGCalObjects/interface/HGCalMappingCellIndexer.h"
 #include "CondFormats/HGCalObjects/interface/alpaka/HGCalMappingParameterDevice.h"
 #include "Geometry/HGCalMapping/interface/HGCalMappingTools.h"
 
@@ -35,7 +35,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   public:
 
-    using CellIndexer = HGCalMappingCellIndexer;
+    //using CellIndexer = HGCalMappingCellIndexer;
     using CellInfo = hgcal::HGCalMappingCellParamDevice;
     using ModuleIndexer = HGCalMappingModuleIndexer;
     using ModuleInfo = hgcal::HGCalMappingModuleParamDevice;
@@ -61,7 +61,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     device::EDPutToken<hgcaldigi::HGCalDigiDevice> digiProdT_;
 
     edm::ESWatcher<HGCalElectronicsMappingRcd> cfgWatcher_;
-    edm::ESGetToken<CellIndexer, HGCalElectronicsMappingRcd> cellIndexTkn_;
+    //edm::ESGetToken<CellIndexer, HGCalElectronicsMappingRcd> cellIndexTkn_;
     device::ESGetToken<CellInfo, HGCalElectronicsMappingRcd> cellTkn_;
     edm::ESGetToken<ModuleIndexer, HGCalElectronicsMappingRcd> moduleIndexTkn_;
     device::ESGetToken<ModuleInfo, HGCalElectronicsMappingRcd> moduleTkn_;
@@ -73,7 +73,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
        : digisCEET_( consumes<edm::SortedCollection<HGCalDataFrame> >(config.getParameter<edm::InputTag>("eeChannelDigis") ) ),
          digisCEHSiT_( consumes<edm::SortedCollection<HGCalDataFrame> >(config.getParameter<edm::InputTag>("cehsiChannelDigis") ) ),
          digisCEHSiPMT_( consumes<edm::SortedCollection<HGCalDataFrame> >(config.getParameter<edm::InputTag>("cehsipmChannelDigis") ) ),
-         cellIndexTkn_(esConsumes()),         
+         //cellIndexTkn_(esConsumes()),         
          cellTkn_(esConsumes()),
          moduleIndexTkn_(esConsumes()),
          moduleTkn_(esConsumes()) {
@@ -94,7 +94,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   void HGCalDigiSoaFiller::produce(device::Event& iEvent, device::EventSetup const& iSetup) {
 
     cfgWatcher_.check(iSetup);
-    const CellIndexer &cellidx = iSetup.getData(cellIndexTkn_);
+    //const CellIndexer &cellidx = iSetup.getData(cellIndexTkn_);
     const CellInfo& cells = iSetup.getData(cellTkn_);
     const ModuleIndexer &modidx = iSetup.getData(moduleIndexTkn_);
     const ModuleInfo& modules = iSetup.getData(moduleTkn_);
