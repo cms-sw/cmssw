@@ -716,8 +716,8 @@ Alignable *MuonAlignmentInputXML::getGEMnode(align::StructureType structureType,
       throw cms::Exception("XMLException") << "Value of \"rawId\" must be an integer" << std::endl;
     }
   } else {
-    int endcap, station, ring, superChamber, chamber;
-    endcap = station = ring = superChamber = chamber = 1;
+    int endcap, station, ring, superChamber;
+    endcap = station = ring = superChamber = 1;
 
     DOMAttr *node_endcap = node->getAttributeNode(str_endcap);
     if (node_endcap == nullptr)
@@ -758,7 +758,7 @@ Alignable *MuonAlignmentInputXML::getGEMnode(align::StructureType structureType,
           } catch (const XMLException &toCatch) {
             throw cms::Exception("XMLException") << "Value of \"superChamber\" must be an integer" << std::endl;
           }
-        }  // end if we need a chamber number
+        }  // end if we need a superchamber number
       }    // end if we need a ring number
     }      // end if we need a station number
 
