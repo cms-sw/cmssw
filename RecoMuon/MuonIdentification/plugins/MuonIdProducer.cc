@@ -1527,6 +1527,12 @@ void MuonIdProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   descCalo.setAllowAnything();
   descCalo.add<edm::ParameterSetDescription>("TrackAssociatorParameters", descTrkAsoPar);
   desc.add<edm::ParameterSetDescription>("CaloExtractorPSet", descCalo);
-
+  descCalo.add<bool>("UseEcalRecHitsFlag", false);
+  descCalo.add<bool>("UseHcalRecHitsFlag", false);
+  descCalo.add<bool>("UseHORecHitsFlag", false);
+  descCalo.add<bool>("EcalRecHitThresh", false);
+  descCalo.add<bool>("HcalCutsFromDB", false);
+  descCalo.add<int>("MaxSeverityHB", 9);
+  descCalo.add<int>("MaxSeverityHE", 9);
   descriptions.addDefault(desc);
 }
