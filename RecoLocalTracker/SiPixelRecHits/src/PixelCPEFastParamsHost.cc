@@ -42,19 +42,17 @@ void PixelCPEFastParamsHost<TrackerTraits>::fillParamsForDevice() {
 
   buffer_->commonParams().theThicknessB = m_DetParams.front().theThickness;
   buffer_->commonParams().theThicknessE = m_DetParams.back().theThickness;
-  buffer_->commonParams().thePitchX = m_DetParams[0].thePitchX;
-  buffer_->commonParams().thePitchY = m_DetParams[0].thePitchY;
-
   buffer_->commonParams().numberOfLaddersInBarrel = TrackerTraits::numberOfLaddersInBarrel;
 
-  LogDebug("PixelCPEFastParamsHost") << "pitch & thickness " << buffer_->commonParams().thePitchX << ' '
-                                     << buffer_->commonParams().thePitchY << "  "
-                                     << buffer_->commonParams().theThicknessB << ' '
+  LogDebug("PixelCPEFastParamsHost") << "thickness " << buffer_->commonParams().theThicknessB << ' '
                                      << buffer_->commonParams().theThicknessE;
 
   // zero average geometry
   memset(&buffer_->averageGeometry(), 0, sizeof(pixelTopology::AverageGeometryT<TrackerTraits>));
+  // zero layer geometry
+  memset(&buffer_->layerGeometry(), 0, sizeof(pixelCPEforDevice::LayerGeometryT<TrackerTraits>));
 
+  uint32_t nLayers = 0;
   uint32_t oldLayer = 0;
   uint32_t oldLadder = 0;
   float rl = 0;
@@ -64,6 +62,7 @@ void PixelCPEFastParamsHost<TrackerTraits>::fillParamsForDevice() {
   int nl = 0;
 
   assert(m_DetParams.size() <= TrackerTraits::numberOfModules);
+
   for (auto i = 0U; i < m_DetParams.size(); ++i) {
     auto& p = m_DetParams[i];
     auto& g = buffer_->detParams(i);
@@ -76,8 +75,6 @@ void PixelCPEFastParamsHost<TrackerTraits>::fillParamsForDevice() {
     g.numPixsInModule = g.nRows * g.nCols;
 
     assert(p.theDet->index() == int(i));
-    assert(buffer_->commonParams().thePitchY == p.thePitchY);
-    assert(buffer_->commonParams().thePitchX == p.thePitchX);
 
     g.isBarrel = GeomDetEnumerators::isBarrel(p.thePart);
     g.isPosZ = p.theDet->surface().position().z() > 0;
@@ -94,6 +91,10 @@ void PixelCPEFastParamsHost<TrackerTraits>::fillParamsForDevice() {
                                          << g.layer << " starting at " << g.rawId << '\n'
                                          << "old layer had " << nl << " ladders";
       nl = 0;
+
+      assert(nLayers <= TrackerTraits::numberOfLayers);
+      buffer_->layerGeometry().layerStart[nLayers] = i;
+      ++nLayers;
     }
     if (oldLadder != ladder) {
       oldLadder = ladder;
@@ -118,6 +119,9 @@ void PixelCPEFastParamsHost<TrackerTraits>::fillParamsForDevice() {
     g.x0 = p.theOrigin.x();
     g.y0 = p.theOrigin.y();
     g.z0 = p.theOrigin.z();
+
+    g.thePitchX = p.thePitchX;
+    g.thePitchY = p.thePitchY;
 
     auto vv = p.theDet->surface().position();
     auto rr = pixelCPEforDevice::Rotation(p.theDet->surface().rotation());
@@ -144,7 +148,7 @@ void PixelCPEFastParamsHost<TrackerTraits>::fillParamsForDevice() {
     auto toMicron = [&](float x) { return std::min(511, int(x * 1.e4f + 0.5f)); };
 
     // average angle
-    auto gvx = p.theOrigin.x() + 40.f * buffer_->commonParams().thePitchX;
+    auto gvx = p.theOrigin.x() + 40.f * p.thePitchX;
     auto gvy = p.theOrigin.y();
     auto gvz = 1.f / p.theOrigin.z();
     //--- Note that the normalization is not required as only the ratio used
@@ -177,7 +181,7 @@ void PixelCPEFastParamsHost<TrackerTraits>::fillParamsForDevice() {
     // moduleOffsetX is the definition of TrackerTraits::xOffset,
     // needs to be calculated because for Phase2 the modules are not uniform
     float moduleOffsetX = -(0.5f * float(g.nRows) + TrackerTraits::bigPixXCorrection);
-    auto const xoff = moduleOffsetX * buffer_->commonParams().thePitchX;
+    auto const xoff = moduleOffsetX * g.thePitchX;
 
     for (int ix = 0; ix < pixelCPEforDevice::kNumErrorBins; ++ix) {
       auto x = xoff * (1.f - (0.5f + float(ix)) / 8.f);
@@ -197,11 +201,11 @@ void PixelCPEFastParamsHost<TrackerTraits>::fillParamsForDevice() {
     // sample yerr as function of position
     // moduleOffsetY is the definition of TrackerTraits::yOffset (removed)
     float moduleOffsetY = 0.5f * float(g.nCols) + TrackerTraits::bigPixYCorrection;
-    auto const yoff = -moduleOffsetY * buffer_->commonParams().thePitchY;
+    auto const yoff = -moduleOffsetY * p.thePitchY;
 
     for (int ix = 0; ix < pixelCPEforDevice::kNumErrorBins; ++ix) {
       auto y = yoff * (1.f - (0.5f + float(ix)) / 8.f);
-      auto gvx = p.theOrigin.x() + 40.f * buffer_->commonParams().thePitchY;
+      auto gvx = p.theOrigin.x() + 40.f * p.thePitchY;
       auto gvy = p.theOrigin.y() - y;
       auto gvz = 1.f / p.theOrigin.z();
       cp.cotbeta = gvy * gvz;
@@ -267,8 +271,8 @@ void PixelCPEFastParamsHost<TrackerTraits>::fillParamsForDevice() {
       ys += 1.f;  // first bin 0 is for size 9  (and size is in fixed point 2^3)
       if (pixelCPEforDevice::kNumErrorBins - 1 == iy)
         ys += 8.f;  // last bin for "overflow"
-      // cp.cotalpha = ys*(buffer_->commonParams().thePitchX/(8.f*thickness));  //  use this to print sampling in "x"  (and comment the line below)
-      cp.cotbeta = std::copysign(ys * (buffer_->commonParams().thePitchY / (8.f * thickness)), aveCB);
+      // cp.cotalpha = ys*(g.thePitchX/(8.f*thickness));  //  use this to print sampling in "x"  (and comment the line below)
+      cp.cotbeta = std::copysign(ys * (g.thePitchY / (8.f * thickness)), aveCB);
       errorFromTemplates(p, cp, 20000.f);
       g.sigmay[iy] = toMicron(cp.sigmay);
       LogDebug("PixelCPEFastParamsHost") << "sigmax/sigmay " << i << ' ' << (ys + 4.f) / 8.f << ' ' << cp.cotalpha
@@ -276,6 +280,9 @@ void PixelCPEFastParamsHost<TrackerTraits>::fillParamsForDevice() {
                                          << std::endl;
     }
   }  // loop over det
+
+  // store last module
+  buffer_->layerGeometry().layerStart[nLayers] = m_DetParams.size();
 
   constexpr int numberOfModulesInLadder = TrackerTraits::numberOfModulesInLadder;
   constexpr int numberOfLaddersInBarrel = TrackerTraits::numberOfLaddersInBarrel;
@@ -334,11 +341,7 @@ void PixelCPEFastParamsHost<TrackerTraits>::fillParamsForDevice() {
   LogDebug("PixelCPEFastParamsHost") << aveGeom.endCapZ[0] << ' ' << aveGeom.endCapZ[1];
 #endif  // EDM_ML_DEBUG
 
-  // fill Layer and ladders geometry
-  memset(&buffer_->layerGeometry(), 0, sizeof(pixelCPEforDevice::LayerGeometryT<TrackerTraits>));
-  memcpy(buffer_->layerGeometry().layerStart,
-         TrackerTraits::layerStart,
-         sizeof(pixelCPEforDevice::LayerGeometryT<TrackerTraits>::layerStart));
+  // fill ladders geometry
   memcpy(buffer_->layerGeometry().layer,
          pixelTopology::layer<TrackerTraits>.data(),
          pixelTopology::layer<TrackerTraits>.size());

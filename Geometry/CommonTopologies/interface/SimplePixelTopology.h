@@ -208,7 +208,7 @@ namespace phase2PixelTopology {
 
   constexpr uint32_t numberOfLayers = 28;
   constexpr int nPairs = 23 + 6 + 14 + 8 + 4;  // include far forward layer pairs
-  constexpr uint16_t numberOfModules = 3892;
+  constexpr uint16_t numberOfModules = 4000;
 
   constexpr uint32_t maxNumClustersPerModules = 1024;
 
@@ -378,7 +378,7 @@ namespace pixelTopology {
     static constexpr int maxDYsize = 10;
     static constexpr int maxDYPred = 20;
 
-    static constexpr uint16_t numberOfModules = 3892;
+    static constexpr uint16_t numberOfModules = phase2PixelTopology::numberOfModules;
 
     // 1000 bins < 1024 bins (10 bits) must be:
     // - < 32*32 (warpSize*warpSize for block prefix scan for CUDA)
@@ -475,7 +475,7 @@ namespace pixelTopology {
     static constexpr int maxDYsize = 20;
     static constexpr int maxDYPred = 20;
 
-    static constexpr uint16_t numberOfModules = 1856;
+    static constexpr uint16_t numberOfModules = phase1PixelTopology::numberOfModules;
 
     static constexpr uint16_t numRowsInRoc = 80;
     static constexpr uint16_t numColsInRoc = 52;
