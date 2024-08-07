@@ -2,7 +2,6 @@
 #include "CondFormats/HGCalObjects/src/headers.h"
 
 int main() {
-
   //dense indexers
   testSerialization<HGCalDenseIndexerBase>();
   testSerialization<HGCalMappingCellIndexer>();

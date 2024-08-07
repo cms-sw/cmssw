@@ -22,8 +22,8 @@
 #include "CondFormats/DataRecord/interface/HGCalElectronicsMappingRcd.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 
-class HGCalDenseIndexInfoRcd
-  : public edm::eventsetup::DependentRecordImplementation<HGCalDenseIndexInfoRcd,
-                                                          edm::mpl::Vector<HGCalElectronicsMappingRcd,CaloGeometryRecord> > {};
+class HGCalDenseIndexInfoRcd : public edm::eventsetup::DependentRecordImplementation<
+                                   HGCalDenseIndexInfoRcd,
+                                   edm::mpl::Vector<HGCalElectronicsMappingRcd, CaloGeometryRecord> > {};
 
 #endif

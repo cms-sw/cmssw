@@ -15,7 +15,7 @@
 #include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
 #include "Geometry/HGCalMapping/interface/HGCalMappingTools.h"
-#include <regex> // regular expression
+#include <regex>  // regular expression
 
 /**
    @short plugin parses the module/cell locator files to produce the indexer records
@@ -103,19 +103,20 @@ void HGCalMappingESProducer::prepareModuleMapperIndexer() {
   auto& pmap = parsedMaps_["modules"];
   auto& entities = pmap.getEntries();
   for (auto row : entities) {
-    std::string typecode = pmap.getAttr("typecode", row); // module type code
-    std::string wtypecode; // wafer type code
+    std::string typecode = pmap.getAttr("typecode", row);  // module type code
+    std::string wtypecode;                                 // wafer type code
 
     // match module type code to regular expression pattern (MM-TTTT-LL-NNNN)
     // see https://edms.cern.ch/ui/#!master/navigator/document?D:101059405:101148061:subDocs
     //const std::regex typecode_regex("([MX])([LH])-([FTBLR5])([123])([WPC])-([A-Z]{2})-([0-9]{3,4})"); // MM-TTTT-LL-NNNN
-    const std::regex typecode_regex("(([MX])([LH])-([FTBLR5])).*"); // MM-T*
-    std::smatch typecode_match; // match object for string objects
-    bool matched = std::regex_match(typecode,typecode_match,typecode_regex);
+    const std::regex typecode_regex("(([MX])([LH])-([FTBLR5])).*");  // MM-T*
+    std::smatch typecode_match;                                      // match object for string objects
+    bool matched = std::regex_match(typecode, typecode_match, typecode_regex);
     if (matched) {
-      wtypecode = typecode_match[1].str(); // wafer type following MM-T pattern, e.g. "MH-F"
+      wtypecode = typecode_match[1].str();  // wafer type following MM-T pattern, e.g. "MH-F"
     } else {
-      edm::LogWarning("HGCalMappingIndexESSource") << "Could not match module type code to expected pattern: " << typecode;
+      edm::LogWarning("HGCalMappingIndexESSource")
+          << "Could not match module type code to expected pattern: " << typecode;
     }
 
     try {

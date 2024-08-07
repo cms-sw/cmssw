@@ -34,7 +34,7 @@ namespace hgcal {
       HGCalEntityAttr getAttr(std::string col, HGCalEntityRow &row) {
         auto it = columnIndex_.find(col);
         if (it == columnIndex_.end()) {
-	    throw cms::Exception("ValueError") << "Request for unknown column " << col;
+          throw cms::Exception("ValueError") << "Request for unknown column " << col;
         }
         return row[it->second];
       }
@@ -43,7 +43,7 @@ namespace hgcal {
       const std::vector<HGCalEntityRow> &getEntries() { return entities_; }
       HGCalEntityRow getColumnNames() { return colNames_; }
       bool hasColumn(std::string col) { return std::find(colNames_.begin(), colNames_.end(), col) != colNames_.end(); }
-      
+
     private:
       HGCalEntityRow colNames_;
       std::map<HGCalEntityAttr, size_t> columnIndex_;
@@ -83,7 +83,7 @@ namespace hgcal {
 
         key.first = i;
 
-        key.first=i;
+        key.first = i;
 
         //match cell by type of module and by cell det id
         DetId::Detector det(DetId::Detector::HGCalEE);
@@ -95,7 +95,7 @@ namespace hgcal {
             continue;
           if (jcell.detid() != cellid)
             continue;
-          
+
           key.second = j;
           return key;
         }

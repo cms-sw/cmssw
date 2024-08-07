@@ -52,7 +52,7 @@ private:
   edm::ESWatcher<HGCalElectronicsMappingRcd> mapWatcher_;
   edm::ESGetToken<HGCalMappingCellIndexer, HGCalElectronicsMappingRcd> cellIndexToken_;
   edm::ESGetToken<HGCalMappingModuleIndexer, HGCalElectronicsMappingRcd> moduleIndexToken_;
-  edm::ESGetToken<HGCalConfiguration, HGCalModuleConfigurationRcd> configToken_; 
+  edm::ESGetToken<HGCalConfiguration, HGCalModuleConfigurationRcd> configToken_;
   HGCalMappingCellIndexer cellIndexer_;
   HGCalMappingModuleIndexer moduleIndexer_;
   HGCalConfiguration config_;
@@ -113,7 +113,7 @@ void HGCalRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
   // retrieve the FED raw data
   const auto& raw_data = iEvent.get(fedRawToken_);
 
-  for(int32_t i=0; i < digis.view().metadata().size();i++){
+  for (int32_t i = 0; i < digis.view().metadata().size(); i++) {
     digis.view()[i].flags() = hgcal::DIGI_FLAG::NotAvailable;
   }
   for (unsigned fedId = 0; fedId < moduleIndexer_.nfeds_; ++fedId) {
@@ -195,7 +195,7 @@ void HGCalRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
 
   // put information to the event
   iEvent.emplace(digisToken_, std::move(digis));
-  iEvent.emplace(econdPacketInfoToken_,std::move(econdPacketInfo));
+  iEvent.emplace(econdPacketInfoToken_, std::move(econdPacketInfo));
   // iEvent.emplace(flaggedRawDataToken_, std::move(flagged_econds));
   // iEvent.emplace(elecDigisToken_, std::move(elec_digis));
   // iEvent.emplace(elecCMsToken_, std::move(elec_cms));

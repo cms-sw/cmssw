@@ -20,10 +20,9 @@ namespace hgcaldigi {
                       SOA_COLUMN(uint16_t, tot),
                       SOA_COLUMN(uint16_t, toa),
                       SOA_COLUMN(uint16_t, cm),
-                      SOA_COLUMN(uint16_t, flags)
-  )
+                      SOA_COLUMN(uint16_t, flags))
   using HGCalDigiSoA = HGCalDigiSoALayout<>;
-  
+
 }  // namespace hgcaldigi
 
 #endif  // DataFormats_HGCalDigi_interface_HGCalDigiSoA_h

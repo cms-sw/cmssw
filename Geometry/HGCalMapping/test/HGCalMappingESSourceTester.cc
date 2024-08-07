@@ -52,12 +52,15 @@ private:
   edm::ESGetToken<HGCalMappingModuleIndexer, HGCalElectronicsMappingRcd> moduleIndexTkn_;
   edm::ESGetToken<hgcal::HGCalMappingModuleParamHost, HGCalElectronicsMappingRcd> moduleTkn_;
   edm::ESGetToken<hgcal::HGCalDenseIndexInfoHost, HGCalDenseIndexInfoRcd> denseIndexTkn_;
-
 };
 
 //
 HGCalMappingESSourceTester::HGCalMappingESSourceTester(const edm::ParameterSet& iConfig)
-    : cellIndexTkn_(esConsumes()), cellTkn_(esConsumes()), moduleIndexTkn_(esConsumes()), moduleTkn_(esConsumes()), denseIndexTkn_(esConsumes()) {}
+    : cellIndexTkn_(esConsumes()),
+      cellTkn_(esConsumes()),
+      moduleIndexTkn_(esConsumes()),
+      moduleTkn_(esConsumes()),
+      denseIndexTkn_(esConsumes()) {}
 
 //
 void HGCalMappingESSourceTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -189,7 +192,7 @@ void HGCalMappingESSourceTester::analyze(const edm::Event& iEvent, const edm::Ev
         imod.plane(),
         imod.i1(),
         imod.i2(),
-	imod.irot(),
+        imod.irot(),
         imod.celltype(),
         imod.typeidx(),
         imod.fedid(),
@@ -223,7 +226,7 @@ void HGCalMappingESSourceTester::analyze(const edm::Event& iEvent, const edm::Ev
       assert(geo2ele.count(it.second) == 1);
       assert(geo2ele[it.second] == it.first);
     }
-    
+
     return true;
   };
 
@@ -321,15 +324,23 @@ void HGCalMappingESSourceTester::analyze(const edm::Event& iEvent, const edm::Ev
 
   //test dense index token
   auto const& denseIndexInfo = iSetup.getData(denseIndexTkn_);
-  printf( "Retrieved %d dense index info\n",denseIndexInfo.view().metadata().size());
+  printf("Retrieved %d dense index info\n", denseIndexInfo.view().metadata().size());
   int nindices = denseIndexInfo.view().metadata().size();
   printf("fedId fedReadoutSeq detId eleid modix cellidx channel x y z");
-  for(int i=0; i<nindices; i++) {
+  for (int i = 0; i < nindices; i++) {
     auto row = denseIndexInfo.view()[i];
     printf("%d %d 0x%x 0x%x %d %d %d %f %f %f\n",
-      row.fedId(),row.fedReadoutSeq(),row.detid(),row.eleid(),row.modInfoIdx(),row.cellInfoIdx(),row.chNumber(),row.x(),row.y(),row.z() );
+           row.fedId(),
+           row.fedReadoutSeq(),
+           row.detid(),
+           row.eleid(),
+           row.modInfoIdx(),
+           row.cellInfoIdx(),
+           row.chNumber(),
+           row.x(),
+           row.y(),
+           row.z());
   }
-
 }
 
 //

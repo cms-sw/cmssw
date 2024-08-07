@@ -22,7 +22,7 @@
 #include "CondFormats/DataRecord/interface/HGCalElectronicsMappingRcd.h"
 
 class HGCalModuleConfigurationRcd
-  : public edm::eventsetup::DependentRecordImplementation<HGCalModuleConfigurationRcd,
-      edm::mpl::Vector<HGCalElectronicsMappingRcd> > {};
+    : public edm::eventsetup::DependentRecordImplementation<HGCalModuleConfigurationRcd,
+                                                            edm::mpl::Vector<HGCalElectronicsMappingRcd> > {};
 
 #endif

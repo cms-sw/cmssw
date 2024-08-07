@@ -18,13 +18,13 @@
 #include "CondFormats/HGCalObjects/interface/HGCalConfiguration.h"
 #include "CondFormats/HGCalObjects/interface/HGCalMappingModuleIndexer.h"
 #include "CondFormats/DataRecord/interface/HGCalElectronicsMappingRcd.h"
-#include "CondFormats/DataRecord/interface/HGCalModuleConfigurationRcd.h" // depends on HGCalElectronicsMappingRcd
-#include "CondFormats/HGCalObjects/interface/HGCalCalibrationParameterHost.h" // for HGCalConfigParamHost
+#include "CondFormats/DataRecord/interface/HGCalModuleConfigurationRcd.h"      // depends on HGCalElectronicsMappingRcd
+#include "CondFormats/HGCalObjects/interface/HGCalCalibrationParameterHost.h"  // for HGCalConfigParamHost
 #include "CondFormats/HGCalObjects/interface/alpaka/HGCalCalibrationParameterDevice.h"
 
 #include <string>
-#include <iostream> // for std::cout
-#include <iomanip> // for std::setw
+#include <iostream>  // for std::cout
+#include <iomanip>   // for std::setw
 //#include <fstream> // needed to read json file with std::ifstream
 //#include <nlohmann/json.hpp>
 //using json = nlohmann::json;
@@ -35,11 +35,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     class HGCalConfigurationESProducer : public ESProducer {
     public:
-
       HGCalConfigurationESProducer(const edm::ParameterSet& iConfig) : ESProducer(iConfig) {
         if (iConfig.exists("gain"))
           gain_ = iConfig.getParameter<int>("gain");
-        auto cc = setWhatProduced(this); //HGCalConfigurationESProducer::produce
+        auto cc = setWhatProduced(this);  //HGCalConfigurationESProducer::produce
         //findingRecord<HGCalModuleConfigurationRcd>();
         indexToken_ = cc.consumes(iConfig.getParameter<edm::ESInputTag>("indexSource"));
         configToken_ = cc.consumes(iConfig.getParameter<edm::ESInputTag>("configSource"));
@@ -47,9 +46,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
         edm::ParameterSetDescription desc;
-        desc.add<edm::ESInputTag>("indexSource",edm::ESInputTag(""))->setComment("Label for module indexer to set SoA size");
-        desc.add<edm::ESInputTag>("configSource",edm::ESInputTag(""))->setComment("Label for ROC configuration parameters");
-        desc.addOptional<int>("gain",2)->setComment("Manual override for gain for all modules (1: 80 fC, 2: 160 fC, 4: 320 fC)");
+        desc.add<edm::ESInputTag>("indexSource", edm::ESInputTag(""))
+            ->setComment("Label for module indexer to set SoA size");
+        desc.add<edm::ESInputTag>("configSource", edm::ESInputTag(""))
+            ->setComment("Label for ROC configuration parameters");
+        desc.addOptional<int>("gain", 2)->setComment(
+            "Manual override for gain for all modules (1: 80 fC, 2: 160 fC, 4: 320 fC)");
         descriptions.addWithDefaultLabel(desc);
       }
 
@@ -59,25 +61,25 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         auto const& moduleMap = iRecord.getRecord<HGCalElectronicsMappingRcd>().get(indexToken_);
 
         // load dense indexing
-        const uint32_t nERx = moduleMap.getMaxERxSize(); // half-ROC-level size
+        const uint32_t nERx = moduleMap.getMaxERxSize();  // half-ROC-level size
         hgcalrechit::HGCalConfigParamHost product(nERx, cms::alpakatools::host());
         //std::cout << "HGCalConfigurationESProducer::produce: moduleMap.getMaxDataSize()=" << moduleMap.getMaxDataSize()
         //          << ", moduleMap.getMaxERxSize()=" << nERx
         //          << ", moduleMap.getMaxModuleSize()=" << moduleMap.getMaxModuleSize() << std::endl;
 
         // fill SoA with gain
-        if ( gain_ > 0 ) { // fill with single value from user override
+        if (gain_ > 0) {  // fill with single value from user override
           std::cout << "HGCalConfigurationESProducer::produce: fill with default, gain=" << gain_ << std::endl;
           for (uint32_t iroc = 0; iroc < nERx; iroc++) {
             product.view()[iroc].gain() = gain_;
           }
-        } else { // fill with ROC-dependent value from JSON via HGCalConfiguration
+        } else {  // fill with ROC-dependent value from JSON via HGCalConfiguration
           std::cout << "HGCalConfigurationESProducer::produce: nfeds=" << config.feds.size() << std::endl;
           for (uint32_t ifed = 0; ifed < config.feds.size(); ++ifed) {
             for (uint32_t imod = 0; imod < config.feds[ifed].econds.size(); ++imod) {
               for (uint32_t iroc = 0; iroc < config.feds[ifed].econds[imod].rocs.size(); ++iroc) {
                 //uint32_t i = getIndexForModuleErx(ifed,imod,iroc); // dense index for ROCs
-                uint32_t iroc_dense = moduleMap.getIndexForModuleErx(ifed,imod,iroc); // dense index for eRx half-ROC
+                uint32_t iroc_dense = moduleMap.getIndexForModuleErx(ifed, imod, iroc);  // dense index for eRx half-ROC
                 product.view()[iroc_dense].gain() = config.feds[ifed].econds[imod].rocs[iroc].gain;
               }
             }
@@ -90,8 +92,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     private:
       edm::ESGetToken<HGCalMappingModuleIndexer, HGCalElectronicsMappingRcd> indexToken_;
       edm::ESGetToken<HGCalConfiguration, HGCalModuleConfigurationRcd> configToken_;
-      int32_t gain_; // manual override of YAML files
-
+      int32_t gain_;  // manual override of YAML files
     };
 
   }  // namespace hgcalrechit

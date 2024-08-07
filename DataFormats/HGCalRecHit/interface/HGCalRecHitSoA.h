@@ -14,12 +14,11 @@ namespace hgcalrechit {
   GENERATE_SOA_LAYOUT(HGCalRecHitSoALayout,
                       // columns: one value per element
                       //SOA_COLUMN(uint32_t, detid), // redundant since common dense indexing
-                      SOA_COLUMN(double  , energy),
-                      SOA_COLUMN(double  , time),
-                      SOA_COLUMN(uint16_t, flags)
-  )
+                      SOA_COLUMN(double, energy),
+                      SOA_COLUMN(double, time),
+                      SOA_COLUMN(uint16_t, flags))
   using HGCalRecHitSoA = HGCalRecHitSoALayout<>;
-  
+
 }  // namespace hgcalrechit
 
 #endif  // DataFormats_HGCalRecHit_interface_HGCalRecHitSoA_h

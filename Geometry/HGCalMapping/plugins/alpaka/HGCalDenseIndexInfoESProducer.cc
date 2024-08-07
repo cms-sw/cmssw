@@ -48,13 +48,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         desc.add<edm::ESInputTag>("moduleindexer", edm::ESInputTag(""))->setComment("Module index tool");
         desc.add<edm::ESInputTag>("cellindexer", edm::ESInputTag(""))->setComment("Dense cell index tool");
         desc.add<edm::ESInputTag>("moduleinfo", edm::ESInputTag(""))->setComment("Module info table");
-        desc.add<edm::ESInputTag>("cellinfo", edm::ESInputTag(""))->setComment("Cell info table");        
+        desc.add<edm::ESInputTag>("cellinfo", edm::ESInputTag(""))->setComment("Cell info table");
         descriptions.addWithDefaultLabel(desc);
       }
 
       //
       std::optional<HGCalDenseIndexInfoHost> produce(const HGCalDenseIndexInfoRcd& iRecord) {
-
         //geometry
         auto const& geo = iRecord.getRecord<CaloGeometryRecord>().get(caloGeomToken_);
 
@@ -70,81 +69,80 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         //the size is determined by the module indexer
         const uint32_t nIndices = modIndexer.getMaxDataSize();
         HGCalDenseIndexInfoHost denseIdxInfo(nIndices, cms::alpakatools::host());
-        for(auto fedRS : modIndexer.fedReadoutSequences_) {
-
+        for (auto fedRS : modIndexer.fedReadoutSequences_) {
           uint32_t fedId = fedRS.id;
-          for(size_t imod=0; imod<fedRS.readoutTypes_.size(); imod++) {
-
+          for (size_t imod = 0; imod < fedRS.readoutTypes_.size(); imod++) {
             //the number of words expected, the first channel dense index
-	    int modTypeIdx = fedRS.readoutTypes_[imod];
-	    uint32_t nch = modIndexer.globalTypesNWords_[modTypeIdx];
+            int modTypeIdx = fedRS.readoutTypes_[imod];
+            uint32_t nch = modIndexer.globalTypesNWords_[modTypeIdx];
             int off = fedRS.chDataOffsets_[imod];
 
             //get additional necessary module info
-	    int modIdx = modIndexer.getIndexForModule(fedId,imod); 
+            int modIdx = modIndexer.getIndexForModule(fedId, imod);
             auto module_row = moduleInfo.view()[modIdx];
-            bool isSiPM =  module_row.isSiPM();
+            bool isSiPM = module_row.isSiPM();
             uint16_t typeidx = module_row.typeidx();
-            uint32_t eleid=module_row.eleid();
-            uint32_t detid=module_row.detid();
+            uint32_t eleid = module_row.eleid();
+            uint32_t detid = module_row.detid();
 
             //get the appropriate geometry
             DetId::Detector det = DetId(detid).det();
             int subdet = ForwardSubdetector::ForwardEmpty;
-            const HGCalGeometry *hgcal_geom = static_cast<const HGCalGeometry *>(geo.getSubdetectorGeometry(det, subdet));
+            const HGCalGeometry* hgcal_geom =
+                static_cast<const HGCalGeometry*>(geo.getSubdetectorGeometry(det, subdet));
 
             //get the offset to start reading the cell info from sequential
             uint32_t cellInfoOffset = cellIndexer.offsets_[typeidx];
 
             //now fill the information sequentially on the cells of this module
-            for(uint32_t ich=0; ich<nch; ich++) {
-
+            for (uint32_t ich = 0; ich < nch; ich++) {
               //finalize assigning the dense index
               uint32_t denseIdx = off + ich;
 
               auto row = denseIdxInfo.view()[denseIdx];
-              
+
               //fill the fields
               row.fedId() = fedId;
               row.fedReadoutSeq() = imod;
               row.chNumber() = ich;
-              
+
               row.modInfoIdx() = modIdx;
               uint32_t cellIdx = cellInfoOffset + ich;
               row.cellInfoIdx() = cellIdx;
-              
+
               auto cell_row = cellInfo.view()[cellIdx];
-              row.eleid() = eleid + cell_row.eleid();              
+              row.eleid() = eleid + cell_row.eleid();
 
               //assign det id only for full and calibration cells
               row.detid() = 0;
-              if(cell_row.t()==1 || cell_row.t()==0) {
+              if (cell_row.t() == 1 || cell_row.t() == 0) {
                 if (isSiPM) {
-                  row.detid() = ::hgcal::mappingtools::getSiPMDetId(
-                    module_row.zside(), module_row.plane(), module_row.i2(), module_row.celltype(), 
-                    cell_row.i1(), cell_row.i2()
-                  );
+                  row.detid() = ::hgcal::mappingtools::getSiPMDetId(module_row.zside(),
+                                                                    module_row.plane(),
+                                                                    module_row.i2(),
+                                                                    module_row.celltype(),
+                                                                    cell_row.i1(),
+                                                                    cell_row.i2());
                 } else {
                   row.detid() = module_row.detid() + cell_row.detid();
                 }
 
                 //assign position from geometry
-                row.x()=0;
-                row.y()=0;
-                row.z()=0;
-                if(hgcal_geom!=nullptr) {
-                  GlobalPoint position = hgcal_geom->getPosition( row.detid() );
+                row.x() = 0;
+                row.y() = 0;
+                row.z() = 0;
+                if (hgcal_geom != nullptr) {
+                  GlobalPoint position = hgcal_geom->getPosition(row.detid());
                   row.x() = position.x();
                   row.y() = position.y();
                   row.z() = position.z();
                 }
-
               }
             }  // end cell loop
 
           }  // end module loop
 
-        } // end fed readout sequence loop
+        }  // end fed readout sequence loop
 
         return denseIdxInfo;
       }  // end of produce()

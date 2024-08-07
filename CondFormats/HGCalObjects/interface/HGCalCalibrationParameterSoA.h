@@ -25,23 +25,23 @@ namespace hgcalrechit {
                       SOA_COLUMN(float, CM_ped),      // common mode pedestal (offset), O(92)
                       SOA_COLUMN(float, BXm1_slope),  // leakage correction from previous bunch, O(0.0)
                       //SOA_COLUMN(float, BXm1_ped),  // redundant
-                      SOA_COLUMN(float, ADCtofC),     // ADC conversion to charge (fC), depends on gain (80, 160, 320 fC)
-                      SOA_COLUMN(float, TOTtofC),     // TOT conversion to charge (fC), depends on gain (80, 160, 320 fC)
-                      SOA_COLUMN(float, TOT_ped),     // TOT pedestal (offset), O(9.0)
-                      SOA_COLUMN(float, TOT_lin),     // threshold at which TOT is linear, O(200)
-                      SOA_COLUMN(float, TOT_P0),      // coefficient pol2 in nonlinear region, O(145)
-                      SOA_COLUMN(float, TOT_P1),      // coefficient pol2 in nonlinear region, O(1.0)
-                      SOA_COLUMN(float, TOT_P2),      // coefficient pol2 in nonlinear region, O(0.004)
-                      SOA_COLUMN(float, TOAtops),     // TOA conversion to time (ps)
+                      SOA_COLUMN(float, ADCtofC),  // ADC conversion to charge (fC), depends on gain (80, 160, 320 fC)
+                      SOA_COLUMN(float, TOTtofC),  // TOT conversion to charge (fC), depends on gain (80, 160, 320 fC)
+                      SOA_COLUMN(float, TOT_ped),  // TOT pedestal (offset), O(9.0)
+                      SOA_COLUMN(float, TOT_lin),  // threshold at which TOT is linear, O(200)
+                      SOA_COLUMN(float, TOT_P0),   // coefficient pol2 in nonlinear region, O(145)
+                      SOA_COLUMN(float, TOT_P1),   // coefficient pol2 in nonlinear region, O(1.0)
+                      SOA_COLUMN(float, TOT_P2),   // coefficient pol2 in nonlinear region, O(0.004)
+                      SOA_COLUMN(float, TOAtops),  // TOA conversion to time (ps)
                       SOA_COLUMN(float, MIPS_scale),  // MIPS scale
-                      SOA_COLUMN(mybool,valid)        // if false: mask dead channel
+                      SOA_COLUMN(mybool, valid)       // if false: mask dead channel
   )
   using HGCalCalibParamSoA = HGCalCalibParamSoALayout<>;
 
   // Generate structure of ROC-level arrays (SoA) layout with RecHit dataformat
   GENERATE_SOA_LAYOUT(HGCalConfigParamSoALayout,
                       //SOA_SCALAR(HGCalMappingModuleIndexer, map), // dense idx map: now redundant & NOT thread safe !?
-                      SOA_COLUMN(uint8_t, gain) // for ADC to charge (fC) conversion (80, 160, 320 fC)
+                      SOA_COLUMN(uint8_t, gain)  // for ADC to charge (fC) conversion (80, 160, 320 fC)
   )
   using HGCalConfigParamSoA = HGCalConfigParamSoALayout<>;
 
