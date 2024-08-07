@@ -11,7 +11,16 @@
 
 <test name="testReadWriteBSFromDB" command="testReadWriteBSFromDB.sh"/>
 
+<test name="testBeamSpotCompatibilityEventData" command="testBeamSpotCompatibility.sh"/>
+
 <bin file="testBeamSpotAnalyzer.cc">
+  <use name="FWCore/TestProcessor"/>
+  <use name="catch2"/>
+</bin>
+
+<bin file="testBeamSpotCompatibility.cc">
+  <use name="CondFormats/BeamSpotObjects"/>
+  <use name="CondFormats/DataRecord"/>
   <use name="FWCore/TestProcessor"/>
   <use name="catch2"/>
 </bin>

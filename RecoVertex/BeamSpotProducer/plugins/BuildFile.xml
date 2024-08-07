@@ -48,6 +48,10 @@
   <flags EDM_PLUGIN="1"/>
 </library>
 
+<library file="BeamSpotCompatibilityChecker.cc" name="BeamSpotCompatibilityChecker">
+  <flags EDM_PLUGIN="1"/>
+</library>
+
 <iftool name="cuda">
   <library file="BeamSpotToCUDA.cc" name="BeamSpotToCUDA">
     <use name="cuda"/>
