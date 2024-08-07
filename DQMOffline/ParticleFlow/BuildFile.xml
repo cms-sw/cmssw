@@ -12,4 +12,5 @@
 <use name="DataFormats/Math"/>
 <use name="DataFormats/PatCandidates"/>
 <use name="JetMETCorrections/JetCorrector"/>
+<use name="SimDataFormats/GeneratorProducts"/>
 <flags EDM_PLUGIN="1"/>

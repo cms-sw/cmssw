@@ -20,9 +20,12 @@ PFAnalyzer::PFAnalyzer(const edm::ParameterSet& pSet) {
   triggerResultsToken_ = consumes<edm::TriggerResults>(edm::InputTag(theTriggerResultsLabel_));
   highPtJetExpr_ = pSet.getParameter<edm::InputTag>("TriggerName");
 
+  srcWeights = pSet.getParameter<edm::InputTag>("srcWeights");
+  weightsToken_ = consumes<edm::ValueMap<float>>(srcWeights);
+
   m_pfNames = {"allPFC", "neutralHadPFC", "chargedHadPFC", "electronPFC", "muonPFC", "gammaPFC", "hadHFPFC", "emHFPFC"};
   vertexTag_ = pSet.getParameter<edm::InputTag>("PVCollection");
-  vertexToken_ = consumes<std::vector<reco::Vertex> >(edm::InputTag(vertexTag_));
+  vertexToken_ = consumes<std::vector<reco::Vertex>>(edm::InputTag(vertexTag_));
 
   tok_ew_ = consumes<GenEventInfoProduct>(edm::InputTag("generator"));
 
@@ -39,7 +42,7 @@ PFAnalyzer::PFAnalyzer(const edm::ParameterSet& pSet) {
   // Link observable strings to the static functions defined in the header file
   // Many of these are quite trivial, but this enables a simple way to include a
   // variety of observables on-the-fly.
-  m_funcMap["pt"] = getPt;
+  m_funcMap["pt"] = &getPt;
   m_funcMap["energy"] = getEnergy;
   m_funcMap["eta"] = getEta;
   m_funcMap["phi"] = getPhi;
@@ -103,7 +106,7 @@ PFAnalyzer::PFAnalyzer(const edm::ParameterSet& pSet) {
   }
 
   for (unsigned int i = 0; i < m_fullCutList.size(); i++) {
-    m_binList.push_back(std::vector<std::vector<double> >());
+    m_binList.push_back(std::vector<std::vector<double>>());
     for (unsigned int j = 0; j < m_fullCutList[i].size(); j++) {
       size_t pos = m_fullCutList[i][j].find(";");
       std::string observableName = m_fullCutList[i][j].substr(0, pos);
@@ -130,7 +133,7 @@ PFAnalyzer::PFAnalyzer(const edm::ParameterSet& pSet) {
   }
 
   for (unsigned int i = 0; i < m_fullJetCutList.size(); i++) {
-    m_jetBinList.push_back(std::vector<std::vector<double> >());
+    m_jetBinList.push_back(std::vector<std::vector<double>>());
     for (unsigned int j = 0; j < m_fullJetCutList[i].size(); j++) {
       size_t pos = m_fullJetCutList[i][j].find(";");
       std::string observableName = m_fullJetCutList[i][j].substr(0, pos);
@@ -418,7 +421,7 @@ std::vector<double> PFAnalyzer::getBinList(std::string binString) {
 }
 
 std::vector<std::string> PFAnalyzer::getAllSuffixes(std::vector<std::string> observables,
-                                                    std::vector<std::vector<double> > binnings) {
+                                                    std::vector<std::vector<double>> binnings) {
   int nTotalBins = 1;
   std::vector<int> nBins;
   for (unsigned int i = 0; i < binnings.size(); i++) {
@@ -426,7 +429,7 @@ std::vector<std::string> PFAnalyzer::getAllSuffixes(std::vector<std::string> obs
     nBins.push_back(binnings[i].size() - 1);
   }
 
-  std::vector<std::vector<int> > binList;
+  std::vector<std::vector<int>> binList;
 
   for (int i = 0; i < nTotalBins; i++) {
     binList.push_back(std::vector<int>());
@@ -458,7 +461,7 @@ std::vector<std::string> PFAnalyzer::getAllSuffixes(std::vector<std::string> obs
 // Get a unique string corresponding to the selection cuts
 std::string PFAnalyzer::getSuffix(std::vector<int> binList,
                                   std::vector<std::string> observables,
-                                  std::vector<std::vector<double> > binnings) {
+                                  std::vector<std::vector<double>> binnings) {
   std::string suffix = "";
   for (unsigned int i = 0; i < binList.size(); i++) {
     if (binList[i] < 0)
@@ -482,7 +485,7 @@ int PFAnalyzer::getBinNumber(double binVal, std::vector<double> bins) {
   return -1;
 }
 
-int PFAnalyzer::getBinNumbers(std::vector<double> binVal, std::vector<std::vector<double> > bins) {
+int PFAnalyzer::getBinNumbers(std::vector<double> binVal, std::vector<std::vector<double>> bins) {
   std::vector<int> cbins;
   std::vector<int> nBins;
   for (unsigned int i = 0; i < binVal.size(); i++) {
@@ -528,6 +531,8 @@ void PFAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   if (genEventInfo.isValid()) {
     eventWeight = genEventInfo->weight();
   }
+
+  weights_ = &iEvent.get(weightsToken_);
 
   // **** Get the TriggerResults container
   edm::Handle<edm::TriggerResults> triggerResults;

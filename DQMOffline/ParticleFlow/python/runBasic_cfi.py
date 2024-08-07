@@ -8,6 +8,7 @@ PFAnalyzer = DQMEDAnalyzer("PFAnalyzer",
 
     TriggerResultsLabel        = cms.InputTag("TriggerResults::HLT"),
     TriggerName = cms.InputTag("HLT_PFJet450"),
+    srcWeights = cms.InputTag("puppi"),
 
 
     pfAnalysis = cms.PSet(
@@ -70,6 +71,7 @@ PFAnalyzer = DQMEDAnalyzer("PFAnalyzer",
       cutList     = cms.vstring(
                                 '[pt;1;0;10000]',
                                 '[pt;0;1;2;4;10;50;10000]',
+                                '[pt;1;0;10000][eta;-5;-4;-3;-2.5;-2;-1;0;1;2;2.5;3;4;5]',
                                ),
 
       # This is a list of multidimensional cuts on the jets that are applied for the plots.

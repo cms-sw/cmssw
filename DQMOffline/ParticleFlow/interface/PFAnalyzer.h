@@ -11,6 +11,7 @@
 
 #include <memory>
 #include <fstream>
+#include <utility>
 #include <string>
 #include <cmath>
 #include <map>
@@ -46,6 +47,10 @@
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
+class PFAnalyzer;
+
+//typedef double (PFAnalyzer::*memberFn)(const reco::PFCandidate pfCand);
+using memberFn = double (PFAnalyzer::*)(const reco::PFCandidate pfCand);
 
 class PFAnalyzer : public DQMEDAnalyzer {
 public:
@@ -133,6 +138,7 @@ private:
   static double getPt(const reco::PFCandidate pfCand) { return pfCand.pt(); }
   static double getEnergy(const reco::PFCandidate pfCand) { return pfCand.energy(); }
   static double getEta(const reco::PFCandidate pfCand) { return pfCand.eta(); }
+  static double getAbsEta(const reco::PFCandidate pfCand) { return std::abs(pfCand.eta()); }
   static double getPhi(const reco::PFCandidate pfCand) { return pfCand.phi(); }
 
   static double getHadCalibration(const reco::PFCandidate pfCand) {
@@ -235,10 +241,8 @@ private:
           if (elements[iEle].type() == reco::PFBlockElement::ECAL) {  // Element is HB or HE
             // Get cluster and hits
             reco::PFClusterRef clusterref = elements[iEle].clusterRef();
-            // TODO make sure this is correct -- I assume the cluster energy can't be shared in bad ways, but I'm not sure
             // When we don't have isolated tracks, this will be a bit useless, since the energy is shared across multiple tracks
             reco::PFCluster cluster = *clusterref;
-            //std::vector<std::pair<DetId, float>> hitsAndFracs = cluster.hitsAndFractions();
             energy += cluster.energy();
           }
         }
@@ -271,6 +275,10 @@ private:
   edm::EDGetTokenT<reco::PFCandidateCollection> thePfCandidateCollection_;
   edm::EDGetTokenT<std::vector<reco::Vertex>> vertexToken_;
   edm::EDGetTokenT<reco::PFJetCollection> pfJetsToken_;
+  edm::InputTag srcWeights;
+
+  edm::EDGetTokenT<edm::ValueMap<float>> weightsToken_;
+  edm::ValueMap<float> const* weights_;
 
   edm::EDGetTokenT<GenEventInfoProduct> tok_ew_;
 
