@@ -2185,7 +2185,7 @@ class UpgradeWorkflow_0T(UpgradeWorkflow):
         # override '-n' setting from PUDataSets in relval_steps.py
         stepDict[stepName][k] = merge([{'-n':'1'}, stepDict[step][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
-        return (fragment=="TTbar_13" or fragment=="TTbar_14TeV") and ('2017' in key or '2018' in key or '2021' in key) and ('FS' not in key)
+        return (fragment=="TTbar_13" or fragment=="TTbar_14TeV") and ('2017' in key or '2018' in key or '2021' in key or '2024' in key) and ('FS' not in key)
 upgradeWFs['0T'] = UpgradeWorkflow_0T(
     steps = [
         'GenSim',
