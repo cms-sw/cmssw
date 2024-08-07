@@ -2,9 +2,9 @@
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
 <use name="CondFormats/Alignment"/>
+
 <library name="AlignmentCommonAlignmentFakeProducers" file="FakeAlignment*.cc">
   <use name="CondFormats/AlignmentRecord"/>
-  <use name="CondFormats/Alignment"/>
 </library>
 
 <library name="AlignmentCommonAlignmentProducerPlugin" file="AlignmentProducer.cc">
