@@ -105,6 +105,7 @@ private:
   MonitorElement* hChi2VsPhi_;
   MonitorElement* hChi2VsEta_;
   MonitorElement* hpt_;
+  MonitorElement* hCurvature_;
   MonitorElement* hptLogLog_;
   MonitorElement* heta_;
   MonitorElement* hphi_;
@@ -200,6 +201,7 @@ void SiPixelCompareTracks<T>::analyzeSeparate(U tokenRef, V tokenTar, const edm:
     float phiRef = reco::phi(tsoaRef.view(), it);
     float zipRef = reco::zip(tsoaRef.view(), it);
     float tipRef = reco::tip(tsoaRef.view(), it);
+    auto qRef = reco::charge(tsoaRef.view(), it);
 
     if (!(ptRef > 0.))
       continue;
@@ -231,17 +233,18 @@ void SiPixelCompareTracks<T>::analyzeSeparate(U tokenRef, V tokenTar, const edm:
     nLooseAndAboveTracksRef_matchedTar++;
 
     hchi2_->Fill(tsoaRef.view()[it].chi2(), tsoaTar.view()[closestTkidx].chi2());
-    hCharge_->Fill(reco::charge(tsoaRef.view(), it), reco::charge(tsoaTar.view(), closestTkidx));
+    hCharge_->Fill(qRef, reco::charge(tsoaTar.view(), closestTkidx));
     hnHits_->Fill(helper::nHits(tsoaRef.view(), it), helper::nHits(tsoaTar.view(), closestTkidx));
     hnLayers_->Fill(tsoaRef.view()[it].nLayers(), tsoaTar.view()[closestTkidx].nLayers());
     hpt_->Fill(ptRef, tsoaTar.view()[closestTkidx].pt());
+    hCurvature_->Fill(qRef / ptRef, reco::charge(tsoaTar.view(), closestTkidx) / tsoaTar.view()[closestTkidx].pt());
     hptLogLog_->Fill(ptRef, tsoaTar.view()[closestTkidx].pt());
     heta_->Fill(etaRef, tsoaTar.view()[closestTkidx].eta());
     hphi_->Fill(phiRef, reco::phi(tsoaTar.view(), closestTkidx));
     hz_->Fill(zipRef, reco::zip(tsoaTar.view(), closestTkidx));
     htip_->Fill(tipRef, reco::tip(tsoaTar.view(), closestTkidx));
     hptdiffMatched_->Fill(ptRef - tsoaTar.view()[closestTkidx].pt());
-    hCurvdiffMatched_->Fill((reco::charge(tsoaRef.view(), it) / tsoaRef.view()[it].pt()) -
+    hCurvdiffMatched_->Fill(qRef / ptRef -
                             (reco::charge(tsoaTar.view(), closestTkidx) / tsoaTar.view()[closestTkidx].pt()));
     hetadiffMatched_->Fill(etaRef - tsoaTar.view()[closestTkidx].eta());
     hphidiffMatched_->Fill(reco::deltaPhi(phiRef, reco::phi(tsoaTar.view(), closestTkidx)));
@@ -296,18 +299,20 @@ void SiPixelCompareTracks<T>::bookHistograms(DQMStore::IBooker& iBook,
   hCharge_ = iBook.book2I("charge",fmt::sprintf("%s;Reference;Target",toRep),3, -1.5, 1.5, 3, -1.5, 1.5);
 
   hpt_ = iBook.book2I("pt", "Track (quality #geq loose) p_{T} [GeV];Reference;Target", 200, 0., 200., 200, 0., 200.);
+  hCurvature_ = iBook.book2I("curvature", "Track (quality #geq loose) q/p_{T} [GeV^{-1}];Reference;Target",  60,- 30, 30., 60, -30, 30 );
   hptLogLog_ = make2DIfLog(iBook, true, true, "ptLogLog", "Track (quality #geq loose) p_{T} [GeV];Reference;Target", 200, log10(0.5), log10(200.), 200, log10(0.5), log10(200.));
   heta_ = iBook.book2I("eta", "Track (quality #geq loose) #eta;Reference;Target", 30, -3., 3., 30, -3., 3.);
   hphi_ = iBook.book2I("phi", "Track (quality #geq loose) #phi;Reference;Target", 30, -M_PI, M_PI, 30, -M_PI, M_PI);
   hz_ = iBook.book2I("z", "Track (quality #geq loose) z [cm];Reference;Target", 30, -30., 30., 30, -30., 30.);
   htip_ = iBook.book2I("tip", "Track (quality #geq loose) TIP [cm];Reference;Target", 100, -0.5, 0.5, 100, -0.5, 0.5);
+
   //1D difference plots
-  hptdiffMatched_ = iBook.book1D("ptdiffmatched", " p_{T} diff [GeV] between matched tracks; #Delta p_{T} [GeV]", 60, -30., 30.);
-  hCurvdiffMatched_ = iBook.book1D("curvdiffmatched", "q/p_{T} diff [GeV] between matched tracks; #Delta q/p_{T} [GeV]", 60, -30., 30.);
-  hetadiffMatched_ = iBook.book1D("etadiffmatched", " #eta diff between matched tracks; #Delta #eta", 160, -0.04 ,0.04);
-  hphidiffMatched_ = iBook.book1D("phidiffmatched", " #phi diff between matched tracks; #Delta #phi",  160, -0.04 ,0.04);
-  hzdiffMatched_ = iBook.book1D("zdiffmatched", " z diff between matched tracks; #Delta z [cm]", 300, -1.5, 1.5);
-  htipdiffMatched_ = iBook.book1D("tipdiffmatched", " TIP diff between matched tracks; #Delta TIP [cm]", 300, -1.5, 1.5);
+  hptdiffMatched_ = iBook.book1D("ptdiffmatched", " p_{T} diff [GeV] between matched tracks; #Delta p_{T} [GeV]", 61, -30.5, 30.5);
+  hCurvdiffMatched_ = iBook.book1D("curvdiffmatched", "q/p_{T} diff [GeV] between matched tracks; #Delta q/p_{T} [GeV]", 61, -30.5, 30.5);
+  hetadiffMatched_ = iBook.book1D("etadiffmatched", " #eta diff between matched tracks; #Delta #eta", 161, -0.045 ,0.045);
+  hphidiffMatched_ = iBook.book1D("phidiffmatched", " #phi diff between matched tracks; #Delta #phi",  161, -0.045 ,0.045);
+  hzdiffMatched_ = iBook.book1D("zdiffmatched", " z diff between matched tracks; #Delta z [cm]", 301, -1.55, 1.55);
+  htipdiffMatched_ = iBook.book1D("tipdiffmatched", " TIP diff between matched tracks; #Delta TIP [cm]", 301, -1.55, 1.55);
   //2D plots for eff
   hpt_eta_tkAllRef_ = iBook.book2I("ptetatrkAllReference", "Track (quality #geq loose) on Reference; #eta; p_{T} [GeV];", 30, -M_PI, M_PI, 200, 0., 200.);
   hpt_eta_tkAllRefMatched_ = iBook.book2I("ptetatrkAllReferencematched", "Track (quality #geq loose) on Reference matched to Target track; #eta; p_{T} [GeV];", 30, -M_PI, M_PI, 200, 0., 200.);
@@ -326,7 +331,7 @@ void SiPixelCompareTracks<T>::fillDescriptions(edm::ConfigurationDescriptions& d
   desc.add<std::string>("topFolderName", "SiPixelHeterogeneous/PixelTrackCompareDeviceVSHost");
   desc.add<bool>("useQualityCut", true);
   desc.add<std::string>("minQuality", "loose");
-  desc.add<double>("deltaR2cut", 0.04);
+  desc.add<double>("deltaR2cut", 0.02 * 0.02)->setComment("deltaR2 cut between track on device and host");
   descriptions.addWithDefaultLabel(desc);
 }
 
