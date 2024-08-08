@@ -29,9 +29,7 @@ struct lut_value {
 };
 
 struct lut_group {
-  std::map<int, lut_value> phic;
-  std::map<int, lut_value> phi1;
-  std::map<int, lut_value> phi3;
+  std::map<int, lut_value> phi;
   std::map<int, lut_value> phib;
 };
 
@@ -57,6 +55,10 @@ public:
 
   void generate_luts();
   std::vector<double> get_global_coordinates(uint32_t, int, int, int);
+
+  edm::FileInPath maxdrift_filename_;
+  int maxdriftinfo_[5][4][14];
+  int max_drift_tdc = -1;
 
 private:
   std::map<int, lut_value> calc_atan_lut(int, int, double, double, double, int, int, int, int, int);
