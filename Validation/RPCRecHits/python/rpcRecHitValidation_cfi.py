@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 rpcRecHitV = DQMEDAnalyzer('RPCRecHitValid',
-    subDir = cms.string("RPC/RPCRecHitV/SimVsReco"),
+    subDir = cms.string("RPC/RPCRecHitV"),
     simHit = cms.InputTag("g4SimHits", "MuonRPCHits"),
     recHit = cms.InputTag("rpcRecHits"),
     simTrack = cms.InputTag("mix", "MergedTrackTruth"),
