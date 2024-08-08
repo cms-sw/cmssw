@@ -19,30 +19,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::vertexFinder {
   using WsSoAView = ::vertexFinder::PixelVertexWorkSpaceSoAView;
   template <typename TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE __attribute__((always_inline)) void splitVertices(const TAcc& acc,
-                                                                                   VtxSoAView& pdata,
-                                                                                   WsSoAView& pws,
+                                                                                   VtxSoAView& data,
+                                                                                   WsSoAView& ws,
                                                                                    float maxChi2) {
     constexpr bool verbose = false;  // in principle the compiler should optmize out if false
-    const uint32_t threadIdxLocal(alpaka::getIdx<alpaka::Block, alpaka::Threads>(acc)[0u]);
-
-    auto& __restrict__ data = pdata;
-    auto& __restrict__ ws = pws;
-    auto nt = ws.ntrks();
-    float const* __restrict__ zt = ws.zt();
-    float const* __restrict__ ezt2 = ws.ezt2();
-    float* __restrict__ zv = data.zv();
-    float* __restrict__ wv = data.wv();
-    float const* __restrict__ chi2 = data.chi2();
-    uint32_t& nvFinal = data.nvFinal();
-
-    int32_t const* __restrict__ nn = data.ndof();
-    int32_t* __restrict__ iv = ws.iv();
-
-    ALPAKA_ASSERT_ACC(zt);
-    ALPAKA_ASSERT_ACC(wv);
-    ALPAKA_ASSERT_ACC(chi2);
-    ALPAKA_ASSERT_ACC(nn);
-
     constexpr uint32_t MAXTK = 512;
 
     auto& it = alpaka::declareSharedVar<uint32_t[MAXTK], __COUNTER__>(acc);   // track index
@@ -51,32 +31,33 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::vertexFinder {
     auto& ww = alpaka::declareSharedVar<float[MAXTK], __COUNTER__>(acc);      // z weight
     auto& nq = alpaka::declareSharedVar<uint32_t, __COUNTER__>(acc);          // number of track for this vertex
 
-    const uint32_t blockIdx(alpaka::getIdx<alpaka::Grid, alpaka::Blocks>(acc)[0u]);
-    const uint32_t gridDimension(alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[0u]);
-
     // one vertex per block
-    for (auto kv = blockIdx; kv < nvFinal; kv += gridDimension) {
-      if (nn[kv] < 4)
+    for (auto kv : cms::alpakatools::independent_groups(acc, data.nvFinal())) {
+      int32_t ndof = data[kv].ndof();
+      if (ndof < 4)
         continue;
-      if (chi2[kv] < maxChi2 * float(nn[kv]))
+      if (data[kv].chi2() < maxChi2 * float(ndof))
         continue;
 
-      ALPAKA_ASSERT_ACC(nn[kv] < int32_t(MAXTK));
+      ALPAKA_ASSERT_ACC(ndof < int32_t(MAXTK));
 
-      if ((uint32_t)nn[kv] >= MAXTK)
+      if ((uint32_t)ndof >= MAXTK)
         continue;  // too bad FIXME
 
-      nq = 0u;
+      if (cms::alpakatools::once_per_block(acc)) {
+        // reset the number of tracks for the current vertex
+        nq = 0u;
+      }
       alpaka::syncBlockThreads(acc);
 
-      // copy to local
-      for (auto k : cms::alpakatools::independent_group_elements(acc, nt)) {
-        if (iv[k] == int(kv)) {
-          auto old = alpaka::atomicInc(acc, &nq, MAXTK, alpaka::hierarchy::Threads{});
-          zz[old] = zt[k] - zv[kv];
-          newV[old] = zz[old] < 0 ? 0 : 1;
-          ww[old] = 1.f / ezt2[k];
-          it[old] = k;
+      // cache the data of the tracks associated to the current vertex into shared memory
+      for (auto k : cms::alpakatools::independent_group_elements(acc, ws.ntrks())) {
+        if (ws[k].iv() == int(kv)) {
+          auto index = alpaka::atomicInc(acc, &nq, MAXTK, alpaka::hierarchy::Threads{});
+          it[index] = k;
+          zz[index] = ws[k].zt() - data[kv].zv();
+          newV[index] = zz[index] < 0 ? 0 : 1;
+          ww[index] = 1.f / ws[k].ezt2();
         }
       }
 
@@ -85,14 +66,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::vertexFinder {
       auto& wnew = alpaka::declareSharedVar<float[2], __COUNTER__>(acc);
       alpaka::syncBlockThreads(acc);
 
-      ALPAKA_ASSERT_ACC(int(nq) == nn[kv] + 1);
+      ALPAKA_ASSERT_ACC(int(nq) == ndof + 1);
 
       int maxiter = 20;
       // kt-min....
       bool more = true;
       while (alpaka::syncBlockThreadsPredicate<alpaka::BlockOr>(acc, more)) {
         more = false;
-        if (0 == threadIdxLocal) {
+        if (cms::alpakatools::once_per_block(acc)) {
           znew[0] = 0;
           znew[1] = 0;
           wnew[0] = 0;
@@ -107,7 +88,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::vertexFinder {
         }
         alpaka::syncBlockThreads(acc);
 
-        if (0 == threadIdxLocal) {
+        if (cms::alpakatools::once_per_block(acc)) {
           znew[0] /= wnew[0];
           znew[1] /= wnew[1];
         }
@@ -134,30 +115,34 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::vertexFinder {
 
       auto chi2Dist = dist2 / (1.f / wnew[0] + 1.f / wnew[1]);
 
-      if (verbose && 0 == threadIdxLocal)
-        printf("inter %d %f %f\n", 20 - maxiter, chi2Dist, dist2 * wv[kv]);
+      if constexpr (verbose) {
+        if (cms::alpakatools::once_per_block(acc))
+          printf("inter %d %f %f\n", 20 - maxiter, chi2Dist, dist2 * data[kv].wv());
+      }
 
       if (chi2Dist < 4)
         continue;
 
       // get a new global vertex
       auto& igv = alpaka::declareSharedVar<uint32_t, __COUNTER__>(acc);
-      if (0 == threadIdxLocal)
+      if (cms::alpakatools::once_per_block(acc))
         igv = alpaka::atomicAdd(acc, &ws.nvIntermediate(), 1u, alpaka::hierarchy::Blocks{});
       alpaka::syncBlockThreads(acc);
       for (auto k : cms::alpakatools::uniform_elements(acc, nq)) {
         if (1 == newV[k])
-          iv[it[k]] = igv;
+          ws[it[k]].iv() = igv;
       }
 
+      // synchronise the threads before starting the next iteration of the loop over the vertices and resetting the shared memory
+      alpaka::syncBlockThreads(acc);
     }  // loop on vertices
   }
 
   class SplitVerticesKernel {
   public:
     template <typename TAcc>
-    ALPAKA_FN_ACC void operator()(const TAcc& acc, VtxSoAView pdata, WsSoAView pws, float maxChi2) const {
-      splitVertices(acc, pdata, pws, maxChi2);
+    ALPAKA_FN_ACC void operator()(const TAcc& acc, VtxSoAView data, WsSoAView ws, float maxChi2) const {
+      splitVertices(acc, data, ws, maxChi2);
     }
   };
 
