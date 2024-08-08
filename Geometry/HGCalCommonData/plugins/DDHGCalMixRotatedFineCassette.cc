@@ -161,7 +161,8 @@ void DDHGCalMixRotatedFineCassette::initialize(const DDNumericArguments& nArgs,
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedFineCassette::First Layers " << firstFineLayer_ << ":"
                                 << firstCoarseLayer_ << " and "
-                                << "Absober:Sensitive mode " << absorbMode_ << ":" << sensitiveMode_ << ":" << passiveMode_;
+                                << "Absober:Sensitive mode " << absorbMode_ << ":" << sensitiveMode_ << ":"
+                                << passiveMode_;
 #endif
   zMinBlock_ = nArgs["zMinBlock"];
   waferSize_ = nArgs["waferSize"];
@@ -694,15 +695,18 @@ void DDHGCalMixRotatedFineCassette::positionMix(const DDLogicalPart& glog,
     for (int k = 0; k < cassettes_; ++k) {
       int cassette = k + 1;
       auto cshift = cassette_.getShift(layer + 1, -1, cassette);
-      double xpos =-cshift.first;
+      double xpos = -cshift.first;
       double ypos = cshift.second;
       int i = layer * cassettes_ + k;
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedFineCassette::Passive: layer " << layer + 1 << " cassette " << cassette << " Shift " << cshift.first << ":" << cshift.second << " PassiveIndex " << i << ":" << passiveFull_.size() << ":" << passivePart_.size();
+      edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedFineCassette::Passive: layer " << layer + 1 << " cassette "
+                                    << cassette << " Shift " << cshift.first << ":" << cshift.second << " PassiveIndex "
+                                    << i << ":" << passiveFull_.size() << ":" << passivePart_.size();
 #endif
       std::string passive = (absType <= waferTypes_) ? passiveFull_[i] : passivePart_[i];
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedFineCassette: Passive " << passive << " number " << cassette << " pos " << xpos << ":" << ypos;
+      edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedFineCassette: Passive " << passive << " number " << cassette
+                                    << " pos " << xpos << ":" << ypos;
       kount++;
 #endif
       DDTranslation tran(xpos, ypos, 0.0);
@@ -710,11 +714,13 @@ void DDHGCalMixRotatedFineCassette::positionMix(const DDLogicalPart& glog,
       DDName name = DDName(DDSplit(passive).first, DDSplit(passive).second);
       cpv.position(name, glog.ddname(), cassette, tran, rotation);
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedFineCassette: " << name << " number " << cassette << " positioned in " << glog.ddname() << " at " << tran << " with no rotation";
+      edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedFineCassette: " << name << " number " << cassette
+                                    << " positioned in " << glog.ddname() << " at " << tran << " with no rotation";
 #endif
     }
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedFineCassette: " << kount << " passives of type " << absType << " for " << glog.ddname();
+    edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedFineCassette: " << kount << " passives of type " << absType
+                                  << " for " << glog.ddname();
 #endif
   } else {
     static const double sqrt3 = std::sqrt(3.0);
@@ -730,11 +736,11 @@ void DDHGCalMixRotatedFineCassette::positionMix(const DDLogicalPart& glog,
 #ifdef EDM_ML_DEBUG
     int ium(0), ivm(0), kount(0);
     std::vector<int> ntype(3, 0);
-    edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedFineCassette::Bottom: " << glog.ddname() << "  r " << delx << " R "
-                                  << dely << " dy " << dy << " Shift " << xyoff.first << ":" << xyoff.second
+    edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedFineCassette::Bottom: " << glog.ddname() << "  r " << delx
+                                  << " R " << dely << " dy " << dy << " Shift " << xyoff.first << ":" << xyoff.second
                                   << " WaferSize " << (waferSize_ + waferSepar_) << " index " << firstWafer << ":"
 
-				  << (lastWafer - 1) << " Copy " << copyM << ":" << layer;
+                                  << (lastWafer - 1) << " Copy " << copyM << ":" << layer;
 #endif
     for (int k = firstWafer; k < lastWafer; ++k) {
       int u = HGCalWaferIndex::waferU(waferIndex_[k]);
@@ -751,7 +757,10 @@ void DDHGCalMixRotatedFineCassette::positionMix(const DDLogicalPart& glog,
       int cassette = HGCalProperty::waferCassette(waferProperty_[k]);
       int place = HGCalCell::cellPlacementIndex(1, layertype, orien);
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedFineCassette::index:Property:layertype:type:part:orien:cassette:place:offsets:ind " << k << ":" << waferProperty_[k] << ":" << layertype << ":" << type << ":" << part << ":" << orien << ":" << cassette << ":" << place;
+      edm::LogVerbatim("HGCalGeom")
+          << "DDHGCalMixRotatedFineCassette::index:Property:layertype:type:part:orien:cassette:place:offsets:ind " << k
+          << ":" << waferProperty_[k] << ":" << layertype << ":" << type << ":" << part << ":" << orien << ":"
+          << cassette << ":" << place;
 #endif
       auto cshift = cassette_.getShift(layer + 1, -1, cassette, false);
       double xpos = xyoff.first - cshift.first + nc * delx;
@@ -760,7 +769,10 @@ void DDHGCalMixRotatedFineCassette::positionMix(const DDLogicalPart& glog,
       double xorig = xyoff.first + nc * delx;
       double yorig = xyoff.second + nr * dy;
       double angle = std::atan2(yorig, xorig);
-      edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedFineCassette::Wafer: layer " << layer + 1 << " cassette " << cassette << " Shift " << cshift.first << ":" << cshift.second << " Original " << xorig << ":" << yorig << ":" << convertRadToDeg(angle) << " Final " << xpos << ":" << ypos;
+      edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedFineCassette::Wafer: layer " << layer + 1 << " cassette "
+                                    << cassette << " Shift " << cshift.first << ":" << cshift.second << " Original "
+                                    << xorig << ":" << yorig << ":" << convertRadToDeg(angle) << " Final " << xpos
+                                    << ":" << ypos;
 #endif
       std::string wafer;
       int i(999);
@@ -786,7 +798,10 @@ void DDHGCalMixRotatedFineCassette::positionMix(const DDLogicalPart& glog,
       }
       int copy = HGCalTypes::packTypeUV(type, u, v);
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << " DDHGCalMixRotatedFineCassette: Layer " << HGCalWaferIndex::waferLayer(waferIndex_[k]) << " Wafer " << wafer << " number " << copy << " type :part:orien:ind " << type << ":" << part << ":" << orien << ":" << i << " layer:u:v " << (layer + firstFineLayer_) << ":" << u << ":" << v;
+      edm::LogVerbatim("HGCalGeom") << " DDHGCalMixRotatedFineCassette: Layer "
+                                    << HGCalWaferIndex::waferLayer(waferIndex_[k]) << " Wafer " << wafer << " number "
+                                    << copy << " type :part:orien:ind " << type << ":" << part << ":" << orien << ":"
+                                    << i << " layer:u:v " << (layer + firstFineLayer_) << ":" << u << ":" << v;
       if (iu > ium)
         ium = iu;
       if (iv > ivm)
@@ -800,11 +815,15 @@ void DDHGCalMixRotatedFineCassette::positionMix(const DDLogicalPart& glog,
       cpv.position(name, glog.ddname(), copy, tran, rot);
 #ifdef EDM_ML_DEBUG
       ++ntype[type];
-      edm::LogVerbatim("HGCalGeom") << " DDHGCalMixRotatedFineCassette: " << name << " number " << copy << " type " << layertype << ":" << type << " positioned in " << glog.ddname() << " at " << tran << " with no rotation";
+      edm::LogVerbatim("HGCalGeom") << " DDHGCalMixRotatedFineCassette: " << name << " number " << copy << " type "
+                                    << layertype << ":" << type << " positioned in " << glog.ddname() << " at " << tran
+                                    << " with no rotation";
 #endif
     }
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedFineCassette: Maximum # of u " << ium << " # of v " << ivm << " and " << kount << " wafers (" << ntype[0] << ":" << ntype[1] << ":" << ntype[2] << ") for " << glog.ddname();
+    edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedFineCassette: Maximum # of u " << ium << " # of v " << ivm
+                                  << " and " << kount << " wafers (" << ntype[0] << ":" << ntype[1] << ":" << ntype[2]
+                                  << ") for " << glog.ddname();
 #endif
   }
 }
