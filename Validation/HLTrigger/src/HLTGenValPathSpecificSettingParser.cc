@@ -21,7 +21,9 @@ HLTGenValPathSpecificSettingParser::HLTGenValPathSpecificSettingParser(std::stri
     }
     if (pathSpecificSettingSeglist.size() != 2)
       throw cms::Exception("InputError") << "Path-specific cuts could not be parsed. Make sure that each parameter "
-                                            "contains exactly one equal sign!.\n";
+                                            "contains exactly one equal sign!.\nCuts were \n"
+                                         << pathSpecificSetting << "\nall cuts\n"
+                                         << pathSpecificSettings;
     const std::string cutVariable = pathSpecificSettingSeglist.at(0);
     const std::string cutParameter = pathSpecificSettingSeglist.at(1);
 
@@ -45,6 +47,9 @@ HLTGenValPathSpecificSettingParser::HLTGenValPathSpecificSettingParser(std::stri
     } else if (cutVariable == "etMin" || cutVariable == "etCut") {
       rangeCutConfig.addParameter<std::string>("rangeVar", "et");
       rangeCutConfig.addParameter<std::vector<std::string>>("allowedRanges", {cutParameter + ":999999"});
+    } else if (cutVariable == "minMass") {
+      rangeCutConfig.addParameter<std::string>("rangeVar", "mass");
+      rangeCutConfig.addParameter<std::vector<std::string>>("allowedRanges", {cutParameter + ":999999"});
     } else if (cutVariable == "region") {
       rangeCutConfig.addParameter<std::string>("rangeVar", "eta");
 
@@ -61,7 +66,9 @@ HLTGenValPathSpecificSettingParser::HLTGenValPathSpecificSettingParser(std::stri
         if (region == "EB") {
           rangeCutConfig.addParameter<std::vector<std::string>>("allowedRanges", {"-1.4442:1.4442"});
         } else if (region == "EE") {
-          rangeCutConfig.addParameter<std::vector<std::string>>("allowedRanges", {"-999:-1.5660", "1.5660:999"});
+          rangeCutConfig.addParameter<std::vector<std::string>>("allowedRanges", {"-2.5:-1.5660", "1.5660:2.5"});
+        } else if (region == "EEFull") {
+          rangeCutConfig.addParameter<std::vector<std::string>>("allowedRanges", {"-3.0:-1.5660", "1.5660:3.0"});
         } else {
           throw cms::Exception("InputError") << "Region " + region + " not recognized.\n";
         }
