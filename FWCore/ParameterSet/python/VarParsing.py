@@ -413,7 +413,7 @@ class VarParsing (object):
             # if it's a list, we only want to use the default if it
             # does exist.
             if (mytype in [VarParsing.varType.bool, VarParsing.varType.int, VarParsing.varType.float] and \
-               default != "") or len (default): # check type to prevent TypeError for bool/int/float defaults
+               default not in ["",[]]) or len (default): # check type to prevent TypeError for bool/int/float defaults
                 self._lists[name].append (default) # known bug: default can be list
         #######################################
         ## Process any additional directives ##
