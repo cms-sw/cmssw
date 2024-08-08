@@ -88,7 +88,7 @@ The offsets currently in use are:
 * 0.999: 0.99 with Phase-2 premixing with PU50
 * 0.9821: Production-like premixing stage2
 * 0.9921: Production-like premixing stage1+stage2
-* 0.911: DD4hep reading geometry from XML
+* 0.911: DD4hep reading geometry from XML 
 * 0.912: DD4hep reading geometry from the DB
 * 0.914: DDD DB
 * 0.101: Phase-2 aging, 1000fb-1
