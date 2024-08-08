@@ -1,9 +1,30 @@
-<use name="FWCore/Framework"/>
-<use name="FWCore/Utilities"/>
-<use name="Geometry/Records"/>
-<use name="SimCalorimetry/HGCalSimProducers"/>
-<use name="SimDataFormats/CaloTest"/>
-<use name="SimGeneral/MixingModule"/>
-<use name="SimGeneral/PreMixingModule"/>
-<use name="root"/>
-<flags EDM_PLUGIN="1"/>
+<!-- host-only plugins -->
+<library file="*.cc" name="SimCalorimetryHGCalSimProducersPlugins">
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/Utilities"/>
+  <use name="Geometry/Records"/>
+  <use name="CondFormats/HGCalObjects"/>
+  <use name="SimCalorimetry/HGCalSimProducers"/>
+  <use name="SimDataFormats/CaloTest"/>
+  <use name="SimGeneral/MixingModule"/>
+  <use name="SimGeneral/PreMixingModule"/>
+  <use name="DataFormats/HGCalDigi"/>
+  <use name="root"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<!-- alpaka-based portable plugins -->
+<library file="alpaka/*.cc" name="SimCalorimetryHGCalSimProducersPluginsPortable">
+  <use name="alpaka"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="Geometry/Records"/>
+  <use name="Geometry/HGCalMapping"/>
+  <use name="DataFormats/ForwardDetId"/>
+  <use name="CondFormats/DataRecord"/>
+  <use name="CondFormats/HGCalObjects"/>
+  <use name="HeterogeneousCore/AlpakaCore"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <flags ALPAKA_BACKENDS="1"/>
+  <flags EDM_PLUGIN="1"/>
+</library>

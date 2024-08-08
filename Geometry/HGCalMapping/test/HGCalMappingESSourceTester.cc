@@ -16,9 +16,10 @@
 // #include "HeterogeneousCore/AlpakaInterface/interface/CopyToDevice.h"
 
 #include "CondFormats/DataRecord/interface/HGCalElectronicsMappingRcd.h"
+#include "CondFormats/DataRecord/interface/HGCalDenseIndexInfoRcd.h"
 #include "CondFormats/HGCalObjects/interface/HGCalMappingModuleIndexer.h"
 #include "CondFormats/HGCalObjects/interface/HGCalMappingCellIndexer.h"
-#include "CondFormats/HGCalObjects/interface/HGCalMappingParameterHostCollection.h"
+#include "CondFormats/HGCalObjects/interface/HGCalMappingParameterHost.h"
 #include "Geometry/HGCalMapping/interface/HGCalMappingTools.h"
 
 namespace {
@@ -37,8 +38,8 @@ class HGCalMappingESSourceTester : public edm::one::EDAnalyzer<> {
 public:
   explicit HGCalMappingESSourceTester(const edm::ParameterSet&);
   static void fillDescriptions(edm::ConfigurationDescriptions&);
-  std::map<uint32_t, uint32_t> mapGeoToElectronics(const hgcal::HGCalMappingModuleParamHostCollection& modules,
-                                                   const hgcal::HGCalMappingCellParamHostCollection& cells,
+  std::map<uint32_t, uint32_t> mapGeoToElectronics(const hgcal::HGCalMappingModuleParamHost& modules,
+                                                   const hgcal::HGCalMappingCellParamHost& cells,
                                                    bool geo2ele,
                                                    bool sipm);
 
@@ -47,14 +48,19 @@ private:
 
   edm::ESWatcher<HGCalElectronicsMappingRcd> cfgWatcher_;
   edm::ESGetToken<HGCalMappingCellIndexer, HGCalElectronicsMappingRcd> cellIndexTkn_;
-  edm::ESGetToken<hgcal::HGCalMappingCellParamHostCollection, HGCalElectronicsMappingRcd> cellTkn_;
+  edm::ESGetToken<hgcal::HGCalMappingCellParamHost, HGCalElectronicsMappingRcd> cellTkn_;
   edm::ESGetToken<HGCalMappingModuleIndexer, HGCalElectronicsMappingRcd> moduleIndexTkn_;
-  edm::ESGetToken<hgcal::HGCalMappingModuleParamHostCollection, HGCalElectronicsMappingRcd> moduleTkn_;
+  edm::ESGetToken<hgcal::HGCalMappingModuleParamHost, HGCalElectronicsMappingRcd> moduleTkn_;
+  edm::ESGetToken<hgcal::HGCalDenseIndexInfoHost, HGCalDenseIndexInfoRcd> denseIndexTkn_;
 };
 
 //
 HGCalMappingESSourceTester::HGCalMappingESSourceTester(const edm::ParameterSet& iConfig)
-    : cellIndexTkn_(esConsumes()), cellTkn_(esConsumes()), moduleIndexTkn_(esConsumes()), moduleTkn_(esConsumes()) {}
+    : cellIndexTkn_(esConsumes()),
+      cellTkn_(esConsumes()),
+      moduleIndexTkn_(esConsumes()),
+      moduleTkn_(esConsumes()),
+      denseIndexTkn_(esConsumes()) {}
 
 //
 void HGCalMappingESSourceTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -178,7 +184,7 @@ void HGCalMappingESSourceTester::analyze(const edm::Event& iEvent, const edm::Ev
       continue;
     validModules++;
     printf(
-        "\t idx=%d zside=%d isSiPM=%d plane=%d i1=%d i2=%d celltype=%d typeidx=%d fedid=%d localfedid=%d "
+        "\t idx=%d zside=%d isSiPM=%d plane=%d i1=%d i2=%d irot=%d celltype=%d typeidx=%d fedid=%d localfedid=%d "
         "captureblock=%d capturesblockidx=%d econdidx=%d eleid=0x%x detid=0x%d\n",
         i,
         imod.zside(),
@@ -186,6 +192,7 @@ void HGCalMappingESSourceTester::analyze(const edm::Event& iEvent, const edm::Ev
         imod.plane(),
         imod.i1(),
         imod.i2(),
+        imod.irot(),
         imod.celltype(),
         imod.typeidx(),
         imod.fedid(),
@@ -314,6 +321,26 @@ void HGCalMappingESSourceTester::analyze(const edm::Event& iEvent, const edm::Ev
   assert(did.layer() == modules.view()[modidx].plane());
   assert(did.cellU() == cells.view()[cellidx].i1());
   assert(did.cellV() == cells.view()[cellidx].i2());
+
+  //test dense index token
+  auto const& denseIndexInfo = iSetup.getData(denseIndexTkn_);
+  printf("Retrieved %d dense index info\n", denseIndexInfo.view().metadata().size());
+  int nindices = denseIndexInfo.view().metadata().size();
+  printf("fedId fedReadoutSeq detId eleid modix cellidx channel x y z");
+  for (int i = 0; i < nindices; i++) {
+    auto row = denseIndexInfo.view()[i];
+    printf("%d %d 0x%x 0x%x %d %d %d %f %f %f\n",
+           row.fedId(),
+           row.fedReadoutSeq(),
+           row.detid(),
+           row.eleid(),
+           row.modInfoIdx(),
+           row.cellInfoIdx(),
+           row.chNumber(),
+           row.x(),
+           row.y(),
+           row.z());
+  }
 }
 
 //
@@ -324,8 +351,8 @@ void HGCalMappingESSourceTester::fillDescriptions(edm::ConfigurationDescriptions
 
 //
 std::map<uint32_t, uint32_t> HGCalMappingESSourceTester::mapGeoToElectronics(
-    const hgcal::HGCalMappingModuleParamHostCollection& modules,
-    const hgcal::HGCalMappingCellParamHostCollection& cells,
+    const hgcal::HGCalMappingModuleParamHost& modules,
+    const hgcal::HGCalMappingCellParamHost& cells,
     bool geo2ele,
     bool sipm) {
   //loop over different modules
@@ -366,14 +393,6 @@ std::map<uint32_t, uint32_t> HGCalMappingESSourceTester::mapGeoToElectronics(
       if (jcell.t() != 1)
         continue;
 
-      // uint32_t elecid = ::hgcal::mappingtools::getElectronicsId(imod.zside(),
-      //                                                         imod.fedid(),
-      //                                                         imod.captureblockidx(),
-      //                                                         imod.econdidx(),
-      //                                                         jcell.chip(),
-      //                                                         jcell.half(),
-      //                                                         jcell.seq());
-
       uint32_t elecid = imod.eleid() + jcell.eleid();
 
       uint32_t geoid(0);
@@ -382,14 +401,6 @@ std::map<uint32_t, uint32_t> HGCalMappingESSourceTester::mapGeoToElectronics(
         geoid = ::hgcal::mappingtools::getSiPMDetId(
             imod.zside(), imod.plane(), imod.i2(), imod.celltype(), jcell.i1(), jcell.i2());
       } else {
-        // geoid = ::hgcal::mappingtools::getSiDetId(imod.zside(),
-        //                                         imod.plane(),
-        //                                         imod.i1(),
-        //                                         imod.i2(),
-        //                                         imod.celltype(),
-        //                                         jcell.i1(),
-        //                                         jcell.i2());
-
         geoid = imod.detid() + jcell.detid();
       }
 
