@@ -1,0 +1,9 @@
+<bin file="alpaka/testParabolicParametrizedMagneticField.cc">
+  <use name="alpaka"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <use name="eigen"/>
+  <use name="DataFormats/GeometryVector"/>
+  <use name="FWCore/Utilities"/>
+  <use name="CLHEP"/>
+  <flags ALPAKA_BACKENDS="1"/>
+</bin>
