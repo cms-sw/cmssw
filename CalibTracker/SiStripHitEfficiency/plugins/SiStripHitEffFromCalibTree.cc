@@ -76,6 +76,7 @@
 #include "TString.h"
 #include "TStyle.h"
 #include "TTree.h"
+#include "TKey.h"
 
 // custom made printout
 #define LOGPRINT edm::LogPrint("SiStripHitEffFromCalibTree")
@@ -94,7 +95,7 @@ struct hit {
 class SiStripHitEffFromCalibTree : public ConditionDBWriter<SiStripBadStrip> {
 public:
   explicit SiStripHitEffFromCalibTree(const edm::ParameterSet&);
-  ~SiStripHitEffFromCalibTree() override = default;
+  ~SiStripHitEffFromCalibTree() override;
 
 private:
   // overridden from ConditionDBWriter
@@ -113,7 +114,7 @@ private:
   void totalStatistics();
   void makeSummary();
   void makeSummaryVsBx();
-  void computeEff(vector<TH1F*>& vhfound, vector<TH1F*>& vhtotal, string name);
+  void computeEff(vector<TH1F*>& vhfound, vector<TH1F*>& vhtotal, string name, vector<TGraphAsymmErrors*> geff);
   void makeSummaryVsLumi();
   void makeSummaryVsCM();
   TString getLayerSideName(Long_t k);
@@ -168,16 +169,16 @@ private:
   // for using events after number of tracks cut
   map<pair<unsigned int, unsigned int>, bool> event_used;
 
-  vector<hit> hits[23];
+  vector<hit> hits[::k_END_OF_LAYERS];
   vector<TH2F*> HotColdMaps;
-  map<unsigned int, pair<unsigned int, unsigned int> > modCounter[23];
-  TrackerMap* tkmap;
-  TrackerMap* tkmapbad;
-  TrackerMap* tkmapeff;
-  TrackerMap* tkmapnum;
-  TrackerMap* tkmapden;
-  long layerfound[23];
-  long layertotal[23];
+  map<unsigned int, pair<unsigned int, unsigned int> > modCounter[::k_END_OF_LAYERS];
+  TrackerMap* tkmap{nullptr};
+  TrackerMap* tkmapbad{nullptr};
+  TrackerMap* tkmapeff{nullptr};
+  TrackerMap* tkmapnum{nullptr};
+  TrackerMap* tkmapden{nullptr};
+  long layerfound[::k_END_OF_LAYERS];
+  long layertotal[::k_END_OF_LAYERS];
   map<unsigned int, vector<int> > layerfound_perBx;
   map<unsigned int, vector<int> > layertotal_perBx;
   vector<TH1F*> layerfound_vsLumi;
@@ -188,10 +189,15 @@ private:
   vector<TH1F*> layertotal_vsCM;
   vector<TH1F*> layerfound_vsBX;
   vector<TH1F*> layertotal_vsBX;
-  int goodlayertotal[35];
-  int goodlayerfound[35];
-  int alllayertotal[35];
-  int alllayerfound[35];
+  vector<TGraphAsymmErrors*> geff_vsBX;
+  vector<TGraphAsymmErrors*> geff_avg_vsBX;
+  vector<TGraphAsymmErrors*> geff_avg_vsLumi;
+  vector<TGraphAsymmErrors*> geff_avg_vsPU;
+  vector<TGraphAsymmErrors*> geff_avg_vsCM;
+  int goodlayertotal[::k_END_OF_LAYS_AND_RINGS];
+  int goodlayerfound[::k_END_OF_LAYS_AND_RINGS];
+  int alllayertotal[::k_END_OF_LAYS_AND_RINGS];
+  int alllayerfound[::k_END_OF_LAYS_AND_RINGS];
   map<unsigned int, double> BadModules;
 };
 
@@ -229,6 +235,87 @@ SiStripHitEffFromCalibTree::SiStripHitEffFromCalibTree(const edm::ParameterSet& 
     nTEClayers = 7;  // number of rings
 
   quality_ = new SiStripQuality(detInfo_);
+
+  layerfound_vsLumi.reserve(::k_END_OF_LAYERS);
+  layertotal_vsLumi.reserve(::k_END_OF_LAYERS);
+  layerfound_vsPU.reserve(::k_END_OF_LAYERS);
+  layertotal_vsPU.reserve(::k_END_OF_LAYERS);
+  layerfound_vsCM.reserve(::k_END_OF_LAYERS);
+  layertotal_vsCM.reserve(::k_END_OF_LAYERS);
+  layerfound_vsBX.reserve(::k_END_OF_LAYERS);
+  layertotal_vsBX.reserve(::k_END_OF_LAYERS);
+  geff_vsBX.reserve(::k_END_OF_LAYERS);
+  geff_avg_vsBX.reserve(::k_END_OF_LAYERS);
+  geff_avg_vsLumi.reserve(::k_END_OF_LAYERS);
+  geff_avg_vsPU.reserve(::k_END_OF_LAYERS);
+  geff_avg_vsCM.reserve(::k_END_OF_LAYERS);
+}
+
+namespace utils {
+
+  void Recursion(TFile* f1, TDirectory* target) {
+    TString path((char*)strstr(target->GetPath(), ":"));
+    path.Remove(0, 2);
+    f1->cd(path);
+    TDirectory* temp = gDirectory;
+    std::cout << "Checking initial Get Keys Here: " << temp->GetPath() << std::endl;
+
+    TIter next(temp->GetListOfKeys());
+    TKey* key;
+    while ((key = (TKey*)next())) {
+      printf("key: %s points to an object of class: %s \n", key->GetName(), key->GetClassName());
+
+      TObject* obj = key->ReadObj();
+      if (obj->IsA()->InheritsFrom(TDirectory::Class())) {
+        std::cout << "Found subdirectory " << obj->GetName() << std::endl;
+        TDirectory* subdir = (TDirectory*)obj;
+        std::cout << subdir->GetPath() << std::endl;
+        Recursion(f1, subdir);
+      } else if (obj->IsA()->InheritsFrom(TTree::Class())) {
+        std::cout << "object found" << std::endl;
+        delete obj;
+      } else {
+        std::cout << "no new directory:" << std::endl;
+      }
+    }
+  }
+}  // namespace utils
+
+SiStripHitEffFromCalibTree::~SiStripHitEffFromCalibTree() {
+  if (quality_)
+    delete quality_;
+  if (tkmap)
+    delete tkmap;
+  if (tkmapbad)
+    delete tkmapbad;
+  if (tkmapeff)
+    delete tkmapeff;
+  if (tkmapnum)
+    delete tkmapnum;
+  if (tkmapden)
+    delete tkmapden;
+
+  if (fs) {
+    auto& tFile = fs->file();
+    //tFile.Print(); // Print information about the file
+    edm::LogPrint("") << __PRETTY_FUNCTION__ << " File Name: " << tFile.GetName() << std::endl;
+    edm::LogPrint("") << __PRETTY_FUNCTION__ << " File Title: " << tFile.GetTitle() << std::endl;
+    edm::LogPrint("") << __PRETTY_FUNCTION__ << " File Option: " << tFile.GetOption() << std::endl;
+    edm::LogPrint("") << __PRETTY_FUNCTION__ << " File Writable: " << tFile.IsWritable() << std::endl;
+    edm::LogPrint("") << __PRETTY_FUNCTION__ << " File IsZombie: " << tFile.IsZombie() << std::endl;
+    edm::LogPrint("") << __PRETTY_FUNCTION__ << " File has inconsistent hash: " << tFile.HasInconsistentHash()
+                      << std::endl;
+
+    bool debug{false};  // the following is only used for debugging purposes
+    if (!tFile.IsZombie() && tFile.IsWritable() && debug) {
+      // Delete all objects in the file recursively
+      utils::Recursion(&tFile, &tFile);
+      edm::LogPrint("") << __PRETTY_FUNCTION__ << "done deleting" << std::endl;
+      // Write and close the file
+      tFile.Write();  // Ensure all objects are written
+      tFile.Close();
+    }
+  }
 }
 
 void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::EventSetup& c) {
@@ -272,16 +359,16 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
   instLumiHisto_cutOnTracks = fs->make<TH1F>("instLumi_cutOnTracks", "inst. lumi.", 250, 0, 25000);
   PUHisto_cutOnTracks = fs->make<TH1F>("PU_cutOnTracks", "PU", 300, 0, 300);
 
-  for (int l = 0; l < 35; l++) {
+  for (int l = 0; l < ::k_END_OF_LAYS_AND_RINGS; l++) {
     goodlayertotal[l] = 0;
     goodlayerfound[l] = 0;
     alllayertotal[l] = 0;
     alllayerfound[l] = 0;
   }
 
-  TH1F* resolutionPlots[23];
-  for (Long_t ilayer = 0; ilayer < 23; ilayer++) {
-    std::string lyrName = ::layerName(ilayer, showRings_, nTEClayers);
+  TH1F* resolutionPlots[::k_END_OF_LAYERS];
+  for (Long_t ilayer = 0; ilayer < ::k_END_OF_LAYERS; ilayer++) {
+    std::string lyrName = ::layerName(ilayer + 1, showRings_, nTEClayers);
 
     resolutionPlots[ilayer] = fs->make<TH1F>(Form("resol_layer_%i", (int)(ilayer)), lyrName.c_str(), 125, -125, 125);
     resolutionPlots[ilayer]->GetXaxis()->SetTitle("trajX-clusX [strip unit]");
@@ -300,11 +387,35 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
     layertotal_vsBX.push_back(fs->make<TH1F>(
         Form("totalVsBx_layer%i", (int)ilayer), Form("layer %i", (int)ilayer), nBxInAnOrbit_, 0, nBxInAnOrbit_));
 
+    geff_vsBX.push_back(fs->make<TGraphAsymmErrors>(nBxInAnOrbit_ - 1));
+    geff_vsBX[ilayer]->SetName(Form("effVsBx_layer%i", (int)ilayer));
+    geff_vsBX[ilayer]->SetTitle(fmt::format("Hit Efficiency vs bx - {}", lyrName).c_str());
+
+    geff_avg_vsBX.push_back(fs->make<TGraphAsymmErrors>(nBxInAnOrbit_ - 1));
+    geff_avg_vsBX[ilayer]->SetName(Form("effVsBxAvg_layer%i", (int)ilayer));
+    geff_avg_vsBX[ilayer]->SetTitle(fmt::format("Hit Efficiency vs bx - {}", lyrName).c_str());
+    geff_avg_vsBX[ilayer]->SetMarkerStyle(20);
+
+    geff_avg_vsLumi.push_back(fs->make<TGraphAsymmErrors>(99));
+    geff_avg_vsLumi[ilayer]->SetName(Form("effVsLumiAvg_layer%i", (int)ilayer));
+    geff_avg_vsLumi[ilayer]->SetTitle(fmt::format("Hit Efficiency vs inst. lumi. - {}", lyrName).c_str());
+    geff_avg_vsLumi[ilayer]->SetMarkerStyle(20);
+
+    geff_avg_vsPU.push_back(fs->make<TGraphAsymmErrors>(44));
+    geff_avg_vsPU[ilayer]->SetName(Form("effVsPUAvg_layer%i", (int)ilayer));
+    geff_avg_vsPU[ilayer]->SetTitle(fmt::format("Hit Efficiency vs pileup - {}", lyrName).c_str());
+    geff_avg_vsPU[ilayer]->SetMarkerStyle(20);
+
     if (useCM_) {
       layerfound_vsCM.push_back(
           fs->make<TH1F>(Form("layerfound_vsCM_layer_%i", (int)(ilayer)), lyrName.c_str(), 20, 0, 400));
       layertotal_vsCM.push_back(
           fs->make<TH1F>(Form("layertotal_vsCM_layer_%i", (int)(ilayer)), lyrName.c_str(), 20, 0, 400));
+
+      geff_avg_vsCM.push_back(fs->make<TGraphAsymmErrors>(19));
+      geff_avg_vsCM[ilayer]->SetName(Form("effVsCMAvg_layer%i", (int)ilayer));
+      geff_avg_vsCM[ilayer]->SetTitle(fmt::format("Hit Efficiency vs common Mode - {}", lyrName).c_str());
+      geff_avg_vsCM[ilayer]->SetMarkerStyle(20);
     }
     layertotal[ilayer] = 0;
     layerfound[ilayer] = 0;
@@ -548,7 +659,7 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
         }
       }
 
-      if (!badquality && layer < 23) {
+      if (!badquality && layer < ::k_END_OF_LAYERS) {
         if (resxsig != 1000.0)
           resolutionPlots[layer]->Fill(stripTrajMid - stripCluster);
         else
@@ -610,8 +721,8 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
         }
 
         if (layerfound_perBx.find(bx) == layerfound_perBx.end()) {
-          layerfound_perBx[bx] = vector<int>(23, 0);
-          layertotal_perBx[bx] = vector<int>(23, 0);
+          layerfound_perBx[bx] = vector<int>(::k_END_OF_LAYERS, 0);
+          layertotal_perBx[bx] = vector<int>(::k_END_OF_LAYERS, 0);
         }
         if (!badflag)
           layerfound_perBx[bx][layer]++;
@@ -685,6 +796,9 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
       }
       //At this point, both of our maps are loaded with the correct information
     }
+    // once we're done close the bloody file
+    CalibTreeFile->Close();
+    delete CalibTreeFile;
   }  // go to next CalibTreeFile
 
   makeHotColdMaps();
@@ -1447,7 +1561,7 @@ void SiStripHitEffFromCalibTree::makeSummaryVsBx() {
   if (showRings_)
     nLayers = 20;
 
-  for (unsigned int ilayer = 1; ilayer < nLayers; ilayer++) {
+  for (unsigned int ilayer = 0; ilayer <= nLayers; ilayer++) {
     for (unsigned int ibx = 0; ibx <= nBxInAnOrbit_; ibx++) {
       layerfound_vsBX[ilayer]->SetBinContent(ibx, 1e-6);
       layertotal_vsBX[ilayer]->SetBinContent(ibx, 1);
@@ -1465,17 +1579,9 @@ void SiStripHitEffFromCalibTree::makeSummaryVsBx() {
     layerfound_vsBX[ilayer]->Sumw2();
     layertotal_vsBX[ilayer]->Sumw2();
 
-    TGraphAsymmErrors* geff = fs->make<TGraphAsymmErrors>(nBxInAnOrbit_ - 1);
-    geff->SetName(Form("effVsBx_layer%i", ilayer));
-
-    geff->SetTitle(fmt::format("Hit Efficiency vs bx - {}", ::layerName(ilayer, showRings_, nTEClayers)).c_str());
-    geff->BayesDivide(layerfound_vsBX[ilayer], layertotal_vsBX[ilayer]);
+    geff_vsBX[ilayer]->BayesDivide(layerfound_vsBX[ilayer], layertotal_vsBX[ilayer]);
 
     //Average over trains
-    TGraphAsymmErrors* geff_avg = fs->make<TGraphAsymmErrors>();
-    geff_avg->SetName(Form("effVsBxAvg_layer%i", ilayer));
-    geff_avg->SetTitle(fmt::format("Hit Efficiency vs bx - {}", ::layerName(ilayer, showRings_, nTEClayers)).c_str());
-    geff_avg->SetMarkerStyle(20);
     int ibx = 0;
     int previous_bx = -80;
     int delta_bx = 0;
@@ -1493,10 +1599,11 @@ void SiStripHitEffFromCalibTree::makeSummaryVsBx() {
       if (delta_bx > (int)spaceBetweenTrains_ && nbx > 0 && total > 0) {
         eff = found / (float)total;
         //LOGPRINT<<"new train "<<ipt<<" "<<sum_bx/nbx<<" "<<eff<<endl;
-        geff_avg->SetPoint(ipt, sum_bx / nbx, eff);
+        geff_avg_vsBX[ilayer]->SetPoint(ipt, sum_bx / nbx, eff);
         low = TEfficiency::Bayesian(total, found, .683, 1, 1, false);
         up = TEfficiency::Bayesian(total, found, .683, 1, 1, true);
-        geff_avg->SetPointError(ipt, sum_bx / nbx - firstbx, previous_bx - sum_bx / nbx, eff - low, up - eff);
+        geff_avg_vsBX[ilayer]->SetPointError(
+            ipt, sum_bx / nbx - firstbx, previous_bx - sum_bx / nbx, eff - low, up - eff);
         ipt++;
         sum_bx = 0;
         found = 0;
@@ -1514,14 +1621,17 @@ void SiStripHitEffFromCalibTree::makeSummaryVsBx() {
     //last train
     eff = found / (float)total;
     //LOGPRINT<<"new train "<<ipt<<" "<<sum_bx/nbx<<" "<<eff<<endl;
-    geff_avg->SetPoint(ipt, sum_bx / nbx, eff);
+    geff_avg_vsBX[ilayer]->SetPoint(ipt, sum_bx / nbx, eff);
     low = TEfficiency::Bayesian(total, found, .683, 1, 1, false);
     up = TEfficiency::Bayesian(total, found, .683, 1, 1, true);
-    geff_avg->SetPointError(ipt, sum_bx / nbx - firstbx, previous_bx - sum_bx / nbx, eff - low, up - eff);
+    geff_avg_vsBX[ilayer]->SetPointError(ipt, sum_bx / nbx - firstbx, previous_bx - sum_bx / nbx, eff - low, up - eff);
   }
 }
 
-void SiStripHitEffFromCalibTree::computeEff(vector<TH1F*>& vhfound, vector<TH1F*>& vhtotal, string name) {
+void SiStripHitEffFromCalibTree::computeEff(vector<TH1F*>& vhfound,
+                                            vector<TH1F*>& vhtotal,
+                                            string name,
+                                            vector<TGraphAsymmErrors*> geff) {
   unsigned int nLayers = siStripLayers_;
   if (showRings_)
     nLayers = 20;
@@ -1529,7 +1639,7 @@ void SiStripHitEffFromCalibTree::computeEff(vector<TH1F*>& vhfound, vector<TH1F*
   TH1F* hfound;
   TH1F* htotal;
 
-  for (unsigned int ilayer = 1; ilayer < nLayers; ilayer++) {
+  for (unsigned int ilayer = 0; ilayer <= nLayers; ilayer++) {
     hfound = vhfound[ilayer];
     htotal = vhtotal[ilayer];
 
@@ -1544,18 +1654,7 @@ void SiStripHitEffFromCalibTree::computeEff(vector<TH1F*>& vhfound, vector<TH1F*
         htotal->SetBinContent(i, 1);
     }
 
-    TGraphAsymmErrors* geff = fs->make<TGraphAsymmErrors>(hfound->GetNbinsX());
-    geff->SetName(Form("%s_layer%i", name.c_str(), ilayer));
-    geff->BayesDivide(hfound, htotal);
-    if (name == "effVsLumi")
-      geff->SetTitle(
-          fmt::format("Hit Efficiency vs inst. lumi. - {}", ::layerName(ilayer, showRings_, nTEClayers)).c_str());
-    if (name == "effVsPU")
-      geff->SetTitle(fmt::format("Hit Efficiency vs pileup - {}", ::layerName(ilayer, showRings_, nTEClayers)).c_str());
-    if (name == "effVsCM")
-      geff->SetTitle(
-          fmt::format("Hit Efficiency vs common Mode - {}", ::layerName(ilayer, showRings_, nTEClayers)).c_str());
-    geff->SetMarkerStyle(20);
+    geff[ilayer]->BayesDivide(hfound, htotal);
   }
 }
 
@@ -1578,7 +1677,7 @@ void SiStripHitEffFromCalibTree::makeSummaryVsLumi() {
     float avgPU = 0;
 
     LOGPRINT << "Lumi summary:  (avg over trajectory measurements)";
-    for (unsigned int ilayer = 1; ilayer < nLayers; ilayer++) {
+    for (unsigned int ilayer = 0; ilayer <= nLayers; ilayer++) {
       layerLumi = layertotal_vsLumi[ilayer]->GetMean();
       layerPU = layertotal_vsPU[ilayer]->GetMean();
       //LOGPRINT<<" layer "<<ilayer<<"  lumi: "<<layerLumi<<"  pu: "<<layerPU<<endl;
@@ -1593,13 +1692,13 @@ void SiStripHitEffFromCalibTree::makeSummaryVsLumi() {
     LOGPRINT << "Avg conditions:   lumi :" << avgLumi << "  pu: " << avgPU;
   }
 
-  computeEff(layerfound_vsLumi, layertotal_vsLumi, "effVsLumi");
-  computeEff(layerfound_vsPU, layertotal_vsPU, "effVsPU");
+  computeEff(layerfound_vsLumi, layertotal_vsLumi, "effVsLumi", geff_avg_vsLumi);
+  computeEff(layerfound_vsPU, layertotal_vsPU, "effVsPU", geff_avg_vsPU);
 }
 
 void SiStripHitEffFromCalibTree::makeSummaryVsCM() {
   LOGPRINT << "Computing efficiency vs CM";
-  computeEff(layerfound_vsCM, layertotal_vsCM, "effVsCM");
+  computeEff(layerfound_vsCM, layertotal_vsCM, "effVsCM", geff_avg_vsCM);
 }
 
 TString SiStripHitEffFromCalibTree::getLayerSideName(Long_t k) {
