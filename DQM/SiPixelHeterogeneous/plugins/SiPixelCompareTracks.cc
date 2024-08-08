@@ -299,7 +299,7 @@ void SiPixelCompareTracks<T>::bookHistograms(DQMStore::IBooker& iBook,
   hCharge_ = iBook.book2I("charge",fmt::sprintf("%s;Reference;Target",toRep),3, -1.5, 1.5, 3, -1.5, 1.5);
 
   hpt_ = iBook.book2I("pt", "Track (quality #geq loose) p_{T} [GeV];Reference;Target", 200, 0., 200., 200, 0., 200.);
-  hCurvature_ = iBook.book2I("curvature", "Track (quality #geq loose) q/p_{T} [GeV^{-1}];Reference;Target",  60,- 30, 30., 60, -30, 30 );
+  hCurvature_ = iBook.book2I("curvature", "Track (quality #geq loose) q/p_{T} [GeV^{-1}];Reference;Target",  60,- 3., 3., 60, -3., 3. );
   hptLogLog_ = make2DIfLog(iBook, true, true, "ptLogLog", "Track (quality #geq loose) p_{T} [GeV];Reference;Target", 200, log10(0.5), log10(200.), 200, log10(0.5), log10(200.));
   heta_ = iBook.book2I("eta", "Track (quality #geq loose) #eta;Reference;Target", 30, -3., 3., 30, -3., 3.);
   hphi_ = iBook.book2I("phi", "Track (quality #geq loose) #phi;Reference;Target", 30, -M_PI, M_PI, 30, -M_PI, M_PI);
@@ -308,7 +308,7 @@ void SiPixelCompareTracks<T>::bookHistograms(DQMStore::IBooker& iBook,
 
   //1D difference plots
   hptdiffMatched_ = iBook.book1D("ptdiffmatched", " p_{T} diff [GeV] between matched tracks; #Delta p_{T} [GeV]", 61, -30.5, 30.5);
-  hCurvdiffMatched_ = iBook.book1D("curvdiffmatched", "q/p_{T} diff [GeV] between matched tracks; #Delta q/p_{T} [GeV]", 61, -30.5, 30.5);
+  hCurvdiffMatched_ = iBook.book1D("curvdiffmatched", "q/p_{T} diff [GeV^{-1}] between matched tracks; #Delta q/p_{T} [GeV^{-1}]", 61, -3.05, 3.05);
   hetadiffMatched_ = iBook.book1D("etadiffmatched", " #eta diff between matched tracks; #Delta #eta", 161, -0.045 ,0.045);
   hphidiffMatched_ = iBook.book1D("phidiffmatched", " #phi diff between matched tracks; #Delta #phi",  161, -0.045 ,0.045);
   hzdiffMatched_ = iBook.book1D("zdiffmatched", " z diff between matched tracks; #Delta z [cm]", 301, -1.55, 1.55);
