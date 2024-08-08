@@ -109,7 +109,7 @@ DisplacedVertexProducer::DisplacedVertexProducer(const edm::ParameterSet& iConfi
       trackToken_(consumes<std::vector<TTTrack<Ref_Phase2TrackerDigi_>>>(
           iConfig.getParameter<edm::InputTag>("l1TracksInputTag"))),
       outputTrackCollectionName_(iConfig.getParameter<std::string>("l1TrackVertexCollectionName")),
-      ONNXmodel_(iConfig.getParameter<std::string>("ONNXmodel")),
+      ONNXmodel_(iConfig.getParameter<edm::FileInPath>("ONNXmodel")),
       ONNXInputName_(iConfig.getParameter<std::string>("ONNXInputName")),
       cutSet_(iConfig.getParameter<edm::ParameterSet>("cutSet")),
       chi2rzMax_(cutSet_.getParameter<double>("chi2rzMax")),
@@ -127,7 +127,7 @@ DisplacedVertexProducer::DisplacedVertexProducer(const edm::ParameterSet& iConfi
       barrelD0Min_(cutSet_.getParameter<double>("barrelD0Min")) {
   //--- Define EDM output to be written to file (if required)
   produces<l1t::DisplacedTrackVertexCollection>(outputTrackCollectionName_);
-  runTime_ = std::make_unique<cms::Ort::ONNXRuntime>(this->ONNXmodel_);
+  runTime_ = std::make_unique<cms::Ort::ONNXRuntime>(this->ONNXmodel_.fullPath());
 }
 
 void DisplacedVertexProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {

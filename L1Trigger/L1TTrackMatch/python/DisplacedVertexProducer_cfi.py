@@ -4,7 +4,8 @@ DisplacedVertexProducer = cms.EDProducer('DisplacedVertexProducer',
   l1TracksInputTag = cms.InputTag("l1tTTTracksFromExtendedTrackletEmulation", "Level1TTTracks"),
   l1TrackVertexCollectionName = cms.string("dispVertices"),
   mcTruthTrackInputTag = cms.InputTag("TTTrackAssociatorFromPixelDigisExtended", "Level1TTTracks"),
-  ONNXmodel = cms.string("/afs/cern.ch/user/r/rmccarth/private/dispVert/l1tOfflinePR/CMSSW_14_0_0_pre3/src/L1Trigger/L1TTrackMatch/test/dispVertSlim_model.onnx"),
+  # The ONNX model should be found at this path, if you want a local version of the model:                                                                                                                          # git clone https://github.com/cms-data/L1Trigger-L1TTrackMatch.git L1Trigger/L1TTrackMatch/data
+  ONNXmodel = cms.FileInPath("L1Trigger/L1TTrackMatch/data/DisplacedVertexingModel.onnx"),
   ONNXInputName = cms.string("feature_input"),
   cutSet = cms.PSet(
       chi2rzMax = cms.double(3.0), # chi2rz value for all tracks must be less than this

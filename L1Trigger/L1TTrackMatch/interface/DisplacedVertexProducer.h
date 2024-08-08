@@ -211,7 +211,7 @@ private:
   const edm::EDGetTokenT<std::vector<TTTrack<Ref_Phase2TrackerDigi_>>> trackToken_;
   const std::string outputTrackCollectionName_;
   const std::string qualityAlgorithm_;
-  const std::string ONNXmodel_;
+  const edm::FileInPath ONNXmodel_;
   const std::string ONNXInputName_;
   const edm::ParameterSet cutSet_;
   const double chi2rzMax_, dispMVAMin_, promptMVAMin_, ptMin_, etaMax_, dispD0Min_, promptMVADispTrackMin_,
