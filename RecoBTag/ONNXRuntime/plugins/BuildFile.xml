@@ -1,10 +1,13 @@
 <use name="FWCore/Framework"/>
+<use name="FWCore/Utilities"/>
 <library file="*.cc" name="RecoBTagONNXRuntimePlugins">
   <use name="json"/>
   <use name="DataFormats/BTauReco"/>
-  <use name="PhysicsTools/ONNXRuntime"/>
+  <use name="DataFormats/PatCandidates"/>
+  <use name="DataFormats/NanoAOD"/>
   <use name="RecoBTag/FeatureTools"/>
   <use name="RecoBTag/ONNXRuntime"/>
   <use name="HeterogeneousCore/SonicTriton"/>
+  <use name="Rivet"/>
   <flags EDM_PLUGIN="1"/>
 </library>
