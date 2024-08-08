@@ -96,6 +96,9 @@ The offsets currently in use are:
 * 0.103: Phase-2 aging, 3000fb-1
 * 0.201: HGCAL special TICL Pattern recognition Workflows: clue3D
 * 0.202: HGCAL special TICL Pattern recognition Workflows: FastJet
+* 0.203: HGCAL TICLv5
+* 0.204: HGCAL superclustering : using Mustache in TICLv5
+* 0.205: HGCAL superclustering : using old PFCluster-based Mustache algorithm with TICLv5
 * 0.302: FastSim Run-3 trackingOnly validation
 * 0.303: FastSim Run-3 MB for mixing
 * 0.9001: Sonic Triton

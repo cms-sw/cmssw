@@ -11,8 +11,10 @@ namespace ticl {
 
   class TracksterLinkingPassthrough : public TracksterLinkingAlgoBase {
   public:
-    TracksterLinkingPassthrough(const edm::ParameterSet& conf, edm::ConsumesCollector iC)
-        : TracksterLinkingAlgoBase(conf, iC) {}
+    TracksterLinkingPassthrough(const edm::ParameterSet& conf,
+                                edm::ConsumesCollector iC,
+                                cms::Ort::ONNXRuntime const* onnxRuntime = nullptr)
+        : TracksterLinkingAlgoBase(conf, iC, onnxRuntime) {}
 
     ~TracksterLinkingPassthrough() override {}
 
@@ -20,7 +22,6 @@ namespace ticl {
                         std::vector<Trackster>& resultTracksters,
                         std::vector<std::vector<unsigned int>>& linkedResultTracksters,
                         std::vector<std::vector<unsigned int>>& linkedTracksterIdToInputTracksterId) override;
-
     void initialize(const HGCalDDDConstants* hgcons,
                     const hgcal::RecHitTools rhtools,
                     const edm::ESHandle<MagneticField> bfieldH,

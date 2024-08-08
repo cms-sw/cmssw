@@ -1,5 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
+from Configuration.ProcessModifiers.ticl_v5_cff import ticl_v5
+from Configuration.ProcessModifiers.ticl_superclustering_mustache_ticl_cff import ticl_superclustering_mustache_ticl
+
 tracksterSimTracksterAssociationLinking = cms.EDProducer("TSToSimTSHitLCAssociatorEDProducer",
     associator = cms.InputTag('simTracksterHitLCAssociatorByEnergyScoreProducer'),
     label_tst = cms.InputTag("ticlTrackstersMerge"),
@@ -37,6 +40,29 @@ tracksterSimTracksterAssociationPRbyCLUE3D = cms.EDProducer("TSToSimTSHitLCAssoc
     label_cp = cms.InputTag("mix","MergedCaloTruth"),
 )
 
+tracksterSimTracksterAssociationLinkingSuperclustering = cms.EDProducer("TSToSimTSHitLCAssociatorEDProducer",
+    associator = cms.InputTag('simTracksterHitLCAssociatorByEnergyScoreProducer'),
+    label_tst = cms.InputTag("ticlTracksterLinksSuperclusteringDNN"),
+    label_simTst = cms.InputTag("ticlSimTracksters", "fromCPs"),
+    label_lcl = cms.InputTag("hgcalMergeLayerClusters"),
+    label_scl = cms.InputTag("mix", "MergedCaloTruth"),
+    label_cp = cms.InputTag("mix","MergedCaloTruth"),
+)
+
+tracksterSimTracksterAssociationPRSuperclustering = cms.EDProducer("TSToSimTSHitLCAssociatorEDProducer",
+    associator = cms.InputTag('simTracksterHitLCAssociatorByEnergyScoreProducer'),
+    label_tst = cms.InputTag("ticlTracksterLinksSuperclusteringDNN"),
+    label_simTst = cms.InputTag("ticlSimTracksters"),
+    label_lcl = cms.InputTag("hgcalMergeLayerClusters"),
+    label_scl = cms.InputTag("mix", "MergedCaloTruth"),
+    label_cp = cms.InputTag("mix","MergedCaloTruth"),
+)
+(ticl_v5 & ticl_superclustering_mustache_ticl).toModify(
+    tracksterSimTracksterAssociationLinkingSuperclustering, label_tst = cms.InputTag("ticlTracksterLinksSuperclusteringMustache")
+).toModify(
+    tracksterSimTracksterAssociationPRSuperclustering, label_tst = cms.InputTag("ticlTracksterLinksSuperclusteringMustache")
+)
+
 tracksterSimTracksterAssociationLinkingPU = cms.EDProducer("TSToSimTSHitLCAssociatorEDProducer",
     associator = cms.InputTag('simTracksterHitLCAssociatorByEnergyScoreProducer'),
     label_tst = cms.InputTag("ticlTrackstersMerge"),
@@ -55,7 +81,6 @@ tracksterSimTracksterAssociationPRPU = cms.EDProducer("TSToSimTSHitLCAssociatorE
     label_cp = cms.InputTag("mix","MergedCaloTruth"),
 )
 
-from Configuration.ProcessModifiers.ticl_v5_cff import ticl_v5
 ''' For future separate iterations
 ticl_v5.toModify(tracksterSimTracksterAssociationLinkingbyCLUE3D, label_tst = cms.InputTag("mergedTrackstersProducer"))
 tracksterSimTracksterAssociationLinkingbyCLUE3DEM = tracksterSimTracksterAssociationLinkingbyCLUE3D.clone(label_tst = cms.InputTag("ticlTrackstersCLUE3DEM"))

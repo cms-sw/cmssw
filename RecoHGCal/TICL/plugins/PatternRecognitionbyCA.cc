@@ -184,6 +184,7 @@ void PatternRecognitionbyCA<TILES>::makeTracksters(
                               input.layerClusters,
                               input.layerClustersTime,
                               rhtools_.getPositionLayer(rhtools_.lastLayerEE(isHFnose), isHFnose).z(),
+                              rhtools_,
                               computeLocalTime_);
 
   // run energy regression and ID
@@ -246,6 +247,7 @@ void PatternRecognitionbyCA<TILES>::makeTracksters(
                               input.layerClusters,
                               input.layerClustersTime,
                               rhtools_.getPositionLayer(rhtools_.lastLayerEE(isHFnose), isHFnose).z(),
+                              rhtools_,
                               computeLocalTime_);
 
   // run energy regression and ID

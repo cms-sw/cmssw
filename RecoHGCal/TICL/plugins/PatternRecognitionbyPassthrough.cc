@@ -53,6 +53,7 @@ void PatternRecognitionbyPassthrough<TILES>::makeTracksters(
                               input.layerClusters,
                               input.layerClustersTime,
                               rhtools_.getPositionLayer(rhtools_.lastLayerEE(false), false).z(),
+                              rhtools_,
                               false);
 
   // Log the number of tracksters created

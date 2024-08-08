@@ -361,7 +361,8 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
   assignPCAtoTracksters(*resultTrackstersMerged,
                         layerClusters,
                         layerClustersTimes,
-                        rhtools_.getPositionLayer(rhtools_.lastLayerEE()).z());
+                        rhtools_.getPositionLayer(rhtools_.lastLayerEE()).z(),
+                        rhtools_);
   energyRegressionAndID(layerClusters, tfSession_, *resultTrackstersMerged);
 
   //filling the TICLCandidates information

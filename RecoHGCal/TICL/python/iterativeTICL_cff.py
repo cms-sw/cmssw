@@ -17,6 +17,7 @@ from RecoHGCal.TICL.trackstersMergeProducer_cfi import trackstersMergeProducer a
 from RecoHGCal.TICL.tracksterSelectionTf_cfi import *
 
 from RecoHGCal.TICL.tracksterLinksProducer_cfi import tracksterLinksProducer as _tracksterLinksProducer
+from RecoHGCal.TICL.superclustering_cff import *
 from RecoHGCal.TICL.ticlCandidateProducer_cfi import ticlCandidateProducer as _ticlCandidateProducer
 
 from RecoHGCal.TICL.mtdSoAProducer_cfi import mtdSoAProducer as _mtdSoAProducer
@@ -64,7 +65,8 @@ ticlIterLabels = ["CLUE3DHigh"]
 '''
 
 ticlTracksterMergeTask = cms.Task(ticlTrackstersMerge)
-ticlTracksterLinksTask = cms.Task(ticlTracksterLinks)
+ticlTracksterLinksTask = cms.Task(ticlTracksterLinks, ticlSuperclusteringTask) 
+
 
 mergeTICLTask = cms.Task(ticlLayerTileTask
     ,ticlIterationsTask
