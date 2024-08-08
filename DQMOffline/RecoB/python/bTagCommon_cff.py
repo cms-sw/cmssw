@@ -40,13 +40,13 @@ bTagCommonBlock = cms.PSet(
         cms.PSet(
             bTagTrackIPAnalysisBlock,
             type = cms.string('CandIP'),
-            label = cms.InputTag("pfImpactParameterTagInfos"),
+            label = cms.InputTag("pfImpactParameterTagInfosPuppi"),
             folder = cms.string("IPTag")
         ),
 
         cms.PSet(
             bTagProbabilityAnalysisBlock,
-            label = cms.InputTag("pfJetProbabilityBJetTags"),
+            label = cms.InputTag("pfJetProbabilityBJetTagsPuppi"),
             folder = cms.string("JP")
         ),
 
