@@ -21,11 +21,13 @@
 #include "TH2S.h"
 #include "TH2I.h"
 #include "TH2D.h"
+#include "TH2Poly.h"
 #include "TH3F.h"
 #include "TProfile.h"
 #include "TProfile2D.h"
 #include "TObjString.h"
 #include "TAxis.h"
+#include "TGraph.h"
 
 #include <mutex>
 #include <memory>
@@ -398,6 +400,7 @@ namespace dqm::impl {
     virtual const std::string &getStringValue() const;
 
     // non-const -- thread safety and semantical issues
+    virtual void addBin(TGraph *graph);
     virtual void setBinContent(int binx, double content);
     virtual void setBinContent(int binx, int biny, double content);
     virtual void setBinContent(int binx, int biny, int binz, double content);
@@ -443,6 +446,7 @@ namespace dqm::impl {
     virtual TH2S *getTH2S();
     virtual TH2I *getTH2I();
     virtual TH2D *getTH2D();
+    virtual TH2Poly *getTH2Poly();
     virtual TH3F *getTH3F();
     virtual TProfile *getTProfile();
     virtual TProfile2D *getTProfile2D();
@@ -510,6 +514,10 @@ namespace dqm::legacy {
     using dqm::reco::MonitorElement::getTH2D;
     virtual TH2D *getTH2D() const {
       return const_cast<dqm::legacy::MonitorElement *>(this)->dqm::reco::MonitorElement::getTH2D();
+    };
+    using dqm::reco::MonitorElement::getTH2Poly;
+    virtual TH2Poly *getTH2Poly() const {
+      return const_cast<dqm::legacy::MonitorElement *>(this)->dqm::reco::MonitorElement::getTH2Poly();
     };
     using dqm::reco::MonitorElement::getTH3F;
     virtual TH3F *getTH3F() const {
