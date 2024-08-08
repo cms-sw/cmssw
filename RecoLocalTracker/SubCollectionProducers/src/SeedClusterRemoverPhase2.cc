@@ -4,6 +4,9 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+
 #include "DataFormats/Phase2TrackerCluster/interface/Phase2TrackerCluster1D.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 
@@ -35,6 +38,7 @@ class SeedClusterRemoverPhase2 : public edm::stream::EDProducer<> {
 public:
   SeedClusterRemoverPhase2(const edm::ParameterSet &iConfig);
   void produce(edm::Event &iEvent, const edm::EventSetup &iSetup) override;
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
 private:
   edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> const tTrackerGeom_;
@@ -62,8 +66,8 @@ using namespace edm;
 
 SeedClusterRemoverPhase2::SeedClusterRemoverPhase2(const ParameterSet &iConfig)
     : tTrackerGeom_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>()),
-      doOuterTracker_(iConfig.existsAs<bool>("doOuterTracker") ? iConfig.getParameter<bool>("doOuterTracker") : true),
-      doPixel_(iConfig.existsAs<bool>("doPixel") ? iConfig.getParameter<bool>("doPixel") : true),
+      doOuterTracker_(iConfig.getParameter<bool>("doOuterTracker")),
+      doPixel_(iConfig.getParameter<bool>("doPixel")),
       mergeOld_(iConfig.exists("oldClusterRemovalInfo")) {
   produces<edm::ContainerMask<edmNew::DetSetVector<SiPixelCluster> > >();
   produces<edm::ContainerMask<edmNew::DetSetVector<Phase2TrackerCluster1D> > >();
@@ -231,6 +235,13 @@ void SeedClusterRemoverPhase2::produce(Event &iEvent, const EventSetup &iSetup) 
 
   collectedOuterTrackers_.clear();
   collectedPixels_.clear();
+}
+
+void SeedClusterRemoverPhase2::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<bool>("doOuterTracker", true);
+  desc.add<bool>("doPixel", true);
+  descriptions.add("SeedClusterRemoverPhase2", desc);
 }
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"
