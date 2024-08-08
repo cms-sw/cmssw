@@ -83,3 +83,42 @@ body {
     grid-column: 1/1;
     grid-row: 9;
 }
+#jsonDropdownDiv {
+    margin-bottom: 20px;
+}
+
+#loadingSpinner {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    z-index: 9999; /* Make sure it's on top of other elements */
+    background-color: rgba(255, 255, 255, 0.8); /* Optional: background overlay */
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.spinner {
+    border: 4px solid rgba(0, 0, 0, 0.1);
+    border-radius: 50%;
+    border-top: 4px solid #3498db;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+#selectFilePrompt {
+    font-size: 16px;
+    color: #333;
+    margin: 10px 0;
+    text-align: center;
+}
+
+
