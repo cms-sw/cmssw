@@ -139,6 +139,7 @@
   <Constant name="thickEEModule1"        value="28.37*mm"/>
   <Constant name="thickEEModule2"        value="30.57*mm"/>
   <Constant name="thickEEModule3"        value="33.82*mm"/>
+  <Constant name="thickEEModule4"        value="34.82*mm"/>
   <Constant name="thickEEAbsorber1"      value="3.67*mm"/>
   <Constant name="thickEEAbsorber2"      value="5.87*mm"/>
   <Constant name="thickEEAbsorber3"      value="9.12*mm"/>
@@ -146,6 +147,21 @@
   <Constant name="nEEModule1"            value="1"/>
   <Constant name="nEEModule2"            value="8"/>
   <Constant name="nEEModule3"            value="4"/>
+  <Constant name="thickHEModule1"        value="67.80*mm"/>
+  <Constant name="thickHEModule2"        value="63.05*mm"/>
+  <Constant name="thickHEModule3"        value="82.25*mm"/>
+  <Constant name="thickHEAbsorber1"      value="45.0*mm"/>
+  <Constant name="thickHEAbsorber2"      value="41.5*mm"/>
+  <Constant name="thickHEAbsorber3"      value="60.7*mm"/>
+  <Constant name="thickHEAirGap"         value="1.25*mm"/>
+  <Constant name="thickHESteelCover"     value="2.5*mm"/>
+  <Constant name="thickHEService"        value="4.0*mm"/>
+  <Constant name="thickHEShift1"         value="([thickHEAbsorber1] + [thickHEService] + [thickHEAirGap])"/>
+  <Constant name="thickHEShift2"         value="([thickHEAbsorber2] + [thickHEService])"/>
+  <Constant name="thickHEShift3"         value="([thickHEAbsorber3] + [thickHEService])"/>
+  <Constant name="thickHECooling"        value="6.35*mm"/>
+  <Constant name="nHEModule1"            value="1"/>
+  <Constant name="nHEModule2"            value="4"/>
 </ConstantsSection>
 
 <RotationSection label="hgcal.xml">
