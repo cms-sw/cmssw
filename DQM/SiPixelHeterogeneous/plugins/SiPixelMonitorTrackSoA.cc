@@ -52,6 +52,7 @@ private:
   MonitorElement* hChi2VsPhi;
   MonitorElement* hChi2VsEta;
   MonitorElement* hpt;
+  MonitorElement* hCurvature;
   MonitorElement* heta;
   MonitorElement* hphi;
   MonitorElement* hz;
@@ -112,6 +113,7 @@ void SiPixelMonitorTrackSoA<T>::analyze(const edm::Event& iEvent, const edm::Eve
     float zip = helper::zip(tsoa.const_view(), it);
     float eta = tsoa.view()[it].eta();
     float tip = helper::tip(tsoa.const_view(), it);
+    auto charge = helper::charge(tsoa.const_view(), it);
 
     hchi2->Fill(chi2);
     hChi2VsPhi->Fill(phi, chi2);
@@ -123,6 +125,7 @@ void SiPixelMonitorTrackSoA<T>::analyze(const edm::Event& iEvent, const edm::Eve
     hnLayersVsPhi->Fill(phi, nLayers);
     hnLayersVsEta->Fill(eta, nLayers);
     hpt->Fill(pt);
+    hCurvature->Fill(charge / pt);
     heta->Fill(eta);
     hphi->Fill(phi);
     hz->Fill(zip);
@@ -165,6 +168,7 @@ void SiPixelMonitorTrackSoA<T>::bookHistograms(DQMStore::IBooker& iBook,
   // clang-format on
 
   hpt = iBook.book1D("pt", ";Track (quality #geq loose) p_{T} [GeV];#tracks", 200, 0., 200.);
+  hCurvature = iBook.book1D("curvature", ";Track (quality #geq loose) q/p_{T} [GeV^{-1}];#tracks", 100, -3., 3.);
   heta = iBook.book1D("eta", ";Track (quality #geq loose) #eta;#tracks", 30, -3., 3.);
   hphi = iBook.book1D("phi", ";Track (quality #geq loose) #phi;#tracks", 30, -M_PI, M_PI);
   hz = iBook.book1D("z", ";Track (quality #geq loose) z [cm];#tracks", 30, -30., 30.);
