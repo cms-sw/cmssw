@@ -231,11 +231,13 @@ namespace l1t {
     const std::vector<l1t::EtSum> &collection = event.get(gttPromptHtSumToken_);
     if (collection.size() > 0) {
       const l1t::EtSum &obj = collection[0];
-      P2GTCandidate gtObj(
-          0,
-          reco::ParticleState::PolarLorentzVector(scales_.to_pT(obj.p4().energy()), 0, scales_.to_phi(obj.hwPhi()), 0));
-      l1tmhtemu::EtMiss etmiss;
-      gtObj.hwPT_ = obj.p4().energy();
+      l1tmhtemu::EtMiss htMiss;
+      htMiss.Et = obj.p4().energy();
+      P2GTCandidate gtObj(0,
+                          reco::ParticleState::PolarLorentzVector(
+                              scales_.to_pT(htMiss.Et.V.to_int()), 0, scales_.to_phi(obj.hwPhi()), 0));
+
+      gtObj.hwPT_ = htMiss.Et.V.to_int();
       gtObj.hwPhi_ = obj.hwPhi();
       gtObj.hwScalarSumPT_ = obj.hwPt();
       gtObj.objectType_ = P2GTCandidate::GTTPromptHtSum;
