@@ -1,10 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
-from ..sequences.caloTowersRecSequence_cfi import *
-from ..sequences.iterTICLSequence_cfi import *
-from ..sequences.particleFlowClusterSequence_cfi import *
-from ..sequences.particleFlowRecoSequence_cfi import *
-from ..sequences.particleFlowSuperClusteringSequence_cfi import *
-from ..sequences.vertexRecoSequence_cfi import *
+from ..sequences.HLTCaloTowersRecSequence_cfi import *
+from ..sequences.HLTIterTICLSequence_cfi import *
+from ..sequences.HLTParticleFlowClusterSequence_cfi import *
+from ..sequences.HLTParticleFlowRecoSequence_cfi import *
+from ..sequences.HLTParticleFlowSuperClusteringSequence_cfi import *
+from ..sequences.HLTVertexRecoSequence_cfi import *
 
-HLTParticleFlowSequence = cms.Sequence(particleFlowClusterSequence+iterTICLSequence+vertexRecoSequence+particleFlowSuperClusteringSequence+caloTowersRecSequence+particleFlowRecoSequence)
+HLTParticleFlowSequence = cms.Sequence(HLTParticleFlowClusterSequence+HLTIterTICLSequence+HLTVertexRecoSequence+HLTParticleFlowSuperClusteringSequence+HLTCaloTowersRecSequence+HLTParticleFlowRecoSequence)

@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 hltFilteredLayerClustersPassthrough = cms.EDProducer("FilteredLayerClustersProducer",
-    LayerClusters = cms.InputTag("hgcalMergeLayerClusters"),
-    LayerClustersInputMask = cms.InputTag("ticlTrackstersCLUE3DHigh"),
+    LayerClusters = cms.InputTag("hltHgcalMergeLayerClusters"),
+    LayerClustersInputMask = cms.InputTag("hltTiclTrackstersCLUE3DHigh"),
     algo_number = cms.vint32(6, 7, 8),
     clusterFilter = cms.string('ClusterFilterBySize'),
     iteration_label = cms.string('Passthrough'),

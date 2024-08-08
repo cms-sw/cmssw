@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 hltIter0Phase2L3FromL1TkMuonCkfTrackCandidates = cms.EDProducer("CkfTrackCandidateMaker",
+    MeasurementTrackerEvent = cms.InputTag("hltMeasurementTrackerEvent"),
     NavigationSchool = cms.string('SimpleNavigationSchool'),
     RedundantSeedCleaner = cms.string('none'),
     TrajectoryBuilderPSet = cms.PSet(

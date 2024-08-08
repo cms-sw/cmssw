@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from ..modules.bunchSpacingProducer_cfi import *
+from ..modules.hltBunchSpacingProducer_cfi import *
 from ..modules.hltEcalBarrelDigisInRegions_cfi import *
 from ..modules.hltEcalDetIdToBeRecovered_cfi import *
 from ..modules.hltEcalDigis_cfi import *

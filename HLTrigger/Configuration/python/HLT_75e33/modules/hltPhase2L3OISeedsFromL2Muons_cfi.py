@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 hltPhase2L3OISeedsFromL2Muons = cms.EDProducer("TSGForOIFromL2",
-    MeasurementTrackerEvent = cms.InputTag("MeasurementTrackerEvent"),
+    MeasurementTrackerEvent = cms.InputTag("hltMeasurementTrackerEvent"),
     SF1 = cms.double(3.0),
     SF2 = cms.double(4.0),
     SF3 = cms.double(5.0),

@@ -12,7 +12,7 @@ hltHgcalSoARecHitsProducer = cms.EDProducer("HGCalSoARecHitsProducer@alpaka",
     fcPerMip = HGCAL_reco_constants.fcPerMip,
     maxNumberOfThickIndices = HGCAL_reco_constants.maxNumberOfThickIndices,
     noises = HGCAL_reco_constants.noises,
-    recHits = cms.InputTag("HGCalRecHit","HGCEERecHits"),
+    recHits = cms.InputTag("hltHGCalRecHit","HGCEERecHits"),
     thicknessCorrection = HGCAL_reco_constants.thicknessCorrection,
 )
 

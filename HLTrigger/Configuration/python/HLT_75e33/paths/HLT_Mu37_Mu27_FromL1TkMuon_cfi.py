@@ -9,15 +9,15 @@ from ..modules.hltPhase2PixelTrackFilterByKinematics_cfi import *
 from ..sequences.HLTBeginSequence_cfi import *
 from ..sequences.HLTEndSequence_cfi import *
 from ..sequences.HLTMuonsSequence_cfi import *
-from ..sequences.itLocalRecoSequence_cfi import *
-from ..sequences.muonlocalrecoSequence_cfi import *
-from ..sequences.otLocalRecoSequence_cfi import *
+from ..sequences.HLTItLocalRecoSequence_cfi import *
+from ..sequences.HLTMuonlocalrecoSequence_cfi import *
+from ..sequences.HLTOtLocalRecoSequence_cfi import *
 
 HLT_Mu37_Mu27_FromL1TkMuon = cms.Path(HLTBeginSequence
 +hltDoubleMuon7DZ1p0
-+muonlocalrecoSequence
-+itLocalRecoSequence
-+otLocalRecoSequence
++HLTMuonlocalrecoSequence
++HLTItLocalRecoSequence
++HLTOtLocalRecoSequence
 +hltPhase2PixelFitterByHelixProjections
 +hltPhase2PixelTrackFilterByKinematics
 +HLTMuonsSequence

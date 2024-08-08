@@ -8,8 +8,8 @@ hltTiclTracksterLinks = cms.EDProducer("TracksterLinksProducer",
     eid_n_layers = cms.int32(50),
     eid_output_name_energy = cms.string('output/regressed_energy'),
     eid_output_name_id = cms.string('output/id_probabilities'),
-    layer_clusters = cms.InputTag("hgcalMergeLayerClusters"),
-    layer_clustersTime = cms.InputTag("hgcalMergeLayerClusters","timeLayerCluster"),
+    layer_clusters = cms.InputTag("hltHgcalMergeLayerClusters"),
+    layer_clustersTime = cms.InputTag("hltHgcalMergeLayerClusters","timeLayerCluster"),
     linkingPSet = cms.PSet(
         algo_verbosity = cms.int32(0),
         cylinder_radius_sqr = cms.vdouble(9, 9),
@@ -26,9 +26,9 @@ hltTiclTracksterLinks = cms.EDProducer("TracksterLinksProducer",
         wind = cms.double(0.036)
     ),
     mightGet = cms.optional.untracked.vstring,
-    original_masks = cms.VInputTag("hgcalMergeLayerClusters:InitialLayerClustersMask"),
+    original_masks = cms.VInputTag("hltHgcalMergeLayerClusters:InitialLayerClustersMask"),
     propagator = cms.string('PropagatorWithMaterial'),
     regressionAndPid = cms.bool(True),
     tfDnnLabel = cms.string('tracksterSelectionTf'),
-    tracksters_collections = cms.VInputTag("ticlTrackstersCLUE3DHigh", "hltTiclTrackstersPassthrough")
+    tracksters_collections = cms.VInputTag("hltTiclTrackstersCLUE3DHigh", "hltTiclTrackstersPassthrough")
 )

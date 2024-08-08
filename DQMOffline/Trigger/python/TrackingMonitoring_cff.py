@@ -115,8 +115,8 @@ pp_on_PbPb_run3.toModify(iterHLTTracksMonitoringHLT,
 
 phase2_tracker.toModify(iterHLTTracksMonitoringHLT,
                         primaryVertex    = 'hltPhase2PixelVertices',
-                        TrackProducer    = 'generalTracks::HLT',
-                        allTrackProducer = 'generalTracks::HLT')
+                        TrackProducer    = 'hltGeneralTracks',
+                        allTrackProducer = 'hltGeneralTracks')
 
 iter3TracksMonitoringHLT = trackingMonHLT.clone(
     FolderName       = 'HLT/Tracking/iter3Merged',

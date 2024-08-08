@@ -23,7 +23,7 @@ hltPrimaryVertexAssociationModEta2p4 = cms.EDProducer("PFCandidatePrimaryVertexS
         useVertexFit = cms.bool(True)
     ),
     jets = cms.InputTag("hltPFPuppiJetForBtagEta2p4"),
-    particles = cms.InputTag("particleFlowTmp"),
+    particles = cms.InputTag("hltParticleFlowTmp"),
     produceAssociationToOriginalVertices = cms.bool(True),
     produceNoPileUpCollection = cms.bool(False),
     producePileUpCollection = cms.bool(False),
@@ -33,5 +33,5 @@ hltPrimaryVertexAssociationModEta2p4 = cms.EDProducer("PFCandidatePrimaryVertexS
 
     ),
     usePVMET = cms.bool(True),
-    vertices = cms.InputTag("offlinePrimaryVertices")
+    vertices = cms.InputTag("hltOfflinePrimaryVertices")
 )

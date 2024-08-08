@@ -4,11 +4,11 @@ hltTiclTrackstersPassthrough = cms.EDProducer("TrackstersProducer",
     detector = cms.string('HGCAL'),
     filtered_mask = cms.InputTag("hltFilteredLayerClustersPassthrough","Passthrough"),
     itername = cms.string('PassThrough'),
-    layer_clusters = cms.InputTag("hgcalMergeLayerClusters"),
+    layer_clusters = cms.InputTag("hltHgcalMergeLayerClusters"),
     layer_clusters_hfnose_tiles = cms.InputTag("ticlLayerTileHFNose"),
-    layer_clusters_tiles = cms.InputTag("ticlLayerTileProducer"),
+    layer_clusters_tiles = cms.InputTag("hltTiclLayerTileProducer"),
     mightGet = cms.optional.untracked.vstring,
-    original_mask = cms.InputTag("ticlTrackstersCLUE3DHigh"),
+    original_mask = cms.InputTag("hltTiclTrackstersCLUE3DHigh"),
     patternRecognitionBy = cms.string('Passthrough'),
     pluginPatternRecognitionByCA = cms.PSet(
         algo_verbosity = cms.int32(0),
@@ -85,7 +85,7 @@ hltTiclTrackstersPassthrough = cms.EDProducer("TrackstersProducer",
         algo_verbosity = cms.int32(0),
         type = cms.string('Passthrough')
     ),
-    seeding_regions = cms.InputTag("ticlSeedingGlobal"),
+    seeding_regions = cms.InputTag("hltTiclSeedingGlobal"),
     tfDnnLabel = cms.string('tracksterSelectionTf'),
-    time_layerclusters = cms.InputTag("hgcalMergeLayerClusters","timeLayerCluster")
+    time_layerclusters = cms.InputTag("hltHgcalMergeLayerClusters","timeLayerCluster")
 )

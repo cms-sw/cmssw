@@ -48,14 +48,14 @@ hltPVanalysis = hltMultiPVanalysis.clone(
 )
 
 tpToHLTphase2TrackAssociation = tpToHLTpixelTrackAssociation.clone(
-    label_tr = "generalTracks::HLT"
+    label_tr = "hltGeneralTracks"
 )
 vertexAssociatorByPositionAndTracks4phase2HLTTracks = _VertexAssociatorByPositionAndTracks.clone(
     trackAssociation = "tpToHLTphase2TrackAssociation"
 )
 
 def _modifyFullPVanalysisForPhase2(pvanalysis):
-    pvanalysis.vertexRecoCollections = ["offlinePrimaryVertices::HLT"]
+    pvanalysis.vertexRecoCollections = ["hltOfflinePrimaryVertices"]
     pvanalysis.trackAssociatorMap = "tpToHLTphase2TrackAssociation"
     pvanalysis.vertexAssociator   = "vertexAssociatorByPositionAndTracks4phase2HLTTracks"
 

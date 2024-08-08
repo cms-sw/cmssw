@@ -677,8 +677,13 @@ approxSiStripClusters.toModify(FEVTDEBUGHLTEventContent,
                               ])
 phase2_tracker.toModify(FEVTDEBUGHLTEventContent,
                         outputCommands = FEVTDEBUGHLTEventContent.outputCommands+[
+                            'keep *_hltSiPixelClusters_*_*',
+                            'keep *_hltSiPhase2Clusters_*_*',
                             'keep *_hltPhase2PixelTracks_*_*',
-                            'keep *_hltPhase2PixelVertices_*_*'
+                            'keep *_hltPhase2PixelVertices_*_*',
+                            'keep *_hltGeneralTracks_*_*',
+                            'keep *_hltOfflinePrimaryVertices_*_*',
+                            'keep *_hltHGCalRecHit_*_*'
                         ])
 
 phase2_common.toModify(FEVTDEBUGHLTEventContent,
@@ -688,6 +693,11 @@ phase2_common.toModify(FEVTDEBUGHLTEventContent,
 
 phase2_muon.toModify(FEVTDEBUGHLTEventContent, 
     outputCommands = FEVTDEBUGHLTEventContent.outputCommands + ['keep recoMuons_muons1stStep_*_*'])
+
+phase2_hgcal.toModify(FEVTDEBUGHLTEventContent,
+    outputCommands = FEVTDEBUGHLTEventContent.outputCommands + TICL_FEVTHLT.outputCommands)
+
+ticl_v5.toModify(FEVTDEBUGHLTEventContent, outputCommands=FEVTDEBUGHLTEventContent.outputCommands+TICLv5_FEVTHLT.outputCommands)
 
 from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
 

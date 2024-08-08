@@ -1,12 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
-from ..modules.generalTracks_cfi import *
+from ..modules.hltGeneralTracks_cfi import *
 from ..modules.hltPhase2PixelVertices_cfi import *
-from ..modules.trackerClusterCheck_cfi import *
-from ..sequences.highPtTripletStepSequence_cfi import *
-from ..sequences.hltPhase2PixelTracksSequence_cfi import *
-from ..sequences.initialStepSequence_cfi import *
-from ..sequences.itLocalRecoSequence_cfi import *
-from ..sequences.otLocalRecoSequence_cfi import *
+from ..modules.hltTrackerClusterCheck_cfi import *
+from ..sequences.HLTHighPtTripletStepSequence_cfi import *
+from ..sequences.HLTPhase2PixelTracksSequence_cfi import *
+from ..sequences.HLTInitialStepSequence_cfi import *
+from ..sequences.HLTItLocalRecoSequence_cfi import *
+from ..sequences.HLTOtLocalRecoSequence_cfi import *
 
-HLTTrackingV61Sequence = cms.Sequence((itLocalRecoSequence+otLocalRecoSequence+trackerClusterCheck+hltPhase2PixelTracksSequence+hltPhase2PixelVertices+initialStepSequence+highPtTripletStepSequence+generalTracks))
+HLTTrackingV61Sequence = cms.Sequence((HLTItLocalRecoSequence+HLTOtLocalRecoSequence+hltTrackerClusterCheck+HLTPhase2PixelTracksSequence+hltPhase2PixelVertices+HLTInitialStepSequence+HLTHighPtTripletStepSequence+hltGeneralTracks))

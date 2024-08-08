@@ -22,9 +22,9 @@ from Validation.HcalRecHits.HLTHcalRecHitParam_cfi import *
 from Validation.HGCalValidation.hgcalHitCalibrationDefault_cfi import hgcalHitCalibrationDefault as _hgcalHitCalibrationDefault
 hgcalHitCalibrationHLT = _hgcalHitCalibrationDefault.clone()
 hgcalHitCalibrationHLT.folder = "HGCalHitCalibrationHLT"
-hgcalHitCalibrationHLT.recHitsEE = cms.InputTag("HGCalRecHit", "HGCEERecHits", "HLT")
-hgcalHitCalibrationHLT.recHitsFH = cms.InputTag("HGCalRecHit", "HGCHEFRecHits", "HLT")
-hgcalHitCalibrationHLT.recHitsBH = cms.InputTag("HGCalRecHit", "HGCHEBRecHits", "HLT")
+hgcalHitCalibrationHLT.recHitsEE = cms.InputTag("hltHGCalRecHit", "HGCEERecHits", "HLT")
+hgcalHitCalibrationHLT.recHitsFH = cms.InputTag("hltHGCalRecHit", "HGCHEFRecHits", "HLT")
+hgcalHitCalibrationHLT.recHitsBH = cms.InputTag("hltHGCalRecHit", "HGCHEBRecHits", "HLT")
 hgcalHitCalibrationHLT.hgcalMultiClusters = cms.InputTag("None")
 hgcalHitCalibrationHLT.electrons = cms.InputTag("None")
 hgcalHitCalibrationHLT.photons = cms.InputTag("None")

@@ -68,7 +68,7 @@ hltHpsPFTauBasicDiscriminatorsForDeepTau = cms.EDProducer("PFRecoTauDiscriminati
     ),
     isoConeSizeForDeltaBeta = cms.double(0.8),
     minTauPtForNoIso = cms.double(-99.0),
-    particleFlowSrc = cms.InputTag("particleFlowTmp"),
+    particleFlowSrc = cms.InputTag("hltParticleFlowTmp"),
     qualityCuts = cms.PSet(
         isolationQualityCuts = cms.PSet(
             maxDeltaZ = cms.double(0.2),

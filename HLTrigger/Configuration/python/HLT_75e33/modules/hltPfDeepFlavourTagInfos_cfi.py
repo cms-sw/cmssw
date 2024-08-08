@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 hltPfDeepFlavourTagInfos = cms.EDProducer("DeepFlavourTagInfoProducer",
-    candidates = cms.InputTag("particleFlowTmp"),
+    candidates = cms.InputTag("hltParticleFlowTmp"),
     compute_probabilities = cms.bool(False),
     fallback_puppi_weight = cms.bool(False),
     fallback_vertex_association = cms.bool(False),
@@ -18,5 +18,5 @@ hltPfDeepFlavourTagInfos = cms.EDProducer("DeepFlavourTagInfoProducer",
     secondary_vertices = cms.InputTag("hltDeepInclusiveSecondaryVerticesPF"),
     shallow_tag_infos = cms.InputTag("hltDeepCombinedSecondaryVertexBJetTagsInfosPuppi"),
     vertex_associator = cms.InputTag("hltPrimaryVertexAssociation","original"),
-    vertices = cms.InputTag("offlinePrimaryVertices")
+    vertices = cms.InputTag("hltOfflinePrimaryVertices")
 )

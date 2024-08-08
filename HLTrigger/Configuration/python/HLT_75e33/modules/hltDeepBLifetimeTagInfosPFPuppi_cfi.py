@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 hltDeepBLifetimeTagInfosPFPuppi = cms.EDProducer("CandIPProducer",
-    candidates = cms.InputTag("particleFlowTmp"),
+    candidates = cms.InputTag("hltParticleFlowTmp"),
     computeGhostTrack = cms.bool(True),
     computeProbabilities = cms.bool(True),
     ghostTrackPriorDeltaR = cms.double(0.03),
@@ -15,6 +15,6 @@ hltDeepBLifetimeTagInfosPFPuppi = cms.EDProducer("CandIPProducer",
     minimumNumberOfHits = cms.int32(3),
     minimumNumberOfPixelHits = cms.int32(2),
     minimumTransverseMomentum = cms.double(1.0),
-    primaryVertex = cms.InputTag("offlinePrimaryVertices"),
+    primaryVertex = cms.InputTag("hltOfflinePrimaryVertices"),
     useTrackQuality = cms.bool(False)
 )

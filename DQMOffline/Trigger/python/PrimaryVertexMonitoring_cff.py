@@ -9,7 +9,7 @@ hltVerticesMonitoring = pvMonitor.clone(
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 phase2_tracker.toModify(hltVerticesMonitoring,
                         TopFolderName = "HLT/Vertexing/hltFullVertices",
-                        vertexLabel   = cms.InputTag("offlinePrimaryVertices","","HLT"))
+                        vertexLabel   = cms.InputTag("hltOfflinePrimaryVertices"))
 
 hltPixelVerticesMonitoring = hltVerticesMonitoring.clone(
     TopFolderName = "HLT/Vertexing/hltPixelVertices",
