@@ -19,7 +19,6 @@
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -29,6 +28,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "Geometry/Records/interface/StackedTrackerGeometryRecord.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
@@ -51,18 +52,40 @@ public:
   MonitorElement *trackParts_Pt = nullptr;
 
   // pT and eta for efficiency plots
-  MonitorElement *tp_pt = nullptr;             // denominator
-  MonitorElement *tp_pt_zoom = nullptr;        // denominator
-  MonitorElement *tp_eta = nullptr;            // denominator
-  MonitorElement *tp_d0 = nullptr;             // denominator
-  MonitorElement *tp_VtxR = nullptr;           // denominator (also known as vxy)
-  MonitorElement *tp_VtxZ = nullptr;           // denominator
-  MonitorElement *match_tp_pt = nullptr;       // numerator
-  MonitorElement *match_tp_pt_zoom = nullptr;  // numerator
-  MonitorElement *match_tp_eta = nullptr;      // numerator
-  MonitorElement *match_tp_d0 = nullptr;       // numerator
-  MonitorElement *match_tp_VtxR = nullptr;     // numerator (also known as vxy)
-  MonitorElement *match_tp_VtxZ = nullptr;     // numerator
+  MonitorElement *tp_pt = nullptr;                      // denominator
+  MonitorElement *tp_pt_zoom = nullptr;                 // denominator
+  MonitorElement *tp_eta = nullptr;                     // denominator
+  MonitorElement *tp_d0 = nullptr;                      // denominator
+  MonitorElement *tp_VtxR = nullptr;                    // denominator (also known as vxy)
+  MonitorElement *tp_VtxZ = nullptr;                    // denominator
+  MonitorElement *gen_clusters = nullptr;               // denominator
+  MonitorElement *gen_clusters_zoom = nullptr;          // denominator
+  MonitorElement *match_tp_pt = nullptr;                // numerator
+  MonitorElement *match_tp_pt_zoom = nullptr;           // numerator
+  MonitorElement *match_tp_eta = nullptr;               // numerator
+  MonitorElement *match_tp_d0 = nullptr;                // numerator
+  MonitorElement *match_tp_VtxR = nullptr;              // numerator (also known as vxy)
+  MonitorElement *match_tp_VtxZ = nullptr;              // numerator
+  MonitorElement *gen_clusters_if_stub = nullptr;       // numerator
+  MonitorElement *gen_clusters_if_stub_zoom = nullptr;  // numerator
+
+  // 1D for fake rate plots
+  MonitorElement *TotalStubs = nullptr;           // denominator
+  MonitorElement *TotalStubs_vs_Layer = nullptr;  // denominator
+  MonitorElement *TotalStubs_L1 = nullptr;        // denominator
+  MonitorElement *TotalStubs_L2 = nullptr;        // denominator
+  MonitorElement *TotalStubs_L3 = nullptr;        // denominator
+  MonitorElement *TotalStubs_L4 = nullptr;        // denominator
+  MonitorElement *TotalStubs_L5 = nullptr;        // denominator
+  MonitorElement *TotalStubs_L6 = nullptr;        // denominator
+  MonitorElement *FakeStubs = nullptr;            // numerator
+  MonitorElement *FakeStubs_vs_Layer = nullptr;   // numerator
+  MonitorElement *FakeStubs_L1 = nullptr;         // numerator
+  MonitorElement *FakeStubs_L2 = nullptr;         // numerator
+  MonitorElement *FakeStubs_L3 = nullptr;         // numerator
+  MonitorElement *FakeStubs_L4 = nullptr;         // numerator
+  MonitorElement *FakeStubs_L5 = nullptr;         // numerator
+  MonitorElement *FakeStubs_L6 = nullptr;         // numerator
 
   // 1D intermediate resolution plots (pT and eta)
   MonitorElement *res_eta = nullptr;    // for all eta and pT
@@ -123,6 +146,8 @@ private:
       ttStubMCTruthToken_;  // MC truth association map for stubs
   edm::EDGetTokenT<TTTrackAssociationMap<Ref_Phase2TrackerDigi_>>
       ttTrackMCTruthToken_;  // MC truth association map for tracks
+  edm::EDGetTokenT<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>>> ttStubToken_;  // L1 Stub token
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> getTokenTrackerGeom_;     // Tracker geometry token
   int L1Tk_minNStub;
   double L1Tk_maxChi2dof;
   int TP_minNStub;
@@ -147,6 +172,10 @@ Phase2OTValidateTrackingParticles::Phase2OTValidateTrackingParticles(const edm::
       conf_.getParameter<edm::InputTag>("MCTruthClusterInputTag"));
   ttTrackMCTruthToken_ = consumes<TTTrackAssociationMap<Ref_Phase2TrackerDigi_>>(
       conf_.getParameter<edm::InputTag>("MCTruthTrackInputTag"));
+  ttStubToken_ = consumes<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>>>(
+      edm::InputTag("TTStubsFromPhase2TrackerDigis", "StubAccepted"));
+  getTokenTrackerGeom_ = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>();
+
   L1Tk_minNStub = conf_.getParameter<int>("L1Tk_minNStub");         // min number of stubs in the track
   L1Tk_maxChi2dof = conf_.getParameter<double>("L1Tk_maxChi2dof");  // maximum chi2/dof of the track
   TP_minNStub = conf_.getParameter<int>("TP_minNStub");             // min number of stubs in the tracking particle to
@@ -174,8 +203,11 @@ void Phase2OTValidateTrackingParticles::analyze(const edm::Event &iEvent, const 
   iEvent.getByToken(ttClusterMCTruthToken_, MCTruthTTClusterHandle);
   edm::Handle<TTStubAssociationMap<Ref_Phase2TrackerDigi_>> MCTruthTTStubHandle;
   iEvent.getByToken(ttStubMCTruthToken_, MCTruthTTStubHandle);
+  edm::Handle<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>>> TTStubHandle;
+  iEvent.getByToken(ttStubToken_, TTStubHandle);
 
   // Geometries
+  const TrackerGeometry *theTrackerGeom = &iSetup.getData(getTokenTrackerGeom_);
   const TrackerTopology *const tTopo = &iSetup.getData(m_topoToken);
 
   // Loop over tracking particles
@@ -289,8 +321,196 @@ void Phase2OTValidateTrackingParticles::analyze(const edm::Event &iEvent, const 
     tp_d0->Fill(tmp_tp_d0);
     tp_VtxZ->Fill(tmp_tp_VtxZ);
 
-    if (nStubTP < TP_minNStub || nStubLayerTP < TP_minNLayersStub)
-      continue;  //nStub cut not included in denominator of efficiency plots
+    if (nStubTP < TP_minNStub || nStubLayerTP < TP_minNLayersStub) {
+      continue;  // nStub cut not included in denominator of efficiency plots
+    }
+
+    // Find all clusters that can be associated to a tracking particle with at least one hit
+    std::vector<edm::Ref<edmNew::DetSetVector<TTCluster<Ref_Phase2TrackerDigi_>>, TTCluster<Ref_Phase2TrackerDigi_>>>
+        associatedClusters = MCTruthTTClusterHandle->findTTClusterRefs(tp_ptr);
+
+    // Loop through each cluster and check if it's genuine
+    for (std::size_t k = 0; k < associatedClusters.size(); ++k) {
+      auto clusA = associatedClusters[k];
+      DetId clusdetid = clusA->getDetId();
+      if (clusdetid.subdetId() != StripSubdetector::TOB && clusdetid.subdetId() != StripSubdetector::TID)
+        continue;
+
+      DetId detidA = tTopo->stack(clusdetid);
+      const GeomDetUnit *detA = theTrackerGeom->idToDetUnit(clusdetid);
+      const PixelGeomDetUnit *theGeomDetA = dynamic_cast<const PixelGeomDetUnit *>(detA);
+      const PixelTopology *topoA = dynamic_cast<const PixelTopology *>(&(theGeomDetA->specificTopology()));
+      GlobalPoint coordsA =
+          theGeomDetA->surface().toGlobal(topoA->localPosition(clusA->findAverageLocalCoordinatesCentered()));
+
+      bool isGenuine = MCTruthTTClusterHandle->isGenuine(clusA);
+      if (!isGenuine)
+        continue;
+
+      // Calculate total pT and find the leading pT
+      const std::vector<TrackingParticlePtr> &theseTrackingParticles =
+          MCTruthTTClusterHandle->findTrackingParticlePtrs(clusA);
+      if (theseTrackingParticles.empty())
+        continue;
+
+      int isBarrel = 0;
+      int layer = -999999;
+      if (clusdetid.subdetId() == StripSubdetector::TOB) {
+        isBarrel = 1;
+        layer = static_cast<int>(tTopo->layer(clusdetid));
+      } else if (clusdetid.subdetId() == StripSubdetector::TID) {
+        isBarrel = 0;
+        layer = static_cast<int>(tTopo->layer(clusdetid));
+      } else {
+        edm::LogVerbatim("Tracklet") << "WARNING -- neither TOB or TID stub, shouldn't happen...";
+        layer = -1;
+      }
+
+      if (isBarrel == 1) {
+        switch (layer) {
+          case 1:
+            gen_clusters->Fill(tmp_tp_pt);
+            gen_clusters_zoom->Fill(tmp_tp_pt);
+            break;
+          case 2:
+            gen_clusters->Fill(tmp_tp_pt);
+            gen_clusters_zoom->Fill(tmp_tp_pt);
+            break;
+          case 3:
+            gen_clusters->Fill(tmp_tp_pt);
+            gen_clusters_zoom->Fill(tmp_tp_pt);
+            break;
+          case 4:
+            gen_clusters->Fill(tmp_tp_pt);
+            gen_clusters_zoom->Fill(tmp_tp_pt);
+            break;
+          case 5:
+            gen_clusters->Fill(tmp_tp_pt);
+            gen_clusters_zoom->Fill(tmp_tp_pt);
+            break;
+          case 6:
+            gen_clusters->Fill(tmp_tp_pt);
+            gen_clusters_zoom->Fill(tmp_tp_pt);
+            break;
+        }
+      }
+
+      // If there are stubs on the same detid, loop on those stubs
+      if (TTStubHandle->find(detidA) != TTStubHandle->end()) {
+        edmNew::DetSet<TTStub<Ref_Phase2TrackerDigi_>> stubs = (*TTStubHandle)[detidA];
+        for (auto stubIter = stubs.begin(); stubIter != stubs.end(); ++stubIter) {
+          auto stubRef = edmNew::makeRefTo(TTStubHandle, stubIter);
+
+          float stub_bend = stubIter->bendFE();  // TTstub trigger bend
+          TotalStubs->Fill(stub_bend);
+
+          if (isBarrel == 1) {
+            TotalStubs_vs_Layer->Fill(layer);
+            if (!MCTruthTTStubHandle->isGenuine(stubRef)) {
+              FakeStubs_vs_Layer->Fill(layer);
+            }
+          }
+
+          if (isBarrel == 1) {
+            switch (layer) {
+              case 1:
+                TotalStubs_L1->Fill(stub_bend);
+                if (!MCTruthTTStubHandle->isGenuine(stubRef))
+                  FakeStubs_L1->Fill(stub_bend);
+                break;
+              case 2:
+                TotalStubs_L2->Fill(stub_bend);
+                if (!MCTruthTTStubHandle->isGenuine(stubRef))
+                  FakeStubs_L2->Fill(stub_bend);
+                break;
+              case 3:
+                TotalStubs_L3->Fill(stub_bend);
+                if (!MCTruthTTStubHandle->isGenuine(stubRef))
+                  FakeStubs_L3->Fill(stub_bend);
+                break;
+              case 4:
+                TotalStubs_L4->Fill(stub_bend);
+                if (!MCTruthTTStubHandle->isGenuine(stubRef))
+                  FakeStubs_L4->Fill(stub_bend);
+                break;
+              case 5:
+                TotalStubs_L5->Fill(stub_bend);
+                if (!MCTruthTTStubHandle->isGenuine(stubRef))
+                  FakeStubs_L5->Fill(stub_bend);
+                break;
+              case 6:
+                TotalStubs_L6->Fill(stub_bend);
+                if (!MCTruthTTStubHandle->isGenuine(stubRef))
+                  FakeStubs_L6->Fill(stub_bend);
+                break;
+            }
+          }
+
+          if (!MCTruthTTStubHandle->isGenuine(stubRef)) {
+            FakeStubs->Fill(stub_bend);
+            continue;  // Skip to the next iteration if the stub is not genuine
+          }
+
+          // Retrieve clusters of stubs
+          auto clusterRefB = stubIter->clusterRef(0);
+          auto clusterRefC = stubIter->clusterRef(1);
+
+          // Retrieve sensor DetIds from the stub's clusters
+          DetId detIdB = stubIter->clusterRef(0)->getDetId();
+          DetId detIdC = stubIter->clusterRef(1)->getDetId();
+
+          const GeomDetUnit *detB = theTrackerGeom->idToDetUnit(detIdB);
+          const GeomDetUnit *detC = theTrackerGeom->idToDetUnit(detIdC);
+          const PixelGeomDetUnit *theGeomDetB = dynamic_cast<const PixelGeomDetUnit *>(detB);
+          const PixelGeomDetUnit *theGeomDetC = dynamic_cast<const PixelGeomDetUnit *>(detC);
+          const PixelTopology *topoB = dynamic_cast<const PixelTopology *>(&(theGeomDetB->specificTopology()));
+          const PixelTopology *topoC = dynamic_cast<const PixelTopology *>(&(theGeomDetC->specificTopology()));
+
+          GlobalPoint coordsB = theGeomDetB->surface().toGlobal(
+              topoB->localPosition(stubIter->clusterRef(0)->findAverageLocalCoordinatesCentered()));
+          GlobalPoint coordsC = theGeomDetC->surface().toGlobal(
+              topoC->localPosition(stubIter->clusterRef(1)->findAverageLocalCoordinatesCentered()));
+
+          if (coordsA.x() == coordsB.x() || coordsA.x() == coordsC.x()) {
+            edm::Ptr<TrackingParticle> stubTP =
+                MCTruthTTStubHandle->findTrackingParticlePtr(edmNew::makeRefTo(TTStubHandle, stubIter));
+            if (stubTP.isNull())
+              continue;
+            float stub_tp_pt = stubTP->pt();
+            if (stub_tp_pt == tmp_tp_pt) {
+              if (isBarrel == 1) {
+                switch (layer) {
+                  case 1:
+                    gen_clusters_if_stub->Fill(tmp_tp_pt);
+                    gen_clusters_if_stub_zoom->Fill(tmp_tp_pt);
+                    break;
+                  case 2:
+                    gen_clusters_if_stub->Fill(tmp_tp_pt);
+                    gen_clusters_if_stub_zoom->Fill(tmp_tp_pt);
+                    break;
+                  case 3:
+                    gen_clusters_if_stub->Fill(tmp_tp_pt);
+                    gen_clusters_if_stub_zoom->Fill(tmp_tp_pt);
+                    break;
+                  case 4:
+                    gen_clusters_if_stub->Fill(tmp_tp_pt);
+                    gen_clusters_if_stub_zoom->Fill(tmp_tp_pt);
+                    break;
+                  case 5:
+                    gen_clusters_if_stub->Fill(tmp_tp_pt);
+                    gen_clusters_if_stub_zoom->Fill(tmp_tp_pt);
+                    break;
+                  case 6:
+                    gen_clusters_if_stub->Fill(tmp_tp_pt);
+                    gen_clusters_if_stub_zoom->Fill(tmp_tp_pt);
+                    break;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
 
     // ----------------------------------------------------------------------------------------------
     // look for L1 tracks matched to the tracking particle
@@ -505,7 +725,7 @@ void Phase2OTValidateTrackingParticles::bookHistograms(DQMStore::IBooker &iBooke
   trackParts_Phi->setAxisTitle("# tracking particles", 2);
 
   // 1D plots for efficiency
-  iBooker.setCurrentFolder(topFolderName_ + "/Efficiency");
+  iBooker.setCurrentFolder(topFolderName_ + "/EfficiencyIngredients");
   // pT
   edm::ParameterSet psEffic_pt = conf_.getParameter<edm::ParameterSet>("TH1Effic_pt");
   HistoName = "tp_pt";
@@ -527,6 +747,24 @@ void Phase2OTValidateTrackingParticles::bookHistograms(DQMStore::IBooker &iBooke
   match_tp_pt->setAxisTitle("p_{T} [GeV]", 1);
   match_tp_pt->setAxisTitle("# matched tracking particles", 2);
 
+  HistoName = "gen_clusters";
+  gen_clusters = iBooker.book1D(HistoName,
+                                HistoName,
+                                psEffic_pt.getParameter<int32_t>("Nbinsx"),
+                                psEffic_pt.getParameter<double>("xmin"),
+                                psEffic_pt.getParameter<double>("xmax"));
+  gen_clusters->setAxisTitle("p_{T} [GeV]", 1);
+  gen_clusters->setAxisTitle("# tracking particles", 2);
+
+  HistoName = "gen_clusters_if_stub";
+  gen_clusters_if_stub = iBooker.book1D(HistoName,
+                                        HistoName,
+                                        psEffic_pt.getParameter<int32_t>("Nbinsx"),
+                                        psEffic_pt.getParameter<double>("xmin"),
+                                        psEffic_pt.getParameter<double>("xmax"));
+  gen_clusters_if_stub->setAxisTitle("p_{T} [GeV]", 1);
+  gen_clusters_if_stub->setAxisTitle("# tracking particles", 2);
+
   // pT zoom (0-10 GeV)
   edm::ParameterSet psEffic_pt_zoom = conf_.getParameter<edm::ParameterSet>("TH1Effic_pt_zoom");
   HistoName = "tp_pt_zoom";
@@ -547,6 +785,26 @@ void Phase2OTValidateTrackingParticles::bookHistograms(DQMStore::IBooker &iBooke
                                     psEffic_pt_zoom.getParameter<double>("xmax"));
   match_tp_pt_zoom->setAxisTitle("p_{T} [GeV]", 1);
   match_tp_pt_zoom->setAxisTitle("# matched tracking particles", 2);
+
+  // pT zoom (0-10 GeV)
+  HistoName = "gen_clusters_zoom";
+  gen_clusters_zoom = iBooker.book1D(HistoName,
+                                     HistoName,
+                                     psEffic_pt_zoom.getParameter<int32_t>("Nbinsx"),
+                                     psEffic_pt_zoom.getParameter<double>("xmin"),
+                                     psEffic_pt_zoom.getParameter<double>("xmax"));
+  gen_clusters_zoom->setAxisTitle("p_{T} [GeV]", 1);
+  gen_clusters_zoom->setAxisTitle("# tracking particles", 2);
+
+  // pT zoom (0-10 GeV)
+  HistoName = "gen_clusters_if_stub_zoom";
+  gen_clusters_if_stub_zoom = iBooker.book1D(HistoName,
+                                             HistoName,
+                                             psEffic_pt_zoom.getParameter<int32_t>("Nbinsx"),
+                                             psEffic_pt_zoom.getParameter<double>("xmin"),
+                                             psEffic_pt_zoom.getParameter<double>("xmax"));
+  gen_clusters_if_stub_zoom->setAxisTitle("p_{T} [GeV]", 1);
+  gen_clusters_if_stub_zoom->setAxisTitle("# tracking particles", 2);
 
   // eta
   edm::ParameterSet psEffic_eta = conf_.getParameter<edm::ParameterSet>("TH1Effic_eta");
@@ -633,7 +891,7 @@ void Phase2OTValidateTrackingParticles::bookHistograms(DQMStore::IBooker &iBooke
   match_tp_VtxZ->setAxisTitle("# matched tracking particles", 2);
 
   // 1D plots for resolution
-  iBooker.setCurrentFolder(topFolderName_ + "/Resolution");
+  iBooker.setCurrentFolder(topFolderName_ + "/ResolutionIngredients");
   // full pT
   edm::ParameterSet psRes_pt = conf_.getParameter<edm::ParameterSet>("TH1Res_pt");
   HistoName = "res_pt";
@@ -1098,6 +1356,174 @@ void Phase2OTValidateTrackingParticles::bookHistograms(DQMStore::IBooker &iBooke
   resd0_eta2to2p4->setAxisTitle("d0_{trk} - d0_{tp} [cm]", 1);
   resd0_eta2to2p4->setAxisTitle("# tracking particles", 2);
 
+  // 1D plots for fake rate
+  iBooker.setCurrentFolder(topFolderName_ + "/FakeRateIngredients");
+
+  // Fake rate for stubs
+  edm::ParameterSet psFakeRateVsLayer = conf_.getParameter<edm::ParameterSet>("TH1StubsLayers");
+
+  // TotalStubs_vs_Layer
+  HistoName = "TotalStubs_vs_Layer";
+  TotalStubs_vs_Layer = iBooker.book1D(HistoName,
+                                       HistoName,
+                                       psFakeRateVsLayer.getParameter<int32_t>("Nbinsx"),
+                                       psFakeRateVsLayer.getParameter<double>("xmin"),
+                                       psFakeRateVsLayer.getParameter<double>("xmax"));
+  TotalStubs_vs_Layer->setAxisTitle("total stubs", 1);
+  TotalStubs_vs_Layer->setAxisTitle("counts", 2);
+
+  // FakeStubs_vs_Layer
+  HistoName = "FakeStubs_vs_Layer";
+  FakeStubs_vs_Layer = iBooker.book1D(HistoName,
+                                      HistoName,
+                                      psFakeRateVsLayer.getParameter<int32_t>("Nbinsx"),
+                                      psFakeRateVsLayer.getParameter<double>("xmin"),
+                                      psFakeRateVsLayer.getParameter<double>("xmax"));
+  FakeStubs_vs_Layer->setAxisTitle("total stubs", 1);
+  FakeStubs_vs_Layer->setAxisTitle("counts", 2);
+
+  edm::ParameterSet psFakeRate = conf_.getParameter<edm::ParameterSet>("TH1Stubs");
+
+  // TotalStubs
+  HistoName = "TotalStubs";
+  TotalStubs = iBooker.book1D(HistoName,
+                              HistoName,
+                              psFakeRate.getParameter<int32_t>("Nbinsx"),
+                              psFakeRate.getParameter<double>("xmin"),
+                              psFakeRate.getParameter<double>("xmax"));
+  TotalStubs->setAxisTitle("total stubs", 1);
+  TotalStubs->setAxisTitle("counts", 2);
+
+  // TotalStubs_L1
+  HistoName = "TotalStubs_L1";
+  TotalStubs_L1 = iBooker.book1D(HistoName,
+                                 HistoName,
+                                 psFakeRate.getParameter<int32_t>("Nbinsx"),
+                                 psFakeRate.getParameter<double>("xmin"),
+                                 psFakeRate.getParameter<double>("xmax"));
+  TotalStubs_L1->setAxisTitle("total stubs", 1);
+  TotalStubs_L1->setAxisTitle("counts", 2);
+
+  // TotalStubs_L2
+  HistoName = "TotalStubs_L2";
+  TotalStubs_L2 = iBooker.book1D(HistoName,
+                                 HistoName,
+                                 psFakeRate.getParameter<int32_t>("Nbinsx"),
+                                 psFakeRate.getParameter<double>("xmin"),
+                                 psFakeRate.getParameter<double>("xmax"));
+  TotalStubs_L2->setAxisTitle("total stubs", 1);
+  TotalStubs_L2->setAxisTitle("counts", 2);
+
+  // TotalStubs_L3
+  HistoName = "TotalStubs_L3";
+  TotalStubs_L3 = iBooker.book1D(HistoName,
+                                 HistoName,
+                                 psFakeRate.getParameter<int32_t>("Nbinsx"),
+                                 psFakeRate.getParameter<double>("xmin"),
+                                 psFakeRate.getParameter<double>("xmax"));
+  TotalStubs_L3->setAxisTitle("total stubs", 1);
+  TotalStubs_L3->setAxisTitle("counts", 2);
+
+  // TotalStubs_L4
+  HistoName = "TotalStubs_L4";
+  TotalStubs_L4 = iBooker.book1D(HistoName,
+                                 HistoName,
+                                 psFakeRate.getParameter<int32_t>("Nbinsx"),
+                                 psFakeRate.getParameter<double>("xmin"),
+                                 psFakeRate.getParameter<double>("xmax"));
+  TotalStubs_L4->setAxisTitle("total stubs", 1);
+  TotalStubs_L4->setAxisTitle("counts", 2);
+
+  // TotalStubs_L5
+  HistoName = "TotalStubs_L5";
+  TotalStubs_L5 = iBooker.book1D(HistoName,
+                                 HistoName,
+                                 psFakeRate.getParameter<int32_t>("Nbinsx"),
+                                 psFakeRate.getParameter<double>("xmin"),
+                                 psFakeRate.getParameter<double>("xmax"));
+  TotalStubs_L5->setAxisTitle("total stubs", 1);
+  TotalStubs_L5->setAxisTitle("counts", 2);
+
+  // TotalStubs_L6
+  HistoName = "TotalStubs_L6";
+  TotalStubs_L6 = iBooker.book1D(HistoName,
+                                 HistoName,
+                                 psFakeRate.getParameter<int32_t>("Nbinsx"),
+                                 psFakeRate.getParameter<double>("xmin"),
+                                 psFakeRate.getParameter<double>("xmax"));
+  TotalStubs_L6->setAxisTitle("total stubs", 1);
+  TotalStubs_L6->setAxisTitle("counts", 2);
+
+  // FakeStubs
+  HistoName = "FakeStubs";
+  FakeStubs = iBooker.book1D(HistoName,
+                             HistoName,
+                             psFakeRate.getParameter<int32_t>("Nbinsx"),
+                             psFakeRate.getParameter<double>("xmin"),
+                             psFakeRate.getParameter<double>("xmax"));
+  FakeStubs->setAxisTitle("fake stubs", 1);
+  FakeStubs->setAxisTitle("counts", 2);
+
+  // FakeStubs_L1
+  HistoName = "FakeStubs_L1";
+  FakeStubs_L1 = iBooker.book1D(HistoName,
+                                HistoName,
+                                psFakeRate.getParameter<int32_t>("Nbinsx"),
+                                psFakeRate.getParameter<double>("xmin"),
+                                psFakeRate.getParameter<double>("xmax"));
+  FakeStubs_L1->setAxisTitle("fake stubs", 1);
+  FakeStubs_L1->setAxisTitle("counts", 2);
+
+  // FakeStubs_L2
+  HistoName = "FakeStubs_L2";
+  FakeStubs_L2 = iBooker.book1D(HistoName,
+                                HistoName,
+                                psFakeRate.getParameter<int32_t>("Nbinsx"),
+                                psFakeRate.getParameter<double>("xmin"),
+                                psFakeRate.getParameter<double>("xmax"));
+  FakeStubs_L2->setAxisTitle("fake stubs", 1);
+  FakeStubs_L2->setAxisTitle("counts", 2);
+
+  // FakeStubs_L3
+  HistoName = "FakeStubs_L3";
+  FakeStubs_L3 = iBooker.book1D(HistoName,
+                                HistoName,
+                                psFakeRate.getParameter<int32_t>("Nbinsx"),
+                                psFakeRate.getParameter<double>("xmin"),
+                                psFakeRate.getParameter<double>("xmax"));
+  FakeStubs_L3->setAxisTitle("fake stubs", 1);
+  FakeStubs_L3->setAxisTitle("counts", 2);
+
+  // FakeStubs_L4
+  HistoName = "FakeStubs_L4";
+  FakeStubs_L4 = iBooker.book1D(HistoName,
+                                HistoName,
+                                psFakeRate.getParameter<int32_t>("Nbinsx"),
+                                psFakeRate.getParameter<double>("xmin"),
+                                psFakeRate.getParameter<double>("xmax"));
+  FakeStubs_L4->setAxisTitle("fake stubs", 1);
+  FakeStubs_L4->setAxisTitle("counts", 2);
+
+  // FakeStubs_L5
+  HistoName = "FakeStubs_L5";
+  FakeStubs_L5 = iBooker.book1D(HistoName,
+                                HistoName,
+                                psFakeRate.getParameter<int32_t>("Nbinsx"),
+                                psFakeRate.getParameter<double>("xmin"),
+                                psFakeRate.getParameter<double>("xmax"));
+  FakeStubs_L5->setAxisTitle("fake stubs", 1);
+  FakeStubs_L5->setAxisTitle("counts", 2);
+
+  // FakeStubs_L6
+  HistoName = "FakeStubs_L6";
+  FakeStubs_L6 = iBooker.book1D(HistoName,
+                                HistoName,
+                                psFakeRate.getParameter<int32_t>("Nbinsx"),
+                                psFakeRate.getParameter<double>("xmin"),
+                                psFakeRate.getParameter<double>("xmax"));
+  FakeStubs_L6->setAxisTitle("fake stubs", 1);
+  FakeStubs_L6->setAxisTitle("counts", 2);
+
 }  // end of method
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -1209,6 +1635,20 @@ void Phase2OTValidateTrackingParticles::fillDescriptions(edm::ConfigurationDescr
     psd0.add<double>("xmax", 0.05);
     psd0.add<double>("xmin", -0.05);
     desc.add<edm::ParameterSetDescription>("TH1Res_d0", psd0);
+  }
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<int>("Nbinsx", 7);
+    psd0.add<double>("xmin", 0.0);
+    psd0.add<double>("xmax", 7.0);
+    desc.add<edm::ParameterSetDescription>("TH1StubsLayers", psd0);
+  }
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<int>("Nbinsx", 19);
+    psd0.add<double>("xmin", -10.0);
+    psd0.add<double>("xmax", 10.0);
+    desc.add<edm::ParameterSetDescription>("TH1Stubs", psd0);
   }
   desc.add<std::string>("TopFolderName", "TrackerPhase2OTL1TrackV");
   desc.add<edm::InputTag>("trackingParticleToken", edm::InputTag("mix", "MergedTrackTruth"));
