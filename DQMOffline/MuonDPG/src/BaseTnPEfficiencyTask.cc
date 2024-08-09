@@ -28,11 +28,6 @@ BaseTnPEfficiencyTask::BaseTnPEfficiencyTask(const edm::ParameterSet& config)
       m_borderCut(config.getUntrackedParameter<double>("borderCut")),
       m_dxCut(config.getUntrackedParameter<double>("dx_cut")),
       m_detailedAnalysis(config.getUntrackedParameter<bool>("detailedAnalysis")),
-      kMaskChamberWithError_(config.getUntrackedParameter<bool>("maskChamberWithError")),
-      kGEMOHStatusCollectionToken_(
-          consumes<GEMOHStatusCollection>(config.getUntrackedParameter<edm::InputTag>("ohStatusTag"))),
-      kGEMVFATStatusCollectionToken_(
-          consumes<GEMVFATStatusCollection>(config.getUntrackedParameter<edm::InputTag>("vfatStatusTag"))),
       m_primaryVerticesToken(
           consumes<std::vector<reco::Vertex>>(config.getUntrackedParameter<edm::InputTag>("inputTagPrimaryVertices"))),
       m_triggerResultsToken(

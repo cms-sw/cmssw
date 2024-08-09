@@ -14,6 +14,10 @@
 
 #include "DQMOffline/MuonDPG/interface/BaseTnPEfficiencyTask.h"
 
+#include "DataFormats/GEMDigi/interface/GEMVFATStatusCollection.h"
+#include "DataFormats/GEMDigi/interface/GEMOHStatusCollection.h"
+//#include "DataFormats/GEMDigi/interface/GEMAMCStatusCollection.h"
+
 class GEMTnPEfficiencyTask : public BaseTnPEfficiencyTask {
 public:
   /// Constructor
@@ -24,6 +28,18 @@ public:
 
   /// Destructor
   ~GEMTnPEfficiencyTask() override;
+
+  const bool m_MaskChamberWithError_ = true;
+
+  edm::EDGetTokenT<GEMOHStatusCollection> m_GEMOHStatusCollectionToken_ = consumes<GEMOHStatusCollection>(edm::InputTag("muonGEMDigis", "OHStatus"));
+  
+  
+  //const edm::EDGetTokenT<GEMVFATStatusCollection> m_GEMVFATStatusCollectionToken_;
+  //const edm::EDGetTokenT<GEMAMCStatusCollection> m_GEMAMCStatusCollectionToken_;
+  //maskChamberWithError=cms.untracked.bool(True),
+  // ohStatusTag=cms.untracked.InputTag("muonGEMDigis", "OHStatus"),
+  // vfatStatusTag=cms.untracked.InputTag("muonGEMDigis","VFATStatus"),
+  // amcStatusTag=cms.untracked.InputTag("muonGEMDigis","AMCStatus"),
 
 protected:
   std::string topFolder() const override;
@@ -1296,68 +1312,32 @@ uint16_t GEMTnPEfficiencyTask::maskChamberWithError(const GEMDetId& chamber_id,
   if (!oh_exists) {
     oh_warning = oh_warning | 1;
   }
-
-  // VFAT Mask, OHStatus, AMC,
-
-  //   const bool mask = true;
-  //   bool ohst = true;
-  //   bool vfst = false;
-  //   for (auto iter = oh_status_collection->begin(); iter != oh_status_collection->end(); iter++) {
-  //     const auto [oh_id, range] = (*iter);
-  //     if (chamber_id != oh_id) {
-  //       continue;
-  //     }
-
-  //     for (auto oh_status = range.first; oh_status != range.second; oh_status++) {
-  //       if (oh_status->isBad()) {
-  //         // GEMOHStatus is bad. Mask this chamber.
-  //         ohst=false;
-  //       }  // isBad
-  //     }    // range
-  //   }      // collection
-
-  //   for (auto iter = vfat_status_collection->begin(); iter != vfat_status_collection->end(); iter++) {
-  //     const auto [vfat_id, range] = (*iter);
-  //     if (chamber_id == vfat_id.chamberId()) {
-  //       vfst=true;
-  //       for (auto vfat_status = range.first; vfat_status != range.second; vfat_status++) {
-  //         if (vfat_status->isBad()) {
-  //           vfst=false;
-  //         }
-  //     }
-  //   }  // range
-  // }    // collection
   return oh_warning;
 }
 
 void GEMTnPEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetup& context) {
   BaseTnPEfficiencyTask::analyze(event, context);
-  // std::cout << "here oh vfat status" << std::endl;
-  //const GEMOHStatusCollection* oh_status_collection = nullptr;
   GEMOHStatusCollection oh_status;
   GEMVFATStatusCollection vfat_status;
   edm::Handle<GEMOHStatusCollection> oh_status_collection;
   edm::Handle<GEMVFATStatusCollection> vfat_status_collection;
-  if (kMaskChamberWithError_) {
-    event.getByToken(kGEMOHStatusCollectionToken_, oh_status_collection);
-    if (oh_status_collection.isValid()) {
+  if (m_MaskChamberWithError_) {
+    event.getByToken(m_GEMOHStatusCollectionToken_, oh_status_collection);
+    //if (oh_status_collem_tion.isValid()) {
       oh_status = *oh_status_collection;
     } else {
-      // std::cout << "here oh fail" << std::endl;
       LogTrace("DQMOffline|MuonDPG|BaseTnPEfficiencyTask") << "failed to get GEMOHStatusCollection" << std::endl;
       return;
     }
 
-    event.getByToken(kGEMVFATStatusCollectionToken_, vfat_status_collection);
-    if (vfat_status_collection.isValid()) {
-      vfat_status = *vfat_status_collection;
-    } else {
-      // std::cout << "here vfat fail" << std::endl;
-      LogTrace("DQMOffline|MuonDPG|BaseTnPEfficiencyTask") << "failed to get GEMVFATStatusCollection" << std::endl;
-      return;
-    }
-  }
-  // std::cout << "here oh vfat status passed" << std::endl;
+    // event.getByToken(kGEMVFATStatusCollectionToken_, vfat_status_collection);
+    // if (vfat_status_collection.isValid()) {
+    //   vfat_status = *vfat_status_collection;
+    // } else {
+    //   LogTrace("DQMOffline|MuonDPG|BaseTnPEfficiencyTask") << "failed to get GEMVFATStatusCollection" << std::endl;
+    //   return;
+    // }
+  // }
   edm::Handle<reco::MuonCollection> muons;
   event.getByToken(m_muToken, muons);
 
@@ -1453,14 +1433,7 @@ void GEMTnPEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetu
           gem_matched = true;  //fill detailed plots if at least one GEM probe match
 
           GEMDetId chId(chambMatch.id.rawId());
-          // std::cout << "kMaskChamberWithError_ : " << kMaskChamberWithError_ << std::endl;
           const uint16_t warnings = maskChamberWithError(chId, &oh_status, &vfat_status);
-          // if (has_error) {
-          //   // std::cout << "chamber has error" << std::endl;
-          //   continue;
-          // }
-          // std::cout << "chamber has no error" << std::endl;
-          // }
 
           const int roll = chId.roll();
           const int region = chId.region();
