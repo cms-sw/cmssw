@@ -20,7 +20,7 @@
 #include "CondFormats/AlignmentRecord/interface/MTDAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/MTDAlignmentErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/MTDSurfaceDeformationRcd.h"
-#include "Geometry/CommonTopologies/interface/GeometryAligner.h"
+#include "Geometry/GeometryAligner/interface/GeometryAligner.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"

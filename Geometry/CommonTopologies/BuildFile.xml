@@ -1,5 +1,4 @@
 <use name="FWCore/MessageLogger"/>
-<use name="CondFormats/Alignment"/>
 <use name="DataFormats/GeometryCommonDetAlgo"/>
 <use name="DataFormats/GeometrySurface"/>
 <use name="DataFormats/DetId"/>

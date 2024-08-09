@@ -29,7 +29,7 @@
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 #include "Alignment/MuonAlignment/interface/MuonScenarioBuilder.h"
 #include "Alignment/CommonAlignment/interface/Alignable.h"
-#include "Geometry/CommonTopologies/interface/GeometryAligner.h"
+#include "Geometry/GeometryAligner/interface/GeometryAligner.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 #include <memory>
