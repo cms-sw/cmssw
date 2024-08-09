@@ -194,6 +194,8 @@ _highlevelreco_HITask.add(hiClusterCompatibility)
 pp_on_AA.toReplaceWith(highlevelrecoTask,highlevelrecoTask.copyAndExclude([PFTauTask]))
 from Configuration.Eras.Modifier_ppRef_2024_cff import ppRef_2024
 ppRef_2024.toReplaceWith(highlevelrecoTask, cms.Task(highlevelrecoTask.copy(), hiClusterCompatibility))
+from Configuration.ProcessModifiers.phase2_pp_on_AA_cff import phase2_pp_on_AA
+phase2_pp_on_AA.toReplaceWith(highlevelrecoTask, cms.Task(highlevelrecoTask.copy(), hiClusterCompatibility, hiCentrality))
 
 # not commisoned and not relevant in FastSim (?):
 _fastSim_highlevelrecoTask = highlevelrecoTask.copyAndExclude([muoncosmichighlevelrecoTask])
