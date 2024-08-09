@@ -91,6 +91,8 @@ private:
   MonitorElement *h1_recEleNum;
 
   MonitorElement *h1_ele_vertexPt;
+  MonitorElement *h1_ele_vertexPt_EB;
+  MonitorElement *h1_ele_vertexPt_EE;
   MonitorElement *h1_ele_vertexEta;
   MonitorElement *h1_ele_vertexPt_nocut;
 
