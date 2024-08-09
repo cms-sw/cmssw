@@ -1535,5 +1535,5 @@ void MuonIdProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   descCalo.add<int>("MaxSeverityHE", 9);
   desc.add<edm::ParameterSetDescription>("CaloExtractorPSet", descCalo);
 
-descriptions.addDefault(desc);
+  descriptions.addDefault(desc);
 }
