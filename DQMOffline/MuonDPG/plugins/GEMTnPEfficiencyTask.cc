@@ -18,7 +18,9 @@ class GEMTnPEfficiencyTask : public BaseTnPEfficiencyTask {
 public:
   /// Constructor
   GEMTnPEfficiencyTask(const edm::ParameterSet& config);
-  uint16_t maskChamberWithError(const GEMDetId& chamber_id, const GEMOHStatusCollection*, const GEMVFATStatusCollection*);
+  uint16_t maskChamberWithError(const GEMDetId& chamber_id,
+                                const GEMOHStatusCollection*,
+                                const GEMVFATStatusCollection*);
 
   /// Destructor
   ~GEMTnPEfficiencyTask() override;
@@ -205,48 +207,50 @@ void GEMTnPEfficiencyTask::bookHistograms(DQMStore::IBooker& iBooker,
       iBooker.book1D("GE11_nPassingProbe_OHmissing_allCh_1D", "GE11_nPassingProbe_OHmissing_allCh_1D", 2, -1.5, 1.5);
   MonitorElement* OHmissing_me_GE11_fail_allCh_1D =
       iBooker.book1D("GE11_nFailingProbe_OHmissing_allCh_1D", "GE11_nFailingProbe_OHmissing_allCh_1D", 2, -1.5, 1.5);
-  MonitorElement* OHmissing_me_GEM_pass_chamber_p1_1D =
-      iBooker.book1D("GEM_nPassingProbe_OHmissing_chamber_p1_1D", "GEM_nPassingProbe_OHmissing_chamber_p1_1D", 36, 1, 37);
-  MonitorElement* OHmissing_me_GEM_fail_chamber_p1_1D =
-      iBooker.book1D("GEM_nFailingProbe_OHmissing_chamber_p1_1D", "GEM_nFailingProbe_OHmissing_chamber_p1_1D", 36, 1, 37);
-  MonitorElement* OHmissing_me_GEM_pass_chamber_p2_1D =
-      iBooker.book1D("GEM_nPassingProbe_OHmissing_chamber_p2_1D", "GEM_nPassingProbe_OHmissing_chamber_p2_1D", 36, 1, 37);
-  MonitorElement* OHmissing_me_GEM_fail_chamber_p2_1D =
-      iBooker.book1D("GEM_nFailingProbe_OHmissing_chamber_p2_1D", "GEM_nFailingProbe_OHmissing_chamber_p2_1D", 36, 1, 37);
-  MonitorElement* OHmissing_me_GEM_pass_chamber_n1_1D =
-      iBooker.book1D("GEM_nPassingProbe_OHmissing_chamber_n1_1D", "GEM_nPassingProbe_OHmissing_chamber_n1_1D", 36, 1, 37);
-  MonitorElement* OHmissing_me_GEM_fail_chamber_n1_1D =
-      iBooker.book1D("GEM_nFailingProbe_OHmissing_chamber_n1_1D", "GEM_nFailingProbe_OHmissing_chamber_n1_1D", 36, 1, 37);
-  MonitorElement* OHmissing_me_GEM_pass_chamber_n2_1D =
-      iBooker.book1D("GEM_nPassingProbe_OHmissing_chamber_n2_1D", "GEM_nPassingProbe_OHmissing_chamber_n2_1D", 36, 1, 37);
-  MonitorElement* OHmissing_me_GEM_fail_chamber_n2_1D =
-      iBooker.book1D("GEM_nFailingProbe_OHmissing_chamber_n2_1D", "GEM_nFailingProbe_OHmissing_chamber_n2_1D", 36, 1, 37);
-  MonitorElement* OHmissing_me_GEM_pass_pt_1D = iBooker.book1D("GEM_nPassingProbe_OHmissing_pt_1D", "GEM_nPassingProbe_OHmissing_pt_1D", 20, 0, 100);
-  MonitorElement* OHmissing_me_GEM_fail_pt_1D = iBooker.book1D("GEM_nFailingProbe_OHmissing_pt_1D", "GEM_nFailingProbe_OHmissing_pt_1D", 20, 0, 100);
+  MonitorElement* OHmissing_me_GEM_pass_chamber_p1_1D = iBooker.book1D(
+      "GEM_nPassingProbe_OHmissing_chamber_p1_1D", "GEM_nPassingProbe_OHmissing_chamber_p1_1D", 36, 1, 37);
+  MonitorElement* OHmissing_me_GEM_fail_chamber_p1_1D = iBooker.book1D(
+      "GEM_nFailingProbe_OHmissing_chamber_p1_1D", "GEM_nFailingProbe_OHmissing_chamber_p1_1D", 36, 1, 37);
+  MonitorElement* OHmissing_me_GEM_pass_chamber_p2_1D = iBooker.book1D(
+      "GEM_nPassingProbe_OHmissing_chamber_p2_1D", "GEM_nPassingProbe_OHmissing_chamber_p2_1D", 36, 1, 37);
+  MonitorElement* OHmissing_me_GEM_fail_chamber_p2_1D = iBooker.book1D(
+      "GEM_nFailingProbe_OHmissing_chamber_p2_1D", "GEM_nFailingProbe_OHmissing_chamber_p2_1D", 36, 1, 37);
+  MonitorElement* OHmissing_me_GEM_pass_chamber_n1_1D = iBooker.book1D(
+      "GEM_nPassingProbe_OHmissing_chamber_n1_1D", "GEM_nPassingProbe_OHmissing_chamber_n1_1D", 36, 1, 37);
+  MonitorElement* OHmissing_me_GEM_fail_chamber_n1_1D = iBooker.book1D(
+      "GEM_nFailingProbe_OHmissing_chamber_n1_1D", "GEM_nFailingProbe_OHmissing_chamber_n1_1D", 36, 1, 37);
+  MonitorElement* OHmissing_me_GEM_pass_chamber_n2_1D = iBooker.book1D(
+      "GEM_nPassingProbe_OHmissing_chamber_n2_1D", "GEM_nPassingProbe_OHmissing_chamber_n2_1D", 36, 1, 37);
+  MonitorElement* OHmissing_me_GEM_fail_chamber_n2_1D = iBooker.book1D(
+      "GEM_nFailingProbe_OHmissing_chamber_n2_1D", "GEM_nFailingProbe_OHmissing_chamber_n2_1D", 36, 1, 37);
+  MonitorElement* OHmissing_me_GEM_pass_pt_1D =
+      iBooker.book1D("GEM_nPassingProbe_OHmissing_pt_1D", "GEM_nPassingProbe_OHmissing_pt_1D", 20, 0, 100);
+  MonitorElement* OHmissing_me_GEM_fail_pt_1D =
+      iBooker.book1D("GEM_nFailingProbe_OHmissing_pt_1D", "GEM_nFailingProbe_OHmissing_pt_1D", 20, 0, 100);
   MonitorElement* OHmissing_me_GEM_pass_eta_1D =
       iBooker.book1D("GEM_nPassingProbe_OHmissing_eta_1D", "GEM_nPassingProbe_OHmissing_eta_1D", 24, 0, 2.4);
   MonitorElement* OHmissing_me_GEM_fail_eta_1D =
       iBooker.book1D("GEM_nFailingProbe_OHmissing_eta_1D", "GEM_nFailingProbe_OHmissing_eta_1D", 24, 0, 2.4);
-  MonitorElement* OHmissing_me_GEM_pass_phi_1D =
-      iBooker.book1D("GEM_nPassingProbe_OHmissing_phi_1D", "GEM_nPassingProbe_OHmissing_phi_1D", 20, -TMath::Pi(), TMath::Pi());
-  MonitorElement* OHmissing_me_GEM_fail_phi_1D =
-      iBooker.book1D("GEM_nFailingProbe_OHmissing_phi_1D", "GEM_nFailingProbe_OHmissing_phi_1D", 20, -TMath::Pi(), TMath::Pi());
-  MonitorElement* OHmissing_me_GE11_pass_Ch_ieta_p1 =
-      iBooker.book2D("GE11_nPassingProbe_OHmissing_Ch_ieta_p1", "GE11_nPassingProbe_OHmissing_Ch_ieta_p1", 8, 1, 9, 36, 1, 37);
-  MonitorElement* OHmissing_me_GE11_fail_Ch_ieta_p1 =
-      iBooker.book2D("GE11_nFailingProbe_OHmissing_Ch_ieta_p1", "GE11_nFailingProbe_OHmissing_Ch_ieta_p1", 8, 1, 9, 36, 1, 37);
-  MonitorElement* OHmissing_me_GE11_pass_Ch_ieta_p2 =
-      iBooker.book2D("GE11_nPassingProbe_OHmissing_Ch_ieta_p2", "GE11_nPassingProbe_OHmissing_Ch_ieta_p2", 8, 1, 9, 36, 1, 37);
-  MonitorElement* OHmissing_me_GE11_fail_Ch_ieta_p2 =
-      iBooker.book2D("GE11_nFailingProbe_OHmissing_Ch_ieta_p2", "GE11_nFailingProbe_OHmissing_Ch_ieta_p2", 8, 1, 9, 36, 1, 37);
-  MonitorElement* OHmissing_me_GE11_pass_Ch_ieta_n1 =
-      iBooker.book2D("GE11_nPassingProbe_OHmissing_Ch_ieta_n1", "GE11_nPassingProbe_OHmissing_Ch_ieta_n1", 8, 1, 9, 36, 1, 37);
-  MonitorElement* OHmissing_me_GE11_fail_Ch_ieta_n1 =
-      iBooker.book2D("GE11_nFailingProbe_OHmissing_Ch_ieta_n1", "GE11_nFailingProbe_OHmissing_Ch_ieta_n1", 8, 1, 9, 36, 1, 37);
-  MonitorElement* OHmissing_me_GE11_pass_Ch_ieta_n2 =
-      iBooker.book2D("GE11_nPassingProbe_OHmissing_Ch_ieta_n2", "GE11_nPassingProbe_OHmissing_Ch_ieta_n2", 8, 1, 9, 36, 1, 37);
-  MonitorElement* OHmissing_me_GE11_fail_Ch_ieta_n2 =
-      iBooker.book2D("GE11_nFailingProbe_OHmissing_Ch_ieta_n2", "GE11_nFailingProbe_OHmissing_Ch_ieta_n2", 8, 1, 9, 36, 1, 37);
+  MonitorElement* OHmissing_me_GEM_pass_phi_1D = iBooker.book1D(
+      "GEM_nPassingProbe_OHmissing_phi_1D", "GEM_nPassingProbe_OHmissing_phi_1D", 20, -TMath::Pi(), TMath::Pi());
+  MonitorElement* OHmissing_me_GEM_fail_phi_1D = iBooker.book1D(
+      "GEM_nFailingProbe_OHmissing_phi_1D", "GEM_nFailingProbe_OHmissing_phi_1D", 20, -TMath::Pi(), TMath::Pi());
+  MonitorElement* OHmissing_me_GE11_pass_Ch_ieta_p1 = iBooker.book2D(
+      "GE11_nPassingProbe_OHmissing_Ch_ieta_p1", "GE11_nPassingProbe_OHmissing_Ch_ieta_p1", 8, 1, 9, 36, 1, 37);
+  MonitorElement* OHmissing_me_GE11_fail_Ch_ieta_p1 = iBooker.book2D(
+      "GE11_nFailingProbe_OHmissing_Ch_ieta_p1", "GE11_nFailingProbe_OHmissing_Ch_ieta_p1", 8, 1, 9, 36, 1, 37);
+  MonitorElement* OHmissing_me_GE11_pass_Ch_ieta_p2 = iBooker.book2D(
+      "GE11_nPassingProbe_OHmissing_Ch_ieta_p2", "GE11_nPassingProbe_OHmissing_Ch_ieta_p2", 8, 1, 9, 36, 1, 37);
+  MonitorElement* OHmissing_me_GE11_fail_Ch_ieta_p2 = iBooker.book2D(
+      "GE11_nFailingProbe_OHmissing_Ch_ieta_p2", "GE11_nFailingProbe_OHmissing_Ch_ieta_p2", 8, 1, 9, 36, 1, 37);
+  MonitorElement* OHmissing_me_GE11_pass_Ch_ieta_n1 = iBooker.book2D(
+      "GE11_nPassingProbe_OHmissing_Ch_ieta_n1", "GE11_nPassingProbe_OHmissing_Ch_ieta_n1", 8, 1, 9, 36, 1, 37);
+  MonitorElement* OHmissing_me_GE11_fail_Ch_ieta_n1 = iBooker.book2D(
+      "GE11_nFailingProbe_OHmissing_Ch_ieta_n1", "GE11_nFailingProbe_OHmissing_Ch_ieta_n1", 8, 1, 9, 36, 1, 37);
+  MonitorElement* OHmissing_me_GE11_pass_Ch_ieta_n2 = iBooker.book2D(
+      "GE11_nPassingProbe_OHmissing_Ch_ieta_n2", "GE11_nPassingProbe_OHmissing_Ch_ieta_n2", 8, 1, 9, 36, 1, 37);
+  MonitorElement* OHmissing_me_GE11_fail_Ch_ieta_n2 = iBooker.book2D(
+      "GE11_nFailingProbe_OHmissing_Ch_ieta_n2", "GE11_nFailingProbe_OHmissing_Ch_ieta_n2", 8, 1, 9, 36, 1, 37);
 
   OHmissing_me_GE11_pass_allCh_1D->setBinLabel(1, "GE-11", 1);
   OHmissing_me_GE11_pass_allCh_1D->setBinLabel(2, "GE+11", 1);
@@ -290,7 +294,7 @@ void GEMTnPEfficiencyTask::bookHistograms(DQMStore::IBooker& iBooker,
   OHmissing_me_GEM_pass_phi_1D->setAxisTitle("Number of passing probes", 2);
   OHmissing_me_GEM_fail_phi_1D->setAxisTitle("#phi", 1);
   OHmissing_me_GEM_fail_phi_1D->setAxisTitle("Number of failing probes", 2);
-////
+  ////
   for (int i = 1; i < 37; ++i) {
     OHmissing_me_GE11_fail_Ch_ieta_p1->setBinLabel(i, std::to_string(i), 2);
   }
@@ -310,7 +314,7 @@ void GEMTnPEfficiencyTask::bookHistograms(DQMStore::IBooker& iBooker,
   OHmissing_me_GE11_pass_Ch_ieta_p1->setAxisTitle("#ieta", 1);
   OHmissing_me_GE11_pass_Ch_ieta_p1->setAxisTitle("Chamber", 2);
   OHmissing_me_GE11_pass_Ch_ieta_p1->setAxisTitle("Number of passing probes", 3);
-////
+  ////
   for (int i = 1; i < 37; ++i) {
     OHmissing_me_GE11_fail_Ch_ieta_p2->setBinLabel(i, std::to_string(i), 2);
   }
@@ -330,7 +334,7 @@ void GEMTnPEfficiencyTask::bookHistograms(DQMStore::IBooker& iBooker,
   OHmissing_me_GE11_pass_Ch_ieta_p2->setAxisTitle("#ieta", 1);
   OHmissing_me_GE11_pass_Ch_ieta_p2->setAxisTitle("Chamber", 2);
   OHmissing_me_GE11_pass_Ch_ieta_p2->setAxisTitle("Number of passing probes", 3);
-////
+  ////
   for (int i = 1; i < 37; ++i) {
     OHmissing_me_GE11_fail_Ch_ieta_n1->setBinLabel(i, std::to_string(i), 2);
   }
@@ -350,7 +354,7 @@ void GEMTnPEfficiencyTask::bookHistograms(DQMStore::IBooker& iBooker,
   OHmissing_me_GE11_pass_Ch_ieta_n1->setAxisTitle("#ieta", 1);
   OHmissing_me_GE11_pass_Ch_ieta_n1->setAxisTitle("Chamber", 2);
   OHmissing_me_GE11_pass_Ch_ieta_n1->setAxisTitle("Number of passing probes", 3);
-////
+  ////
   for (int i = 1; i < 37; ++i) {
     OHmissing_me_GE11_fail_Ch_ieta_n2->setBinLabel(i, std::to_string(i), 2);
   }
@@ -371,9 +375,8 @@ void GEMTnPEfficiencyTask::bookHistograms(DQMStore::IBooker& iBooker,
   OHmissing_me_GE11_pass_Ch_ieta_n2->setAxisTitle("Chamber", 2);
   OHmissing_me_GE11_pass_Ch_ieta_n2->setAxisTitle("Number of passing probes", 3);
 
-
   // Bad VFAT Mask + Empty OH Mask + EvtNF
-  
+
   MonitorElement* OHerror_me_GE11_pass_allCh_1D =
       iBooker.book1D("GE11_nPassingProbe_OHerror_allCh_1D", "GE11_nPassingProbe_OHerror_allCh_1D", 2, -1.5, 1.5);
   MonitorElement* OHerror_me_GE11_fail_allCh_1D =
@@ -394,34 +397,35 @@ void GEMTnPEfficiencyTask::bookHistograms(DQMStore::IBooker& iBooker,
       iBooker.book1D("GEM_nPassingProbe_OHerror_chamber_n2_1D", "GEM_nPassingProbe_OHerror_chamber_n2_1D", 36, 1, 37);
   MonitorElement* OHerror_me_GEM_fail_chamber_n2_1D =
       iBooker.book1D("GEM_nFailingProbe_OHerror_chamber_n2_1D", "GEM_nFailingProbe_OHerror_chamber_n2_1D", 36, 1, 37);
-  MonitorElement* OHerror_me_GEM_pass_pt_1D = iBooker.book1D("GEM_nPassingProbe_OHerror_pt_1D", "GEM_nPassingProbe_OHerror_pt_1D", 20, 0, 100);
-  MonitorElement* OHerror_me_GEM_fail_pt_1D = iBooker.book1D("GEM_nFailingProbe_OHerror_pt_1D", "GEM_nFailingProbe_OHerror_pt_1D", 20, 0, 100);
+  MonitorElement* OHerror_me_GEM_pass_pt_1D =
+      iBooker.book1D("GEM_nPassingProbe_OHerror_pt_1D", "GEM_nPassingProbe_OHerror_pt_1D", 20, 0, 100);
+  MonitorElement* OHerror_me_GEM_fail_pt_1D =
+      iBooker.book1D("GEM_nFailingProbe_OHerror_pt_1D", "GEM_nFailingProbe_OHerror_pt_1D", 20, 0, 100);
   MonitorElement* OHerror_me_GEM_pass_eta_1D =
       iBooker.book1D("GEM_nPassingProbe_OHerror_eta_1D", "GEM_nPassingProbe_OHerror_eta_1D", 24, 0, 2.4);
   MonitorElement* OHerror_me_GEM_fail_eta_1D =
       iBooker.book1D("GEM_nFailingProbe_OHerror_eta_1D", "GEM_nFailingProbe_OHerror_eta_1D", 24, 0, 2.4);
-  MonitorElement* OHerror_me_GEM_pass_phi_1D =
-      iBooker.book1D("GEM_nPassingProbe_OHerror_phi_1D", "GEM_nPassingProbe_OHerror_phi_1D", 20, -TMath::Pi(), TMath::Pi());
-  MonitorElement* OHerror_me_GEM_fail_phi_1D =
-      iBooker.book1D("GEM_nFailingProbe_OHerror_phi_1D", "GEM_nFailingProbe_OHerror_phi_1D", 20, -TMath::Pi(), TMath::Pi());
-  MonitorElement* OHerror_me_GE11_pass_Ch_ieta_p1 =
-      iBooker.book2D("GE11_nPassingProbe_OHerror_Ch_ieta_p1", "GE11_nPassingProbe_OHerror_Ch_ieta_p1", 8, 1, 9, 36, 1, 37);
-  MonitorElement* OHerror_me_GE11_fail_Ch_ieta_p1 =
-      iBooker.book2D("GE11_nFailingProbe_OHerror_Ch_ieta_p1", "GE11_nFailingProbe_OHerror_Ch_ieta_p1", 8, 1, 9, 36, 1, 37);
-  MonitorElement* OHerror_me_GE11_pass_Ch_ieta_p2 =
-      iBooker.book2D("GE11_nPassingProbe_OHerror_Ch_ieta_p2", "GE11_nPassingProbe_OHerror_Ch_ieta_p2", 8, 1, 9, 36, 1, 37);
-  MonitorElement* OHerror_me_GE11_fail_Ch_ieta_p2 =
-      iBooker.book2D("GE11_nFailingProbe_OHerror_Ch_ieta_p2", "GE11_nFailingProbe_OHerror_Ch_ieta_p2", 8, 1, 9, 36, 1, 37);
-  MonitorElement* OHerror_me_GE11_pass_Ch_ieta_n1 =
-      iBooker.book2D("GE11_nPassingProbe_OHerror_Ch_ieta_n1", "GE11_nPassingProbe_OHerror_Ch_ieta_n1", 8, 1, 9, 36, 1, 37);
-  MonitorElement* OHerror_me_GE11_fail_Ch_ieta_n1 =
-      iBooker.book2D("GE11_nFailingProbe_OHerror_Ch_ieta_n1", "GE11_nFailingProbe_OHerror_Ch_ieta_n1", 8, 1, 9, 36, 1, 37);
-  MonitorElement* OHerror_me_GE11_pass_Ch_ieta_n2 =
-      iBooker.book2D("GE11_nPassingProbe_OHerror_Ch_ieta_n2", "GE11_nPassingProbe_OHerror_Ch_ieta_n2", 8, 1, 9, 36, 1, 37);
-  MonitorElement* OHerror_me_GE11_fail_Ch_ieta_n2 =
-      iBooker.book2D("GE11_nFailingProbe_OHerror_Ch_ieta_n2", "GE11_nFailingProbe_OHerror_Ch_ieta_n2", 8, 1, 9, 36, 1, 37);
+  MonitorElement* OHerror_me_GEM_pass_phi_1D = iBooker.book1D(
+      "GEM_nPassingProbe_OHerror_phi_1D", "GEM_nPassingProbe_OHerror_phi_1D", 20, -TMath::Pi(), TMath::Pi());
+  MonitorElement* OHerror_me_GEM_fail_phi_1D = iBooker.book1D(
+      "GEM_nFailingProbe_OHerror_phi_1D", "GEM_nFailingProbe_OHerror_phi_1D", 20, -TMath::Pi(), TMath::Pi());
+  MonitorElement* OHerror_me_GE11_pass_Ch_ieta_p1 = iBooker.book2D(
+      "GE11_nPassingProbe_OHerror_Ch_ieta_p1", "GE11_nPassingProbe_OHerror_Ch_ieta_p1", 8, 1, 9, 36, 1, 37);
+  MonitorElement* OHerror_me_GE11_fail_Ch_ieta_p1 = iBooker.book2D(
+      "GE11_nFailingProbe_OHerror_Ch_ieta_p1", "GE11_nFailingProbe_OHerror_Ch_ieta_p1", 8, 1, 9, 36, 1, 37);
+  MonitorElement* OHerror_me_GE11_pass_Ch_ieta_p2 = iBooker.book2D(
+      "GE11_nPassingProbe_OHerror_Ch_ieta_p2", "GE11_nPassingProbe_OHerror_Ch_ieta_p2", 8, 1, 9, 36, 1, 37);
+  MonitorElement* OHerror_me_GE11_fail_Ch_ieta_p2 = iBooker.book2D(
+      "GE11_nFailingProbe_OHerror_Ch_ieta_p2", "GE11_nFailingProbe_OHerror_Ch_ieta_p2", 8, 1, 9, 36, 1, 37);
+  MonitorElement* OHerror_me_GE11_pass_Ch_ieta_n1 = iBooker.book2D(
+      "GE11_nPassingProbe_OHerror_Ch_ieta_n1", "GE11_nPassingProbe_OHerror_Ch_ieta_n1", 8, 1, 9, 36, 1, 37);
+  MonitorElement* OHerror_me_GE11_fail_Ch_ieta_n1 = iBooker.book2D(
+      "GE11_nFailingProbe_OHerror_Ch_ieta_n1", "GE11_nFailingProbe_OHerror_Ch_ieta_n1", 8, 1, 9, 36, 1, 37);
+  MonitorElement* OHerror_me_GE11_pass_Ch_ieta_n2 = iBooker.book2D(
+      "GE11_nPassingProbe_OHerror_Ch_ieta_n2", "GE11_nPassingProbe_OHerror_Ch_ieta_n2", 8, 1, 9, 36, 1, 37);
+  MonitorElement* OHerror_me_GE11_fail_Ch_ieta_n2 = iBooker.book2D(
+      "GE11_nFailingProbe_OHerror_Ch_ieta_n2", "GE11_nFailingProbe_OHerror_Ch_ieta_n2", 8, 1, 9, 36, 1, 37);
 
-  
   OHerror_me_GE11_pass_allCh_1D->setBinLabel(1, "GE-11", 1);
   OHerror_me_GE11_pass_allCh_1D->setBinLabel(2, "GE+11", 1);
   OHerror_me_GE11_pass_allCh_1D->setAxisTitle("Number of passing probes", 2);
@@ -483,7 +487,7 @@ void GEMTnPEfficiencyTask::bookHistograms(DQMStore::IBooker& iBooker,
   OHerror_me_GE11_pass_Ch_ieta_p1->setAxisTitle("#ieta", 1);
   OHerror_me_GE11_pass_Ch_ieta_p1->setAxisTitle("Chamber", 2);
   OHerror_me_GE11_pass_Ch_ieta_p1->setAxisTitle("Number of passing probes", 3);
-////
+  ////
   for (int i = 1; i < 37; ++i) {
     OHerror_me_GE11_fail_Ch_ieta_p2->setBinLabel(i, std::to_string(i), 2);
   }
@@ -503,7 +507,7 @@ void GEMTnPEfficiencyTask::bookHistograms(DQMStore::IBooker& iBooker,
   OHerror_me_GE11_pass_Ch_ieta_p2->setAxisTitle("#ieta", 1);
   OHerror_me_GE11_pass_Ch_ieta_p2->setAxisTitle("Chamber", 2);
   OHerror_me_GE11_pass_Ch_ieta_p2->setAxisTitle("Number of passing probes", 3);
-////
+  ////
   for (int i = 1; i < 37; ++i) {
     OHerror_me_GE11_fail_Ch_ieta_n1->setBinLabel(i, std::to_string(i), 2);
   }
@@ -523,7 +527,7 @@ void GEMTnPEfficiencyTask::bookHistograms(DQMStore::IBooker& iBooker,
   OHerror_me_GE11_pass_Ch_ieta_n1->setAxisTitle("#ieta", 1);
   OHerror_me_GE11_pass_Ch_ieta_n1->setAxisTitle("Chamber", 2);
   OHerror_me_GE11_pass_Ch_ieta_n1->setAxisTitle("Number of passing probes", 3);
-////
+  ////
   for (int i = 1; i < 37; ++i) {
     OHerror_me_GE11_fail_Ch_ieta_n2->setBinLabel(i, std::to_string(i), 2);
   }
@@ -545,7 +549,7 @@ void GEMTnPEfficiencyTask::bookHistograms(DQMStore::IBooker& iBooker,
   OHerror_me_GE11_pass_Ch_ieta_n2->setAxisTitle("Number of passing probes", 3);
 
   // Bad VFAT Mask + Empty OH Mask + OHerrorMask
-  
+
   MonitorElement* VFATMask_me_GE11_pass_allCh_1D =
       iBooker.book1D("GE11_nPassingProbe_VFATMask_allCh_1D", "GE11_nPassingProbe_VFATMask_allCh_1D", 2, -1.5, 1.5);
   MonitorElement* VFATMask_me_GE11_fail_allCh_1D =
@@ -566,34 +570,35 @@ void GEMTnPEfficiencyTask::bookHistograms(DQMStore::IBooker& iBooker,
       iBooker.book1D("GEM_nPassingProbe_VFATMask_chamber_n2_1D", "GEM_nPassingProbe_VFATMask_chamber_n2_1D", 36, 1, 37);
   MonitorElement* VFATMask_me_GEM_fail_chamber_n2_1D =
       iBooker.book1D("GEM_nFailingProbe_VFATMask_chamber_n2_1D", "GEM_nFailingProbe_VFATMask_chamber_n2_1D", 36, 1, 37);
-  MonitorElement* VFATMask_me_GEM_pass_pt_1D = iBooker.book1D("GEM_nPassingProbe_VFATMask_pt_1D", "GEM_nPassingProbe_VFATMask_pt_1D", 20, 0, 100);
-  MonitorElement* VFATMask_me_GEM_fail_pt_1D = iBooker.book1D("GEM_nFailingProbe_VFATMask_pt_1D", "GEM_nFailingProbe_VFATMask_pt_1D", 20, 0, 100);
+  MonitorElement* VFATMask_me_GEM_pass_pt_1D =
+      iBooker.book1D("GEM_nPassingProbe_VFATMask_pt_1D", "GEM_nPassingProbe_VFATMask_pt_1D", 20, 0, 100);
+  MonitorElement* VFATMask_me_GEM_fail_pt_1D =
+      iBooker.book1D("GEM_nFailingProbe_VFATMask_pt_1D", "GEM_nFailingProbe_VFATMask_pt_1D", 20, 0, 100);
   MonitorElement* VFATMask_me_GEM_pass_eta_1D =
       iBooker.book1D("GEM_nPassingProbe_VFATMask_eta_1D", "GEM_nPassingProbe_VFATMask_eta_1D", 24, 0, 2.4);
   MonitorElement* VFATMask_me_GEM_fail_eta_1D =
       iBooker.book1D("GEM_nFailingProbe_VFATMask_eta_1D", "GEM_nFailingProbe_VFATMask_eta_1D", 24, 0, 2.4);
-  MonitorElement* VFATMask_me_GEM_pass_phi_1D =
-      iBooker.book1D("GEM_nPassingProbe_VFATMask_phi_1D", "GEM_nPassingProbe_VFATMask_phi_1D", 20, -TMath::Pi(), TMath::Pi());
-  MonitorElement* VFATMask_me_GEM_fail_phi_1D =
-      iBooker.book1D("GEM_nFailingProbe_VFATMask_phi_1D", "GEM_nFailingProbe_VFATMask_phi_1D", 20, -TMath::Pi(), TMath::Pi());
-  MonitorElement* VFATMask_me_GE11_pass_Ch_ieta_p1 =
-      iBooker.book2D("GE11_nPassingProbe_VFATMask_Ch_ieta_p1", "GE11_nPassingProbe_VFATMask_Ch_ieta_p1", 8, 1, 9, 36, 1, 37);
-  MonitorElement* VFATMask_me_GE11_fail_Ch_ieta_p1 =
-      iBooker.book2D("GE11_nFailingProbe_VFATMask_Ch_ieta_p1", "GE11_nFailingProbe_VFATMask_Ch_ieta_p1", 8, 1, 9, 36, 1, 37);
-  MonitorElement* VFATMask_me_GE11_pass_Ch_ieta_p2 =
-      iBooker.book2D("GE11_nPassingProbe_VFATMask_Ch_ieta_p2", "GE11_nPassingProbe_VFATMask_Ch_ieta_p2", 8, 1, 9, 36, 1, 37);
-  MonitorElement* VFATMask_me_GE11_fail_Ch_ieta_p2 =
-      iBooker.book2D("GE11_nFailingProbe_VFATMask_Ch_ieta_p2", "GE11_nFailingProbe_VFATMask_Ch_ieta_p2", 8, 1, 9, 36, 1, 37);
-  MonitorElement* VFATMask_me_GE11_pass_Ch_ieta_n1 =
-      iBooker.book2D("GE11_nPassingProbe_VFATMask_Ch_ieta_n1", "GE11_nPassingProbe_VFATMask_Ch_ieta_n1", 8, 1, 9, 36, 1, 37);
-  MonitorElement* VFATMask_me_GE11_fail_Ch_ieta_n1 =
-      iBooker.book2D("GE11_nFailingProbe_VFATMask_Ch_ieta_n1", "GE11_nFailingProbe_VFATMask_Ch_ieta_n1", 8, 1, 9, 36, 1, 37);
-  MonitorElement* VFATMask_me_GE11_pass_Ch_ieta_n2 =
-      iBooker.book2D("GE11_nPassingProbe_VFATMask_Ch_ieta_n2", "GE11_nPassingProbe_VFATMask_Ch_ieta_n2", 8, 1, 9, 36, 1, 37);
-  MonitorElement* VFATMask_me_GE11_fail_Ch_ieta_n2 =
-      iBooker.book2D("GE11_nFailingProbe_VFATMask_Ch_ieta_n2", "GE11_nFailingProbe_VFATMask_Ch_ieta_n2", 8, 1, 9, 36, 1, 37);
+  MonitorElement* VFATMask_me_GEM_pass_phi_1D = iBooker.book1D(
+      "GEM_nPassingProbe_VFATMask_phi_1D", "GEM_nPassingProbe_VFATMask_phi_1D", 20, -TMath::Pi(), TMath::Pi());
+  MonitorElement* VFATMask_me_GEM_fail_phi_1D = iBooker.book1D(
+      "GEM_nFailingProbe_VFATMask_phi_1D", "GEM_nFailingProbe_VFATMask_phi_1D", 20, -TMath::Pi(), TMath::Pi());
+  MonitorElement* VFATMask_me_GE11_pass_Ch_ieta_p1 = iBooker.book2D(
+      "GE11_nPassingProbe_VFATMask_Ch_ieta_p1", "GE11_nPassingProbe_VFATMask_Ch_ieta_p1", 8, 1, 9, 36, 1, 37);
+  MonitorElement* VFATMask_me_GE11_fail_Ch_ieta_p1 = iBooker.book2D(
+      "GE11_nFailingProbe_VFATMask_Ch_ieta_p1", "GE11_nFailingProbe_VFATMask_Ch_ieta_p1", 8, 1, 9, 36, 1, 37);
+  MonitorElement* VFATMask_me_GE11_pass_Ch_ieta_p2 = iBooker.book2D(
+      "GE11_nPassingProbe_VFATMask_Ch_ieta_p2", "GE11_nPassingProbe_VFATMask_Ch_ieta_p2", 8, 1, 9, 36, 1, 37);
+  MonitorElement* VFATMask_me_GE11_fail_Ch_ieta_p2 = iBooker.book2D(
+      "GE11_nFailingProbe_VFATMask_Ch_ieta_p2", "GE11_nFailingProbe_VFATMask_Ch_ieta_p2", 8, 1, 9, 36, 1, 37);
+  MonitorElement* VFATMask_me_GE11_pass_Ch_ieta_n1 = iBooker.book2D(
+      "GE11_nPassingProbe_VFATMask_Ch_ieta_n1", "GE11_nPassingProbe_VFATMask_Ch_ieta_n1", 8, 1, 9, 36, 1, 37);
+  MonitorElement* VFATMask_me_GE11_fail_Ch_ieta_n1 = iBooker.book2D(
+      "GE11_nFailingProbe_VFATMask_Ch_ieta_n1", "GE11_nFailingProbe_VFATMask_Ch_ieta_n1", 8, 1, 9, 36, 1, 37);
+  MonitorElement* VFATMask_me_GE11_pass_Ch_ieta_n2 = iBooker.book2D(
+      "GE11_nPassingProbe_VFATMask_Ch_ieta_n2", "GE11_nPassingProbe_VFATMask_Ch_ieta_n2", 8, 1, 9, 36, 1, 37);
+  MonitorElement* VFATMask_me_GE11_fail_Ch_ieta_n2 = iBooker.book2D(
+      "GE11_nFailingProbe_VFATMask_Ch_ieta_n2", "GE11_nFailingProbe_VFATMask_Ch_ieta_n2", 8, 1, 9, 36, 1, 37);
 
-  
   VFATMask_me_GE11_pass_allCh_1D->setBinLabel(1, "GE-11", 1);
   VFATMask_me_GE11_pass_allCh_1D->setBinLabel(2, "GE+11", 1);
   VFATMask_me_GE11_pass_allCh_1D->setAxisTitle("Number of passing probes", 2);
@@ -656,7 +661,7 @@ void GEMTnPEfficiencyTask::bookHistograms(DQMStore::IBooker& iBooker,
   VFATMask_me_GE11_pass_Ch_ieta_p1->setAxisTitle("#ieta", 1);
   VFATMask_me_GE11_pass_Ch_ieta_p1->setAxisTitle("Chamber", 2);
   VFATMask_me_GE11_pass_Ch_ieta_p1->setAxisTitle("Number of passing probes", 3);
-////
+  ////
   for (int i = 1; i < 37; ++i) {
     VFATMask_me_GE11_fail_Ch_ieta_p2->setBinLabel(i, std::to_string(i), 2);
   }
@@ -676,7 +681,7 @@ void GEMTnPEfficiencyTask::bookHistograms(DQMStore::IBooker& iBooker,
   VFATMask_me_GE11_pass_Ch_ieta_p2->setAxisTitle("#ieta", 1);
   VFATMask_me_GE11_pass_Ch_ieta_p2->setAxisTitle("Chamber", 2);
   VFATMask_me_GE11_pass_Ch_ieta_p2->setAxisTitle("Number of passing probes", 3);
-////
+  ////
   for (int i = 1; i < 37; ++i) {
     VFATMask_me_GE11_fail_Ch_ieta_n1->setBinLabel(i, std::to_string(i), 2);
   }
@@ -696,7 +701,7 @@ void GEMTnPEfficiencyTask::bookHistograms(DQMStore::IBooker& iBooker,
   VFATMask_me_GE11_pass_Ch_ieta_n1->setAxisTitle("#ieta", 1);
   VFATMask_me_GE11_pass_Ch_ieta_n1->setAxisTitle("Chamber", 2);
   VFATMask_me_GE11_pass_Ch_ieta_n1->setAxisTitle("Number of passing probes", 3);
-////
+  ////
   for (int i = 1; i < 37; ++i) {
     VFATMask_me_GE11_fail_Ch_ieta_n2->setBinLabel(i, std::to_string(i), 2);
   }
@@ -1037,7 +1042,7 @@ void GEMTnPEfficiencyTask::bookHistograms(DQMStore::IBooker& iBooker,
   me_GE11_pass_Ch_ieta_p1->setAxisTitle("#ieta", 1);
   me_GE11_pass_Ch_ieta_p1->setAxisTitle("Chamber", 2);
   me_GE11_pass_Ch_ieta_p1->setAxisTitle("Number of passing probes", 3);
-////
+  ////
   for (int i = 1; i < 37; ++i) {
     me_GE11_fail_Ch_ieta_p2->setBinLabel(i, std::to_string(i), 2);
   }
@@ -1057,7 +1062,7 @@ void GEMTnPEfficiencyTask::bookHistograms(DQMStore::IBooker& iBooker,
   me_GE11_pass_Ch_ieta_p2->setAxisTitle("#ieta", 1);
   me_GE11_pass_Ch_ieta_p2->setAxisTitle("Chamber", 2);
   me_GE11_pass_Ch_ieta_p2->setAxisTitle("Number of passing probes", 3);
-////
+  ////
   for (int i = 1; i < 37; ++i) {
     me_GE11_fail_Ch_ieta_n1->setBinLabel(i, std::to_string(i), 2);
   }
@@ -1077,7 +1082,7 @@ void GEMTnPEfficiencyTask::bookHistograms(DQMStore::IBooker& iBooker,
   me_GE11_pass_Ch_ieta_n1->setAxisTitle("#ieta", 1);
   me_GE11_pass_Ch_ieta_n1->setAxisTitle("Chamber", 2);
   me_GE11_pass_Ch_ieta_n1->setAxisTitle("Number of passing probes", 3);
-////
+  ////
   for (int i = 1; i < 37; ++i) {
     me_GE11_fail_Ch_ieta_n2->setBinLabel(i, std::to_string(i), 2);
   }
@@ -1173,8 +1178,6 @@ void GEMTnPEfficiencyTask::bookHistograms(DQMStore::IBooker& iBooker,
   m_histos["GE11_nPassingProbe_Ch_ieta_n2"] = me_GE11_pass_Ch_ieta_n2;
   m_histos["GE11_nFailingProbe_Ch_ieta_n2"] = me_GE11_fail_Ch_ieta_n2;
 
-
-
   m_histos["GE11_nPassingProbe_OHmissing_allCh_1D"] = OHmissing_me_GE11_pass_allCh_1D;
   m_histos["GE11_nFailingProbe_OHmissing_allCh_1D"] = OHmissing_me_GE11_fail_allCh_1D;
   m_histos["GEM_nPassingProbe_OHmissing_chamber_p1_1D"] = OHmissing_me_GEM_pass_chamber_p1_1D;
@@ -1265,10 +1268,10 @@ void GEMTnPEfficiencyTask::bookHistograms(DQMStore::IBooker& iBooker,
 }
 
 uint16_t GEMTnPEfficiencyTask::maskChamberWithError(const GEMDetId& chamber_id,
-                                                      const GEMOHStatusCollection* oh_status_collection,
-                                                      const GEMVFATStatusCollection* vfat_status_collection) {
-uint16_t oh_warning = 0;
-bool oh_exists = false;
+                                                    const GEMOHStatusCollection* oh_status_collection,
+                                                    const GEMVFATStatusCollection* vfat_status_collection) {
+  uint16_t oh_warning = 0;
+  bool oh_exists = false;
   for (auto iter = oh_status_collection->begin(); iter != oh_status_collection->end(); iter++) {
     const auto [oh_id, range] = (*iter);
     if (chamber_id.chamberId() != oh_id) {
@@ -1283,43 +1286,44 @@ bool oh_exists = false;
       uint32_t vfatmask = oh_status->vfatMask();
       if (vfatmask != 16777215) {
         int ieta = chamber_id.ieta();
-        if (!((vfatmask >> (8-ieta) & 1) && (vfatmask >> (16-ieta) & 1) && (vfatmask >> (24-ieta) & 1))){ // will not work for GE21
+        if (!((vfatmask >> (8 - ieta) & 1) && (vfatmask >> (16 - ieta) & 1) &&
+              (vfatmask >> (24 - ieta) & 1))) {  // will not work for GE21
           oh_warning = oh_warning | (1 << 2);
         }
       }
-    }    // range
-  }      // collection
-if (!oh_exists) {
-  oh_warning = oh_warning | 1;
-}
+    }  // range
+  }    // collection
+  if (!oh_exists) {
+    oh_warning = oh_warning | 1;
+  }
 
-  // VFAT Mask, OHStatus, AMC, 
+  // VFAT Mask, OHStatus, AMC,
 
-//   const bool mask = true;
-//   bool ohst = true;
-//   bool vfst = false;
-//   for (auto iter = oh_status_collection->begin(); iter != oh_status_collection->end(); iter++) {
-//     const auto [oh_id, range] = (*iter);
-//     if (chamber_id != oh_id) {
-//       continue;
-//     }
+  //   const bool mask = true;
+  //   bool ohst = true;
+  //   bool vfst = false;
+  //   for (auto iter = oh_status_collection->begin(); iter != oh_status_collection->end(); iter++) {
+  //     const auto [oh_id, range] = (*iter);
+  //     if (chamber_id != oh_id) {
+  //       continue;
+  //     }
 
-//     for (auto oh_status = range.first; oh_status != range.second; oh_status++) {
-//       if (oh_status->isBad()) {
-//         // GEMOHStatus is bad. Mask this chamber.
-//         ohst=false;
-//       }  // isBad
-//     }    // range
-//   }      // collection
+  //     for (auto oh_status = range.first; oh_status != range.second; oh_status++) {
+  //       if (oh_status->isBad()) {
+  //         // GEMOHStatus is bad. Mask this chamber.
+  //         ohst=false;
+  //       }  // isBad
+  //     }    // range
+  //   }      // collection
 
-//   for (auto iter = vfat_status_collection->begin(); iter != vfat_status_collection->end(); iter++) {
-//     const auto [vfat_id, range] = (*iter);
-//     if (chamber_id == vfat_id.chamberId()) {
-//       vfst=true;
-//       for (auto vfat_status = range.first; vfat_status != range.second; vfat_status++) {
-//         if (vfat_status->isBad()) {
-//           vfst=false;
-//         }
+  //   for (auto iter = vfat_status_collection->begin(); iter != vfat_status_collection->end(); iter++) {
+  //     const auto [vfat_id, range] = (*iter);
+  //     if (chamber_id == vfat_id.chamberId()) {
+  //       vfst=true;
+  //       for (auto vfat_status = range.first; vfat_status != range.second; vfat_status++) {
+  //         if (vfat_status->isBad()) {
+  //           vfst=false;
+  //         }
   //     }
   //   }  // range
   // }    // collection
@@ -1335,7 +1339,7 @@ void GEMTnPEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetu
   edm::Handle<GEMOHStatusCollection> oh_status_collection;
   edm::Handle<GEMVFATStatusCollection> vfat_status_collection;
   if (kMaskChamberWithError_) {
-    event.getByToken(kGEMOHStatusCollectionToken_,oh_status_collection);
+    event.getByToken(kGEMOHStatusCollectionToken_, oh_status_collection);
     if (oh_status_collection.isValid()) {
       oh_status = *oh_status_collection;
     } else {
@@ -1344,7 +1348,7 @@ void GEMTnPEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetu
       return;
     }
 
-    event.getByToken(kGEMVFATStatusCollectionToken_,vfat_status_collection);
+    event.getByToken(kGEMVFATStatusCollectionToken_, vfat_status_collection);
     if (vfat_status_collection.isValid()) {
       vfat_status = *vfat_status_collection;
     } else {
@@ -1437,7 +1441,7 @@ void GEMTnPEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetu
     std::vector<float> probe_ME0_ieta;
     std::vector<float> probe_ME0_phi;
     std::vector<float> probe_ME0_dx;
-    std::vector<uint16_t> probe_ME0_warnings; 
+    std::vector<uint16_t> probe_ME0_warnings;
 
     bool gem_matched = false;  // fill detailed plots only for probes matching GEM
 
@@ -1451,13 +1455,13 @@ void GEMTnPEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetu
           GEMDetId chId(chambMatch.id.rawId());
           // std::cout << "kMaskChamberWithError_ : " << kMaskChamberWithError_ << std::endl;
           const uint16_t warnings = maskChamberWithError(chId, &oh_status, &vfat_status);
-            // if (has_error) {
-            //   // std::cout << "chamber has error" << std::endl;
-            //   continue;
-            // }
-            // std::cout << "chamber has no error" << std::endl;
+          // if (has_error) {
+          //   // std::cout << "chamber has error" << std::endl;
+          //   continue;
           // }
-          
+          // std::cout << "chamber has no error" << std::endl;
+          // }
+
           const int roll = chId.roll();
           const int region = chId.region();
           const int station = chId.station();
@@ -1661,8 +1665,8 @@ void GEMTnPEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetu
       float GEM_dx = probe_coll_GE11_dx.at(i).at(j);
       float GEM_eta = probe_coll_GE11_eta.at(i).at(j);
       float GEM_phi = probe_coll_GE11_phi.at(i).at(j);
-      
-      uint16_t GEM_warning= probe_coll_GE11_warnings.at(i).at(j);
+
+      uint16_t GEM_warning = probe_coll_GE11_warnings.at(i).at(j);
       //Fill GEM plots
       if (GEM_dx < m_dxCut) {
         m_histos.find("GE11_nPassingProbe_Ch_region")->second->Fill(GEM_region, GEM_chamber);
