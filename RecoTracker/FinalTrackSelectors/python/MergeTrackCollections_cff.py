@@ -17,6 +17,8 @@ duplicateTrackCandidates = DuplicateTrackMerger.clone(
     ttrhBuilderName   = "WithAngleAndTemplate",
     chi2EstimatorName = "duplicateTrackCandidatesChi2Est"
 )
+from Configuration.ProcessModifiers.trackingIters01_cff import trackingIters01
+trackingIters01.toModify(duplicateTrackCandidates, source = "earlyGeneralTracks")
 
 import RecoTracker.TrackProducer.TrackProducer_cfi
 mergedDuplicateTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
@@ -43,6 +45,10 @@ generalTracks = DuplicateListMerger.clone(
     mergedMVAVals       = "duplicateTrackClassifier:MVAValues",
     candidateSource     = "duplicateTrackCandidates:candidates",
     candidateComponents = "duplicateTrackCandidates:candidateMap"
+)
+trackingIters01.toModify(generalTracks,
+                         originalSource = "earlyGeneralTracks",
+                         originalMVAVals = "earlyGeneralTracks:MVAValues"
 )
 
 generalTracksTask = cms.Task(

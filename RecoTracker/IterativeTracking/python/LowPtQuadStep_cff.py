@@ -14,6 +14,9 @@ lowPtQuadStepClusters = _cfg.clusterRemoverForIter('LowPtQuadStep')
 for _eraName, _postfix, _era in _cfg.nonDefaultEras():
     _era.toReplaceWith(lowPtQuadStepClusters, _cfg.clusterRemoverForIter('LowPtQuadStep', _eraName, _postfix))
 
+from Configuration.ProcessModifiers.trackingLST_cff import trackingLST
+# with LST, this is the first iteration with proper cluster masking
+trackingLST.toModify(lowPtQuadStepClusters, oldClusterRemovalInfo = "")
 
 # SEEDING LAYERS
 import RecoTracker.TkSeedingLayers.PixelLayerQuadruplets_cfi

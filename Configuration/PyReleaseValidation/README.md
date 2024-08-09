@@ -61,6 +61,8 @@ The offsets currently in use are:
 * 0.7: trackingMkFit modifier
 * 0.701: DisplacedRegionalStep tracking iteration for Run-3
 * 0.702: trackingMkFit modifier for Phase-2 (initialStep only)
+* 0.703: LST tracking, initialStep+HighPtTripletStep only, on CPU
+* 0.704: LST tracking, initialStep+HighPtTripletStep only, on GPU
 * 0.78: Complete L1 workflow
 * 0.8: BPH Parking (Run-2)
 * 0.81: Running also HeavyFlavor DQM

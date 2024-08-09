@@ -1,0 +1,174 @@
+#!/bin/bash
+
+##############################################################################
+#
+#
+# Line Segment Tracking Standalone Code Run Script
+#
+#
+##############################################################################
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+# Help
+usage()
+{
+  echo "ERROR - Usage:"
+  echo
+  echo "      sh $(basename $0) OPTIONSTRINGS ..."
+  echo
+  echo "Options:"
+  echo "  -h    Help                    (Display this message)"
+  echo "  -f    compilation flags       (Compilation flags e.g. mc NOTE: Must start with '-' e.g. '-mc')"
+  echo "  -s    sample name             (Sample name e.g. PU200, muonGun, ...)"
+  echo "  -n    number of events        (Number of events to run over)"
+  echo "  -t    tag for this run        (Tag for this run)"
+  echo "  -d    delete previous output  (Delete the previous outputs and re-run)"
+  echo "  -b    backend                 (Select a backend: cuda or cpu; default cuda)"
+  echo "  -a    arguments               (Add command line arguments to the lst command)"
+  echo
+  exit
+}
+
+DELETE=false
+
+# Parsing command-line opts
+while getopts ":f:s:n:t:b:a:dh" OPTION; do
+  case $OPTION in
+    f) FLAGS=${OPTARG};;
+    s) SAMPLE=${OPTARG};;
+    n) NEVENTS=${OPTARG};;
+    t) TAG=${OPTARG};;
+    b) BACKEND=${OPTARG};;
+    a) ARGUMENTS=${OPTARG};;
+    d) DELETE=true;;
+    h) usage;;
+    :) usage;;
+  esac
+done
+
+# If the command line options are not provided set it to default value of false
+if [ -z ${FLAGS} ]; then PRECOMPILED=true; else PRECOMPILED=false; fi
+if [ -z ${SAMPLE} ]; then usage; fi
+if [ -z ${NEVENTS} ]; then NEVENTS=-1; fi
+if [ -z ${TAG} ]; then usage; fi
+if [ -z ${BACKEND} ]; then  BACKEND="default"; fi
+if [ -z ${ARGUMENTS} ]; then  ARGUMENTS=""; fi
+
+# Check that the FLAGS start with "-" character
+if [[ ${PRECOMPILED} == true ]] || [[ ${FLAGS:0:1} == "-" ]]; then
+    :
+else
+    echo "ERROR:"
+    echo ""
+    echo "Compilation flag Option provided is '-f ${FLAGS}'"
+    echo "However, compilation flags must start with '-' e.g. '-mc'"
+    echo ""
+    exit
+fi
+
+# Shift away the parsed options
+shift $(($OPTIND - 1))
+
+# Move to the TRACKLOOPERDIR
+pushd ${TRACKLOOPERDIR}
+
+if [[ ${PRECOMPILED} == true ]]; then
+  FLAGS="No compilation"
+fi
+
+# Verbose
+echo "====================================================="
+echo "Line Segment Tracking Run Script                     "
+echo "====================================================="
+echo ""
+echo "  COMPILATION FLAG  : ${FLAGS}"
+echo "  SAMPLE            : ${SAMPLE}"
+echo "  NEVENTS           : ${NEVENTS}"
+echo "  TAG               : ${TAG}"
+echo "  DELETE            : ${DELETE}"
+echo "  BACKEND           : ${BACKEND}"
+echo "  ARGUMENTS         : ${ARGUMENTS}"
+echo ""
+echo "  (cf. Run > sh $(basename $0) -h to see all options)"
+echo ""
+
+JOBTAG=${TAG}_${SAMPLE}_NEVT${NEVENTS}
+LSTNTUPLEOUTPUT=${LSTOUTPUTDIR}/${JOBTAG}__LSTNtuple.root
+LSTNUMDENOUTPUT=${LSTOUTPUTDIR}/${JOBTAG}__LSTNumDen.root
+
+# Help
+file_already_exists()
+{
+  echo "ERROR - Output already exists!"
+  echo ""
+  echo "  Out of caution, the lst_run fails to run if the following .root output files already exists:"
+  echo ""
+  if [ -f "$LSTNTUPLEOUTPUT" ]; then
+      echo "  $LSTNTUPLEOUTPUT   already exists."
+  fi
+  if [ -f "$LSTNUMDENOUTPUT" ]; then
+      echo "  $LSTNUMDENOUTPUT   already exists."
+  fi
+  echo ""
+  echo "  Please delete these files before running them again."
+  echo ""
+  echo "  or, use -d options to delete previous outputs! use with caution!"
+  echo
+  exit
+}
+
+if [ "$DELETE" = true ]; then
+    rm -rf ${LSTNTUPLEOUTPUT};
+    rm -rf ${LSTNUMDENOUTPUT};
+else
+    if [ -f "$LSTNTUPLEOUTPUT" ]; then file_already_exists; fi
+    if [ -f "$LSTNUMDENOUTPUT" ]; then file_already_exists; fi
+fi
+
+# Create output directory
+mkdir -p ${LSTOUTPUTDIR}
+
+rm -f ${LSTOUTPUTDIR}/${JOBTAG}__LSTRun.log
+if [[ ${PRECOMPILED} != true ]]; then
+  echo "Compiling code..."
+  lst_make_tracklooper ${FLAGS} >> ${LSTOUTPUTDIR}/${JOBTAG}__LSTRun.log
+fi
+
+# If a backend is specified then make sure that corresponding library exists
+# and make a symbolic link to the correct binary
+if [ "${BACKEND}" == "cuda" ]; then
+  if [ ! -f ${TRACKLOOPERDIR}/LST/liblst_cuda.so ]; then
+    echo "Error: CUDA backend was not compiled."
+    exit 1
+  fi
+  ln -s -f ${TRACKLOOPERDIR}/bin/lst_cuda ${TRACKLOOPERDIR}/bin/lst
+elif [ "${BACKEND}" == "cpu" ]; then
+  if [ ! -f ${TRACKLOOPERDIR}/LST/liblst_cpu.so ]; then
+    echo "Error: CPU backend was not compiled."
+    exit 1
+  fi
+  ln -s -f ${TRACKLOOPERDIR}/bin/lst_cpu ${TRACKLOOPERDIR}/bin/lst
+elif [ "${BACKEND}" == "rocm" ]; then
+  if [ ! -f ${TRACKLOOPERDIR}/LST/liblst_rocm.so ]; then
+    echo "Error: ROCM backend was not compiled."
+    exit 1
+  fi
+  ln -s -f ${TRACKLOOPERDIR}/bin/lst_rocm ${TRACKLOOPERDIR}/bin/lst
+elif [ "${BACKEND}" == "default" ]; then
+  if [[ ! -e ${TRACKLOOPERDIR}/bin/lst ]]; then
+    echo "Error: default backend was not found. Please recompile."
+    exit 1
+  fi
+else
+  echo "Error: backend options are cpu, cuda, rocm, or default."
+  exit 1
+fi
+
+echo "Running LST code..."
+lst -i ${SAMPLE} -o ${LSTOUTPUTDIR}/${JOBTAG}__LSTNtuple.root -n ${NEVENTS} ${ARGUMENTS} >> ${LSTOUTPUTDIR}/${JOBTAG}__LSTRun.log 2>&1 || { echo 'ERROR: lst command failed!' ; exit 1; }
+echo "Creating performance histograms..."
+createPerfNumDenHists -i ${LSTOUTPUTDIR}/${JOBTAG}__LSTNtuple.root -o ${LSTOUTPUTDIR}/${JOBTAG}__LSTNumDen.root >> ${LSTOUTPUTDIR}/${JOBTAG}__LSTRun.log 2>&1 || { echo 'ERROR: createPerfNumDenHists command failed!' ; exit 1; }
+echo "Creating plots..."
+python3 efficiency/python/lst_plot_performance.py ${LSTOUTPUTDIR}/${JOBTAG}__LSTNumDen.root -t ${LSTOUTPUTDIR}/${JOBTAG} >> ${LSTOUTPUTDIR}/${JOBTAG}__LSTRun.log 2>&1 || { echo 'ERROR: lst_plot_performance.py command failed!' ; exit 1; }
+echo "Done!"
