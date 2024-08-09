@@ -34,13 +34,17 @@ prescaledAlgoList = cms.untracked.vstring(
     "L1_ETT1600"
 )
 
-unprescaledAlgoList_2024 = unprescaledAlgoList
-unprescaledAlgoList_2024.append("L1_AXO_Nominal")
-unprescaledAlgoList_2024.append("L1_AXO_VTight")
-unprescaledAlgoList_2024.append("L1_CICADA_Medium")
-unprescaledAlgoList_2024.append("L1_CICADA_VTight")
-prescaledAlgoList_2024 = prescaledAlgoList
-prescaledAlgoList_2024.remove("L1_ETT1600")
+unprescaledAlgoList_2024 = cms.untracked.vstring(unprescaledAlgoList)
+unprescaledAlgoList_2024.extend([
+    "L1_AXO_Nominal",
+    "L1_AXO_VTight",
+    "L1_CICADA_Medium",
+    "L1_CICADA_VTight"
+])
+ 
+prescaledAlgoList_2024 = cms.untracked.vstring(prescaledAlgoList)
+if "L1_ETT1600" in prescaledAlgoList_2024:
+    prescaledAlgoList_2024.remove("L1_ETT1600")
 
 l1tStage2uGTTiming = DQMEDAnalyzer('L1TStage2uGTTiming',
     l1tStage2uGtSource = cms.InputTag("gtStage2Digis"),
