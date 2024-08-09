@@ -1,0 +1,16 @@
+<use name="FWCore/Framework"/>
+<use name="FWCore/Utilities"/>
+<use name="DQMServices/Core"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/PluginManager"/>
+<use name="DataFormats/JetReco"/>
+<use name="HLTrigger/HLTcore"/>
+<use name="DataFormats/DetId"/>
+<use name="DataFormats/RecoCandidate"/>
+<use name="DataFormats/Common"/>
+<use name="DataFormats/Math"/>
+<use name="DataFormats/PatCandidates"/>
+<use name="JetMETCorrections/JetCorrector"/>
+<use name="SimDataFormats/GeneratorProducts"/>
+<flags EDM_PLUGIN="1"/>

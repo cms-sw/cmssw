@@ -1,0 +1,6 @@
+  <use name="DQMServices/Core"/>
+  <use name="CommonTools/UtilAlgos"/>
+  <use name="FWCore/Framework"/>
+<library file="*.cc" name="DQMOfflineParticleFlow">
+  <flags EDM_PLUGIN="1"/>
+</library>
