@@ -196,6 +196,7 @@ if process.runType.getRunType() == process.runType.hi_run:
     process.scalersRawToDigi.scalersInputTag = rawDataRepackerLabel
     process.siPixelDigis.cpu.InputLabel = rawDataRepackerLabel
     process.siStripDigis.ProductLabel = rawDataRepackerLabel
+    process.tcdsDigis.InputLabel = rawDataRepackerLabel
 
     if ((process.runType.getRunType() == process.runType.hi_run) and live):
         process.source.SelectEvents = [
