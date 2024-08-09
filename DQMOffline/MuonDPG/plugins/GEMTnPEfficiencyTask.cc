@@ -2056,7 +2056,7 @@ void GEMTnPEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetu
         }
       } else {
         m_histos.find("GE21_nFailingProbe_Ch_region")->second->Fill(GEM_region, GEM_chamber);
-        histos.find("GE21_nFailingProbe_Ch_ieta")->second->Fill(GEM_ieta, GEM_chamber);
+        m_histos.find("GE21_nFailingProbe_Ch_ieta")->second->Fill(GEM_ieta, GEM_chamber);
         m_histos.find("GE21_nFailingProbe_Ch_phi")->second->Fill(GEM_phi, GEM_chamber);
         m_histos.find("GE21_nFailingProbe_allCh_1D")->second->Fill(GEM_region);
         m_histos.find("GE21_nFailingProbe_chamber_1D")->second->Fill(GEM_chamber);
