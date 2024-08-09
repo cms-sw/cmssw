@@ -2337,11 +2337,14 @@ void HGCalGeomParameters::loadCellTrapezoid(HGCalParameters& php) {
   // Find the radius of each eta-partitions
 
   if ((php.mode_ == HGCalGeometryMode::TrapezoidFile) || (php.mode_ == HGCalGeometryMode::TrapezoidModule) ||
-      (php.mode_ == HGCalGeometryMode::TrapezoidCassette)) {
+      (php.mode_ == HGCalGeometryMode::TrapezoidCassette) || (php.mode_ == HGCalGeometryMode::TrapezoidFineCell)) {
     //Ring radii for each partition
     for (unsigned int k = 0; k < 2; ++k) {
       for (unsigned int kk = 0; kk < php.tileRingR_.size(); ++kk) {
-        php.radiusLayer_[k].emplace_back(php.tileRingR_[kk].first);
+        if ((k == 0) && (php.mode_ == HGCalGeometryMode::TrapezoidFineCell))
+          php.radiusLayer_[k].emplace_back(php.tileRingFineR_[kk].first);
+        else
+          php.radiusLayer_[k].emplace_back(php.tileRingR_[kk].first);
 #ifdef EDM_ML_DEBUG
         double zv = ((k == 0) ? (php.zLayerHex_[php.layerFrontBH_[1] - php.firstLayer_])
                               : (php.zLayerHex_[php.zLayerHex_.size() - 1]));
@@ -2350,7 +2353,10 @@ void HGCalGeomParameters::loadCellTrapezoid(HGCalParameters& php) {
         edm::LogVerbatim("HGCalGeom") << "New [" << kk << "] new R = " << rv << " Eta = " << eta;
 #endif
       }
-      php.radiusLayer_[k].emplace_back(php.tileRingR_[php.tileRingR_.size() - 1].second);
+      if ((k == 0) && (php.mode_ == HGCalGeometryMode::TrapezoidFineCell))
+        php.radiusLayer_[k].emplace_back(php.tileRingFineR_[php.tileRingFineR_.size() - 1].second);
+      else
+        php.radiusLayer_[k].emplace_back(php.tileRingR_[php.tileRingR_.size() - 1].second);
     }
     // Minimum and maximum radius index for each layer
     for (unsigned int k = 0; k < php.zLayerHex_.size(); ++k) {
