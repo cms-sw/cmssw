@@ -2,6 +2,7 @@
 <use name="DataFormats/DetId"/>
 <use name="DataFormats/GeometryVector"/>
 <use name="DataFormats/SiPixelDigi"/>
+<use name="SimDataFormats/Associations"/>
 <use name="SimDataFormats/Track"/>
 <use name="SimDataFormats/EncodedEventId"/>
 <use name="SimDataFormats/TrackingAnalysis"/>

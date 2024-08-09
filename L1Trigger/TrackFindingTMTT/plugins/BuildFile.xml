@@ -2,6 +2,7 @@
   <use name="L1Trigger/TrackFindingTMTT"/>
   <use name="MagneticField/Engine"/>
   <use name="MagneticField/Records"/>
+  <use name="SimDataFormats/Associations"/>
   <flags EDM_PLUGIN="1"/>
 </library>
 

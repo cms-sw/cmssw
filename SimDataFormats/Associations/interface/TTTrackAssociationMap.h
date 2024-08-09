@@ -15,8 +15,8 @@
  *  (tidy up: Ian Tomalin, 2020)
  */
 
-#ifndef L1_TRACK_TRIGGER_TRACK_ASSOCIATION_FORMAT_H
-#define L1_TRACK_TRIGGER_TRACK_ASSOCIATION_FORMAT_H
+#ifndef SimDataFormats_Associations_TTTrackAssociationMap_h
+#define SimDataFormats_Associations_TTTrackAssociationMap_h
 
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/Ptr.h"
@@ -29,12 +29,11 @@
 #include "DataFormats/Phase2TrackerDigi/interface/Phase2TrackerDigi.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"  /// NOTE: this is needed even if it seems not
-#include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLink.h"
 #include "SimDataFormats/Track/interface/SimTrack.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
-#include "SimTracker/TrackTriggerAssociation/interface/TTStubAssociationMap.h"
+#include "SimDataFormats/Associations/interface/TTStubAssociationMap.h"
 
 // Templated aliases
 template <typename T>
