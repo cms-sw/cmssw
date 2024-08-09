@@ -54,12 +54,13 @@ from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
 from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 from Configuration.Eras.Modifier_run3_upc_cff import run3_upc
 from Configuration.Eras.Modifier_ppRef_2024_cff import ppRef_2024
+from Configuration.ProcessModifiers.phase2_pp_on_AA_cff import phase2_pp_on_AA
 #products from regular pp which does not fit the normal AOD
 for e in [pA_2016, peripheralPbPb, pp_on_XeXe_2017, pp_on_AA]:
     e.toModify( RecoJetsAOD.outputCommands, 
                 func=lambda outputCommands: outputCommands.extend(['keep *_towerMaker_*_*'])
                 )
-for e in [pp_on_XeXe_2017, pp_on_AA, run3_upc]:
+for e in [pp_on_XeXe_2017, pp_on_AA, run3_upc, phase2_pp_on_AA]:
     e.toModify( RecoJetsAOD.outputCommands,
                 func=lambda outputCommands: outputCommands.extend(['keep recoCentrality*_hiCentrality_*_*',
                                                                    'keep recoClusterCompatibility*_hiClusterCompatibility_*_*'
