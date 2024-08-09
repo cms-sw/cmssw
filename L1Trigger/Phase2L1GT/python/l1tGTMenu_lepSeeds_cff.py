@@ -46,7 +46,7 @@ DoubleTkMuon157 = l1tGTDoubleObjectCond.clone(
         maxEta = cms.double(2.4),
         regionsAbsEtaLowerBounds=cms.vdouble(0,0.83,1.24),
         regionsMinPt=cms.vdouble(7,7,7),
-        minQualityScore = cms.uint32(0)
+        qualityFlags = cms.uint32(0b0001)
     ),
     maxDz = cms.double(1),
     minDR = cms.double(0),
@@ -60,21 +60,21 @@ TripleTkMuon533 = l1tGTTripleObjectCond.clone(
         minPt = cms.double(5),
         minEta = cms.double(-2.4),
         maxEta = cms.double(2.4),
-        minQualityScore = cms.uint32(0)
+        qualityFlags = cms.uint32(0b0001)
     ),
     collection2 = cms.PSet(
         tag = cms.InputTag("l1tGTProducer", "GMTTkMuons"),
         minPt = cms.double(3),
         minEta = cms.double(-2.4),
         maxEta = cms.double(2.4),
-        minQualityScore = cms.uint32(0)
+        qualityFlags = cms.uint32(0b0001)
     ),
     collection3 = cms.PSet(
         tag = cms.InputTag("l1tGTProducer", "GMTTkMuons"),
         minPt = cms.double(3),
         minEta = cms.double(-2.4),
         maxEta = cms.double(2.4),
-        minQualityScore = cms.uint32(0)
+        qualityFlags = cms.uint32(0b0001)
     ),
     correl12 = cms.PSet(
         minDR = cms.double(0),

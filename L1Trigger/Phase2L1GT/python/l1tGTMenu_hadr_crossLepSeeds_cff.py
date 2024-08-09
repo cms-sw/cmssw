@@ -24,7 +24,7 @@ TkMuonPuppiHT6320 = l1tGTDoubleObjectCond.clone( #needs z0 with the puppivertex
         regionsMinPt=cms.vdouble(6,6,6),
         maxPrimVertDz = cms.double(1), # in cm
         primVertex = cms.uint32(0), # primary vertex index (choose 0) 
-        minQualityScore = cms.uint32(0)
+        qualityFlags = cms.uint32(0b0001)
     ),
     collection2 = cms.PSet(
         tag = cms.InputTag("l1tGTProducer", "CL2HtSum"),
@@ -44,7 +44,7 @@ TkMuTriPuppiJetdRMaxDoubleJetdEtaMax = l1tGTQuadObjectCond.clone( #needs z0 betw
         regionsMinPt=cms.vdouble(10,10,11), 
         maxPrimVertDz = cms.double(1), # in cm
         primVertex = cms.uint32(0), # primary vertex index (choose 0)
-        minQualityScore = cms.uint32(0),
+        qualityFlags = cms.uint32(0b0001),
     ),
     collection2 = cms.PSet(
         tag = cms.InputTag("l1tGTProducer", "CL2JetsSC4"),
@@ -89,7 +89,7 @@ TkMuPuppiJetPuppiMet = l1tGTTripleObjectCond.clone( #needs z0 between muon and p
         regionsMinPt=cms.vdouble(3,3,3),
         maxPrimVertDz = cms.double(1), # in cm
         primVertex = cms.uint32(0), # primary vertex index (choose 0)
-        minQualityScore = cms.uint32(0)
+        qualityFlags = cms.uint32(0b0001)
     ),
     collection2 = cms.PSet(
         tag = cms.InputTag("l1tGTProducer", "CL2JetsSC4"),
@@ -118,7 +118,7 @@ DoubleTkMuPuppiJetPuppiMet = l1tGTQuadObjectCond.clone( #needs z0 between puppiv
         regionsMinPt=cms.vdouble(3,3,3),
         maxPrimVertDz = cms.double(1), # in cm
         primVertex = cms.uint32(0), # primary vertex index (choose 0)
-        minQualityScore = cms.uint32(0)
+        qualityFlags = cms.uint32(0b0001)
     ),
     collection2 = cms.PSet(
         tag = cms.InputTag("l1tGTProducer", "GMTTkMuons"),
@@ -128,7 +128,7 @@ DoubleTkMuPuppiJetPuppiMet = l1tGTQuadObjectCond.clone( #needs z0 between puppiv
         regionsMinPt=cms.vdouble(3,3,3),
         maxPrimVertDz = cms.double(1), # in cm
         primVertex = cms.uint32(0), # primary vertex index (choose 0)
-        minQualityScore = cms.uint32(0)
+        qualityFlags = cms.uint32(0b0001)
     ),
     collection3 = cms.PSet(
         tag = cms.InputTag("l1tGTProducer", "CL2JetsSC4"),
@@ -159,7 +159,7 @@ DoubleTkMuPuppiHT = l1tGTTripleObjectCond.clone( #needs z0 between puppivertex a
         regionsMinPt=cms.vdouble(3,3,3),
         maxPrimVertDz = cms.double(1), # in cm
         primVertex = cms.uint32(0), # primary vertex index (choose 0)
-        minQualityScore = cms.uint32(0)
+        qualityFlags = cms.uint32(0b0001)
     ),
     collection2 = cms.PSet(
         tag = cms.InputTag("l1tGTProducer", "GMTTkMuons"),
@@ -169,7 +169,7 @@ DoubleTkMuPuppiHT = l1tGTTripleObjectCond.clone( #needs z0 between puppivertex a
         regionsMinPt=cms.vdouble(3,3,3),
         maxPrimVertDz = cms.double(1), # in cm
         primVertex = cms.uint32(0), # primary vertex index (choose 0)
-        minQualityScore = cms.uint32(0)
+        qualityFlags = cms.uint32(0b0001)
     ),
     collection3 = cms.PSet(
         tag = cms.InputTag("l1tGTProducer", "CL2HtSum"),

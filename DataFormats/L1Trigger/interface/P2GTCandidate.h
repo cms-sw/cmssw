@@ -32,7 +32,7 @@ namespace l1t {
     typedef ap_int<14> hwEta_t;
     typedef ap_int<18> hwZ0_t;
     typedef ap_uint<11> hwIsolationPT_t;
-    typedef ap_uint<4> hwQualityFlags_t;
+    typedef ap_uint<6> hwQualityFlags_t;
     typedef ap_uint<10> hwQualityScore_t;
     typedef ap_uint<1> hwCharge_t;
     typedef ap_int<12> hwD0_t;
@@ -43,6 +43,7 @@ namespace l1t {
     typedef ap_int<10> hwSeed_z0_t;
     typedef ap_uint<16> hwScalarSumPT_t;
     typedef ap_uint<5> hwNumber_of_tracks_t;
+    typedef ap_uint<4> hwNumber_of_displaced_tracks_t;
     typedef ap_uint<12> hwSum_pT_pv_t;
     typedef ap_uint<2> hwType_t;
     typedef ap_uint<8> hwNumber_of_tracks_in_pv_t;
@@ -115,6 +116,10 @@ namespace l1t {
     void setHwScalarSumPT(hwScalarSumPT_t hwScalarSumPT) { hwScalarSumPT_ = hwScalarSumPT.to_int(); }
     void setHwNumber_of_tracks(hwNumber_of_tracks_t hwNumber_of_tracks) {
       hwNumber_of_tracks_ = hwNumber_of_tracks.to_int();
+    }
+
+    void setHwNumber_of_displaced_tracks(hwNumber_of_displaced_tracks_t hwNumber_of_displaced_tracks) {
+      hwNumber_of_displaced_tracks_ = hwNumber_of_displaced_tracks.to_int();
     }
 
     void setHwSum_pT_pv(hwSum_pT_pv_t hwSum_pT_pv) { hwSum_pT_pv_ = hwSum_pT_pv.to_int(); }
@@ -238,6 +243,13 @@ namespace l1t {
       return static_cast<int>(hwNumber_of_tracks_);
     }
 
+    hwNumber_of_displaced_tracks_t hwNumber_of_displaced_tracks() const {
+      if (!hwNumber_of_displaced_tracks_) {
+        throw std::invalid_argument("Object doesn't have hwNumber_of_displaced_tracks");
+      }
+      return static_cast<int>(hwNumber_of_displaced_tracks_);
+    }
+
     hwSum_pT_pv_t hwSum_pT_pv() const {
       if (!hwSum_pT_pv_) {
         throw std::invalid_argument("Object doesn't have sum_pT_pv");
@@ -285,6 +297,7 @@ namespace l1t {
     int hwSeed_z0_toInt() const { return hwSeed_z0().to_int(); }
     int hwScalarSumPT_toInt() const { return hwScalarSumPT().to_int(); }
     int hwNumber_of_tracks_toInt() const { return hwNumber_of_tracks().to_int(); }
+    int hwNumber_of_displaced_tracks_toInt() const { return hwNumber_of_displaced_tracks().to_int(); }
     int hwSum_pT_pv_toInt() const { return hwSum_pT_pv().to_int(); }
     int hwType_toInt() const { return hwType().to_int(); }
     int hwNumber_of_tracks_in_pv_toInt() const { return hwNumber_of_tracks_in_pv().to_int(); }
@@ -329,6 +342,7 @@ namespace l1t {
     Optional<int> hwSeed_z0_;
     Optional<int> hwScalarSumPT_;
     Optional<int> hwNumber_of_tracks_;
+    Optional<int> hwNumber_of_displaced_tracks_;
 
     // TODO ?
     Optional<int> hwSum_pT_pv_;

@@ -282,24 +282,40 @@ namespace l1t {
   struct L1TGT_GTT_PromptJet : public L1TGT_Common3Vector<128> {
     ap_int<10> z0;
     ap_uint<5> number_of_tracks;
-    // ap_uint<5> /* unassigned */;
+    ap_uint<4> number_of_displaced_tracks;
 
-    L1TGT_GTT_PromptJet(int valid = 0, int pT = 0, int phi = 0, int eta = 0, int z0 = 0, int number_of_tracks = 0)
-        : L1TGT_Common3Vector(valid, pT, phi, eta), z0(z0), number_of_tracks(number_of_tracks) {}
+    L1TGT_GTT_PromptJet(int valid = 0,
+                        int pT = 0,
+                        int phi = 0,
+                        int eta = 0,
+                        int z0 = 0,
+                        int number_of_tracks = 0,
+                        int number_of_displaced_tracks = 0)
+        : L1TGT_Common3Vector(valid, pT, phi, eta),
+          z0(z0),
+          number_of_tracks(number_of_tracks),
+          number_of_displaced_tracks(number_of_displaced_tracks) {}
 
     ap_uint<WIDTH> pack() const override {
-      return l1t_pack_int<ap_uint<WIDTH>>(L1TGT_Common3Vector::pack_common(), z0, number_of_tracks);
+      return l1t_pack_int<ap_uint<WIDTH>>(
+          L1TGT_Common3Vector::pack_common(), z0, number_of_tracks, number_of_displaced_tracks);
     }
 
     static L1TGT_GTT_PromptJet from_GTObject(const P2GTCandidate& gtObject) {
-      return L1TGT_GTT_PromptJet(
-          1, gtObject.hwPT(), gtObject.hwPhi(), gtObject.hwEta(), gtObject.hwZ0() >> 7, gtObject.hwNumber_of_tracks());
+      return L1TGT_GTT_PromptJet(1,
+                                 gtObject.hwPT(),
+                                 gtObject.hwPhi(),
+                                 gtObject.hwEta(),
+                                 gtObject.hwZ0() >> 7,
+                                 gtObject.hwNumber_of_tracks(),
+                                 gtObject.hwNumber_of_displaced_tracks());
     }
 
     P2GTCandidate to_GTObject() const override {
       P2GTCandidate gt_object(L1TGT_Common3Vector::to_GTObject());
       gt_object.setHwZ0(static_cast<int>(z0) << 7);
       gt_object.setHwNumber_of_tracks(number_of_tracks);
+      gt_object.setHwNumber_of_displaced_tracks(number_of_displaced_tracks);
 
       return gt_object;
     }
@@ -308,15 +324,23 @@ namespace l1t {
   struct L1TGT_GTT_DisplacedJet : public L1TGT_Common3Vector<128> {
     ap_int<10> z0;
     ap_uint<5> number_of_tracks;
-    // ap_uint<5> /* unassigned */;
-    ap_int<12> d0;
+    ap_uint<4> number_of_displaced_tracks;
 
-    L1TGT_GTT_DisplacedJet(
-        int valid = 0, int pT = 0, int phi = 0, int eta = 0, int z0 = 0, int number_of_tracks = 0, int d0 = 0)
-        : L1TGT_Common3Vector(valid, pT, phi, eta), z0(z0), number_of_tracks(number_of_tracks), d0(d0) {}
+    L1TGT_GTT_DisplacedJet(int valid = 0,
+                           int pT = 0,
+                           int phi = 0,
+                           int eta = 0,
+                           int z0 = 0,
+                           int number_of_tracks = 0,
+                           int number_of_displaced_tracks = 0)
+        : L1TGT_Common3Vector(valid, pT, phi, eta),
+          z0(z0),
+          number_of_tracks(number_of_tracks),
+          number_of_displaced_tracks(number_of_displaced_tracks) {}
 
     ap_uint<WIDTH> pack() const override {
-      return l1t_pack_int<ap_uint<WIDTH>>(L1TGT_Common3Vector::pack_common(), z0, number_of_tracks, ap_uint<5>(0), d0);
+      return l1t_pack_int<ap_uint<WIDTH>>(
+          L1TGT_Common3Vector::pack_common(), z0, number_of_tracks, number_of_displaced_tracks);
     }
 
     static L1TGT_GTT_DisplacedJet from_GTObject(const P2GTCandidate& gtObject) {
@@ -326,14 +350,14 @@ namespace l1t {
                                     gtObject.hwEta(),
                                     gtObject.hwZ0() >> 7,
                                     gtObject.hwNumber_of_tracks(),
-                                    gtObject.hwD0());
+                                    gtObject.hwNumber_of_displaced_tracks());
     }
 
     P2GTCandidate to_GTObject() const override {
       P2GTCandidate gt_object(L1TGT_Common3Vector::to_GTObject());
       gt_object.setHwZ0(static_cast<int>(z0) << 7);
       gt_object.setHwNumber_of_tracks(number_of_tracks);
-      gt_object.setHwD0(d0);
+      gt_object.setHwNumber_of_displaced_tracks(number_of_displaced_tracks);
 
       return gt_object;
     }

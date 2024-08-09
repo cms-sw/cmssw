@@ -37,6 +37,9 @@ private:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void endJob() override;
 
+  unsigned int eventCounter_;
+  unsigned int maxEvents_;
+
   const std::array<unsigned int, 2> channels_;
   const std::array<unsigned long long, 9> algoBitMask_;
   const edm::EDGetTokenT<P2GTAlgoBlockMap> algoBlocksToken_;
@@ -47,7 +50,9 @@ private:
 };
 
 L1GTAlgoBoardWriter::L1GTAlgoBoardWriter(const edm::ParameterSet& config)
-    : channels_(config.getParameter<std::array<unsigned int, 2>>("channels")),
+    : eventCounter_(0),
+      maxEvents_(config.getParameter<unsigned int>("maxEvents")),
+      channels_(config.getParameter<std::array<unsigned int, 2>>("channels")),
       algoBitMask_(config.getParameter<std::array<unsigned long long, 9>>("algoBitMask")),
       algoBlocksToken_(consumes<P2GTAlgoBlockMap>(config.getParameter<edm::InputTag>("algoBlocksTag"))),
       boardDataWriter_(
@@ -56,7 +61,7 @@ L1GTAlgoBoardWriter::L1GTAlgoBoardWriter(const edm::ParameterSet& config)
           config.getParameter<std::string>("outputFileExtension"),
           9,
           2,
-          config.getParameter<unsigned int>("maxLines"),
+          config.getParameter<unsigned int>("maxFrames"),
           [](const std::array<unsigned int, 2>& channels) {
             l1t::demo::BoardDataWriter::ChannelMap_t channelMap;
             for (unsigned int channel : channels) {
@@ -94,6 +99,12 @@ void L1GTAlgoBoardWriter::analyze(const edm::Event& event, const edm::EventSetup
   }
 
   tmuxCounter_ = (tmuxCounter_ + 1) % 2;
+  eventCounter_++;
+
+  if (maxEvents_ != 0 && eventCounter_ == maxEvents_) {
+    boardDataWriter_.flush();
+    eventCounter_ = 0;
+  }
 }
 
 void L1GTAlgoBoardWriter::endJob() {
@@ -109,6 +120,7 @@ void L1GTAlgoBoardWriter::fillDescriptions(edm::ConfigurationDescriptions& descr
   desc.add<std::string>("outputFilename");
   desc.add<std::string>("outputFileExtension", "txt");
   desc.add<edm::InputTag>("algoBlocksTag");
+  desc.add<unsigned int>("maxEvents", 0);
   desc.add<std::vector<unsigned int>>("channels");
   desc.add<std::vector<unsigned long long>>("algoBitMask",
                                             {0xffffffffffffffffull,
@@ -120,7 +132,7 @@ void L1GTAlgoBoardWriter::fillDescriptions(edm::ConfigurationDescriptions& descr
                                              0xffffffffffffffffull,
                                              0xffffffffffffffffull,
                                              0xffffffffffffffffull});
-  desc.add<unsigned int>("maxLines", 1024);
+  desc.add<unsigned int>("maxFrames", 1024);
   desc.add<std::string>("patternFormat", "EMPv2");
 
   descriptions.addDefault(desc);

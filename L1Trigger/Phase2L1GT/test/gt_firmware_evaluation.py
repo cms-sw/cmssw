@@ -21,9 +21,10 @@ options.parseArguments()
 
 process.l1tGTProducer = cms.EDProducer(
     "L1GTEvaluationProducer",
-    outputFilename=cms.string("inputPattern"),
+    inputFilename=cms.string("inputPattern"),
+    outputFilename=cms.string("outputObjectPattern"),
     random_seed=cms.uint32(0),
-    maxLines=cms.uint32(1024),
+    maxFrames=cms.uint32(1024),
     platform=cms.string(options.platform)
 )
 
@@ -812,46 +813,14 @@ else:
 process.BoardData = cms.EDAnalyzer("L1GTAlgoBoardWriter",
   outputFilename = cms.string("outputPattern"),
   algoBlocksTag = cms.InputTag("l1tGTAlgoBlockProducer"),
-  maxLines = cms.uint32(1024),
+  maxFrames = cms.uint32(1024),
   channels = channels
-)
-
-process.BoardDataObjects = cms.EDAnalyzer("L1GTOutputObjectWriter",
-  GCTNonIsoEg = cms.InputTag("l1tGTProducer", "GCTNonIsoEg"),
-  GCTIsoEg = cms.InputTag("l1tGTProducer", "GCTIsoEg"),
-  GCTJets = cms.InputTag("l1tGTProducer", "GCTJets"),
-  GCTTaus = cms.InputTag("l1tGTProducer", "GCTTaus"),
-  GCTHtSum = cms.InputTag("l1tGTProducer", "GCTHtSum"),
-  GCTEtSum = cms.InputTag("l1tGTProducer", "GCTEtSum"),
-  GMTSaPromptMuons = cms.InputTag("l1tGTProducer", "GMTSaPromptMuons"),
-  GMTSaDisplacedMuons = cms.InputTag("l1tGTProducer", "GMTSaDisplacedMuons"),
-  GMTTkMuons = cms.InputTag("l1tGTProducer", "GMTTkMuons"),
-  GMTTopo = cms.InputTag("l1tGTProducer", "GMTTopo"),
-  GTTPromptJets = cms.InputTag("l1tGTProducer", "GTTPromptJets"),
-  GTTDisplacedJets = cms.InputTag("l1tGTProducer", "GTTDisplacedJets"),
-  GTTPhiCandidates = cms.InputTag("l1tGTProducer", "GTTPhiCandidates"),
-  GTTRhoCandidates = cms.InputTag("l1tGTProducer", "GTTRhoCandidates"),
-  GTTBsCandidates = cms.InputTag("l1tGTProducer", "GTTBsCandidates"),
-  GTTHadronicTaus = cms.InputTag("l1tGTProducer", "GTTHadronicTaus"),
-  GTTPrimaryVert = cms.InputTag("l1tGTProducer", "GTTPrimaryVert"),
-  GTTPromptHtSum = cms.InputTag("l1tGTProducer", "GTTPromptHtSum"),
-  GTTDisplacedHtSum = cms.InputTag("l1tGTProducer", "GTTDisplacedHtSum"),
-  GTTEtSum = cms.InputTag("l1tGTProducer", "GTTEtSum"),
-  CL2JetsSC4 = cms.InputTag("l1tGTProducer", "CL2JetsSC4"),
-  CL2JetsSC8 = cms.InputTag("l1tGTProducer", "CL2JetsSC8"),
-  CL2Taus = cms.InputTag("l1tGTProducer", "CL2Taus"),
-  CL2Electrons = cms.InputTag("l1tGTProducer", "CL2Electrons"),
-  CL2Photons = cms.InputTag("l1tGTProducer", "CL2Photons"),
-  CL2HtSum = cms.InputTag("l1tGTProducer", "CL2HtSum"),
-  CL2EtSum = cms.InputTag("l1tGTProducer", "CL2EtSum"),
-  outputFilename = cms.string("outputObjectsPattern"),
-  maxLines = cms.uint32(1024)
 )
 
 process.FinOrBoardData = cms.EDAnalyzer("L1GTFinOrBoardWriter",
   outputFilename = cms.string("outputFinOrPattern"),
   algoBlocksTag = cms.InputTag("l1tGTAlgoBlockProducer"),
-  maxLines = cms.uint32(1024),
+  maxFrames = cms.uint32(1024),
   channelsLow = cms.vuint32(4, 5, 6),
   channelsMid = cms.vuint32(40, 41, 42),
   channelsHigh = cms.vuint32(52, 53, 54),
@@ -859,7 +828,6 @@ process.FinOrBoardData = cms.EDAnalyzer("L1GTFinOrBoardWriter",
 )
 
 process.l1t_BoardData = cms.EndPath(process.BoardData)
-process.l1t_BoardDataObjects = cms.EndPath(process.BoardDataObjects)
 process.l1t_FinOrBoardData = cms.EndPath(process.FinOrBoardData)
 
 process.output = cms.OutputModule("PoolOutputModule",
