@@ -32,7 +32,7 @@ namespace l1t {
     typedef ap_int<14> hwEta_t;
     typedef ap_int<18> hwZ0_t;
     typedef ap_uint<11> hwIsolationPT_t;
-    typedef ap_uint<4> hwQualityFlags_t;
+    typedef ap_uint<6> hwQualityFlags_t;
     typedef ap_uint<10> hwQualityScore_t;
     typedef ap_uint<1> hwCharge_t;
     typedef ap_int<12> hwD0_t;
