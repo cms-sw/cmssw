@@ -52,5 +52,6 @@ simCaloStage2Layer1Summary = cms.EDProducer('L1TCaloSummary_CICADA_vXp1p2',
     firmwareVersion = cms.int32(1),
     CICADAModelVersion = cms.string("CICADAModel_v2p1p2"),
     useTestPatterns = cms.bool(False),
-    testPatterns = standardCICADATestPatterns
+    testPatterns = standardCICADATestPatterns,
+    caloLayer1Regions = cms.InputTag("simCaloStage2Layer1Digis", "")
 )

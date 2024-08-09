@@ -9,6 +9,9 @@ from DQM.L1TMonitor.L1TStage2CaloLayer1_cfi import *
 # CaloLayer2
 from DQM.L1TMonitor.L1TStage2CaloLayer2_cfi import *
 
+# CaloLayer1Summary
+from DQM.L1TMonitor.L1TCaloLayer1Summary_cff import *
+
 # BMTF
 from DQM.L1TMonitor.L1TStage2BMTF_cff import *
 
@@ -47,7 +50,8 @@ l1tStage2OnlineDQM = cms.Sequence(
     l1tStage2RegionalShower +  
     l1tStage2uGMTOnlineDQMSeq +
     l1tObjectsTiming +
-    l1tStage2uGTOnlineDQMSeq
+    l1tStage2uGTOnlineDQMSeq +
+    l1tCaloLayer1SummarySeq
 )
 
 # sequence to run only for validation events
