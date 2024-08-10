@@ -16,7 +16,7 @@
 
 #include "DataFormats/GEMDigi/interface/GEMVFATStatusCollection.h"
 #include "DataFormats/GEMDigi/interface/GEMOHStatusCollection.h"
-//#include "DataFormats/GEMDigi/interface/GEMAMCStatusCollection.h"
+#include "DataFormats/GEMDigi/interface/GEMAMCStatusCollection.h"
 
 class GEMTnPEfficiencyTask : public BaseTnPEfficiencyTask {
 public:
@@ -29,17 +29,10 @@ public:
   /// Destructor
   ~GEMTnPEfficiencyTask() override;
 
-  const bool m_MaskChamberWithError_ = true;
-
-  edm::EDGetTokenT<GEMOHStatusCollection> m_GEMOHStatusCollectionToken_ =
-      consumes<GEMOHStatusCollection>(edm::InputTag("muonGEMDigis", "OHStatus"));
-
-  //const edm::EDGetTokenT<GEMVFATStatusCollection> m_GEMVFATStatusCollectionToken_;
-  //const edm::EDGetTokenT<GEMAMCStatusCollection> m_GEMAMCStatusCollectionToken_;
-  //maskChamberWithError=cms.untracked.bool(True),
-  // ohStatusTag=cms.untracked.InputTag("muonGEMDigis", "OHStatus"),
-  // vfatStatusTag=cms.untracked.InputTag("muonGEMDigis","VFATStatus"),
-  // amcStatusTag=cms.untracked.InputTag("muonGEMDigis","AMCStatus"),
+  const bool m_maskChamberWithError_;
+  const edm::EDGetTokenT<GEMOHStatusCollection> m_GEMOHStatusCollectionToken_;
+  const edm::EDGetTokenT<GEMVFATStatusCollection> m_GEMVFATStatusCollectionToken_;
+  const edm::EDGetTokenT<GEMAMCStatusCollection> m_GEMAMCStatusCollectionToken_;
 
 protected:
   std::string topFolder() const override;
@@ -50,7 +43,15 @@ protected:
   void analyze(const edm::Event& event, const edm::EventSetup& context) override;
 };
 
-GEMTnPEfficiencyTask::GEMTnPEfficiencyTask(const edm::ParameterSet& config) : BaseTnPEfficiencyTask(config) {
+GEMTnPEfficiencyTask::GEMTnPEfficiencyTask(const edm::ParameterSet& config)
+    : BaseTnPEfficiencyTask(config),
+      m_maskChamberWithError_((config.getUntrackedParameter<bool>("maskChamberWithError"))),
+      m_GEMOHStatusCollectionToken_(
+          consumes<GEMOHStatusCollection>(config.getUntrackedParameter<edm::InputTag>("ohStatusTag"))),
+      m_GEMVFATStatusCollectionToken_(
+          consumes<GEMVFATStatusCollection>(config.getUntrackedParameter<edm::InputTag>("vfatStatusTag"))),
+      m_GEMAMCStatusCollectionToken_(
+          consumes<GEMAMCStatusCollection>(config.getUntrackedParameter<edm::InputTag>("amcStatusTag"))) {
   LogTrace("DQMOffline|MuonDPG|GEMTnPEfficiencyTask") << "[GEMTnPEfficiencyTask]: Constructor" << std::endl;
 }
 
@@ -1321,7 +1322,7 @@ void GEMTnPEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetu
   GEMVFATStatusCollection vfat_status;
   edm::Handle<GEMOHStatusCollection> oh_status_collection;
   edm::Handle<GEMVFATStatusCollection> vfat_status_collection;
-  if (m_MaskChamberWithError_) {
+  if (m_maskChamberWithError_) {
     event.getByToken(m_GEMOHStatusCollectionToken_, oh_status_collection);
     //if (oh_status_collem_tion.isValid()) {
     oh_status = *oh_status_collection;
