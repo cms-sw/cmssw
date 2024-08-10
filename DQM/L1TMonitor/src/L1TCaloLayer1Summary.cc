@@ -9,8 +9,7 @@ L1TCaloLayer1Summary::L1TCaloLayer1Summary(const edm::ParameterSet& iConfig)
           consumes<L1CaloRegionCollection>(iConfig.getParameter<edm::InputTag>("caloLayer1Regions"))),
       simRegionsToken_(consumes<L1CaloRegionCollection>(iConfig.getParameter<edm::InputTag>("simRegions"))),
       fedRawData_(consumes<FEDRawDataCollection>(iConfig.getParameter<edm::InputTag>("fedRawDataLabel"))),
-      histFolder_(iConfig.getParameter<std::string>("histFolder")) {
-}
+      histFolder_(iConfig.getParameter<std::string>("histFolder")) {}
 
 // ------------ method called for each event  ------------
 void L1TCaloLayer1Summary::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
