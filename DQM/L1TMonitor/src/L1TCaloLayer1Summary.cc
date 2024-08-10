@@ -9,7 +9,8 @@ L1TCaloLayer1Summary::L1TCaloLayer1Summary(const edm::ParameterSet& iConfig)
           consumes<L1CaloRegionCollection>(iConfig.getParameter<edm::InputTag>("caloLayer1Regions"))),
       simRegionsToken_(consumes<L1CaloRegionCollection>(iConfig.getParameter<edm::InputTag>("simRegions"))),
       fedRawData_(consumes<FEDRawDataCollection>(iConfig.getParameter<edm::InputTag>("fedRawDataLabel"))),
-      histFolder_(iConfig.getParameter<std::string>("histFolder")) {}
+      histFolder_(iConfig.getParameter<std::string>("histFolder")) {
+}
 
 // ------------ method called for each event  ------------
 void L1TCaloLayer1Summary::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -77,15 +78,21 @@ void L1TCaloLayer1Summary::analyze(const edm::Event& iEvent, const edm::EventSet
     }
   }
 
-  float caloCICADAScore = iEvent.get(caloLayer1CICADAScoreToken_)[0];
+  auto caloCICADAScores = iEvent.get(caloLayer1CICADAScoreToken_);
   auto gtCICADAScores = iEvent.get(gtCICADAScoreToken_);
-  float simCICADAScore = iEvent.get(simCICADAScoreToken_)[0];
+  auto simCICADAScores = iEvent.get(simCICADAScoreToken_);
 
-  histoSimCICADAScore->Fill(simCICADAScore);
-  histoCaloMinusSim->Fill(caloCICADAScore - simCICADAScore);
-  histoCaloLayer1CICADAScore->Fill(caloCICADAScore);
-  histoGtCICADAScore->Fill(gtCICADAScores.at(0, 0));
-  histoCaloMinusGt->Fill(gtCICADAScores.at(0, 0) - caloCICADAScore);
+  if (caloCICADAScores.size() > 0) {
+    histoCaloLayer1CICADAScore->Fill(caloCICADAScores[0]);
+    if (gtCICADAScores.size() > 0) {
+      histoGtCICADAScore->Fill(gtCICADAScores.at(0, 0));
+      histoCaloMinusGt->Fill(caloCICADAScores[0] - gtCICADAScores.at(0, 0));
+    }
+    if (simCICADAScores.size() > 0) {
+      histoSimCICADAScore->Fill(simCICADAScores[0]);
+      histoCaloMinusSim->Fill(caloCICADAScores[0] - simCICADAScores[0]);
+    }
+  }
 }
 
 void L1TCaloLayer1Summary::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, edm::EventSetup const&) {
@@ -120,6 +127,3 @@ void L1TCaloLayer1Summary::fillDescriptions(edm::ConfigurationDescriptions& desc
   desc.add<std::string>("histFolder", "L1T/L1TCaloLayer1Summary");
   descriptions.add("l1tCaloLayer1Summary", desc);
 }
-
-//define this as a plug-in
-DEFINE_FWK_MODULE(L1TCaloLayer1Summary);
