@@ -203,6 +203,8 @@ class UpgradeWorkflow_baseline(UpgradeWorkflow):
 upgradeWFs['baseline'] = UpgradeWorkflow_baseline(
     steps =  [
         'Gen',
+        'GenHLBeamSpot',
+        'GenHLBeamSpot14',
         'Sim',
         'GenSim',
         'GenSimHLBeamSpot',
@@ -3172,18 +3174,18 @@ upgradeProperties[2026] = {
     },
     '2026D110GenOnly' : {
         'Geom' : 'Extended2026D110',
-        'Beamspot' : 'HLLHC',
+        'BeamSpot' : 'DBrealisticHLLHC',
         'GT' : 'auto:phase2_realistic_T33',
         'Era' : 'Phase2C17I13M9',
-        'ScenToRun' : ['Gen'],
+        'ScenToRun' : ['GenHLBeamSpot'],
     },
     '2026D110SimOnGen' : {
         'Geom' : 'Extended2026D110',
         'HLTmenu': '@relval2026',
-        'Beamspot' : 'HLLHC',
+        'BeamSpot' : 'DBrealisticHLLHC',
         'GT' : 'auto:phase2_realistic_T33',
         'Era' : 'Phase2C17I13M9',
-        'ScenToRun' : ['Gen','Sim','DigiTrigger','RecoGlobal', 'HARVESTGlobal', 'ALCAPhase2'],
+        'ScenToRun' : ['GenHLBeamSpot','Sim','DigiTrigger','RecoGlobal', 'HARVESTGlobal', 'ALCAPhase2'],
     },
     '2026D115' : {
         'Geom' : 'Extended2026D115',

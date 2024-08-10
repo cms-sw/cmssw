@@ -44,6 +44,9 @@ for year in upgradeKeys:
                             step = 'GenSimHLBeamSpotHGCALCloseBy'
                     stepMaker = makeStepNameSim
                 elif 'Gen' in step:
+                    if 'HLBeamSpot' in step:
+                        if '14TeV' in frag:
+                            step = 'GenHLBeamSpot14'
                     stepMaker = makeStepNameSim
                 
                 if 'HARVEST' in step: hasHarvest = True
