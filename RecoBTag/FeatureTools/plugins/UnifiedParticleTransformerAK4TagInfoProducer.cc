@@ -79,6 +79,7 @@ private:
   const double jet_radius_;
   const double min_candidate_pt_;
   const bool flip_;
+  const bool fix_lt_sorting_;
 
   const edm::EDGetTokenT<edm::View<reco::Jet>> jet_token_;
   const edm::EDGetTokenT<VertexCollection> vtx_token_;
@@ -108,6 +109,7 @@ UnifiedParticleTransformerAK4TagInfoProducer::UnifiedParticleTransformerAK4TagIn
     : jet_radius_(iConfig.getParameter<double>("jet_radius")),
       min_candidate_pt_(iConfig.getParameter<double>("min_candidate_pt")),
       flip_(iConfig.getParameter<bool>("flip")),
+      fix_lt_sorting_(iConfig.getParameter<bool>("fix_lt_sorting")),
       jet_token_(consumes<edm::View<reco::Jet>>(iConfig.getParameter<edm::InputTag>("jets"))),
       vtx_token_(consumes<VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices"))),
       lt_token_(consumes<edm::View<reco::Candidate>>(iConfig.getParameter<edm::InputTag>("losttracks"))),
@@ -154,6 +156,7 @@ void UnifiedParticleTransformerAK4TagInfoProducer::fillDescriptions(edm::Configu
   desc.add<double>("jet_radius", 0.4);
   desc.add<double>("min_candidate_pt", 0.10);
   desc.add<bool>("flip", false);
+  desc.add<bool>("fix_lt_sorting", false);
   desc.add<edm::InputTag>("vertices", edm::InputTag("offlinePrimaryVertices"));
   desc.add<edm::InputTag>("losttracks", edm::InputTag("lostTracks"));
   desc.add<edm::InputTag>("puppi_value_map", edm::InputTag("puppi"));
@@ -312,7 +315,7 @@ void UnifiedParticleTransformerAK4TagInfoProducer::produce(edm::Event& iEvent, c
           float drminpfcandsv = btagbtvdeep::mindrsvpfcand(svs_unsorted, PackedCandidate_);
           float distminpfcandsv = 0;
 
-          size_t entry = lt_sortedindices.at(lt_sorted[i].get());
+          size_t entry = lt_sortedindices.at(fix_lt_sorting_ ? lt_sorted[i].get() : i);
           // get cached track info
           auto& trackinfo = lt_trackinfos.emplace(i, track_builder).first->second;
           trackinfo.buildTrackInfo(PackedCandidate_, jet_dir, jet_ref_track_dir, pv);
