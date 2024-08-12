@@ -42,7 +42,7 @@
       <PARAM name="minEntries">0</PARAM>
       <PARAM name="useEmptyBins">1</PARAM>
   </QTEST>
-  <LINK name="*Hcal/RawTask/BadQ_FEDvsLSmod60/BadQ_FEDvsLS*">
+  <LINK name="*Hcal/RawTask/BadQ_FEDvsLSmod10/BadQ_FEDvsLS*">
     <TestName activate="true">BadQualityThreshold</TestName>
   </LINK>
 
