@@ -32,36 +32,38 @@ namespace deepvertex {
 namespace parT {
 
   enum InputFeatures {
-    kBegin=0,
-    kChargedCandidates=kBegin,
-    kNeutralCandidates=1,
-    kVertices=2,
-    kChargedCandidates4Vec=3,
-    kNeutralCandidates4Vec=4,
-    kVertices4Vec=5,
-    kEnd=6
+    kBegin = 0,
+    kChargedCandidates = kBegin,
+    kNeutralCandidates = 1,
+    kVertices = 2,
+    kChargedCandidates4Vec = 3,
+    kNeutralCandidates4Vec = 4,
+    kVertices4Vec = 5,
+    kEnd = 6
   };
- 
+
   inline constexpr unsigned n_cpf_accept = 25;
   inline constexpr unsigned n_npf_accept = 25;
-  inline constexpr unsigned n_sv_accept = 5; 
+  inline constexpr unsigned n_sv_accept = 5;
 
-  constexpr std::array<unsigned int, kEnd> N_InputFeatures {{16, // kChargedCandidates
-                                                             8,  // kNeutralCandidates
-                                                             14, // kVertices
-                                                             4,  // kChargedCandidates4Vec
-                                                             4,  // kNeutralCandidates4Vec
-                                                             4,  // kVertices4Vec
+  constexpr std::array<unsigned int, kEnd> N_InputFeatures{{
+      16,  // kChargedCandidates
+      8,   // kNeutralCandidates
+      14,  // kVertices
+      4,   // kChargedCandidates4Vec
+      4,   // kNeutralCandidates4Vec
+      4,   // kVertices4Vec
   }};
 
-  constexpr std::array<unsigned int, kEnd> N_AcceptedFeatures {{n_cpf_accept, // kChargedCandidates
-                                                                n_npf_accept, // kNeutralCandidates
-                                                                n_sv_accept,  // kVertices
-                                                                n_cpf_accept, // kChargedCandidates4Vec
-                                                                n_npf_accept, // kNeutralCandidates4Vec
-                                                                n_sv_accept,  // kVertices4Vec
+  constexpr std::array<unsigned int, kEnd> N_AcceptedFeatures{{
+      n_cpf_accept,  // kChargedCandidates
+      n_npf_accept,  // kNeutralCandidates
+      n_sv_accept,   // kVertices
+      n_cpf_accept,  // kChargedCandidates4Vec
+      n_npf_accept,  // kNeutralCandidates4Vec
+      n_sv_accept,   // kVertices4Vec
   }};
 
-} // namespace parT
+}  // namespace parT
 
 #endif
