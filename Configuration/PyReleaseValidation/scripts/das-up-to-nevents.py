@@ -171,6 +171,7 @@ if __name__ == '__main__':
         df.to_csv(dataset.replace("/","")+".csv")
 
     if events > 0:
+        df = df[df["events"] <= events] #jump too big files
         df.loc[:,"sum_evs"] = df.loc[:,"events"].cumsum()
         df = df[df["sum_evs"] < events]
             
