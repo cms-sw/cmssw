@@ -12,7 +12,7 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Alignment/SurveyAnalysis/plugins/CreateSurveyRcds.h"
-#include "Geometry/CommonTopologies/interface/GeometryAligner.h"
+#include "Geometry/GeometryAligner/interface/GeometryAligner.h"
 #include "CLHEP/Random/RandGauss.h"
 
 CreateSurveyRcds::CreateSurveyRcds(const edm::ParameterSet& cfg)
