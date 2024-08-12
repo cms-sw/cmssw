@@ -29,12 +29,19 @@ def get_url_clean(url):
 
 def das_do_command(cmd):
     out = subprocess.check_output(cmd, shell=True, executable="/bin/bash").decode('utf8')
-    return out
+    return out.split("\n")
+
+def das_file_site(dataset, site):
+    cmd = "dasgoclient --query='file dataset=%s site=%s'"%(dataset,site)
+    out = das_do_command(cmd)
+    df = pd.DataFrame(out,columns=["file"])
+
+    return df
 
 def das_file_data(dataset,opt=""):
     cmd = "dasgoclient --query='file dataset=%s %s| grep file.name, file.nevents'"%(dataset,opt)
     
-    out = das_do_command(cmd).split("\n")
+    out = das_do_command(cmd)
     out = [np.array(r.split(" "))[[0,3]] for r in out if len(r) > 0]
     
     df = pd.DataFrame(out,columns=["file","events"])
@@ -45,7 +52,7 @@ def das_file_data(dataset,opt=""):
 def das_lumi_data(dataset,opt=""):
     cmd = "dasgoclient --query='file,lumi,run dataset=%s %s'"%(dataset,opt)
     
-    out = das_do_command(cmd).split("\n")
+    out = das_do_command(cmd)
     out = [r.split(" ") for r in out if len(r)>0]
     
     df = pd.DataFrame(out,columns=["file","run","lumis"])
@@ -74,7 +81,7 @@ if __name__ == '__main__':
     events    = args.events
     threshold = args.threshold
     outfile   = args.outfile
-    site      = "site="+args.site if args.site is not None else ""
+    site      = args.site
 
     ## get the greatest golden json
     year = dataset.split("Run")[1][2:4] # from 20XX to XX
@@ -145,10 +152,20 @@ if __name__ == '__main__':
         n_lumis = np.array([len(l) for l in df_r.lumis])
         df_rs.append(df_r[good_lumis==n_lumis])
 
+    if len(df_rs) == 0:
+        print("No intersection between:")
+        print(" - json   : ", best_json)
+        print(" - dataset: ", dataset)
+        print("Exiting.")
+        sys.exit(1)
+
     df = pd.concat(df_rs)
     df.loc[:,"min_lumi"] = [min(f) for f in df.lumis]
     df.loc[:,"max_lumi"] = [max(f) for f in df.lumis]
     df = df.sort_values(["run","min_lumi","max_lumi"])
+
+    if site is not None:
+        df = df.merge(das_file_site(dataset,site),on="file",how="inner")
 
     if args.pandas:
         df.to_csv(dataset.replace("/","")+".csv")
