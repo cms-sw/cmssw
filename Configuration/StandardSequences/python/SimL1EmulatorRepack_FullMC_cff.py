@@ -90,6 +90,9 @@ simEmtfDigis.RPCInput            = 'unpackRPC'
 simCaloStage2Layer1Digis.ecalToken = 'unpackEcal:EcalTriggerPrimitives'
 simCaloStage2Layer1Digis.hcalToken = 'simHcalTriggerPrimitiveDigis'
 
+# ZDC EtSums
+l1tZDCEtSums.hcalTPDigis = 'unpackHcal'
+
 # Finally, pack the new L1T output back into RAW
 from EventFilter.L1TRawToDigi.caloStage2Raw_cfi import caloStage2Raw as packCaloStage2
 from EventFilter.L1TRawToDigi.gmtStage2Raw_cfi import gmtStage2Raw as packGmtStage2

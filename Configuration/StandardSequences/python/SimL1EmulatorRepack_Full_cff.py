@@ -124,9 +124,12 @@ stage2L1Trigger_2017.toModify(simOmtfDigis,
 simEmtfDigis.CSCInput            = "unpackEmtf"
 simEmtfDigis.RPCInput            = 'unpackRPC'
 
+# Calo Layer-1
 simCaloStage2Layer1Digis.ecalToken = 'unpackEcal:EcalTriggerPrimitives'
 simCaloStage2Layer1Digis.hcalToken = 'unpackHcal'
 
+# ZDC EtSums
+l1tZDCEtSums.hcalTPDigis = 'unpackHcal'
 
 ## GT
 stage2L1Trigger_2017.toModify(simGtExtFakeStage2Digis,

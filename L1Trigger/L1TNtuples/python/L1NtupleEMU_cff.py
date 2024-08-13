@@ -19,7 +19,7 @@ l1UpgradeTfMuonEmuTree.isEMU = cms.bool(True)
 
 l1UpgradeEmuTree = l1UpgradeTree.clone()
 # We have only output of the ZDC emulator available, no info from unpacker: l1UpgradeEmuTree clones from the l1UpgradeTree
-l1UpgradeEmuTree.sumZDCToken = cms.untracked.InputTag("etSumZdcProducer")
+l1UpgradeEmuTree.sumZDCToken = cms.untracked.InputTag("l1tZDCEtSums")
 
 l1CaloTowerEmuTree = l1CaloTowerTree.clone()
 l1CaloTowerEmuTree.ecalToken = cms.untracked.InputTag("simEcalTriggerPrimitiveDigis")
