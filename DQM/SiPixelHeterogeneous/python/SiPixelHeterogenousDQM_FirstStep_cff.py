@@ -239,7 +239,7 @@ monitorpixelSoACompareSourceAlpaka = cms.Sequence(
                                             siPixelVertexSoAMonitorDevice *
                                             siPixelCompareVertices )
 
-# Phase-2 sequence
+# Phase-2 sequence ...
 _monitorpixelSoACompareSource =  cms.Sequence(siPixelPhase2MonitorRecHitsSoACPU *
                                               siPixelPhase2MonitorRecHitsSoAGPU *
                                               siPixelPhase2CompareRecHitsSoA *
@@ -249,6 +249,18 @@ _monitorpixelSoACompareSource =  cms.Sequence(siPixelPhase2MonitorRecHitsSoACPU 
                                               siPixelMonitorVertexSoACPU *
                                               siPixelMonitorVertexSoAGPU *
                                               siPixelCompareVertexSoA)
+
+# ...and the Alpaka version
+_monitorpixelSoACompareSourceAlpakaPhase2 = cms.Sequence(                                          
+                                            siPixelRecHitsSoAMonitorSerial *
+                                            siPixelRecHitsSoAMonitorDevice *
+                                            siPixelPhase1CompareRecHits *
+                                            siPixelTrackSoAMonitorSerial *
+                                            siPixelTrackSoAMonitorDevice *
+                                            siPixelPhase1CompareTracks *
+                                            siPixelVertexSoAMonitorSerial *
+                                            siPixelVertexSoAMonitorDevice *
+                                            siPixelCompareVertices )
 
 # HIon sequence
 _monitorpixelSoACompareSourceHIonPhase1 =  cms.Sequence(siPixelHIonPhase1MonitorRecHitsSoACPU *
@@ -262,9 +274,12 @@ _monitorpixelSoACompareSourceHIonPhase1 =  cms.Sequence(siPixelHIonPhase1Monitor
                                               siPixelCompareVertexSoA)
 
 phase2_tracker.toReplaceWith(monitorpixelSoACompareSource,_monitorpixelSoACompareSource)
+phase2_tracker.toReplaceWith(monitorpixelSoACompareSourceAlpaka,_monitorpixelSoACompareSourceAlpakaPhase2)
 
 from Configuration.ProcessModifiers.gpuValidationPixel_cff import gpuValidationPixel
 gpuValidationPixel.toReplaceWith(monitorpixelSoASource, monitorpixelSoACompareSource)
 
 from Configuration.ProcessModifiers.alpakaValidationPixel_cff import alpakaValidationPixel
-(alpakaValidationPixel & ~gpuValidationPixel).toReplaceWith(monitorpixelSoASource, monitorpixelSoACompareSourceAlpaka)
+(alpakaValidationPixel & ~gpuValidationPixel ).toReplaceWith(monitorpixelSoASource, monitorpixelSoACompareSourceAlpaka)
+
+
