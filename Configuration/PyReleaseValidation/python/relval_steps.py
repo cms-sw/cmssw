@@ -36,11 +36,11 @@ step1Up2018ProdDefaults = merge ([{'--eventcontent':'RAWSIM'},step1Up2018Default
 step1Up2018HiProdDefaults = merge ([{'--eventcontent':'RAWSIM'},step1Up2018HiDefaults])
 # step1 gensim: for 2022 HI prod
 step1Up2022HiProdDefaults = merge ([{'--conditions':'auto:phase1_2022_realistic_hi','--era':'Run3_pp_on_PbPb','--beamspot':'Realistic2022PbPbCollision','--eventcontent':'RAWSIM','--geometry':'DB:Extended'},step1Up2018HiDefaults])
-step1Up2023HiProdDefaults = merge ([{'--conditions':'auto:phase1_2023_realistic_hi','--era':'Run3_pp_on_PbPb_2023','--beamspot':'Realistic2023PbPbCollision','--eventcontent':'RAWSIM','--geometry':'DB:Extended'},step1Up2018HiDefaults])
+step1Up2023HiProdDefaults = merge ([{'--conditions':'auto:phase1_2023_realistic_hi','--era':'Run3_pp_on_PbPb_2023','--beamspot':'DBrealistic','--eventcontent':'RAWSIM','--geometry':'DB:Extended'},step1Up2018HiDefaults])
 # step1 gensim: for 2024
-step1Up2024Defaults = merge ([{'--conditions':'auto:phase1_2024_realistic','--era':'Run3','--beamspot':'Realistic25ns13p6TeVEarly2023Collision'},step1Up2018Defaults])
+step1Up2024Defaults = merge ([{'--conditions':'auto:phase1_2024_realistic','--era':'Run3','--beamspot':'DBrealistic'},step1Up2018Defaults])
 # step1 gensim: for 2024 HI prod
-step1Up2024HiProdDefaults = merge ([{'--conditions':'auto:phase1_2024_realistic_hi','--era':'Run3_pp_on_PbPb_2024','--beamspot':'Realistic2023PbPbCollision'},step1Up2023HiProdDefaults])
+step1Up2024HiProdDefaults = merge ([{'--conditions':'auto:phase1_2024_realistic_hi','--era':'Run3_pp_on_PbPb_2024','--beamspot':'DBrealistic'},step1Up2023HiProdDefaults])
 
 steps = Steps()
 
