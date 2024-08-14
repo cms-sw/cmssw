@@ -209,6 +209,7 @@ void RPCDigiValid::bookHistograms(DQMStore::IBooker &booker, edm::Run const &run
 
   // XY plots
   hXY_Barrel_ = booker.book2D("XY_Barrel", "X-Y view of Barrel", nbinsXY, -maxXY, maxXY, nbinsXY, -maxXY, maxXY);
+  hXY_Barrel_->setOption("colz");
   for (int disk = 1; disk <= 4; ++disk) {
     const std::string meNameP = fmt::format("XY_Endcap_p{:1d}", disk);
     const std::string meNameN = fmt::format("XY_Endcap_m{:1d}", disk);
