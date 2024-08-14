@@ -32,7 +32,7 @@
 #include <unordered_set>
 #include <vector>
 
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 using namespace angle_units::operators;
 
 class DDHGCalSiliconRotatedCassette : public DDAlgorithm {
@@ -662,13 +662,13 @@ void DDHGCalSiliconRotatedCassette::positionPassive2(const DDLogicalPart& glog,
     double ypos = cshift.second;
     int i = layer * cassettes_ + k;
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconRotatedCassette::Passive: layer " << layer + 1 << " cassette "
+    edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconRotatedCassette::Passive2: layer " << layer + 1 << " cassette "
                                   << cassette << " Shift " << cshift.first << ":" << cshift.second << " PassiveIndex "
                                   << i << ":" << passiveFull_.size() << ":" << passivePart_.size();
 #endif
     std::string passive = (absType <= waferTypes_) ? passiveFull_[i] : passivePart_[i];
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << " DDHGCalSiliconRotatedCassette: Passive " << passive << " number " << cassette
+    edm::LogVerbatim("HGCalGeom") << " DDHGCalSiliconRotatedCassette: Passive2 " << passive << " number " << cassette
                                   << " pos " << xpos << ":" << ypos;
     kount++;
 #endif
