@@ -8,7 +8,7 @@
   <Constant name="WaferThickness120"     value="[hgcal:WaferThicknessFine]"/>
   <Constant name="WaferThickness200"     value="[hgcal:WaferThicknessCoarse1]"/>
   <Constant name="WaferThickness300"     value="[hgcal:WaferThicknessCoarse2]"/>
-  <Constant name="CellThicknes120"       value="[hgcal:CellThicknessFine]"/>
+  <Constant name="CellThickness120"      value="[hgcal:CellThicknessFine]"/>
   <Constant name="CellThickness200"      value="[hgcal:CellThicknessCoarse1]"/>
   <Constant name="CellThickness300"      value="[hgcal:CellThicknessCoarse2]"/>
   <Constant name="NumberOfCellsHD"       value="[hgcal:NumberOfCellsFine]"/>
