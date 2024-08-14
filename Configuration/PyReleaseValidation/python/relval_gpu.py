@@ -13,7 +13,9 @@ from Configuration.PyReleaseValidation.relval_upgrade import workflows as _upgra
 
 # mc WFs to run in IB:
 
-# mc 2024 
+# mc 2023
+# no PU     Alpaka pixel-only                                   TTbar: quadruplets any backend and profiling; ECAL-only any backend; HCAL-only any backend and profiling
+# mc 2024
 # no PU  
 #           Alpaka pixel-only                                   TTbar: quadruplets any backend, any backend vs cpu validation, profiling, triplets
 #           Alpaka ECAL-only:                                   TTbar: any backend
@@ -37,6 +39,9 @@ from Configuration.PyReleaseValidation.relval_upgrade import workflows as _upgra
 #           Alpaka pixel-only:                                  Single Nu E10: on GPU (optional)
 
 numWFIB = [
+           # 2023, Alpaka-based noPU
+           12434.402,12434.403,12434.412,12434.422,12434.423
+
            # 2024, Alpaka-based noPU
            12834.402, 12834.403, 12834.404, 12834.406,
           #12834.406, 12834.407, 12834.408,
@@ -52,7 +57,7 @@ numWFIB = [
            # 2024 with PU, Alpaka-based
            13034.402, 13034.403, 13034.404, 13034.406,
           #13034.406, 13034.407, 13034.408
-           13034.412,#13034.413, 13034.414
+           13034.412, #13034.413, 13034.414
            13034.422, 13034.423, 13034.424,
           #13034.482, 13034.483, 13034.484
           #13034.486, 13034.487, 13034.488
