@@ -43,6 +43,8 @@
   <use name="FWCore/ParameterSet"/>
   <use name="FWCore/Utilities"/>
   <use name="DataFormats/HGCalReco"/>
+  <use name="RecoLocalCalo/HGCalRecAlgos"/>
+  <use name="RecoLocalCalo/HGCalRecProducers"/>
   <use name="DataFormats/Portable"/>
   <use name="HeterogeneousCore/AlpakaCore"/>
   <use name="HeterogeneousCore/AlpakaInterface"/>
