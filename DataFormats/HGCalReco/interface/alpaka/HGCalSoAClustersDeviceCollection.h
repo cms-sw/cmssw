@@ -8,6 +8,7 @@
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   using HGCalSoAClustersDeviceCollection = PortableCollection<HGCalSoAClusters>;
+  using HGCalSoAClustersDeviceCollectionConstView = PortableCollection<HGCalSoAClusters>::ConstView;
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
 
