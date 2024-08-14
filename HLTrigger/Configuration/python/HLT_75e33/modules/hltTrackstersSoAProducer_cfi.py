@@ -4,4 +4,5 @@ hltTrackstersSoAProducer = cms.EDProducer('TrackstersSoAProducer@alpaka',
     alpaka = cms.untracked.PSet(
         backend = cms.untracked.string('')
     ),
+    layer_clusters = cms.InputTag("hltHgcalSoALayerClustersProducer")
 )

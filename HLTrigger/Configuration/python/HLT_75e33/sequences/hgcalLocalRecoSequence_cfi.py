@@ -13,6 +13,7 @@ from ..modules.hltHgcalSoALayerClustersProducer_cfi import *
 from ..modules.hltHgcalLayerClustersFromSoAProducer_cfi import *
 
 from ..modules.hltTrackstersSoAProducer_cfi import *
+from ..modules.hltFilteredLayerClustersSoAProducer_cfi import *
 
 hgcalLocalRecoSequence = cms.Sequence(
         HGCalUncalibRecHit+
@@ -31,8 +32,9 @@ _hgcalLocalRecoSequence_heterogeneous = cms.Sequence(
         hltHgCalLayerClustersFromSoAProducer+
         hgcalLayerClustersHSci+
         hgcalLayerClustersHSi+
-        hgcalMergeLayerClusters
-        +hltTrackstersSoAProducer)
+        hgcalMergeLayerClusters+
+        hltFilteredLayerClustersSoAProducer+
+        hltTrackstersSoAProducer)
 
 from Configuration.ProcessModifiers.alpaka_cff import alpaka
 alpaka.toReplaceWith(hgcalLocalRecoSequence, _hgcalLocalRecoSequence_heterogeneous)
