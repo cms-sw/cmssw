@@ -1125,7 +1125,7 @@ upgradeWFs['PatatrackPixelOnlyTripletsGPUProfiling'] = PatatrackWorkflow(
         '--customise': 'RecoTracker/Configuration/customizePixelTracksForTriplets.customizePixelTracksForTriplets,RecoTracker/Configuration/customizePixelOnlyForProfiling.customizePixelOnlyForProfilingGPUOnly'
     },
     harvest = None,
-    suffix = 'Patatrack_PixelOnlyTripletsGPU_Profiling',
+    suffix = 'Patatrack_PixelOnlyTripletsGPU_Profiling',    
     offset = 0.508,
 )
 
@@ -1136,7 +1136,7 @@ upgradeWFs['PatatrackPixelOnlyTripletsGPUProfiling'] = PatatrackWorkflow(
 upgradeWFs['PatatrackECALOnlyAlpaka'] = PatatrackWorkflow(
     digi = {
         # customize the ECAL Local Reco part of the HLT menu for Alpaka
-        '--procModifiers': 'alpaka', # alpaka modifier activates customiseHLTForAlpaka
+        '--procModifiers': 'alpaka', 
         '--customise' : 'HeterogeneousCore/AlpakaServices/customiseAlpakaServiceMemoryFilling.customiseAlpakaServiceMemoryFilling',
     },
     reco = {
@@ -1312,7 +1312,7 @@ upgradeWFs['PatatrackHCALOnlyGPUProfiling'] = PatatrackWorkflow(
 # - HCAL-only reconstruction using Alpaka with DQM and Validation
 upgradeWFs['PatatrackHCALOnlyAlpakaValidation'] = PatatrackWorkflow(
     digi = {
-        '--procModifiers': 'alpaka', # alpaka modifier activates customiseHLTForAlpaka
+        '--procModifiers': 'alpaka', 
         '--customise' : 'HeterogeneousCore/AlpakaServices/customiseAlpakaServiceMemoryFilling.customiseAlpakaServiceMemoryFilling',
     },
     reco = {
@@ -1332,7 +1332,7 @@ upgradeWFs['PatatrackHCALOnlyAlpakaValidation'] = PatatrackWorkflow(
 # - HCAL-only reconstruction using GPU and Alpaka with DQM and Validation for PF Alpaka vs CPU comparisons
 upgradeWFs['PatatrackHCALOnlyGPUandAlpakaValidation'] = PatatrackWorkflow(
     digi = {
-        '--procModifiers': 'alpaka', # alpaka modifier activates customiseHLTForAlpaka
+        '--procModifiers': 'alpaka', 
         '--customise' : 'HeterogeneousCore/AlpakaServices/customiseAlpakaServiceMemoryFilling.customiseAlpakaServiceMemoryFilling',
     },
     reco = {
@@ -1352,7 +1352,7 @@ upgradeWFs['PatatrackHCALOnlyGPUandAlpakaValidation'] = PatatrackWorkflow(
 # - HCAL-only reconstruction using Alpaka
 upgradeWFs['PatatrackHCALOnlyAlpakaProfiling'] = PatatrackWorkflow(
     digi = {
-        '--procModifiers': 'alpaka', # alpaka modifier activates customiseHLTForAlpaka
+        '--procModifiers': 'alpaka', 
     },
     reco = {
         '-s': 'RAW2DIGI:RawToDigi_hcalOnly,RECO:reconstruction_hcalOnly',
@@ -1369,13 +1369,13 @@ upgradeWFs['PatatrackHCALOnlyAlpakaProfiling'] = PatatrackWorkflow(
 #  - harvesting
 upgradeWFs['PatatrackFullRecoAlpaka'] = PatatrackWorkflow(
     digi = {
-        '--procModifiers': 'alpaka', # alpaka modifier activates customiseHLTForAlpaka
+        '--procModifiers': 'alpaka', 
         '--customise' : 'HeterogeneousCore/AlpakaServices/customiseAlpakaServiceMemoryFilling.customiseAlpakaServiceMemoryFilling',
     },
     reco = {
         # skip the @pixelTrackingOnlyValidation which cannot run together with the full reconstruction
         '-s': 'RAW2DIGI:RawToDigi+RawToDigi_pixelOnly,L1Reco,RECO:reconstruction+reconstruction_pixelTrackingOnly,RECOSIM,PAT,VALIDATION:@standardValidation+@miniAODValidation,DQM:@standardDQM+@ExtraHLT+@miniAODDQM+@pixelTrackingOnlyDQM',
-        '--procModifiers': 'alpaka,pixelNtupletFit',
+        '--procModifiers': 'alpaka',
         '--customise' : 'HeterogeneousCore/AlpakaServices/customiseAlpakaServiceMemoryFilling.customiseAlpakaServiceMemoryFilling',
     },
     harvest = {
@@ -1383,6 +1383,28 @@ upgradeWFs['PatatrackFullRecoAlpaka'] = PatatrackWorkflow(
     },
     suffix = 'Patatrack_FullRecoAlpaka',
     offset = 0.492,
+)
+
+# Workflow running the Pixel triplets, ECAL and HCAL reconstruction on GPU (optional), PF using Alpaka, together with the full offline reconstruction on CPU
+#  - HLT on GPU (optional)
+#  - reconstruction on Alpaka, with DQM and validation
+#  - harvesting
+upgradeWFs['PatatrackFullRecoAlpaka'] = PatatrackWorkflow(
+    digi = {
+        '--procModifiers': 'alpaka', 
+        '--customise' : 'HeterogeneousCore/AlpakaServices/customiseAlpakaServiceMemoryFilling.customiseAlpakaServiceMemoryFilling',
+    },
+    reco = {
+        # skip the @pixelTrackingOnlyValidation which cannot run together with the full reconstruction
+        '-s': 'RAW2DIGI:RawToDigi+RawToDigi_pixelOnly,L1Reco,RECO:reconstruction+reconstruction_pixelTrackingOnly,RECOSIM,PAT,VALIDATION:@standardValidation+@miniAODValidation,DQM:@standardDQM+@ExtraHLT+@miniAODDQM+@pixelTrackingOnlyDQM',
+        '--procModifiers': 'alpaka',
+        '--customise' : 'RecoTracker/Configuration/customizePixelTracksForTriplets.customizePixelTracksForTriplets,HeterogeneousCore/AlpakaServices/customiseAlpakaServiceMemoryFilling.customiseAlpakaServiceMemoryFilling',
+    },
+    harvest = {
+        # skip the @pixelTrackingOnlyDQM harvesting
+    },
+    suffix = 'Patatrack_FullRecoAlpakaTriplets',
+    offset = 0.496,
 )
 
 # Workflow running the Pixel quadruplets, ECAL and HCAL reconstruction on CPU
@@ -1691,7 +1713,7 @@ upgradeWFs['PatatrackFullRecoTripletsGPUValidation'] = PatatrackWorkflow(
 
 upgradeWFs['PatatrackPixelOnlyAlpaka'] = PatatrackWorkflow(
     digi = {
-        '--procModifiers': 'alpaka', # alpaka modifier activates customiseHLTForAlpaka
+        '--procModifiers': 'alpaka', 
         '--customise' : 'HeterogeneousCore/AlpakaServices/customiseAlpakaServiceMemoryFilling.customiseAlpakaServiceMemoryFilling',
     },
     reco = {
@@ -1708,7 +1730,7 @@ upgradeWFs['PatatrackPixelOnlyAlpaka'] = PatatrackWorkflow(
 
 upgradeWFs['PatatrackPixelOnlyAlpakaValidation'] = PatatrackWorkflow(
     digi = {
-        '--procModifiers': 'alpaka', # alpaka modifier activates customiseHLTForAlpaka
+        '--procModifiers': 'alpaka', 
         '--customise' : 'HeterogeneousCore/AlpakaServices/customiseAlpakaServiceMemoryFilling.customiseAlpakaServiceMemoryFilling',
     },
     reco = {
@@ -1725,7 +1747,7 @@ upgradeWFs['PatatrackPixelOnlyAlpakaValidation'] = PatatrackWorkflow(
 
 upgradeWFs['PatatrackPixelOnlyAlpakaProfiling'] = PatatrackWorkflow(
     digi = {
-        '--procModifiers': 'alpaka', # alpaka modifier activates customiseHLTForAlpaka
+        '--procModifiers': 'alpaka', 
     },
     reco = {
         '-s': 'RAW2DIGI:RawToDigi_pixelOnly,RECO:reconstruction_pixelTrackingOnly',
@@ -1738,18 +1760,51 @@ upgradeWFs['PatatrackPixelOnlyAlpakaProfiling'] = PatatrackWorkflow(
 )
 
 upgradeWFs['PatatrackPixelOnlyTripletsAlpaka'] = PatatrackWorkflow(
-    digi = { 
+    digi = {
+        '--procModifiers': 'alpaka',
+        '--customise' : 'HeterogeneousCore/AlpakaServices/customiseAlpakaServiceMemoryFilling.customiseAlpakaServiceMemoryFilling',
     },
     reco = {
         '-s': 'RAW2DIGI:RawToDigi_pixelOnly,RECO:reconstruction_pixelTrackingOnly,VALIDATION:@pixelTrackingOnlyValidation,DQM:@pixelTrackingOnlyDQM',
         '--procModifiers': 'alpaka',
-        '--customise' : 'RecoTracker/Configuration/customizePixelTracksForTriplets.customizePixelTracksForTriplets'
+        '--customise' : 'RecoTracker/Configuration/customizePixelTracksForTriplets.customizePixelTracksForTriplets,HeterogeneousCore/AlpakaServices/customiseAlpakaServiceMemoryFilling.customiseAlpakaServiceMemoryFilling'
     },
     harvest = {
         '-s': 'HARVESTING:@trackingOnlyValidation+@pixelTrackingOnlyDQM'
     },
     suffix = 'Patatrack_PixelOnlyTripletsAlpaka',
     offset = 0.406,
+)
+
+upgradeWFs['PatatrackPixelOnlyTripletsAlpakaValidation'] = PatatrackWorkflow(
+    digi = { 
+        '--procModifiers': 'alpaka',
+        '--customise' : 'HeterogeneousCore/AlpakaServices/customiseAlpakaServiceMemoryFilling.customiseAlpakaServiceMemoryFilling',
+    },
+    reco = {
+        '-s': 'RAW2DIGI:RawToDigi_pixelOnly,RECO:reconstruction_pixelTrackingOnly,VALIDATION:@pixelTrackingOnlyValidation,DQM:@pixelTrackingOnlyDQM',
+        '--procModifiers': 'alpakaValidation',
+        '--customise' : 'RecoTracker/Configuration/customizePixelTracksForTriplets.customizePixelTracksForTriplets,HeterogeneousCore/AlpakaServices/customiseAlpakaServiceMemoryFilling.customiseAlpakaServiceMemoryFilling'
+    },
+    harvest = {
+        '-s': 'HARVESTING:@trackingOnlyValidation+@pixelTrackingOnlyDQM'
+    },
+    suffix = 'Patatrack_PixelOnlyTripletsAlpaka_Validation',
+    offset = 0.407,
+)
+
+upgradeWFs['PatatrackPixelOnlyTripletsAlpakaProfiling'] = PatatrackWorkflow(
+    digi = { 
+        '--procModifiers': 'alpaka',
+    },
+    reco = {
+        '-s': 'RAW2DIGI:RawToDigi_pixelOnly,RECO:reconstruction_pixelTrackingOnly',
+        '--procModifiers': 'alpaka',
+        '--customise' : 'RecoTracker/Configuration/customizePixelTracksForTriplets.customizePixelTracksForTriplets,RecoTracker/Configuration/customizePixelOnlyForProfiling.customizePixelOnlyForProfilingGPUOnly'
+    },
+    harvest = None,
+    suffix = 'Patatrack_PixelOnlyTripletsAlpaka_Profiling',
+    offset = 0.408,
 )
 
 # end of Patatrack workflows
