@@ -1,0 +1,9 @@
+#ifndef DataFormats_HGCalReco_interface_HGCalSoAClustersFilteredMaskHostCollection_h
+#define DataFormats_HGCalReco_interface_HGCalSoAClustersFilteredMaskHostCollection_h
+
+#include "DataFormats/Portable/interface/PortableHostCollection.h"
+#include "DataFormats/HGCalReco/interface/HGCalSoAClustersFilteredMask.h"
+
+using HGCalSoAClustersFilteredMaskHostCollection = PortableHostCollection<HGCalSoAClustersFilteredMask>;
+
+#endif

@@ -78,4 +78,7 @@
   <class name="HGCalSoAClustersHostCollection"/>
   <class name="edm::Wrapper<HGCalSoAClustersHostCollection>" splitLevel="0"/>
 
+  <class name="HGCalSoAClustersFilteredMask"/>
+  <class name="HGCalSoAClustersFilteredMaskHostCollection"/>
+  <class name="edm::Wrapper<HGCalSoAClustersFilteredMaskHostCollection>" splitLevel="0"/>
 </lcgdict>
