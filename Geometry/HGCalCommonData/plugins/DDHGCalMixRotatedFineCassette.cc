@@ -159,7 +159,9 @@ void DDHGCalMixRotatedFineCassette::initialize(const DDNumericArguments& nArgs,
   sensitiveMode_ = static_cast<int>(nArgs["SensitiveMode"]);
   passiveMode_ = static_cast<int>(nArgs["PassiveMode"]);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedFineCassette::First Layers " << firstFineLayer_ << ":" << firstCoarseLayer_ << " and Absober:Sensitive mode " << absorbMode_ << ":" << sensitiveMode_ << ":" << passiveMode_;
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedFineCassette::First Layers " << firstFineLayer_ << ":"
+                                << firstCoarseLayer_ << " and Absober:Sensitive mode " << absorbMode_ << ":"
+                                << sensitiveMode_ << ":" << passiveMode_;
 #endif
   zMinBlock_ = nArgs["zMinBlock"];
   waferSize_ = nArgs["waferSize"];
