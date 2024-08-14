@@ -312,7 +312,7 @@ void UnifiedParticleTransformerAK4TagInfoProducer::produce(edm::Event& iEvent, c
           float drminpfcandsv = btagbtvdeep::mindrsvpfcand(svs_unsorted, PackedCandidate_);
           float distminpfcandsv = 0;
 
-          size_t entry = lt_sortedindices.at(i);
+          size_t entry = lt_sortedindices.at(lt_sorted[i].get());
           // get cached track info
           auto& trackinfo = lt_trackinfos.emplace(i, track_builder).first->second;
           trackinfo.buildTrackInfo(PackedCandidate_, jet_dir, jet_ref_track_dir, pv);
