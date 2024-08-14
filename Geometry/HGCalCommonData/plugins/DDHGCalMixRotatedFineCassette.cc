@@ -153,16 +153,13 @@ void DDHGCalMixRotatedFineCassette::initialize(const DDNumericArguments& nArgs,
                                 << " PlaceOffset: " << placeOffset_ << "; number of cells along phi "
                                 << phiBinsFineScint_ << ":" << phiBinsScint_;
 #endif
-  firstFineLayer_ = (int)(nArgs["FirstFineLayer"]);
-  firstCoarseLayer_ = (int)(nArgs["FirstCoarseLayer"]);
-  absorbMode_ = (int)(nArgs["AbsorberMode"]);
-  sensitiveMode_ = (int)(nArgs["SensitiveMode"]);
-  passiveMode_ = (int)(nArgs["PassiveMode"]);
+  firstFineLayer_ = static_cast<int>(nArgs["FirstFineLayer"]);
+  firstCoarseLayer_ = static_cast<int>(nArgs["FirstCoarseLayer"]);
+  absorbMode_ = static_cast<int>(nArgs["AbsorberMode"]);
+  sensitiveMode_ = static_cast<int>(nArgs["SensitiveMode"]);
+  passiveMode_ = static_cast<int>(nArgs["PassiveMode"]);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedFineCassette::First Layers " << firstFineLayer_ << ":"
-                                << firstCoarseLayer_ << " and "
-                                << "Absober:Sensitive mode " << absorbMode_ << ":" << sensitiveMode_ << ":"
-                                << passiveMode_;
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedFineCassette::First Layers " << firstFineLayer_ << ":" << firstCoarseLayer_ << " and Absober:Sensitive mode " << absorbMode_ << ":" << sensitiveMode_ << ":" << passiveMode_;
 #endif
   zMinBlock_ = nArgs["zMinBlock"];
   waferSize_ = nArgs["waferSize"];
