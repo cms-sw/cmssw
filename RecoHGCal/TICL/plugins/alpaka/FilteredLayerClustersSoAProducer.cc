@@ -26,15 +26,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     class FilteredLayerClustersSoAProducer : public stream::EDProducer<> {
         public:
             FilteredLayerClustersSoAProducer(edm::ParameterSet const& config)
-            :   clusters_token_(consumes(config.getParameter<edm::InputTag>("LayerClustersSoA"))),
+            :   min_cluster_size_(config.getParameter<int>("min_cluster_size")),
+                max_cluster_size_(config.getParameter<int>("max_cluster_size")),
+                clusters_token_(consumes(config.getParameter<edm::InputTag>("LayerClustersSoA"))),
                 clusters_mask_token_{produces()}
-            {
-                iteration_label_ = config.getParameter<std::string>("iteration_label");
-                min_cluster_size_ = config.getParameter<int>("min_cluster_size");
-                max_cluster_size_ = config.getParameter<int>("max_cluster_size");
-                // produces<std::vector<float>>(iteration_label_);
-
-            }
+            {}
+            
             ~FilteredLayerClustersSoAProducer() override = default;
 
             static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -42,9 +39,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                 desc.add<edm::InputTag>("LayerClustersSoA", edm::InputTag("hltHgcalSoALayerClustersProducer"));
                 desc.add<int>("min_cluster_size", 0);
                 desc.add<int>("max_cluster_size", 9999);
-                desc.add<int>("min_layerId", 0);
-                desc.add<int>("max_layerId", 9999);
-                desc.add<std::string>("iteration_label", "iterationLabelGoesHere");
                 descriptions.addWithDefaultLabel(desc);
             }
 
@@ -61,12 +55,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             }
 
         private:
+            const int min_cluster_size_;
+            const int max_cluster_size_;
             device::EDGetToken<HGCalSoAClustersDeviceCollection> const clusters_token_;
             device::EDPutToken<HGCalSoAClustersFilteredMaskDeviceCollection> const clusters_mask_token_;
-            std::string iteration_label_;
             std::unique_ptr<ClusterFilterSoAByAlgoAndSize> theFilter_;
-            int min_cluster_size_;
-            int max_cluster_size_;
     };
 
 } // end ALPAKA_ACCELERATOR_NAMESPACE

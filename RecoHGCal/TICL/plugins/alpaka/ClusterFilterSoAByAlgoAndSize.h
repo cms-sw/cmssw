@@ -24,8 +24,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                 Queue& queue,
                 const HGCalSoAClustersDeviceCollectionConstView layerClusters,
                 HGCalSoAClustersFilteredMaskDeviceCollectionView layerClustersMask,
-                int mix_cluster_size,
-                int max_cluster_size
+                const int mix_cluster_size,
+                const int max_cluster_size
             );
 
         private:

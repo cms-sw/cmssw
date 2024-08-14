@@ -12,8 +12,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                 TAcc const& acc,
                 HGCalSoAClustersDeviceCollectionConstView const layerClustersSoA,
                 HGCalSoAClustersFilteredMaskDeviceCollectionView layerClustersMaskSoA,
-                int min_cluster_size,
-                int max_cluster_size
+                const int min_cluster_size,
+                const int max_cluster_size
             ) const {
                 for (int32_t i: cms::alpakatools::uniform_elements(acc, layerClustersSoA.metadata().size())) {
                     layerClustersMaskSoA[i].mask() = 1.;
@@ -36,8 +36,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         Queue& queue,
         const HGCalSoAClustersDeviceCollectionConstView layerClusters,
         HGCalSoAClustersFilteredMaskDeviceCollectionView layerClustersMask,
-        int min_cluster_size,
-        int max_cluster_size
+        const int min_cluster_size,
+        const int max_cluster_size
     ) { 
         uint32_t items = 64;
         uint32_t groups = cms::alpakatools::divide_up_by(layerClusters.metadata().size(), items);

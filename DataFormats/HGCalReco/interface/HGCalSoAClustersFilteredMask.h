@@ -11,7 +11,5 @@ GENERATE_SOA_LAYOUT(HGCalSoAClustersFilteredMaskLayout,
 )
 
 using HGCalSoAClustersFilteredMask = HGCalSoAClustersFilteredMaskLayout<>;
-using HGCalSoAClustersFilteredMaskView = HGCalSoAClustersFilteredMask::View;
-using HGCalSoAClustersFilteredMaskConstView = HGCalSoAClustersFilteredMask::ConstView;
 
 #endif
