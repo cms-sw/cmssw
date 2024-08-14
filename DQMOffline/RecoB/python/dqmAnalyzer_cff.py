@@ -62,6 +62,27 @@ bTagPlotsMC = cms.Sequence(bTagValidation)
                                       doJEC=False
 )
 
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+fastSim.toModify(myak4JetFlavourInfos,
+    jets = "ak4PFJetsCHS",
+    weights = None
+).toModify(newpatJetGenJetMatch,
+   src = "ak4PFJetsCHS",
+).toModify(bTagValidation.tagConfig[0],
+   label = "pfImpactParameterTagInfos"
+).toModify(bTagValidation.tagConfig[1],
+   label = "pfJetProbabilityBJetTags"
+)
+
+from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
+pp_on_PbPb_run3.toModify(newpatJetGenJetMatch,
+           src = "akCs4PFJets",
+).toModify(bTagValidation.tagConfig[0],
+           label = "pfImpactParameterTagInfos"
+).toModify(bTagValidation.tagConfig[1],
+           label = "pfJetProbabilityBJetTags"
+)
+
 #to run on fullsim in the validation sequence, all histograms produced in the dqmoffline sequence
 bTagValidationNoall = bTagValidation.clone(flavPlots="bcl")
 bTagPlotsMCbcl = cms.Sequence(bTagValidationNoall)
