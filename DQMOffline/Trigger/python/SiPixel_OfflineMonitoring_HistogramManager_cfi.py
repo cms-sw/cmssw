@@ -23,6 +23,7 @@ hltDefaultHistoReadout = DefaultHistoReadout.clone(
 hltDefaultHistoTrack = DefaultHistoTrack.clone(
     topFolderName= "HLT/Pixel/TrackClusters"
 )
+
 hltStandardSpecificationPixelmapProfile = [#produces pixel map with the mean (TProfile)
     Specification(PerLayer2D)
        .groupBy("PXBarrel/PXLayer/SignedLadderCoord/SignedModuleCoord")
