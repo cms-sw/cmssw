@@ -82,6 +82,7 @@ int main(int argc, char** argv) {
   // SiPixelQuality
 
   tag = "SiPixelQuality_forDigitizer_phase1_2018_permanentlyBad";
+  tag2 = "SiPixelQuality_phase1_2023_v6_mc";
   start = static_cast<unsigned long long>(1);
   end = static_cast<unsigned long long>(1);
 
@@ -98,6 +99,10 @@ int main(int argc, char** argv) {
   SiPixelQualityBadFractionMap histo9bis;
   histo9bis.process(connectionString, PI::mk_input(tag, start, end));
   edm::LogPrint("testSiPixelPayloadInspector") << histo9bis.data() << std::endl;
+
+  SiPixelQualityBadFracCompareTwoTags histo9ter;
+  histo9ter.process(connectionString, PI::mk_input(tag, start, start, tag2, start2, start2));
+  edm::LogPrint("testSiPixelPayloadInspector") << histo9ter.data() << std::endl;
 
   // SiPixelGainCalibrationOffline
 
