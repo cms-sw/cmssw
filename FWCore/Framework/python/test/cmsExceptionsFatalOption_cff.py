@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 Rethrow = cms.untracked.vstring(
-    "CommandLineProcessing",
+    "CommandLineProcessing2",
     "ConfigFileNotFound",
     "ConfigFileReadError",
     "OtherCMS",
