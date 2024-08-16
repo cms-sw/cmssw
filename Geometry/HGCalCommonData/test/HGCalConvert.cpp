@@ -1727,7 +1727,8 @@ void ConvertScintillatorV1::convert(const char* infile, const char* outfile1, co
     }
     fout << "\n  </Vector>\n";
     // Now write the remaining parts
-    makeTitle(fout, "Tile6", module6, ringR6, lmin6, lmax6, HGCalProperty::kHGCalFineTilePhis, 1, (((debug / 10) % 10) > 0));
+    makeTitle(
+        fout, "Tile6", module6, ringR6, lmin6, lmax6, HGCalProperty::kHGCalFineTilePhis, 1, (((debug / 10) % 10) > 0));
     makeTitle(fout, "Tile", module, ringR, lmin, lmax, HGCalProperty::kHGCalTilePhis, 0, (((debug / 10) % 10) > 0));
     fout.close();
   }
