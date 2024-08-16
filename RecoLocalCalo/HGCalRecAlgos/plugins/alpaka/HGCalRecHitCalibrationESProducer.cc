@@ -122,8 +122,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           // loop over ECON eRx blocks to fill columns for gain-dependent calibration parameters
           for (std::size_t iroc = 0; iroc < nrocs; ++iroc) {
             const uint32_t i_gain =
-                config.feds[ifed].econds[imod].rocs[iroc].gain -
-                1;  // index of JSON array corresponding to (index,gain) = (0,80fC), (1,160fC), (2,320fC)
+              config.feds[ifed].econds[imod].rocs[iroc].gain; // index of JSON array corresponding to (index,gain) = (0,80fC), (1,160fC), (2,320fC)
             const uint32_t offset_arr = iroc * nchans;        // dense index offset for JSON array (input to SoA)
             const uint32_t offset_soa = offset + offset_arr;  // dense index offset for SoA
             //std::cout << "HGCalCalibrationESProducer::produce:   iroc=" << iroc << ", nchans=" << nchans
