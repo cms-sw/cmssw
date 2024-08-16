@@ -1151,7 +1151,7 @@ void ConvertScintillator::makeTitle(const char* outfile,
                                     int lmax,
                                     bool debug) {
   const int zside = 1;
-  const int phiCassette = 24;
+  const int phiCassette = HGCalProperty::kHGCalTilePhisWord;
   std::vector<tileZone> zones;
   for (int layer = lmin; layer <= lmax; ++layer) {
     tileZone tile0;
@@ -1727,8 +1727,7 @@ void ConvertScintillatorV1::convert(const char* infile, const char* outfile1, co
     }
     fout << "\n  </Vector>\n";
     // Now write the remaining parts
-    makeTitle(
-        fout, "Tile6", module6, ringR6, lmin6, lmax6, HGCalProperty::kHGCalFineTilePhis, 1, (((debug / 10) % 10) > 0));
+    makeTitle(fout, "Tile6", module6, ringR6, lmin6, lmax6, HGCalProperty::kHGCalFineTilePhis, 1, (((debug / 10) % 10) > 0));
     makeTitle(fout, "Tile", module, ringR, lmin, lmax, HGCalProperty::kHGCalTilePhis, 0, (((debug / 10) % 10) > 0));
     fout.close();
   }
@@ -1744,10 +1743,11 @@ void ConvertScintillatorV1::makeTitle(std::ofstream& fout,
                                       int mode,
                                       bool debug) {
   const int zside = 1;
+  int tilePhisWord = (mode > 0) ? HGCalProperty::kHGCalFineTilePhisWord : HGCalProperty::kHGCalTilePhisWord;
   std::vector<tileZone> zones;
   if ((debug % 10) > 0)
     std::cout << "makeTile called with Layer:" << lmin << ":" << lmax << " nphi " << nphis << " mode " << mode
-              << " nmodules " << module.size() << std::endl;
+              << " nmodules " << module.size() << " tilePhisWord " << tilePhisWord << std::endl;
   for (int layer = lmin; layer <= lmax; ++layer) {
     tileZone tile0;
     int kk, irmin, irmax;
@@ -1783,19 +1783,19 @@ void ConvertScintillatorV1::makeTitle(std::ofstream& fout,
         tile0.cassette = (cassette_ == 0) ? 0 : 1;
       } else if ((tile0.rmin != irmin) || (tile0.rmax != irmax)) {
         if (cassette_ != 0) {
-          if (tile0.cassette * HGCalProperty::kHGCalTilePhisWord < tile0.phimax) {
+          if (tile0.cassette * tilePhisWord < tile0.phimax) {
             do {
               int phimax = tile0.phimax;
-              tile0.phimax = tile0.cassette * HGCalProperty::kHGCalTilePhisWord;
+              tile0.phimax = tile0.cassette * tilePhisWord;
               zones.push_back(tile0);
               tile0.phimin = tile0.phimax + 1;
               tile0.phimax = phimax;
               ++tile0.cassette;
-            } while (tile0.cassette * HGCalProperty::kHGCalTilePhisWord < tile0.phimax);
+            } while (tile0.cassette * tilePhisWord < tile0.phimax);
           }
         }
         zones.push_back(tile0);
-        int cassette = (cassette_ == 0) ? 0 : (1 + ((phi - 1) / HGCalProperty::kHGCalTilePhisWord));
+        int cassette = (cassette_ == 0) ? 0 : (1 + ((phi - 1) / tilePhisWord));
         tile0.layer = layer;
         tile0.rmin = irmin;
         tile0.rmax = irmax;
