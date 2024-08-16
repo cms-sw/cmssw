@@ -2369,7 +2369,7 @@
   <Numeric name="n" value="1"/>
   <Numeric name="startCopyNo" value="([gemf:Layer2Offset]+17)"/>
   <Numeric name="incrCopyNo"  value="2"/>
-  <Numeric name="invert"      value="1"/>
+  <Numeric name="invert"      value="0"/>
   <Numeric name="stepAngle"   value="40*deg"/>
   <Numeric name="startAngle"  value="305*deg"/>
   <Numeric name="rPosition"   value="[rPosL]"/>
