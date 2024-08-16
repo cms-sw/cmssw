@@ -38,8 +38,8 @@ namespace TopSingleLepton {
         logged_(0) {
     // sources have to be given; this PSet is not optional
     edm::ParameterSet sources = cfg.getParameter<edm::ParameterSet>("sources");
-    muons_ = iC.consumes<edm::View<reco::PFCandidate>>(sources.getParameter<edm::InputTag>("muons"));
-    elecs_ = iC.consumes<edm::View<reco::PFCandidate>>(sources.getParameter<edm::InputTag>("elecs"));
+    muons_ = iC.consumes<edm::View<reco::Muon>>(sources.getParameter<edm::InputTag>("muons"));
+    elecs_ = iC.consumes<edm::View<reco::GsfElectron>>(sources.getParameter<edm::InputTag>("elecs"));
     pvs_ = iC.consumes<edm::View<reco::Vertex>>(sources.getParameter<edm::InputTag>("pvs"));
     jets_ = iC.consumes<edm::View<reco::Jet>>(sources.getParameter<edm::InputTag>("jets"));
     for (edm::InputTag const& tag : sources.getParameter<std::vector<edm::InputTag>>("mets"))
@@ -55,7 +55,7 @@ namespace TopSingleLepton {
       // select is optional; in case it's not found no
       // selection will be applied
       if (elecExtras.existsAs<std::string>("select")) {
-        elecSelect_ = std::make_unique<StringCutObjectSelector<reco::PFCandidate>>(
+        elecSelect_ = std::make_unique<StringCutObjectSelector<reco::GsfElectron>>(
             elecExtras.getParameter<std::string>("select"));
       }
 
@@ -86,13 +86,13 @@ namespace TopSingleLepton {
       // select is optional; in case it's not found no
       // selection will be applied
       if (muonExtras.existsAs<std::string>("select")) {
-        muonSelect_ = std::make_unique<StringCutObjectSelector<reco::PFCandidate>>(
+        muonSelect_ = std::make_unique<StringCutObjectSelector<reco::Muon>>(
             muonExtras.getParameter<std::string>("select"));
       }
       // isolation is optional; in case it's not found no
       // isolation will be applied
       if (muonExtras.existsAs<std::string>("isolation")) {
-        muonIso_ = std::make_unique<StringCutObjectSelector<reco::PFCandidate>>(
+        muonIso_ = std::make_unique<StringCutObjectSelector<reco::Muon>>(
             muonExtras.getParameter<std::string>("isolation"));
       }
     }
@@ -367,7 +367,7 @@ namespace TopSingleLepton {
   */
 
     // fill monitoring plots for electrons
-    edm::Handle<edm::View<reco::PFCandidate>> elecs;
+    edm::Handle<edm::View<reco::GsfElectron>> elecs;
     edm::Handle<double> _rhoHandle;
     event.getByLabel(rhoTag, _rhoHandle);
     if (!event.getByToken(elecs_, elecs))
@@ -382,22 +382,15 @@ namespace TopSingleLepton {
 
     // loop electron collection
     unsigned int eMult = 0, eMultIso = 0;
-    std::vector<const reco::PFCandidate*> isoElecs;
-    for (edm::View<reco::PFCandidate>::const_iterator elec = elecs->begin(); elec != elecs->end(); ++elec) {
-      if (elec->gsfElectronRef().isNull()) {
-        continue;
-      }
-      reco::GsfElectronRef gsf_el = elec->gsfElectronRef();
+    std::vector<const reco::GsfElectron*> isoElecs;
+    for (edm::View<reco::GsfElectron>::const_iterator elec = elecs->begin(); elec != elecs->end(); ++elec) {
       // restrict to electrons with good electronId
-      if (electronId_.isUninitialized()
-              ? true
-              : ((double)(*electronId)[gsf_el] >=
-                 eidCutValue_)) {  //This Electron Id is not currently used, but we can keep this for future needs
+      if (electronId_.isUninitialized()) {
         if (!elecSelect_ || (*elecSelect_)(*elec)) {
-          double el_ChHadIso = gsf_el->pfIsolationVariables().sumChargedHadronPt;
-          double el_NeHadIso = gsf_el->pfIsolationVariables().sumNeutralHadronEt;
-          double el_PhIso = gsf_el->pfIsolationVariables().sumPhotonEt;
-          double absEta = std::fabs(gsf_el->superCluster()->eta());
+          double el_ChHadIso = elec->pfIsolationVariables().sumChargedHadronPt;
+          double el_NeHadIso = elec->pfIsolationVariables().sumNeutralHadronEt;
+          double el_PhIso = elec->pfIsolationVariables().sumPhotonEt;
+          double absEta = std::fabs(elec->superCluster()->eta());
 
           //Effective Area computation
           double eA = 0;
@@ -417,7 +410,7 @@ namespace TopSingleLepton {
             eA = 0.2393;
 
           double rho = _rhoHandle.isValid() ? (float)(*_rhoHandle) : 0;
-          double el_pfRelIso = (el_ChHadIso + max(0., el_NeHadIso + el_PhIso - rho * eA)) / gsf_el->pt();
+          double el_pfRelIso = (el_ChHadIso + max(0., el_NeHadIso + el_PhIso - rho * eA)) / elec->pt();
 
           //Only TightId
           if (eMult == 0) {  // Restricted to the leading tight electron
@@ -455,24 +448,20 @@ namespace TopSingleLepton {
     // fill monitoring plots for muons
     unsigned int mMult = 0, mTight = 0, mTightId = 0;
 
-    edm::Handle<edm::View<reco::PFCandidate>> muons;
-    edm::View<reco::PFCandidate>::const_iterator muonit;
+    edm::Handle<edm::View<reco::Muon>> muons;
+    edm::View<reco::Muon>::const_iterator muonit;
 
     if (!event.getByToken(muons_, muons))
       return;
 
-    for (edm::View<reco::PFCandidate>::const_iterator muonit = muons->begin(); muonit != muons->end(); ++muonit) {
-      if (muonit->muonRef().isNull())
-        continue;
-      reco::MuonRef muon = muonit->muonRef();
-
+    for (edm::View<reco::Muon>::const_iterator muon = muons->begin(); muon != muons->end(); ++muon) {
       // restrict to globalMuons
       if (muon->isGlobalMuon()) {
         fill("muonDelZ_", muon->innerTrack()->vz());  // CB using inner track!
         fill("muonDelXY_", muon->innerTrack()->vx(), muon->innerTrack()->vy());
 
         // apply preselection
-        if ((!muonSelect_ || (*muonSelect_)(*muonit))) {
+        if ((!muonSelect_ || (*muonSelect_)(*muon))) {
           mMult++;
           double chHadPt = muon->pfIsolationR04().sumChargedHadronPt;
           double neHadEt = muon->pfIsolationR04().sumNeutralHadronEt;
@@ -727,10 +716,10 @@ TopSingleLeptonDQM::TopSingleLeptonDQM(const edm::ParameterSet& cfg)
     std::string key = selectionStep(*selIt), type = objectType(*selIt);
     if (selection_.find(key) != selection_.end()) {
       if (type == "muons") {
-        MuonStep = std::make_unique<SelectionStep<reco::PFCandidate>>(selection_[key].first, consumesCollector());
+        MuonStep = std::make_unique<SelectionStep<reco::Muon>>(selection_[key].first, consumesCollector());
       }
       if (type == "elecs") {
-        ElectronStep = std::make_unique<SelectionStep<reco::PFCandidate>>(selection_[key].first, consumesCollector());
+        ElectronStep = std::make_unique<SelectionStep<reco::GsfElectron>>(selection_[key].first, consumesCollector());
       }
       if (type == "pvs") {
         PvStep = std::make_unique<SelectionStep<reco::Vertex>>(selection_[key].first, consumesCollector());

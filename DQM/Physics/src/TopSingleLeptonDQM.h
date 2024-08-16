@@ -108,8 +108,8 @@ namespace TopSingleLepton {
     std::vector<edm::EDGetTokenT<edm::View<reco::MET> > > mets_;
     /// input sources for monitoring
     edm::EDGetTokenT<edm::View<reco::Jet> > jets_;
-    edm::EDGetTokenT<edm::View<reco::PFCandidate> > muons_;
-    edm::EDGetTokenT<edm::View<reco::PFCandidate> > elecs_;
+    edm::EDGetTokenT<edm::View<reco::Muon> > muons_;
+    edm::EDGetTokenT<edm::View<reco::GsfElectron> > elecs_;
     edm::EDGetTokenT<edm::View<reco::Vertex> > pvs_;
     /// trigger table
     edm::EDGetTokenT<edm::TriggerResults> triggerTable_;
@@ -140,17 +140,17 @@ namespace TopSingleLepton {
 
     /// extra selection on electrons
 
-    std::unique_ptr<StringCutObjectSelector<reco::PFCandidate> > elecSelect_;
+    std::unique_ptr<StringCutObjectSelector<reco::GsfElectron> > elecSelect_;
 
     /// extra selection on primary vertices; meant to investigate the pile-up
     /// effect
     std::unique_ptr<StringCutObjectSelector<reco::Vertex> > pvSelect_;
 
     /// extra isolation criterion on muon
-    std::unique_ptr<StringCutObjectSelector<reco::PFCandidate> > muonIso_;
+    std::unique_ptr<StringCutObjectSelector<reco::Muon> > muonIso_;
 
     /// extra selection on muons
-    std::unique_ptr<StringCutObjectSelector<reco::PFCandidate> > muonSelect_;
+    std::unique_ptr<StringCutObjectSelector<reco::Muon> > muonSelect_;
 
     /// jetCorrector
     edm::EDGetTokenT<reco::JetCorrector> jetCorrector_;
@@ -306,8 +306,8 @@ private:
   /// MonitoringEnsemble keeps an instance of the MonitorEnsemble class to
   /// be filled _after_ each selection step
   std::map<std::string, std::pair<edm::ParameterSet, std::unique_ptr<TopSingleLepton::MonitorEnsemble> > > selection_;
-  std::unique_ptr<SelectionStep<reco::PFCandidate> > MuonStep;
-  std::unique_ptr<SelectionStep<reco::PFCandidate> > ElectronStep;
+  std::unique_ptr<SelectionStep<reco::Muon> > MuonStep;
+  std::unique_ptr<SelectionStep<reco::GsfElectron> > ElectronStep;
   std::unique_ptr<SelectionStep<reco::Vertex> > PvStep;
   std::unique_ptr<SelectionStep<reco::MET> > METStep;
   std::vector<std::unique_ptr<SelectionStep<reco::Jet> > > JetSteps;
