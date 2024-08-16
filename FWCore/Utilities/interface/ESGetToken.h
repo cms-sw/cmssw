@@ -75,11 +75,11 @@ namespace edm {
     static constexpr ESTokenIndex invalidIndex() noexcept { return ESTokenIndex{std::numeric_limits<int>::max()}; }
 
   private:
-    explicit constexpr ESGetToken(unsigned int transitionID, ESTokenIndex index, char const* label) noexcept
-        : m_label{label}, m_transitionID{transitionID}, m_index{index} {}
+    explicit constexpr ESGetToken(unsigned int transitionID, ESTokenIndex index, char const* productLabel) noexcept
+        : m_productLabel{productLabel}, m_transitionID{transitionID}, m_index{index} {}
 
-    constexpr char const* name() const noexcept { return m_label; }
-    char const* m_label{nullptr};
+    constexpr char const* productLabel() const noexcept { return m_productLabel; }
+    char const* m_productLabel{nullptr};
     unsigned int m_transitionID{std::numeric_limits<unsigned int>::max()};
     ESTokenIndex m_index{std::numeric_limits<int>::max()};
   };
