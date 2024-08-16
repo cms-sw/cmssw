@@ -1,5 +1,7 @@
 // Based on: https://github.com/CMS-HGCAL/cmssw/blob/hgcal-condformat-HGCalNANO-13_2_0_pre3_linearity/RecoLocalCalo/HGCalRecAlgos/plugins/alpaka/HGCalRecHitCalibrationAlgorithms.dev.cc
 #include "RecoLocalCalo/HGCalRecAlgos/interface/alpaka/HGCalRecHitCalibrationAlgorithms.h"
+#include "DataFormats/HGCalDigi/interface/HGCalRawDataDefinitions.h"
+#include <cstddef>
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
@@ -42,9 +44,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
       for (auto idx : uniform_elements(acc, digis.metadata().size())) {
         auto calib = calibs[idx];
+        int calibvalid = std::to_integer<int>(calib.valid());
         auto digi = digis[idx];
-        bool useTOT(digi.tctp() == 3);
-        bool useADC(!useTOT);
+        auto digiflags= digi.flags();
+        bool isAvailable((digiflags!=hgcal::DIGI_FLAG::Invalid) && (digiflags!=hgcal::DIGI_FLAG::NotAvailable) && (calibvalid>0));
+        bool useTOT((digi.tctp()==3) && isAvailable);
+        bool useADC(!useTOT && isAvailable);
+        if(!isAvailable) recHits[idx].flags() = hgcalrechit::HGCalRecHitFlags::EnergyInvalid;
         recHits[idx].energy() = useADC * adc_to_fC(digi.adc(),
                                                    digi.cm(),
                                                    digi.adcm1(),
@@ -70,11 +76,21 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     ALPAKA_FN_ACC void operator()(TAcc const& acc,
                                   HGCalDigiDevice::View digis,
                                   HGCalRecHitDevice::View recHits,
-                                  HGCalCalibParamDevice::ConstView calib) const {
+                                  HGCalCalibParamDevice::ConstView calibs) const {
+
       auto toa_to_ps = [&](uint32_t toa, float toatops) { return toa * toatops; };
 
       for (auto idx : uniform_elements(acc, digis.metadata().size())) {
-        recHits[idx].time() = toa_to_ps(digis[idx].toa(), calib[idx].TOAtops());
+
+        auto calib = calibs[idx];
+        int calibvalid = std::to_integer<int>(calib.valid());
+        auto digi = digis[idx];
+        auto digiflags= digi.flags();
+        bool isAvailable((digiflags!=hgcal::DIGI_FLAG::Invalid) && (digiflags!=hgcal::DIGI_FLAG::NotAvailable) && (calibvalid>0));
+        bool isToAavailable((digiflags!=hgcal::DIGI_FLAG::ZS_ToA) && (digiflags!=hgcal::DIGI_FLAG::ZS_ToA_ADCm1));
+        bool isGood(isAvailable && isToAavailable);
+        if(!isToAavailable) recHits[idx].flags() = hgcalrechit::HGCalRecHitFlags::TimeInvalid;
+        recHits[idx].time() = isGood*toa_to_ps(digi.toa(), calib.TOAtops());
       }
     }
   };

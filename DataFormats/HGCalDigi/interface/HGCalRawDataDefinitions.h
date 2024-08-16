@@ -1,5 +1,5 @@
-#ifndef SimCalorimetry_HGCalSimAlgos_HGCalRawDataDefinitions_h
-#define SimCalorimetry_HGCalSimAlgos_HGCalRawDataDefinitions_h
+#ifndef DataFormats_HGCalDigi_HGCalRawDataDefinitions_h
+#define DataFormats_HGCalDigi_HGCalRawDataDefinitions_h
 
 namespace hgcal {
   namespace econd {
