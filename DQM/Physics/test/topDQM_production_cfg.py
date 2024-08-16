@@ -21,7 +21,7 @@ process.source.skipEvents = cms.untracked.uint32(0)
 
 #process.source.fileNames = ['/store/relval/CMSSW_11_1_0_pre2/RelValTTbar_14TeV/GEN-SIM-RECO/110X_mcRun4_realistic_v2_2026D49noPU-v1/20000/02837764-A8F6-214F-AEE2-BCAEAAD7952A.root']
 
-process.source.fileNames = ['/store/relval/CMSSW_11_1_0_pre2/RelValTTbar_14TeV/GEN-SIM-RECO/110X_mcRun3_2021_realistic_v6-v1/20000/A8E66994-05C0-104A-A0F3-4D393C7E30C8.root']
+process.source.fileNames = ['/store/relval/CMSSW_14_1_0_pre5/RelValTTbar_14TeV/GEN-SIM-RECO/PU_140X_mcRun3_2024_realistic_v11_STD_2024_PU-v1/2580000/0a22c2b9-713c-4134-abd7-664c8b34ce94.root']
 
 ## number of events
 process.maxEvents = cms.untracked.PSet(
