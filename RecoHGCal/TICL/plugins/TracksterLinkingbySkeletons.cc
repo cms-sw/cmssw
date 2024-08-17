@@ -11,7 +11,7 @@
 #include "TICLGraph.h"
 
 namespace {
-  bool isRoundTrackster(std::array<ticl::Vector, 3> skeleton) { return (skeleton[0].Z() == skeleton[2].Z()); }
+  bool isRoundTrackster(std::array<ticl::Vector, 3> const &skeleton) { return (skeleton[0].Z() == skeleton[2].Z()); }
 
   bool isGoodTrackster(const ticl::Trackster &trackster,
                        const std::array<ticl::Vector, 3> &skeleton,
