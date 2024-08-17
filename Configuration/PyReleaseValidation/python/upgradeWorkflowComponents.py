@@ -1,6 +1,6 @@
 from copy import copy, deepcopy
 from collections import OrderedDict
-from .MatrixUtil import merge, Kby, Mby
+from .MatrixUtil import merge, Kby, Mby, check_dups
 import re
 
 U2000by1={'--relval': '2000,1'}
@@ -2821,12 +2821,17 @@ upgradeWFs['SonicTriton'] = UpgradeWorkflow_SonicTriton(
     offset = 0.9001,
 )
 
-# check for duplicate offsets
-offsets = [specialWF.offset for specialType,specialWF in upgradeWFs.items()]
-seen = set()
-dups = set(x for x in offsets if x in seen or seen.add(x))
+# check for duplicates in offsets or suffixes
+offsets  = [specialWF.offset for specialType,specialWF in upgradeWFs.items()]
+suffixes = [specialWF.suffix for specialType,specialWF in upgradeWFs.items()]
+
+dups = check_dups(offsets)
 if len(dups)>0:
     raise ValueError("Duplicate special workflow offsets not allowed: "+','.join([str(x) for x in dups]))
+
+dups = check_dups(suffixes)
+if len(dups)>0:
+    raise ValueError("Duplicate special workflow suffixes not allowed: "+','.join([str(x) for x in dups]))
 
 upgradeProperties = {}
 
