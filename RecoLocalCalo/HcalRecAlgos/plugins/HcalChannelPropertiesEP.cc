@@ -53,8 +53,10 @@ public:
   inline ~HcalChannelPropertiesEP() override {}
 
   ReturnType1 produce1(const HcalChannelPropertiesAuxRecord& rcd) {
-    const HcalTopology& htopo = rcd.getRecord<HcalRecNumberingRecord>().get(topoToken_);
-    const HcalRecoParams& params = rcd.getRecord<HcalRecoParamsRcd>().get(paramsToken_);
+    const auto& htopoRecord = rcd.getRecord<HcalRecNumberingRecord>();
+    const HcalTopology& htopo = htopoRecord.get(topoToken_);
+    const auto& paramsRecord = rcd.getRecord<HcalRecoParamsRcd>();
+    const HcalRecoParams& params = paramsRecord.get(paramsToken_);
 
     ReturnType1 prod = std::make_unique<HcalRecoParams>(params);
     prod->setTopo(&htopo);
@@ -72,10 +74,14 @@ public:
     // Retrieve various event setup records and data products
     const HcalDbRecord& dbRecord = rcd.getRecord<HcalDbRecord>();
     const HcalDbService& cond = dbRecord.get(condToken_);
-    const HcalRecoParams& params = rcd.getRecord<HcalChannelPropertiesAuxRecord>().get(myParamsToken_);
-    const HcalSeverityLevelComputer& severity = rcd.getRecord<HcalSeverityLevelComputerRcd>().get(sevToken_);
-    const HcalChannelQuality& qual = dbRecord.getRecord<HcalChannelQualityRcd>().get(qualToken_);
-    const CaloGeometry& geom = rcd.getRecord<CaloGeometryRecord>().get(geomToken_);
+    const auto& paramsRecord = rcd.getRecord<HcalChannelPropertiesAuxRecord>();
+    const HcalRecoParams& params = paramsRecord.get(myParamsToken_);
+    const auto& severityRecord = rcd.getRecord<HcalSeverityLevelComputerRcd>();
+    const HcalSeverityLevelComputer& severity = severityRecord.get(sevToken_);
+    const auto& qualRecord = dbRecord.getRecord<HcalChannelQualityRcd>();
+    const HcalChannelQuality& qual = qualRecord.get(qualToken_);
+    const auto& geomRecord = rcd.getRecord<CaloGeometryRecord>();
+    const CaloGeometry& geom = geomRecord.get(geomToken_);
 
     // HcalTopology is taken from "params" created by the "produce1" method
     const HcalTopology& htopo(*params.topo());
