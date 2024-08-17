@@ -69,13 +69,15 @@ namespace fakeOTLA {
 
 std::unique_ptr<SiPhase2OuterTrackerLorentzAngle> SiPhase2OuterTrackerFakeLorentzAngleESSource::produceOTLA(
     const SiPhase2OuterTrackerLorentzAngleRcd& rcd) {
-  const auto& geomDet = rcd.getRecord<TrackerTopologyRcd>().get(m_geomDetToken);
+  const auto& geomDetRcd = rcd.getRecord<TrackerTopologyRcd>();
+  const auto& geomDet = geomDetRcd.get(m_geomDetToken);
   return fakeOTLA::produceRecord<SiPhase2OuterTrackerLorentzAngle>(LAvalue_, geomDet);
 }
 
 std::unique_ptr<SiPhase2OuterTrackerLorentzAngle> SiPhase2OuterTrackerFakeLorentzAngleESSource::produceOTSimLA(
     const SiPhase2OuterTrackerLorentzAngleSimRcd& rcd) {
-  const auto& geomDet = rcd.getRecord<TrackerTopologyRcd>().get(m_geomDetToken);
+  const auto& geomDetRcd = rcd.getRecord<TrackerTopologyRcd>();
+  const auto& geomDet = geomDetRcd.get(m_geomDetToken);
   return fakeOTLA::produceRecord<SiPhase2OuterTrackerLorentzAngle>(LAvalue_, geomDet);
 }
 
