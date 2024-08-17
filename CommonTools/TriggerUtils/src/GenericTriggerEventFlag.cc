@@ -210,7 +210,7 @@ void GenericTriggerEventFlag::initRun(const edm::Run& run, const edm::EventSetup
         algoNames.push_back(ip.first);
     } else {
       l1Gt_->getL1GtRunCache(run, setup, useL1EventSetup, useL1GtTriggerMenuLite);
-	  const auto& l1GtTriggerMenuRcd = setup.get<L1GtTriggerMenuRcd>();
+      const auto& l1GtTriggerMenuRcd = setup.get<L1GtTriggerMenuRcd>();
       L1GtTriggerMenu const& l1GtTriggerMenu = l1GtTriggerMenuRcd.get(l1GtTriggerMenuToken_);
 
       const AlgorithmMap& l1GtPhys(l1GtTriggerMenu.gtAlgorithmMap());
