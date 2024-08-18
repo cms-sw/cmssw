@@ -266,4 +266,8 @@ def genvalid(fragment,d,suffix='all',fi='',dataSet=''):
     c['cfg']=fragment
     return c
 
-
+def check_dups(input):
+    seen = set()
+    dups = set(x for x in input if x in seen or seen.add(x))
+    
+    return dups
