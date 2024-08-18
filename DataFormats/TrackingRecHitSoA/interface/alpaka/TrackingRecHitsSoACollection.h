@@ -41,6 +41,16 @@ namespace cms::alpakatools {
       assert(deviceData.nHits() == hostData.nHits());
       assert(deviceData.offsetBPIX2() == hostData.offsetBPIX2());
 #endif
+      // Update the contents address of the phiBinner histo container after the copy from device happened
+      alpaka::wait(queue);
+      typename TrackingRecHitSoA<TrackerTraits>::PhiBinnerView pbv;
+      pbv.assoc = &(hostData.view().phiBinner());
+      pbv.offSize = -1;
+      pbv.offStorage = nullptr;
+      pbv.contentSize = hostData.nHits();
+      pbv.contentStorage = hostData.view().phiBinnerStorage();
+      hostData.view().phiBinner().initStorage(pbv);
+
       return hostData;
     }
   };
