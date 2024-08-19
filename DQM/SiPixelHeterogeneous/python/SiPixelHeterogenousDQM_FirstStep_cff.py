@@ -1,4 +1,5 @@
 import copy
+
 import FWCore.ParameterSet.Config as cms
 from DQM.SiPixelHeterogeneous.siPixelPhase1MonitorRecHitsSoA_cfi import *
 from DQM.SiPixelHeterogeneous.siPixelPhase2MonitorRecHitsSoA_cfi import *
@@ -268,3 +269,7 @@ gpuValidationPixel.toReplaceWith(monitorpixelSoASource, monitorpixelSoACompareSo
 
 from Configuration.ProcessModifiers.alpakaValidationPixel_cff import alpakaValidationPixel
 (alpakaValidationPixel & ~gpuValidationPixel).toReplaceWith(monitorpixelSoASource, monitorpixelSoACompareSourceAlpaka)
+
+
+
+
