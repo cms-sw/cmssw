@@ -4,7 +4,7 @@ from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 from DQMOffline.Trigger.SiPixel_OfflineMonitoring_HistogramManager_cfi import *
 
 # order is important and it should follow ordering in hltSiPixelPhase1ClustersConf VPSet
-hltSiPixelPhase1TrackResidualsResidualsX = hltDefaultHistoTrack.clone(
+hltSiPixelPhase1TrackResidualsResidualsX = hltDefaultHistoTrackResiduals.clone(
   name = "residual_x",
   title = "Track Residuals X",
   range_min = -0.1, range_max = 0.1, range_nbins = 100,
@@ -36,7 +36,7 @@ hltSiPixelPhase1TrackResidualsResidualsY = hltSiPixelPhase1TrackResidualsResidua
   xlabel = "(y_rec - y_pred) [cm]",
 )
 
-hltSiPixelPhase1TrackResidualsResOnEdgeX = hltDefaultHistoTrack.clone(
+hltSiPixelPhase1TrackResidualsResOnEdgeX = hltDefaultHistoTrackResiduals.clone(
   name = "residual_OnEdge_x",
   title = "Track Residuals X (OnEdge Clusters)",
   range_min = -0.1, range_max = 0.1, range_nbins = 100,
@@ -57,7 +57,7 @@ hltSiPixelPhase1TrackResidualsResOnEdgeY = hltSiPixelPhase1TrackResidualsResOnEd
 )
 
 
-hltSiPixelPhase1TrackResidualsResOtherBadX = hltDefaultHistoTrack.clone(
+hltSiPixelPhase1TrackResidualsResOtherBadX = hltDefaultHistoTrackResiduals.clone(
   name = "residual_OtherBad_x",
   title = "Track Residuals X (OtherBad Clusters)",
   range_min = -0.1, range_max = 0.1, range_nbins = 100,
@@ -78,7 +78,7 @@ hltSiPixelPhase1TrackResidualsResOtherBadY = hltSiPixelPhase1TrackResidualsResOt
 )
 
 
-hltSiPixelPhase1TrackNormResX = hltDefaultHistoTrack.clone(
+hltSiPixelPhase1TrackNormResX = hltDefaultHistoTrackResiduals.clone(
   topFolderName= cms.string("HLT/Pixel/Tracks/ResidualsExtra"),
   name = "NormRes_x",
   title = "Normalized Residuals X",
@@ -100,7 +100,7 @@ hltSiPixelPhase1TrackNormResY = hltSiPixelPhase1TrackNormResX.clone(
   xlabel = "(y_rec - y_pred)/y_err",
 )
 
-hltSiPixelPhase1TrackDRnRX = hltDefaultHistoTrack.clone(
+hltSiPixelPhase1TrackDRnRX = hltDefaultHistoTrackResiduals.clone(
   topFolderName= cms.string("HLT/Pixel/Tracks/ResidualsExtra"),
   name = "DRnR_x",
   title = "Distribution of RMS of Normalized Residuals X",
@@ -149,5 +149,6 @@ hltSiPixelPhase1TrackResidualsHarvester = DQMEDHarvester("SiPixelPhase1Harvester
 
 hltSiPixelPhase1ResidualsExtra = DQMEDHarvester("SiPixelPhase1ResidualsExtra",
     TopFolderName = cms.string('HLT/Pixel/Tracks/ResidualsExtra'),
+    InputFolderName = cms.string('HLT/Pixel/Tracks'),
     MinHits = cms.int32(30)
 )
