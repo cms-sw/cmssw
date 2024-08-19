@@ -1,10 +1,12 @@
 <use name="python_tools"/>
 
-<bin name="testTorchSimpleDnn" file="testRunner.cc,testTorchSimpleDnn.cc">
-  <use name="pytorch"/>
-  <use name="boost_filesystem"/>
-  <use name="cppunit"/>
-</bin>
+<ifarch value="x86_64">
+  <bin name="testTorchSimpleDnn" file="testRunner.cc,testTorchSimpleDnn.cc">
+    <use name="pytorch"/>
+    <use name="boost_filesystem"/>
+    <use name="cppunit"/>
+  </bin>
+</ifarch>
 
 <iftool name="cuda">
   <bin name="testTorchSimpleDnnCUDA" file="testRunner.cc,testTorchSimpleDnnCUDA.cc">
