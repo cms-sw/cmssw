@@ -2821,6 +2821,29 @@ upgradeWFs['SonicTriton'] = UpgradeWorkflow_SonicTriton(
     offset = 0.9001,
 )
 
+class UpgradeWorkflow_Phase2_HeavyIon(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        stepDict[stepName][k] = merge([{'--procModifiers': 'phase2_pp_on_AA'}, stepDict[step][k]])
+        if 'GenSim' in step:
+            stepDict[stepName][k] = merge([{'--conditions': stepDict[step][k]["--conditions"].replace('_13TeV',''), '-n': 1}, stepDict[stepName][k]])
+        elif 'Digi' in step:
+            stepDict[stepName][k] = merge([{'-s': stepDict[step][k]["-s"].replace("DIGI:pdigi_valid","DIGI:pdigi_hi"), '--pileup': 'HiMixNoPU'}, stepDict[stepName][k]])
+    def condition(self, fragment, stepList, key, hasHarvest):
+        return fragment=='HydjetQMinBias_5519GeV' and '2026' in key and 'PU' not in key
+
+upgradeWFs['Phase2_HeavyIon'] = UpgradeWorkflow_Phase2_HeavyIon(
+    steps = [
+        'GenSimHLBeamSpot',
+        'DigiTrigger',
+        'RecoGlobal',
+        'HARVESTGlobal',
+        'ALCAPhase2'
+    ],
+    PU = [],
+    suffix = '_hi',
+    offset = 0.85,
+)
+
 # check for duplicates in offsets or suffixes
 offsets  = [specialWF.offset for specialType,specialWF in upgradeWFs.items()]
 suffixes = [specialWF.suffix for specialType,specialWF in upgradeWFs.items()]
@@ -3370,5 +3393,6 @@ upgradeFragments = OrderedDict([
     ('LbToJpsiXiK0sPi_JMM_Filter_DGamma0_TuneCP5_13p6TeV-pythia8-evtgen_cfi',UpgradeFragment(Mby(50,500000),'LbToJpsiXiK0sPr_DGamma0_13p6TeV')), #0.6%
     ('OmegaMinus_13p6TeV_SoftQCDInel_TuneCP5_cfi',UpgradeFragment(Mby(100,1000000),'OmegaMinus_13p6TeV')), #0.1%
     ('Hydjet_Quenched_MinBias_5020GeV_cfi', UpgradeFragment(U2000by1,'HydjetQMinBias_5020GeV')),
-    ('Hydjet_Quenched_MinBias_5362GeV_cfi', UpgradeFragment(U2000by1,'HydjetQMinBias_5362GeV'))
+    ('Hydjet_Quenched_MinBias_5362GeV_cfi', UpgradeFragment(U2000by1,'HydjetQMinBias_5362GeV')),
+    ('Hydjet_Quenched_MinBias_5519GeV_cfi', UpgradeFragment(U2000by1,'HydjetQMinBias_5519GeV')),
 ])

@@ -33,6 +33,7 @@ hiCentrality = cms.EDProducer("CentralityProducer",
                             hfEtaCut = cms.double(4), #hf above the absolute value of this cut is used
                             midRapidityRange = cms.double(1),
                             lowGainZDC = cms.bool(True),
+                            isPhase2 = cms.bool(False),
 
                             )
 
@@ -45,4 +46,10 @@ from Configuration.Eras.Modifier_run3_upc_cff import run3_upc
                                       srcTracks = "generalTracks",
                                       srcVertex = "offlinePrimaryVertices"
 )
-
+from Configuration.ProcessModifiers.phase2_pp_on_AA_cff import phase2_pp_on_AA
+phase2_pp_on_AA.toModify(hiCentrality,
+    isPhase2 = True,
+    producePixelTracks = False,
+    srcTracks = "generalTracks",
+    srcVertex = "offlinePrimaryVertices"
+)

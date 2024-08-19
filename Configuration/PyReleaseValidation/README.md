@@ -64,6 +64,7 @@ The offsets currently in use are:
 * 0.78: Complete L1 workflow
 * 0.8: BPH Parking (Run-2)
 * 0.81: Running also HeavyFlavor DQM
+* 0.85: Phase-2 Heavy Ion
 * 0.9: Vector hits
 * 0.12: Neutron background
 * 0.13: MLPF algorithm

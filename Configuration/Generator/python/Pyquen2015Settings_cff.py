@@ -20,6 +20,10 @@ collisionParameters5362GeV = cms.PSet(aBeamTarget = cms.double(208.0), ## beam/t
                                    comEnergy = cms.double(5362.0)
                                    )
 
+collisionParameters5519GeV = cms.PSet(aBeamTarget = cms.double(208.0), ## beam/target atomic number
+                                   comEnergy = cms.double(5519.0)
+                                   )
+
 qgpParameters = cms.PSet(qgpInitialTemperature = cms.double(1.1), ## initial temperature of QGP; allowed range [0.2,2.0]GeV;
                          qgpProperTimeFormation = cms.double(0.1), ## proper time of QGP formation; allowed range [0.01,10.0]fm/c;
                          hadronFreezoutTemperature = cms.double(0.125),
