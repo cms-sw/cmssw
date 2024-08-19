@@ -294,7 +294,8 @@ namespace {
 }  // namespace
 
 std::unique_ptr<TkDetMap> TkDetMapESProducer::produce(const TrackerTopologyRcd& tTopoRcd) {
-  const auto& geomDet = tTopoRcd.getRecord<IdealGeometryRecord>().get(geomDetToken_);
+  const auto& geomDetRcd = tTopoRcd.getRecord<IdealGeometryRecord>();
+  const auto& geomDet = geomDetRcd.get(geomDetToken_);
   const auto TkDetIdList = TrackerGeometryUtils::getSiStripDetIds(geomDet);
 
   const auto& tTopo = tTopoRcd.get(tTopoToken_);
