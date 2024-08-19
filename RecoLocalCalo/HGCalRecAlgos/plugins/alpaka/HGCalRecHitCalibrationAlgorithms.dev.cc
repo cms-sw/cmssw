@@ -10,9 +10,21 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   //
   struct HGCalRecHitCalibrationKernel_flagRecHits {
     template <typename TAcc>
-    ALPAKA_FN_ACC void operator()(TAcc const& acc, HGCalDigiDevice::View digis, HGCalRecHitDevice::View recHits) const {
+    ALPAKA_FN_ACC void operator()(TAcc const& acc,
+                                  HGCalDigiDevice::View digis,
+                                  HGCalRecHitDevice::View recHits,
+                                  HGCalCalibParamDevice::ConstView calibs) const {
       for (auto idx : uniform_elements(acc, digis.metadata().size())) {
-        recHits[idx].flags() = digis[idx].flags();
+
+        auto calib = calibs[idx];
+        int calibvalid = std::to_integer<int>(calib.valid());
+        auto digi = digis[idx];
+        auto digiflags= digi.flags();        
+        //recHits[idx].flags() = digiflags;
+        bool isAvailable((digiflags!=hgcal::DIGI_FLAG::Invalid) && (digiflags!=hgcal::DIGI_FLAG::NotAvailable) && (calibvalid>0));
+        bool isToAavailable((digiflags!=hgcal::DIGI_FLAG::ZS_ToA) && (digiflags!=hgcal::DIGI_FLAG::ZS_ToA_ADCm1));
+        recHits[idx].flags() = (!isAvailable)*hgcalrechit::HGCalRecHitFlags::EnergyInvalid
+          + (!isToAavailable)*hgcalrechit::HGCalRecHitFlags::TimeInvalid;
       }
     }
   };
@@ -50,7 +62,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         bool isAvailable((digiflags!=hgcal::DIGI_FLAG::Invalid) && (digiflags!=hgcal::DIGI_FLAG::NotAvailable) && (calibvalid>0));
         bool useTOT((digi.tctp()==3) && isAvailable);
         bool useADC(!useTOT && isAvailable);
-        if(!isAvailable) recHits[idx].flags() = hgcalrechit::HGCalRecHitFlags::EnergyInvalid;
         recHits[idx].energy() = useADC * adc_to_fC(digi.adc(),
                                                    digi.cm(),
                                                    digi.adcm1(),
@@ -89,7 +100,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         bool isAvailable((digiflags!=hgcal::DIGI_FLAG::Invalid) && (digiflags!=hgcal::DIGI_FLAG::NotAvailable) && (calibvalid>0));
         bool isToAavailable((digiflags!=hgcal::DIGI_FLAG::ZS_ToA) && (digiflags!=hgcal::DIGI_FLAG::ZS_ToA_ADCm1));
         bool isGood(isAvailable && isToAavailable);
-        if(!isToAavailable) recHits[idx].flags() = hgcalrechit::HGCalRecHitFlags::TimeInvalid;
         recHits[idx].time() = isGood*toa_to_ps(digi.toa(), calib.TOAtops());
       }
     }
@@ -211,8 +221,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         << "\n\nINFO -- Allocating rechits buffer and initiating values" << std::endl;
     auto device_recHits = std::make_unique<HGCalRecHitDevice>(device_digis.view().metadata().size(), queue);
 
-    alpaka::exec<Acc1D>(
-        queue, grid, HGCalRecHitCalibrationKernel_flagRecHits{}, device_digis.view(), device_recHits->view());
+    alpaka::exec<Acc1D>(queue,
+                        grid,
+                        HGCalRecHitCalibrationKernel_flagRecHits{},
+                        device_digis.view(),
+                        device_recHits->view(),
+                        device_calib.view());
     alpaka::exec<Acc1D>(queue,
                         grid,
                         HGCalRecHitCalibrationKernel_adcToCharge{},
