@@ -43,24 +43,10 @@ upgradeKeys[2017] = [
 ]
 
 upgradeKeys[2026] = [
-    '2026D86',
-    '2026D86PU',
-    '2026D88',
-    '2026D88PU',
-    '2026D91',
-    '2026D91PU',
-    '2026D92',
-    '2026D92PU',
-    '2026D93',
-    '2026D93PU',
-    '2026D94',
-    '2026D94PU',
     '2026D95',
     '2026D95PU',
     '2026D96',
     '2026D96PU',
-    '2026D97',
-    '2026D97PU',
     '2026D98',
     '2026D98PU',
     '2026D99',
@@ -104,13 +90,12 @@ upgradeKeys[2026] = [
 # pre-generation of WF numbers
 numWFStart={
     2017: 10000,
-    2026: 20000,
+    2026: 23600,
 }
 numWFSkip=200
 # temporary measure to keep other WF numbers the same
 numWFConflict = [[14400,14800], #2022ReReco, 2022ReRecoPU (in 12_4)
-                 [20400,20800], #D87
-                 [21200,22000], #D89-D90
+                 [24400,24800], #D97
                  [50000,51000]]
 numWFAll={
     2017: [],
