@@ -98,48 +98,56 @@ namespace edm {
 
   template <typename T>
   inline std::type_info const& Wrapper<T>::valueTypeInfo_() const {
-    return detail::getValueType<T>()();
+    return detail::getValueType<T>::get();
   }
 
   template <typename T>
   inline std::type_info const& Wrapper<T>::memberTypeInfo_() const {
-    return detail::getMemberType<T>()();
+    return detail::getMemberType<T>::get();
   }
 
   template <typename T>
   inline bool Wrapper<T>::isMergeable_() const {
-    return detail::getHasMergeFunction<T>()();
+    return detail::has_mergeProduct_function_v<T>;
   }
 
   template <typename T>
   inline bool Wrapper<T>::mergeProduct_(WrapperBase const* newProduct) {
     Wrapper<T> const* wrappedNewProduct = dynamic_cast<Wrapper<T> const*>(newProduct);
     assert(wrappedNewProduct != nullptr);
-    return detail::doMergeProduct<T>()(obj, wrappedNewProduct->obj);
+    if constexpr (detail::has_mergeProduct_function_v<T>) {
+      return obj.mergeProduct(wrappedNewProduct->obj);
+    }
+    return true;
   }
 
   template <typename T>
   inline bool Wrapper<T>::hasIsProductEqual_() const {
-    return detail::getHasIsProductEqual<T>()();
+    return detail::has_isProductEqual_function_v<T>;
   }
 
   template <typename T>
   inline bool Wrapper<T>::isProductEqual_(WrapperBase const* newProduct) const {
     Wrapper<T> const* wrappedNewProduct = dynamic_cast<Wrapper<T> const*>(newProduct);
     assert(wrappedNewProduct != nullptr);
-    return detail::doIsProductEqual<T>()(obj, wrappedNewProduct->obj);
+    if constexpr (detail::has_isProductEqual_function_v<T>) {
+      return obj.isProductEqual(wrappedNewProduct->obj);
+    }
+    return true;
   }
 
   template <typename T>
   inline bool Wrapper<T>::hasSwap_() const {
-    return detail::getHasSwapFunction<T>()();
+    return detail::has_swap_function_v<T>;
   }
 
   template <typename T>
   inline void Wrapper<T>::swapProduct_(WrapperBase* newProduct) {
     Wrapper<T>* wrappedNewProduct = dynamic_cast<Wrapper<T>*>(newProduct);
     assert(wrappedNewProduct != nullptr);
-    detail::doSwapProduct<T>()(obj, wrappedNewProduct->obj);
+    if constexpr (detail::has_swap_function_v<T>) {
+      obj.swap(wrappedNewProduct->obj);
+    }
   }
 
   namespace soa {

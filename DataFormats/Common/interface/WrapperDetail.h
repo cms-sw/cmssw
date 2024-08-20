@@ -37,11 +37,11 @@ namespace edm {
     struct getValueType;
     template <typename T>
     struct getValueType<T, true> {
-      std::type_info const& operator()() { return typeid(typename T::value_type); }
+      static constexpr std::type_info const& get() { return typeid(typename T::value_type); }
     };
     template <typename T>
     struct getValueType<T, false> {
-      std::type_info const& operator()() { return typeid(void); }
+      static constexpr std::type_info const& get() { return typeid(void); }
     };
 
     // memberTypeInfo_() will return typeid(T::member_type) if T::member_type is declared and typeid(void) otherwise.
@@ -59,11 +59,11 @@ namespace edm {
     struct getMemberType;
     template <typename T>
     struct getMemberType<T, true> {
-      std::type_info const& operator()() { return typeid(typename T::member_type); }
+      static constexpr std::type_info const& get() { return typeid(typename T::member_type); }
     };
     template <typename T>
     struct getMemberType<T, false> {
-      std::type_info const& operator()() { return typeid(void); }
+      static constexpr std::type_info const& get() { return typeid(void); }
     };
 
     template <typename T>
@@ -73,7 +73,7 @@ namespace edm {
 
     template <typename T>
     struct getMemberType<std::vector<edm::Ptr<T> >, true> {
-      std::type_info const& operator()() { return typeid(T); }
+      static constexpr std::type_info const& get() { return typeid(T); }
     };
 
     template <typename T, typename Deleter>
@@ -83,7 +83,7 @@ namespace edm {
 
     template <typename T, typename Deleter>
     struct getMemberType<std::vector<std::unique_ptr<T, Deleter> >, true> {
-      std::type_info const& operator()() { return typeid(T); }
+      static constexpr std::type_info const& get() { return typeid(T); }
     };
 
     // bool isMergeable_() will return true if T::mergeProduct(T const&) is declared and false otherwise
@@ -101,28 +101,8 @@ namespace edm {
       static constexpr bool value = std::is_same<decltype(has_mergeProduct<T>(nullptr)), yes_tag>::value;
     };
 
-    template <typename T, bool = has_mergeProduct_function<T>::value>
-    struct getHasMergeFunction;
     template <typename T>
-    struct getHasMergeFunction<T, true> {
-      bool operator()() { return true; }
-    };
-    template <typename T>
-    struct getHasMergeFunction<T, false> {
-      bool operator()() { return false; }
-    };
-    template <typename T, bool = has_mergeProduct_function<T>::value>
-    struct doMergeProduct;
-    template <typename T>
-    struct doMergeProduct<T, true> {
-      bool operator()(T& thisProduct, T const& newProduct) { return thisProduct.mergeProduct(newProduct); }
-    };
-    template <typename T>
-    struct doMergeProduct<T, false> {
-      bool operator()(T& thisProduct, T const& newProduct) {
-        return true;  // Should never be called
-      }
-    };
+    inline constexpr bool has_mergeProduct_function_v = has_mergeProduct_function<T>::value;
 
     // bool hasIsProductEqual_() will return true if T::isProductEqual(T const&) const is declared and false otherwise
     // bool isProductEqual _(WrapperBase const*) will call T::isProductEqual(T const&) if it is defined
@@ -138,29 +118,8 @@ namespace edm {
     struct has_isProductEqual_function {
       static constexpr bool value = std::is_same<decltype(has_isProductEqual<T>(nullptr)), yes_tag>::value;
     };
-
-    template <typename T, bool = has_isProductEqual_function<T>::value>
-    struct getHasIsProductEqual;
     template <typename T>
-    struct getHasIsProductEqual<T, true> {
-      bool operator()() { return true; }
-    };
-    template <typename T>
-    struct getHasIsProductEqual<T, false> {
-      bool operator()() { return false; }
-    };
-    template <typename T, bool = has_isProductEqual_function<T>::value>
-    struct doIsProductEqual;
-    template <typename T>
-    struct doIsProductEqual<T, true> {
-      bool operator()(T const& thisProduct, T const& newProduct) { return thisProduct.isProductEqual(newProduct); }
-    };
-    template <typename T>
-    struct doIsProductEqual<T, false> {
-      bool operator()(T const& thisProduct, T const& newProduct) {
-        return true;  // Should never be called
-      }
-    };
+    inline constexpr bool has_isProductEqual_function_v = has_isProductEqual_function<T>::value;
 
     // bool hasSwap_() will return true if T::swap(T&) is declared and false otherwise
     // void swapProduct_() will call T::swap(T&) if it is defined otherwise it does nothing
@@ -177,28 +136,9 @@ namespace edm {
       static constexpr bool value = std::is_same<decltype(has_swap<T>(nullptr)), yes_tag>::value;
     };
 
-    template <typename T, bool = has_swap_function<T>::value>
-    struct getHasSwapFunction;
     template <typename T>
-    struct getHasSwapFunction<T, true> {
-      bool operator()() { return true; }
-    };
-    template <typename T>
-    struct getHasSwapFunction<T, false> {
-      bool operator()() { return false; }
-    };
-    template <typename T, bool = has_swap_function<T>::value>
-    struct doSwapProduct;
-    template <typename T>
-    struct doSwapProduct<T, true> {
-      void operator()(T& thisProduct, T& newProduct) { thisProduct.swap(newProduct); }
-    };
-    template <typename T>
-    struct doSwapProduct<T, false> {
-      void operator()(T&, T&) {
-        return;  // Should never be called
-      }
-    };
+    inline constexpr bool has_swap_function_v = has_swap_function<T>::value;
+
   }  // namespace detail
 }  // namespace edm
 #endif
