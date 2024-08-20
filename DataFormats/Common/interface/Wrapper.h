@@ -108,38 +108,55 @@ namespace edm {
 
   template <typename T>
   inline bool Wrapper<T>::isMergeable_() const {
-    return detail::getHasMergeFunction<T>()();
+    if constexpr (requires(T& a, T const& b) { a.mergeProduct(b); }) {
+      return true;
+    }
+    return false;
   }
 
   template <typename T>
   inline bool Wrapper<T>::mergeProduct_(WrapperBase const* newProduct) {
     Wrapper<T> const* wrappedNewProduct = dynamic_cast<Wrapper<T> const*>(newProduct);
     assert(wrappedNewProduct != nullptr);
-    return detail::doMergeProduct<T>()(obj, wrappedNewProduct->obj);
+    if constexpr (requires(T& a, T const& b) { a.mergeProduct(b); }) {
+      return obj.mergeProduct(wrappedNewProduct->obj);
+    }
+    return true;
   }
 
   template <typename T>
   inline bool Wrapper<T>::hasIsProductEqual_() const {
-    return detail::getHasIsProductEqual<T>()();
+    if constexpr (requires(T& a, T const& b) { a.isProductEqual(b); }) {
+      return true;
+    }
+    return false;
   }
 
   template <typename T>
   inline bool Wrapper<T>::isProductEqual_(WrapperBase const* newProduct) const {
     Wrapper<T> const* wrappedNewProduct = dynamic_cast<Wrapper<T> const*>(newProduct);
     assert(wrappedNewProduct != nullptr);
-    return detail::doIsProductEqual<T>()(obj, wrappedNewProduct->obj);
+    if constexpr (requires(T& a, T const& b) { a.isProductEqual(b); }) {
+      return obj.isProductEqual(wrappedNewProduct->obj);
+    }
+    return true;
   }
 
   template <typename T>
   inline bool Wrapper<T>::hasSwap_() const {
-    return detail::getHasSwapFunction<T>()();
+    if constexpr (requires(T& a, T& b) { a.swap(b); }) {
+      return true;
+    }
+    return false;
   }
 
   template <typename T>
   inline void Wrapper<T>::swapProduct_(WrapperBase* newProduct) {
     Wrapper<T>* wrappedNewProduct = dynamic_cast<Wrapper<T>*>(newProduct);
     assert(wrappedNewProduct != nullptr);
-    detail::doSwapProduct<T>()(obj, wrappedNewProduct->obj);
+    if constexpr (requires(T& a, T& b) { a.swap(b); }) {
+      obj.swap(wrappedNewProduct->obj);
+    }
   }
 
   namespace soa {
