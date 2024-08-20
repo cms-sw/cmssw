@@ -75,19 +75,16 @@ namespace edm {
 
     constexpr EDPutTokenT(const EDPutTokenT<T>&) noexcept = default;
     constexpr EDPutTokenT(EDPutTokenT<T>&&) noexcept = default;
-    constexpr EDPutTokenT(EDPutTokenT<T>& iToken) noexcept : EDPutTokenT(const_cast<EDPutTokenT<T> const&>(iToken)) {}
 
     template <typename ADAPTER>
+      requires requires(ADAPTER&& a) { a.template produces<T>(); }
     constexpr explicit EDPutTokenT(ADAPTER&& iAdapter) noexcept : EDPutTokenT(iAdapter.template produces<T>()) {}
 
     constexpr EDPutTokenT& operator=(const EDPutTokenT<T>&) noexcept = default;
     constexpr EDPutTokenT& operator=(EDPutTokenT<T>&&) noexcept = default;
-    constexpr EDPutTokenT& operator=(EDPutTokenT<T>& iOther) noexcept {
-      m_value = iOther.m_value;
-      return *this;
-    }
 
     template <typename ADAPTER>
+      requires requires(ADAPTER&& a) { a.template produces<T>(); }
     constexpr EDPutTokenT& operator=(ADAPTER&& iAdapter) noexcept {
       EDPutTokenT<T> temp(iAdapter.template produces<T>());
       m_value = temp.m_value;
