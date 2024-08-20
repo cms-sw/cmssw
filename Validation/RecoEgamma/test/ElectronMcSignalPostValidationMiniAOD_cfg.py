@@ -42,7 +42,7 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('Configuration.Geometry.GeometryExtended2026D76Reco_cff')
+#process.load('Configuration.Geometry.GeometryExtended2026D76Reco_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.DQMSaverAtRunEnd_cff')
 process.load('Configuration.StandardSequences.Harvesting_cff')
@@ -51,7 +51,7 @@ process.load('Configuration.StandardSequences.Harvesting_cff')
 from DQMServices.Components.DQMStoreStats_cfi import *
 dqmStoreStats.runOnEndJob = cms.untracked.bool(True)
 
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1))
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
 
 print('= inputPostFile : %s' % os.environ['inputPostFile'])
 localFileInput = os.environ['inputPostFile']#.replace(".root", "_a.root") #
@@ -64,14 +64,12 @@ process.electronMcSignalPostValidatorMiniAOD.OutputFolderName = cms.string("Egam
 
 from Configuration.AlCa.autoCond import autoCond
 #process.GlobalTag.globaltag = os.environ['TEST_GLOBAL_TAG']#+'::All'
-process.GlobalTag.globaltag = '122X_mcRun4_realistic_v1'
-#process.GlobalTag.globaltag = '113X_mcRun4_realistic_v4'
-#process.GlobalTag.globaltag = '93X_mc2017_realistic_v1'
+#process.GlobalTag.globaltag = '122X_mcRun4_realistic_v1'
 
 rel = os.environ['DD_SAMPLE']
 part1 = os.environ['DD_RELEASE']
 part2 = os.environ['TEST_GLOBAL_TAG']
-process.dqmSaver.workflow = '/' + rel + '/' + part1 + '-' + part2 + '/RECO'
+process.dqmSaver.workflow = '/' + rel + '/' + part1 + '-' + part2 + '/miniAOD'
 process.dqmsave_step = cms.Path(process.DQMSaver)
 
 process.p = cms.Path(process.EDMtoME * process.electronMcSignalPostValidatorMiniAOD * process.dqmStoreStats)

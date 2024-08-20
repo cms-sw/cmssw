@@ -273,6 +273,8 @@ ElectronMcSignalValidator::ElectronMcSignalValidator(const edm::ParameterSet &co
   h2_ele_chargeVsPt = nullptr;
   h1_ele_vertexP = nullptr;
   h1_ele_vertexPt = nullptr;
+  h1_ele_vertexPt_EB = nullptr;
+  h1_ele_vertexPt_EE = nullptr;
   h1_ele_vertexPt_nocut = nullptr;
   h1_ele_Et = nullptr;
   h2_ele_vertexPtVsEta = nullptr;
@@ -1093,6 +1095,10 @@ void ElectronMcSignalValidator::bookHistograms(DQMStore::IBooker &iBooker, edm::
   h1_ele_vertexP = bookH1withSumw2(iBooker, "vertexP", "ele momentum", p_nbin, 0., p_max, "p_{vertex} (GeV/c)");
   h1_ele_vertexPt =
       bookH1withSumw2(iBooker, "vertexPt", "ele transverse momentum", pt_nbin, 0., pt_max, "p_{T vertex} (GeV/c)");
+  h1_ele_vertexPt_EB = bookH1withSumw2(
+      iBooker, "vertexPt_EB", "ele transverse momentum barrel", pt_nbin, 0., pt_max, "p_{T vertex} (GeV/c)");
+  h1_ele_vertexPt_EE = bookH1withSumw2(
+      iBooker, "vertexPt_EE", "ele transverse momentum endcaps", pt_nbin, 0., pt_max, "p_{T vertex} (GeV/c)");
   h1_ele_vertexPt_nocut = bookH1withSumw2(
       iBooker, "vertexPt_nocut", "pT of prunned electrons", pt_nbin, 0., pt_max, "p_{T vertex} (GeV/c)");
   h1_ele_Et = bookH1withSumw2(iBooker, "Et", "ele ecal E_{T}", pt_nbin, 0., pt_max, "E_{T} (GeV)");
@@ -3305,11 +3311,14 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
   // get a vector with EB & EE
   //===============================================
   std::vector<reco::GsfElectron> localCollection;
+  std::vector<reco::GsfElectron> localCollection_EB;
+  std::vector<reco::GsfElectron> localCollection_EE;
 
   // looking for EB
   for (gsfIter = gsfElectrons->begin(); gsfIter != gsfElectrons->end(); gsfIter++) {
     if (gsfIter->isEB()) {
       localCollection.push_back(*gsfIter);
+      localCollection_EB.push_back(*gsfIter);
     }
   }
 
@@ -3317,6 +3326,7 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
   for (gsfIter = gsfElectronsEndcaps->begin(); gsfIter != gsfElectronsEndcaps->end(); gsfIter++) {
     if (gsfIter->isEE()) {
       localCollection.push_back(*gsfIter);
+      localCollection_EE.push_back(*gsfIter);
     }
   }
 
@@ -3669,6 +3679,11 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
       continue;
 
     // electron related distributions
+    if (isEBflag) {
+      h1_ele_vertexPt_EB->Fill(bestGsfElectron.pt());
+    } else if (isEEflag) {
+      h1_ele_vertexPt_EE->Fill(bestGsfElectron.pt());
+    }
     h1_ele_charge->Fill(bestGsfElectron.charge());
     h2_ele_chargeVsEta->Fill(bestGsfElectron.eta(), bestGsfElectron.charge());
     h2_ele_chargeVsPhi->Fill(bestGsfElectron.phi(), bestGsfElectron.charge());
