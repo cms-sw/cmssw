@@ -203,7 +203,7 @@ public:
   //uint32_t getIndexForModule(HGCalElectronicsId id) const {
   //  return getIndexForModule(id.localFEDId(),id.captureBlock(),id.econdIdx());
   //};
-  uint32_t getIndexForModule(std::string typecode) const {
+  uint32_t getIndexForModule(std::string const& typecode) const {
     const auto& [fedid, modId] = getIndexForFedAndModule(typecode);  // (fedId,modId)
     return getIndexForModule(fedid, modId);
   };
@@ -231,7 +231,7 @@ public:
     const auto& [fedid, modid] = getIndexForFedAndModule(typecode);
     return getIndexForModuleData(fedid, modid, 0, 0);
   };
-  std::pair<uint32_t, uint32_t> getIndexForFedAndModule(std::string typecode) const {
+  std::pair<uint32_t, uint32_t> getIndexForFedAndModule(std::string const& typecode) const {
     if (typecodeMap_.find(typecode) == typecodeMap_.end()) {  // did not find key
       edm::LogWarning("HGCalMappingModuleIndexer")
           << "Could not find typecode " << typecode << " in map (size=" << typecodeMap_.size()
