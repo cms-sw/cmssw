@@ -66,7 +66,7 @@ public:
     descriptions.addWithDefaultLabel(desc);
   }
 
-  static bool checkkeys(json& data, std::string const& firstkey, std::vector<std::string> const& keys, std::string const& fname) {
+  static bool checkkeys(const json& data, const std::string& firstkey, const std::vector<std::string>& keys, const std::string& fname) {
     // check if json contains key
     bool iscomplete = true;
     for (auto const& key : keys) {
@@ -80,12 +80,12 @@ public:
     return iscomplete;
   }
 
-  static int32_t gethex(std::string const& value, int32_t value_override) {
+  static int32_t gethex(const std::string& value, const int32_t value_override) {
     // get value, and override if value_override>=0
     return (value_override >= 0 ? value_override : std::stoi(value, NULL, 16));
   }
 
-  static int32_t getint(int32_t value, int32_t value_override) {
+  static int32_t getint(const int32_t value, const int32_t value_override) {
     // get value, and override if value_override>=0
     return (value_override >= 0 ? value_override : value);
   }
