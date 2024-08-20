@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoHGCal.TICL.ticlDumper_cfi import ticlDumper
+from RecoHGCal.TICL.ticlDumper_cff import ticlDumper
 from RecoHGCal.Configuration.RecoHGCal_EventContent_cff import customiseForTICLv5EventContent
 from SimCalorimetry.HGCalAssociatorProducers.TSToSimTSAssociation_cfi import tracksterSimTracksterAssociationLinkingbyCLUE3D as _tracksterSimTracksterAssociationLinkingbyCLUE3D
 from SimCalorimetry.HGCalAssociatorProducers.TSToSimTSAssociation_cfi import tracksterSimTracksterAssociationPRbyCLUE3D  as _tracksterSimTracksterAssociationPRbyCLUE3D
@@ -78,21 +78,7 @@ def customiseTICLv5FromReco(process, enableDumper = False):
     '''
 
     if(enableDumper):
-        process.ticlDumper = ticlDumper.clone(
-            saveLCs=True,
-            saveCLUE3DTracksters=True,
-            saveTrackstersMerged=True,
-            saveSimTrackstersSC=True,
-            saveSimTrackstersCP=True,
-            saveTICLCandidate=True,
-            saveSimTICLCandidate=True,
-            saveTracks=True,
-            saveAssociations=True,
-            trackstersclue3d = cms.InputTag('ticlTrackstersCLUE3DHigh'),
-            ticlcandidates = cms.InputTag("ticlCandidate"),
-            trackstersmerged = cms.InputTag("ticlCandidate"),
-            trackstersInCand = cms.InputTag("ticlCandidate")
-        )
+        process.ticlDumper = ticlDumper
         process.TFileService = cms.Service("TFileService",
                                            fileName=cms.string("histo.root")
                                            )

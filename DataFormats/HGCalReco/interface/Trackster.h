@@ -95,10 +95,10 @@ namespace ticl {
       removeDuplicates();
       zeroProbabilities();
     }
-    inline void fillPCAVariables(Eigen::Vector3d &eigenvalues,
-                                 Eigen::Matrix3d &eigenvectors,
-                                 Eigen::Vector3d &sigmas,
-                                 Eigen::Vector3d &sigmasEigen,
+    inline void fillPCAVariables(Eigen::Vector3f const &eigenvalues,
+                                 Eigen::Matrix3f const &eigenvectors,
+                                 Eigen::Vector3f const &sigmas,
+                                 Eigen::Vector3f const &sigmasEigen,
                                  size_t pcadimension,
                                  PCAOrdering order) {
       int original_index = 0;
