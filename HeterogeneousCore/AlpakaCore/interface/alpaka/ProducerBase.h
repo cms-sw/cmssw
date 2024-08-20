@@ -17,8 +17,18 @@
 
 #include <memory>
 #include <tuple>
+#include <type_traits>
+#include <utility>
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
+  namespace detail {
+    template <typename, typename Arg, typename = void>
+    struct hasPostCopy : std::false_type {};
+
+    template <typename T, typename Arg>
+    struct hasPostCopy<T, Arg, std::void_t<decltype(T::postCopy(std::declval<Arg&>()))>> : std::true_type {};
+  }  // namespace detail
+
   template <typename Producer, edm::Transition Tr>
   class ProducerBaseAdaptor;
 
@@ -93,6 +103,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         return Base::template produces<TToken, Tr>(std::move(instanceName));
       } else {
         edm::EDPutTokenT<TToken> token = Base::template produces<TToken, Tr>(instanceName);
+        using CopyT = cms::alpakatools::CopyToHost<TProduct>;
         this->registerTransformAsync(
             token,
             [](TToken const& deviceProduct, edm::WaitingTaskWithArenaHolder holder) {
@@ -103,7 +114,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
               TProduct const& productOnDevice =
                   deviceProduct.template getSynchronized<EDMetadata>(*metadataPtr, tryReuseQueue);
 
-              using CopyT = cms::alpakatools::CopyToHost<TProduct>;
               auto productOnHost = CopyT::copyAsync(metadataPtr->queue(), productOnDevice);
 
               // Need to keep the EDMetadata object from sentry.finish()
@@ -112,7 +122,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
               // Wrap possibly move-only type into a copyable type
               return std::make_shared<TplType>(std::move(productOnHost), sentry.finish());
             },
-            [](auto tplPtr) { return std::move(std::get<0>(*tplPtr)); },
+            [](auto tplPtr) {
+              auto& productOnHost = std::get<0>(*tplPtr);
+              if constexpr (detail::hasPostCopy<CopyT, decltype(productOnHost)>::value) {
+                CopyT::postCopy(productOnHost);
+              }
+              return std::move(productOnHost);
+            },
             std::move(instanceName));
         return token;
       }
