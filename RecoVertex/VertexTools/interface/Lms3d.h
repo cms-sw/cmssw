@@ -12,6 +12,9 @@
 class Lms3d : public ModeFinder3d {
 public:
   virtual GlobalPoint operator()(std::vector<GlobalPoint>& values) const;
+
+private:
+  virtual GlobalPoint operator()(const std::vector<PointAndDistance>&) const = 0;
 };
 
 #endif
