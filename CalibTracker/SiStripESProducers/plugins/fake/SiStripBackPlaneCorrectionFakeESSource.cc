@@ -65,8 +65,7 @@ SiStripBackPlaneCorrectionFakeESSource::ReturnType SiStripBackPlaneCorrectionFak
     const SiStripBackPlaneCorrectionRcd& iRecord) {
   using namespace edm::es;
 
-  const auto& geomDetRcd = iRecord.getRecord<TrackerTopologyRcd>();
-  const auto& geomDet = geomDetRcd.get(m_geomDetToken);
+  const auto& geomDet = iRecord.get(m_geomDetToken);
   const auto& tTopo = iRecord.get(m_tTopoToken);
 
   auto backPlaneCorrection = std::make_unique<SiStripBackPlaneCorrection>();

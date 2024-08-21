@@ -155,8 +155,7 @@ CaloTPGTranscoderULUTs::ReturnType CaloTPGTranscoderULUTs::produce(const CaloTPG
 
   const auto& lutMetadata = iRecord.get(lutMetadataToken);
   const auto& theTrigTowerGeometry = iRecord.get(theTrigTowerGeometryToken);
-  const auto& topoRecord = iRecord.getRecord<HcalLutMetadataRcd>();
-  const auto& topo = topoRecord.get(topoToken);
+  const auto& topo = iRecord.get(topoToken);
 
   HcalLutMetadata fullLut{lutMetadata};
   fullLut.setTopo(&topo);
