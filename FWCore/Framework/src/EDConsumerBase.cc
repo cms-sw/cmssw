@@ -153,16 +153,16 @@ void EDConsumerBase::updateLookup(eventsetup::ESRecordsToProductResolverIndices 
   unsigned int index = 0;
   for (auto it = m_esTokenInfo.begin<kESLookupInfo>(); it != m_esTokenInfo.end<kESLookupInfo>(); ++it, ++index) {
     auto indexInRecord = iPI.indexInRecord(it->m_record, it->m_key);
-    if (indexInRecord != eventsetup::ESRecordsToProductResolverIndices::missingResolverIndex()) {
+    if (indexInRecord != ESResolverIndex::noResolverConfigured()) {
       const char* componentName = &(m_tokenLabels[it->m_startOfComponentName]);
       if (*componentName) {
         auto component = iPI.component(it->m_record, it->m_key);
         if (component->label_.empty()) {
           if (component->type_ != componentName) {
-            indexInRecord = eventsetup::ESRecordsToProductResolverIndices::missingResolverIndex();
+            indexInRecord = ESResolverIndex::moduleLabelDoesNotMatch();
           }
         } else if (component->label_ != componentName) {
-          indexInRecord = eventsetup::ESRecordsToProductResolverIndices::missingResolverIndex();
+          indexInRecord = ESResolverIndex::moduleLabelDoesNotMatch();
         }
       }
     }

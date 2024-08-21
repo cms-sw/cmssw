@@ -27,6 +27,7 @@
 #include "FWCore/Framework/interface/EventSetupProvider.h"
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 #include "FWCore/Framework/interface/IOVSyncValue.h"
+#include "FWCore/Framework/interface/NoProductResolverException.h"
 #include "FWCore/Framework/interface/RecordDependencyRegister.h"
 #include "FWCore/Framework/interface/NoRecordException.h"
 #include "FWCore/Framework/interface/MakeDataException.h"
@@ -585,13 +586,20 @@ namespace {
 
   class SetMayConsumeProducer : public ESProducer {
   public:
-    SetMayConsumeProducer(bool iSucceed) : succeed_(iSucceed) {
-      setWhatProduced(this, label(iSucceed))
+    SetMayConsumeProducer(bool iSucceed,
+                          char const* conditionalModuleLabel,
+                          char const* conditionalProductLabel,
+                          char const* producedProductLabel)
+        : succeed_(iSucceed),
+          conditionalModuleLabel_(conditionalModuleLabel),
+          conditionalProductLabel_(conditionalProductLabel),
+          producedProductLabel_(producedProductLabel) {
+      setWhatProduced(this, producedProductLabel)
           .setMayConsume(
               token_,
-              [iSucceed](auto& get, edm::ESTransientHandle<edm::eventsetup::test::DummyData> const& handle) {
-                if (iSucceed) {
-                  return get("", "");
+              [this](auto& get, edm::ESTransientHandle<edm::eventsetup::test::DummyData> const& handle) {
+                if (succeed_) {
+                  return get(conditionalModuleLabel_, conditionalProductLabel_);
                 }
                 return get.nothing();
               },
@@ -599,23 +607,19 @@ namespace {
     }
     std::unique_ptr<edm::eventsetup::test::DummyData> produce(const DummyRecord& iRecord) {
       auto const& data = iRecord.getHandle(token_);
-      CPPUNIT_ASSERT(data.isValid() == succeed_);
-      if (data.isValid()) {
+      if (succeed_) {
         return std::make_unique<edm::eventsetup::test::DummyData>(*data);
       }
+      CPPUNIT_ASSERT(!data.isValid());
       return std::unique_ptr<edm::eventsetup::test::DummyData>();
     }
 
   private:
-    static const char* label(bool iSucceed) noexcept {
-      if (iSucceed) {
-        return "setMayConsumeSucceed";
-      }
-      return "setMayConsumeFail";
-    }
-
     edm::ESGetToken<edm::eventsetup::test::DummyData, DummyRecord> token_;
     bool succeed_;
+    char const* conditionalModuleLabel_;
+    char const* conditionalProductLabel_;
+    char const* producedProductLabel_;
   };
 
 }  // namespace
@@ -680,7 +684,7 @@ void testEventsetup::getDataWithESGetTokenTest() {
       ps.addParameter<std::string>("name", "setMayConsumeSuceed");
       ps.registerIt();
       description.pid_ = ps.id();
-      auto dummyProv = std::make_shared<SetMayConsumeProducer>(true);
+      auto dummyProv = std::make_shared<SetMayConsumeProducer>(true, "", "", "setMayConsumeSucceed");
       dummyProv->setDescription(description);
       dummyProv->setAppendToDataLabel(ps);
       provider.add(dummyProv);
@@ -691,7 +695,46 @@ void testEventsetup::getDataWithESGetTokenTest() {
       ps.addParameter<std::string>("name", "setMayConsumeFail");
       ps.registerIt();
       description.pid_ = ps.id();
-      auto dummyProv = std::make_shared<SetMayConsumeProducer>(false);
+      auto dummyProv = std::make_shared<SetMayConsumeProducer>(false, "", "", "setMayConsumeFail");
+      dummyProv->setDescription(description);
+      dummyProv->setAppendToDataLabel(ps);
+      provider.add(dummyProv);
+    }
+    {
+      edm::eventsetup::ComponentDescription description(
+          "SetMayConsumeProducer", "setMayConsumeWithModuleLabel", 5, false);
+      edm::ParameterSet ps;
+      ps.addParameter<std::string>("name", "thisIsNotUsed");
+      ps.registerIt();
+      description.pid_ = ps.id();
+      auto dummyProv =
+          std::make_shared<SetMayConsumeProducer>(true, "testTwo", "blah", "productLabelForProducerWithModuleLabel");
+      dummyProv->setDescription(description);
+      dummyProv->setAppendToDataLabel(ps);
+      provider.add(dummyProv);
+    }
+    {
+      edm::eventsetup::ComponentDescription description(
+          "SetMayConsumeProducer", "setMayConsumeWithModuleLabelThatDoesntExist", 5, false);
+      edm::ParameterSet ps;
+      ps.addParameter<std::string>("name", "thisIsNotUsed");
+      ps.registerIt();
+      description.pid_ = ps.id();
+      auto dummyProv = std::make_shared<SetMayConsumeProducer>(
+          true, "doesNotExist", "blah", "productLabelForProducerWithModuleLabelThatDoesntExist");
+      dummyProv->setDescription(description);
+      dummyProv->setAppendToDataLabel(ps);
+      provider.add(dummyProv);
+    }
+    {
+      edm::eventsetup::ComponentDescription description(
+          "SetMayConsumeProducer", "setMayConsumeWithProductLabelThatDoesntExist", 5, false);
+      edm::ParameterSet ps;
+      ps.addParameter<std::string>("name", "thisIsNotUsed");
+      ps.registerIt();
+      description.pid_ = ps.id();
+      auto dummyProv = std::make_shared<SetMayConsumeProducer>(
+          true, "testTwo", "doesNotExist", "productLabelForProducerWithProductLabelThatDoesntExist");
       dummyProv->setDescription(description);
       dummyProv->setAppendToDataLabel(ps);
       provider.add(dummyProv);
@@ -744,6 +787,17 @@ void testEventsetup::getDataWithESGetTokenTest() {
     }
 
     {
+      DummyDataConsumer consumer{edm::ESInputTag("testTwo", "DoesNotExist")};
+      consumer.updateLookup(provider.recordsToResolverIndices());
+      consumer.prefetch(provider.eventSetupImpl());
+      EventSetup eventSetup{provider.eventSetupImpl(),
+                            static_cast<unsigned int>(edm::Transition::Event),
+                            consumer.esGetTokenIndices(edm::Transition::Event),
+                            pc};
+      CPPUNIT_ASSERT_THROW(eventSetup.getData(consumer.m_token), edm::eventsetup::NoProductResolverException);
+    }
+
+    {
       DummyDataConsumer consumer{edm::ESInputTag("DoesNotExist", "blah")};
       consumer.updateLookup(provider.recordsToResolverIndices());
       consumer.prefetch(provider.eventSetupImpl());
@@ -765,6 +819,7 @@ void testEventsetup::getDataWithESGetTokenTest() {
       const DummyData& data = eventSetup.getData(consumer.m_token);
       CPPUNIT_ASSERT(kBad.value_ == data.value_);
     }
+
     {
       DummyDataConsumer consumer{edm::ESInputTag("", "consumesFrom")};
       consumer.updateLookup(provider.recordsToResolverIndices());
@@ -776,6 +831,7 @@ void testEventsetup::getDataWithESGetTokenTest() {
       const DummyData& data = eventSetup.getData(consumer.m_token);
       CPPUNIT_ASSERT(kBad.value_ == data.value_);
     }
+
     {
       DummyDataConsumer consumer{edm::ESInputTag("", "setMayConsumeFail")};
       consumer.updateLookup(provider.recordsToResolverIndices());
@@ -796,6 +852,30 @@ void testEventsetup::getDataWithESGetTokenTest() {
                             pc};
       const DummyData& data = eventSetup.getData(consumer.m_token);
       CPPUNIT_ASSERT(kBad.value_ == data.value_);
+    }
+
+    {
+      DummyDataConsumer consumer{edm::ESInputTag("", "productLabelForProducerWithModuleLabel")};
+      consumer.updateLookup(provider.recordsToResolverIndices());
+      consumer.prefetch(provider.eventSetupImpl());
+      EventSetup eventSetup{provider.eventSetupImpl(),
+                            static_cast<unsigned int>(edm::Transition::Event),
+                            consumer.esGetTokenIndices(edm::Transition::Event),
+                            pc};
+      const DummyData& data = eventSetup.getData(consumer.m_token);
+      CPPUNIT_ASSERT(kGood.value_ == data.value_);
+    }
+
+    {
+      DummyDataConsumer consumer{edm::ESInputTag("", "productLabelForProducerWithModuleLabelThatDoesntExist")};
+      consumer.updateLookup(provider.recordsToResolverIndices());
+      CPPUNIT_ASSERT_THROW(consumer.prefetch(provider.eventSetupImpl()), edm::eventsetup::NoProductResolverException);
+    }
+
+    {
+      DummyDataConsumer consumer{edm::ESInputTag("", "productLabelForProducerWithProductLabelThatDoesntExist")};
+      consumer.updateLookup(provider.recordsToResolverIndices());
+      CPPUNIT_ASSERT_THROW(consumer.prefetch(provider.eventSetupImpl()), edm::eventsetup::NoProductResolverException);
     }
 
   } catch (const cms::Exception& iException) {
