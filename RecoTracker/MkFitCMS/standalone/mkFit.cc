@@ -271,7 +271,7 @@ void test_standard() {
   int events_per_thread = (Config::nEvents + Config::numThreadsEvents - 1) / Config::numThreadsEvents;
 
   arena.execute([&]() {
-    tbb::parallel_for(
+    TBB_PARALLEL_FOR(
         tbb::blocked_range<int>(0, Config::numThreadsEvents, 1),
         [&](const tbb::blocked_range<int>& threads) {
           int thisthread = threads.begin();

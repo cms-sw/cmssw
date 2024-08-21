@@ -22,7 +22,7 @@ namespace mkfit {
 
       // fill vector of hits in each layer
       // XXXXMT: Does it really makes sense to multi-thread this?
-      tbb::parallel_for(tbb::blocked_range<int>(0, ev.layerHits_.size()), [&](const tbb::blocked_range<int> &layers) {
+      TBB_PARALLEL_FOR(tbb::blocked_range<int>(0, ev.layerHits_.size()), [&](const tbb::blocked_range<int> &layers) {
         for (int ilay = layers.begin(); ilay < layers.end(); ++ilay) {
           eoh.suckInHits(ilay, ev.layerHits_[ilay]);
         }
