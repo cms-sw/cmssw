@@ -19,7 +19,6 @@ BoardDataInput = cms.EDAnalyzer("L1GTObjectBoardWriter",
     CL2EtSum = l1tGTProducer.CL2EtSum,
     CL2HtSum = l1tGTProducer.CL2HtSum,
     filename = cms.string("inputPattern"),
-    maxEvents = cms.uint32(72),
     bufferFileType = cms.string("input")
 )
 
@@ -41,12 +40,10 @@ BoardDataOutputObjects = cms.EDAnalyzer("L1GTObjectBoardWriter",
     CL2EtSum = l1tGTProducer.CL2EtSum,
     CL2HtSum = l1tGTProducer.CL2HtSum,
     filename = cms.string("outputObjectPattern"),
-    maxEvents = cms.uint32(72),
     bufferFileType = cms.string("output")
 )
 
 AlgoBitBoardData = cms.EDAnalyzer("L1GTAlgoBoardWriter",
     outputFilename = cms.string("algoBitPattern"),
     algoBlocksTag = cms.InputTag("l1tGTAlgoBlockProducer"),
-    maxEvents = cms.uint32(72)
 )
