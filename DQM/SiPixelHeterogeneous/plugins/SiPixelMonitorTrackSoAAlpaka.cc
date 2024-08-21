@@ -148,8 +148,8 @@ void SiPixelMonitorTrackSoAAlpaka<T>::bookHistograms(DQMStore::IBooker& iBook,
 
   // clang-format off
 std::string toRep = "Number of tracks";
-hnTracks = iBook.book1D("nTracks", fmt::format(";{} per event;#events",toRep), 1001, -0.5, 1000.5);
-hnLooseAndAboveTracks = iBook.book1D("nLooseAndAboveTracks", fmt::format(";{} (quality #geq loose) per event;#events",toRep), 1001, -0.5, 1000.5);
+hnTracks = iBook.book1D("nTracks", fmt::format(";{} per event;#events",toRep), 1001, -0.5, 2001.5);
+hnLooseAndAboveTracks = iBook.book1D("nLooseAndAboveTracks", fmt::format(";{} (quality #geq loose) per event;#events",toRep), 1001, -0.5, 2001.5);
 
 toRep = "Number of all RecHits per track (quality #geq loose)";
 hnHits = iBook.book1D("nRecHits", fmt::format(";{};#tracks",toRep), 15, -0.5, 14.5);

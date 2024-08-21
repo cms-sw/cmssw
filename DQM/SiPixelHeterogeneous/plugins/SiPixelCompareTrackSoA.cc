@@ -84,6 +84,9 @@ private:
   MonitorElement* hnTracks_;
   MonitorElement* hnLooseAndAboveTracks_;
   MonitorElement* hnLooseAndAboveTracks_matched_;
+  MonitorElement* hDeltaNTracks_;
+  MonitorElement* hDeltaNLooseAndAboveTracks_;
+  MonitorElement* hDeltaNLooseAndAboveTracks_matched_;
   MonitorElement* hnHits_;
   MonitorElement* hnHitsVsPhi_;
   MonitorElement* hnHitsVsEta_;
@@ -240,9 +243,23 @@ void SiPixelCompareTrackSoA<T>::analyze(const edm::Event& iEvent, const edm::Eve
     hpt_eta_tkAllRefMatched_->Fill(etaCPU, tsoaCPU.view()[it].pt());  //matched to gpu
     hphi_z_tkAllRefMatched_->Fill(etaCPU, zipCPU);
   }
-  hnTracks_->Fill(nTracksCPU, nTracksGPU);
-  hnLooseAndAboveTracks_->Fill(nLooseAndAboveTracksCPU, nLooseAndAboveTracksGPU);
-  hnLooseAndAboveTracks_matched_->Fill(nLooseAndAboveTracksCPU, nLooseAndAboveTracksCPU_matchedGPU);
+
+  // Define a lambda function for filling the histograms
+  auto fillHistogram = [](auto& histogram, auto xValue, auto yValue) { histogram->Fill(xValue, yValue); };
+
+  // Define a lambda for filling delta histograms
+  auto fillDeltaHistogram = [](auto& histogram, int cpuValue, int gpuValue) {
+    histogram->Fill(std::min(cpuValue, 1000), std::clamp(gpuValue - cpuValue, -100, 100));
+  };
+
+  // Fill the histograms
+  fillHistogram(hnTracks_, nTracksCPU, nTracksGPU);
+  fillHistogram(hnLooseAndAboveTracks_, nLooseAndAboveTracksCPU, nLooseAndAboveTracksGPU);
+  fillHistogram(hnLooseAndAboveTracks_matched_, nLooseAndAboveTracksCPU, nLooseAndAboveTracksCPU_matchedGPU);
+
+  fillDeltaHistogram(hDeltaNTracks_, nTracksCPU, nTracksGPU);
+  fillDeltaHistogram(hDeltaNLooseAndAboveTracks_, nLooseAndAboveTracksCPU, nLooseAndAboveTracksGPU);
+  fillDeltaHistogram(hDeltaNLooseAndAboveTracks_matched_, nLooseAndAboveTracksCPU, nLooseAndAboveTracksCPU_matchedGPU);
 }
 
 //
@@ -255,13 +272,44 @@ void SiPixelCompareTrackSoA<T>::bookHistograms(DQMStore::IBooker& iBook,
   iBook.cd();
   iBook.setCurrentFolder(topFolderName_);
 
-  // clang-format off
+  // Define a helper function for booking histograms
   std::string toRep = "Number of tracks";
+  auto bookTracksTH2I = [&](const std::string& name,
+                            const std::string& title,
+                            int xBins,
+                            double xMin,
+                            double xMax,
+                            int yBins,
+                            double yMin,
+                            double yMax) {
+    return iBook.book2I(name, fmt::sprintf(title, toRep), xBins, xMin, xMax, yBins, yMin, yMax);
+  };
+
+  // Define common parameters for different histogram types
+  constexpr int xBins = 501;
+  constexpr double xMin = -0.5;
+  constexpr double xMax = 1001.5;
+
+  constexpr int dXBins = 1001;
+  constexpr double dXMin = -0.5;
+  constexpr double dXMax = 1000.5;
+
+  constexpr int dYBins = 201;
+  constexpr double dYMin = -100.5;
+  constexpr double dYMax = 100.5;
+
   // FIXME: all the 2D correlation plots are quite heavy in terms of memory consumption, so a as soon as DQM supports THnSparse
   // these should be moved to a less resource consuming format
-  hnTracks_ = iBook.book2I("nTracks", fmt::sprintf("%s per event; CPU; GPU",toRep), 501, -0.5, 500.5, 501, -0.5, 500.5);
-  hnLooseAndAboveTracks_ = iBook.book2I("nLooseAndAboveTracks", fmt::sprintf("%s (quality #geq loose) per event; CPU; GPU",toRep), 501, -0.5, 500.5, 501, -0.5, 500.5);
-  hnLooseAndAboveTracks_matched_ = iBook.book2I("nLooseAndAboveTracks_matched", fmt::sprintf("%s (quality #geq loose) per event; CPU; GPU",toRep), 501, -0.5, 500.5, 501, -0.5, 500.5);
+
+  // Book histograms using the helper function
+  // clang-format off
+  hnTracks_ = bookTracksTH2I("nTracks", "%s per event; Reference; Target", xBins, xMin, xMax, xBins, xMin, xMax);
+  hnLooseAndAboveTracks_ = bookTracksTH2I("nLooseAndAboveTracks", "%s (quality #geq loose) per event; Reference; Target", xBins, xMin, xMax, xBins, xMin, xMax);
+  hnLooseAndAboveTracks_matched_ = bookTracksTH2I("nLooseAndAboveTracks_matched", "%s (quality #geq loose) per event; Reference; Target", xBins, xMin, xMax, xBins, xMin, xMax);
+
+  hDeltaNTracks_ = bookTracksTH2I("deltaNTracks", "%s per event; Reference; Target - Reference", dXBins, dXMin, dXMax, dYBins, dYMin, dYMax);
+  hDeltaNLooseAndAboveTracks_ = bookTracksTH2I("deltaNLooseAndAboveTracks", "%s (quality #geq loose) per event; Reference; Target - Reference", dXBins, dXMin, dXMax, dYBins, dYMin, dYMax);
+  hDeltaNLooseAndAboveTracks_matched_ = bookTracksTH2I("deltaNLooseAndAboveTracks_matched", "%s (quality #geq loose) per event; Reference; Target - Reference", dXBins, dXMin, dXMax, dYBins, dYMin, dYMax);
 
   toRep = "Number of all RecHits per track (quality #geq loose)";
   hnHits_ = iBook.book2I("nRecHits", fmt::sprintf("%s;CPU;GPU",toRep), 15, -0.5, 14.5, 15, -0.5, 14.5);
