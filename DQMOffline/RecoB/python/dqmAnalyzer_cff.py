@@ -21,7 +21,8 @@ from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 from PhysicsTools.JetMCAlgos.HadronAndPartonSelector_cfi import selectedHadronsAndPartons
 from PhysicsTools.JetMCAlgos.AK4PFJetsMCFlavourInfos_cfi import ak4JetFlavourInfos
 myak4JetFlavourInfos = ak4JetFlavourInfos.clone(
-    jets = "ak4PFJetsCHS",
+    jets = "ak4PFJetsPuppi",
+    weights = cms.InputTag("puppi"),
     partons = "selectedHadronsAndPartons:algorithmicPartons",
     hadronFlavourHasPriority = True
     )
@@ -35,7 +36,7 @@ ak4GenJetsForPUid = cms.EDFilter("GenJetSelector",
 #do reco gen - reco matching
 from PhysicsTools.PatAlgos.mcMatchLayer0.jetMatch_cfi import patJetGenJetMatch
 newpatJetGenJetMatch = patJetGenJetMatch.clone(
-    src = "ak4PFJetsCHS",
+    src = "ak4PFJetsPuppi",
     matched = "ak4GenJetsForPUid",
     maxDeltaR = 0.25,
     resolveAmbiguities = True
@@ -59,6 +60,27 @@ bTagPlotsMC = cms.Sequence(bTagValidation)
 ## customizations for the pp_on_AA eras
 (pp_on_XeXe_2017 | pp_on_AA).toModify(bTagValidation,
                                       doJEC=False
+)
+
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+fastSim.toModify(myak4JetFlavourInfos,
+    jets = "ak4PFJetsCHS",
+    weights = None
+).toModify(newpatJetGenJetMatch,
+   src = "ak4PFJetsCHS",
+).toModify(bTagValidation.tagConfig[0],
+   label = "pfImpactParameterTagInfos"
+).toModify(bTagValidation.tagConfig[1],
+   label = "pfJetProbabilityBJetTags"
+)
+
+from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
+pp_on_PbPb_run3.toModify(newpatJetGenJetMatch,
+           src = "akCs4PFJets",
+).toModify(bTagValidation.tagConfig[0],
+           label = "pfImpactParameterTagInfos"
+).toModify(bTagValidation.tagConfig[1],
+           label = "pfJetProbabilityBJetTags"
 )
 
 #to run on fullsim in the validation sequence, all histograms produced in the dqmoffline sequence
