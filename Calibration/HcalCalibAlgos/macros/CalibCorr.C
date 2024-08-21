@@ -40,10 +40,10 @@
 //                                            factor from phi symmetry studies
 //      *infile* is the name of the input file
 //      *flag* can have a value between 0:5 specifying the type of correction
-//             5 for run-dependent correctons using results from several phi 
-//             symmetry studies; 4 for using results from one phi-symmetry 
+//             5 for run-dependent correctons using results from several phi
+//             symmetry studies; 4 for using results from one phi-symmetry
 //             study; 3 for pileup correction using machine learning method;
-//             2 for overall response corrections; 1 for depth dependence 
+//             2 for overall response corrections; 1 for depth dependence
 //             corrections; 0 for raddam corrections)
 // CalibSelectRBX(rbxFile, debug)
 //      A class for selecting a given set of Read Out Box's and provides
@@ -877,13 +877,15 @@ double CalibCorr::getPhiCorrs(int run, unsigned int idx) {
   if (good_ == 0)
     return cfac;
   unsigned int runid = runId(run);
-  std::map<std::pair<unsigned int, unsigned int>, double>::iterator itr = corrPhiSyms_.find(std::pair<unsigned int, unsigned int>(runid, idx));
+  std::map<std::pair<unsigned int, unsigned int>, double>::iterator itr =
+      corrPhiSyms_.find(std::pair<unsigned int, unsigned int>(runid, idx));
   if (itr != corrPhiSyms_.end())
     cfac = itr->second;
   if (debug_) {
     int subdet, zside, ieta, iphi, depth;
     unpackDetId(idx, subdet, zside, ieta, iphi, depth);
-    std::cout << "Run " << run << " ID " << runid << ":" << std::hex << idx << std::dec << " (Sub " << subdet << " eta " << zside * ieta << " phi " << iphi << " depth " << depth << ")  Factor " << cfac << std::endl;
+    std::cout << "Run " << run << " ID " << runid << ":" << std::hex << idx << std::dec << " (Sub " << subdet << " eta "
+              << zside * ieta << " phi " << iphi << " depth " << depth << ")  Factor " << cfac << std::endl;
   }
   return cfac;
 }
@@ -1117,50 +1119,53 @@ unsigned int CalibCorr::readCorrPhis(const char* infile0) {
         continue;  //ignore other comments
       } else {
         std::vector<std::string> item = splitString(bufferString0);
-	if (item.size() > 2) {
-	  int run1 = std::atoi(item[0].c_str());
-	  int run2 = std::atoi(item[1].c_str());
-	  std::string infile(item[2]);
-	  unsigned int runid = runs_.size();
-	  runs_.push_back(std::pair<int, int>(run1, run2));
-	  std::ifstream fInput(infile.c_str());
-	  if (!fInput.good()) {
-	    std::cout << "Cannot open file " << infile << std::endl;
-	  } else {
-	    char buffer[1024];
-	    while (fInput.getline(buffer, 1024)) {
-	      ++all; 
-	      std::string bufferString(buffer);
-	      if (bufferString.substr(0, 1) == "#") {
-		continue;  //ignore other comments
-	      } else {
-		std::vector<std::string> items = splitString(bufferString);
-		if (items.size() < 5) {
-		  std::cout << "Ignore  line: " << buffer << " Size " << items.size();
-		  for (unsigned int k = 0; k < items.size(); ++k)
-		    std::cout << " [" << k << "] : " << items[k];
-		  std::cout << std::endl;
-		} else {
-		  ++good;
-		  int subdet = std::atoi(items[0].c_str());
-		  int ieta = std::atoi(items[1].c_str());
-		  int iphi = std::atoi(items[2].c_str());
-		  int depth = std::atoi(items[3].c_str());
-		  double corrf = std::atof(items[4].c_str());
-		  unsigned int id = packDetId(subdet, ieta, iphi, depth);
-		  corrPhiSyms_[std::pair<int, int>(runid, id)] = corrf;
-		  if (debug_)
-		    std::cout << "ID " << runid << ":" << std::hex << id << std::dec << ":" << id << " (subdet " << subdet << " eta " << ieta << " phi " << iphi << " depth " << depth << ") " << corrPhiSym_[id] << std::endl;
-		}
-	      }
-	    }
-	    fInput.close();
-	  }
-	}
+        if (item.size() > 2) {
+          int run1 = std::atoi(item[0].c_str());
+          int run2 = std::atoi(item[1].c_str());
+          std::string infile(item[2]);
+          unsigned int runid = runs_.size();
+          runs_.push_back(std::pair<int, int>(run1, run2));
+          std::ifstream fInput(infile.c_str());
+          if (!fInput.good()) {
+            std::cout << "Cannot open file " << infile << std::endl;
+          } else {
+            char buffer[1024];
+            while (fInput.getline(buffer, 1024)) {
+              ++all;
+              std::string bufferString(buffer);
+              if (bufferString.substr(0, 1) == "#") {
+                continue;  //ignore other comments
+              } else {
+                std::vector<std::string> items = splitString(bufferString);
+                if (items.size() < 5) {
+                  std::cout << "Ignore  line: " << buffer << " Size " << items.size();
+                  for (unsigned int k = 0; k < items.size(); ++k)
+                    std::cout << " [" << k << "] : " << items[k];
+                  std::cout << std::endl;
+                } else {
+                  ++good;
+                  int subdet = std::atoi(items[0].c_str());
+                  int ieta = std::atoi(items[1].c_str());
+                  int iphi = std::atoi(items[2].c_str());
+                  int depth = std::atoi(items[3].c_str());
+                  double corrf = std::atof(items[4].c_str());
+                  unsigned int id = packDetId(subdet, ieta, iphi, depth);
+                  corrPhiSyms_[std::pair<int, int>(runid, id)] = corrf;
+                  if (debug_)
+                    std::cout << "ID " << runid << ":" << std::hex << id << std::dec << ":" << id << " (subdet "
+                              << subdet << " eta " << ieta << " phi " << iphi << " depth " << depth << ") "
+                              << corrPhiSym_[id] << std::endl;
+                }
+              }
+            }
+            fInput.close();
+          }
+        }
       }
     }
     fIn.close();
-    std::cout << "Reads total of " << all << " and " << good << " good records of phi-symmetry factors from " << runs_.size() << " files as given in " << infile0 << std::endl;
+    std::cout << "Reads total of " << all << " and " << good << " good records of phi-symmetry factors from "
+              << runs_.size() << " files as given in " << infile0 << std::endl;
   }
   return good;
 }
@@ -1452,7 +1457,8 @@ bool CalibDuplicate::select(int ieta, int iphi) {
 }
 
 double CalibDuplicate::getCorr(int run, int ieta, int depth) {
-  std::map<std::pair<int, int>, std::vector<double> >::const_iterator itr = corrs_.find(std::pair<int, int>(ieta, depth));
+  std::map<std::pair<int, int>, std::vector<double> >::const_iterator itr =
+      corrs_.find(std::pair<int, int>(ieta, depth));
   double corr(1.0);
   if (itr != corrs_.end()) {
     unsigned int irun = runId(run);
@@ -1480,23 +1486,24 @@ bool CalibDuplicate::readCorrFactor(const char* infile) {
       fInput >> eta >> depth;
       std::vector<double> corrs;
       for (int i = 0; i < nrun; ++i) {
-	fInput >> corr;
-	corrs.push_back(corr);
+        fInput >> corr;
+        corrs.push_back(corr);
       }
       corrs_[std::pair<int, int>(eta, depth)] = corrs;
     }
     fInput.close();
-    std::cout << "CalibDuplicate::readCorrFactor:Reads information of " << runs_.size() << " runs and " << corrs_.size() << " channels from " << infile << std::endl;
+    std::cout << "CalibDuplicate::readCorrFactor:Reads information of " << runs_.size() << " runs and " << corrs_.size()
+              << " channels from " << infile << std::endl;
     flag = true;
     if (debug_) {
       for (unsigned int k = 0; k < runs_.size(); ++k)
-	std::cout << "Run range[" << k << "] " << runs_[k].first << ":" << runs_[k].second << std::endl;
+        std::cout << "Run range[" << k << "] " << runs_[k].first << ":" << runs_[k].second << std::endl;
       std::map<std::pair<int, int>, std::vector<double> >::const_iterator itr;
       for (itr = corrs_.begin(); itr != corrs_.end(); ++itr) {
-	std::cout << "eta:depth [" << (itr->first).first << ":" << (itr->first).second << "]";
-	for (unsigned int i = 0; i < (itr->second).size(); ++i)
-	  std::cout << " " << (itr->second)[i];
-	std::cout << std::endl;
+        std::cout << "eta:depth [" << (itr->first).first << ":" << (itr->first).second << "]";
+        for (unsigned int i = 0; i < (itr->second).size(); ++i)
+          std::cout << " " << (itr->second)[i];
+        std::cout << std::endl;
       }
     }
   }
@@ -1531,7 +1538,6 @@ void CalibCorrTest(const char* infile, int flag) {
     CalibDuplicate* c1 = new CalibDuplicate(infile, -flag, true);
     delete c1;
   }
-
 }
 
 unsigned int stringTest(const std::string& str) {

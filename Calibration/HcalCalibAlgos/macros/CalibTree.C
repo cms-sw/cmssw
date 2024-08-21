@@ -863,10 +863,10 @@ Double_t CalibTree::Loop(int loop,
               if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr(1)))
                 hitEn *= cDuplicate_->getWeight(id);
               if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr(3))) {
-		int subdet, zside, ieta, iphi, depth;
-		unpackDetId((*t_DetIds)[idet], subdet, zside, ieta, iphi, depth);
-		hitEn *= cDuplicate_->getCorr(t_Run, ieta, depth);
-	      }
+                int subdet, zside, ieta, iphi, depth;
+                unpackDetId((*t_DetIds)[idet], subdet, zside, ieta, iphi, depth);
+                hitEn *= cDuplicate_->getCorr(t_Run, ieta, depth);
+              }
               double Wi = evWt * hitEn / en.Etot;
               double Fac = (inverse) ? (en.ehcal / (pmom - t_eMipDR)) : ((pmom - t_eMipDR) / en.ehcal);
               double Fac2 = Wi * Fac * Fac;
@@ -1489,11 +1489,11 @@ CalibTree::energyCalor CalibTree::energyHcal(double pmom, const Long64_t &entry,
           hitEn *= cFactor_->getCorr(t_Run, id);
         if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr(1)))
           hitEn *= cDuplicate_->getWeight(id);
-	if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr(3))) {
-	  int subdet, zside, ieta, iphi, depth;
-	  unpackDetId((*t_DetIds)[idet], subdet, zside, ieta, iphi, depth);
-	  hitEn *= cDuplicate_->getCorr(t_Run, ieta, depth);
-	}
+        if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr(3))) {
+          int subdet, zside, ieta, iphi, depth;
+          unpackDetId((*t_DetIds)[idet], subdet, zside, ieta, iphi, depth);
+          hitEn *= cDuplicate_->getCorr(t_Run, ieta, depth);
+        }
         etot += hitEn;
         etot2 += ((*t_HitEnergies)[idet]);
       }
@@ -1516,11 +1516,11 @@ CalibTree::energyCalor CalibTree::energyHcal(double pmom, const Long64_t &entry,
             hitEn *= cFactor_->getCorr(t_Run, id);
           if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr(1)))
             hitEn *= cDuplicate_->getWeight(id);
-	  if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr(3))) {
-	    int subdet, zside, ieta, iphi, depth;
-	    unpackDetId((*t_DetIds1)[idet], subdet, zside, ieta, iphi, depth);
-	    hitEn *= cDuplicate_->getCorr(t_Run, ieta, depth);
-	  }
+          if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr(3))) {
+            int subdet, zside, ieta, iphi, depth;
+            unpackDetId((*t_DetIds1)[idet], subdet, zside, ieta, iphi, depth);
+            hitEn *= cDuplicate_->getCorr(t_Run, ieta, depth);
+          }
           etot1 += hitEn;
         }
       }
@@ -1539,11 +1539,11 @@ CalibTree::energyCalor CalibTree::energyHcal(double pmom, const Long64_t &entry,
             hitEn *= cFactor_->getCorr(t_Run, id);
           if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr(3)))
             hitEn *= cDuplicate_->getWeight(id);
-	  if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr(3))) {
-	    int subdet, zside, ieta, iphi, depth;
-	    unpackDetId((*t_DetIds3)[idet], subdet, zside, ieta, iphi, depth);
-	    hitEn *= cDuplicate_->getCorr(t_Run, ieta, depth);
-	  }
+          if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr(3))) {
+            int subdet, zside, ieta, iphi, depth;
+            unpackDetId((*t_DetIds3)[idet], subdet, zside, ieta, iphi, depth);
+            hitEn *= cDuplicate_->getCorr(t_Run, ieta, depth);
+          }
           etot3 += hitEn;
         }
       }

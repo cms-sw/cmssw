@@ -52,11 +52,11 @@
 //                               correction; < 0 use eDelta; > 0 rho dependent
 //                               correction (-8)
 //   flag (int)                = 7 digit integer (ymlthdo) with control
-//                               information (y=3/2/1/0 containing list of 
-//                               run ranges and ieta, depth for gain changes 
+//                               information (y=3/2/1/0 containing list of
+//                               run ranges and ieta, depth for gain changes
 //                               (3): list of ieta, iphi of channels to be
 //                               selected (2); list containing depth dependent
-//                               weights for each ieta (1); list of duplicate 
+//                               weights for each ieta (1); list of duplicate
 //                               entries (0) in the dupFileName;
 //                               m=0/1 for controlling creation of depth
 //                               depedendent histograms;
@@ -930,10 +930,10 @@ void CalibPlotProperties::Loop(Long64_t nentries) {
           if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr(1)))
             cfac *= cDuplicate_->getWeight((*t_DetIds)[k]);
           if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr(3))) {
-	    int subdet, zside, ieta, iphi, depth;
-	    unpackDetId((*t_DetIds)[k], subdet, zside, ieta, iphi, depth);
+            int subdet, zside, ieta, iphi, depth;
+            unpackDetId((*t_DetIds)[k], subdet, zside, ieta, iphi, depth);
             cfac *= cDuplicate_->getCorr(t_Run, ieta, depth);
-	  }
+          }
           eHcal += (cfac * ((*t_HitEnergies)[k]));
           if (debug) {
             int subdet, zside, ieta, iphi, depth;
@@ -1029,11 +1029,11 @@ void CalibPlotProperties::Loop(Long64_t nentries) {
                   cfac *= cFactor_->getCorr(t_Run, (*t_DetIds)[k]);
                 if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr(1)))
                   cfac *= cDuplicate_->getWeight((*t_DetIds)[k]);
-		if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr(3))) {
-		  int subdet, zside, ieta, iphi, depth;
-		  unpackDetId((*t_DetIds)[k], subdet, zside, ieta, iphi, depth);
-		  cfac *= cDuplicate_->getCorr(t_Run, ieta, depth);
-		}
+                if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr(3))) {
+                  int subdet, zside, ieta, iphi, depth;
+                  unpackDetId((*t_DetIds)[k], subdet, zside, ieta, iphi, depth);
+                  cfac *= cDuplicate_->getCorr(t_Run, ieta, depth);
+                }
                 double ener = cfac * (*t_HitEnergies)[k];
                 if (corrPU_)
                   correctEnergy(ener);
@@ -1264,10 +1264,10 @@ void CalibPlotProperties::correctEnergy(double &eHcal) {
           if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr(1)))
             cfac *= cDuplicate_->getWeight((*t_DetIds1)[idet]);
           if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr(3))) {
-	    int subdet, zside, ieta, iphi, depth;
-	    unpackDetId((*t_DetIds1)[idet], subdet, zside, ieta, iphi, depth);
+            int subdet, zside, ieta, iphi, depth;
+            unpackDetId((*t_DetIds1)[idet], subdet, zside, ieta, iphi, depth);
             cfac *= cDuplicate_->getCorr(t_Run, ieta, depth);
-	  }
+          }
           double hitEn = cfac * (*t_HitEnergies1)[idet];
           Etot1 += hitEn;
         }
@@ -1283,10 +1283,10 @@ void CalibPlotProperties::correctEnergy(double &eHcal) {
           if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr(1)))
             cfac *= cDuplicate_->getWeight((*t_DetIds)[idet]);
           if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr(3))) {
-	    int subdet, zside, ieta, iphi, depth;
-	    unpackDetId((*t_DetIds3)[idet], subdet, zside, ieta, iphi, depth);
+            int subdet, zside, ieta, iphi, depth;
+            unpackDetId((*t_DetIds3)[idet], subdet, zside, ieta, iphi, depth);
             cfac *= cDuplicate_->getCorr(t_Run, ieta, depth);
-	  }
+          }
           double hitEn = cfac * (*t_HitEnergies3)[idet];
           Etot3 += hitEn;
         }
