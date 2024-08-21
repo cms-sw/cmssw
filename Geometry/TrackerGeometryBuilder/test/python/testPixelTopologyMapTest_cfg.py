@@ -1,6 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
 
+###################################################################
+# Set default phase-2 settings
+###################################################################
+import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
+_PH2_GLOBAL_TAG, _PH2_ERA = _settings.get_era_and_conditions(_settings.DEFAULT_VERSION)
+
 process = cms.Process("TopologyAnalysis")
 options = VarParsing.VarParsing("analysis")
 
@@ -17,6 +23,12 @@ options.register ('runNumber',
                   "run number")
 
 options.parseArguments()
+
+if 'phase2' in options.globalTag:
+    if options.globalTag != _PH2_GLOBAL_TAG:
+        raise KeyError(
+            f"Global tag key given in input ('{options.globalTag}') mismatches the default ('{_PH2_GLOBAL_TAG}')."
+        )
 
 ###################################################################
 # Message logger service

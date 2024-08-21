@@ -1,8 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
+###################################################################
+# Set default phase-2 settings
+###################################################################
+import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
+_PH2_GLOBAL_TAG, _PH2_ERA = _settings.get_era_and_conditions(_settings.DEFAULT_VERSION)
 
-from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
-process = cms.Process('USER',Phase2C17I13M9)
+process = cms.Process('USER', _PH2_ERA)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -95,7 +99,7 @@ process.mix.digitizers = cms.PSet(process.theDigitizersValid)
 # They need pixel RecHits where the charge is stored with high-granularity and large dinamic range
 
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T33', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, _PH2_GLOBAL_TAG, '')
 
 # Path and EndPath definitions
 process.digitisation_step = cms.Path(process.pdigi_valid)

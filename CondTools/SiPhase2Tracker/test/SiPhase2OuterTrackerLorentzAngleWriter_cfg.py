@@ -3,8 +3,14 @@
 from __future__ import print_function
 import os, shlex, shutil, getpass
 
+###################################################################
+# Set default phase-2 settings
+###################################################################
+import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
+_PH2_GLOBAL_TAG, _PH2_ERA = _settings.get_era_and_conditions(_settings.DEFAULT_VERSION)
+
 import FWCore.ParameterSet.Config as cms
-process = cms.Process("TEST")
+process = cms.Process("TEST", _PH2_ERA)
 
 ###################################################################
 # Messages
@@ -43,7 +49,7 @@ process.load('Configuration.Geometry.GeometryExtended2026Default_cff')
 
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T33')
+process.GlobalTag = GlobalTag(process.GlobalTag, _PH2_GLOBAL_TAG)
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1) )
 
 process.source = cms.Source("EmptyIOVSource",

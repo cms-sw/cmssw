@@ -34,11 +34,16 @@ _theRefitter = RefitType.COMMON # RefitType.STANDARD (other option not involving
 _theTrackCollection = 'generalTracks' # FIXME: 'ALCARECOTkAlMinBias' once a sample is available
 
 ###################################################################
+# Set default phase-2 settings
+###################################################################
+import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
+_PH2_GLOBAL_TAG, _PH2_ERA = _settings.get_era_and_conditions(_settings.DEFAULT_VERSION)
+
+###################################################################
 # Set the era
 ###################################################################
 if(options.isPhase2):
-     from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
-     process = cms.Process("Demo",Phase2C17I13M9) 
+     process = cms.Process("Demo", _PH2_ERA)
 else:
      from Configuration.Eras.Era_Run3_cff import Run3
      process = cms.Process("Demo", Run3)
@@ -118,7 +123,7 @@ process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
 ####################################################################
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, ('auto:phase2_realistic_T33' if options.isPhase2 else 'auto:phase1_2022_realistic'), '')
+process.GlobalTag = GlobalTag(process.GlobalTag, (_PH2_GLOBAL_TAG if options.isPhase2 else 'auto:phase1_2022_realistic'), '')
 
 if _allFromGT:
      print("############ testPVValidation_cfg.py: msg%-i: All is taken from GT")

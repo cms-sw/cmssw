@@ -1,6 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("ICALIB")
+###################################################################
+# Set default phase-2 settings
+###################################################################
+import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
+_PH2_GLOBAL_TAG, _PH2_ERA = _settings.get_era_and_conditions(_settings.DEFAULT_VERSION)
+
+process = cms.Process("ICALIB", _PH2_ERA)
 import FWCore.ParameterSet.VarParsing as VarParsing
 
 options = VarParsing.VarParsing('analysis')
@@ -17,13 +23,13 @@ process.RandomNumberGeneratorService.prod = cms.PSet(
     engineName = cms.untracked.string('TRandom3')
 )
 
-## specify detector D110, as the geometry is needed (will take tracker T35)
+## specify the default phase2 detector
 process.load("Configuration.Geometry.GeometryExtended2026Default_cff")
 process.load('Configuration.Geometry.GeometryExtended2026DefaultReco_cff')
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T33', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, _PH2_GLOBAL_TAG, '')
 
 ###################################################################
 # Messages
