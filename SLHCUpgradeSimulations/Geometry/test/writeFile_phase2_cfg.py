@@ -2,13 +2,13 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("ICALIB")
 process.load("Configuration.StandardSequences.Services_cff")
-process.load('Configuration.Geometry.GeometryExtended2026D92Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2026DefaultReco_cff')
 
 process.trackerGeometry.applyAlignment = cms.bool(False)
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T21', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T33', '')
 
 process.source = cms.Source("EmptyIOVSource",
     firstValue = cms.uint64(1),
@@ -28,7 +28,7 @@ process.prodstrip = cms.EDAnalyzer("SiStripDetInfoFileWriter",
 )
 
 process.prodpixel = cms.EDAnalyzer("SiPixelDetInfoFileWriter",
-    FilePath = cms.untracked.string('PixelSkimmedGeometry_GeometryExtended2026Tilted_D49.txt'),
+    FilePath = cms.untracked.string('PixelSkimmedGeometry_GeometryExtended2026Tilted_D110.txt'),
     WriteROCInfo = cms.untracked.bool(True)
 )
 

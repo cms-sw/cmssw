@@ -104,7 +104,7 @@ process.load('Configuration.StandardSequences.MagneticField_cff')
 # Standard loads
 ###################################################################
 if(options.isPhase2):
-     process.load('Configuration.Geometry.GeometryExtended2026D88Reco_cff')
+     process.load('Configuration.Geometry.GeometryExtended2026DefaultReco_cff')
 else:
      process.load("Configuration.Geometry.GeometryRecoDB_cff")
 
@@ -118,7 +118,7 @@ process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
 ####################################################################
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, ('auto:phase2_realistic_T21' if options.isPhase2 else 'auto:phase1_2022_realistic'), '')
+process.GlobalTag = GlobalTag(process.GlobalTag, ('auto:phase2_realistic_T33' if options.isPhase2 else 'auto:phase1_2022_realistic'), '')
 
 if _allFromGT:
      print("############ testPVValidation_cfg.py: msg%-i: All is taken from GT")

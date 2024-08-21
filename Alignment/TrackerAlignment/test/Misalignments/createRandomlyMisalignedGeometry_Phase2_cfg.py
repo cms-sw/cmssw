@@ -46,7 +46,7 @@ process.MessageLogger.cout = cms.untracked.PSet(
 ###################################################################
 # Ideal geometry producer and standard includes
 ###################################################################
-process.load('Configuration.Geometry.GeometryExtended2026D88Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2026DefaultReco_cff')
 process.trackerGeometry.applyAlignment = True
 
 ###################################################################
@@ -54,7 +54,7 @@ process.trackerGeometry.applyAlignment = True
 ###################################################################
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T21', '') # using realistic Phase 2 geom
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T33', '') # using realistic Phase 2 geom
 print("Using global tag:", process.GlobalTag.globaltag.value())
 
 ###################################################################

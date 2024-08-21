@@ -17,13 +17,13 @@ process.RandomNumberGeneratorService.prod = cms.PSet(
     engineName = cms.untracked.string('TRandom3')
 )
 
-## specify detector D88, as the geometry is needed (will take tracker T24)
-process.load("Configuration.Geometry.GeometryExtended2026D88_cff")
-process.load('Configuration.Geometry.GeometryExtended2026D88Reco_cff')
+## specify detector D110, as the geometry is needed (will take tracker T35)
+process.load("Configuration.Geometry.GeometryExtended2026Default_cff")
+process.load('Configuration.Geometry.GeometryExtended2026DefaultReco_cff')
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T21', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T33', '')
 
 ###################################################################
 # Messages
@@ -61,10 +61,10 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
         authenticationPath = cms.untracked.string('')
     ),
     timetype = cms.untracked.string('runnumber'),
-    connect = cms.string('sqlite_file:SiStripBadStripPhase2_T21_v0.db'),
+    connect = cms.string('sqlite_file:SiStripBadStripPhase2_T33_v0.db'),
     toPut = cms.VPSet(cms.PSet(
         record = cms.string('SiStripBadStripRcd'),
-        tag = cms.string('SiStripBadStripPhase2_T21')
+        tag = cms.string('SiStripBadStripPhase2_T33')
     ))
 )
 

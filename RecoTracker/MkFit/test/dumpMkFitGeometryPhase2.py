@@ -10,12 +10,12 @@ process = cms.Process('DUMP',Phase2C17I13M9,trackingMkFit)
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
-process.load('Configuration.Geometry.GeometryExtended2026D88Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2026DefaultReco_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.Reconstruction_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, "auto:phase2_realistic_T21", '')
+process.GlobalTag = GlobalTag(process.GlobalTag, "auto:phase2_realistic_T33", '')
 
 process.MessageLogger.cerr.threshold = "INFO"
 process.MessageLogger.cerr.MkFitGeometryESProducer = dict(limit=-1)

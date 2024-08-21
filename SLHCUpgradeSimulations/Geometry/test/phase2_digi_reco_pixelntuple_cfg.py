@@ -11,7 +11,7 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
 #process.load('SimGeneral.MixingModule.mix_POISSON_average_cfi')
-process.load('Configuration.Geometry.GeometryExtended2026D88Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2026DefaultReco_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.Digi_cff')
 process.load('Configuration.StandardSequences.SimL1Emulator_cff')
@@ -29,7 +29,7 @@ process.maxEvents = cms.untracked.PSet(
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-        '/store/relval/CMSSW_12_3_0_pre6/RelValSingleMuPt10/GEN-SIM/123X_mcRun4_realistic_v8_2026D88noPU-v1/10000/a7e6521e-e026-447b-8bf9-38a09e97916f.root'
+        '/store/relval/CMSSW_14_1_0_pre5/RelValSingleMuPt10/GEN-SIM/140X_mcRun4_realistic_v4_RegeneratedGS_2026D110_noPU-v1/2580000/48116a2e-e383-4b89-a20e-c72fe2f8473d.root'
     )
 )
 
@@ -95,7 +95,7 @@ process.mix.digitizers = cms.PSet(process.theDigitizersValid)
 # They need pixel RecHits where the charge is stored with high-granularity and large dinamic range
 
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T21', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T33', '')
 
 # Path and EndPath definitions
 process.digitisation_step = cms.Path(process.pdigi_valid)
