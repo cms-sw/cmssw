@@ -26,6 +26,10 @@ void PixelTopologyMap::buildTopologyMaps() {
   for (auto det : m_trackerGeom->detsPXB()) {
     const PixelGeomDetUnit* pixelDet = dynamic_cast<const PixelGeomDetUnit*>(det);
 
+    // discard dets that are not a geomDetUnit
+    if (!pixelDet)
+      continue;
+
     const auto& layer = m_trackerTopo->pxbLayer(pixelDet->geographicalId());
     const auto& ladder = m_trackerTopo->pxbLadder(pixelDet->geographicalId());
     const auto& module = m_trackerTopo->pxbModule(pixelDet->geographicalId());
@@ -55,6 +59,10 @@ void PixelTopologyMap::buildTopologyMaps() {
 
   for (auto det : m_trackerGeom->detsPXF()) {
     const PixelGeomDetUnit* pixelDet = dynamic_cast<const PixelGeomDetUnit*>(det);
+
+    // discard dets that are not a geomDetUnit
+    if (!pixelDet)
+      continue;
 
     const auto& disk = m_trackerTopo->pxfDisk(pixelDet->geographicalId());
     const auto& blade = m_trackerTopo->pxfBlade(pixelDet->geographicalId());
