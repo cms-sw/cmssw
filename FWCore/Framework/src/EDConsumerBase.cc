@@ -186,10 +186,11 @@ void EDConsumerBase::updateLookup(eventsetup::ESRecordsToProductResolverIndices 
   }
 }
 
-ESTokenIndex EDConsumerBase::recordESConsumes(Transition iTrans,
-                                              eventsetup::EventSetupRecordKey const& iRecord,
-                                              eventsetup::heterocontainer::HCTypeTag const& iDataType,
-                                              edm::ESInputTag const& iTag) {
+std::tuple<ESTokenIndex, char const*> EDConsumerBase::recordESConsumes(
+    Transition iTrans,
+    eventsetup::EventSetupRecordKey const& iRecord,
+    eventsetup::heterocontainer::HCTypeTag const& iDataType,
+    edm::ESInputTag const& iTag) {
   if (frozen_) {
     throwESConsumesCallAfterFrozen(iRecord, iDataType, iTag);
   }
@@ -218,7 +219,8 @@ ESTokenIndex EDConsumerBase::recordESConsumes(Transition iTrans,
   auto indexForToken = esItemsToGetFromTransition_[static_cast<unsigned int>(iTrans)].size();
   esItemsToGetFromTransition_[static_cast<unsigned int>(iTrans)].emplace_back(-1 * (index + 1));
   esRecordsToGetFromTransition_[static_cast<unsigned int>(iTrans)].emplace_back();
-  return ESTokenIndex{static_cast<ESTokenIndex::Value_t>(indexForToken)};
+  return {ESTokenIndex{static_cast<ESTokenIndex::Value_t>(indexForToken)},
+          m_esTokenInfo.get<kESLookupInfo>(index).m_key.name().value()};
 }
 
 //
@@ -589,8 +591,4 @@ std::vector<ConsumesInfo> EDConsumerBase::consumesInfo() const {
                         itInfo->m_index.skipCurrentProcess());
   }
   return result;
-}
-
-const char* EDConsumerBase::labelFor(ESTokenIndex iIndex) const {
-  return m_esTokenInfo.get<kESLookupInfo>(iIndex.value()).m_key.name().value();
 }

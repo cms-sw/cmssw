@@ -206,9 +206,9 @@ namespace edm {
       template <template <typename> typename H, typename T, typename R>
       H<T> noResolverHandle(ESGetToken<T, R> const& iToken) const {
         auto const key = this->key();
-        auto name = iToken.name();
-        return H<T>{makeESHandleExceptionFactory([key, name] {
-          NoProductResolverException<T> ex(key, DataKey{DataKey::makeTypeTag<T>(), name});
+        auto productLabel = iToken.productLabel();
+        return H<T>{makeESHandleExceptionFactory([key, productLabel] {
+          NoProductResolverException<T> ex(key, DataKey{DataKey::makeTypeTag<T>(), productLabel});
           return std::make_exception_ptr(ex);
         })};
       }
