@@ -23,7 +23,7 @@ l1Menus = {
     '2024v14'      : ( ','.join( [ 'L1Menu_Collisions2024_v1_3_0_xml'                        ,l1tMenuRecord,connectionString,l1tMenuLabel, "2024-07-03 09:00:00.000"] ), ),
     'HIon'         : ( ','.join( [ 'L1Menu_CollisionsHeavyIons2023_v1_1_5_xml'               ,l1tMenuRecord,connectionString,l1tMenuLabel, "2023-10-24 16:59:55.000"] ), ),
     'PIon'         : ( ','.join( [ 'L1Menu_HeavyIons2016_v3_m2_xml'                          ,l1tMenuRecord,connectionString,l1tMenuLabel, "2016-11-22 11:11:00.000"] ), ),
-    'PRef'         : ( ','.join( [ 'L1Menu_CollisionsPPRef2023_v1_1_2_xml'                   ,l1tMenuRecord,connectionString,l1tMenuLabel, "2023-09-21 19:00:00.000"] ), ),
+    'PRef'         : ( ','.join( [ 'L1Menu_CollisionsPPRef2024_v0_0_2_xml'                   ,l1tMenuRecord,connectionString,l1tMenuLabel, "2024-09-08 12:00:00.000"] ), ),
     'Special'      : ( ','.join( [ 'L1Menu_Collisions2024_v1_3_0_xml'                        ,l1tMenuRecord,connectionString,l1tMenuLabel, "2024-07-03 09:00:00.000"] ), ),
 }
 
