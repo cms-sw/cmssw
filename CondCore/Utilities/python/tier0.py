@@ -11,7 +11,7 @@ import subprocess
 
 import pycurl
 
-tier0Url = 'https://cmsweb.cern.ch/t0wmadatasvc/prod/'
+tier0Url = os.getenv('TIER0_API_URL', 'https://cmsweb.cern.ch/t0wmadatasvc/prod/')
 
 class Tier0Error(Exception):
     '''Tier0 exception.
@@ -23,7 +23,7 @@ class Tier0Error(Exception):
 
 def unique(seq, keepstr=True):
     t = type(seq)
-    if t in (unicode, str):
+    if t is str:
         t = (list, t('').join)[bool(keepstr)]
     try:
         remaining = set(seq)
@@ -90,6 +90,37 @@ class Tier0Handler( object ):
     def setProxy( self, proxy ):
         self._proxy = proxy
 
+    def _getCerts( self ) -> str:
+        cert_path = os.getenv('X509_USER_CERT', '')
+        key_path = os.getenv('X509_USER_KEY', '')
+        
+        certs = ""
+        if cert_path:
+            certs += f' --cert {cert_path}'
+        else:
+            logging.warning("No certificate provided for Tier0 access")
+        if key_path:
+            certs += f' --key {key_path}'
+        return certs
+
+    def _curlQueryTier0( self, url:str, force_debug:bool = False, force_cert:bool = False):
+        userAgent = "User-Agent: ConditionWebServices/1.0 python/%d.%d.%d PycURL/%s" \
+            % ( sys.version_info[ :3 ] + ( pycurl.version_info()[ 1 ], ) )
+        debug = "-v" if self._debug or force_debug else "-s -S"
+
+        proxy = f"--proxy {self._proxy}" if self._proxy else ""
+        certs = self._getCerts() if not self._proxy or force_cert else ""
+    
+        cmd = '/usr/bin/curl -k -L --user-agent "%s" %s --connect-timeout %i --retry %i %s %s %s' \
+            % (userAgent, proxy, self._timeOut, self._retries, debug, url, certs)
+
+        # time the curl to understand if re-tries have been carried out
+        start = time.time()
+        process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        (stdoutdata, stderrdata) =  process.communicate()
+        end = time.time()
+        return process.returncode, stdoutdata, stderrdata, end-start
+
     def _queryTier0DataSvc( self, url ):
         """
         Queries Tier0DataSvc.
@@ -97,44 +128,28 @@ class Tier0Handler( object ):
         @returns: dictionary, from whence the required information must be retrieved according to the API call.
         Raises if connection error, bad response, or timeout after retries occur.
         """
-        
-        userAgent = "User-Agent: ConditionWebServices/1.0 python/%d.%d.%d PycURL/%s" % ( sys.version_info[ :3 ] + ( pycurl.version_info()[ 1 ], ) )
 
-        proxy = ""
-        if self._proxy: proxy = ' --proxy=%s ' % self._proxy
-        
-        debug = " -s -S "
-        if self._debug: debug = " -v "
-        
-        cmd = '/usr/bin/curl -k -L --user-agent "%s" %s --connect-timeout %i --retry %i %s %s ' % (userAgent, proxy, self._timeOut, self._retries, debug, url)
-
-        # time the curl to understand if re-tries have been carried out
-        start = time.time()
-        process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        (stdoutdata, stderrdata) =  process.communicate()
-        retcode = process.returncode
-        end = time.time()
+        retcode, stdoutdata, stderrdata, query_time = self._curlQueryTier0(url)
 
         if retcode != 0 or stderrdata:
-           
-           # if the first curl has failed, logg its stderror and prepare and independent retry
-           msg = "looks like curl returned an error: retcode=%s and took %s seconds" % (retcode,(end-start),)
-           msg += ' msg = "'+str(stderrdata)+'"'
-           logging.error(msg)
 
-           time.sleep(10)
-           cmd = '/usr/bin/curl -k -L --user-agent "%s" %s --connect-timeout %i --retry %i %s %s ' % (userAgent, proxy, self._timeOut, self._retries, "-v", url)
-           process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-           (stdoutdata, stderrdata) =  process.communicate()
-           retcode = process.returncode
-           if retcode != 0:
-              msg = "looks like curl returned an error for the second time: retcode=%s" % (retcode,)
-              msg += ' msg = "'+str(stderrdata)+'"'
-              logging.error(msg)
-              raise Tier0Error(msg)
-           else :
-              msg = "curl returned ok upon the second try"
-              logging.info(msg)
+            # if the first curl has failed, logg its stderror and prepare and independent retry
+            msg = "looks like curl returned an error: retcode=%s and took %s seconds" % (retcode, query_time,)
+            msg += ' msg = "'+str(stderrdata)+'"'
+            logging.error(msg)
+            if self._proxy:
+                logging.info("before assumed proxy provides authentication, now trying with both proxy and certificate")
+                
+            time.sleep(10)
+            retcode, stdoutdata, stderrdata, query_time = self._curlQueryTier0(url, force_debug=True, force_cert=True)
+            if retcode != 0:
+                msg = "looks like curl returned an error for the second time: retcode=%s" % (retcode,)
+                msg += ' msg = "'+str(stderrdata)+'"'
+                logging.error(msg)
+                raise Tier0Error(msg)
+            else:
+                msg = "curl returned ok upon the second try"
+                logging.info(msg)
         resp = json.loads( ''.join(stdoutdata.decode()).replace( "'", '"').replace(' None', ' "None"') )
         return resp
 
