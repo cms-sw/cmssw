@@ -1935,30 +1935,37 @@ upgradeWFs['ProdLikePU180'] = UpgradeWorkflow_ProdLikeRunningPU(
     fixedPU = 180,
 )
 
-class UpgradeWorkflow_HLT75e33(UpgradeWorkflow):
+class UpgradeWorkflow_HLT75e33Timing(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
-        if 'HARVEST' in step:
-            stepDict[stepName][k] = merge([{'--filein':'file:step3_inDQM.root'}, stepDict[step][k]])
+        # skip RECO, ALCA and HARVEST
+        if ('ALCA' in step) or ('Reco' in step) or ('HARVEST' in step) or ('HLT' in step):
+            stepDict[stepName][k] = None
+        elif 'DigiTrigger' in step:
+            stepDict[stepName][k] = merge([{'-s':'DIGI:pdigi_valid,L1TrackTrigger,L1,L1P2GT,DIGI2RAW,HLT:75e33_timing'}, stepDict[step][k]])
         else:
             stepDict[stepName][k] = merge([stepDict[step][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
         return fragment=="TTbar_14TeV" and '2026' in key
-upgradeWFs['HLT75e33'] = UpgradeWorkflow_HLT75e33(
+upgradeWFs['HLTTiming75e33'] = UpgradeWorkflow_HLT75e33Timing(
     steps = [
-        'GenSimHLBeamSpot14',
-        'DigiTrigger',
+        'Reco',
         'RecoGlobal',
-        'HLT75e33',
+        'RecoNano',
+        'DigiTrigger',
+        'ALCA',
+        'ALCAPhase2',
         'HARVESTGlobal',
     ],
     PU = [
-        'GenSimHLBeamSpot14',
-        'DigiTrigger',
+        'Reco',
         'RecoGlobal',
-        'HLT75e33',
-        'HARVESTGlobal',
+        'RecoNano',
+        'DigiTrigger',
+        'ALCA',
+        'ALCAPhase2',
+        'HARVESTGlobal'
     ],
-    suffix = '_HLT75e33',
+    suffix = '_HLT75e33Timing',
     offset = 0.75,
 )
 
