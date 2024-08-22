@@ -373,6 +373,13 @@ private:
   MonitorElement* meRecPVT_;
   MonitorElement* meSimPVZ_;
 
+  MonitorElement* meVtxTrackMult_;
+  MonitorElement* meVtxTrackW_;
+  MonitorElement* meVtxTrackWnt_;
+  MonitorElement* meVtxTrackRecLVMult_;
+  MonitorElement* meVtxTrackRecLVW_;
+  MonitorElement* meVtxTrackRecLVWnt_;
+
   MonitorElement* mePUTrackMult_;
   MonitorElement* mePUTrackRelMult_;
   MonitorElement* meFakeTrackRelMult_;
@@ -695,6 +702,14 @@ void Primary4DVertexValidation::bookHistograms(DQMStore::IBooker& ibook,
   meRecPVZ_ = ibook.book1D("recPVZ", "Weighted #Rec vertices/mm", 400, -20., 20.);
   meRecPVT_ = ibook.book1D("recPVT", "#Rec vertices/10 ps", 200, -1., 1.);
   meSimPVZ_ = ibook.book1D("simPVZ", "Weighted #Sim vertices/mm", 400, -20., 20.);
+
+  meVtxTrackMult_ = ibook.book1D("VtxTrackMult", "Log10(Vertex track multiplicity)", 80, 0.5, 2.5);
+  meVtxTrackW_ = ibook.book1D("VtxTrackW", "Vertex track weight (all)", 50, 0., 1.);
+  meVtxTrackWnt_ = ibook.book1D("VtxTrackWnt", "Vertex track Wnt", 50, 0., 1.);
+  meVtxTrackRecLVMult_ =
+      ibook.book1D("VtxTrackRecLVMult", "Log10(Vertex track multiplicity) for matched LV", 80, 0.5, 2.5);
+  meVtxTrackRecLVW_ = ibook.book1D("VtxTrackRecLVW", "Vertex track weight for matched LV (all)", 50, 0., 1.);
+  meVtxTrackRecLVWnt_ = ibook.book1D("VtxTrackRecLVWnt", "Vertex track Wnt for matched LV", 50, 0., 1.);
 
   mePUTrackRelMult_ = ibook.book1D(
       "PUTrackRelMult", "Relative multiplicity of PU tracks for matched vertices; #PUTrks/#Trks", 50, 0., 1.);
@@ -2087,6 +2102,14 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
             continue;
           }
 
+          // monitor all track weights associated to a vertex before selection on it
+          if (selectedVtxMatching) {
+            meVtxTrackW_->Fill(vertex->trackWeight(*iTrack));
+            if (selectedLV) {
+              meVtxTrackRecLVW_->Fill(vertex->trackWeight(*iTrack));
+            }
+          }
+
           if (vertex->trackWeight(*iTrack) < trackweightTh_)
             continue;
           bool noCrack = std::abs((*iTrack)->eta()) < trackMaxBtlEta_ || std::abs((*iTrack)->eta()) > trackMinEtlEta_;
@@ -2122,6 +2145,10 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
             massVector.push_back(mass);
             recotracks.push_back(**iTrack);
             getWosWnt(*vertex, *iTrack, sigmat0Safe, mtdQualMVA, BeamSpotH, wos, wnt);
+            meVtxTrackWnt_->Fill(wnt);
+            if (selectedLV) {
+              meVtxTrackRecLVWnt_->Fill(wnt);
+            }
             // reco track matched to any TP
             if (tp_info != nullptr) {
 #ifdef EDM_ML_DEBUG
@@ -2423,6 +2450,7 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
           }  // if tp_info != nullptr && MatchCategory == 0
         }    // loop on reco tracks
         if (selectedVtxMatching) {
+          meVtxTrackMult_->Fill(log10(nt));
           mePUTrackRelMult_->Fill(static_cast<double>(PUnt) / nt);
           meFakeTrackRelMult_->Fill(static_cast<double>(Fakent) / nt);
           mePUTrackRelSumWnt_->Fill(PUsumWnt / sumWnt);
@@ -2494,6 +2522,7 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
                                            (sumPzJets - sumPzJetsnoPU) / sumPzJets);
           }
           if (selectedLV) {
+            meVtxTrackRecLVMult_->Fill(log10(nt));
             mePUTrackRecLVRelMult_->Fill(static_cast<double>(PUnt) / nt);
             meFakeTrackRecLVRelMult_->Fill(static_cast<double>(Fakent) / nt);
             mePUTrackRecLVRelSumWnt_->Fill(PUsumWnt / sumWnt);
