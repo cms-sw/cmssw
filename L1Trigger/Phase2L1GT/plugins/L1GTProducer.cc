@@ -303,7 +303,7 @@ namespace l1t {
       gtObj.hwPhi_ = obj.apPhi().to_int();
       gtObj.hwEta_ = obj.apEta().to_int();
       gtObj.hwZ0_ = hwZ0;
-      gtObj.hwQualityScore_ = obj.apQualFlags().to_int();
+      gtObj.hwQualityFlags_ = obj.apQualFlags().to_int();
       gtObj.hwCharge_ = obj.apCharge().to_int();
       gtObj.hwD0_ = obj.apD0().to_int();
       gtObj.objectType_ = P2GTCandidate::GMTSaPromptMuons;
@@ -329,7 +329,7 @@ namespace l1t {
       gtObj.hwPhi_ = obj.apPhi().to_int();
       gtObj.hwEta_ = obj.apEta().to_int();
       gtObj.hwZ0_ = hwZ0;
-      gtObj.hwQualityScore_ = obj.apQualFlags().to_int();
+      gtObj.hwQualityFlags_ = obj.apQualFlags().to_int();
       gtObj.hwCharge_ = obj.apCharge().to_int();
       gtObj.hwD0_ = obj.apD0().to_int();
       gtObj.objectType_ = P2GTCandidate::GMTSaDisplacedMuons;
