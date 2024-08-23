@@ -30,10 +30,10 @@ import FWCore.ParameterSet.Config as cms
 # so these missing (required!) inputs are presently ignored by downstream modules.
 #
 
-from L1Trigger.Configuration.SimL1TechnicalTriggers_cff import *
-
 from L1Trigger.L1TCalorimeter.simDigis_cff import *
 from L1Trigger.L1TMuon.simDigis_cff import *
+from L1Trigger.Configuration.SimL1TechnicalTriggers_cff import *
+from L1Trigger.L1TZDC.L1TZDCEmulation_cff import *
 from L1Trigger.L1TGlobal.simDigis_cff import *
 
 # define a core which can be extented in customizations:
@@ -41,6 +41,7 @@ SimL1EmulatorCoreTask = cms.Task(
     SimL1TCalorimeterTask,
     SimL1TMuonTask,
     SimL1TechnicalTriggersTask,
+    L1TZDCEmulationTask,
     SimL1TGlobalTask
 )
 SimL1EmulatorCore = cms.Sequence(SimL1EmulatorCoreTask)
