@@ -14,6 +14,10 @@
 <use name="RecoLocalCalo/HcalRecAlgos"/>
 <use name="SimCalorimetry/HcalSimAlgos"/>
 
+<library file="*.cc" name="RecoLocalCaloHcalRecProducersPlugin">
+  <flags EDM_PLUGIN="1"/>
+</library>
+
 <library file="alpaka/*.cc" name="RecoLocalCaloHcalRecProducersPluginsPortable">
   <use name="alpaka"/>    
   <use name="DataFormats/DetId"/>

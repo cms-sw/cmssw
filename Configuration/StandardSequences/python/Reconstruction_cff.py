@@ -304,6 +304,7 @@ modulesToRemove.append(hfreco)
 modulesToRemove.append(horeco)
 modulesToRemove.append(hcalnoise)
 modulesToRemove.append(zdcreco)
+modulesToRemove.append(zdcrecoRun3)
 modulesToRemove.append(castorreco)
 ##it's OK according to Ronny modulesToRemove.append(CSCHaloData)#needs digis
 reconstruction_fromRECO = reconstruction.copyAndExclude(modulesToRemove+noTrackingAndDependent)
