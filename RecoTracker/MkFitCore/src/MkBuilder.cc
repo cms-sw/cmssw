@@ -1119,7 +1119,7 @@ namespace mkfit {
         // mkfndr->copyOutParErr(eoccs.refCandidates_nc(), end - itrack, true);
 
         // For prop-to-plane propagate from the last hit, not layer center.
-        if constexpr (Config::usePropToPlane) {
+        if /*constexpr*/ (Config::usePropToPlane) {
           mkfndr->inputTracksAndHitIdx(eoccs.refCandidates(), seed_cand_idx, itrack, end, false);
         }
 

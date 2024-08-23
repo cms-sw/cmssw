@@ -49,10 +49,12 @@ namespace mkfit {
     // Config for propagation - could/should enter into PropagationFlags?!
     constexpr int Niter = 5;
     constexpr bool useTrigApprox = true;
-    constexpr bool usePropToPlane = true;
-    constexpr bool usePtMultScat = true;
-    //constexpr bool usePropToPlane = false;
-    //constexpr bool usePtMultScat = false;
+    // Move to Config.cc, make a command-line option in mkFit.cc to ease profiling comparisons.
+    // If making this constexpr again, also fix ifs using it in MkBuilder.cc and MkFinder.cc.
+    // constexpr bool usePropToPlane = true;
+    // constexpr bool usePtMultScat = true;
+    extern bool usePropToPlane;
+    extern bool usePtMultScat;
 
     // Config for Bfield. Note: for now the same for CMS-phase1 and CylCowWLids.
     constexpr float Bfield = 3.8112;

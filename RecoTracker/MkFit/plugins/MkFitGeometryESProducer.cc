@@ -551,11 +551,17 @@ std::unique_ptr<MkFitGeometry> MkFitGeometryESProducer::produce(const TrackerRec
     edm::LogInfo("MkFitGeometryESProducer") << "Extracting PhaseI geometry";
     trackerInfo->create_layers(18, 27, 27);
     qBinDefaults = phase1QBins;
-
     trackerInfo->create_material(300, 300.0f, 120, 120.0f);
   } else if (trackerGeom_->isThere(GeomDetEnumerators::P2PXB) || trackerGeom_->isThere(GeomDetEnumerators::P2PXEC) ||
              trackerGeom_->isThere(GeomDetEnumerators::P2OTB) || trackerGeom_->isThere(GeomDetEnumerators::P2OTEC)) {
     edm::LogInfo("MkFitGeometryESProducer") << "Extracting PhaseII geometry";
+#if !defined(MKFIT_PHASE2CUSTOMFLAGS)
+    // In Phase2, by default use prop-to-plane and pT-dependent MS.
+    // Option is kept to use custom flags, for R&D/test purposes.
+    using namespace mkfit;
+    Config::usePropToPlane = true;
+    Config::usePtMultScat = true;
+#endif
     layerNrConv_.reset(mkfit::TkLayout::phase2);
     trackerInfo->create_layers(16, 22, 22);
     qBinDefaults = phase2QBins;
