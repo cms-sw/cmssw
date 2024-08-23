@@ -21,37 +21,41 @@ from DQM.SiPixelHeterogeneous.siPixelHIonPhase1MonitorTrackSoAAlpaka_cfi import 
 from DQM.SiPixelHeterogeneous.siPixelMonitorVertexSoAAlpaka_cfi import *
 
 # Run-3 sequence
-monitorpixelSoASource = cms.Sequence(
-    siPixelPhase1MonitorRecHitsSoA * siPixelPhase1MonitorTrackSoA * siPixelMonitorVertexSoA
-)
+monitorpixelSoASource = cms.Sequence(siPixelPhase1MonitorRecHitsSoA *
+                                     siPixelPhase1MonitorTrackSoA *
+                                     siPixelMonitorVertexSoA)
 # Run-3 Alpaka sequence
 monitorpixelSoASourceAlpaka = cms.Sequence(
-    siPixelPhase1MonitorRecHitsSoAAlpaka * siPixelPhase1MonitorTrackSoAAlpaka * siPixelMonitorVertexSoAAlpaka
-)
+    siPixelPhase1MonitorRecHitsSoAAlpaka * siPixelPhase1MonitorTrackSoAAlpaka *
+    siPixelMonitorVertexSoAAlpaka)
 alpaka.toReplaceWith(monitorpixelSoASource, monitorpixelSoASourceAlpaka)
 # Phase-2 sequence
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 
-_monitorpixelSoARecHitsSource = cms.Sequence(
-    siPixelPhase2MonitorRecHitsSoA * siPixelPhase2MonitorTrackSoA * siPixelMonitorVertexSoA
-)
-(phase2_tracker & ~alpaka).toReplaceWith(monitorpixelSoASource, _monitorpixelSoARecHitsSource)
+_monitorpixelSoARecHitsSource = cms.Sequence(siPixelPhase2MonitorRecHitsSoA *
+                                             siPixelPhase2MonitorTrackSoA *
+                                             siPixelMonitorVertexSoA)
+(phase2_tracker & ~alpaka).toReplaceWith(monitorpixelSoASource,
+                                         _monitorpixelSoARecHitsSource)
 _monitorpixelSoARecHitsSourceAlpaka = cms.Sequence(
-    siPixelPhase2MonitorRecHitsSoAAlpaka * siPixelPhase2MonitorTrackSoAAlpaka * siPixelMonitorVertexSoAAlpaka
-)
-(phase2_tracker & alpaka).toReplaceWith(monitorpixelSoASource, _monitorpixelSoARecHitsSourceAlpaka)
+    siPixelPhase2MonitorRecHitsSoAAlpaka * siPixelPhase2MonitorTrackSoAAlpaka *
+    siPixelMonitorVertexSoAAlpaka)
+(phase2_tracker & alpaka).toReplaceWith(monitorpixelSoASource,
+                                        _monitorpixelSoARecHitsSourceAlpaka)
 
 # HIon Phase 1 sequence
 from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 
 _monitorpixelSoARecHitsSourceHIon = cms.Sequence(
-    siPixelHIonPhase1MonitorRecHitsSoA * siPixelHIonPhase1MonitorTrackSoA * siPixelMonitorVertexSoA
-)
-(pp_on_AA & ~phase2_tracker).toReplaceWith(monitorpixelSoASource, _monitorpixelSoARecHitsSourceHIon)
+    siPixelHIonPhase1MonitorRecHitsSoA * siPixelHIonPhase1MonitorTrackSoA *
+    siPixelMonitorVertexSoA)
+(pp_on_AA & ~phase2_tracker).toReplaceWith(monitorpixelSoASource,
+                                           _monitorpixelSoARecHitsSourceHIon)
 _monitorpixelSoARecHitsSourceHIonAlpaka = cms.Sequence(
-    siPixelHIonPhase1MonitorRecHitsSoAAlpaka * siPixelHIonPhase1MonitorTrackSoAAlpaka * siPixelMonitorVertexSoAAlpaka
-)
-(pp_on_AA & ~phase2_tracker & alpaka).toReplaceWith(monitorpixelSoASource, _monitorpixelSoARecHitsSourceHIonAlpaka)
+    siPixelHIonPhase1MonitorRecHitsSoAAlpaka *
+    siPixelHIonPhase1MonitorTrackSoAAlpaka * siPixelMonitorVertexSoAAlpaka)
+(pp_on_AA & ~phase2_tracker & alpaka).toReplaceWith(
+    monitorpixelSoASource, _monitorpixelSoARecHitsSourceHIonAlpaka)
 
 # Define the sequence for GPU vs CPU validation
 # This should run:- individual monitor for the 2 collections + comparison module
@@ -80,16 +84,14 @@ for pset in SiPixelPhase1RawDataConfForCPU:
     pset.topFolderName = "SiPixelHeterogeneous/PixelErrorsCPU"
 
 siPixelPhase1MonitorRawDataACPU = SiPixelPhase1RawDataAnalyzer.clone(
-    src="siPixelDigis@cpu", histograms=SiPixelPhase1RawDataConfForCPU
-)
+    src="siPixelDigis@cpu", histograms=SiPixelPhase1RawDataConfForCPU)
 
 SiPixelPhase1RawDataConfForGPU = copy.deepcopy(SiPixelPhase1RawDataConf)
 for pset in SiPixelPhase1RawDataConfForGPU:
     pset.topFolderName = "SiPixelHeterogeneous/PixelErrorsGPU"
 
 siPixelPhase1MonitorRawDataAGPU = SiPixelPhase1RawDataAnalyzer.clone(
-    src="siPixelDigis@cuda", histograms=SiPixelPhase1RawDataConfForGPU
-)
+    src="siPixelDigis@cuda", histograms=SiPixelPhase1RawDataConfForGPU)
 
 ## rechits
 siPixelPhase1MonitorRecHitsSoACPU = siPixelPhase1MonitorRecHitsSoA.clone(
@@ -172,16 +174,16 @@ for pset in SiPixelPhase1RawDataConfForSerial:
     pset.topFolderName = "SiPixelHeterogeneous/PixelErrorsCPU"
 
 siPixelPhase1MonitorRawDataASerial = SiPixelPhase1RawDataAnalyzer.clone(
-    src="siPixelDigiErrorsAlpakaSerial", histograms=SiPixelPhase1RawDataConfForSerial
-)
+    src="siPixelDigiErrorsAlpakaSerial",
+    histograms=SiPixelPhase1RawDataConfForSerial)
 
 SiPixelPhase1RawDataConfForDevice = copy.deepcopy(SiPixelPhase1RawDataConf)
 for pset in SiPixelPhase1RawDataConfForDevice:
     pset.topFolderName = "SiPixelHeterogeneous/PixelErrorsGPU"
 
 siPixelPhase1MonitorRawDataADevice = SiPixelPhase1RawDataAnalyzer.clone(
-    src="siPixelDigiErrorsAlpaka", histograms=SiPixelPhase1RawDataConfForDevice
-)
+    src="siPixelDigiErrorsAlpaka",
+    histograms=SiPixelPhase1RawDataConfForDevice)
 
 siPixelPhase1CompareDigiErrorsSoAAlpaka = siPixelPhase1RawDataErrorComparator.clone(
     pixelErrorSrcGPU=cms.InputTag("siPixelDigiErrorsAlpaka"),
@@ -226,69 +228,48 @@ siPixelVertexSoAMonitorDevice = siPixelMonitorVertexSoAAlpaka.clone(
 
 # Run-3 sequence
 monitorpixelSoACompareSource = cms.Sequence(
-    siPixelPhase1MonitorRawDataACPU
-    * siPixelPhase1MonitorRawDataAGPU
-    * siPixelPhase1MonitorRecHitsSoACPU
-    * siPixelPhase1MonitorRecHitsSoAGPU
-    * siPixelPhase1CompareRecHitsSoA
-    * siPixelPhase1MonitorTrackSoAGPU
-    * siPixelPhase1MonitorTrackSoACPU
-    * siPixelPhase1CompareTrackSoA
-    * siPixelMonitorVertexSoACPU
-    * siPixelMonitorVertexSoAGPU
-    * siPixelCompareVertexSoA
-    * siPixelPhase1RawDataErrorComparator
-)
+    siPixelPhase1MonitorRawDataACPU * siPixelPhase1MonitorRawDataAGPU *
+    siPixelPhase1MonitorRecHitsSoACPU * siPixelPhase1MonitorRecHitsSoAGPU *
+    siPixelPhase1CompareRecHitsSoA * siPixelPhase1MonitorTrackSoAGPU *
+    siPixelPhase1MonitorTrackSoACPU * siPixelPhase1CompareTrackSoA *
+    siPixelMonitorVertexSoACPU * siPixelMonitorVertexSoAGPU *
+    siPixelCompareVertexSoA * siPixelPhase1RawDataErrorComparator)
 # and the Alpaka version
 monitorpixelSoACompareSourceAlpaka = cms.Sequence(
-    siPixelPhase1MonitorRawDataASerial
-    * siPixelPhase1MonitorRawDataADevice
-    * siPixelPhase1CompareDigiErrorsSoAAlpaka
-    * siPixelRecHitsSoAMonitorSerial
-    * siPixelRecHitsSoAMonitorDevice
-    * siPixelPhase1CompareRecHits
-    * siPixelTrackSoAMonitorSerial
-    * siPixelTrackSoAMonitorDevice
-    * siPixelPhase1CompareTracks
-    * siPixelVertexSoAMonitorSerial
-    * siPixelVertexSoAMonitorDevice
-    * siPixelCompareVertices
-)
+    siPixelPhase1MonitorRawDataASerial * siPixelPhase1MonitorRawDataADevice *
+    siPixelPhase1CompareDigiErrorsSoAAlpaka * siPixelRecHitsSoAMonitorSerial *
+    siPixelRecHitsSoAMonitorDevice * siPixelPhase1CompareRecHits *
+    siPixelTrackSoAMonitorSerial * siPixelTrackSoAMonitorDevice *
+    siPixelPhase1CompareTracks * siPixelVertexSoAMonitorSerial *
+    siPixelVertexSoAMonitorDevice * siPixelCompareVertices)
 
 # Phase-2 sequence
 _monitorpixelSoACompareSource = cms.Sequence(
-    siPixelPhase2MonitorRecHitsSoACPU
-    * siPixelPhase2MonitorRecHitsSoAGPU
-    * siPixelPhase2CompareRecHitsSoA
-    * siPixelPhase2MonitorTrackSoAGPU
-    * siPixelPhase2MonitorTrackSoACPU
-    * siPixelPhase2CompareTrackSoA
-    * siPixelMonitorVertexSoACPU
-    * siPixelMonitorVertexSoAGPU
-    * siPixelCompareVertexSoA
-)
+    siPixelPhase2MonitorRecHitsSoACPU * siPixelPhase2MonitorRecHitsSoAGPU *
+    siPixelPhase2CompareRecHitsSoA * siPixelPhase2MonitorTrackSoAGPU *
+    siPixelPhase2MonitorTrackSoACPU * siPixelPhase2CompareTrackSoA *
+    siPixelMonitorVertexSoACPU * siPixelMonitorVertexSoAGPU *
+    siPixelCompareVertexSoA)
 
 # HIon sequence
 _monitorpixelSoACompareSourceHIonPhase1 = cms.Sequence(
-    siPixelHIonPhase1MonitorRecHitsSoACPU
-    * siPixelHIonPhase1MonitorRecHitsSoAGPU
-    * siPixelHIonPhase1CompareRecHitsSoA
-    * siPixelHIonPhase1MonitorTrackSoAGPU
-    * siPixelHIonPhase1MonitorTrackSoACPU
-    * siPixelHIonPhase1CompareTrackSoA
-    * siPixelMonitorVertexSoACPU
-    * siPixelMonitorVertexSoAGPU
-    * siPixelCompareVertexSoA
-)
+    siPixelHIonPhase1MonitorRecHitsSoACPU *
+    siPixelHIonPhase1MonitorRecHitsSoAGPU *
+    siPixelHIonPhase1CompareRecHitsSoA * siPixelHIonPhase1MonitorTrackSoAGPU *
+    siPixelHIonPhase1MonitorTrackSoACPU * siPixelHIonPhase1CompareTrackSoA *
+    siPixelMonitorVertexSoACPU * siPixelMonitorVertexSoAGPU *
+    siPixelCompareVertexSoA)
 
-phase2_tracker.toReplaceWith(monitorpixelSoACompareSource, _monitorpixelSoACompareSource)
+phase2_tracker.toReplaceWith(monitorpixelSoACompareSource,
+                             _monitorpixelSoACompareSource)
 
 from Configuration.ProcessModifiers.gpuValidationPixel_cff import gpuValidationPixel
 
-gpuValidationPixel.toReplaceWith(monitorpixelSoASource, monitorpixelSoACompareSource)
+gpuValidationPixel.toReplaceWith(monitorpixelSoASource,
+                                 monitorpixelSoACompareSource)
 
 from Configuration.ProcessModifiers.alpakaValidationPixel_cff import (
-    alpakaValidationPixel,
-)
+    alpakaValidationPixel, )
 
-(alpakaValidationPixel & ~gpuValidationPixel).toReplaceWith(monitorpixelSoASource, monitorpixelSoACompareSourceAlpaka)
+(alpakaValidationPixel & ~gpuValidationPixel).toReplaceWith(
+    monitorpixelSoASource, monitorpixelSoACompareSourceAlpaka)
