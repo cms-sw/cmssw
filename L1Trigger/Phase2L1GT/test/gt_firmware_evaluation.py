@@ -3,10 +3,6 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process('L1Test')
 
-# import of standard configurations
-process.load('Configuration.StandardSequences.Services_cff')
-
-
 # Input source
 process.source = cms.Source("EmptySource")
 process.maxEvents = cms.untracked.PSet(input=cms.untracked.int32(94))
@@ -21,11 +17,10 @@ options.parseArguments()
 
 process.l1tGTProducer = cms.EDProducer(
     "L1GTEvaluationProducer",
-    inputFilename=cms.string("inputPattern"),
-    outputFilename=cms.string("outputObjectPattern"),
-    random_seed=cms.uint32(0),
-    maxFrames=cms.uint32(1024),
-    platform=cms.string(options.platform)
+    inputFilename=cms.untracked.string("inputPattern"),
+    outputFilename=cms.untracked.string("outputObjectPattern"),
+    random_seed=cms.untracked.uint32(0),
+    maxFrames=cms.untracked.uint32(1024)
 )
 
 process.l1t_GTProducer = cms.Path(process.l1tGTProducer)
@@ -805,26 +800,32 @@ process.l1tGTAlgoBlockProducer = cms.EDProducer(
 process.pl1tGTAlgoBlockProducer = cms.Path(process.l1tGTAlgoBlockProducer)
 
 if options.platform == "VU13P":
-    channels = cms.vuint32(46, 47)
+    from L1Trigger.Phase2L1GT.l1tGTBoardWriterVU13P_cff import BoardDataInput, BoardDataOutputObjects
+    channels = cms.untracked.vuint32(46, 47)
 else:
-    channels = cms.vuint32(32, 33)
+    from L1Trigger.Phase2L1GT.l1tGTBoardWriterVU9P_cff import BoardDataInput, BoardDataOutputObjects
+    channels = cms.untracked.vuint32(32, 33)
+
+
+process.l1tGTProducer.InputChannels = BoardDataInput.InputChannels
+process.l1tGTProducer.OutputChannels = BoardDataOutputObjects.OutputChannels
 
 
 process.BoardData = cms.EDAnalyzer("L1GTAlgoBoardWriter",
-  outputFilename = cms.string("outputPattern"),
-  algoBlocksTag = cms.InputTag("l1tGTAlgoBlockProducer"),
-  maxFrames = cms.uint32(1024),
+  outputFilename = cms.untracked.string("outputPattern"),
+  algoBlocksTag = cms.untracked.InputTag("l1tGTAlgoBlockProducer"),
+  maxFrames = cms.untracked.uint32(1024),
   channels = channels
 )
 
 process.FinOrBoardData = cms.EDAnalyzer("L1GTFinOrBoardWriter",
-  outputFilename = cms.string("outputFinOrPattern"),
-  algoBlocksTag = cms.InputTag("l1tGTAlgoBlockProducer"),
-  maxFrames = cms.uint32(1024),
-  channelsLow = cms.vuint32(4, 5, 6),
-  channelsMid = cms.vuint32(40, 41, 42),
-  channelsHigh = cms.vuint32(52, 53, 54),
-  channelFinOr = cms.uint32(99)
+  outputFilename = cms.untracked.string("outputFinOrPattern"),
+  algoBlocksTag = cms.untracked.InputTag("l1tGTAlgoBlockProducer"),
+  maxFrames = cms.untracked.uint32(1024),
+  channelsLow = cms.untracked.vuint32(4, 5, 6),
+  channelsMid = cms.untracked.vuint32(40, 41, 42),
+  channelsHigh = cms.untracked.vuint32(52, 53, 54),
+  channelFinOr = cms.untracked.uint32(99)
 )
 
 process.l1t_BoardData = cms.EndPath(process.BoardData)

@@ -22,7 +22,6 @@
 #include "L1Trigger/DemonstratorTools/interface/utilities.h"
 
 #include "L1GTEvaluationInterface.h"
-#include "L1GTChannelMapping.h"
 
 #include <vector>
 #include <array>
@@ -71,80 +70,150 @@ private:
 
   std::mt19937 randomGenerator_;
   l1t::demo::BoardDataWriter inputBoardDataWriter_;
-  const std::array<std::tuple<const char *, std::size_t, std::size_t>, 27> outputChannelDef_;
+  std::unordered_map<std::string, std::size_t> numChannels_;
   l1t::demo::BoardDataWriter outputBoardDataWriter_;
 };
 
+static constexpr std::array<const char *, 29> AVAILABLE_COLLECTIONS{{"GTTPromptJets",
+                                                                     "GTTDisplacedJets",
+                                                                     "GTTPromptHtSum",
+                                                                     "GTTDisplacedHtSum",
+                                                                     "GTTEtSum",
+                                                                     "GTTHadronicTaus",
+                                                                     "CL2JetsSC4",
+                                                                     "CL2JetsSC8",
+                                                                     "CL2Taus",
+                                                                     "CL2HtSum",
+                                                                     "CL2EtSum",
+                                                                     "GCTNonIsoEg",
+                                                                     "GCTIsoEg",
+                                                                     "GCTJets",
+                                                                     "GCTTaus",
+                                                                     "GCTHtSum",
+                                                                     "GCTEtSum",
+                                                                     "GMTSaPromptMuons",
+                                                                     "GMTSaDisplacedMuons",
+                                                                     "GMTTkMuons",
+                                                                     "GMTTopo",
+                                                                     "CL2Electrons",
+                                                                     "CL2Photons",
+                                                                     "GTTPhiCandidates",
+                                                                     "GTTRhoCandidates",
+                                                                     "GTTBsCandidates",
+                                                                     "GTTPromptTracks",
+                                                                     "GTTDisplacedTracks",
+                                                                     "GTTPrimaryVert"}};
+
+template <typename T1, typename T2>
+static std::vector<T1> vconvert(std::vector<T2> ivec) {
+  return std::vector<T1>(ivec.begin(), ivec.end());
+}
+
 L1GTEvaluationProducer::L1GTEvaluationProducer(const edm::ParameterSet &config)
-    : randomGenerator_(config.exists("random_seed") ? config.getParameter<unsigned int>("random_seed")
+    : randomGenerator_(config.exists("random_seed") ? config.getUntrackedParameter<unsigned int>("random_seed")
                                                     : std::random_device()()),
       inputBoardDataWriter_(
-          l1t::demo::parseFileFormat(config.getParameter<std::string>("patternFormat")),
-          config.getParameter<std::string>("inputFilename"),
-          config.getParameter<std::string>("inputFileExtension"),
+          l1t::demo::parseFileFormat(config.getUntrackedParameter<std::string>("patternFormat")),
+          config.getUntrackedParameter<std::string>("inputFilename"),
+          config.getUntrackedParameter<std::string>("inputFileExtension"),
           9,
           1,
-          config.getParameter<unsigned int>("maxFrames"),
-          config.getParameter<std::string>("platform") == "VU13P" ? INPUT_CHANNEL_MAP_VU13P : INPUT_CHANNEL_MAP_VU9P),
-      outputChannelDef_(config.getParameter<std::string>("platform") == "VU13P" ? OUTPUT_CHANNELS_VU13P
-                                                                                : OUTPUT_CHANNELS_VU9P),
-      outputBoardDataWriter_(l1t::demo::parseFileFormat(config.getParameter<std::string>("patternFormat")),
-                             config.getParameter<std::string>("outputFilename"),
-                             config.getParameter<std::string>("outputFileExtension"),
+          config.getUntrackedParameter<unsigned int>("maxFrames"),
+          [&]() {
+            const edm::ParameterSet &iChannels = config.getUntrackedParameterSet("InputChannels");
+            demo::BoardDataWriter::ChannelMap_t channelMap;
+
+            channelMap.insert(
+                {{"GCT", 1},
+                 {{6, 0}, vconvert<std::size_t>(iChannels.getUntrackedParameter<std::vector<unsigned int>>("GCT_1"))}});
+            channelMap.insert(
+                {{"GMT", 1},
+                 {{18, 0},
+                  vconvert<std::size_t>(iChannels.getUntrackedParameter<std::vector<unsigned int>>("GMT_1"))}});
+            channelMap.insert(
+                {{"GTT", 1},
+                 {{6, 0}, vconvert<std::size_t>(iChannels.getUntrackedParameter<std::vector<unsigned int>>("GTT_1"))}});
+            channelMap.insert(
+                {{"GTT", 2},
+                 {{6, 0}, vconvert<std::size_t>(iChannels.getUntrackedParameter<std::vector<unsigned int>>("GTT_2"))}});
+            channelMap.insert(
+                {{"GTT", 3},
+                 {{6, 0}, vconvert<std::size_t>(iChannels.getUntrackedParameter<std::vector<unsigned int>>("GTT_3"))}});
+            channelMap.insert(
+                {{"GTT", 4},
+                 {{6, 0}, vconvert<std::size_t>(iChannels.getUntrackedParameter<std::vector<unsigned int>>("GTT_4"))}});
+            channelMap.insert(
+                {{"CL2", 1},
+                 {{6, 0}, vconvert<std::size_t>(iChannels.getUntrackedParameter<std::vector<unsigned int>>("CL2_1"))}});
+            channelMap.insert(
+                {{"CL2", 2},
+                 {{6, 0}, vconvert<std::size_t>(iChannels.getUntrackedParameter<std::vector<unsigned int>>("CL2_2"))}});
+            channelMap.insert(
+                {{"CL2", 3},
+                 {{6, 0}, vconvert<std::size_t>(iChannels.getUntrackedParameter<std::vector<unsigned int>>("CL2_3"))}});
+
+            return channelMap;
+          }()),
+      numChannels_(),
+      outputBoardDataWriter_(l1t::demo::parseFileFormat(config.getUntrackedParameter<std::string>("patternFormat")),
+                             config.getUntrackedParameter<std::string>("outputFilename"),
+                             config.getUntrackedParameter<std::string>("outputFileExtension"),
                              9,
                              1,
-                             config.getParameter<unsigned int>("maxFrames"),
+                             config.getUntrackedParameter<unsigned int>("maxFrames"),
                              [&]() {
+                               const edm::ParameterSet &oChannels = config.getUntrackedParameterSet("OutputChannels");
                                demo::BoardDataWriter::ChannelMap_t channelMap;
-                               for (const auto &[name, start, end] : outputChannelDef_) {
-                                 for (std::size_t i = start; i < end; i++) {
-                                   channelMap.insert({{name, i - start}, {{1, 0}, {i}}});
+                               for (const char *name : AVAILABLE_COLLECTIONS) {
+                                 if (oChannels.exists(name)) {
+                                   std::vector<unsigned int> channels =
+                                       oChannels.getUntrackedParameter<std::vector<unsigned int>>(name);
+                                   for (std::size_t i = 0; i < channels.size(); i++) {
+                                     channelMap.insert({{name, i}, {{1, 0}, {channels.at(i)}}});
+                                   }
+
+                                   numChannels_.insert({name, channels.size()});
+                                 } else {
+                                   numChannels_.insert({name, 0});
                                  }
                                }
                                return channelMap;
                              }()) {
-  produces<P2GTCandidateCollection>("GCTNonIsoEg");
-  produces<P2GTCandidateCollection>("GCTIsoEg");
-  produces<P2GTCandidateCollection>("GCTJets");
-  produces<P2GTCandidateCollection>("GCTTaus");
-  produces<P2GTCandidateCollection>("GCTHtSum");
-  produces<P2GTCandidateCollection>("GCTEtSum");
-  produces<P2GTCandidateCollection>("GMTSaPromptMuons");
-  produces<P2GTCandidateCollection>("GMTSaDisplacedMuons");
-  produces<P2GTCandidateCollection>("GMTTkMuons");
-  produces<P2GTCandidateCollection>("GMTTopo");
-  produces<P2GTCandidateCollection>("GTTPromptJets");
-  produces<P2GTCandidateCollection>("GTTDisplacedJets");
-  produces<P2GTCandidateCollection>("GTTPhiCandidates");
-  produces<P2GTCandidateCollection>("GTTRhoCandidates");
-  produces<P2GTCandidateCollection>("GTTBsCandidates");
-  produces<P2GTCandidateCollection>("GTTHadronicTaus");
-  produces<P2GTCandidateCollection>("GTTPromptTracks");
-  produces<P2GTCandidateCollection>("GTTDisplacedTracks");
-  produces<P2GTCandidateCollection>("GTTPrimaryVert");
-  produces<P2GTCandidateCollection>("GTTPromptHtSum");
-  produces<P2GTCandidateCollection>("GTTDisplacedHtSum");
-  produces<P2GTCandidateCollection>("GTTEtSum");
-  produces<P2GTCandidateCollection>("CL2JetsSC4");
-  produces<P2GTCandidateCollection>("CL2JetsSC8");
-  produces<P2GTCandidateCollection>("CL2Taus");
-  produces<P2GTCandidateCollection>("CL2Electrons");
-  produces<P2GTCandidateCollection>("CL2Photons");
-  produces<P2GTCandidateCollection>("CL2HtSum");
-  produces<P2GTCandidateCollection>("CL2EtSum");
+  for (const char *name : AVAILABLE_COLLECTIONS) {
+    produces<P2GTCandidateCollection>(name);
+  }
 }
 
 void L1GTEvaluationProducer::fillDescriptions(edm::ConfigurationDescriptions &description) {
   edm::ParameterSetDescription desc;
-  desc.addOptional<unsigned int>("random_seed");
-  desc.add<unsigned int>("maxFrames", 1024);
-  desc.add<std::string>("inputFilename");
-  desc.add<std::string>("inputFileExtension", "txt");
-  desc.add<std::string>("outputFilename");
-  desc.add<std::string>("outputFileExtension", "txt");
-  desc.add<std::string>("patternFormat", "EMPv2");
-  desc.ifValue(edm::ParameterDescription<std::string>("platform", "VU9P", true),
-               edm::allowedValues<std::string>("VU9P", "VU13P"));
+  desc.addOptionalUntracked<unsigned int>("random_seed");
+  desc.addUntracked<unsigned int>("maxFrames", 1024);
+  desc.addUntracked<std::string>("inputFilename");
+  desc.addUntracked<std::string>("inputFileExtension", "txt");
+  desc.addUntracked<std::string>("outputFilename");
+  desc.addUntracked<std::string>("outputFileExtension", "txt");
+  desc.addUntracked<std::string>("patternFormat", "EMPv2");
+
+  edm::ParameterSetDescription inputChannelDesc;
+  inputChannelDesc.addUntracked<std::vector<unsigned int>>("GCT_1");
+  inputChannelDesc.addUntracked<std::vector<unsigned int>>("GMT_1");
+  inputChannelDesc.addUntracked<std::vector<unsigned int>>("GTT_1");
+  inputChannelDesc.addUntracked<std::vector<unsigned int>>("GTT_2");
+  inputChannelDesc.addUntracked<std::vector<unsigned int>>("GTT_3");
+  inputChannelDesc.addUntracked<std::vector<unsigned int>>("GTT_4");
+  inputChannelDesc.addUntracked<std::vector<unsigned int>>("CL2_1");
+  inputChannelDesc.addUntracked<std::vector<unsigned int>>("CL2_2");
+  inputChannelDesc.addUntracked<std::vector<unsigned int>>("CL2_3");
+
+  desc.addUntracked<edm::ParameterSetDescription>("InputChannels", inputChannelDesc);
+
+  edm::ParameterSetDescription outputChannelDesc;
+  for (const char *name : AVAILABLE_COLLECTIONS) {
+    outputChannelDesc.addOptionalUntracked<std::vector<unsigned int>>(name);
+  }
+
+  desc.addUntracked<edm::ParameterSetDescription>("OutputChannels", outputChannelDesc);
+
   description.addWithDefaultLabel(desc);
 }
 
@@ -238,16 +307,16 @@ void L1GTEvaluationProducer::writeOutputPatterns(
     const std::unordered_map<std::string, std::vector<std::unique_ptr<l1t::L1TGT_BaseInterface>>> &outputObjects) {
   std::map<demo::LinkId, std::vector<ap_uint<64>>> eventData;
 
-  for (const auto &[name, start, end] : outputChannelDef_) {
+  for (const char *name : AVAILABLE_COLLECTIONS) {
     std::vector<ap_uint<64>> data = vpack(outputObjects.at(name));
-    std::size_t numChannels = end - start;
-    for (std::size_t i = start; i < end; i++) {
-      for (std::size_t j = i - start; j < data.size(); j += numChannels) {
-        eventData[{name, i - start}].push_back(data[j]);
+
+    for (std::size_t i = 0; i < numChannels_.at(name); i++) {
+      for (std::size_t j = i; j < data.size(); j += numChannels_.at(name)) {
+        eventData[{name, i}].push_back(data[j]);
       }
 
-      while (eventData[{name, i - start}].size() < 9) {
-        eventData[{name, i - start}].push_back(0);
+      while (eventData[{name, i}].size() < 9) {
+        eventData[{name, i}].push_back(0);
       }
     }
   }
