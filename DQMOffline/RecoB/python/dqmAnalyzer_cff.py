@@ -21,8 +21,7 @@ from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 from PhysicsTools.JetMCAlgos.HadronAndPartonSelector_cfi import selectedHadronsAndPartons
 from PhysicsTools.JetMCAlgos.AK4PFJetsMCFlavourInfos_cfi import ak4JetFlavourInfos
 myak4JetFlavourInfos = ak4JetFlavourInfos.clone(
-    jets = "ak4PFJetsPuppi",
-    weights = cms.InputTag("puppi"),
+    jets = "ak4PFJetsCHS",
     partons = "selectedHadronsAndPartons:algorithmicPartons",
     hadronFlavourHasPriority = True
     )
@@ -36,7 +35,7 @@ ak4GenJetsForPUid = cms.EDFilter("GenJetSelector",
 #do reco gen - reco matching
 from PhysicsTools.PatAlgos.mcMatchLayer0.jetMatch_cfi import patJetGenJetMatch
 newpatJetGenJetMatch = patJetGenJetMatch.clone(
-    src = "ak4PFJetsPuppi",
+    src = "ak4PFJetsCHS",
     matched = "ak4GenJetsForPUid",
     maxDeltaR = 0.25,
     resolveAmbiguities = True
