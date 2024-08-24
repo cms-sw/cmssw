@@ -40,10 +40,9 @@ def das_file_site(dataset, site):
 
 def das_file_data(dataset,opt=""):
     cmd = "dasgoclient --query='file dataset=%s %s| grep file.name, file.nevents'"%(dataset,opt)
-    
     out = das_do_command(cmd)
     out = [np.array(r.split(" "))[[0,3]] for r in out if len(r) > 0]
-    
+
     df = pd.DataFrame(out,columns=["file","events"])
     df.events = df.events.values.astype(int)
     
@@ -59,6 +58,28 @@ def das_lumi_data(dataset,opt=""):
     
     return df
 
+def das_run_events_data(dataset,run,opt=""):
+    cmd = "dasgoclient --query='file dataset=%s run=%s %s | sum(file.nevents) '"%(dataset,run,opt)
+    out = das_do_command(cmd)[0]
+
+    out = [o for o in out.split(" ") if "sum" not in o]
+    out = int([r.split(" ") for r in out if len(r)>0][0][0])
+
+    return out
+
+def das_run_data(dataset,opt=""):
+    cmd = "dasgoclient --query='run dataset=%s %s '"%(dataset,opt)
+    out = das_do_command(cmd)
+
+    return out
+
+def no_intersection():
+    print("No intersection between:")
+    print(" - json   : ", best_json)
+    print(" - dataset: ", dataset)
+    print("Exiting.")
+    sys.exit(1)
+
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
@@ -69,6 +90,7 @@ if __name__ == '__main__':
     parser.add_argument('--pandas', '-pd',action='store_true',help="Store the whole dataset (no event or threshold cut) in a csv") 
     parser.add_argument('--proxy','-p', help='Allow to parse a x509 proxy if needed', type=str, default=None)
     parser.add_argument('--site','-s', help='Only data at specific site', type=str, default=None)
+    parser.add_argument('--precheck','-pc', action='store_true', help='Check run per run before building the dataframes, to avoid huge caching.')
     args = parser.parse_args()
 
     if args.proxy is not None:
@@ -77,6 +99,8 @@ if __name__ == '__main__':
         print("No X509 proxy set. Exiting.")
         sys.exit(1)
     
+    ## Check if we are in the cms-bot "environment"
+    testing = "JENKINS_PREFIX" in os.environ
     dataset   = args.dataset
     events    = args.events
     threshold = args.threshold
@@ -97,6 +121,7 @@ if __name__ == '__main__':
     cert_path = base_cert_path + cert_type + "/"
     web_fallback = False
 
+    ## if we have access to eos we get from there ...
     if os.path.isdir(cert_path):
         json_list = os.listdir(cert_path)
         if len(json_list) == 0:
@@ -105,7 +130,7 @@ if __name__ == '__main__':
         json_list = [c for c in json_list if c.startswith("Cert_C") and c.endswith("json")]
     else:
         web_fallback = True
-    
+    ## ... if not we go to the website
     if web_fallback:
         cert_url = base_cert_url + cert_type + "/"
         json_list = get_url_clean(cert_url).split("\n")
@@ -132,12 +157,39 @@ if __name__ == '__main__':
             R = R + [f for f in range(r[0],r[1]+1)]
         golden_flat[k] = R
 
+    # let's just check there's an intersection between the
+    # dataset and the json
+    data_runs = das_run_data(dataset)
+    golden_data_runs = [r for r in data_runs if r in golden_flat]
+
+    if (len(golden_data_runs)==0):
+        no_intersection()
+
     # building the dataframe, cleaning for bad lumis
-    df = das_lumi_data(dataset).merge(das_file_data(dataset),on="file",how="inner") # merge file informations with run and lumis
-    df = df[df["run"].isin(list(golden.keys()))] # skim for golden runs
+    golden_data_runs_tocheck = golden_data_runs
+    das_opt = ""
+    if testing or args.precheck:
+        golden_data_runs_tocheck = []
+        # Here we check run per run.
+        # This implies more dasgoclient queries, but smaller outputs
+        # useful when running the IB/PR tests not to have huge
+        # query results that have to be cached.
+
+        sum_events = 0
+
+        for r in golden_data_runs:
+            sum_events = sum_events + int(das_run_events_data(dataset,r))
+            golden_data_runs_tocheck.append(r)
+            if events > 0 and sum_events > events:
+                break
+
+        das_opt = "run in %s"%(str([int(g) for g in golden_data_runs_tocheck]))
+
+    df = das_lumi_data(dataset,opt=das_opt).merge(das_file_data(dataset,opt=das_opt),on="file",how="inner") # merge file informations with run and lumis
+
     df["lumis"] = [[int(ff) for ff in f.replace("[","").replace("]","").split(",")] for f in df.lumis.values]
     df_rs = []
-    for r in golden_flat:
+    for r in golden_data_runs_tocheck:
         cut = (df["run"] == r)
         if not any(cut):
             continue
@@ -152,12 +204,8 @@ if __name__ == '__main__':
         n_lumis = np.array([len(l) for l in df_r.lumis])
         df_rs.append(df_r[good_lumis==n_lumis])
 
-    if len(df_rs) == 0:
-        print("No intersection between:")
-        print(" - json   : ", best_json)
-        print(" - dataset: ", dataset)
-        print("Exiting.")
-        sys.exit(1)
+    if (len(df_rs)==0):
+        no_intersection()
 
     df = pd.concat(df_rs)
     df.loc[:,"min_lumi"] = [min(f) for f in df.lumis]
