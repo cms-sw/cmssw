@@ -16,7 +16,7 @@ offset_events = 0.0001 # less than 10 event setups (50k,150k,250k,500k)
 for e_n,era in enumerate(eras_2024):
     for p_n,pd in enumerate(pds_2024):
         for e_key,evs in event_steps_dict.items():
-            if "50k" == e_key: # already defined in relval_standard
+            if "10k" == e_key: # already defined in relval_standard
                 continue   
             wf_number = base_wf_number_2024
             wf_number = wf_number + offset_era * e_n
