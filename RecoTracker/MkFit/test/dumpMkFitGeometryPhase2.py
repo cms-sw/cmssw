@@ -1,21 +1,26 @@
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
 # from Configuration.ProcessModifiers.trackingMkFit_cff import trackingMkFit
 from Configuration.ProcessModifiers.trackingMkFitCommon_cff import trackingMkFitCommon
 trackingMkFit = cms.ModifierChain(trackingMkFitCommon)
 
-process = cms.Process('DUMP',Phase2C17I13M9,trackingMkFit)
+###################################################################
+# Set default phase-2 settings
+###################################################################
+import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
+_PH2_GLOBAL_TAG, _PH2_ERA = _settings.get_era_and_conditions(_settings.DEFAULT_VERSION)
+
+process = cms.Process('DUMP', _PH2_ERA, trackingMkFit)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
-process.load('Configuration.Geometry.GeometryExtended2026D88Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2026DefaultReco_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.Reconstruction_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, "auto:phase2_realistic_T21", '')
+process.GlobalTag = GlobalTag(process.GlobalTag, _PH2_GLOBAL_TAG, '')
 
 process.MessageLogger.cerr.threshold = "INFO"
 process.MessageLogger.cerr.MkFitGeometryESProducer = dict(limit=-1)

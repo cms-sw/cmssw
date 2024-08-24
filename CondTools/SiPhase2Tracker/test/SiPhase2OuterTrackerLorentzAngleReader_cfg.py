@@ -36,7 +36,7 @@ process.source = cms.Source("EmptyIOVSource",
 ###################################################################
 # Input data
 ###################################################################
-tag = 'SiPhase2OuterTrackerLorentzAngle_T21'
+tag = 'SiPhase2OuterTrackerLorentzAngle_T33'
 suffix = 'v0'
 inFile = tag+'_'+suffix+'.db'
 inDB = 'sqlite_file:'+inFile
@@ -58,7 +58,7 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
 ###################################################################
 process.get = cms.EDAnalyzer("EventSetupRecordDataGetter",
     toGet = cms.VPSet(cms.PSet(
-        record = cms.string(' SiPhase2OuterTrackerLorentzAngleRcd'),
+        record = cms.string('SiPhase2OuterTrackerLorentzAngleRcd'),
         data = cms.vstring('SiPhase2OuterTrackerLorentzAngle')
     )),
     verbose = cms.untracked.bool(True)
