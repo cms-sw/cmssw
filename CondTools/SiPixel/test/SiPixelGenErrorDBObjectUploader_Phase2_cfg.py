@@ -195,6 +195,9 @@ elif tGeometry == 'T15':
 elif tGeometry == 'T21':
     geometry_cff = 'GeometryExtended2026D88_cff'
     recoGeometry_cff = 'GeometryExtended2026D88Reco_cff'
+elif tGeometry == 'T33':
+    geometry_cff = 'GeometryExtended2026D110_cff'
+    recoGeometry_cff = 'GeometryExtended2026D110Reco_cff'
 else:
     print("Unknown tracker geometry")
     print("What are you doing ?!?!?!?!")
@@ -205,7 +208,6 @@ process.load(geometry_cff)
 process.load(recoGeometry_cff)
 
 global_tag_name = options.GlobalTag+'_'+tGeometry
-#global_tag_name = options.GlobalTag+'_T15'
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag import GlobalTag
