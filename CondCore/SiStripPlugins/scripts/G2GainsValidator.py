@@ -1,19 +1,20 @@
 from __future__ import print_function 
 
-import configparser as ConfigParser
-import glob
-import os
-import numpy
-import re
+from datetime import datetime
 import ROOT
+import configparser as ConfigParser
+import datetime
+import glob
+import json
+import numpy
+import optparse
+import os
+import re
+import sqlalchemy
 import string
 import subprocess
 import sys
-import optparse
 import time
-import json
-import datetime
-from datetime import datetime
 import CondCore.Utilities.conddblib as conddb
 
 ##############################################
@@ -60,6 +61,14 @@ def build_curl_command(url, proxy="", certs="", timeout=30, retries=3, user_agen
     return cmd
 
 ##############################################
+def get_hlt_fcsr(session):
+##############################################
+    RunInfo = session.get_dbtype(conddb.RunInfo)
+    lastRun = session.query(sqlalchemy.func.max(RunInfo.run_number)).scalar()
+    fcsr = lastRun+1
+    return int(fcsr)
+
+##############################################
 def getFCSR(proxy="", certs=""):
 ##############################################
     url = "https://cmsweb.cern.ch/t0wmadatasvc/prod/firstconditionsaferun"
@@ -85,6 +94,24 @@ def getExpressGT(proxy="", certs=""):
     out = subprocess.check_output(cmd, shell=True)
     response = json.loads(out)["result"][0]['global_tag']
     return response
+
+##############################################
+def resetSynchonization(db_name):
+##############################################
+    import sqlite3
+
+    # Connect to the SQLite database
+    conn = sqlite3.connect(db_name)
+
+    # Create a cursor object to execute SQL commands
+    cursor = conn.cursor()
+
+    # Execute the SQL command to update the database
+    cursor.execute("UPDATE TAG SET SYNCHRONIZATION='any' WHERE SYNCHRONIZATION='express';")
+
+    # Commit the changes and close the connection
+    conn.commit()
+    conn.close()
 
 ##############################################
 if __name__ == "__main__":
@@ -130,10 +157,12 @@ if __name__ == "__main__":
     FCSR = getFCSR(proxy=options.proxy, certs=certs)
     promptGT  = getPromptGT(proxy=options.proxy, certs=certs)
     expressGT = getExpressGT(proxy=options.proxy, certs=certs)
-    print ("Current FCSR:",FCSR,"| Express Global Tag",expressGT,"| Prompt Global Tag",promptGT)
 
     con = conddb.connect(url = conddb.make_url("pro"))
     session = con.session()
+
+    HLTFCSR = get_hlt_fcsr(session)
+    print ("Current next HLT run", HLTFCSR, "| curret FCSR:", FCSR ,"| Express Global Tag",expressGT,"| Prompt Global Tag",promptGT)
     IOV     = session.get_dbtype(conddb.IOV)
     TAG     = session.get_dbtype(conddb.Tag)
     GT      = session.get_dbtype(conddb.GlobalTag)
@@ -154,12 +183,12 @@ if __name__ == "__main__":
     IOVsToValidate=[]
     if(options.since==-1):
         IOVsToValidate.append(validationTagIOVs[-1][0])
-        print("changing the default validation tag since to:",IOVsToValidate[0])
+        print("Changing the default validation tag since to:",IOVsToValidate[0])
         
     else:
         for entry in validationTagIOVs:
             if(options.since!=1 and int(entry[0])>=int(options.since)):
-                print("appending to the validation list:",entry[0],entry[1],entry[2])
+                print("Appending to the validation list:",entry[0],entry[1],entry[2])
                 IOVsToValidate.append(entry[0])
             
     for element in myGTMap:
@@ -169,24 +198,33 @@ if __name__ == "__main__":
         Tag = element[2]
         if(Record=="SiStripApvGain2Rcd"):
             TagIOVs = session.query(IOV.since,IOV.payload_hash,IOV.insertion_time).filter(IOV.tag_name == Tag).all()
-            lastG2Payload = TagIOVs[-1]
-            print("last payload has IOV since:",lastG2Payload[0],"payload hash:",lastG2Payload[1],"insertion time:",lastG2Payload[2])
+            sorted_TagIOVs = sorted(TagIOVs, key=lambda x: x[0])
+            lastG2Payload = sorted_TagIOVs[-1]
+            print("Last G2 Prompt payload has IOV since:",lastG2Payload[0],"payload hash:",lastG2Payload[1],"insertion time:",lastG2Payload[2])
+
+            # Get and print the current working directory
+            current_directory = os.getcwd()
+            print("Current Working Directory:", current_directory)
+
             command = 'conddb_import -c sqlite_file:toCompare.db -f frontier://FrontierProd/CMS_CONDITIONS -i '+str(Tag) +' -t '+str(Tag)+' -b '+str(lastG2Payload[0])
             print(command)
             getCommandOutput(command)
+
+            # set syncrhonization to any
+            resetSynchonization("toCompare.db")
 
             for i,theValidationTagSince in enumerate(IOVsToValidate):
 
                 command = 'conddb_import -c sqlite_file:toCompare.db -f frontier://FrontierPrep/CMS_CONDITIONS -i '+str(options.validationTag) +' -t '+str(Tag)+' -b '+str(theValidationTagSince)
                 if(theValidationTagSince < lastG2Payload[0]):
-                    print("the last available IOV in the validation tag is older than the current last express IOV, taking FCSR as a since!")
+                    print("The last available IOV in the validation tag is older than the current last express IOV, taking FCSR as a since!")
                     command = 'conddb_import -c sqlite_file:toCompare.db -f frontier://FrontierPrep/CMS_CONDITIONS -i '+str(options.validationTag) +' -t '+str(Tag)+' -b '+str(FCSR+i)
 
                 print(command)
                 getCommandOutput(command)
 
-                command = './testCompare.sh SiStripApvGain_FromParticles_GR10_v1_express '+str(lastG2Payload[0])+' '+str(theValidationTagSince)+ ' toCompare.db'
+                command = '${CMSSW_BASE}/src/CondCore/SiStripPlugins/scripts/testCompare.sh SiStripApvGain_FromParticles_GR10_v1_express '+str(lastG2Payload[0])+' '+str(theValidationTagSince)+' '+current_directory+'/toCompare.db'
                 if(theValidationTagSince < lastG2Payload[0]):
-                    command = './testCompare.sh SiStripApvGain_FromParticles_GR10_v1_express '+str(lastG2Payload[0])+' '+str(FCSR+i)+ ' toCompare.db'
+                    command = '${CMSSW_BASE}/src/CondCore/SiStripPlugins/scripts/testCompare.sh SiStripApvGain_FromParticles_GR10_v1_express '+str(lastG2Payload[0])+' '+str(FCSR+i)+' '+current_directory+'/toCompare.db'
                 print(command)
                 getCommandOutput(command)
