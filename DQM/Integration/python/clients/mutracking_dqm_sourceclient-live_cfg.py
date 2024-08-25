@@ -2,9 +2,12 @@ from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 import sys
-from Configuration.Eras.Era_Run2_2018_pp_on_AA_cff import Run2_2018_pp_on_AA
-from Configuration.Eras.Era_Run3_cff import Run3
-process = cms.Process("MUTRKDQM", Run3)
+if 'runkey=hi_run' in sys.argv:
+  from Configuration.Eras.Era_Run3_pp_on_PbPb_approxSiStripClusters_cff import Run3_pp_on_PbPb_approxSiStripClusters
+  process = cms.Process("MUTRKDQM", Run3_pp_on_PbPb_approxSiStripClusters)
+else:
+  from Configuration.Eras.Era_Run3_cff import Run3
+  process = cms.Process("MUTRKDQM", Run3)
 
 live=True
 unitTest=False
@@ -13,7 +16,6 @@ if 'unitTest=True' in sys.argv:
     unitTest=True
 
 offlineTesting=not live
-
 
 #----------------------------
 #### Event Source
@@ -101,9 +103,22 @@ elif(offlineTesting):
     from Configuration.AlCa.GlobalTag import GlobalTag as gtCustomise
     process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run3_data', '')
 
+### HEAVY ION SETTING
+if process.runType.getRunType() == process.runType.hi_run:
+    rawDataRepackerLabel = 'rawDataRepacker'
+    process.muonCSCDigis.InputObjects = rawDataRepackerLabel
+    process.muonDTDigis.inputLabel = rawDataRepackerLabel
+    process.muonRPCDigis.InputLabel = rawDataRepackerLabel
+    process.muonGEMDigis.InputLabel = rawDataRepackerLabel
+    process.twinMuxStage2Digis.DTTM7_FED_Source = rawDataRepackerLabel
+    process.bmtfDigis.InputLabel = rawDataRepackerLabel
+    process.omtfStage2Digis.inputLabel = rawDataRepackerLabel
+    process.emtfStage2Digis.InputLabel = rawDataRepackerLabel
+    process.gmtStage2Digis.InputLabel = rawDataRepackerLabel
+    process.rpcTwinMuxRawToDigi.inputTag = rawDataRepackerLabel
+    process.rpcCPPFRawToDigi.inputTag = rawDataRepackerLabel
 
-
-#------------------------------------                                                                                              
+#------------------------------------
 # Cosmic muons reconstruction modules
 #------------------------------------
 
