@@ -6,3 +6,4 @@
 <use name="rootmath"/>
 <lib name="stdc++fs" />
 <bin name="printPixelTrackerMap" file="printPixelTrackerMap.cc" />
+<bin name="printPixelROCsMap" file="printPixelROCsMap.cc" />
