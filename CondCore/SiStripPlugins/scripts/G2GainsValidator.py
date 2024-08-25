@@ -31,23 +31,58 @@ def getCommandOutput(command):
     return data
 
 ##############################################
-def getFCSR():
+def getCerts() -> str:
 ##############################################
-    out = subprocess.check_output(["curl", "-k", "-s", "https://cmsweb.cern.ch/t0wmadatasvc/prod/firstconditionsaferun"])
+    cert_path = os.getenv('X509_USER_CERT', '')
+    key_path = os.getenv('X509_USER_KEY', '')
+
+    certs = ""
+    if cert_path:
+        certs += f' --cert {cert_path}'
+    else:
+        print("No certificate, nor proxy provided for Tier0 access")
+    if key_path:
+        certs += f' --key {key_path}'
+    return certs
+
+##############################################
+def build_curl_command(url, proxy="", certs="", timeout=30, retries=3, user_agent="MyUserAgent"):
+##############################################
+    """Builds the curl command with the appropriate proxy, certs, and options."""
+    cmd = f'/usr/bin/curl -k -L --user-agent "{user_agent}" '
+
+    if proxy:
+        cmd += f'--proxy {proxy} '
+    else:
+        cmd += f'{certs} '
+
+    cmd += f'--connect-timeout {timeout} --retry {retries} {url}'
+    return cmd
+
+##############################################
+def getFCSR(proxy="", certs=""):
+##############################################
+    url = "https://cmsweb.cern.ch/t0wmadatasvc/prod/firstconditionsaferun"
+    cmd = build_curl_command(url, proxy=proxy, certs=certs)
+    out = subprocess.check_output(cmd, shell=True)
     response = json.loads(out)["result"][0]
     return int(response)
 
 ##############################################
-def getPromptGT():
+def getPromptGT(proxy="", certs=""):
 ##############################################
-    out = subprocess.check_output(["curl", "-k", "-s", "https://cmsweb.cern.ch/t0wmadatasvc/prod/reco_config"])
+    url = "https://cmsweb.cern.ch/t0wmadatasvc/prod/reco_config"
+    cmd = build_curl_command(url, proxy=proxy, certs=certs)
+    out = subprocess.check_output(cmd, shell=True)
     response = json.loads(out)["result"][0]['global_tag']
     return response
 
 ##############################################
-def getExpressGT():
+def getExpressGT(proxy="", certs=""):
 ##############################################
-    out = subprocess.check_output(["curl", "-k", "-s", "https://cmsweb.cern.ch/t0wmadatasvc/prod/express_config"])
+    url = "https://cmsweb.cern.ch/t0wmadatasvc/prod/express_config"
+    cmd = build_curl_command(url, proxy=proxy, certs=certs)
+    out = subprocess.check_output(cmd, shell=True)
     response = json.loads(out)["result"][0]['global_tag']
     return response
 
@@ -68,13 +103,33 @@ if __name__ == "__main__":
                       default = -1,
                       help = 'sinces to copy from validation tag',
                       )
-     
+
+    parser.add_option('-p', '--proxy',
+                      dest = 'proxy',
+                      default = "",
+                      help = 'proxy to use for curl requests',
+                      )
+
+    parser.add_option('-u', '--user-mode',
+                      dest='user_mode',
+                      action='store_true',
+                      default=False,
+                      help='Enable user mode with specific X509 user certificate and key')
+
     (options, arguments) = parser.parse_args()
 
+    if options.user_mode:
+        os.environ['X509_USER_KEY'] = os.path.expanduser('~/.globus/userkey.pem')
+        os.environ['X509_USER_CERT'] = os.path.expanduser('~/.globus/usercert.pem')
+        print("User mode enabled. Using X509_USER_KEY and X509_USER_CERT from ~/.globus/")
 
-    FCSR = getFCSR()
-    promptGT  = getPromptGT()
-    expressGT = getExpressGT() 
+    certs = ""
+    if not options.proxy:
+        certs = getCerts()
+
+    FCSR = getFCSR(proxy=options.proxy, certs=certs)
+    promptGT  = getPromptGT(proxy=options.proxy, certs=certs)
+    expressGT = getExpressGT(proxy=options.proxy, certs=certs)
     print ("Current FCSR:",FCSR,"| Express Global Tag",expressGT,"| Prompt Global Tag",promptGT)
 
     con = conddb.connect(url = conddb.make_url("pro"))
