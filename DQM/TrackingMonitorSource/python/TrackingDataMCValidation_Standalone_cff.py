@@ -94,7 +94,7 @@ electronTracks = cms.EDProducer("ZtoEEElectronTrackProducer")
 ttbarEventSelector = cms.EDFilter("ttbarEventSelector")
 ttbarTracks = cms.EDProducer("TtbarTrackProducer")
 
-# Added modules for V0Monitoring
+# Added modules for V0Monitoring (standard)
 KshortMonitor = v0Monitor.clone()
 KshortMonitor.FolderName = "StandaloneTrackMonitor/V0Monitoring/Ks"
 KshortMonitor.v0         = "generalV0Candidates:Kshort"
@@ -108,6 +108,18 @@ LambdaMonitor.v0 = "generalV0Candidates:Lambda"
 LambdaMonitor.histoPSet.massPSet = cms.PSet(nbins = cms.int32(100),
                                             xmin  = cms.double(1.050),
                                             xmax  = cms.double(1.250))
+
+# Added modules for V0Monitoring (for restricted mass candidates)
+SelectedKshortMonitor = KshortMonitor.clone(
+    FolderName = "StandaloneTrackMonitor/V0Monitoring/SelectedKs",
+    v0         = "KShortEventSelector"
+)
+
+SelectedLambdaMonitor = LambdaMonitor.clone(
+    FolderName = "StandaloneTrackMonitor/V0Monitoring/SelectedLambda",
+    v0         = "LambdaEventSelector"
+)
+
 ##################
 # For MinBias
 ##################
@@ -171,7 +183,7 @@ standaloneValidationK0s = cms.Sequence(
     * KShortEventSelector
     * KshortTracks
     * standaloneTrackMonitorK0
-    * KshortMonitor)
+    * SelectedKshortMonitor)
 
 standaloneValidationK0sMC = cms.Sequence(
     hltPathFilter
@@ -179,7 +191,7 @@ standaloneValidationK0sMC = cms.Sequence(
     * KShortEventSelector
     * KshortTracks
     * standaloneTrackMonitorK0MC
-    * KshortMonitor)
+    * SelectedKshortMonitor)
 
 standaloneValidationLambdas = cms.Sequence(
     hltPathFilter
@@ -187,7 +199,7 @@ standaloneValidationLambdas = cms.Sequence(
     * LambdaEventSelector
     * LambdaTracks
     * standaloneTrackMonitorLambda
-    * LambdaMonitor)
+    * SelectedLambdaMonitor)
 
 standaloneValidationLambdasMC = cms.Sequence(
     hltPathFilter
@@ -195,7 +207,7 @@ standaloneValidationLambdasMC = cms.Sequence(
     * LambdaEventSelector
     * LambdaTracks
     * standaloneTrackMonitorLambdaMC
-    * LambdaMonitor)
+    * SelectedLambdaMonitor)
 
 ##################
 # For ZtoEE
