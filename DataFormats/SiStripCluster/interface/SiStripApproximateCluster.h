@@ -28,6 +28,7 @@ public:
 
   cms_uint16_t barycenter() const { return barycenter_; }
   cms_uint16_t compBarycenter() const { return barycenter_ * maxRange/maxBarycenter; }
+  cms_uint8_t conversion_factor() const { return maxBarycenter/maxRange; }
   cms_uint8_t width() const { return width_; }
   cms_uint8_t avgCharge() const { return avgCharge_; }
   bool filter() const { return filter_; }
