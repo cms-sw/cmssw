@@ -7,12 +7,13 @@ printf "testing writing Phase2 Outer Tracker Lorentz Angle \n\n"
 ## need to be in order (don't read before writing)
 cmsRun ${TEST_DIR}/SiPhase2OuterTrackerLorentzAngleWriter_cfg.py || die "Failure running SiPhase2OuterTrackerLorentzAngleWriter_cfg.py " $?
 cmsRun ${TEST_DIR}/SiPhase2OuterTrackerLorentzAngleReader_cfg.py || die "Failure running SiPhase2OuterTrackerLorentzAngleReader_cfg.py " $?
+cmsRun ${TEST_DIR}/SiPhase2OuterTrackerLorentzAngleReader_cfg.py fromESSource=True || die "Failure running SiPhase2OuterTrackerLorentzAngleReader_cfg.py fromESSource=True" $?
 
 printf "testing writing Phase2 Outer Tracker Bad Strips \n\n"
 ## need to be in order (don't read before writing)
 cmsRun ${TEST_DIR}/SiPhase2BadStripChannelBuilder_cfg.py algorithm=1 || die "Failure running SiPhase2BadStripChannelBuilder_cfg.py (naive)" $?
-cmsRun ${TEST_DIR}/SiPhase2BadStripChannelBuilder_cfg.py algorithm=1 || die "Failure running SiPhase2BadStripChannelBuilder_cfg.py (random)" $?
-cmsRun ${TEST_DIR}/SiPhase2BadStripChannelReader_cfg.py  || die "Failure running SiPhase2BadStripChannelReader_cfg.py" $?
+cmsRun ${TEST_DIR}/SiPhase2BadStripChannelBuilder_cfg.py algorithm=2 || die "Failure running SiPhase2BadStripChannelBuilder_cfg.py (random)" $?
+cmsRun ${TEST_DIR}/SiPhase2BadStripChannelReader_cfg.py || die "Failure running SiPhase2BadStripChannelReader_cfg.py" $?
 cmsRun ${TEST_DIR}/SiPhase2BadStripChannelReader_cfg.py fromESSource=True || die "Failure running SiPhase2BadStripChannelReader_cfg.py fromESSource=True" $?
 
 printf "testing writing Phase2 Tracker Cabling Map (test) \n\n"
