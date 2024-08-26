@@ -133,9 +133,9 @@ class InputInfo(object):
             command = "dasgoclient %s --query '%s'" % (das_options, self.queries(dataset)[0])
         elif self.skimEvents:
             from os import getenv
-            if getenv("CMSSW_USE_IBEOS","false")=="true": 
+            if getenv("JENKINS_PREFIX") is not None:
                 # to be assured that whatever happens the files are only those at CERN
-                command = "das-up-to-nevents.py -d %s -e %d -s T2_CH_CERN"%(dataset,self.events) 
+                command = "das-up-to-nevents.py -d %s -e %d -pc"%(dataset,self.events)
             else:
                 command = "das-up-to-nevents.py -d %s -e %d"%(dataset,self.events)
         # Run filter on DAS output 
