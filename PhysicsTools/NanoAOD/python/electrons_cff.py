@@ -341,6 +341,7 @@ electronTable = simplePATElectronFlatTableProducer.clone(
         miniPFRelIso_all = Var("userFloat('miniIsoAll')/pt",float,doc="mini PF relative isolation, total (with scaled rho*EA PU Winter22V1 corrections)"),
         pfRelIso03_chg = Var("userFloat('PFIsoChg')/pt",float,doc="PF relative isolation dR=0.3, charged component"),
         pfRelIso03_all = Var("userFloat('PFIsoAll')/pt",float,doc="PF relative isolation dR=0.3, total (with rho*EA PU Winter22V1 corrections)"),                
+        pfRelIso04_all = Var("userFloat('PFIsoAll04')/pt",float,doc="PF relative isolation dR=0.4, total (with rho*EA PU Winter22V1 corrections)", precision=10),
         jetPtRatio = Var("?userCand('jetForLepJetVar').isNonnull()?userFloat('ptRatio'):-1.",float,doc="ratio of electron pt to the associated jet pt (-1. if none)",precision=10),
         jetPtRelv2 = Var("?userCand('jetForLepJetVar').isNonnull()?userFloat('ptRel'):0",float,doc="Relative momentum of the lepton with respect to the closest jet after subtracting the lepton",precision=8),
         jetDF = Var("?userCand('jetForLepJetVar').isNonnull()?max(userCand('jetForLepJetVar').bDiscriminator('pfDeepFlavourJetTags:probbb')+userCand('jetForLepJetVar').bDiscriminator('pfDeepFlavourJetTags:probb')+userCand('jetForLepJetVar').bDiscriminator('pfDeepFlavourJetTags:problepb'),0.0):0.0",float,doc="value of the DEEPJET b tagging algorithm discriminator of the associated jet (0 if none)",precision=8,lazyEval=True),
@@ -454,6 +455,7 @@ _eleVarsExtra = cms.PSet(
         miniPFRelIso_all = Var("userFloat('miniIsoAll_Fall17V2')/pt",float,doc="mini PF relative isolation, total (with scaled rho*EA Fall17V2 PU corrections) in Run2"),
         pfRelIso03_chg = Var("userFloat('PFIsoChg_Fall17V2')/pt",float,doc="PF relative isolation dR=0.3 with 94 EffArea, charged component in Run2"),
         pfRelIso03_all = Var("userFloat('PFIsoAll_Fall17V2')/pt",float,doc="PF relative isolation dR=0.3 with 94 EffArea, total (with rho*EA Fall17V2 PU corrections) in Run2"),
+        pfRelIso04_all = Var("userFloat('PFIsoAll04_Fall17V2')/pt",float,doc="PF relative isolation dR=0.4, total (with rho*EA PU Fall17V2 PU corrections)", precision=10),
 )
 
 #############electron Table END#####################
