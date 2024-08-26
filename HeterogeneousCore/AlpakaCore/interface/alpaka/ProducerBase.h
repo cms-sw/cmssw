@@ -17,18 +17,8 @@
 
 #include <memory>
 #include <tuple>
-#include <type_traits>
-#include <utility>
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
-  namespace detail {
-    template <typename, typename Arg, typename = void>
-    struct hasPostCopy : std::false_type {};
-
-    template <typename T, typename Arg>
-    struct hasPostCopy<T, Arg, std::void_t<decltype(T::postCopy(std::declval<Arg&>()))>> : std::true_type {};
-  }  // namespace detail
-
   template <typename Producer, edm::Transition Tr>
   class ProducerBaseAdaptor;
 
@@ -124,7 +114,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             },
             [](auto tplPtr) {
               auto& productOnHost = std::get<0>(*tplPtr);
-              if constexpr (detail::hasPostCopy<CopyT, decltype(productOnHost)>::value) {
+              if constexpr (requires { CopyT::postCopy(productOnHost); }) {
                 CopyT::postCopy(productOnHost);
               }
               return std::move(productOnHost);
