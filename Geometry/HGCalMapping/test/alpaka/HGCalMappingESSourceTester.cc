@@ -241,7 +241,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       elecid = ::hgcal::mappingtools::getElectronicsId(zside, fedid, captureblockidx, econdidx, chip, half, seq);
     }
     auto stop = now();
-    std::chrono::duration<float> elapsed = stop-start;
+    std::chrono::duration<float> elapsed = stop - start;
     printf("\tTime: %f seconds\n", elapsed.count());
 
     HGCalElectronicsId eid(elecid);
@@ -262,7 +262,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       geoid = ::hgcal::mappingtools::getSiDetId(zside, plane, u, v, celltype, celliu, celliv);
     }
     stop = now();
-    elapsed = stop-start;
+    elapsed = stop - start;
     printf("\tTime: %f seconds\n", elapsed.count());
     HGCSiliconDetId gid(geoid);
     assert(gid.type() == celltype);
@@ -283,7 +283,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       elecid = modules.view()[modidx].eleid() + cells.view()[cellidx].eleid();
     }
     stop = now();
-    elapsed = stop-start;
+    elapsed = stop - start;
     printf("\tTime: %f seconds\n", elapsed.count());
     eid = HGCalElectronicsId(elecid);
     assert(eid.localFEDId() == modules.view()[modidx].fedid());
@@ -305,7 +305,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       detid = modules.view()[modidx].detid() + cells.view()[cellidx].detid();
     }
     stop = now();
-    elapsed = stop-start;
+    elapsed = stop - start;
     printf("\tTime: %f seconds\n", elapsed.count());
     HGCSiliconDetId did(detid);
     assert(did.type() == modules.view()[modidx].celltype());

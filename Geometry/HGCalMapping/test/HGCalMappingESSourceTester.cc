@@ -243,7 +243,7 @@ void HGCalMappingESSourceTester::analyze(const edm::Event& iEvent, const edm::Ev
     elecid = ::hgcal::mappingtools::getElectronicsId(zside, fedid, captureblockidx, econdidx, chip, half, seq);
   }
   auto stop = std::chrono::high_resolution_clock::now();
-  std::chrono::duration<float> elapsed = stop-start;
+  std::chrono::duration<float> elapsed = stop - start;
   printf("\tTime: %f seconds\n", elapsed.count());
 
   HGCalElectronicsId eid(elecid);
@@ -264,7 +264,7 @@ void HGCalMappingESSourceTester::analyze(const edm::Event& iEvent, const edm::Ev
     geoid = ::hgcal::mappingtools::getSiDetId(zside, plane, u, v, celltype, celliu, celliv);
   }
   stop = std::chrono::high_resolution_clock::now();
-  elapsed = stop-start;
+  elapsed = stop - start;
   printf("\tTime: %f seconds\n", elapsed.count());
   HGCSiliconDetId gid(geoid);
   assert(gid.type() == celltype);
@@ -285,7 +285,7 @@ void HGCalMappingESSourceTester::analyze(const edm::Event& iEvent, const edm::Ev
     elecid = modules.view()[modidx].eleid() + cells.view()[cellidx].eleid();
   }
   stop = std::chrono::high_resolution_clock::now();
-  elapsed = stop-start;
+  elapsed = stop - start;
   printf("\tTime: %f seconds\n", elapsed.count());
   eid = HGCalElectronicsId(elecid);
   assert(eid.localFEDId() == modules.view()[modidx].fedid());
@@ -307,7 +307,7 @@ void HGCalMappingESSourceTester::analyze(const edm::Event& iEvent, const edm::Ev
     detid = modules.view()[modidx].detid() + cells.view()[cellidx].detid();
   }
   stop = std::chrono::high_resolution_clock::now();
-  elapsed = stop-start;
+  elapsed = stop - start;
   printf("\tTime: %f seconds\n", elapsed.count());
   HGCSiliconDetId did(detid);
   assert(did.type() == modules.view()[modidx].celltype());
