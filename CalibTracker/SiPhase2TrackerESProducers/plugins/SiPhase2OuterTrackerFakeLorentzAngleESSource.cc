@@ -75,8 +75,7 @@ std::unique_ptr<SiPhase2OuterTrackerLorentzAngle> SiPhase2OuterTrackerFakeLorent
 
 std::unique_ptr<SiPhase2OuterTrackerLorentzAngle> SiPhase2OuterTrackerFakeLorentzAngleESSource::produceOTSimLA(
     const SiPhase2OuterTrackerLorentzAngleSimRcd& rcd) {
-  const auto& geomDetRcd = rcd.getRecord<TrackerTopologyRcd>();
-  const auto& geomDet = geomDetRcd.get(m_geomDetToken);
+  const auto& geomDet = rcd.get(m_geomDetToken);
   return fakeOTLA::produceRecord<SiPhase2OuterTrackerLorentzAngle>(LAvalue_, geomDet);
 }
 
