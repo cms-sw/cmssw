@@ -47,7 +47,7 @@ tkEgAlgoParameters = cms.PSet(
     doPfIso=cms.bool(True),
     hwIsoTypeTkEle=cms.uint32(0),
     hwIsoTypeTkEm=cms.uint32(0),
-    doCompositeTkEle=cms.bool(False),
+    algorithm=cms.uint32(0), # 0 = elliptic , 1 = composite EE, 2 = composite EB
     nCompCandPerCluster=cms.uint32(3),
     compositeParametersTkEle=cms.PSet(
         # NOTE: conifer BDT score is log(p/1-p)
