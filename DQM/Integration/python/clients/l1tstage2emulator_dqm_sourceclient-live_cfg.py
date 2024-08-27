@@ -164,6 +164,7 @@ if process.runType.getRunType() == process.runType.hi_run:
     process.selfFatEventFilter.rawInput = rawDataRepackerLabel
     process.rpcTwinMuxRawToDigi.inputTag = rawDataRepackerLabel
     process.rpcCPPFRawToDigi.inputTag = rawDataRepackerLabel
+    process.rpcunpacker.InputLabel = rawDataRepackerLabel
 
 #--------------------------------------------------
 # L1T Emulator Online DQM Schedule
