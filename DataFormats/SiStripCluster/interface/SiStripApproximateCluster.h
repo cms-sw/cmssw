@@ -8,13 +8,13 @@ class SiStripApproximateCluster {
 public:
   SiStripApproximateCluster() {}
 
-  explicit SiStripApproximateCluster(cms_uint16_t barycenter,
+  explicit SiStripApproximateCluster(cms_uint16_t compBarycenter,
                                      cms_uint8_t width,
                                      cms_uint8_t avgCharge,
                                      bool filter,
                                      bool isSaturated,
                                      bool peakFilter = false)
-      : compBarycenter_(barycenter),
+      : compBarycenter_(compBarycenter),
         width_(width),
         avgCharge_(avgCharge),
         filter_(filter),
@@ -26,7 +26,7 @@ public:
                                      float hitPredPos,
                                      bool peakFilter);
 
-  float barycenter() const { return compBarycenter_ * maxBarycenter/maxRange; }
+  float barycenter() const { return compBarycenter_ * maxBarycenter_/maxRange_; }
   cms_uint8_t width() const { return width_; }
   cms_uint8_t avgCharge() const { return avgCharge_; }
   bool filter() const { return filter_; }
@@ -40,8 +40,8 @@ private:
   bool filter_ = false;
   bool isSaturated_ = false;
   bool peakFilter_ = false;
-  static constexpr double maxRange = 255.;
-  static constexpr double maxBarycenter = 765.;
+  static constexpr double maxRange_ = 255.;
+  static constexpr double maxBarycenter_ = 765.;
   static constexpr double trimMaxADC_ = 30.;
   static constexpr double trimMaxFracTotal_ = .15;
   static constexpr double trimMaxFracNeigh_ = .25;
