@@ -29,29 +29,30 @@ namespace mkfit {
   //==============================================================================
 
   struct ModuleShape {
-    float dx1; // half-extent along x (bottom edge for trap)
-    float dx2; // 0 for rect; half-extent along x, top edge for trap
-    float dy;  // half extent along y / less precise direction
-    float dz;  // half thickness in z
+    float dx1;  // half-extent along x (bottom edge for trap)
+    float dx2;  // 0 for rect; half-extent along x, top edge for trap
+    float dy;   // half extent along y / less precise direction
+    float dz;   // half thickness in z
 
     // round to 1 mum precision
     float rmu(float x) { return std::round(1e4f * x) * 1e-4f; }
     void round_assign(float x1, float x2, float y, float z) {
-      dx1 = rmu(x1); dx2 = rmu(x2); dy = rmu(y); dz = rmu(z);
+      dx1 = rmu(x1);
+      dx2 = rmu(x2);
+      dy = rmu(y);
+      dz = rmu(z);
     }
 
-    bool  is_rect() const { return dx2 == 0.f; }
-    bool  is_trap() const { return dx2 != 0.f; }
+    bool is_rect() const { return dx2 == 0.f; }
+    bool is_trap() const { return dx2 != 0.f; }
 
-    bool operator==(const ModuleShape& s) const {
-      return dx1 == s.dx1 && dx2 == s.dx2 && dy == s.dy && dz == s.dz;
-    }
-};
+    bool operator==(const ModuleShape& s) const { return dx1 == s.dx1 && dx2 == s.dx2 && dy == s.dy && dz == s.dz; }
+  };
 
   struct ModuleInfo {
     SVector3 pos;
-    SVector3 zdir; // normal to module plane
-    SVector3 xdir; // the precise / "phi" direction
+    SVector3 zdir;  // normal to module plane
+    SVector3 xdir;  // the precise / "phi" direction
     unsigned int detid;
     unsigned short shapeid;
 
@@ -60,9 +61,9 @@ namespace mkfit {
         : pos(p), zdir(zd), xdir(xd), detid(did), shapeid(sid) {}
 
     SVector3 calc_ydir() const {
-      return { zdir[1]*xdir[2] - zdir[2]*xdir[1],
-               zdir[2]*xdir[0] - zdir[0]*xdir[2],
-               zdir[0]*zdir[1] - zdir[1]*xdir[0] };
+      return {zdir[1] * xdir[2] - zdir[2] * xdir[1],
+              zdir[2] * xdir[0] - zdir[0] * xdir[2],
+              zdir[0] * zdir[1] - zdir[1] * xdir[0]};
     }
   };
 
@@ -151,7 +152,7 @@ namespace mkfit {
     }
 
     void resize_shapes(int ns) { m_shapes.resize(ns); }
-    void register_shape(const ModuleShape &ms, unsigned short sid) { m_shapes[sid] = ms; }
+    void register_shape(const ModuleShape& ms, unsigned short sid) { m_shapes[sid] = ms; }
 
     unsigned int short_id(unsigned int detid) const { return m_detid2sid.at(detid); }
     int n_modules() const { return m_modules.size(); }
@@ -255,7 +256,7 @@ namespace mkfit {
 
     void write_bin_file(const std::string& fname) const;
     void read_bin_file(const std::string& fname);
-    void print_tracker(int level, int precision=3) const;
+    void print_tracker(int level, int precision = 3) const;
 
     void create_material(int nBinZ, float rngZ, int nBinR, float rngR);
     int mat_nbins_z() const { return m_mat_vec.n1(); }

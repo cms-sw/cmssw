@@ -5,17 +5,16 @@
 //#define DEBUG
 //#include "Debug.h"
 
-namespace
-{
+namespace {
   using MPF = MPlexQF;
 
-  MPF getBFieldFromZXY(const MPF &z, const MPF &x, const MPF &y) {
+  MPF getBFieldFromZXY(const MPF& z, const MPF& x, const MPF& y) {
     MPF b;
     for (int n = 0; n < NN; ++n)
       b[n] = Config::bFieldFromZR(z[n], hipo(x[n], y[n]));
     return b;
   }
-}
+}  // namespace
 
 void JacErrPropCurv1(const MPlex65& A, const MPlex55& B, MPlex65& C) {
   // C = A * B
@@ -71,16 +70,9 @@ static inline void parsFromPathL_impl(const Tf& __restrict__ inPar,
   MPF sin_mom_tht, cos_mom_tht;
   mpt::fast_sincos(inPar(5, 0), sin_mom_tht, cos_mom_tht);
 
-  outPar.aij(0, 0) =
-      inPar(0, 0) + 2.f * sinah *
-                            (cos_mom_phi * cosah - sin_mom_phi * sinah) /
-                            (inPar(3, 0) * kinv);
-  outPar.aij(1, 0) =
-      inPar(1, 0) + 2.f * sinah *
-                            (sin_mom_phi * cosah + cos_mom_phi * sinah) /
-                            (inPar(3, 0) * kinv);
-  outPar.aij(2, 0) = inPar(2, 0) + alpha / kinv * cos_mom_tht /
-                                          (inPar(3, 0) * sin_mom_tht);
+  outPar.aij(0, 0) = inPar(0, 0) + 2.f * sinah * (cos_mom_phi * cosah - sin_mom_phi * sinah) / (inPar(3, 0) * kinv);
+  outPar.aij(1, 0) = inPar(1, 0) + 2.f * sinah * (sin_mom_phi * cosah + cos_mom_phi * sinah) / (inPar(3, 0) * kinv);
+  outPar.aij(2, 0) = inPar(2, 0) + alpha / kinv * cos_mom_tht / (inPar(3, 0) * sin_mom_tht);
   outPar.aij(3, 0) = inPar(3, 0);
   outPar.aij(4, 0) = inPar(4, 0) + alpha;
   outPar.aij(5, 0) = inPar(5, 0);
@@ -126,10 +118,8 @@ inline void parsAndErrPropFromPathL_impl(const Tf& __restrict__ inPar,
   const MPF cosl1 = 1.f / sinT;
   // define average magnetic field and gradient
   // at initial point - inlike TRPRFN
-  const MPF bF =
-      (pf.use_param_b_field
-            ? Const::sol_over_100 * getBFieldFromZXY(inPar(2, 0), inPar(0, 0), inPar(1, 0))
-            : Const::sol_over_100 * Config::Bfield);
+  const MPF bF = (pf.use_param_b_field ? Const::sol_over_100 * getBFieldFromZXY(inPar(2, 0), inPar(0, 0), inPar(1, 0))
+                                       : Const::sol_over_100 * Config::Bfield);
   const MPF q = -bF * qbp;
   const MPF theta = q * s;
   MPF sint, cost;
@@ -165,12 +155,12 @@ inline void parsAndErrPropFromPathL_impl(const Tf& __restrict__ inPar,
   errorPropCurv.aij(1, 4) = 0.f;
   //   phi
   errorPropCurv.aij(2, 0) = bF * v23 * (t21 * dx1 + t22 * dx2 + cosT * dx3) * cosl1;
-  errorPropCurv.aij(2, 1) = (cost * (v11 * u21 + v12 * u22) + sint * (-v12 * u21 + v11 * u22) +
-                            v23 * (-sint * (v11 * t21 + v12 * t22 + v13 * cosT) +
-                                    omcost * (-v11 * t22 + v12 * t21) - tmsint * cosT * v13)) *
-                            cosl1;
+  errorPropCurv.aij(2, 1) =
+      (cost * (v11 * u21 + v12 * u22) + sint * (-v12 * u21 + v11 * u22) +
+       v23 * (-sint * (v11 * t21 + v12 * t22 + v13 * cosT) + omcost * (-v11 * t22 + v12 * t21) - tmsint * cosT * v13)) *
+      cosl1;
   errorPropCurv.aij(2, 2) = (cost * (u11 * u21 + u12 * u22) + sint * (-u12 * u21 + u11 * u22) +
-                            v23 * (-sint * (u11 * t21 + u12 * t22) + omcost * (-u11 * t22 + u12 * t21))) *
+                             v23 * (-sint * (u11 * t21 + u12 * t22) + omcost * (-u11 * t22 + u12 * t21))) *
                             cosl1 * sinT;
   errorPropCurv.aij(2, 3) = -q * v23 * (u11 * t21 + u12 * t22) * cosl1;
   errorPropCurv.aij(2, 4) = -q * v23 * (v11 * t21 + v12 * t22 + v13 * cosT) * cosl1;
@@ -396,28 +386,26 @@ static inline void helixAtPlane_impl(const Tf& __restrict__ inPar,
 
   // determine solution for straight line
   MPF sl = -(plNrm(0, 0) * delta0 + plNrm(1, 0) * delta1 + plNrm(2, 0) * delta2) /
-            (plNrm(0, 0) * cosP * sinT +
-             plNrm(1, 0) * sinP * sinT + plNrm(2, 0) * cosT);
+           (plNrm(0, 0) * cosP * sinT + plNrm(1, 0) * sinP * sinT + plNrm(2, 0) * cosT);
 
   //float s[nmax - nmin];
   //first iteration outside the loop
 #pragma omp simd
   for (int n = 0; n < NN; ++n) {
-    s[n] = (std::abs(plNrm(n, 2, 0)) < 1.f
-                       ? getS(delta0[n],
-                              delta1[n],
-                              delta2[n],
-                              plNrm(n, 0, 0),
-                              plNrm(n, 1, 0),
-                              plNrm(n, 2, 0),
-                              sinP[n],
-                              cosP[n],
-                              sinT[n],
-                              cosT[n],
-                              inPar(n, 3, 0),
-                              inChg(n, 0, 0),
-                              kinv[n])
-                       : (plPnt.constAt(n, 2, 0) - inPar.constAt(n, 2, 0)) / cosT[n]);
+    s[n] = (std::abs(plNrm(n, 2, 0)) < 1.f ? getS(delta0[n],
+                                                  delta1[n],
+                                                  delta2[n],
+                                                  plNrm(n, 0, 0),
+                                                  plNrm(n, 1, 0),
+                                                  plNrm(n, 2, 0),
+                                                  sinP[n],
+                                                  cosP[n],
+                                                  sinT[n],
+                                                  cosT[n],
+                                                  inPar(n, 3, 0),
+                                                  inChg(n, 0, 0),
+                                                  kinv[n])
+                                           : (plPnt.constAt(n, 2, 0) - inPar.constAt(n, 2, 0)) / cosT[n]);
   }
 
   MPlexLV outParTmp;
@@ -435,21 +423,21 @@ static inline void helixAtPlane_impl(const Tf& __restrict__ inPar,
 
 #pragma omp simd
     for (int n = 0; n < NN; ++n) {
-      s[n] += (std::abs(plNrm(n, 2, 0)) < 1.f ? getS(delta0[n],
-                                                     delta1[n],
-                                                     delta2[n],
-                                                     plNrm(n, 0, 0),
-                                                     plNrm(n, 1, 0),
-                                                     plNrm(n, 2, 0),
-                                                     sinP[n],
-                                                     cosP[n],
-                                                     sinT[n],
-                                                     cosT[n],
-                                                     inPar(n, 3, 0),
-                                                     inChg(n, 0, 0),
-                                                     kinv[n])
-                                              : (plPnt.constAt(n, 2, 0) - outParTmp.constAt(n, 2, 0)) /
-                                                    std::cos(outParTmp.constAt(n, 5, 0)));
+      s[n] += (std::abs(plNrm(n, 2, 0)) < 1.f
+                   ? getS(delta0[n],
+                          delta1[n],
+                          delta2[n],
+                          plNrm(n, 0, 0),
+                          plNrm(n, 1, 0),
+                          plNrm(n, 2, 0),
+                          sinP[n],
+                          cosP[n],
+                          sinT[n],
+                          cosT[n],
+                          inPar(n, 3, 0),
+                          inChg(n, 0, 0),
+                          kinv[n])
+                   : (plPnt.constAt(n, 2, 0) - outParTmp.constAt(n, 2, 0)) / std::cos(outParTmp.constAt(n, 5, 0)));
     }
   }  //end Niter-1
 
@@ -457,10 +445,9 @@ static inline void helixAtPlane_impl(const Tf& __restrict__ inPar,
   for (int n = 0; n < NN; ++n) {
 #ifdef DEBUG
     if (debug)
-      std::cout << "s[n]=" << s[n] << " sl[n]=" << sl[n]
-                << " std::isnan(s[n])=" << std::isnan(s[n])
-                << " std::isfinite(s[n])=" << std::isfinite(s[n])
-                << " std::isnormal(s[n])=" << std::isnormal(s[n]) << std::endl;
+      std::cout << "s[n]=" << s[n] << " sl[n]=" << sl[n] << " std::isnan(s[n])=" << std::isnan(s[n])
+                << " std::isfinite(s[n])=" << std::isfinite(s[n]) << " std::isnormal(s[n])=" << std::isnormal(s[n])
+                << std::endl;
 #endif
     if ((std::abs(sl[n]) > std::abs(s[n])) || std::isnormal(s[n]) == false)
       s[n] = sl[n];

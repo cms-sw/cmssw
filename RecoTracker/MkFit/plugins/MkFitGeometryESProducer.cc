@@ -63,7 +63,7 @@ private:
   using layer_gap_map_t = std::unordered_map<int, GapCollector>;
 
   struct ModuleShape_hash {
-    std::size_t operator()(const mkfit::ModuleShape& s) const noexcept {
+    std::size_t operator()(const mkfit::ModuleShape &s) const noexcept {
       return std::hash<float>{}(s.dx1 + s.dx2 + s.dy + s.dz);
     }
   };
@@ -276,7 +276,7 @@ void MkFitGeometryESProducer::fillShapeAndPlacement(const GeomDet *det,
     module_shape_hmap_t &bhm = layerModuleShapeVec_[lay];
     auto bhmi = bhm.find(ms);
     if (bhmi == bhm.end()) {
-      bhmi = bhm.insert({ ms, (unsigned short) bhm.size() }).first;
+      bhmi = bhm.insert({ms, (unsigned short)bhm.size()}).first;
     }
     shape_id = bhmi->second;
   }

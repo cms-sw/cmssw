@@ -253,7 +253,7 @@ namespace mkfit {
         pnt.At(itrack, 0, 0) = mi.pos[0];
         pnt.At(itrack, 1, 0) = mi.pos[1];
         pnt.At(itrack, 2, 0) = mi.pos[2];
-	//std::cout << "packModuleNormDirPnt id=" << hit_cnt << " norm=(" << mi.zdir[0] << ", " << mi.zdir[1] << ", " << mi.zdir[2] << ") - dir=(" << mi.xdir[0] << ", " << mi.xdir[1] << ", " << mi.xdir[2] << ") -  pnt=(" << mi.pos[0] << ", " << mi.pos[1] << ", " << mi.pos[2] << ")" << std::endl;
+        //std::cout << "packModuleNormDirPnt id=" << hit_cnt << " norm=(" << mi.zdir[0] << ", " << mi.zdir[1] << ", " << mi.zdir[2] << ") - dir=(" << mi.xdir[0] << ", " << mi.xdir[1] << ", " << mi.xdir[2] << ") -  pnt=(" << mi.pos[0] << ", " << mi.pos[1] << ", " << mi.pos[2] << ")" << std::endl;
       }
     }
   }
@@ -1022,10 +1022,6 @@ namespace mkfit {
 
               // This could work well instead of prop-to-r, too. Limit to 0.05 rad, 2.85 deg.
               if (std::abs(mi.zdir(2)) > 0.05f) {
-
-                //X printf("On layer %d, z=%.2f, pT=%.2f --- mid=%u mid-fixed=%u (n_mod=%d)\n",
-                //X   L.layer_id(), mp_is.z, 1.0f/mp_is.inv_pt, hit.detIDinLayer(), mid, LI.n_modules());
-
                 prop_fail = mp_is.propagate_to_plane(mp::PA_Line, mi, mp_s, true);
                 new_q = mp_s.z;
                 /*
@@ -1038,11 +1034,7 @@ namespace mkfit {
                 new_ddq = std::abs(new_ddq);
                 */
                 new_ddq = std::abs(new_q - L.hit_q(hi));
-                // dq from z direction is actually projected ... so just take plain dz.
-
-                //X printf("  New ddq=%.4f, not-on-plane=%.4f, old-style=%.4f\n",
-                //X         new_ddq, std::abs(new_q - L.hit_q(hi)), std::abs(mp_is.z - L.hit_q(hi)));
-                //X dumpehit = true;
+                // dq from z direction is actually projected, so just take plain dz.
 
               } else {
                 prop_fail = mp_is.propagate_to_r(mp::PA_Exact, L.hit_qbar(hi), mp_s, true);

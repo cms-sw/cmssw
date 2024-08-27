@@ -169,7 +169,7 @@ namespace mkfit {
       return n;
     }
 
-    void assert_sizeof_match(int size_on_file, int size_of_class, const char *class_name) {
+    void assert_sizeof_match(int size_on_file, int size_of_class, const char* class_name) {
       if (size_on_file != size_of_class) {
         fprintf(stderr,
                 "sizeof(%s) on file (%d) different from current value (%d).\n",
@@ -195,7 +195,7 @@ namespace mkfit {
     fh.f_n_layers = n_layers();
     fwrite(&fh, sizeof(GeomFileHeader), 1, fp);
 
-    write_std_vec(fp, m_layers, (int) offsetof(LayerInfo, m_final_member_for_streaming));
+    write_std_vec(fp, m_layers, (int)offsetof(LayerInfo, m_final_member_for_streaming));
     write_std_vec(fp, m_barrel);
     write_std_vec(fp, m_ecap_pos);
     write_std_vec(fp, m_ecap_neg);
@@ -246,7 +246,7 @@ namespace mkfit {
            fh.f_format_version,
            fh.f_n_layers);
 
-    read_std_vec(fp, m_layers, (int) offsetof(LayerInfo, m_final_member_for_streaming));
+    read_std_vec(fp, m_layers, (int)offsetof(LayerInfo, m_final_member_for_streaming));
     read_std_vec(fp, m_barrel);
     read_std_vec(fp, m_ecap_pos);
     read_std_vec(fp, m_ecap_neg);

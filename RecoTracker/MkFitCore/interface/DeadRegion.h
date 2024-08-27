@@ -9,6 +9,6 @@ namespace mkfit {
     DeadRegion(float a1, float a2, float b1, float b2) : phi1(a1), phi2(a2), q1(b1), q2(b2) {}
   };
   typedef std::vector<DeadRegion> DeadVec;
-}
+}  // namespace mkfit
 
 #endif

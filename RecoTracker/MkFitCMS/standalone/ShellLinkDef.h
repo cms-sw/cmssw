@@ -9,14 +9,14 @@
 
 #pragma link C++ class mkfit::Shell;
 #pragma link C++ class mkfit::Event;
-#pragma link C++ class mkfit::Hit+;
-#pragma link C++ class mkfit::HitOnTrack+;
-#pragma link C++ class std::vector<mkfit::HitOnTrack>+;
-#pragma link C++ class mkfit::TrackState+;
-#pragma link C++ class mkfit::TrackBase+;
-#pragma link C++ class mkfit::TrackBase::Status+;
-#pragma link C++ class mkfit::Track+;
-#pragma link C++ class std::vector<mkfit::Track>+;
+#pragma link C++ class mkfit::Hit + ;
+#pragma link C++ class mkfit::HitOnTrack + ;
+#pragma link C++ class std::vector < mkfit::HitOnTrack> + ;
+#pragma link C++ class mkfit::TrackState + ;
+#pragma link C++ class mkfit::TrackBase + ;
+#pragma link C++ class mkfit::TrackBase::Status + ;
+#pragma link C++ class mkfit::Track + ;
+#pragma link C++ class std::vector < mkfit::Track> + ;
 
 #pragma link C++ class mkfit::ModuleShape;
 #pragma link C++ class mkfit::ModuleInfo;

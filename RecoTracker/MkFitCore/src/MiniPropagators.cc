@@ -119,13 +119,12 @@ namespace mkfit::mini_propagators {
         //X              (z - mi.pos(2)) * mi.zdir(2);
 
         // t * p_vec intersects the plane:
-        float t = (mi.pos(0) * mi.zdir(0) + mi.pos(1) * mi.zdir(1) + mi.pos(2) * mi.zdir(2) -
-                   x * mi.zdir(0) - y * mi.zdir(1) - z * mi.zdir(2)) /
+        float t = (mi.pos(0) * mi.zdir(0) + mi.pos(1) * mi.zdir(1) + mi.pos(2) * mi.zdir(2) - x * mi.zdir(0) -
+                   y * mi.zdir(1) - z * mi.zdir(2)) /
                   (px * mi.zdir(0) + py * mi.zdir(1) + pz * mi.zdir(2));
 
         //X printf("  module-center: %.2f,%.2f,%.2f  pos: %.2f,%.2f,%.2f  normal: %.2f,%.2f,%.2f\n",
         //X        mi.pos(0),mi.pos(1),mi.pos(2), x, y, z, mi.zdir(0),mi.zdir(1),mi.zdir(2));
-
 
         c = *this;
         c.x += t * c.px;

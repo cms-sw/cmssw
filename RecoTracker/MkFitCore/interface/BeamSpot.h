@@ -12,6 +12,6 @@ namespace mkfit {
     BeamSpot(float ix, float iy, float iz, float is, float ibx, float iby, float idxdz, float idydz)
         : x(ix), y(iy), z(iz), sigmaZ(is), beamWidthX(ibx), beamWidthY(iby), dxdz(idxdz), dydz(idydz) {}
   };
-}
+}  // namespace mkfit
 
 #endif

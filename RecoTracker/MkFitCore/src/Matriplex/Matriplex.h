@@ -8,14 +8,16 @@
 #ifdef MPLEX_VDT_USE_STD
 // this falls back to using std:: versions -- for testing and cross checking.
 namespace std {
-  template <typename T> T isqrt(T x) {
+  template <typename T>
+  T isqrt(T x) {
     return T(1.0) / std::sqrt(x);
   }
-  template <typename T> void sincos(T a, T &s, T &c) {
+  template <typename T>
+  void sincos(T a, T& s, T& c) {
     s = std::sin(a);
     c = std::cos(a);
   }
-}
+}  // namespace std
 #else
 #include "vdt/sqrt.h"
 #include "vdt/sin.h"
@@ -75,8 +77,8 @@ namespace Matriplex {
       return *this;
     }
 
-    template<typename TT>
-    Matriplex& negate_if_ltz(const Matriplex<TT, D1, D2, N> &sign) {
+    template <typename TT>
+    Matriplex& negate_if_ltz(const Matriplex<TT, D1, D2, N>& sign) {
       for (idx_t i = 0; i < kTotSize; ++i) {
         if (sign.fArray[i] < 0)
           fArray[i] = -fArray[i];
@@ -109,11 +111,11 @@ namespace Matriplex {
     QReduced operator()(idx_t i, idx_t j) const { return ReduceFixedIJ(i, j); }
 
     struct QAssigner {
-      Matriplex &m_matriplex;
-      const int  m_i, m_j;
+      Matriplex& m_matriplex;
+      const int m_i, m_j;
 
-      QAssigner(Matriplex &m, int i, int j) : m_matriplex(m), m_i(i), m_j(j) {}
-      Matriplex& operator=(const QReduced &qvec) {
+      QAssigner(Matriplex& m, int i, int j) : m_matriplex(m), m_i(i), m_j(j) {}
+      Matriplex& operator=(const QReduced& qvec) {
         for (idx_t n = 0; n < N; ++n) {
           m_matriplex(n, m_i, m_j) = qvec[n];
         }
@@ -289,12 +291,12 @@ namespace Matriplex {
   for (idx_t i = 0; i < kTotSize; ++i) \
     _ass_ std::_func_(__VA_ARGS__);
 #else
-#define VDT_INVOKE(_ass_, _func_, ...) \
-  for (idx_t i = 0; i < kTotSize; ++i) \
-    if constexpr (std::is_same<T, float>()) \
-      _ass_ vdt::fast_ ## _func_ ## f(__VA_ARGS__); \
-    else \
-      _ass_ vdt::fast_ ## _func_(__VA_ARGS__);
+#define VDT_INVOKE(_ass_, _func_, ...)          \
+  for (idx_t i = 0; i < kTotSize; ++i)          \
+    if constexpr (std::is_same<T, float>())     \
+      _ass_ vdt::fast_##_func_##f(__VA_ARGS__); \
+    else                                        \
+      _ass_ vdt::fast_##_func_(__VA_ARGS__);
 #endif
 
     Matriplex& fast_isqrt(const Matriplex& a) {
@@ -324,9 +326,7 @@ namespace Matriplex {
       return *this;
     }
 
-    void fast_sincos(Matriplex &s, Matriplex &c) const {
-      VDT_INVOKE(, sincos, ARR, s.fArray[i], c.fArray[i]);
-    }
+    void fast_sincos(Matriplex& s, Matriplex& c) const { VDT_INVOKE(, sincos, ARR, s.fArray[i], c.fArray[i]); }
 
     Matriplex& fast_tan(const Matriplex& a) {
       VDT_INVOKE(ASS, tan, A_ARR);
@@ -349,7 +349,7 @@ namespace Matriplex {
 #undef A_ARR
 #endif
 
-    void sincos4(Matriplex &s, Matriplex &c) const {
+    void sincos4(Matriplex& s, Matriplex& c) const {
       for (idx_t i = 0; i < kTotSize; ++i)
         internal::sincos4(fArray[i], s.fArray[i], c.fArray[i]);
     }

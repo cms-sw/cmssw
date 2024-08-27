@@ -99,8 +99,8 @@ private:
                                                                   const Propagator& propagatorAlong,
                                                                   const Propagator& propagatorOpposite,
                                                                   const TkClonerImpl& hitCloner,
-								  const bool isPhase1,
-								  bool lastHitWasInvalid,
+                                                                  const bool isPhase1,
+                                                                  bool lastHitWasInvalid,
                                                                   bool lastHitWasChanged) const;
 
   std::pair<TrajectoryStateOnSurface, const GeomDet*> convertInnermostState(const FreeTrajectoryState& fts,
@@ -252,7 +252,7 @@ void MkFitOutputConverter::produce(edm::StreamID iID, edm::Event& iEvent, const 
                                    iSetup.getData(propagatorAlongToken_),
                                    iSetup.getData(propagatorOppositeToken_),
                                    iSetup.getData(mkFitGeomToken_),
-				   iSetup.getData(tTopoToken_),
+                                   iSetup.getData(tTopoToken_),
                                    tkBuilder->cloner(),
                                    mkFitGeom.detLayers(),
                                    mkfitSeeds.seeds(),
@@ -354,7 +354,7 @@ TrackCandidateCollection MkFitOutputConverter::convertCandidates(const MkFitOutp
     edm::OwnVector<TrackingRecHit> recHits;
     // nTotalHits() gives sum of valid hits (nFoundHits()) and invalid/missing hits.
     const int nhits = cand.nTotalHits();
-    //std::cout << candIndex << ": " << nhits << " " << cand.nFoundHits() << std::endl; 
+    //std::cout << candIndex << ": " << nhits << " " << cand.nFoundHits() << std::endl;
     bool lastHitInvalid = false;
     const auto isPhase1 = mkFitGeom.isPhase1();
     for (int i = 0; i < nhits; ++i) {
@@ -397,15 +397,14 @@ TrackCandidateCollection MkFitOutputConverter::convertCandidates(const MkFitOutp
         } else {
           if (thit.firstClusterRef().isPixel()) {
             recHits.push_back(hits[hitOnTrack.index]->clone());
-          }
-	  else if (thit.firstClusterRef().isPhase2()) {
+          } else if (thit.firstClusterRef().isPhase2()) {
             recHits.push_back(std::make_unique<Phase2TrackerRecHit1D>(
                 thit.localPosition(),
                 LocalError(thit.localPositionError().xx(), 0.f, std::numeric_limits<float>::max()),
                 *thit.det(),
                 thit.firstClusterRef().cluster_phase2OT()));
-	  }
-	}
+          }
+        }
         LogTrace("MkFitOutputConverter") << "  pos " << recHits.back().globalPosition().x() << " "
                                          << recHits.back().globalPosition().y() << " "
                                          << recHits.back().globalPosition().z() << " mag2 "
@@ -425,23 +424,21 @@ TrackCandidateCollection MkFitOutputConverter::convertCandidates(const MkFitOutp
       //const auto& bpos = b.globalPosition();
       // For Phase-1, can rely on subdetector index
       if (isPhase1) {
-	const auto asub_ph1 = a.geographicalId().subdetId();
-	const auto bsub_ph1 = b.geographicalId().subdetId();
-	const auto& apos_ph1 = a.globalPosition();
-	const auto& bpos_ph1 = b.globalPosition();
-	if (asub_ph1 != bsub_ph1) {
-	  // Subdetector order (BPix, FPix, TIB, TID, TOB, TEC) corresponds also the navigation
-	  return asub_ph1 < bsub_ph1;
-	}
-	else {
-	  //if (GeomDetEnumerators::isBarrel(asub)) {
-	  if (isPhase1Barrel(asub_ph1)) {
-	    return apos_ph1.perp2() < bpos_ph1.perp2();
-	  }
-	  else {
-	    return std::abs(apos_ph1.z()) < std::abs(bpos_ph1.z());
-	  }
-	}
+        const auto asub_ph1 = a.geographicalId().subdetId();
+        const auto bsub_ph1 = b.geographicalId().subdetId();
+        const auto& apos_ph1 = a.globalPosition();
+        const auto& bpos_ph1 = b.globalPosition();
+        if (asub_ph1 != bsub_ph1) {
+          // Subdetector order (BPix, FPix, TIB, TID, TOB, TEC) corresponds also the navigation
+          return asub_ph1 < bsub_ph1;
+        } else {
+          //if (GeomDetEnumerators::isBarrel(asub)) {
+          if (isPhase1Barrel(asub_ph1)) {
+            return apos_ph1.perp2() < bpos_ph1.perp2();
+          } else {
+            return std::abs(apos_ph1.z()) < std::abs(bpos_ph1.z());
+          }
+        }
       }
 
       // For Phase-2, can not rely uniquely on subdetector index
@@ -450,23 +447,24 @@ TrackCandidateCollection MkFitOutputConverter::convertCandidates(const MkFitOutp
       const auto& apos = a.globalPosition();
       const auto& bpos = b.globalPosition();
       const auto aid = a.geographicalId().rawId();
-      const auto bid =b.geographicalId().rawId();
+      const auto bid = b.geographicalId().rawId();
       const auto asubid = a.geographicalId().subdetId();
       const auto bsubid = b.geographicalId().subdetId();
       if (GeomDetEnumerators::isBarrel(asub) || GeomDetEnumerators::isBarrel(bsub)) {
-	// For barrel tilted modules, or in case (only) one of the two modules is barrel, use 3D position
-	if ((asubid==StripSubdetector::TOB && tTopo.tobSide(aid)<3) || (bsubid==StripSubdetector::TOB && tTopo.tobSide(bid)<3) ||
-	    !(GeomDetEnumerators::isBarrel(asub) && GeomDetEnumerators::isBarrel(bsub))) {
-	  return apos.mag2() < bpos.mag2();
-	}
-	// For fully barrel comparisons and no tilt, use 2D position
-	else {
-	  return apos.perp2() < bpos.perp2();
-	}
+        // For barrel tilted modules, or in case (only) one of the two modules is barrel, use 3D position
+        if ((asubid == StripSubdetector::TOB && tTopo.tobSide(aid) < 3) ||
+            (bsubid == StripSubdetector::TOB && tTopo.tobSide(bid) < 3) ||
+            !(GeomDetEnumerators::isBarrel(asub) && GeomDetEnumerators::isBarrel(bsub))) {
+          return apos.mag2() < bpos.mag2();
+        }
+        // For fully barrel comparisons and no tilt, use 2D position
+        else {
+          return apos.perp2() < bpos.perp2();
+        }
       }
       // For fully endcap comparisons, use z position
       else {
-	return std::abs(apos.z()) < std::abs(bpos.z());
+        return std::abs(apos.z()) < std::abs(bpos.z());
       }
     });
 
@@ -482,10 +480,16 @@ TrackCandidateCollection MkFitOutputConverter::convertCandidates(const MkFitOutp
     // otherwise, candidates undergo backwardFit where error is already rescaled
     if (mkFitOutput.propagatedToFirstLayer() && doErrorRescale_)
       fts.rescaleError(100.);
-    auto tsosDet =
-        mkFitOutput.propagatedToFirstLayer()
-            ? convertInnermostState(fts, recHits, propagatorAlong, propagatorOpposite)
-            : backwardFit(fts, recHits, propagatorAlong, propagatorOpposite, hitCloner, isPhase1, lastHitInvalid, lastHitChanged);
+    auto tsosDet = mkFitOutput.propagatedToFirstLayer()
+                       ? convertInnermostState(fts, recHits, propagatorAlong, propagatorOpposite)
+                       : backwardFit(fts,
+                                     recHits,
+                                     propagatorAlong,
+                                     propagatorOpposite,
+                                     hitCloner,
+                                     isPhase1,
+                                     lastHitInvalid,
+                                     lastHitChanged);
     if (!tsosDet.first.isValid()) {
       edm::LogInfo("MkFitOutputConverter")
           << "Backward fit of candidate " << candIndex << " failed, ignoring the candidate";
@@ -565,17 +569,16 @@ std::pair<TrajectoryStateOnSurface, const GeomDet*> MkFitOutputConverter::backwa
     if (isPhase1) {
       const auto lastHitSubdet = firstHits.front()->geographicalId().subdetId();
       if (isPhase1Barrel(lastHitSubdet)) {
-	doSwitch = (surfacePos.perp2() < lastHitPos.perp2());
+        doSwitch = (surfacePos.perp2() < lastHitPos.perp2());
       } else {
-	doSwitch = (surfacePos.z() < lastHitPos.z());
+        doSwitch = (surfacePos.z() < lastHitPos.z());
       }
-    }
-    else {
+    } else {
       const auto lastHitSubdet = firstHits.front()->det()->subDetector();
       if (GeomDetEnumerators::isBarrel(lastHitSubdet)) {
-	doSwitch = (surfacePos.perp2() < lastHitPos.perp2());
+        doSwitch = (surfacePos.perp2() < lastHitPos.perp2());
       } else {
-	doSwitch = (surfacePos.z() < lastHitPos.z());
+        doSwitch = (surfacePos.z() < lastHitPos.z());
       }
     }
     if (doSwitch) {

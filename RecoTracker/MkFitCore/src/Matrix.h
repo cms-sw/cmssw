@@ -72,7 +72,7 @@ namespace mkfit {
   typedef Matriplex::Matriplex<float, LL, HH, NN> MPlexLH;
   typedef Matriplex::Matriplex<float, HH, LL, NN> MPlexHL;
 
-  typedef Matriplex::Matriplex<float,  5, 2, NN> MPlex52;
+  typedef Matriplex::Matriplex<float, 5, 2, NN> MPlex52;
   typedef Matriplex::Matriplex<float, LL, 2, NN> MPlexL2;
   typedef Matriplex::Matriplex<float, HH, 2, NN> MPlexH2;
   typedef Matriplex::Matriplex<float, 2, HH, NN> MPlex2H;

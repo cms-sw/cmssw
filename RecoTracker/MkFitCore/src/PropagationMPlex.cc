@@ -624,27 +624,27 @@ namespace mkfit {
       }
       applyMaterialEffects(hitsRl, hitsXi, propSign, plNrm, outErr, outPar, N_proc);
 #ifdef DEBUG
-    if (debug && g_debug) {
-      for (int kk = 0; kk < N_proc; ++kk) {
-        dprintf("propSign %d\n", kk);
-        for (int i = 0; i < 1; ++i) {
-	  dprintf("%8f ", propSign.constAt(kk, i, 0));
-        }
-        dprintf("\n");
-        dprintf("plNrm %d\n", kk);
-        for (int i = 0; i < 3; ++i) {
-	  dprintf("%8f ", plNrm.constAt(kk, i, 0));
-        }
-        dprintf("\n");
-        dprintf("outErr(after material) %d\n", kk);
-        for (int i = 0; i < 6; ++i) {
-          for (int j = 0; j < 6; ++j)
-            dprintf("%8f ", outErr.constAt(kk, i, j));
+      if (debug && g_debug) {
+        for (int kk = 0; kk < N_proc; ++kk) {
+          dprintf("propSign %d\n", kk);
+          for (int i = 0; i < 1; ++i) {
+            dprintf("%8f ", propSign.constAt(kk, i, 0));
+          }
+          dprintf("\n");
+          dprintf("plNrm %d\n", kk);
+          for (int i = 0; i < 3; ++i) {
+            dprintf("%8f ", plNrm.constAt(kk, i, 0));
+          }
+          dprintf("\n");
+          dprintf("outErr(after material) %d\n", kk);
+          for (int i = 0; i < 6; ++i) {
+            for (int j = 0; j < 6; ++j)
+              dprintf("%8f ", outErr.constAt(kk, i, j));
+            dprintf("\n");
+          }
           dprintf("\n");
         }
-        dprintf("\n");
       }
-    }
 #endif
     }
 
@@ -1186,7 +1186,7 @@ namespace mkfit {
               << "   pos = " << outPar(n, 0, 0) << " " << outPar(n, 1, 0) << " " << outPar(n, 2, 0) << "\t\t r="
               << std::sqrt(outPar(n, 0, 0) * outPar(n, 0, 0) + outPar(n, 1, 0) * outPar(n, 1, 0)) << std::endl
               << "   mom = " << outPar(n, 3, 0) << " " << outPar(n, 4, 0) << " " << outPar(n, 5, 0) << std::endl
-		          << " charge = " << inChg(n, 0, 0) << std::endl
+              << " charge = " << inChg(n, 0, 0) << std::endl
               << " cart= " << std::cos(outPar(n, 4, 0)) / outPar(n, 3, 0) << " "
               << std::sin(outPar(n, 4, 0)) / outPar(n, 3, 0) << " " << 1. / (outPar(n, 3, 0) * tan(outPar(n, 5, 0)))
               << "\t\tpT=" << 1. / std::abs(outPar(n, 3, 0)) << std::endl);
