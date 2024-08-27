@@ -75,11 +75,11 @@ PATTauHybridProducer::PATTauHybridProducer(const edm::ParameterSet& cfg)
       utagJetScoreNames_.push_back(name);
     if (UtagPtCorrName_.find(':') != std::string::npos)
       UtagPtCorrName_ = UtagPtCorrName_.substr(UtagPtCorrName_.find(':') + 1);
-    // GenJet matching
-    if (addGenJetMatch_) {
-      genJetMatchToken_ =
-          consumes<edm::Association<reco::GenJetCollection>>(cfg.getParameter<edm::InputTag>("genJetMatch"));
-    }
+  }
+  // GenJet matching
+  if (addGenJetMatch_) {
+    genJetMatchToken_ =
+        consumes<edm::Association<reco::GenJetCollection>>(cfg.getParameter<edm::InputTag>("genJetMatch"));
   }
 
   produces<std::vector<pat::Tau>>();
