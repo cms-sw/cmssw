@@ -14,7 +14,7 @@ public:
                                      bool filter,
                                      bool isSaturated,
                                      bool peakFilter = false)
-      : barycenter_(barycenter),
+      : compBarycenter_(barycenter),
         width_(width),
         avgCharge_(avgCharge),
         filter_(filter),
@@ -26,9 +26,7 @@ public:
                                      float hitPredPos,
                                      bool peakFilter);
 
-  cms_uint16_t barycenter() const { return barycenter_; }
-  cms_uint16_t compBarycenter() const { return barycenter_ * maxRange/maxBarycenter; }
-  cms_uint8_t conversion_factor() const { return maxBarycenter/maxRange; }
+  float barycenter() const { return compBarycenter_ * maxBarycenter/maxRange; }
   cms_uint8_t width() const { return width_; }
   cms_uint8_t avgCharge() const { return avgCharge_; }
   bool filter() const { return filter_; }
@@ -36,13 +34,13 @@ public:
   bool peakFilter() const { return peakFilter_; }
 
 private:
-  cms_uint16_t barycenter_ = 0;
-  cms_uint8_t maxRange = 255;
+  cms_uint16_t compBarycenter_ = 0;
   cms_uint8_t width_ = 0;
   cms_uint8_t avgCharge_ = 0;
   bool filter_ = false;
   bool isSaturated_ = false;
   bool peakFilter_ = false;
+  static constexpr double maxRange = 255.;
   static constexpr double maxBarycenter = 765.;
   static constexpr double trimMaxADC_ = 30.;
   static constexpr double trimMaxFracTotal_ = .15;
