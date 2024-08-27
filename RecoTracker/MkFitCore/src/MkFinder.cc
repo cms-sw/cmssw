@@ -1011,17 +1011,43 @@ namespace mkfit {
             bool prop_fail;
 
             if (L.is_barrel()) {
-              prop_fail = mp_is.propagate_to_r(mp::PA_Exact, L.hit_qbar(hi), mp_s, true);
-              new_q = mp_s.z;
+              const Hit &hit = L.refHit(hi_orig);
+              unsigned int mid = hit.detIDinLayer();
+              const ModuleInfo &mi = LI.module_info(mid);
+	      
+              // Original condition, for phase2
+              // if (L.layer_id() >= 4 && L.layer_id() <= 9 && std::abs(mp_is.z) > 10.f) {
+	      
+              // This could work well instead of prop-to-r, too. Limit to 0.05 rad, 2.85 deg.
+              if (std::abs(mi.zdir(2)) > 0.05f) {
+	      
+                prop_fail = mp_is.propagate_to_plane(mp::PA_Line, mi, mp_s, true);
+                new_q = mp_s.z;
+                /*
+                // This for calculating ddq on the dector plane, along the "strip" direction.
+                // NOTE -- should take full covariance and project it onto ydir.
+                SVector3 ydir = mi.calc_ydir();
+                new_ddq = (mp_s.x - mi.pos(0)) * ydir(0) +
+                          (mp_s.y - mi.pos(1)) * ydir(1) +
+                          (mp_s.z - mi.pos(2)) * ydir(2);
+                new_ddq = std::abs(new_ddq);
+                */
+                new_ddq = std::abs(new_q - L.hit_q(hi));
+                // dq from z direction is actually projected, so just take plain dz.
+	      
+              } else {
+                prop_fail = mp_is.propagate_to_r(mp::PA_Exact, L.hit_qbar(hi), mp_s, true);
+                new_q = mp_s.z;
+                new_ddq = std::abs(new_q - L.hit_q(hi));
+	      }
             } else {
               prop_fail = mp_is.propagate_to_z(mp::PA_Exact, L.hit_qbar(hi), mp_s, true);
               new_q = std::hypot(mp_s.x, mp_s.y);
+	      new_ddq = std::abs(new_q - L.hit_q(hi));
             }
 
             new_phi = vdt::fast_atan2f(mp_s.y, mp_s.x);
             new_ddphi = cdist(std::abs(new_phi - L.hit_phi(hi)));
-            new_ddq = std::abs(new_q - L.hit_q(hi));
-
             bool dqdphi_presel = new_ddq < B.dq_track[itrack] + DDQ_PRESEL_FAC * L.hit_q_half_length(hi) &&
                                  new_ddphi < B.dphi_track[itrack] + DDPHI_PRESEL_FAC * 0.0123f;
 
