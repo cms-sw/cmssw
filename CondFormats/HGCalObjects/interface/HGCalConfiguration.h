@@ -8,7 +8,7 @@
 #include <vector>
 
 // @short configuration for ECON eRX (one half of HGROC)
-struct HGCalROCConfig_t {
+struct HGCalROCConfig {
   uint32_t charMode;  // characterization mode; determines data fields in ROC dataframe
   uint8_t gain;       // pre-amp gain used (1: 80 fC, 2: 160 fC, 4: 320 fC)
   //uint32_t clockPhase;     // fine adjustment of the phase within the 40 MHz
@@ -19,32 +19,32 @@ struct HGCalROCConfig_t {
 };
 
 // @short configuration for ECON-D module
-struct HGCalECONDConfig_t {
+struct HGCalECONDConfig {
   //std::string typecode;
   uint32_t headerMarker;  // begin of event marker/identifier for ECON-D
   uint32_t passThrough;   //pass through mode (this is just as check as it'll be in the ECON-D header anyway)
-  std::vector<HGCalROCConfig_t> rocs;
+  std::vector<HGCalROCConfig> rocs;
   COND_SERIALIZABLE;
 };
 
 // @short configuration for FED
-struct HGCalFedConfig_t {
+struct HGCalFedConfig {
   bool mismatchPassthroughMode;  // ignore ECON-D packet mismatches
   uint32_t cbHeaderMarker;       // begin of event marker/identifier for capture block
   uint32_t slinkHeaderMarker;    // begin of event marker/identifier for S-link
   //uint32_t delay; // delay
-  std::vector<HGCalECONDConfig_t> econds;
+  std::vector<HGCalECONDConfig> econds;
   COND_SERIALIZABLE;
 };
 
 /**
  *  @short Main HGCal configuration with a tree structure of vectors of
- *         HGCalFedConfig_t/HGCalECONDConfig_t/HGCalROCConfig_t structs as follows:
+ *         HGCalFedConfig/HGCalECONDConfig/HGCalROCConfig structs as follows:
  %         config.feds[dense_fed_idx].econds[dense_econd_idx].rocs[dense_eRx_idx]
  **/
 class HGCalConfiguration {
 public:
-  std::vector<HGCalFedConfig_t> feds;
+  std::vector<HGCalFedConfig> feds;
   //friend std::ostream& operator<< (std::ostream&, const HGCalConfiguration&);
 
 private:

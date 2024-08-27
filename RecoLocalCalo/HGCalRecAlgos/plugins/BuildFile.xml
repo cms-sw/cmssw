@@ -19,7 +19,6 @@
   <use name="DataFormats/HGCalDigi"/>
   <use name="DataFormats/HGCalRecHit"/>
   <use name="DataFormats/Math"/>
-  <use name="DataFormats/TestObjects"/>
   <use name="HeterogeneousCore/AlpakaCore"/>
   <use name="HeterogeneousCore/AlpakaInterface"/>
   <flags ALPAKA_BACKENDS="1"/>

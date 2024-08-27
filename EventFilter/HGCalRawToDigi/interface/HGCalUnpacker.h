@@ -148,14 +148,6 @@ private:
                                           hgcal::DIGI_FLAG::FULL_READOUT,
                                           hgcal::DIGI_FLAG::FULL_READOUT};
   constexpr static uint32_t erxBodyBits_[16] = {24, 16, 24, 24, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32};
-
-  // HGCalUnpackerConfig config_;
-  // size_t channelDataSize_{0};                                             ///< Size of unpacked channels
-  // size_t commonModeDataSize_{0};                                          ///< Size of unpacked common modes
-  // std::vector<HGCROCChannelDataFrame<HGCalElectronicsId> > channelData_;  ///< Array for unpacked channels
-  // std::vector<uint16_t> commonModeSum_;
-  // std::vector<HGCROCChannelDataFrame<HGCalElectronicsId> > commonModeData_;  ///< Array for unpacked common modes
-  // HGCalFlaggedECONDInfoCollection flaggedECOND_;                             ///< Array with flagged ECON-D information
 };
 
 #endif

@@ -18,13 +18,11 @@ namespace hgcalrechit {
 
   // Generate structure of channel-level arrays (SoA) layout with RecHit dataformat
   GENERATE_SOA_LAYOUT(HGCalCalibParamSoALayout,
-                      //SOA_SCALAR(HGCalMappingModuleIndexer, map), // dense idx map: now redundant & NOT thread safe !?
                       SOA_COLUMN(float, ADC_ped),     // ADC pedestals, O(91)
                       SOA_COLUMN(float, Noise),       // noise, O(3)
                       SOA_COLUMN(float, CM_slope),    // common mode slope, O(0.25)
                       SOA_COLUMN(float, CM_ped),      // common mode pedestal (offset), O(92)
                       SOA_COLUMN(float, BXm1_slope),  // leakage correction from previous bunch, O(0.0)
-                      //SOA_COLUMN(float, BXm1_ped),  // redundant
                       SOA_COLUMN(float, ADCtofC),  // ADC conversion to charge (fC), depends on gain (80, 160, 320 fC)
                       SOA_COLUMN(float, TOTtofC),  // TOT conversion to charge (fC), depends on gain (80, 160, 320 fC)
                       SOA_COLUMN(float, TOT_ped),  // TOT pedestal (offset), O(9.0)
@@ -40,7 +38,6 @@ namespace hgcalrechit {
 
   // Generate structure of ROC-level arrays (SoA) layout with RecHit dataformat
   GENERATE_SOA_LAYOUT(HGCalConfigParamSoALayout,
-                      //SOA_SCALAR(HGCalMappingModuleIndexer, map), // dense idx map: now redundant & NOT thread safe !?
                       SOA_COLUMN(uint8_t, gain)  // for ADC to charge (fC) conversion (80, 160, 320 fC)
   )
   using HGCalConfigParamSoA = HGCalConfigParamSoALayout<>;

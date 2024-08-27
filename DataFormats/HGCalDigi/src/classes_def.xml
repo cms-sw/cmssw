@@ -44,7 +44,6 @@
   <class name="hgcaldigi::HGCalDigiSoA"/>
   <class name="hgcaldigi::HGCalDigiSoA::View"/>
   <class name="hgcaldigi::HGCalDigiHost"/>
-  <!-- <class name="edm::Wrapper<hgcaldigi::HGCalDigiHost" splitLevel="0"/> -->
 
   <class name="hgcaldigi::HGCalDigiSoALayout<128,false>"/>
   <class name="edm::Wrapper<PortableHostCollection<hgcaldigi::HGCalDigiSoALayout<128,false> > >" splitLevel="0"/>
@@ -55,21 +54,6 @@
   <class name="hgcaldigi::HGCalECONDPacketInfoSoA"/>
   <class name="hgcaldigi::HGCalECONDPacketInfoSoA::View"/>
   <class name="hgcaldigi::HGCalECONDPacketInfoHost"/>
-  <read
-    sourceClass="hgcaldigi::HGCalECONDPacketInfoHost"
-    targetClass="hgcaldigi::HGCalECONDPacketInfoHost"
-    version="[1-]"
-    source="hgcaldigi::HGCalECONDPacketInfoSoA layout_;"
-    target="buffer_,layout_,view_"
-    embed="false">
-  <![CDATA[
-    hgcaldigi::HGCalECONDPacketInfoHost::ROOTReadStreamer(newObj, onfile.layout_);
-  ]]>
-  </read>
   <class name="edm::Wrapper<hgcaldigi::HGCalECONDPacketInfoHost>" splitLevel="0"/>
-
-  <class name="HGCalFlaggedECONDInfo"/>
-  <class name="HGCalFlaggedECONDInfoCollection"/>
-  <class name="edm::Wrapper<HGCalFlaggedECONDInfoCollection>"/>
 
 </lcgdict>

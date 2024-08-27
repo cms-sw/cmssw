@@ -55,7 +55,7 @@ namespace hgcal {
     std::vector<uint32_t> buildCaptureBlockHeader(uint32_t bunch_crossing,
                                                   uint32_t event_counter,
                                                   uint32_t orbit_counter,
-                                                  const std::vector<ECONDPacketStatus>& econd_statuses);
+                                                  const std::vector<uint8_t>& econd_statuses);
 
     /// builds the slink frame header (128 bits header = 4 words)
     /// \return a vector with 4 32b words

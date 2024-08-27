@@ -55,15 +55,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       //
       std::optional<HGCalDenseIndexInfoHost> produce(const HGCalDenseIndexInfoRcd& iRecord) {
         //geometry
-        auto const& geo = iRecord.getRecord<CaloGeometryRecord>().get(caloGeomToken_);
+        auto const& geo = iRecord.get(caloGeomToken_);
 
         //get cell and module indexer
-        auto modIndexer = iRecord.getRecord<HGCalElectronicsMappingRcd>().get(moduleIndexTkn_);
-        auto cellIndexer = iRecord.getRecord<HGCalElectronicsMappingRcd>().get(cellIndexTkn_);
+        auto modIndexer = iRecord.get(moduleIndexTkn_);
+        auto cellIndexer = iRecord.get(cellIndexTkn_);
 
         //get cell and module info
-        auto const& moduleInfo = iRecord.getRecord<HGCalElectronicsMappingRcd>().get(moduleInfoTkn_);
-        auto const& cellInfo = iRecord.getRecord<HGCalElectronicsMappingRcd>().get(cellInfoTkn_);
+        auto const& moduleInfo = iRecord.get(moduleInfoTkn_);
+        auto const& cellInfo = iRecord.get(cellInfoTkn_);
 
         //declare the dense index info collection to be produced
         //the size is determined by the module indexer

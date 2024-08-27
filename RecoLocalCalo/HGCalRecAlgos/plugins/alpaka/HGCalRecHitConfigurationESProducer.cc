@@ -56,9 +56,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       }
 
       std::optional<hgcalrechit::HGCalConfigParamHost> produce(const HGCalModuleConfigurationRcd& iRecord) {
-        //std::cout << "HGCalConfigurationESProducer::produce" << std::endl;
         auto const& config = iRecord.get(configToken_);
-        auto const& moduleMap = iRecord.getRecord<HGCalElectronicsMappingRcd>().get(indexToken_);
+        auto const& moduleMap = iRecord.get(indexToken_);
 
         // load dense indexing
         const uint32_t nERx = moduleMap.getMaxERxSize();  // half-ROC-level size
@@ -69,12 +68,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
         // fill SoA with gain
         if (gain_ > 0) {  // fill with single value from user override
-          std::cout << "HGCalConfigurationESProducer::produce: fill with default, gain=" << gain_ << std::endl;
+          //std::cout << "HGCalConfigurationESProducer::produce: fill with default, gain=" << gain_ << std::endl;
           for (uint32_t iroc = 0; iroc < nERx; iroc++) {
             product.view()[iroc].gain() = gain_;
           }
         } else {  // fill with ROC-dependent value from JSON via HGCalConfiguration
-          std::cout << "HGCalConfigurationESProducer::produce: nfeds=" << config.feds.size() << std::endl;
           for (uint32_t ifed = 0; ifed < config.feds.size(); ++ifed) {
             for (uint32_t imod = 0; imod < config.feds[ifed].econds.size(); ++imod) {
               for (uint32_t iroc = 0; iroc < config.feds[ifed].econds[imod].rocs.size(); ++iroc) {
@@ -92,7 +90,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     private:
       edm::ESGetToken<HGCalMappingModuleIndexer, HGCalElectronicsMappingRcd> indexToken_;
       edm::ESGetToken<HGCalConfiguration, HGCalModuleConfigurationRcd> configToken_;
-      int32_t gain_;  // manual override of YAML files
+      int32_t gain_ = -1;  // manual override of YAML files
     };
 
   }  // namespace hgcalrechit

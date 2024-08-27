@@ -1,13 +1,13 @@
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/SourceFactory.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/ESProducer.h"
-#include "FWCore/Framework/interface/ESTransientHandle.h"
-#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+// #include "FWCore/Framework/interface/MakerMacros.h"
+// #include "FWCore/Framework/interface/SourceFactory.h"
+// #include "FWCore/Framework/interface/ESHandle.h"
+// #include "FWCore/Framework/interface/ESProducer.h"
+// #include "FWCore/Framework/interface/ESTransientHandle.h"
+// #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
-#include "DataFormats/Math/interface/libminifloat.h"
+// #include "DataFormats/Math/interface/libminifloat.h"
 
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/ESGetToken.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/ESProducer.h"
@@ -58,7 +58,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
       template <typename T>
       static void fill_SoA_column(
-          T* col_SoA, const std::vector<T> values, const int offset, const int nrows, int arr_offset = 0) {
+          T* column_SoA, const std::vector<T>& values, const int offset, const int nrows, int arr_offset = 0) {
         // fill SoA column with data from vector for any type
         const int nrows_vals = values.size();
         if (arr_offset < 0) {
@@ -72,37 +72,30 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
               << " Tried to copy " << nrows << " rows to SoA with offset " << arr_offset << ", but only have "
               << nrows_vals << " values in JSON!";
         }
-        ::memcpy(&col_SoA[offset],
-                 &values.data()[arr_offset],
-                 sizeof(T) * nrows);  // use mybool (=std::byte) instead of bool
-        //return values;
+        auto begin = values.begin() + arr_offset;
+        auto end = (begin + nrows > values.end()) ? values.end() : begin + nrows;
+        std::copy(begin, end, &column_SoA[offset]);
       }
 
       std::optional<hgcalrechit::HGCalCalibParamHost> produce(const HGCalModuleConfigurationRcd& iRecord) {
-        auto const& moduleMap = iRecord.getRecord<HGCalElectronicsMappingRcd>().get(indexToken_);
+        auto const& moduleMap = iRecord.get(indexToken_);
         auto const& config = iRecord.get(configToken_);
-        //auto const& configHost = iRecord.get(configToken_);
-        //std::cout << "HGCalCalibrationESProducer::produce: configHost.size()="
-        //          << configHost.view().metadata().size() << std::endl;
 
         // load dense indexing
         const uint32_t nchans = moduleMap.getMaxDataSize();  // channel-level size
-        //const uint32_t nmod = moduleMap.getMaxERxSize(); // ROC-level size (number of ECON eRx)
         hgcalrechit::HGCalCalibParamHost product(nchans, cms::alpakatools::host());
-        //product.view().map() = moduleMap; // set dense indexing in SoA (now redundant & NOT thread safe !?)
         //std::cout << "HGCalCalibrationESProducer::produce: moduleMap.getMaxDataSize()=" << nchans
         //          << ", moduleMap.getMaxERxSize()=" << nmod << std::endl;
 
         // load calib parameters from JSON
-        //std::cout << "HGCalCalibrationESProducer::produce: filename_=" << filename_ << std::endl;
-        std::ifstream infile(filename_);
+        edm::FileInPath fip(filename_);
+        std::ifstream infile(fip.fullPath().c_str());
         json calib_data = json::parse(infile);
         for (const auto& it : calib_data.items()) {  // loop over module typecodes in JSON file
           std::string module = it.key();             // module typecode, e.g. "ML-F3PT-TX-0003"
           if (module == "Metadata")
             continue;  // ignore metadata fields
           const auto& [ifed, imod] = moduleMap.getIndexForFedAndModule(module);
-          //const uint32_t nERx = moduleMap.getMaxERxSize(); // half-ROC-level size
           const uint32_t offset =
               moduleMap.getIndexForModuleData(module);  // convert module typecode to dense index for this module
           const uint32_t nrows =
@@ -122,7 +115,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           // loop over ECON eRx blocks to fill columns for gain-dependent calibration parameters
           for (std::size_t iroc = 0; iroc < nrocs; ++iroc) {
             const uint32_t i_gain =
-              config.feds[ifed].econds[imod].rocs[iroc].gain; // index of JSON array corresponding to (index,gain) = (0,80fC), (1,160fC), (2,320fC)
+                config.feds[ifed]
+                    .econds[imod]
+                    .rocs[iroc]
+                    .gain;  // index of JSON array corresponding to (index,gain) = (0,80fC), (1,160fC), (2,320fC)
             const uint32_t offset_arr = iroc * nchans;        // dense index offset for JSON array (input to SoA)
             const uint32_t offset_soa = offset + offset_arr;  // dense index offset for SoA
             //std::cout << "HGCalCalibrationESProducer::produce:   iroc=" << iroc << ", nchans=" << nchans
@@ -159,8 +155,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                   calib_data[module]["Valid"],
                                   offset,
                                   nrows);  // mybool (=std::byte) defined in HGCalCalibrationParameterSoA.h
-
-          //std::cout << "HGCalCalibrationESProducer::produce: memcpied all columns !" << std::endl;
         }
 
         return product;
@@ -169,8 +163,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     private:
       edm::ESGetToken<HGCalMappingModuleIndexer, HGCalElectronicsMappingRcd> indexToken_;
       edm::ESGetToken<HGCalConfiguration, HGCalModuleConfigurationRcd> configToken_;
-      //edm::ESGetToken<hgcalrechit::HGCalConfigParamHost, HGCalModuleConfigurationRcd> configToken_;
-      //device::ESGetToken<hgcalrechit::HGCalConfigParamDevice, HGCalModuleConfigurationRcd> configToken_;
       const std::string filename_;
     };
 

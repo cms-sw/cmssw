@@ -1,6 +1,8 @@
 #ifndef DataFormats_HGCalDigi_interface_HGCalECONDPacketInfoSoA_h
 #define DataFormats_HGCalDigi_interface_HGCalECONDPacketInfoSoA_h
 
+#include <cstdint>  // for uint8_t
+
 #include <Eigen/Core>
 #include <Eigen/Dense>
 
@@ -9,29 +11,26 @@
 #include "DataFormats/SoATemplate/interface/SoAView.h"
 
 namespace hgcaldigi {
+
   // enum for getting ECONDFlag
-  enum ECONDFlag {
-    BITT_POS = 0,
-    BITM_POS = 1,
-    EBO_POS = 2,
-    EBO_MASK = 0b11,
-    HT_POS = 4,
-    HT_MASK = 0b11,
-    BITE_POS = 6,
-    BITS_POS = 7
-  };
+  namespace ECONDFlag {
+    constexpr uint8_t BITT_POS = 0, BITM_POS = 1, EBO_POS = 2, EBO_MASK = 0b11, HT_POS = 4, HT_MASK = 0b11,
+                      BITE_POS = 6, BITS_POS = 7;
+  }  // namespace ECONDFlag
+
   // functions to parse ECONDFlag
-  bool truncatedFlag(uint8_t econdFlag) { return ((econdFlag >> hgcaldigi::ECONDFlag::BITT_POS) & 0b1); }
-  bool matchFlag(uint8_t econdFlag) { return ((econdFlag >> hgcaldigi::ECONDFlag::BITM_POS) & 0b1); }
-  uint8_t eboFlag(uint8_t econdFlag) {
+  inline bool truncatedFlag(uint8_t econdFlag) { return ((econdFlag >> hgcaldigi::ECONDFlag::BITT_POS) & 0b1); }
+  inline bool matchFlag(uint8_t econdFlag) { return ((econdFlag >> hgcaldigi::ECONDFlag::BITM_POS) & 0b1); }
+  inline uint8_t eboFlag(uint8_t econdFlag) {
     return ((econdFlag >> hgcaldigi::ECONDFlag::EBO_POS) & hgcaldigi::ECONDFlag::EBO_MASK);
   }
-  uint8_t htFlag(uint8_t econdFlag) {
+  inline uint8_t htFlag(uint8_t econdFlag) {
     return ((econdFlag >> hgcaldigi::ECONDFlag::HT_POS) & hgcaldigi::ECONDFlag::HT_MASK);
   }
-  bool expectedFlag(uint8_t econdFlag) { return ((econdFlag >> hgcaldigi::ECONDFlag::BITE_POS) & 0b1); }
-  bool StatFlag(uint8_t econdFlag) { return ((econdFlag >> hgcaldigi::ECONDFlag::BITS_POS) & 0b1); }
-  // Generate structure of arrays (SoA) layout with Digi dataformat
+  inline bool expectedFlag(uint8_t econdFlag) { return ((econdFlag >> hgcaldigi::ECONDFlag::BITE_POS) & 0b1); }
+  inline bool StatFlag(uint8_t econdFlag) { return ((econdFlag >> hgcaldigi::ECONDFlag::BITS_POS) & 0b1); }
+
+  // generate structure of arrays (SoA) layout with Digi dataformat
   GENERATE_SOA_LAYOUT(HGCalECONDPacketInfoSoALayout,
                       // Capture block information:
                       // 0b000: Normal packet

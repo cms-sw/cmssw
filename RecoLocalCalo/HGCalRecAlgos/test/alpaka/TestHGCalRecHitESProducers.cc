@@ -104,7 +104,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       std::cout << "TestHGCalRecHitESProducers::produce: config=" << config << std::endl;
       std::cout << "TestHGCalRecHitESProducers::produce: nfeds=" << nfeds << ", config=" << config << std::endl;
       for (std::size_t fedid = 0; fedid < nfeds; ++fedid) {
-        auto fed = config.feds[fedid];   // HGCalFedConfig_t
+        auto fed = config.feds[fedid];   // HGCalFedConfig
         auto nmods = fed.econds.size();  // number of ECON-Ds for this FED
         std::cout << "  fedid=" << fedid << ", nmods=" << nmods << ", passthroughMode=" << fed.mismatchPassthroughMode
                   << ", cbHeaderMarker=0x" << std::hex << fed.cbHeaderMarker << ", slinkHeaderMarker=0x"

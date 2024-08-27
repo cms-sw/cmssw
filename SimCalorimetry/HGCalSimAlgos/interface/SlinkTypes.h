@@ -19,7 +19,7 @@ namespace hgcal::econd {
   /// parsed e-rx data
   struct ERxData {
     uint32_t cm0{0}, cm1{0};
-    std::vector<ToTStatus> tctp;
+    std::vector<uint8_t> tctp;  // vector of hgcal::econd::ToTStatus
     std::vector<uint16_t> adc, adcm, toa, tot;
     std::vector<uint32_t> meta;  ///< additional words accompanying the e-rx data
     uint32_t crc32{0};

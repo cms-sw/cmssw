@@ -19,12 +19,8 @@ namespace hgcalrechit {
                       SOA_COLUMN(uint16_t, flags))
   using HGCalRecHitSoA = HGCalRecHitSoALayout<>;
 
-  enum HGCalRecHitFlags {
-    Normal = 0x0,
-    EnergyInvalid = 0x1,
-    TimeInvalid = 0x2
-  };
-  
+  enum HGCalRecHitFlags { Normal = 0x0, EnergyInvalid = 0x1, TimeInvalid = 0x2 };
+
 }  // namespace hgcalrechit
 
 #endif  // DataFormats_HGCalRecHit_interface_HGCalRecHitSoA_h

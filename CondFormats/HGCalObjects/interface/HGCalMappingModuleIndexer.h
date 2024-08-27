@@ -4,8 +4,9 @@
 #include <cstdint>
 #include <vector>
 #include <map>
-#include <utility>  // for std::pair, std::make_pair
-#include <algorithm>
+#include <algorithm>  // for std::min
+#include <utility>    // for std::pair, std::make_pair
+#include <iterator>   // for std::next and std::advance
 
 #include "DataFormats/HGCalDigi/interface/HGCalElectronicsId.h"
 #include "CondFormats/Serialization/interface/Serializable.h"
@@ -19,7 +20,7 @@
    as the 12 capture blocks may not all be used and the each capture block may also be under-utilized
    a lookup table is used to hold the compact index
  */
-struct HGCalFEDReadoutSequence_t {
+struct HGCalFEDReadoutSequence {
   uint32_t id;
   ///>look-up table (capture block, econd idx) -> internal dense index
   std::vector<int> moduleLUT_;
@@ -57,7 +58,7 @@ public:
     if (fedid >= fedReadoutSequences_.size()) {
       fedReadoutSequences_.resize(fedid + 1);
     }
-    HGCalFEDReadoutSequence_t& frs = fedReadoutSequences_[fedid];
+    HGCalFEDReadoutSequence& frs = fedReadoutSequences_[fedid];
     frs.id = fedid;
 
     //assign position, resize if needed, and fill the type code
@@ -232,22 +233,22 @@ public:
     return getIndexForModuleData(fedid, modid, 0, 0);
   };
   std::pair<uint32_t, uint32_t> getIndexForFedAndModule(std::string const& typecode) const {
-    if (typecodeMap_.find(typecode) == typecodeMap_.end()) {  // did not find key
-      edm::LogWarning("HGCalMappingModuleIndexer")
-          << "Could not find typecode " << typecode << " in map (size=" << typecodeMap_.size()
-          << ")! Found following modules:";
-      int i = 1;
-      for (auto it = typecodeMap_.begin(); it != typecodeMap_.end(); it++) {
-        std::cout << it->first << (it != typecodeMap_.end() ? ", " : "") << std::endl;
-        if (i <= 100) {
-          std::cout << " ..." << std::endl;
-          break;
-        }  // stop sooner to avoid gigantic printout
-        i++;
-      }
-      //return {0,0};
+    auto it = typecodeMap_.find(typecode);
+    if (it == typecodeMap_.end()) {       // did not find key
+      std::size_t nmax = 100;             // maximum number of keys to print
+      auto maxit = typecodeMap_.begin();  // limit printout to prevent gigantic print out
+      std::advance(maxit, std::min(typecodeMap_.size(), nmax));
+      std::string allkeys = std::accumulate(
+          std::next(typecodeMap_.begin()), maxit, typecodeMap_.begin()->first, [](const std::string& a, const auto& b) {
+            return a + ',' + b.first;
+          });
+      if (typecodeMap_.size() > nmax)
+        allkeys += ", ...";
+      throw cms::Exception("HGCalMappingModuleIndexer")
+          << "Could not find typecode '" << typecode << "' in map (size=" << typecodeMap_.size()
+          << ")! Found the following modules (from the module locator file): " << allkeys;
     }
-    return typecodeMap_.at(typecode);  // (fedid,modid)
+    return it->second;  // (fedid,modid)
   };
 
   /**
@@ -290,7 +291,7 @@ public:
   ///< internal indexer
   HGCalDenseIndexerBase modFedIndexer_;
   ///< the sequence of FED readout sequence descriptors
-  std::vector<HGCalFEDReadoutSequence_t> fedReadoutSequences_;
+  std::vector<HGCalFEDReadoutSequence> fedReadoutSequences_;
   ///< global counters for types of modules, number of e-Rx and words
   std::vector<uint32_t> globalTypesCounter_, globalTypesNErx_, globalTypesNWords_;
   ///< base offsets to apply per module type with different granularity : module, e-Rx, channel data

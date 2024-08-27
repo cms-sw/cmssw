@@ -161,11 +161,10 @@ uint32_t hgcal::econd::buildIdleWord(uint8_t bufStat, uint8_t err, uint8_t rr, u
 }
 
 //
-std::vector<uint32_t> hgcal::backend::buildCaptureBlockHeader(
-    uint32_t bunch_crossing,
-    uint32_t event_counter,
-    uint32_t orbit_counter,
-    const std::vector<hgcal::backend::ECONDPacketStatus>& econd_statuses) {
+std::vector<uint32_t> hgcal::backend::buildCaptureBlockHeader(uint32_t bunch_crossing,
+                                                              uint32_t event_counter,
+                                                              uint32_t orbit_counter,
+                                                              const std::vector<uint8_t>& econd_statuses) {
   if (econd_statuses.size() > 12)
     throw cms::Exception("HGCalEmulator") << "Invalid size for ECON-D statuses: " << econd_statuses.size() << ".";
   std::vector<uint32_t> header(2, 0);
@@ -185,9 +184,9 @@ std::vector<uint32_t> hgcal::backend::buildSlinkHeader(
   std::vector<uint32_t> header(4, 0);
   header[0] = (boe & hgcal::BACKEND_FRAME::SLINK_BOE_MASK) << hgcal::BACKEND_FRAME::SLINK_BOE_POS |
               (v & hgcal::BACKEND_FRAME::SLINK_V_MASK) << hgcal::BACKEND_FRAME::SLINK_V_POS |
-              ((global_event_id >> 41) & SLINK_GLOBAL_EVENTID_MSB_MASK)
+              ((global_event_id >> 41) & hgcal::BACKEND_FRAME::SLINK_GLOBAL_EVENTID_MSB_MASK)
                   << hgcal::BACKEND_FRAME::SLINK_GLOBAL_EVENTID_MSB_POS;
-  header[1] = (global_event_id & SLINK_GLOBAL_EVENTID_LSB_MASK);
+  header[1] = (global_event_id & hgcal::BACKEND_FRAME::SLINK_GLOBAL_EVENTID_LSB_MASK);
   header[2] = (content_id & hgcal::BACKEND_FRAME::SLINK_CONTENTID_MASK) << hgcal::BACKEND_FRAME::SLINK_CONTENTID_POS;
   header[3] = (fed_id & hgcal::BACKEND_FRAME::SLINK_SOURCEID_MASK) << hgcal::BACKEND_FRAME::SLINK_SOURCEID_POS;
 

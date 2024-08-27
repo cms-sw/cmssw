@@ -11,7 +11,7 @@ ECONDInput TrivialEmulator::next() {
     ERxData dummy_data{
         .cm0 = 0x12,
         .cm1 = 0x34,
-        .tctp = std::vector<ToTStatus>(params_.num_channels_per_erx, static_cast<ToTStatus>(params_.default_totstatus)),
+        .tctp = std::vector<uint8_t>(params_.num_channels_per_erx, static_cast<uint8_t>(params_.default_totstatus)),
         .adc = std::vector<uint16_t>(params_.num_channels_per_erx, 0),
         .adcm = std::vector<uint16_t>(params_.num_channels_per_erx, 0),
         .toa = std::vector<uint16_t>(params_.num_channels_per_erx, 0),

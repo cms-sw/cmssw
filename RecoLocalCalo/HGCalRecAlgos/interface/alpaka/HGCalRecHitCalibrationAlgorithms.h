@@ -1,14 +1,9 @@
 #ifndef __HGCalRecHitCalibrationAlgorithms_H__
 #define __HGCalRecHitCalibrationAlgorithms_H__
 
-// CMSSW imports
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 // Alpaka imports
 #include <alpaka/alpaka.hpp>
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
-#include "HeterogeneousCore/AlpakaInterface/interface/traits.h"
-#include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
 
 // HGCal digis data formats
 #include "DataFormats/HGCalDigi/interface/HGCalElectronicsId.h"
@@ -29,7 +24,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   class HGCalRecHitCalibrationAlgorithms {
   public:
-    HGCalRecHitCalibrationAlgorithms(int n_blocks_, int n_threads_) : n_blocks(n_blocks_), n_threads(n_threads_) {}
+    HGCalRecHitCalibrationAlgorithms(int n_blocks, int n_threads) : n_blocks_(n_blocks), n_threads_(n_threads) {}
 
     std::unique_ptr<HGCalRecHitDevice> calibrate(Queue& queue,
                                                  HGCalDigiHost const& host_digis,
@@ -45,8 +40,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     void print_digi_device(HGCalDigiDevice const& digis, int max = -1) const;
     void print_recHit_device(Queue& queue, HGCalRecHitDevice const& recHits, int max = -1) const;
 
-    int n_blocks;
-    int n_threads;
+    int n_blocks_;
+    int n_threads_;
   };
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
