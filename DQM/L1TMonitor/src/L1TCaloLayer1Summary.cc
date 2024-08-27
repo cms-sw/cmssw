@@ -102,15 +102,30 @@ void L1TCaloLayer1Summary::bookHistograms(DQMStore::IBooker& ibooker, edm::Run c
   histoCaloLayer1CICADAScore = ibooker.book1D("caloLayer1CICADAScore", "CaloLayer1 CICADAScore", 50, 0, 200);
   histoGtCICADAScore = ibooker.book1D("gtCICADAScore", "GT CICADAScore at BX0", 50, 0, 200);
   histoCaloMinusGt = ibooker.book1D("caloMinusGtCICADAScore", "CaloLayer1 - GT CICADAScore at BX0", 50, -50, 50);
-  histoSimCICADAScore = ibooker.book1D("simCaloLayer1CICADAScore", "simCaloLayer1 CICADAScore", 50, 0, 200);
-  histoCaloMinusSim = ibooker.book1D("caloMinusSimCICADAScore", "CaloLayer1 - simCaloLayer1 CICADAScore", 50, -50, 50);
+  histoSimCICADAScore =
+      ibooker.book1D("simCaloLayer1CICADAScore", "simCaloLayer1 CICADAScore (input: DAQ regions)", 50, 0, 200);
+  histoCaloMinusSim = ibooker.book1D(
+      "caloMinusSimCICADAScore", "CaloLayer1 - simCaloLayer1 (input: DAQ regions) CICADAScore", 50, -50, 50);
 
   ibooker.setCurrentFolder(histFolder_ + "/Regions");
-  histoCaloMinusSimRegions = ibooker.book2D(
-      "caloMinusSumRegions", "CaloLayer1 - simCaloLayer1 Regions;Region;ET", 252, -0.5, 252.5, 100, -400, 400);
+  histoCaloMinusSimRegions =
+      ibooker.book2D("caloMinusSumRegions",
+                     "CaloLayer1 - simCaloLayer1 (input: DAQ trigger primatives) Regions;Region;ET Difference",
+                     252,
+                     -0.5,
+                     252.5,
+                     100,
+                     -400,
+                     400);
   histoCaloRegions = ibooker.book2D("caloLayer1Regions", "CaloLayer1 Regions;Region;ET", 252, -0.5, 252.5, 100, 0, 800);
-  histoSimRegions =
-      ibooker.book2D("simCaloLayer1Regions", "simCaloLayer1 Regions;Region;ET", 252, -0.5, 252.5, 100, 0, 800);
+  histoSimRegions = ibooker.book2D("simCaloLayer1Regions",
+                                   "simCaloLayer1 Regions (input: DAQ trigger primatives);Region;ET",
+                                   252,
+                                   -0.5,
+                                   252.5,
+                                   100,
+                                   0,
+                                   800);
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
