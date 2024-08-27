@@ -6,7 +6,7 @@
  *
  */
 
-#include "DQMOffline/ParticleFlow/interface/PFAnalyzer.h"
+#include "DQMOffline/ParticleFlow/plugins/PFAnalyzer.h"
 
 // ***********************************************************
 PFAnalyzer::PFAnalyzer(const edm::ParameterSet& pSet) {

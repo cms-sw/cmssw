@@ -16,6 +16,7 @@
 #include <cmath>
 #include <map>
 
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -350,4 +351,5 @@ struct PFAnalyzer::binInfo {
   double binMax;
 };
 
+DEFINE_FWK_MODULE(PFAnalyzer);
 #endif
