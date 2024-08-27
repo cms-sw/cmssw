@@ -812,14 +812,14 @@ process.l1tGTProducer.OutputChannels = BoardDataOutputObjects.OutputChannels
 
 
 process.BoardData = cms.EDAnalyzer("L1GTAlgoBoardWriter",
-  outputFilename = cms.untracked.string("outputPattern"),
+  filename = cms.untracked.string("outputPattern"),
   algoBlocksTag = cms.untracked.InputTag("l1tGTAlgoBlockProducer"),
   maxFrames = cms.untracked.uint32(1024),
   channels = channels
 )
 
 process.FinOrBoardData = cms.EDAnalyzer("L1GTFinOrBoardWriter",
-  outputFilename = cms.untracked.string("outputFinOrPattern"),
+  filename = cms.untracked.string("outputFinOrPattern"),
   algoBlocksTag = cms.untracked.InputTag("l1tGTAlgoBlockProducer"),
   maxFrames = cms.untracked.uint32(1024),
   channelsLow = cms.untracked.vuint32(4, 5, 6),

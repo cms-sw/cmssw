@@ -199,3 +199,93 @@ process.pDoubleTkEle25_12 = cms.Path(process.DoubleTkEle2512)
 
 algorithms.append(cms.PSet(expression = cms.string("pSingleTkMuon22 or pDoubleTkEle25_12")))
 ```
+
+## Firmware pattern writers
+
+There are 3 types of Global Trigger pattern writers currently implemented.
+
+* `L1GTAlgoBoardWriter`: Used to write out the algorithm bits into 2 channels. With config
+
+| Name | Datatype | Description |
+|:-----|:----------:|:--------------|
+| `filename` | `cms.string` | The filename prefix to use for pattern files (required) |
+| `fileExtension` | `cms.string` | `txt`, `txt.gz` or `txt.xz` (default: `txt`) |
+| `algoBlocksTag` | `cms.InputTag` | AlgoBlock producer input tag to use (required) |
+| `maxFrames` | `cms.unit32` | Maximum number of frames (default: 1024) |
+| `maxEvents` | `cms.unit32` | Maximum number of events (default: events that fit into `maxFrames`) |
+| `channels` | `cms.vuint32` | Vector of 2 channel numbers for output (required) |
+| `algoBitMask` | `cms.vuint64` | Vector of 9 64 bit masks (default: all set to 1) |
+| `patternFormat` | `cms.string` | `APx`, `EMPv1`, `EMPv2` or `X2O` (default: `EMPv2`) |
+
+* `L1GTFinOrBoardWriter`: Used to write out Final OR bits (beforeBxMaskAndPrescale, beforePrescale and final) each on a different channel for the low bits (0 - 575), mid bits (576 - 1151) and high bits (1152 - 1727). 9 channels in total + one channel for the passing Final OR trigger types. Config:
+
+| Name | Datatype | Description |
+|:-----|:----------:|:--------------|
+| `filename` | `cms.string` | The filename prefix to use for pattern files (required) |
+| `fileExtension` | `cms.string` | `txt`, `txt.gz` or `txt.xz` (default: `txt`) |
+| `algoBlocksTag` | `cms.InputTag` | AlgoBlock producer input tag to use (required) |
+| `maxFrames` | `cms.unit32` | Maximum number of frames (default: 1024) |
+| `maxEvents` | `cms.unit32` | Maximum number of events (default: events that fit into `maxFrames`) |
+| `channelsLow` | `cms.vuint32` | Vector of 3 channel numbers for low bits (0 - 575) (required) |
+| `channelsMid` | `cms.vuint32` | Vector of 3 channel numbers for mid bits (576 - 1151) (required) |
+| `channelsHigh` | `cms.vuint32` | Vector of 3 channel numbers for high bits (1152 - 1727) (required) |
+| `channelFinOr` | `cms.uint32` | Channel for FinalOr trigger types (required) |
+| `patternFormat` | `cms.string` | `APx`, `EMPv1`, `EMPv2` or `X2O` (default: `EMPv2`) |
+
+* `L1GTObjectBoardWriter`: Used to write input and output object patterns using the upstream provided pack functions.
+
+| Name | Datatype | Description |
+|:-----|:----------:|:--------------|
+| `filename` | `cms.string` | The filename prefix to use for pattern files (required) |
+| `fileExtension` | `cms.string` | `txt`, `txt.gz` or `txt.xz` (default: `txt`) |
+| `maxFrames` | `cms.unit32` | Maximum number of frames (default: 1024) |
+| `maxEvents` | `cms.unit32` | Maximum number of events (default: events that fit into `maxFrames`) |
+| `patternFormat` | `cms.string` | `APx`, `EMPv1`, `EMPv2` or `X2O` (default: `EMPv2`) |
+| `bufferFileType`| `cms.string` | Either `input` or `output` (required) |
+| `InputChannels.GCT_1` | `cms.vuint32` | Channels for GCT link 1 (required if `bufferFileType` = `input`) |
+| `InputChannels.GMT_1` | `cms.vuint32` | Channels for GMT link 1 (required if `bufferFileType` = `input`) |
+| `InputChannels.GTT_1` | `cms.vuint32` | Channels for GTT link 1 (required if `bufferFileType` = `input`) |
+| `InputChannels.GTT_2` | `cms.vuint32` | Channels for GTT link 2 (required if `bufferFileType` = `input`) |
+| `InputChannels.GTT_3` | `cms.vuint32` | Channels for GTT link 3 (required if `bufferFileType` = `input`) |
+| `InputChannels.GTT_4` | `cms.vuint32` | Channels for GTT link 4 (required if `bufferFileType` = `input`) |
+| `InputChannels.CL2_1` | `cms.vuint32` | Channels for CL2 link 1 (required if `bufferFileType` = `input`) |
+| `InputChannels.CL2_2` | `cms.vuint32` | Channels for CL2 link 2 (required if `bufferFileType` = `input`) |
+| `InputChannels.CL2_3` | `cms.vuint32` | Channels for CL2 link 3 (required if `bufferFileType` = `input`) |
+| `OutputChannels.GTTPromptJets` | `cms.vuint32` | Channels for collection GTTPromptJets (required if `bufferFileType` = `output`) |
+| `OutputChannels.GTTDisplacedJets` | `cms.vuint32` | Channels for collection GTTDisplacedJets (required if `bufferFileType` = `output`) |
+| `OutputChannels.GTTPromptHtSum` | `cms.vuint32` | Channels for collection GTTPromptHtSum (required if `bufferFileType` = `output`) |
+| `OutputChannels.GTTDisplacedHtSum` | `cms.vuint32` | Channels for collection GTTDisplacedHtSum (required if `bufferFileType` = `output`) |
+| `OutputChannels.GTTEtSum` | `cms.vuint32` | Channels for collection GTTEtSum (required if `bufferFileType` = `output`) |
+| `OutputChannels.GTTPrimaryVert` | `cms.vuint32` | Channels for collection GTTPrimaryVert (required if `bufferFileType` = `output`) |
+| `OutputChannels.GMTSaPromptMuons` | `cms.vuint32` | Channels for collection GMTSaPromptMuons (required if `bufferFileType` = `output`) |
+| `OutputChannels.GMTSaDisplacedMuons` | `cms.vuint32` | Channels for collection GMTSaDisplacedMuons (required if `bufferFileType` = `output`) |
+| `OutputChannels.GMTTkMuons` | `cms.vuint32` | Channels for collection GMTTkMuons (required if `bufferFileType` = `output`) |
+| `OutputChannels.CL2JetsSC4` | `cms.vuint32` | Channels for collection CL2JetsSC4 (required if `bufferFileType` = `output`) |
+| `OutputChannels.CL2JetsSC8` | `cms.vuint32` | Channels for collection CL2JetsSC8 (required if `bufferFileType` = `output`) |
+| `OutputChannels.CL2Photons` | `cms.vuint32` | Channels for collection CL2Photons (required if `bufferFileType` = `output`) |
+| `OutputChannels.CL2Electrons` | `cms.vuint32` | Channels for collection CL2Electrons (required if `bufferFileType` = `output`) |
+| `OutputChannels.CL2Taus` | `cms.vuint32` | Channels for collection CL2Taus (required if `bufferFileType` = `output`) |
+| `OutputChannels.CL2EtSum` | `cms.vuint32` | Channels for collection CL2EtSum (required if `bufferFileType` = `output`) |
+| `OutputChannels.CL2HtSum` | `cms.vuint32` | Channels for collection CL2HtSum (required if `bufferFileType` = `output`) |
+
+Note: In order to get consistency across multiple pattern files written by multiple writers it is recommended to produce patterns in single threaded mode only (i.e. `process.options.numberOfThreads = 1`).
+
+Default configurations for `L1GTAlgoBoardWriter` and `L1GTObjectBoardWriter` in input and output direction can be pulled into the configuration for each of the two prototype implementations VU9P and VU13P via:
+
+```python
+# Serenity VU9P prototype board
+process.load('L1Trigger.Phase2L1GT.l1tGTBoardWriterVU9P_cff')
+
+process.pBoardDataInputVU9P = cms.EndPath(process.BoardDataInputVU9P)
+process.pBoardDataOutputObjectsVU9P = cms.EndPath(process.BoardDataOutputObjectsVU9P)
+process.pAlgoBitBoardDataVU9P = cms.EndPath(process.AlgoBitBoardDataVU9P)
+```
+
+```python
+# Serenity VU13P prototype board
+process.load('L1Trigger.Phase2L1GT.l1tGTBoardWriterVU13P_cff')
+
+process.pBoardDataInputVU13P = cms.EndPath(process.BoardDataInputVU13P)
+process.pBoardDataOutputObjectsVU13P = cms.EndPath(process.BoardDataOutputObjectsVU13P)
+process.pAlgoBitBoardDataVU13P = cms.EndPath(process.AlgoBitBoardDataVU13P)
+```

@@ -61,7 +61,7 @@ private:
   const BufferType bufferFileType_;
   unsigned int eventCounter_;
   unsigned int maxEvents_;
-  std::unordered_map<std::string, std::size_t> numChannels;
+  std::unordered_map<std::string, std::size_t> numChannels_;
   demo::BoardDataWriter boardDataWriter_;
 
   // From upstream
@@ -122,7 +122,7 @@ L1GTObjectBoardWriter::L1GTObjectBoardWriter(const edm::ParameterSet& config)
     : bufferFileType_(config.getUntrackedParameter<std::string>("bufferFileType") == "input" ? INPUT : OUTPUT),
       eventCounter_(0),
       maxEvents_(config.getUntrackedParameter<unsigned int>("maxEvents")),
-      numChannels(),
+      numChannels_(),
       boardDataWriter_(
           demo::parseFileFormat(config.getUntrackedParameter<std::string>("patternFormat")),
           config.getUntrackedParameter<std::string>("filename"),
@@ -181,7 +181,7 @@ L1GTObjectBoardWriter::L1GTObjectBoardWriter(const edm::ParameterSet& config)
                 for (std::size_t i = 0; i < channels.size(); i++) {
                   channelMap.insert({{name, i}, {{1, 0}, {channels.at(i)}}});
                 }
-                numChannels.insert({name, channels.size()});
+                numChannels_.insert({name, channels.size()});
               }
               return channelMap;
             }
@@ -284,7 +284,12 @@ static std::vector<ap_uint<64>> packCollection(const std::vector<T>& collection)
   } else if constexpr (std::is_same_v<T, TrackerMuon> || std::is_same_v<T, TkEm> || std::is_same_v<T, TkElectron> ||
                        std::is_same_v<T, PFTau>) {
     while (packed.size() < 18) {
-      packed.emplace_back(0);
+      if (next_packed) {
+        packed.emplace_back(next_packed.value());
+        next_packed.reset();
+      } else {
+        packed.emplace_back(0);
+      }
     }
   } else if constexpr (std::is_same_v<T, SAMuon> || std::is_same_v<T, VertexWord>) {
     while (packed.size() < 12) {
@@ -385,8 +390,8 @@ void L1GTObjectBoardWriter::analyze(const edm::Event& event, const edm::EventSet
         data = packCollection<EtSum, P2GTCandidate::CL2HtSum>(cl2HtSum);
       }
 
-      for (std::size_t i = 0; i < numChannels.at(name); i++) {
-        for (std::size_t j = 0; j < data.size(); j += numChannels.at(name)) {
+      for (std::size_t i = 0; i < numChannels_.at(name); i++) {
+        for (std::size_t j = i; j < data.size(); j += numChannels_.at(name)) {
           eventData[{name, i}].push_back(data[j]);
         }
 

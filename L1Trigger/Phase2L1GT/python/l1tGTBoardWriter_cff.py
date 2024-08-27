@@ -44,6 +44,6 @@ BoardDataOutputObjects = cms.EDAnalyzer("L1GTObjectBoardWriter",
 )
 
 AlgoBitBoardData = cms.EDAnalyzer("L1GTAlgoBoardWriter",
-    outputFilename = cms.untracked.string("algoBitPattern"),
+    filename = cms.untracked.string("algoBitPattern"),
     algoBlocksTag = cms.untracked.InputTag("l1tGTAlgoBlockProducer"),
 )

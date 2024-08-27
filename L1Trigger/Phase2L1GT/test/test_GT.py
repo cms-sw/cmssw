@@ -120,13 +120,13 @@ process.pGToutput = cms.EndPath(process.GToutput)
 
 process.load('L1Trigger.Phase2L1GT.l1tGTBoardWriterVU13P_cff')
 
-process.pBoardDataInput = cms.EndPath(process.BoardDataInput)
-process.pBoardDataOutputObjects = cms.EndPath(process.BoardDataOutputObjects)
+process.pBoardDataInputVU13P = cms.EndPath(process.BoardDataInputVU13P)
+process.pBoardDataOutputObjectsVU13P = cms.EndPath(process.BoardDataOutputObjectsVU13P)
 
 
 # Schedule definition
 process.schedule = cms.Schedule(process.raw2digi_step,process.L1simulation_step,process.GTemulation_step, *collectAlgorithmPaths(process), process.pGToutput,
-                                process.pBoardDataInput, process.pBoardDataOutputObjects, process.endjob_step)
+                                process.pBoardDataInputVU13P, process.pBoardDataOutputObjectsVU13P, process.endjob_step)
 from PhysicsTools.PatAlgos.tools.helpers import associatePatAlgosToolsTask
 associatePatAlgosToolsTask(process)
 

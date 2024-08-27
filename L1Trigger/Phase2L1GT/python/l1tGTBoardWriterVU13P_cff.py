@@ -1,8 +1,9 @@
 import FWCore.ParameterSet.Config as cms
-from L1Trigger.Phase2L1GT.l1tGTBoardWriter_cff import BoardDataInput, BoardDataOutputObjects, AlgoBitBoardData
+from L1Trigger.Phase2L1GT.l1tGTBoardWriter_cff import BoardDataInput as BoardDataInputVU13P
+from L1Trigger.Phase2L1GT.l1tGTBoardWriter_cff import BoardDataOutputObjects as BoardDataOutputObjectsVU13P
+from L1Trigger.Phase2L1GT.l1tGTBoardWriter_cff import AlgoBitBoardData as AlgoBitBoardDataVU13P
 
-
-BoardDataInput.InputChannels = cms.untracked.PSet(
+BoardDataInputVU13P.InputChannels = cms.untracked.PSet(
     # SLR 0
     GTT_1 = cms.untracked.vuint32(range(0, 6)),
     GTT_2 = cms.untracked.vuint32(range(6, 12)),
@@ -21,7 +22,7 @@ BoardDataInput.InputChannels = cms.untracked.PSet(
     GMT_1 = cms.untracked.vuint32(48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 68, 69, 70, 71, 72, 73)
 )
 
-BoardDataOutputObjects.OutputChannels = cms.untracked.PSet(
+BoardDataOutputObjectsVU13P.OutputChannels = cms.untracked.PSet(
     GTTPromptJets = cms.untracked.vuint32(range(2, 6)),
     GTTDisplacedJets = cms.untracked.vuint32(range(6, 10)),
     GTTPromptHtSum = cms.untracked.vuint32(range(10, 11)),
@@ -51,4 +52,4 @@ BoardDataOutputObjects.OutputChannels = cms.untracked.PSet(
     GTTPrimaryVert = cms.untracked.vuint32(range(121, 123))
 )
 
-AlgoBitBoardData.channels = cms.untracked.vuint32(46, 47)
+AlgoBitBoardDataVU13P.channels = cms.untracked.vuint32(46, 47)

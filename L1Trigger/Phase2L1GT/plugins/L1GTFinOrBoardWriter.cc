@@ -39,6 +39,8 @@ private:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void endJob() override;
 
+  unsigned int eventCounter_;
+  const unsigned int maxEvents_;
   const std::array<unsigned int, 3> channelsLow_;
   const std::array<unsigned int, 3> channelsMid_;
   const std::array<unsigned int, 3> channelsHigh_;
@@ -63,7 +65,9 @@ static std::array<T, N> convert(std::vector<T> vec, const char* name) {
 }
 
 L1GTFinOrBoardWriter::L1GTFinOrBoardWriter(const edm::ParameterSet& config)
-    : channelsLow_(convert<unsigned int, 3>(config.getUntrackedParameter<std::vector<unsigned int>>("channelsLow"),
+    : eventCounter_(0),
+      maxEvents_(config.getUntrackedParameter<unsigned int>("maxEvents")),
+      channelsLow_(convert<unsigned int, 3>(config.getUntrackedParameter<std::vector<unsigned int>>("channelsLow"),
                                             "channelsLow")),
       channelsMid_(convert<unsigned int, 3>(config.getUntrackedParameter<std::vector<unsigned int>>("channelsMid"),
                                             "channelsMid")),
@@ -72,8 +76,8 @@ L1GTFinOrBoardWriter::L1GTFinOrBoardWriter(const edm::ParameterSet& config)
       channelFinOr_(config.getUntrackedParameter<unsigned int>("channelFinOr")),
       algoBlocksToken_(consumes<P2GTAlgoBlockMap>(config.getUntrackedParameter<edm::InputTag>("algoBlocksTag"))),
       boardDataWriter_(l1t::demo::parseFileFormat(config.getUntrackedParameter<std::string>("patternFormat")),
-                       config.getUntrackedParameter<std::string>("outputFilename"),
-                       config.getUntrackedParameter<std::string>("outputFileExtension"),
+                       config.getUntrackedParameter<std::string>("filename"),
+                       config.getUntrackedParameter<std::string>("fileExtension"),
                        9,
                        2,
                        config.getUntrackedParameter<unsigned int>("maxFrames"),
@@ -186,6 +190,13 @@ void L1GTFinOrBoardWriter::analyze(const edm::Event& event, const edm::EventSetu
   }
 
   tmuxCounter_ = (tmuxCounter_ + 1) % 2;
+
+  eventCounter_++;
+
+  if (maxEvents_ != 0 && eventCounter_ == maxEvents_) {
+    boardDataWriter_.flush();
+    eventCounter_ = 0;
+  }
 }
 
 void L1GTFinOrBoardWriter::endJob() {
@@ -198,14 +209,15 @@ void L1GTFinOrBoardWriter::endJob() {
 
 void L1GTFinOrBoardWriter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.addUntracked<std::string>("outputFilename");
-  desc.addUntracked<std::string>("outputFileExtension", "txt");
+  desc.addUntracked<std::string>("filename");
+  desc.addUntracked<std::string>("fileExtension", "txt");
   desc.addUntracked<edm::InputTag>("algoBlocksTag");
   desc.addUntracked<std::vector<unsigned int>>("channelsLow");
   desc.addUntracked<std::vector<unsigned int>>("channelsMid");
   desc.addUntracked<std::vector<unsigned int>>("channelsHigh");
   desc.addUntracked<unsigned int>("channelFinOr");
   desc.addUntracked<unsigned int>("maxFrames", 1024);
+  desc.addUntracked<unsigned int>("maxEvents", 0);
   desc.addUntracked<std::string>("patternFormat", "EMPv2");
 
   descriptions.addDefault(desc);

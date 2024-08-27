@@ -73,8 +73,8 @@ L1GTAlgoBoardWriter::L1GTAlgoBoardWriter(const edm::ParameterSet& config)
       algoBlocksToken_(consumes<P2GTAlgoBlockMap>(config.getUntrackedParameter<edm::InputTag>("algoBlocksTag"))),
       boardDataWriter_(
           l1t::demo::parseFileFormat(config.getUntrackedParameter<std::string>("patternFormat")),
-          config.getUntrackedParameter<std::string>("outputFilename"),
-          config.getUntrackedParameter<std::string>("outputFileExtension"),
+          config.getUntrackedParameter<std::string>("filename"),
+          config.getUntrackedParameter<std::string>("fileExtension"),
           9,
           2,
           config.getUntrackedParameter<unsigned int>("maxFrames"),
@@ -133,8 +133,8 @@ void L1GTAlgoBoardWriter::endJob() {
 
 void L1GTAlgoBoardWriter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.addUntracked<std::string>("outputFilename");
-  desc.addUntracked<std::string>("outputFileExtension", "txt");
+  desc.addUntracked<std::string>("filename");
+  desc.addUntracked<std::string>("fileExtension", "txt");
   desc.addUntracked<edm::InputTag>("algoBlocksTag");
   desc.addUntracked<unsigned int>("maxEvents", 0);
   desc.addUntracked<std::vector<unsigned int>>("channels");
