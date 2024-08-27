@@ -9,6 +9,7 @@
 #include "FWCore/Utilities/interface/StreamID.h"
 #include <iomanip>  // for std::setw
 #include <future>
+#include <chrono>
 
 // Alpaka imports
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/stream/EDProducer.h"
@@ -31,16 +32,6 @@
 #include "CondFormats/HGCalObjects/interface/HGCalCalibrationParameterHost.h"
 #include "CondFormats/HGCalObjects/interface/alpaka/HGCalCalibrationParameterDevice.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/alpaka/HGCalRecHitCalibrationAlgorithms.h"
-
-template <class T>
-double duration(T t0, T t1) {
-  auto elapsed_secs = t1 - t0;
-  typedef std::chrono::duration<float> float_seconds;
-  auto secs = std::chrono::duration_cast<float_seconds>(elapsed_secs);
-  return secs.count();
-}
-
-inline std::chrono::time_point<std::chrono::steady_clock> now() { return std::chrono::steady_clock::now(); }
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
@@ -147,11 +138,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     LogDebug("HGCalRecHitsProducer") << "Loaded host digis: " << hostDigis.view().metadata().size();  //<< std::endl;
 
     LogDebug("HGCalRecHitsProducer") << "\n\nINFO -- calling calibrate method";  //<< std::endl;
-    auto start = now();
+    auto start = std::chrono::high_resolution_clock::now();
     auto recHits = calibrator_.calibrate(queue, hostDigis, deviceCalibParamProvider, deviceConfigParamProvider);
     alpaka::wait(queue);
-    auto stop = now();
-    LogDebug("HGCalRecHitsProducer") << "Time: " << duration(start, stop);  //<< std::endl;
+    auto stop = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<float> elapsed = stop-start;
+    LogDebug("HGCalRecHitsProducer") << "Time: " << elapsed.count();  //<< std::endl;
 
     LogDebug("HGCalRecHitsProducer") << "\n\nINFO -- storing rec hits in the event";  //<< std::endl;
     iEvent.emplace(recHitsToken_, std::move(*recHits));

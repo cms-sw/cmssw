@@ -25,18 +25,6 @@
 #include "CondFormats/HGCalObjects/interface/HGCalCalibrationParameterHost.h"
 #include "CondFormats/HGCalObjects/interface/alpaka/HGCalCalibrationParameterDevice.h"  // also for HGCalConfigParamDevice
 
-//template<class T> double duration(T t0,T t1) {
-//  auto elapsed_secs = t1-t0;
-//  typedef std::chrono::duration<float> float_seconds;
-//  auto secs = std::chrono::duration_cast<float_seconds>(elapsed_secs);
-//  return secs.count();
-//}
-//
-//typedef std::chrono::time_point<std::chrono::steady_clock> time_t_;
-//inline time_t_ now() {
-//  return std::chrono::steady_clock::now();
-//}
-
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   using namespace cms::alpakatools;
