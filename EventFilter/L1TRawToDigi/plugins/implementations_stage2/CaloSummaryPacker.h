@@ -8,10 +8,11 @@ namespace l1t {
     class CaloSummaryPacker : public Packer {
     private:
       std::vector<uint32_t> generateCICADAWordsFromScore(float);
+
     public:
       Blocks pack(const edm::Event&, const PackerTokens*) override;
     };
-  }
-}
+  }  // namespace stage2
+}  // namespace l1t
 
 #endif
