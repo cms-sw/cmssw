@@ -798,7 +798,7 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                                       ),
                                     process, task)
 
-            if btagInfo == 'pfParticleNetTagInfos':
+            if btagInfo == 'pfParticleNetTagInfos' or btagInfo == 'pfGlobalParticleTransformerAK8TagInfos':
                 if pfCandidates.value() == 'packedPFCandidates':
                     # case 1: running over jets whose daughters are PackedCandidates (only via updateJetCollection for now)
                     puppi_value_map = setupPuppiForPackedPF(process)[0]
@@ -811,7 +811,7 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                 else:
                     raise ValueError("Invalid pfCandidates collection: %s." % pfCandidates.value())
                 addToProcessAndTask(btagPrefix+btagInfo+labelName+postfix,
-                                    btag.pfParticleNetTagInfos.clone(
+                                    getattr(btag, btagInfo).clone(
                                       jets = jetSource,
                                       vertices = pvSource,
                                       secondary_vertices = svSource,
