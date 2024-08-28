@@ -32,6 +32,7 @@ namespace l1t {
       desc.addOptional<edm::InputTag>("TauInputTag")->setComment("for stage2");
       desc.addOptional<edm::InputTag>("EtSumInputTag")->setComment("for stage2");
       desc.addOptional<edm::InputTag>("EtSumZDCInputTag")->setComment("for stage2");
+      desc.addOptional<edm::InputTag>("CICADAScoreInputTag")->setComment("for 2024 and beyond");
     }
 
     PackerMap GTSetup::getPackers(int fed, unsigned int fw) {
@@ -51,7 +52,8 @@ namespace l1t {
                        PackerFactory::get()->make("stage2::GTJetPacker"),
                        PackerFactory::get()->make("stage2::GTTauPacker"),
                        PackerFactory::get()->make("stage2::GlobalAlgBlkPacker"),
-                       PackerFactory::get()->make("stage2::GlobalExtBlkPacker")};
+                       PackerFactory::get()->make("stage2::GlobalExtBlkPacker"),
+		       PackerFactory::get()->make("stage2::CaloSummaryPacker"),};
       }
 
       return res;
