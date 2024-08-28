@@ -97,7 +97,7 @@ if __name__ == '__main__':
                     29696.0,    # RelValCloseByPGun_CE_E_Front_120um    phase2_realistic_T33        Extended2026D110
                     29700.0,    # RelValCloseByPGun_CE_H_Coarse_Scint   phase2_realistic_T33        Extended2026D110  
                     #23234.0,   # Need new workflow with HFNose
-                    
+                    29634.75,   # RelValTTbar_14TeV                     phase2_realistic_T33        Extended2026D110         (Phase-2 baseline -  but using timing menu, and only up to step 2)
 
                     ###### pp Data
                     ## Run1
