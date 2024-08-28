@@ -349,12 +349,13 @@ void GEMDQMHarvester::getGeometryInfo(edm::Service<DQMStore> &store, MonitorElem
   if (h2Src != nullptr) {  // For online and offline
     Int_t nBinY = h2Src->getNbinsY();
     listLayer_.push_back("");
+    Int_t nNumMerge = std::max((Int_t)(h2Src->getBinContent(0, 0) + 0.5), 1);
 
     for (Int_t i = 1; i <= nBinY; i++) {
       std::string strLabelFull = h2Src->getTH2F()->GetYaxis()->GetBinLabel(i);
       auto nPos = strLabelFull.find(';');
       auto strLayer = strLabelFull.substr(nPos + 1);
-      Int_t nBinXActual = (Int_t)(h2Src->getBinContent(0, i) + 0.5);
+      Int_t nBinXActual = ((Int_t)(h2Src->getBinContent(0, i) + 0.5)) / nNumMerge;
       if (nBinXActual > 108) {  // When the number seems wrong
         if (strLayer.find("GE11") != std::string::npos) {
           nBinXActual = 36;
