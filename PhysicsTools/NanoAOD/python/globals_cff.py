@@ -5,6 +5,7 @@ from PhysicsTools.NanoAOD.globalVariablesTableProducer_cfi import globalVariable
 from PhysicsTools.NanoAOD.simpleBeamspotFlatTableProducer_cfi import simpleBeamspotFlatTableProducer
 from PhysicsTools.NanoAOD.simpleGenEventFlatTableProducer_cfi import simpleGenEventFlatTableProducer
 from PhysicsTools.NanoAOD.simpleGenFilterFlatTableProducerLumi_cfi import simpleGenFilterFlatTableProducerLumi
+from PhysicsTools.NanoAOD.tauSpinnerTableProducer_cfi import tauSpinnerTableProducer
 
 beamSpotTable = simpleBeamspotFlatTableProducer.clone(
     src = cms.InputTag("offlineBeamSpot"),
@@ -70,5 +71,17 @@ genFilterTable = simpleGenFilterFlatTableProducerLumi.clone(
     ),
 )
 
+tauSpinnerTable = tauSpinnerTableProducer.clone(
+    src = 'prunedGenParticles',
+    name = 'TauSpinner',
+    theta = [0, 0.25, 0.5, -0.25, 0.375],
+    pdfSet = 'NNPDF31_nnlo_hessian_pdfas',
+    cmsE = 13600,
+    defaultWeight = 1
+)
+(~run3_common).toModify(
+    tauSpinnerTable, cmsE = 13000
+)
+
 globalTablesTask = cms.Task(beamSpotTable, rhoTable)
-globalTablesMCTask = cms.Task(puTable,genTable,genFilterTable)
+globalTablesMCTask = cms.Task(puTable,genTable,genFilterTable,tauSpinnerTable)
