@@ -74,11 +74,13 @@
 //                              (1) for depth dependent corrections; (2) for
 //                              RespCorr corrections; (3) use machine learning
 //                              method for pileup correction; (4) use results
-//                              from phi-symmetry.
+//                              from phi-symmetry; (5) use reults from several
+//                              phi-symmetry studies drive by run numeber.
 //                              For dupFileName d: (0) contains list of
 //                              duplicate entries; (1) depth dependent weights;
 //                              (2) list of  (ieta, iphi) of channels to be
-//                              selected.
+//                              selected; (3) list of run ranges and for each
+//                              range, ieta, depth where gain has changed.
 //                              For threshold h: the format for threshold
 //                              application, 0: no threshold; 1: 2022 prompt
 //                              data; 2: 2022 reco data; 3: 2023 prompt data.
@@ -858,8 +860,13 @@ Double_t CalibTree::Loop(int loop,
                 hitEn = (*t_HitEnergies)[idet];
               if ((rcorForm_ != 3) && (rcorForm_ >= 0) && (cFactor_))
                 hitEn *= cFactor_->getCorr(t_Run, id);
-              if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr()))
+              if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr(1)))
                 hitEn *= cDuplicate_->getWeight(id);
+              if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr(3))) {
+                int subdet, zside, ieta, iphi, depth;
+                unpackDetId((*t_DetIds)[idet], subdet, zside, ieta, iphi, depth);
+                hitEn *= cDuplicate_->getCorr(t_Run, ieta, depth);
+              }
               double Wi = evWt * hitEn / en.Etot;
               double Fac = (inverse) ? (en.ehcal / (pmom - t_eMipDR)) : ((pmom - t_eMipDR) / en.ehcal);
               double Fac2 = Wi * Fac * Fac;
@@ -1480,8 +1487,13 @@ CalibTree::energyCalor CalibTree::energyHcal(double pmom, const Long64_t &entry,
           hitEn = (*t_HitEnergies)[idet];
         if ((rcorForm_ != 3) && (rcorForm_ >= 0) && (cFactor_))
           hitEn *= cFactor_->getCorr(t_Run, id);
-        if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr()))
+        if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr(1)))
           hitEn *= cDuplicate_->getWeight(id);
+        if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr(3))) {
+          int subdet, zside, ieta, iphi, depth;
+          unpackDetId((*t_DetIds)[idet], subdet, zside, ieta, iphi, depth);
+          hitEn *= cDuplicate_->getCorr(t_Run, ieta, depth);
+        }
         etot += hitEn;
         etot2 += ((*t_HitEnergies)[idet]);
       }
@@ -1502,8 +1514,13 @@ CalibTree::energyCalor CalibTree::energyHcal(double pmom, const Long64_t &entry,
             hitEn = (*t_HitEnergies1)[idet];
           if ((rcorForm_ != 3) && (rcorForm_ >= 0) && (cFactor_))
             hitEn *= cFactor_->getCorr(t_Run, id);
-          if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr()))
+          if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr(1)))
             hitEn *= cDuplicate_->getWeight(id);
+          if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr(3))) {
+            int subdet, zside, ieta, iphi, depth;
+            unpackDetId((*t_DetIds1)[idet], subdet, zside, ieta, iphi, depth);
+            hitEn *= cDuplicate_->getCorr(t_Run, ieta, depth);
+          }
           etot1 += hitEn;
         }
       }
@@ -1520,8 +1537,13 @@ CalibTree::energyCalor CalibTree::energyHcal(double pmom, const Long64_t &entry,
             hitEn = (*t_HitEnergies3)[idet];
           if ((rcorForm_ != 3) && (rcorForm_ >= 0) && (cFactor_))
             hitEn *= cFactor_->getCorr(t_Run, id);
-          if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr()))
+          if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr(3)))
             hitEn *= cDuplicate_->getWeight(id);
+          if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr(3))) {
+            int subdet, zside, ieta, iphi, depth;
+            unpackDetId((*t_DetIds3)[idet], subdet, zside, ieta, iphi, depth);
+            hitEn *= cDuplicate_->getCorr(t_Run, ieta, depth);
+          }
           etot3 += hitEn;
         }
       }
