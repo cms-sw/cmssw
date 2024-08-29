@@ -35,7 +35,7 @@
 
 /**************************************************************
 / purpose: enable filtering of calo objects in eta/phi or deltaR
-/          regions around generic objects 
+/          regions around generic objects
 /
 / operation : accepts all objects with
 /             (dEta <dEtaMax  && dPhi < dPhiMax) || dR < dRMax
@@ -342,7 +342,7 @@ DEFINE_FWK_MODULE(HLTHGCalDigisInRegionsProducer);
 
 // HGCAL RecHits
 #include "DataFormats/HGCRecHit/interface/HGCRecHit.h"
-using HLTHGCalRecHitsInRegionsProducer = HLTCaloObjInRegionsProducer<HGCRecHit>;
+using HLTHGCalRecHitsInRegionsProducer = HLTCaloObjInRegionsProducer<HGCRecHit, std::vector<HGCRecHit>>;
 DEFINE_FWK_MODULE(HLTHGCalRecHitsInRegionsProducer);
 #include "DataFormats/HGCRecHit/interface/HGCUncalibratedRecHit.h"
 using HLTHGCalUncalibratedRecHitsInRegionsProducer = HLTCaloObjInRegionsProducer<HGCUncalibratedRecHit>;
