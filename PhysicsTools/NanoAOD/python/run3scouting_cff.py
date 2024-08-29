@@ -363,9 +363,9 @@ ak4ScoutingJetParticleNetJetTags = cms.EDProducer("BoostedJetONNXJetTagsProducer
 
 ak4ScoutingJetTable = cms.EDProducer("SimplePFJetFlatTableProducer",
       src = cms.InputTag("ak4ScoutingJets"),
-      name = cms.string("ScoutingCHSJetRecluster"),
+      name = cms.string("ScoutingPFJetRecluster"),
       cut = cms.string(""),
-      doc = cms.string("ak4 jets from re-clustering scouting PF candidates with CHS applied"),
+      doc = cms.string("ak4 jets from re-clustering scouting PF candidates"),
       singleton = cms.bool(False),
       extension = cms.bool(False), # this is the main table
       externalVariables = cms.PSet(
@@ -403,7 +403,7 @@ ak4ScoutingJetMatchGen = cms.EDProducer("RecoJetToGenJetDeltaRValueMapProducer",
 
 ak4ScoutingJetExtTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
       src = cms.InputTag("ak4ScoutingJets"),
-      name = cms.string("ScoutingCHSJetRecluster"),
+      name = cms.string("ScoutingPFJetRecluster"),
       cut = cms.string(""),
       singleton = cms.bool(False),
       extension = cms.bool(True),
@@ -500,9 +500,9 @@ ak8ScoutingJetParticleNetMassRegressionJetTags = cms.EDProducer("BoostedJetONNXJ
 
 ak8ScoutingJetTable = cms.EDProducer("SimplePFJetFlatTableProducer",
       src = cms.InputTag("ak8ScoutingJets"),
-      name = cms.string("ScoutingFatCHSJetRecluster"),
+      name = cms.string("ScoutingFatPFJetRecluster"),
       cut = cms.string(""),
-      doc = cms.string("ak8 jets from re-clustering scouting PF candidates with CHS applied"),
+      doc = cms.string("ak8 jets from re-clustering scouting PF candidates"),
       singleton = cms.bool(False),
       extension = cms.bool(False), # this is the main table
       externalVariables = cms.PSet(
@@ -546,7 +546,7 @@ ak8ScoutingJetMatchGen = cms.EDProducer("RecoJetToGenJetDeltaRValueMapProducer",
 
 ak8ScoutingJetExtTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
       src = cms.InputTag("ak8ScoutingJets"),
-      name = cms.string("ScoutingFatCHSJetRecluster"),
+      name = cms.string("ScoutingFatPFJetRecluster"),
       cut = cms.string(""),
       singleton = cms.bool(False),
       extension = cms.bool(True),
