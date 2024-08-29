@@ -15,6 +15,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/allowedValues.h"
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/NanoAOD/interface/FlatTable.h"
@@ -34,9 +35,8 @@ public:
     desc.add<edm::InputTag>("src")->setComment("input genParticle collection");
     desc.add<std::string>("name")->setComment("name of the TauSpinner weights table");
     desc.add<std::vector<double>>("theta")->setComment("values of CP-even and CP-odd tau Yukawa mixing angle");
-    desc.add<std::string>("pdfSet", "NNPDF31_nnlo_hessian_pdfas")->setComment("PDF set for TauSpinner");
-    desc.add<double>("cmsE", 13600)->setComment("cms energy for TauSpinner in GeV");
-    desc.add<int>("bosonPdgId", 25)->setComment("boson pdgId");
+    desc.ifValue(edm::ParameterDescription<int>("bosonPdgId", 25, true), edm::allowedValues<int>(25, 35, 36))
+        ->setComment("boson pdgId, default: 25");  // Allow only neutral Higgs bosons
     desc.add<double>("defaultWeight", 1)
         ->setComment("default weight stored in case of presence of a tau decay unsupported by TauSpinner");
     descriptions.addWithDefaultLabel(desc);
@@ -99,12 +99,14 @@ TauSpinnerTableProducer::TauSpinnerTableProducer(const edm::ParameterSet &config
       name_(config.getParameter<std::string>("name")),
       theta_vec_(nameAndValue(config.getParameter<std::vector<double>>("theta"))),
       bosonPdgId_(config.getParameter<int>("bosonPdgId")),
-      tauSpinnerPDF_(config.getParameter<std::string>("pdfSet")),
+      tauSpinnerPDF_(
+          "NNPDF31_nnlo_hessian_pdfas"),  // PDF set for TauSpinner, relevant only in case of Z/gamma* polarization weights (set "sensible" default)
       ipp_(true),  // pp collisions
       ipol_(0),
       nonSM2_(0),
       nonSMN_(0),
-      cmsE_(config.getParameter<double>("cmsE")),  // cms energy in GeV
+      cmsE_(
+          13600),  // collision energy in GeV, relevant only in case of Z/gamma* polarization weights (set "sensible" default)
       default_weight_(config.getParameter<double>(
           "defaultWeight"))  // default weight stored in case of presence of a tau decay unsupported by TauSpinner
 {
