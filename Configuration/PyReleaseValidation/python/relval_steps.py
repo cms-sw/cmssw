@@ -634,13 +634,14 @@ steps['RunUPC2023']={'INPUT':InputInfo(dataSet='/HIForward1/HIRun2023A-v1/RAW',l
 RunHI2023={375491: [[100, 100]]}
 steps['RunHIPhysicsRawPrime2023A']={'INPUT':InputInfo(dataSet='/HIPhysicsRawPrime0/HIRun2023A-v1/RAW',label='HI2023A',events=100000,location='STD', ls=RunHI2023)}
 
-### Golden Data Wfs
-# reading good runs directly from the latest golden json 
+##################################################################
+### Golden Data Steps
+# Reading good runs directly from the latest golden json 
 # in https://cms-service-dqmdc.web.cern.ch/CAF/certification/
-# or (if available) 
+# or (if available) from eos. the number of events limits 
+# the files used as input
 
 ###2024 
-# number of events limits the files used as input
 
 pds_2024  = ['BTagMu', 'DisplacedJet', 'EGamma0', 'HcalNZS', 'JetMET0', 'Muon0', 'MuonEG', 'NoBPTX', 'ParkingDoubleMuonLowMass0', 'ParkingHH', 'ParkingLLP', 'ParkingSingleMuon0', 'ParkingVBF0', 'Tau', 'ZeroBias']
 eras_2024 = ['Run2024B', 'Run2024C', 'Run2024D', 'Run2024E', 'Run2024F']
@@ -650,6 +651,44 @@ for era in eras_2024:
         for e_key,evs in event_steps_dict.items():
             step_name = "Run" + pd + era.split("Run")[1] + "_" + e_key
             steps[step_name] = {'INPUT':InputInfo(dataSet=dataset,label=era.split("Run")[1],events=int(evs*1e6), skimEvents=True, location='STD')}
+
+###2023 
+
+pds_2023  = ['BTagMu', 'DisplacedJet', 'EGamma0', 'HcalNZS', 'JetMET0', 'Muon0', 'MuonEG', 'NoBPTX', 'ParkingDoubleElectronLowMass', 'ParkingDoubleMuonLowMass0', 'Tau', 'ZeroBias']
+eras_2023 = ['Run2023B', 'Run2023C', 'Run2023D']
+# 'MinimumBias' is excluded since apprently no Golden run for /MinimumBias/Run2023{B,C,D}-v1/RAW 
+for era in eras_2023:
+    for pd in pds_2023:
+        dataset = "/" + pd + "/" + era + "-v1/RAW"
+        for e_key,evs in event_steps_dict.items():
+            step_name = "Run" + pd + era.split("Run")[1] + "_" + e_key
+            steps[step_name] = {'INPUT':InputInfo(dataSet=dataset,label=era.split("Run")[1],events=int(evs*1e6), skimEvents=True, location='STD')}
+
+###2022 
+
+pds_2022_1  = ['BTagMu', 'DisplacedJet', 'DoubleMuon', 'SingleMuon', 'EGamma', 'HcalNZS', 'JetHT', 'MET', 'MinimumBias', 'MuonEG', 'NoBPTX', 'Tau', 'ZeroBias']
+eras_2022_1 = ['Run2022B', 'Run2022C']
+for era in eras_2022_1:
+    for pd in pds_2022_1:
+        dataset = "/" + pd + "/" + era + "-v1/RAW"
+        for e_key,evs in event_steps_dict.items():
+            step_name = "Run" + pd + era.split("Run")[1] + "_" + e_key
+            steps[step_name] = {'INPUT':InputInfo(dataSet=dataset,label=era.split("Run")[1],events=int(evs*1e6), skimEvents=True, location='STD')}
+
+# PD names changed during the year (!)
+pds_2022_2  = ['BTagMu', 'DisplacedJet', 'Muon', 'EGamma', 'HcalNZS', 'JetMET', 'MuonEG', 'NoBPTX', 'Tau', 'ZeroBias']
+# Note: 'MinimumBias' is excluded since apprently no Golden run for /MinimumBias/Run2022{D,E}-v1/RAW 
+eras_2022_2 = ['Run2022D', 'Run2022E']
+
+for era in eras_2022_2:
+    for pd in pds_2022_2:
+        dataset = "/" + pd + "/" + era + "-v1/RAW"
+        for e_key,evs in event_steps_dict.items():
+            step_name = "Run" + pd + era.split("Run")[1] + "_" + e_key
+            steps[step_name] = {'INPUT':InputInfo(dataSet=dataset,label=era.split("Run")[1],events=int(evs*1e6), skimEvents=True, location='STD')}
+
+
+##################################################################
 
 # Highstat HLTPhysics
 Run2015DHS=selectedLS([258712,258713,258714,258741,258742,258745,258749,258750,259626,259637,259683,259685,259686,259721,259809,259810,259818,259820,259821,259822,259862,259890,259891])
