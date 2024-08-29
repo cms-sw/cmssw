@@ -6,7 +6,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "PatternRecognitionbyPassthrough.h"
+#include "PatternRecognitionbyRecovery.h"
 #include "DataFormats/HGCalReco/interface/Trackster.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
@@ -16,12 +16,12 @@
 using namespace ticl;
 
 template <typename TILES>
-PatternRecognitionbyPassthrough<TILES>::PatternRecognitionbyPassthrough(const edm::ParameterSet &conf,
-                                                                        edm::ConsumesCollector iC)
+PatternRecognitionbyRecovery<TILES>::PatternRecognitionbyRecovery(const edm::ParameterSet &conf,
+                                                                  edm::ConsumesCollector iC)
     : PatternRecognitionAlgoBaseT<TILES>(conf, iC), caloGeomToken_(iC.esConsumes<CaloGeometry, CaloGeometryRecord>()) {}
 
 template <typename TILES>
-void PatternRecognitionbyPassthrough<TILES>::makeTracksters(
+void PatternRecognitionbyRecovery<TILES>::makeTracksters(
     const typename PatternRecognitionAlgoBaseT<TILES>::Inputs &input,
     std::vector<Trackster> &result,
     std::unordered_map<int, std::vector<int>> &seedToTracksterAssociation) {
@@ -58,12 +58,12 @@ void PatternRecognitionbyPassthrough<TILES>::makeTracksters(
 
   // Log the number of tracksters created
   if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > VerbosityLevel::Advanced) {
-    edm::LogVerbatim("PatternRecognitionbyPassthrough") << "Created " << result.size() << " tracksters";
+    edm::LogVerbatim("PatternRecognitionbyRecovery") << "Created " << result.size() << " tracksters";
   }
 }
 
 template <typename TILES>
-void PatternRecognitionbyPassthrough<TILES>::filter(
+void PatternRecognitionbyRecovery<TILES>::filter(
     std::vector<Trackster> &output,
     const std::vector<Trackster> &inTracksters,
     const typename PatternRecognitionAlgoBaseT<TILES>::Inputs &input,
@@ -72,10 +72,10 @@ void PatternRecognitionbyPassthrough<TILES>::filter(
 }
 
 template <typename TILES>
-void PatternRecognitionbyPassthrough<TILES>::fillPSetDescription(edm::ParameterSetDescription &iDesc) {
+void PatternRecognitionbyRecovery<TILES>::fillPSetDescription(edm::ParameterSetDescription &iDesc) {
   iDesc.add<int>("algo_verbosity", 0);
 }
 
 // Explicitly instantiate the templates
-template class ticl::PatternRecognitionbyPassthrough<TICLLayerTiles>;
-template class ticl::PatternRecognitionbyPassthrough<TICLLayerTilesHFNose>;
+template class ticl::PatternRecognitionbyRecovery<TICLLayerTiles>;
+template class ticl::PatternRecognitionbyRecovery<TICLLayerTilesHFNose>;
