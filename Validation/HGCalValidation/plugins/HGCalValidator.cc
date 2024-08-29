@@ -834,10 +834,10 @@ void HGCalValidator::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   desc.add<edm::InputTag>("recoTracks", edm::InputTag("generalTracks"));
   desc.add<edm::InputTag>(
       "mergeRecoToSimAssociator",
-      edm::InputTag("allTrackstersToSimTrackstersAssociationsByLCs", "ticlTrackstersMergeToticlSimTracksters"));
+      edm::InputTag("allTrackstersToSimTrackstersAssociationsByLCs", "ticlTrackstersMergeToticlSimTrackstersfromCPs"));
   desc.add<edm::InputTag>(
       "mergeSimToRecoAssociator",
-      edm::InputTag("allTrackstersToSimTrackstersAssociationsByLCs", "ticlSimTrackstersToticlTrackstersMerge"));
+      edm::InputTag("allTrackstersToSimTrackstersAssociationsByLCs", "ticlSimTrackstersfromCPsToticlTrackstersMerge"));
   desc.add<edm::FileInPath>("cummatbudinxo", edm::FileInPath("Validation/HGCalValidation/data/D41.cumulative.xo"));
   desc.add<edm::InputTag>("label_cp_effic", edm::InputTag("mix", "MergedCaloTruth"));
   desc.add<edm::InputTag>("label_cp_fake", edm::InputTag("mix", "MergedCaloTruth"));
