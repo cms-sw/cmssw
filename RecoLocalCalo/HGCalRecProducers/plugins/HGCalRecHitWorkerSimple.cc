@@ -121,114 +121,114 @@ void HGCalRecHitWorkerSimple::set(const edm::EventSetup& es) {
   }
 }
 
-bool HGCalRecHitWorkerSimple::run(const edm::Event& evt,
-                                  const HGCUncalibratedRecHit& uncalibRH,
+void HGCalRecHitWorkerSimple::run(const edm::Event& evt,
+                                  const HGCUncalibratedRecHitCollection& uncalibRHColl,
                                   HGCRecHitCollection& result) {
-  DetId detid = uncalibRH.id();
-  // don't produce rechit if detid is a ghost one
+  for (const auto& uncalibRH : uncalibRHColl) {
+    DetId detid = uncalibRH.id();
+    // don't produce rechit if detid is a ghost one
 
-  if (detid.det() == DetId::Forward || detid.det() == DetId::Hcal) {
-    if ((detid & rangeMask_) == rangeMatch_)
-      return false;
+    if (detid.det() == DetId::Forward || detid.det() == DetId::Hcal) {
+      if ((detid & rangeMask_) == rangeMatch_)
+        continue;
+    }
+
+    int thickness = -1;
+    float sigmaNoiseGeV = 0.f;
+    unsigned int layer = tools_->getLayerWithOffset(detid);
+    float cce_correction = 1.0;
+    int idtype(0);
+
+    switch (detid.det()) {
+      case DetId::HGCalEE:
+        idtype = hgcee;
+        thickness = 1 + HGCSiliconDetId(detid).type();
+        break;
+      case DetId::HGCalHSi:
+        idtype = hgcfh;
+        thickness = 1 + HGCSiliconDetId(detid).type();
+        break;
+      case DetId::HGCalHSc:
+        idtype = hgcbh;
+        break;
+      default:
+        switch (detid.subdetId()) {
+          case HGCEE:
+            idtype = hgcee;
+            thickness = ddds_[detid.subdetId() - 3]->waferTypeL(HGCalDetId(detid).wafer());
+            break;
+          case HGCHEF:
+            idtype = hgcfh;
+            thickness = ddds_[detid.subdetId() - 3]->waferTypeL(HGCalDetId(detid).wafer());
+            break;
+          case HcalEndcap:
+            [[fallthrough]];
+          case HGCHEB:
+            idtype = hgcbh;
+            break;
+          case HFNose:
+            idtype = hgchfnose;
+            thickness = 1 + HFNoseDetId(detid).type();
+            break;
+          default:
+            break;
+        }
+    }
+
+    switch (idtype) {
+      case hgcee:
+        rechitMaker_->setADCToGeVConstant(float(hgceeUncalib2GeV_));
+        cce_correction = hgcEE_cce_[thickness - 1];
+        sigmaNoiseGeV = 1e-3 * weights_[layer] * rcorr_[thickness] * hgcEE_noise_fC_[thickness - 1] /
+                        hgcEE_fCPerMIP_[thickness - 1];
+        break;
+      case hgcfh:
+        rechitMaker_->setADCToGeVConstant(float(hgchefUncalib2GeV_));
+        cce_correction = hgcHEF_cce_[thickness - 1];
+        sigmaNoiseGeV = 1e-3 * weights_[layer] * rcorr_[thickness + deltasi_index_regemfac_] *
+                        hgcHEF_noise_fC_[thickness - 1] / hgcHEF_fCPerMIP_[thickness - 1];
+        break;
+      case hgcbh:
+        rechitMaker_->setADCToGeVConstant(float(hgchebUncalib2GeV_));
+        sigmaNoiseGeV = 1e-3 * hgcHEB_noise_MIP_ * weights_[layer] * rcorrscint_;
+        break;
+      case hgchfnose:
+        rechitMaker_->setADCToGeVConstant(float(hgchfnoseUncalib2GeV_));
+        cce_correction = hgcHFNose_cce_[thickness - 1];
+        sigmaNoiseGeV = 1e-3 * weightsNose_[layer] * rcorrNose_[thickness] * hgcHFNose_noise_fC_[thickness - 1] /
+                        hgcHFNose_fCPerMIP_[thickness - 1];
+        break;
+      default:
+        throw cms::Exception("NonHGCRecHit") << "Rechit with detid = " << detid.rawId() << " is not HGC!";
+    }
+
+    // make the rechit and put in the output collection
+
+    HGCRecHit myrechit(rechitMaker_->makeRecHit(uncalibRH, 0));
+    double new_E = myrechit.energy();
+    if (detid.det() == DetId::Forward && detid.subdetId() == ForwardSubdetector::HFNose) {
+      new_E *= (thickness == -1 ? 1.0 : rcorrNose_[thickness]) / cce_correction;
+    }  //regional factors for silicon in CE_H
+    else if (idtype == hgcfh) {
+      new_E *= rcorr_[thickness + deltasi_index_regemfac_] / cce_correction;
+    }  //regional factors for scintillator and silicon in CE_E
+    else {
+      new_E *= (thickness == -1 ? rcorrscint_ : rcorr_[thickness]) / cce_correction;
+    }
+
+    myrechit.setEnergy(new_E);
+    float SoN = new_E / sigmaNoiseGeV;
+    myrechit.setSignalOverSigmaNoise(SoN);
+
+    if (detid.det() == DetId::HGCalHSc || myrechit.time() == -99.) {
+      myrechit.setTimeError(-1.);
+    } else {
+      float timeError = timeEstimatorSi_.getTimeError("recHit", SoN);
+      myrechit.setTimeError(timeError);
+    }
+
+    result.push_back(myrechit);
   }
-
-  int thickness = -1;
-  float sigmaNoiseGeV = 0.f;
-  unsigned int layer = tools_->getLayerWithOffset(detid);
-  float cce_correction = 1.0;
-  int idtype(0);
-
-  switch (detid.det()) {
-    case DetId::HGCalEE:
-      idtype = hgcee;
-      thickness = 1 + HGCSiliconDetId(detid).type();
-      break;
-    case DetId::HGCalHSi:
-      idtype = hgcfh;
-      thickness = 1 + HGCSiliconDetId(detid).type();
-      break;
-    case DetId::HGCalHSc:
-      idtype = hgcbh;
-      break;
-    default:
-      switch (detid.subdetId()) {
-        case HGCEE:
-          idtype = hgcee;
-          thickness = ddds_[detid.subdetId() - 3]->waferTypeL(HGCalDetId(detid).wafer());
-          break;
-        case HGCHEF:
-          idtype = hgcfh;
-          thickness = ddds_[detid.subdetId() - 3]->waferTypeL(HGCalDetId(detid).wafer());
-          break;
-        case HcalEndcap:
-          [[fallthrough]];
-        case HGCHEB:
-          idtype = hgcbh;
-          break;
-        case HFNose:
-          idtype = hgchfnose;
-          thickness = 1 + HFNoseDetId(detid).type();
-          break;
-        default:
-          break;
-      }
-  }
-
-  switch (idtype) {
-    case hgcee:
-      rechitMaker_->setADCToGeVConstant(float(hgceeUncalib2GeV_));
-      cce_correction = hgcEE_cce_[thickness - 1];
-      sigmaNoiseGeV =
-          1e-3 * weights_[layer] * rcorr_[thickness] * hgcEE_noise_fC_[thickness - 1] / hgcEE_fCPerMIP_[thickness - 1];
-      break;
-    case hgcfh:
-      rechitMaker_->setADCToGeVConstant(float(hgchefUncalib2GeV_));
-      cce_correction = hgcHEF_cce_[thickness - 1];
-      sigmaNoiseGeV = 1e-3 * weights_[layer] * rcorr_[thickness + deltasi_index_regemfac_] *
-                      hgcHEF_noise_fC_[thickness - 1] / hgcHEF_fCPerMIP_[thickness - 1];
-      break;
-    case hgcbh:
-      rechitMaker_->setADCToGeVConstant(float(hgchebUncalib2GeV_));
-      sigmaNoiseGeV = 1e-3 * hgcHEB_noise_MIP_ * weights_[layer] * rcorrscint_;
-      break;
-    case hgchfnose:
-      rechitMaker_->setADCToGeVConstant(float(hgchfnoseUncalib2GeV_));
-      cce_correction = hgcHFNose_cce_[thickness - 1];
-      sigmaNoiseGeV = 1e-3 * weightsNose_[layer] * rcorrNose_[thickness] * hgcHFNose_noise_fC_[thickness - 1] /
-                      hgcHFNose_fCPerMIP_[thickness - 1];
-      break;
-    default:
-      throw cms::Exception("NonHGCRecHit") << "Rechit with detid = " << detid.rawId() << " is not HGC!";
-  }
-
-  // make the rechit and put in the output collection
-
-  HGCRecHit myrechit(rechitMaker_->makeRecHit(uncalibRH, 0));
-  double new_E = myrechit.energy();
-  if (detid.det() == DetId::Forward && detid.subdetId() == ForwardSubdetector::HFNose) {
-    new_E *= (thickness == -1 ? 1.0 : rcorrNose_[thickness]) / cce_correction;
-  }  //regional factors for silicon in CE_H
-  else if (idtype == hgcfh) {
-    new_E *= rcorr_[thickness + deltasi_index_regemfac_] / cce_correction;
-  }  //regional factors for scintillator and silicon in CE_E
-  else {
-    new_E *= (thickness == -1 ? rcorrscint_ : rcorr_[thickness]) / cce_correction;
-  }
-
-  myrechit.setEnergy(new_E);
-  float SoN = new_E / sigmaNoiseGeV;
-  myrechit.setSignalOverSigmaNoise(SoN);
-
-  if (detid.det() == DetId::HGCalHSc || myrechit.time() == -99.) {
-    myrechit.setTimeError(-1.);
-  } else {
-    float timeError = timeEstimatorSi_.getTimeError("recHit", SoN);
-    myrechit.setTimeError(timeError);
-  }
-
-  result.push_back(myrechit);
-
-  return true;
 }
 
 HGCalRecHitWorkerSimple::~HGCalRecHitWorkerSimple() {}

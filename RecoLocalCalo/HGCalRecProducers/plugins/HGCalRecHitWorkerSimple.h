@@ -24,7 +24,9 @@ public:
   ~HGCalRecHitWorkerSimple() override;
 
   void set(const edm::EventSetup& es) override;
-  bool run(const edm::Event& evt, const HGCUncalibratedRecHit& uncalibRH, HGCRecHitCollection& result) override;
+  void run(const edm::Event& evt,
+           const HGCUncalibratedRecHitCollection& uncalibRH,
+           HGCRecHitCollection& result) override;
 
 protected:
   enum detectortype { hgcee = 1, hgcfh = 2, hgcbh = 3, hgchfnose = 4 };

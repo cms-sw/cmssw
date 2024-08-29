@@ -110,6 +110,17 @@ public:
   //added for validation
   uint32_t flagBits() const { return flagBits_; }
 
+  //define operator== for std::find
+  bool operator==(const HGCRecHit& hit) const { return id().rawId() == hit.id().rawId(); }
+  bool operator==(const DetId& otherid) const { return id().rawId() == otherid.rawId(); }
+
+  //define operator< for std::sort
+  bool operator<(const HGCRecHit& hit) const {
+    if (id() == hit.id())
+      return energy() < hit.energy();
+    return id() < hit.id();
+  }
+
 private:
   /// store rechit condition (see Flags enum) in a bit-wise way
   uint32_t flagBits_;

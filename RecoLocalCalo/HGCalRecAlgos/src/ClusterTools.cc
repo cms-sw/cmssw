@@ -38,33 +38,48 @@ float ClusterTools::getClusterHadronFraction(const reco::CaloCluster& clus) cons
   for (const auto& hit : hits) {
     const auto& id = hit.first;
     const float fraction = hit.second;
+
     if (id.det() == DetId::HGCalEE) {
-      energy += eerh_->find(id)->energy() * fraction;
+      auto it = std::find(eerh_->begin(), eerh_->end(), id);
+      if (it != eerh_->end())
+        energy += it->energy() * fraction;
     } else if (id.det() == DetId::HGCalHSi) {
-      const float temp = fhrh_->find(id)->energy();
-      energy += temp * fraction;
-      energyHad += temp * fraction;
+      auto it = std::find(fhrh_->begin(), fhrh_->end(), id);
+      if (it != fhrh_->end()) {
+        energy += it->energy() * fraction;
+        energyHad += it->energy() * fraction;
+      }
     } else if (id.det() == DetId::HGCalHSc) {
-      const float temp = bhrh_->find(id)->energy();
-      energy += temp * fraction;
-      energyHad += temp * fraction;
+      auto it = std::find(bhrh_->begin(), bhrh_->end(), id);
+      if (it != bhrh_->end()) {
+        energy += it->energy() * fraction;
+        energyHad += it->energy() * fraction;
+      }
     } else if (id.det() == DetId::Forward) {
       switch (id.subdetId()) {
-        case HGCEE:
-          energy += eerh_->find(id)->energy() * fraction;
+        case HGCEE: {
+          auto it = std::find(eerh_->begin(), eerh_->end(), id);
+          if (it != eerh_->end())
+            energy += it->energy() * fraction;
           break;
+        }
         case HGCHEF: {
-          const float temp = fhrh_->find(id)->energy();
-          energy += temp * fraction;
-          energyHad += temp * fraction;
-        } break;
+          auto it = std::find(fhrh_->begin(), fhrh_->end(), id);
+          if (it != fhrh_->end()) {
+            energy += it->energy() * fraction;
+            energyHad += it->energy() * fraction;
+          }
+          break;
+        }
         default:
           throw cms::Exception("HGCalClusterTools") << " Cluster contains hits that are not from HGCal! " << std::endl;
       }
     } else if (id.det() == DetId::Hcal && id.subdetId() == HcalEndcap) {
-      const float temp = bhrh_->find(id)->energy();
-      energy += temp * fraction;
-      energyHad += temp * fraction;
+      auto it = std::find(bhrh_->begin(), bhrh_->end(), id);
+      if (it != bhrh_->end()) {
+        energy += it->energy() * fraction;
+        energyHad += it->energy() * fraction;
+      }
     } else {
       throw cms::Exception("HGCalClusterTools") << " Cluster contains hits that are not from HGCal! " << std::endl;
     }
@@ -139,7 +154,11 @@ bool ClusterTools::getWidths(const reco::CaloCluster& clus,
       continue;
 
     if ((id.det() == DetId::HGCalEE) || (id.det() == DetId::Forward && id.subdetId() == HGCEE)) {
-      const HGCRecHit* theHit = &(*eerh_->find(id));
+      auto theHitIt = std::find(eerh_->begin(), eerh_->end(), id);
+      if (theHitIt == eerh_->end())
+        continue;
+
+      const HGCRecHit* theHit = &(*theHitIt);
 
       GlobalPoint cellPos = rhtools_.getPosition(id);
       double weight = theHit->energy();

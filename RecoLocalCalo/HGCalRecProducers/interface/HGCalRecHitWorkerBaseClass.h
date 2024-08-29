@@ -16,7 +16,9 @@ public:
   virtual ~HGCalRecHitWorkerBaseClass(){};
 
   virtual void set(const edm::EventSetup& es) = 0;
-  virtual bool run(const edm::Event& evt, const HGCUncalibratedRecHit& uncalibRH, HGCRecHitCollection& result) = 0;
+  virtual void run(const edm::Event& evt,
+                   const HGCUncalibratedRecHitCollection& uncalibRH,
+                   HGCRecHitCollection& result) = 0;
 };
 
 #endif
