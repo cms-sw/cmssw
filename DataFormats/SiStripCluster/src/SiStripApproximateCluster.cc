@@ -2,12 +2,15 @@
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include <algorithm>
 #include <cmath>
+#include <assert.h>
 
 SiStripApproximateCluster::SiStripApproximateCluster(const SiStripCluster& cluster,
                                                      unsigned int maxNSat,
                                                      float hitPredPos,
                                                      bool peakFilter) {
   compBarycenter_ = std::round(cluster.barycenter() * maxRange_/maxBarycenter_);
+  assert(compBarycenter_ < maxRange_ && "Filling compBarycenter > maxRange");
+  assert(cluster.barycenter() < maxBarycenter_ && "Got a barycenter > maxBarycenter");
   width_ = cluster.size();
   avgCharge_ = (cluster.charge() + cluster.size()/2)/ cluster.size();
   filter_ = false;
