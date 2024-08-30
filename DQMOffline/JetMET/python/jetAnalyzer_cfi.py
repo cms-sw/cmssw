@@ -154,6 +154,97 @@ jetDQMAnalizerAk4PUPPICleaned=jetDQMAnalyzerAk4PFCleaned.clone(
     fillCHShistos = True,
 )
 
+jetDQMAnalyzerAk4Scouting = DQMEDAnalyzer('JetAnalyzer',    ### or jetDQMAnalyzerAk4Scouting=jetDQMAnalyzerAk4PFCleaned.clone(
+    #JetType = cms.string('scouting'),                               ###--->', # 'JetScoutingAnalyzer' or 'JetAnalyzer',    ### or jetDQMAnalyzerAk4Scouting=jetDQMAnalyzerAk4PFCleaned.clone(
+    #JetType = cms.string('scouting'),                               ###--->changed or 'pf'???
+    #jetsrc = cms.InputTag("hltScoutingPFPacker"),                   ###--->changed  ---> this name goes to GUI and TTree under JetMET/Jet
+    #METCollectionLabel = "pfMetScouting",                           ###---> this name goes to GUI and TTree under JetMET/MET ---> is it needed????
+    #JetCorrections = "ak4PFPuppiL1FastL2L3ResidualCorrector",      ###--->????
+    #JetIDVersion = "RUN2ULPUPPI",                                  ###--->????
+    #JetIDQuality = cms.string("TIGHT"),                            ###--->????
+    #fillCHShistos = True,                                          ###--->????
+###) ###<------
+    JetType = cms.string('scouting'),#pf, calo or jpt
+    ###JetCorrections = cms.InputTag("dqmAk4CaloL2L3ResidualCorrector"),
+    jetsrc = cms.InputTag("hltScoutingPFPacker"),
+    METCollectionLabel = cms.InputTag("hltScoutingPFPacker","pfMetPt"),
+    muonsrc = cms.InputTag("hltScoutingMuonPackerNoVtx","","HLT"),
+    l1algoname = cms.string("L1Tech_BPTX_plus_AND_minus.v0"),
+    filljetHighLevel = False, ### for 2 plots, "vertices" and "cleanup" in JetMET/ (not in JetMET/Jet/)
+    fillsubstructure = False,
+    ###ptMinBoosted = cms.double(400.), ### not neede -> used only for patJets
+    #
+    #
+    #
+    highPtJetTrigger = cms.PSet(
+        andOr         = cms.bool( False ),
+        dbLabel        = cms.string("JetMETDQMTrigger"),
+        hltInputTag    = cms.InputTag( "TriggerResults::HLT" ),
+        hltPaths       = cms.vstring( 'DST_PFScouting_jetHT_v*'), 
+        andOrHlt       = cms.bool( True ),
+        errorReplyHlt  = cms.bool( False ),
+    ),
+    lowPtJetTrigger = cms.PSet(
+        andOr         = cms.bool( False ),
+        dbLabel        = cms.string("JetMETDQMTrigger"),
+        hltInputTag    = cms.InputTag( "TriggerResults::HLT" ),
+        hltPaths       = cms.vstring( 'DST_PFScouting_ZeroBias_v*'), 
+        andOrHlt       = cms.bool( True ),
+        errorReplyHlt  = cms.bool( False ),
+    ),
+
+    TriggerResultsLabel        = cms.InputTag("TriggerResults", "", "HLT"),
+    processname                = cms.string("HLT"),                     ###--->????
+
+    #
+    # Jet-related
+    #   
+
+    JetCleaningFlag            = False,       
+
+    runcosmics                 = False,                
+                                
+    #Cleanup parameters
+    CleaningParameters = cleaningParameters.clone(
+        bypassAllPVChecks = True,
+        ),
+
+    #for JPT and CaloJetID  
+    ###InputJetIDValueMap         = cms.InputTag("ak4JetID"), 
+    #options for Calo and JPT: LOOSE,LOOSE_AOD,TIGHT,MINIMAL
+    #for PFJets: LOOSE,TIGHT
+    ###JetIDQuality               = cms.string("LOOSE"),
+    #options for Calo and JPT: PURE09,DQM09,CRAFT08
+    #for PFJets: FIRSTDATA
+    ###JetIDVersion               = cms.string("PURE09"),
+    #
+    #actually done only for PFJets at the moment
+    ###InputMVAPUIDDiscriminant = cms.InputTag("pileupJetIdEvaluatorDQM","fullDiscriminant"),
+    ###InputCutPUIDDiscriminant = cms.InputTag("pileupJetIdEvaluatorDQM","cutbasedDiscriminant"),
+    ###InputMVAPUIDValue = cms.InputTag("pileupJetIdEvaluatorDQM","fullId"),
+    ###InputCutPUIDValue = cms.InputTag("pileupJetIdEvaluatorDQM","cutbasedId"),
+
+    ###InputQGMultiplicity = cms.InputTag("QGTagger", "mult"),
+    ###InputQGLikelihood = cms.InputTag("QGTagger", "qgLikelihood"),
+    ###InputQGPtDToken = cms.InputTag("QGTagger", "ptD"),
+    ###InputQGAxis2 = cms.InputTag("QGTagger", "axis2"),
+
+    fillCHShistos = False,
+    #
+    # For jetAnalysis
+    #
+    jetAnalysis = jetDQMParameters.clone(),
+
+    #
+    # DCS ### -> only used in JetMETDQMFilter.cc
+    #                             
+    DCSFilterForJetMonitoring = cms.PSet(
+      DetectorTypes = cms.untracked.string("ecal:hbhe:hf"),
+      #DebugOn = cms.untracked.bool(True),
+      alwaysPass = cms.untracked.bool(False)
+    )
+)
+
 jetDQMAnalyzerAk4PFCHSUncleanedMiniAOD=jetDQMAnalyzerAk4PFUncleaned.clone(
     filljetHighLevel = True,
     CleaningParameters = cleaningParameters.clone(
