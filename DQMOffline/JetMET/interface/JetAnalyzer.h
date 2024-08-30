@@ -39,9 +39,11 @@
 #include "DataFormats/JetReco/interface/JPTJet.h"
 #include "DataFormats/JetReco/interface/JPTJetCollection.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
+#include "DataFormats/Scouting/interface/Run3ScoutingPFJet.h"
 #include "JetMETCorrections/JetCorrector/interface/JetCorrector.h"
 #include "RecoJets/JetProducers/interface/JetIDHelper.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/Scouting/interface/Run3ScoutingMuon.h"
 
 #include "DataFormats/METReco/interface/MET.h"
 #include "DataFormats/METReco/interface/METFwd.h"
@@ -57,6 +59,7 @@
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/Scouting/interface/Run3ScoutingVertex.h"
 
 #include "DataFormats/Scalers/interface/DcsStatus.h"
 #include "PhysicsTools/SelectorUtils/interface/JetIDSelectionFunctor.h"
@@ -128,6 +131,22 @@ private:
   edm::EDGetTokenT<edm::ValueMap<float>> qgaxis2Token_;
 
   //edm::EDGetTokenT<reco::JPTJetCollection>        jptJetsToken_;
+
+  //For scouting datasets
+  //const edm::InputTag triggerResultsTag;
+  //const edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken_;
+  edm::EDGetTokenT<std::vector<Run3ScoutingVertex>> scoutingVerticesToken_;
+  edm::EDGetTokenT<std::vector<Run3ScoutingMuon>> scoutingMuonsToken_;
+  edm::EDGetTokenT<std::vector<Run3ScoutingPFJet>> scoutingPfJetsToken_;
+  edm::EDGetTokenT<double> scoutingMetToken_;
+  //const edm::EDGetTokenT<std::vector<pat::Muon>> offlineMuonsToken_;
+  //const edm::EDGetTokenT<std::vector<Run3ScoutingElectron>> electronsToken_;
+  //const edm::EDGetTokenT<std::vector<Run3ScoutingVertex>> primaryVerticesToken_;
+  //const edm::EDGetTokenT<double> rhoToken_;
+  //const edm::EDGetTokenT<std::vector<Run3ScoutingPhoton>> photonsToken_;
+  //const edm::EDGetTokenT<std::vector<Run3ScoutingParticle>> pfcandsToken_;
+  //const edm::EDGetTokenT<std::vector<Run3ScoutingTrack>> tracksToken_;
+  //
 
   edm::InputTag inputJetIDValueMap;
   edm::EDGetTokenT<edm::ValueMap<reco::JetID>> jetID_ValueMapToken_;
@@ -789,6 +808,7 @@ private:
   bool isPFJet_;
   bool isMiniAODJet_;
   bool isPUPPIJet_;
+  bool isScoutingJet_; //###<------
 
   bool fill_jet_high_level_histo;
 
