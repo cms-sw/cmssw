@@ -70,7 +70,7 @@ JetAnalyzer::JetAnalyzer(const edm::ParameterSet& pSet)
   m_bitAlgTechTrig_ = -1;
 
   jetType_ = pSet.getParameter<std::string>("JetType");
-  m_l1algoname_ = pSet.getParameter<std::string>("l1algoname");
+  m_l1algoname_ = pSet.getParameter<std::string>("l1algoname");         //###### same as l.69, why 2 times ????
 
   fill_jet_high_level_histo = pSet.getParameter<bool>("filljetHighLevel"),
   filljetsubstruc_ = pSet.getParameter<bool>("fillsubstructure");
@@ -80,6 +80,7 @@ JetAnalyzer::JetAnalyzer(const edm::ParameterSet& pSet)
   //isJPTJet_  = (std::string("jpt") ==jetType_);
   isPFJet_ = (std::string("pf") == jetType_);
   isPUPPIJet_ = (std::string("puppi") == jetType_);
+  isScoutingJet_ = (std::string("scouting") == jetType_);               //###--->needed ???
   isMiniAODJet_ = (std::string("miniaod") == jetType_);
   jetCorrectorTag_ = pSet.getParameter<edm::InputTag>("JetCorrections");
 
@@ -106,6 +107,12 @@ JetAnalyzer::JetAnalyzer(const edm::ParameterSet& pSet)
     puppiMetToken_ =
         consumes<reco::PFMETCollection>(edm::InputTag(pSet.getParameter<edm::InputTag>("METCollectionLabel")));
   }
+  if (isScoutingJet_) {
+    scoutingPfJetsToken_ = consumes<std::vector<Run3ScoutingPFJet>>(mInputCollection_);
+    scoutingMuonsToken_ = consumes<std::vector<Run3ScoutingMuon>>(pSet.getParameter<edm::InputTag>("muonsrc"));
+    scoutingMetToken_ =
+        consumes<double>(edm::InputTag(pSet.getParameter<edm::InputTag>("METCollectionLabel")));
+  }                                                                      //###--->needed ???
   if (isMiniAODJet_) {
     patJetsToken_ = consumes<pat::JetCollection>(mInputCollection_);
     patMetToken_ = consumes<pat::METCollection>(edm::InputTag(pSet.getParameter<edm::InputTag>("METCollectionLabel")));
@@ -291,12 +298,13 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRu
     DirName = "JetMET/Jet/Uncleaned" + mInputCollection_.label();
   }
 
-  jetME = ibooker.book1D("jetReco", "jetReco", 5, 1, 5);
+  jetME = ibooker.book1D("jetReco", "jetReco", 5, 1, 5);        //###--->change 5 to 6 ???
   jetME->setBinLabel(1, "CaloJets", 1);
   jetME->setBinLabel(2, "PFJets", 1);
   jetME->setBinLabel(3, "JPTJets", 1);
   jetME->setBinLabel(4, "MiniAODJets", 1);
   jetME->setBinLabel(5, "PUPPIJets", 1);
+  //jetME->setBinLabel(6, "ScoutingJets", 1);             //###<------is it needed ---> it is used only for "jetReco" plot in each sbdir, but not filled properly in all of them ???
 
   map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "jetReco", jetME));
 
@@ -1701,10 +1709,10 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRu
   cleanupME->setBinLabel(7, "DCS::HF");
   cleanupME->setBinLabel(8, "DCS::HO");
   cleanupME->setBinLabel(9, "DCS::Muon");
-  map_of_MEs.insert(std::pair<std::string, MonitorElement*>("JetMET/cleanup", cleanupME));
+  map_of_MEs.insert(std::pair<std::string, MonitorElement*>("JetMET/cleanup", cleanupME)); // ### plot in JetMET (not in JetMET/Jet/)
 
   verticesME = ibooker.book1D("vertices", "vertices", 100, 0, 100);
-  map_of_MEs.insert(std::pair<std::string, MonitorElement*>("JetMET/vertices", verticesME));
+  map_of_MEs.insert(std::pair<std::string, MonitorElement*>("JetMET/vertices", verticesME)); // ### plot in JetMET (not in JetMET/Jet/)
 }
 
 void JetAnalyzer::bookMESetSelection(std::string DirName, DQMStore::IBooker& ibooker) {
@@ -2404,6 +2412,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   edm::Handle<PFJetCollection> pfJets;
   edm::Handle<pat::JetCollection> patJets;
   edm::Handle<PFJetCollection> puppiJets;
+  edm::Handle<vector<Run3ScoutingPFJet>> scoutingJets;          //### <--------
 
   edm::Handle<MuonCollection> Muons;
 
@@ -2574,6 +2583,9 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     collSize = patJets->size();
   if (isPUPPIJet_)
     collSize = puppiJets->size();
+  if (isScoutingJet_)
+    collSize = scoutingJets->size();
+
 
   double scale = -1;
   //now start changes for jets
@@ -2639,6 +2651,9 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     if (isMiniAODJet_) {
       correctedJet = (*patJets)[ijet];
     }
+    if (isScoutingJet_) {
+      pass_uncorrected = true;
+    }  //###<------
     if (!isMiniAODJet_ && correctedJet.pt() > ptThresholdUnc_) {
       pass_uncorrected = true;
     }
