@@ -11,7 +11,10 @@ import subprocess
 
 import pycurl
 
-tier0Url = 'https://cmsweb.cern.ch/t0wmadatasvc/prod/'
+# temporary solution accessing URL that is not requiring a certificate but it is
+# planed to be dicomissioned in 7 days after 20.08.2024
+# should be reverted to https://cmsweb.cern.ch/t0wmadatasvc/prod/ and fixed to use a certificate
+tier0Url = 'https://cmsweb-prod.cern.ch/t0wmadatasvc/prod/'
 
 class Tier0Error(Exception):
     '''Tier0 exception.

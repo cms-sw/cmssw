@@ -33,21 +33,30 @@ def getCommandOutput(command):
 ##############################################
 def getFCSR():
 ##############################################
-    out = subprocess.check_output(["curl", "-k", "-s", "https://cmsweb.cern.ch/t0wmadatasvc/prod/firstconditionsaferun"])
+    # temporary solution accessing URL that is not requiring a certificate but it is
+    # planed to be dicomissioned in 7 days after 20.08.2024
+    # should be reverted to https://cmsweb.cern.ch/t0wmadatasvc/prod/ and fixed to use a certificate
+    out = subprocess.check_output(["curl", "-k", "-s", "https://cmsweb-prod.cern.ch/t0wmadatasvc/prod/firstconditionsaferun"])
     response = json.loads(out)["result"][0]
     return int(response)
 
 ##############################################
 def getPromptGT():
 ##############################################
-    out = subprocess.check_output(["curl", "-k", "-s", "https://cmsweb.cern.ch/t0wmadatasvc/prod/reco_config"])
+    # temporary solution accessing URL that is not requiring a certificate but it is
+    # planed to be dicomissioned in 7 days after 20.08.2024
+    # should be reverted to https://cmsweb.cern.ch/t0wmadatasvc/prod/ and fixed to use a certificate
+    out = subprocess.check_output(["curl", "-k", "-s", "https://cmsweb-prod.cern.ch/t0wmadatasvc/prod/reco_config"])
     response = json.loads(out)["result"][0]['global_tag']
     return response
 
 ##############################################
 def getExpressGT():
 ##############################################
-    out = subprocess.check_output(["curl", "-k", "-s", "https://cmsweb.cern.ch/t0wmadatasvc/prod/express_config"])
+    # temporary solution accessing URL that is not requiring a certificate but it is
+    # planed to be dicomissioned in 7 days after 20.08.2024
+    # should be reverted to https://cmsweb.cern.ch/t0wmadatasvc/prod/ and fixed to use a certificate
+    out = subprocess.check_output(["curl", "-k", "-s", "https://cmsweb-prod.cern.ch/t0wmadatasvc/prod/express_config"])
     response = json.loads(out)["result"][0]['global_tag']
     return response
 
