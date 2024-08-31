@@ -3,7 +3,7 @@ from HeterogeneousCore.AlpakaCore.functions import *
 from HeterogeneousCore.CUDACore.SwitchProducerCUDA import SwitchProducerCUDA
 
 from RecoTracker.PixelTrackFitting.PixelTracks_cff import *
-from RecoVertex.PixelVertexFinding.PixelVertexes_cff import *
+from RecoVertex.PixelVertexFinding.PixelVertices_cff import *
 
 # legacy pixel vertex reconsruction using the divisive vertex finder
 pixelVerticesTask = cms.Task(
