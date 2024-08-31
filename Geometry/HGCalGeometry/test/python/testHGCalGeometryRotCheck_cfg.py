@@ -1,8 +1,9 @@
 ###############################################################################
 # Way to use this:
-#   cmsRun testHGCalGeometryRotCheck_cfg.py geometry=D88
+#   cmsRun testHGCalGeometryRotCheck_cfg.py geometry=D110
 #
-#   Options for type D88, D92, D93
+#   Options for type D95, D96, D98, D99, D100, D101, D102, D103, D104, D105,
+#                    D106, D107, D108, D109, D110, D111, D112, D113, D114
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -13,10 +14,10 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 ### SETUP OPTIONS
 options = VarParsing.VarParsing('standard')
 options.register('geometry',
-                 "D92",
+                 "D110",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "type of operations: D88, D92, D93")
+                  "type of operations: D95, D96, D98, D99, D100, D101, D102, D103, D104, D105, D106, D107, D108, D109, D110, D111, D112, D113, D114")
 
 ### get and parse the command line arguments
 options.parseArguments()
@@ -27,12 +28,9 @@ process = cms.Process("HGCalGeometryRotCheck",Phase2C17I13M9)
 
 ####################################################################
 # Use the options
-if (options.geometry == "D88"):
-    process.load('Configuration.Geometry.GeometryExtended2026D88Reco_cff')
-elif (options.geometry == "D93"):
-    process.load('Configuration.Geometry.GeometryExtended2026D93Reco_cff')
-else:
-    process.load('Configuration.Geometry.GeometryExtended2026D92Reco_cff')
+geomFile = "Configuration.Geometry.GeometryExtended2026" + options.geometry + "Reco_cff"
+print("Geometry file: ", geomFile)
+process.load(geomFile)
 
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
 process.load('Geometry.HGCalGeometry.hgcalGeometryRotCheck_cfi')
