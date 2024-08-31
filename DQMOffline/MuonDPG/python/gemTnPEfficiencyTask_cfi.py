@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from RecoMuon.TrackingTools.MuonServiceProxy_cff import *
 
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 gemTnPEfficiencyMonitor = DQMEDAnalyzer('GEMTnPEfficiencyTask',
@@ -17,6 +18,7 @@ gemTnPEfficiencyMonitor = DQMEDAnalyzer('GEMTnPEfficiencyTask',
                                        #  CutBasedIdMediumPrompt = 1UL << 2 
 				       #  CutBasedIdTight = 1UL << 3
                                        maskChamberWithError=cms.untracked.bool(True),
+                                       ServiceParameters = MuonServiceProxy.ServiceParameters.clone(),
                                        ohStatusTag=cms.untracked.InputTag("muonGEMDigis", "OHStatus"),
                                        vfatStatusTag=cms.untracked.InputTag("muonGEMDigis","VFATStatus"),
                                        amcStatusTag=cms.untracked.InputTag("muonGEMDigis","AMCStatus"),

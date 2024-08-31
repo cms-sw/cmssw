@@ -17,6 +17,14 @@
 #include "DataFormats/GEMDigi/interface/GEMVFATStatusCollection.h"
 #include "DataFormats/GEMDigi/interface/GEMOHStatusCollection.h"
 #include "DataFormats/GEMDigi/interface/GEMAMCStatusCollection.h"
+#include "Geometry/GEMGeometry/interface/GEMGeometry.h"
+
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
+
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/ErrorFrameTransformer.h"
 
 class GEMTnPEfficiencyTask : public BaseTnPEfficiencyTask {
 public:
@@ -25,7 +33,10 @@ public:
   uint16_t maskChamberWithError(const GEMDetId& chamber_id,
                                 const GEMOHStatusCollection*,
                                 const GEMVFATStatusCollection*);
-
+  bool checkBounds(const Plane& plane,
+                                        const GlobalPoint& global_point,
+                                        const LocalError& local_error,
+                                        const float scale);
   /// Destructor
   ~GEMTnPEfficiencyTask() override;
 
@@ -33,6 +44,7 @@ public:
   const edm::EDGetTokenT<GEMOHStatusCollection> m_GEMOHStatusCollectionToken_;
   const edm::EDGetTokenT<GEMVFATStatusCollection> m_GEMVFATStatusCollectionToken_;
   const edm::EDGetTokenT<GEMAMCStatusCollection> m_GEMAMCStatusCollectionToken_;
+  std::unique_ptr<MuonServiceProxy> muon_service_;
 
 protected:
   std::string topFolder() const override;
@@ -53,6 +65,7 @@ GEMTnPEfficiencyTask::GEMTnPEfficiencyTask(const edm::ParameterSet& config)
       m_GEMAMCStatusCollectionToken_(
           consumes<GEMAMCStatusCollection>(config.getUntrackedParameter<edm::InputTag>("amcStatusTag"))) {
   LogTrace("DQMOffline|MuonDPG|GEMTnPEfficiencyTask") << "[GEMTnPEfficiencyTask]: Constructor" << std::endl;
+  muon_service_ = std::make_unique<MuonServiceProxy>(config.getParameter<edm::ParameterSet>("ServiceParameters"), consumesCollector());
 }
 
 GEMTnPEfficiencyTask::~GEMTnPEfficiencyTask() {
@@ -1316,12 +1329,22 @@ uint16_t GEMTnPEfficiencyTask::maskChamberWithError(const GEMDetId& chamber_id,
   return oh_warning;
 }
 
+bool GEMTnPEfficiencyTask::checkBounds(const Plane& plane,
+                                          const GlobalPoint& global_point,
+                                          const LocalError& local_error,
+                                          const float scale) {
+  const LocalPoint local_point = plane.toLocal(global_point);
+  const LocalPoint local_point_2d{local_point.x(), local_point.y(), 0.0f};
+  return plane.bounds().inside(local_point_2d, local_error, scale);
+}
+
 void GEMTnPEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetup& context) {
   BaseTnPEfficiencyTask::analyze(event, context);
   GEMOHStatusCollection oh_status;
   GEMVFATStatusCollection vfat_status;
   edm::Handle<GEMOHStatusCollection> oh_status_collection;
   edm::Handle<GEMVFATStatusCollection> vfat_status_collection;
+  muon_service_->update(context);
   if (m_maskChamberWithError_) {
     event.getByToken(m_GEMOHStatusCollectionToken_, oh_status_collection);
     //if (oh_status_collem_tion.isValid()) {
@@ -1435,18 +1458,36 @@ void GEMTnPEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetu
 
           GEMDetId chId(chambMatch.id.rawId());
           const uint16_t warnings = maskChamberWithError(chId, &oh_status, &vfat_status);
-
           const int roll = chId.roll();
           const int region = chId.region();
           const int station = chId.station();
           const int layer = chId.layer();
           const int chamber = chId.chamber();
-          const int ieta = chId.ieta();
           const float pt = (*muons).at(i).pt();
           const float eta = (*muons).at(i).eta();
           const float phi = (*muons).at(i).phi();
+          int ieta = 0;
           GEM_stationMatching = GEM_stationMatching | (1 << station);
 
+          //const GeomDet* geomDet = tGeom.idToDet(chId);
+          const GeomDet* geomDet = muon_service_->trackingGeometry()->idToDet(chId);
+          
+          // edm::ESHandle<GlobalTrackingGeometry> tracking_geom = muon_service_->trackingGeometry();
+          // const GeomDet* geomDet = tracking_geom->idToDet(chId);
+          
+          LocalPoint pos(chambMatch.x,chambMatch.y);
+          LocalError err(chambMatch.xErr, 0, chambMatch.yErr); // We don't have xy error in ChamberMatch
+
+          const GlobalPoint& global_point = geomDet->toGlobal(pos);
+          
+          if (const GEMChamber* gemChamber = dynamic_cast<const GEMChamber*>(geomDet)) {
+            for (const GEMEtaPartition* eta_partition : gemChamber->etaPartitions())
+                if (checkBounds(eta_partition->surface(), global_point, err, 2)) {
+                  ieta = eta_partition->id().ieta();
+                  break;
+                }
+          }
+          
           if (station == 1 || station == 2) {
             reco::MuonGEMHitMatch closest_matchedHit;
             double smallestDx = 99999.;
