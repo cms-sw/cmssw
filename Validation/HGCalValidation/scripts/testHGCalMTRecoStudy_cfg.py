@@ -1,8 +1,8 @@
 ###############################################################################
 # Way to use this:
-#   cmsRun runHGCalRecHitStudy_cfg.py geometry=D82
+#   cmsRun runHGCalRecHitStudy_cfg.py geometry=D110
 #
-#   Options for geometry D88, D92, D93
+#   Options for geometry D105, D110, D114
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -11,15 +11,15 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 
 ####################################################################
 ### Run as
-## $cmsRun testHGCalMTRecoStudy_cfg.py geometry=D88 layers=1
+## $cmsRun testHGCalMTRecoStudy_cfg.py geometry=D105 layers=1
 
 ### SETUP OPTIONS
 options = VarParsing.VarParsing('standard')
 options.register('geometry',
-                 "D92",
+                 "D110",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D88, D92, D93")
+                  "geometry of operations: D105, D110, D114")
 
 options.register('layers',
                  "1",
@@ -39,23 +39,23 @@ print(options)
 
 fileInput = "file:step3.root"
 
-if (options.geometry == "D88"):
-    from Configuration.Eras.Era_Phase2C11I13M9_cff import Phase2C11I13M9
-    process = cms.Process('HGCalMTReco',Phase2C11I13M9)
-    process.load('Configuration.Geometry.GeometryExtended2026D88Reco_cff')
-    outputFile = 'file:recoutputD88.root'
-elif (options.geometry == "D93"):
-    from Configuration.Eras.Era_Phase2C11I13M9_cff import Phase2C11I13M9
-    process = cms.Process('HGCalMTReco',Phase2C11I13M9)
-    process.load('Configuration.Geometry.GeometryExtended2026D93Reco_cff')
-    outputFile = 'file:recoutputD93.root'
-elif (options.geometry == "D92"):
-    from Configuration.Eras.Era_Phase2C11I13M9_cff import Phase2C11I13M9
-    process = cms.Process('HGCalMTReco',Phase2C11I13M9)
-    process.load('Configuration.Geometry.GeometryExtended2026D92Reco_cff')
-    outputFile = 'file:recoutputD92.root'
+if (options.geometry == "D105"):
+    from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
+    process = cms.Process('HGCalMTReco',Phase2C17I13M9)
+    process.load('Configuration.Geometry.GeometryExtended2026D105Reco_cff')
+    outputFile = 'file:recoutputD105.root'
+elif (options.geometry == "D114"):
+    from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
+    process = cms.Process('HGCalMTReco',Phase2C17I13M9)
+    process.load('Configuration.Geometry.GeometryExtended2026D114Reco_cff')
+    outputFile = 'file:recoutputD114.root'
+elif (options.geometry == "D110"):
+    from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
+    process = cms.Process('HGCalMTReco',Phase2C17I13M9)
+    process.load('Configuration.Geometry.GeometryExtended2026D110Reco_cff')
+    outputFile = 'file:recoutputD110.root'
 else:
-    print("Please select a valid geometry version e.g. D88, D92, D93....")
+    print("Please select a valid geometry version e.g. D105, D110, D114....")
 
 print("Input file: ", fileInput)
 print("Output file: ", outputFile)
@@ -67,7 +67,7 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T21', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T33', '')
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 100
 
@@ -76,7 +76,7 @@ process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(fileInput),
     inputCommands = cms.untracked.vstring(
         'keep *',
-        'drop l1tTkPrimaryVertexs_L1TkPrimaryVertex__*' # This is to skip this branch causing issue in D88 reco files with older CMSSW <= 12_4_0-pre4
+        'drop l1tTkPrimaryVertexs_L1TkPrimaryVertex__*' # This is to skip this branch causing issue in D105 reco files with older CMSSW <= 12_4_0-pre4
     ),
     secondaryFileNames = cms.untracked.vstring()
 )

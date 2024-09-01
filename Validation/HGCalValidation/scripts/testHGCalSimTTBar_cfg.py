@@ -1,8 +1,8 @@
 ###############################################################################
 # Way to use this:
-#   cmsRun testHGCalTTBar_cfg.py geometry=D92 type=DDD
+#   cmsRun testHGCalTTBar_cfg.py geometry=D110 type=DDD
 #
-#   Options for geometry: D88, D92, D93, V17Shift, V18
+#   Options for geometry: D105, D110, D114, V17Shift, D104
 #               type: DDD, DD4hep
 #
 ###############################################################################
@@ -14,10 +14,10 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 ### SETUP OPTIONS
 options = VarParsing.VarParsing('standard')
 options.register('geometry',
-                 "D92",
+                 "D110",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D88, D92, D93, V17Shift, V18")
+                  "geometry of operations: D105, D110, D114, V17Shift, D104")
 options.register('type',
                  "DDD",
                   VarParsing.VarParsing.multiplicity.singleton,
@@ -32,26 +32,35 @@ print(options)
 ####################################################################
 # Use the options
 
-from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
 if (options.type == "DD4hep"):
     from Configuration.ProcessModifiers.dd4hep_cff import dd4hep
-    process = cms.Process('SingleMuonSim',Phase2C17I13M9,dd4hep)
     if (options.geometry == "V17Shift"):
+        from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
+        process = cms.Process('SingleMuonSim',Phase2C17I13M9,dd4hep)
         geomFile = "Geometry.HGCalCommonData.testHGCal" + options.type + options.geometry + "Reco_cff"
-    elif (options.geometry == "V18"):
-        geomFile = "Geometry.HGCalCommonData.testHGCal" + options.type + options.geometry + "Reco_cff"
+    elif (options.geometry == "D104"):
+        from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
+        process = cms.Process('SingleMuonSim',Phase2C22I13M9,dd4hep)
+        geomFile = "Configuration.Geometry.Geometry" + options.type +"Extended2026" + options.geometry + "Reco_cff"
     else:
+        from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
+        process = cms.Process('SingleMuonSim',Phase2C17I13M9,dd4hep)
         geomFile = "Configuration.Geometry.Geometry" + options.type +"Extended2026" + options.geometry + "Reco_cff"
 else:
-    process = cms.Process('SingleMuonSim',Phase2C17I13M9)
     if (options.geometry == "V17Shift"):
+        from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
+        process = cms.Process('SingleMuonSim',Phase2C17I13M9)
         geomFile = "Geometry.HGCalCommonData.testHGCal" + options.geometry + "Reco_cff"
-    elif (options.geometry == "V18"):
-        geomFile = "Geometry.HGCalCommonData.testHGCal" + options.geometry + "Reco_cff"
+    elif (options.geometry == "D104"):
+        from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
+        process = cms.Process('SingleMuonSim',Phase2C22I13M9)
+        geomFile = "Configuration.Geometry.GeometryExtended2026" + options.geometry + "Reco_cff"
     else:
+        from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
+        process = cms.Process('SingleMuonSim',Phase2C17I13M9)
         geomFile = "Configuration.Geometry.GeometryExtended2026" + options.geometry + "Reco_cff"
 
-globalTag = "auto:phase2_realistic_T21"
+globalTag = "auto:phase2_realistic_T33"
 outFile = "file:step1" + options.type + options.geometry + "tt.root"
 
 print("Geometry file: ", geomFile)
