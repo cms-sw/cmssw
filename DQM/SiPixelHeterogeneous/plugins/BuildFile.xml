@@ -9,5 +9,4 @@
 <use name="DataFormats/TrackSoA"/>
 <use name="DataFormats/VertexSoA"/>
 <use name="DataFormats/BeamSpot"/>
-<use name="CUDADataFormats/TrackingRecHit"/>
 <flags EDM_PLUGIN="1"/>
