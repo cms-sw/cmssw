@@ -2,7 +2,7 @@
 #define RecoLocalTracker_SiPixelClusterizer_interface_SiPixelClusterThresholds_h
 
 /* This struct is an implementation detail of this package.
- * It's in the interface directory because it needs to be shared by the legacy, CUDA, and Alpaka plugins.
+ * It's in the interface directory because it needs to be shared by the legacy and Alpaka plugins.
  */
 
 struct SiPixelClusterThresholds {
