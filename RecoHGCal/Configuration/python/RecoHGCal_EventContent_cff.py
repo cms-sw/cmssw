@@ -2,7 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoHGCal.TICL.iterativeTICL_cff import ticlIterLabels
 
-trackstersHLTIters = ['keep *_hlt'+iteration+'_*_*' for iteration in ticlIterLabels]
 trackstersIters = ['keep *_'+iteration+'_*_*' for iteration in ticlIterLabels]
 
 #AOD content
@@ -60,11 +59,9 @@ TICLv5_FEVT = cms.PSet(
       'keep *_ticlSimTracksters_*_*',
       'keep *_ticlSimTICLCandidates_*_*',
       'keep *_ticlSimTrackstersFromCP_*_*',
-    #   'keep *_tracksterSimTracksterAssociationLinkingSuperclustering_*_*',
-    #   'keep *_tracksterSimTracksterAssociationPRSuperclustering_*_*', 
       'keep CaloParticles_mix_*_*', 'keep SimClusters_mix_*_*', 'keep *_SimClusterToCaloParticleAssociation*_*_*',
       'keep *_SimClusterToCaloParticleAssociation*_*_*', 'keep *_layerClusterSimClusterAssociationProducer_*_*','keep *_layerClusterCaloParticleAssociationProducer_*_*', 'keep *_layerClusterSimTracksterAssociationProducer_*_*',
-      'keep *_tracksterSimTracksterAssociation*_*_*' , 'keep *_tracksterSimTracksterFromCPsAssociation*_*_*' 
+      'keep *_allTrackstersToSimTrackstersAssociations*_*_*'
       
       )
     )
@@ -73,8 +70,11 @@ TICLv5_FEVT.outputCommands.extend(TICLv5_RECO.outputCommands)
 
 TICL_FEVTHLT = cms.PSet(
     outputCommands = cms.untracked.vstring(
-            trackstersHLTIters +
-            ['keep *_hltPfTICL_*_*']
+            ['keep *_hltPfTICL_*_*',
+            'keep *_hltTiclTrackstersCLUE3D*_*_*',
+            'keep *_hltTiclTracksterLinks_*_*',
+            'keep *_hltTiclCandidate_*_*',
+            'keep *_hltPfTICL_*_*',]
     )
 )
 
