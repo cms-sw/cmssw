@@ -402,7 +402,7 @@ void FWRecoGeometryESProducer::addPixelBarrelGeometry(FWRecoGeometry& fwRecoGeom
        ++it) {
     const GeomDet* det = *it;
 
-    if (det and det->isLeaf()) {
+    if (det) {
       DetId detid = det->geographicalId();
       unsigned int rawid = detid.rawId();
       unsigned int current = insert_id(rawid, fwRecoGeometry);
