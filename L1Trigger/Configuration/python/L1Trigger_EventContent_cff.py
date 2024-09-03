@@ -100,6 +100,20 @@ L1TriggerFEVTDEBUG = cms.PSet(
 )
 
 
+def _appendCICADAInformation(obj):
+    cicadaDataRegions = [
+        # unpacked/data CICADA input/output
+        'keep L1CaloRegions_caloLayer1Digis_*_*',
+        'keep *_caloLayer1Digis_CICADAScore_*',
+    ]
+    obj.outputCommands += cicadaDataRegions
+# Make CICADA available in AOD and miniAOD from 2024 on
+from Configuration.Eras.Modifier_run3_2024_L1T_cff import run3_2024_L1T
+run3_2024_L1T.toModify(L1TriggerAOD, func=_appendCICADAInformation)
+from PhysicsTools.PatAlgos.slimming.MicroEventContent_cff import MicroEventContent, MicroEventContentMC
+run3_2024_L1T.toModify(MicroEventContent, func=_appendCICADAInformation)
+run3_2024_L1T.toModify(MicroEventContentMC, func=_appendCICADAInformation)
+
 def _appendStage2Digis(obj):
     l1Stage2Digis = [
         'keep *_gtStage2Digis_*_*',
