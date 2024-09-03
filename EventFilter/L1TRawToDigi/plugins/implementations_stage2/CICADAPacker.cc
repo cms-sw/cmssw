@@ -16,7 +16,7 @@ namespace l1t {
       uint32_t fourthWord = (cicadaBits & 0x000F) << 28;
       return {firstWord, secondWord, thirdWord, fourthWord};
     }
-    
+
     Blocks CICADAPacker::pack(const edm::Event& event, const PackerTokens* toks) {
       edm::Handle<CICADABxCollection> cicadaScores;
       event.getByToken(static_cast<const CaloLayer1Tokens*>(toks)->getCICADAToken(), cicadaScores);
@@ -27,7 +27,7 @@ namespace l1t {
       //Calo Layer 1 doesn't distinguish between BX's, it just sends the one.
       float cicadaScore = 0.0;
       if (cicadaScores->size(0) != 0) {
-	cicadaScore = cicadaScores->at(0, 0);
+        cicadaScore = cicadaScores->at(0, 0);
       }
       payload = makeCICADAWordsFromScore(cicadaScore);
       payload.push_back(0);
@@ -35,7 +35,7 @@ namespace l1t {
 
       return {Block(0, payload, 0, 0, CTP7)};
     }
-  }
-}
+  }  // namespace stage2
+}  // namespace l1t
 
 DEFINE_L1T_PACKER(l1t::stage2::CICADAPacker);

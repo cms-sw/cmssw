@@ -13,7 +13,7 @@ namespace l1t {
     private:
       std::vector<uint32_t> makeCICADAWordsFromScore(float);
     };
-  }
-}
+  }  // namespace stage2
+}  // namespace l1t
 
 #endif
