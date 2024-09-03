@@ -154,7 +154,7 @@ jetDQMAnalizerAk4PUPPICleaned=jetDQMAnalyzerAk4PFCleaned.clone(
     fillCHShistos = True,
 )
 
-jetDQMAnalyzerAk4Scouting = DQMEDAnalyzer('JetAnalyzer',    ### or jetDQMAnalyzerAk4Scouting=jetDQMAnalyzerAk4PFCleaned.clone(
+jetDQMAnalyzerAk4ScoutingUncleaned = jetDQMAnalyzerAk4CaloUncleaned.clone( ###DQMEDAnalyzer('JetAnalyzer',    ### or jetDQMAnalyzerAk4Scouting=jetDQMAnalyzerAk4CaloUncleaned.clone(
     #JetType = cms.string('scouting'),                               ###--->', # 'JetScoutingAnalyzer' or 'JetAnalyzer',    ### or jetDQMAnalyzerAk4Scouting=jetDQMAnalyzerAk4PFCleaned.clone(
     #JetType = cms.string('scouting'),                               ###--->changed or 'pf'???
     #jetsrc = cms.InputTag("hltScoutingPFPacker"),                   ###--->changed  ---> this name goes to GUI and TTree under JetMET/Jet
@@ -172,7 +172,7 @@ jetDQMAnalyzerAk4Scouting = DQMEDAnalyzer('JetAnalyzer',    ### or jetDQMAnalyze
     l1algoname = cms.string("L1Tech_BPTX_plus_AND_minus.v0"),
     filljetHighLevel = False, ### for 2 plots, "vertices" and "cleanup" in JetMET/ (not in JetMET/Jet/)
     fillsubstructure = False,
-    ###ptMinBoosted = cms.double(400.), ### not neede -> used only for patJets
+    ###ptMinBoosted = cms.double(400.), ### not needed -> used only for patJets
     #
     #
     #
@@ -200,13 +200,13 @@ jetDQMAnalyzerAk4Scouting = DQMEDAnalyzer('JetAnalyzer',    ### or jetDQMAnalyze
     # Jet-related
     #   
 
-    JetCleaningFlag            = False,       
+    JetCleaningFlag            = cms.untracked.bool(False),       
 
     runcosmics                 = False,                
                                 
     #Cleanup parameters
     CleaningParameters = cleaningParameters.clone(
-        bypassAllPVChecks = True,
+        bypassAllPVChecks = False,
         ),
 
     #for JPT and CaloJetID  
