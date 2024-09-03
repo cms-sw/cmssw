@@ -127,7 +127,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       Queue& queue,
       HGCalDigiHost const& host_digis,
       HGCalCalibParamDevice const& device_calib,
-      HGCalConfigParamDevice const& device_config) {
+      HGCalConfigParamDevice const& device_config) const {
     LogDebug("HGCalRecHitCalibrationAlgorithms") << "\n\nINFO -- Start of calibrate\n\n" << std::endl;
     LogDebug("HGCalRecHitCalibrationAlgorithms")
         << "N blocks: " << n_blocks_ << "\tN threads: " << n_threads_ << std::endl;

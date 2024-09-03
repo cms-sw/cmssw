@@ -50,7 +50,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     device::ESGetToken<hgcalrechit::HGCalCalibParamDevice, HGCalModuleConfigurationRcd> calibToken_;
     device::ESGetToken<hgcalrechit::HGCalConfigParamDevice, HGCalModuleConfigurationRcd> configToken_;
     const device::EDPutToken<hgcalrechit::HGCalRecHitDevice> recHitsToken_;
-    HGCalRecHitCalibrationAlgorithms calibrator_;  // cannot be "const" because the calibrate() method is not const
+    const HGCalRecHitCalibrationAlgorithms calibrator_;
     int n_hits_scale;
   };
 
