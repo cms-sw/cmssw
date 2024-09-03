@@ -116,9 +116,9 @@ public:
 
   //define operator< for std::sort
   bool operator<(const HGCRecHit& hit) const {
-    if (id() == hit.id())
+    if (id().rawId() == hit.id().rawId())
       return energy() < hit.energy();
-    return id() < hit.id();
+    return id().rawId() < hit.id().rawId();
   }
 
 private:
