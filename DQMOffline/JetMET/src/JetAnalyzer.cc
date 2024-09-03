@@ -298,13 +298,13 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRu
     DirName = "JetMET/Jet/Uncleaned" + mInputCollection_.label();
   }
 
-  jetME = ibooker.book1D("jetReco", "jetReco", 5, 1, 5);        //###--->change 5 to 6 ???
+  jetME = ibooker.book1D("jetReco", "jetReco", 6, 1, 6);        //###--->change 5 to 6 ???
   jetME->setBinLabel(1, "CaloJets", 1);
   jetME->setBinLabel(2, "PFJets", 1);
   jetME->setBinLabel(3, "JPTJets", 1);
   jetME->setBinLabel(4, "MiniAODJets", 1);
   jetME->setBinLabel(5, "PUPPIJets", 1);
-  //jetME->setBinLabel(6, "ScoutingJets", 1);             //###<------is it needed ---> it is used only for "jetReco" plot in each sbdir, but not filled properly in all of them ???
+  jetME->setBinLabel(6, "ScoutingJets", 1);             //###<------is it needed ---> it is used only for "jetReco" plot in each sbdir, but not filled properly in all of them ???
 
   map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "jetReco", jetME));
 
@@ -2540,6 +2540,8 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       }
     }
   }
+  if (isScoutingJet_)
+    iEvent.getByToken(scoutingPfJetsToken_, scoutingJets);
   if (isMiniAODJet_)
     iEvent.getByToken(patJetsToken_, patJets);
 
