@@ -1,11 +1,34 @@
 import FWCore.ParameterSet.Config as cms
+import FWCore.ParameterSet.VarParsing as VarParsing
 
-process = cms.Process("GeometryTest")
+import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
+###################################################################
+# Setup 'standard' options
+###################################################################
+options = VarParsing.VarParsing()
+options.register('Scenario',
+                 _settings.DEFAULT_VERSION, # default value
+                 VarParsing.VarParsing.multiplicity.singleton, # singleton or list
+                 VarParsing.VarParsing.varType.string, # string, int, or float
+                 "geometry version to use: 2026DXXX")
+options.parseArguments()
+
+###################################################################
+# get Global Tag and ERA
+###################################################################
+GLOBAL_TAG, ERA = _settings.get_era_and_conditions(options.Scenario)
+
+process = cms.Process("GeometryTest",ERA)
 # empty input service, fire 10 events
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
 # Choose Tracker Geometry
-process.load('Configuration.Geometry.GeometryExtended2026D100_cff')
+if(options.Scenario == _settings.DEFAULT_VERSION):
+    print("Loading default scenario: ", _settings.DEFAULT_VERSION)
+    process.load('Configuration.Geometry.GeometryExtended2026Default_cff')
+else:
+    process.load('Configuration.Geometry.GeometryExtended'+options.Scenario+'_cff')
+
 process.load('Geometry.CommonTopologies.globalTrackingGeometry_cfi')
 process.load('Geometry.TrackerGeometryBuilder.trackerParameters_cfi')
 process.load('Geometry.TrackerNumberingBuilder.trackerTopology_cfi')
