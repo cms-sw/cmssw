@@ -29,7 +29,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     std::unique_ptr<HGCalRecHitDevice> calibrate(Queue& queue,
                                                  HGCalDigiHost const& host_digis,
                                                  HGCalCalibParamDevice const& device_calib,
-                                                 HGCalConfigParamDevice const& device_config);
+                                                 HGCalConfigParamDevice const& device_config) const;
 
     // if converting host digis to device rechits turns out too slow, we should copy host digis to device digis and then
     // convert to device rechits on device
