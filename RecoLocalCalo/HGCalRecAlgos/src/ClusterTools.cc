@@ -22,12 +22,18 @@ ClusterTools::ClusterTools(const edm::ParameterSet& conf, edm::ConsumesCollector
     : eetok(sumes.consumes<HGCRecHitCollection>(conf.getParameter<edm::InputTag>("HGCEEInput"))),
       fhtok(sumes.consumes<HGCRecHitCollection>(conf.getParameter<edm::InputTag>("HGCFHInput"))),
       bhtok(sumes.consumes<HGCRecHitCollection>(conf.getParameter<edm::InputTag>("HGCBHInput"))),
+      hitMapToken_(sumes.consumes<std::unordered_map<DetId, const unsigned int>>(
+          conf.getParameter<edm::InputTag>("hgcalHitMap"))),
       caloGeometryToken_{sumes.esConsumes()} {}
 
 void ClusterTools::getEvent(const edm::Event& ev) {
   eerh_ = &ev.get(eetok);
   fhrh_ = &ev.get(fhtok);
   bhrh_ = &ev.get(bhtok);
+  hitMap_ = &ev.get(hitMapToken_);
+  rechitManager_.addVector(*eerh_);
+  rechitManager_.addVector(*fhrh_);
+  rechitManager_.addVector(*bhrh_);
 }
 
 void ClusterTools::getEventSetup(const edm::EventSetup& es) { rhtools_.setGeometry(es.getData(caloGeometryToken_)); }
@@ -38,57 +44,23 @@ float ClusterTools::getClusterHadronFraction(const reco::CaloCluster& clus) cons
   for (const auto& hit : hits) {
     const auto& id = hit.first;
     const float fraction = hit.second;
-
-    if (id.det() == DetId::HGCalEE) {
-      auto it = std::find(eerh_->begin(), eerh_->end(), id);
-      if (it != eerh_->end())
-        energy += it->energy() * fraction;
-    } else if (id.det() == DetId::HGCalHSi) {
-      auto it = std::find(fhrh_->begin(), fhrh_->end(), id);
-      if (it != fhrh_->end()) {
-        energy += it->energy() * fraction;
-        energyHad += it->energy() * fraction;
-      }
-    } else if (id.det() == DetId::HGCalHSc) {
-      auto it = std::find(bhrh_->begin(), bhrh_->end(), id);
-      if (it != bhrh_->end()) {
-        energy += it->energy() * fraction;
-        energyHad += it->energy() * fraction;
-      }
-    } else if (id.det() == DetId::Forward) {
-      switch (id.subdetId()) {
-        case HGCEE: {
-          auto it = std::find(eerh_->begin(), eerh_->end(), id);
-          if (it != eerh_->end())
-            energy += it->energy() * fraction;
-          break;
-        }
-        case HGCHEF: {
-          auto it = std::find(fhrh_->begin(), fhrh_->end(), id);
-          if (it != fhrh_->end()) {
-            energy += it->energy() * fraction;
-            energyHad += it->energy() * fraction;
-          }
-          break;
-        }
-        default:
-          throw cms::Exception("HGCalClusterTools") << " Cluster contains hits that are not from HGCal! " << std::endl;
-      }
-    } else if (id.det() == DetId::Hcal && id.subdetId() == HcalEndcap) {
-      auto it = std::find(bhrh_->begin(), bhrh_->end(), id);
-      if (it != bhrh_->end()) {
-        energy += it->energy() * fraction;
-        energyHad += it->energy() * fraction;
-      }
-    } else {
-      throw cms::Exception("HGCalClusterTools") << " Cluster contains hits that are not from HGCal! " << std::endl;
+    auto hitIter = hitMap_->find(id.rawId());
+    if (hitIter == hitMap_->end())
+      continue;
+    unsigned int rechitIndex = hitIter->second;
+    float hitEnergy = rechitManager_[rechitIndex].energy() * fraction;
+    energy += hitEnergy;
+    if (id.det() == DetId::HGCalHSi || id.det() == DetId::HGCalHSc ||
+        (id.det() == DetId::Forward && id.subdetId() == HGCHEF) ||
+        (id.det() == DetId::Hcal && id.subdetId() == HcalEndcap)) {
+      energyHad += hitEnergy;
     }
   }
-  float fraction = -1.f;
+  float hadronicFraction = -1.f;
   if (energy > 0.f) {
-    fraction = energyHad / energy;
+    hadronicFraction = energyHad / energy;
   }
-  return fraction;
+  return hadronicFraction;
 }
 
 math::XYZPoint ClusterTools::getMultiClusterPosition(const reco::HGCalMultiCluster& clu) const {
