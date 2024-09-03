@@ -1,28 +1,56 @@
 <lcgdict>
 
-  <class name="HGCalDenseIndexerBase" class_version="0">
-    <field name="vmax_" mapping="blob"/>
-  </class> 
-  
+  <!-- HGCal geometry & indexing configuration -->
   <class name="HGCalMappingCellIndexer" class_version="0">
     <field name="typeCodeIndexer_" mapping="blob"/>
     <field name="maxErx_" mapping="blob"/>
     <field name="offsets_" mapping="blob"/>
     <field name="di_" mapping="blob"/>
-  </class> 
+  </class>
 
-  <class name="HGCalFEDReadoutSequence_t" class_version="0">
+  <class name="HGCalFEDReadoutSequence" class_version="0">
     <field name="readoutTypes_" mapping="blob"/>
     <field name="modOffsets_" mapping="blob"/>
     <field name="erxOffsets_" mapping="blob"/>
     <field name="chDataOffsets_" mapping="blob"/>
-  </class> 
-  
+  </class>
+
   <class name="HGCalMappingModuleIndexer" class_version="0">
     <field name="fedReadoutSequences_" mapping="blob"/>
     <field name="globalTypesCounter_" mapping="blob"/>
     <field name="globalTypesNWords_" mapping="blob"/>
     <field name="globalTypesOffsets_" mapping="blob"/>
+  </class>
+
+  <!-- HGCal electronics configuration -->
+  <class name="HGCalConfiguration" class_version="0">
+    <field name="map" mapping="blob"/>
+    <field name="rocs" mapping="blob"/>
+    <field name="econds" mapping="blob"/>
+    <field name="feds" mapping="blob"/>
+  </class>
+
+  <class name="HGCalFedConfig" class_version="0">
+    <field name="passthroughMode" mapping="blob"/>
+    <field name="cbHeaderMarker" mapping="blob"/>
+    <field name="slinkHeaderMarker" mapping="blob"/>
+    <field name="delay" mapping="blob"/>
+  </class>
+
+  <class name="HGCalECONDConfig" class_version="0">
+    <field name="headerMarker" mapping="blob"/>
+  </class>
+
+  <class name="HGCalROCConfig" class_version="0">
+    <field name="charMode" mapping="blob"/>
+    <field name="clockPhase" mapping="blob"/>
+    <field name="L1AcceptOffset" mapping="blob"/>
+    <field name="injChannels" mapping="blob"/>
+    <field name="injCharge" mapping="blob"/>
+  </class>
+
+  <class name="HGCalDenseIndexerBase" class_version="0">
+    <field name="vmax_" mapping="blob"/>
   </class>
 
 </lcgdict>
