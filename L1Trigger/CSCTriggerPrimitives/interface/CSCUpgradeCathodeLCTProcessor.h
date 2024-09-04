@@ -42,7 +42,7 @@ private:
       const CSCL1TPLookupTableCCLUT* lookupTable) override;
 
   // mark half-strip zones around pretriggers that happened at the current first_bx
-  void markPreTriggerZone(bool pretrig_zone[CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER]) const;
+  void markPreTriggerZone(int bx, bool pretrig_zone[CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER]) const;
 
   // update the deadzone after finding a pretrigger
   void markBusyZone(const int bx);
