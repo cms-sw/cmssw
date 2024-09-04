@@ -43,7 +43,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             }
 
             void produce(device::Event& evt, device::EventSetup const& es) override {
-                std::cout<< "FilteredLayerClustersSoAProducer";
                 auto const& layerClustersSoA = evt.get(clusters_token_);
                 auto const layerClustersSoAConstView = layerClustersSoA.view();
                
