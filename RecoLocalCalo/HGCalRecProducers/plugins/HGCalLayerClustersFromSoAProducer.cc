@@ -87,8 +87,8 @@ public:
     // each cluster. The size of 16 is a heuristic to minimize memory
     // reallocation and the associated overhead when the vector's capacity
     // needs to be extended.
-    std::vector<std::vector<float>> times(clusters->size(), std::vector<float>(16, 0.0f));
-    std::vector<std::vector<float>> timeErrors(clusters->size(), std::vector<float>(16, 0.0f));
+    std::vector<std::vector<float>> times(clusters->size(), std::vector<float>());
+    std::vector<std::vector<float>> timeErrors(clusters->size(), std::vector<float>());
     for (int32_t i = 0; i < soaRecHitsExtra_v.metadata().size(); ++i) {
       if (soaRecHitsExtra_v[i].clusterIndex() == -1) {
         continue;

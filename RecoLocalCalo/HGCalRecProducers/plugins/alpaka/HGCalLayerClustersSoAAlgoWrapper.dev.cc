@@ -1,8 +1,6 @@
 #include "RecoLocalCalo/HGCalRecProducers/interface/HGCalTilesConstants.h"
-
 #include "HGCalLayerClustersSoAAlgoWrapper.h"
 #include "ConstantsForClusters.h"
-
 #include "CLUEAlgoAlpaka.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
@@ -147,6 +145,121 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }    // operator()
   };
 
+
+  class HGCalLayerClustersSoATimeAlgoKernel {
+    public:
+      template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
+      ALPAKA_FN_ACC void operator()(
+        TAcc const& acc,
+        const HGCalSoARecHitsDeviceCollection::ConstView input_rechits_soa,
+        const HGCalSoARecHitsExtraDeviceCollection::ConstView input_clusters_soa,
+        HGCalSoAClustersDeviceCollection::View outputs,
+        HGCalSoAClustersExtraDeviceCollection::View outputs_service,
+        uint32_t minNhits = 3,
+        float deltaT = 0.210,
+        float timeWidthBy = 0.5
+      ) const {
+        for (int32_t cluster_index: cms::alpakatools::uniform_elements(acc, outputs.metadata().size())) {
+          float t[32] = {0.0f};
+          float w[32] = {1.0f};
+          uint32_t filled = 0;
+          for (int32_t rec_hit_index = 0; rec_hit_index < input_clusters_soa.metadata().size(); rec_hit_index++) {
+            if (input_clusters_soa[rec_hit_index].clusterIndex() == -1) continue;
+            if (input_clusters_soa[rec_hit_index].clusterIndex() >= outputs.metadata().size()) continue;
+            
+            if (filled < 32 and input_rechits_soa[rec_hit_index].timeError() >= 0.f and input_clusters_soa[rec_hit_index].clusterIndex() == cluster_index) {
+              t[filled] = input_rechits_soa[rec_hit_index].time();
+              w[filled] = (1.f / (input_rechits_soa[rec_hit_index].timeError() * input_rechits_soa[rec_hit_index].timeError()));
+              filled = filled + 1;
+            }
+          }
+
+          if (filled < minNhits) {
+            outputs[cluster_index].time() = -99.;
+            outputs[cluster_index].timeError() = -1.;
+            return;
+          }
+
+          for (uint32_t i = 0; i < filled; i++) {
+            for (uint32_t j = i + 1; j < filled; j++) {
+              if (t[j] < t[i]) {
+                float temp = t[j];                    
+                t[j] = t[i];
+                t[i] = temp;
+
+                float tempError = w[j];
+                w[j] = w[i];
+                w[i] = tempError;
+              }
+            }
+          }
+
+          int max_elements = 0;
+          int start_el = 0;
+          int end_el = 0;
+          float timeW = 0.f;
+          float tolerance = 0.05f;
+
+          for (uint32_t startIdx = 0; startIdx < filled; startIdx++) {
+              float startRef = t[startIdx];
+              
+              int count = 0;
+              for (uint32_t i = startIdx; i < filled; i++) {
+                if (t[i] - startRef <= deltaT + tolerance) {
+                  count++;
+                }
+              }
+
+              if (count > max_elements) {
+                max_elements = count;
+                
+                int lastIdx = startIdx;
+                for (uint32_t i = startIdx; i < filled; i++) {
+                    if (t[i] - startRef <= deltaT + tolerance) {
+                        lastIdx = i;
+                    } else {
+                        break;
+                    }
+                }
+                float valTostartDiff = t[lastIdx] - startRef;
+                if (std::abs(deltaT - valTostartDiff) < tolerance) {
+                  tolerance = std::abs(deltaT - valTostartDiff);
+                }
+
+                start_el = startIdx;
+                end_el = lastIdx;
+                timeW = valTostartDiff;
+              }
+          }
+
+          float HalfTimeDiff = timeW * timeWidthBy;
+          float sum = 0.;
+          float num = 0;
+
+          for (int ij = 0; ij <= start_el; ++ij) {
+            if (t[ij] > (t[start_el] - HalfTimeDiff)) {
+              for (uint32_t kl = ij; kl < filled; ++kl) {
+                if (t[kl] < (t[end_el] + HalfTimeDiff)) {
+                  sum += t[kl] * w[kl];
+                  num += w[kl];
+                } else
+                  break;
+              }
+              break;
+            }
+          }
+
+          if (num == 0) {
+            outputs[cluster_index].time() = -99.;
+            outputs[cluster_index].timeError() = -1.;
+            return;
+          }
+          outputs[cluster_index].time() = sum / num;
+          outputs[cluster_index].timeError() = 1. / sqrt(num);
+        }
+      }
+  };
+
   void HGCalLayerClustersSoAAlgoWrapper::run(Queue& queue,
                                              const unsigned int size,
                                              float thresholdW0,
@@ -167,6 +280,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     alpaka::memset(queue, energy, 0x0);
     auto cells = cms::alpakatools::make_device_view<int>(alpaka::getDev(queue), outputs.cells(), size);
     alpaka::memset(queue, cells, 0x0);
+    auto time = cms::alpakatools::make_device_view<float>(alpaka::getDev(queue), outputs.time(), size);
+    alpaka::memset(queue, time, 0x0);
+    auto timeError = cms::alpakatools::make_device_view<float>(alpaka::getDev(queue), outputs.timeError(), size);
+    alpaka::memset(queue, timeError, 0x0);
     auto total_weight =
         cms::alpakatools::make_device_view<float>(alpaka::getDev(queue), outputs_service.total_weight(), size);
     alpaka::memset(queue, total_weight, 0x0);
@@ -190,6 +307,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     //   - threads with a single element per thread on a GPU backend
     //   - elements within a single thread on a CPU backend
     auto workDiv = make_workdiv<Acc1D>(groups, items);
+
 
     alpaka::exec<Acc1D>(
         queue, workDiv, HGCalLayerClustersSoAAlgoKernelEnergy{}, size, input_rechits_soa, input_clusters_soa, outputs);
@@ -225,5 +343,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                         input_clusters_soa,
                         outputs,
                         outputs_service);
+    alpaka::exec<Acc1D>(
+      queue,
+      workDivClusters,
+      HGCalLayerClustersSoATimeAlgoKernel{},
+      input_rechits_soa,
+      input_clusters_soa,
+      outputs,
+      outputs_service
+    );
+    
   }
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
