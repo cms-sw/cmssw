@@ -155,13 +155,16 @@ void DDHGCalPassive::execute(DDCompactView& cpv) {
       int nsec = 2 * parts_ + 2;
       std::vector<double> xM(nsec, 0), yM(nsec, 0);
       for (int n = 0; n <= parts_; ++n) {
-	double phi0 = phi1 + n * dphi0;
-	if (n == 0) {
-	  xM[0] = rinB * cos(phi0);  yM[0] = rinB * sin(phi0);
-	} else {
-	  xM[nsec - n] = rinB * cos(phi0);  yM[nsec - n] = rinB * sin(phi0);
-	}
-	xM[n + 1] = routF * cos(phi0); yM[n + 1] = routF * sin(phi0);
+        double phi0 = phi1 + n * dphi0;
+        if (n == 0) {
+          xM[0] = rinB * cos(phi0);
+          yM[0] = rinB * sin(phi0);
+        } else {
+          xM[nsec - n] = rinB * cos(phi0);
+          yM[nsec - n] = rinB * sin(phi0);
+        }
+        xM[n + 1] = routF * cos(phi0);
+        yM[n + 1] = routF * sin(phi0);
       }
       std::vector<double> zw = {-0.5 * thick_, 0.5 * thick_};
       std::vector<double> zx(2, 0), zy(2, 0), scale(2, 1.0);
@@ -174,7 +177,8 @@ void DDHGCalPassive::execute(DDCompactView& cpv) {
       edm::LogVerbatim("HGCalGeom") << "DDHGCalPassive: " << solid.name() << " extruded polygon made of " << matName
                                     << " z|x|y|s (0) " << zw[0] << ":" << zx[0] << ":" << zy[0] << ":" << scale[0]
                                     << " z|x|y|s (1) " << zw[1] << ":" << zx[1] << ":" << zy[1] << ":" << scale[1]
-                                    << " and " << xM.size() << " edges with " << parts_ << " parts between " << convertRadToDeg(phi1) << " and " << convertRadToDeg(phi2);
+                                    << " and " << xM.size() << " edges with " << parts_ << " parts between "
+                                    << convertRadToDeg(phi1) << " and " << convertRadToDeg(phi2);
       for (unsigned int kk = 0; kk < xM.size(); ++kk)
         edm::LogVerbatim("HGCalGeom") << "[" << kk << "] " << xM[kk] << ":" << yM[kk];
 #endif
