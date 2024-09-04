@@ -12,6 +12,8 @@ from ..modules.hltHgcalSoARecHitsLayerClustersProducer_cfi import *
 from ..modules.hltHgcalSoALayerClustersProducer_cfi import *
 from ..modules.hltHgcalLayerClustersFromSoAProducer_cfi import *
 
+from ..modules.ticlLayerTileProducer_cfi import *
+from ..modules.ticlSeedingGlobal_cfi import *
 from ..modules.hltTrackstersSoAProducer_cfi import *
 from ..modules.hltFilteredLayerClustersSoAProducer_cfi import *
 
@@ -30,9 +32,12 @@ _hgcalLocalRecoSequence_heterogeneous = cms.Sequence(
         hltHgcalSoARecHitsLayerClustersProducer+
         hltHgcalSoALayerClustersProducer+
         hltHgCalLayerClustersFromSoAProducer+
+        hgcalLayerClustersEE+
         hgcalLayerClustersHSci+
         hgcalLayerClustersHSi+
         hgcalMergeLayerClusters+
+        ticlSeedingGlobal+
+        ticlLayerTileProducer+
         hltFilteredLayerClustersSoAProducer+
         hltTrackstersSoAProducer)
 

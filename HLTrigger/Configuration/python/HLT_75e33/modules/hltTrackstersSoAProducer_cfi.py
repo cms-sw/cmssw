@@ -5,5 +5,7 @@ hltTrackstersSoAProducer = cms.EDProducer('TrackstersSoAProducer@alpaka',
         backend = cms.untracked.string('')
     ),
     layer_clusters = cms.InputTag("hltHgcalSoALayerClustersProducer"),
-    clusters_mask_soa = cms.InputTag("hltFilteredLayerClustersSoAProducer")
+    filtered_clusters_mask = cms.InputTag("hltFilteredLayerClustersSoAProducer"),
+    layer_clusters_tiles = cms.InputTag("ticlLayerTileProducer"),
+    seeding_regions = cms.InputTag("ticlSeedingGlobal")
 )
