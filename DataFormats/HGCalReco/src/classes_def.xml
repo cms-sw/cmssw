@@ -58,6 +58,11 @@
   <class name="edm::Wrapper<TICLCandidate>" />
   <class name="edm::Wrapper<std::vector<TICLCandidate> >" />
 
+  <class name="TracksterSoA" />
+  <class name="TracksterSoA::View" />
+  <class name="TracksterSoAHostCollection" />
+  <class name="edm::Wrapper<TracksterSoAHostCollection>" splitLevel="0" />
+  
   <class name="MtdSoA"/>
   <class name="MtdSoA::View"/>
 

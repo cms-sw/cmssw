@@ -1,4 +1,8 @@
 <lcgdict>
+  <class name="alpaka_rocm_async::TracksterSoADeviceCollection" persistent="false"/>
+  <class name="edm::DeviceProduct<alpaka_rocm_async::TracksterSoADeviceCollection>" persistent="false"/>
+  <class name="edm::Wrapper<edm::DeviceProduct<alpaka_rocm_async::TracksterSoADeviceCollection>>" persistent="false"/>
+  
   <class name="alpaka_rocm_async::HGCalSoARecHitsDeviceCollection" persistent="false"/>
   <class name="edm::DeviceProduct<alpaka_rocm_async::HGCalSoARecHitsDeviceCollection>" persistent="false"/>
   <class name="edm::Wrapper<edm::DeviceProduct<alpaka_rocm_async::HGCalSoARecHitsDeviceCollection>>" persistent="false"/>
@@ -14,6 +18,5 @@
   <class name="alpaka_rocm_async::HGCalSoAClustersFilteredMaskDeviceCollection" persistent="false"/>
   <class name="edm::DeviceProduct<alpaka_rocm_async::HGCalSoAClustersFilteredMaskDeviceCollection>" persistent="false"/>
   <class name="edm::Wrapper<edm::DeviceProduct<alpaka_rocm_async::HGCalSoAClustersFilteredMaskDeviceCollection>>" persistent="false"/>
-
 
 </lcgdict>
