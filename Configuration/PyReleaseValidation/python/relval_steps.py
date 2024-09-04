@@ -921,7 +921,8 @@ baseDataSetRelease=[
     'CMSSW_12_5_1-125X_mcRun3_2022_realistic_HI_v5-v1',    #23 - 2022 HI GEN-SIM for mixing
     'CMSSW_11_2_0_pre8-PU_112X_upgrade2018_realistic_v4-v1', # 24 - 2018 Run-Dependent premix library
     'CMSSW_13_2_0_pre1-131X_mcRun3_2023_realistic_HI_v11-v1', # 2023 HI GEN-SIM for mixing
-    ]
+    'CMSSW_14_1_0_pre7-141X_mcRun3_2024_realistic_HI_v4_STD_Run3_HIN_MinBias_2024-v1', # 2024 HI GEN-SIM for mixing
+]
 
 # note: INPUT commands to be added once GEN-SIM w/ 13TeV+PostLS1Geo will be available
 steps['MinBiasINPUT']={'INPUT':InputInfo(dataSet='/RelValMinBias/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')} #was [0]
@@ -1873,6 +1874,7 @@ PU50={'-n':10,'--pileup':'AVE_35_BX_50ns','--pileup_input':'das:/RelValMinBias_1
 PUHI={'-n':10,'--pileup_input':'das:/RelValHydjetQ_B12_5020GeV_2018/%s/GEN-SIM'%(baseDataSetRelease[9])}
 PUHI2022={'-n':10,'--pileup_input':'das:/RelValHydjetQ_B12_5020GeV_2021_ppReco/%s/GEN-SIM'%(baseDataSetRelease[23])}
 PUHI2023={'-n':10,'--pileup_input':'das:/RelValHydjetQ_MinBias_5362GeV_2023_ppReco/%s/GEN-SIM'%(baseDataSetRelease[25])}
+PUHI2024={'-n':10,'--pileup_input':'das:/RelValHydjetQ_MinBias_5362GeV_2024/%s/GEN-SIM'%(baseDataSetRelease[26])}
 PU25UP17={'-n':10,'--pileup':'AVE_35_BX_25ns','--pileup_input':'das:/RelValMinBias_13/%s/GEN-SIM'%(baseDataSetRelease[13],)}
 PU25UP18={'-n':10,'--pileup':'AVE_50_BX_25ns','--pileup_input':'das:/RelValMinBias_13/%s/GEN-SIM'%(baseDataSetRelease[18],)}
 
@@ -2008,6 +2010,7 @@ steps['DIGIHI2022PPRECOAPPROXCLUSTERS']=merge([{'-s':'DIGI:pdigi_hi_nogen,L1,DIG
 steps['DIGIHI2022PPRECO']=merge([{'-s':'DIGI:pdigi_hi_nogen,L1,DIGI2RAW,HLT:@fake2'}, hiDefaults2022_ppReco, {'--pileup':'HiMixNoPU'}, step2Upg2015Defaults])
 steps['DIGIHI2018PPRECO']=merge([{'-s':'DIGI:pdigi_hi_nogen,L1,DIGI2RAW,HLT:@fake2'}, hiDefaults2018_ppReco, {'--pileup':'HiMixNoPU'}, step2Upg2015Defaults])
 steps['DIGIHI2017']=merge([{'-s':'DIGI:pdigi_hi_nogen,L1,DIGI2RAW,HLT:@fake2'}, hiDefaults2017, step2Upg2015Defaults])
+steps['DIGIHI2024MIX']=merge([{'-s':'DIGI:pdigi_hi_nogen,L1,DIGI2RAW,HLT:@fake2', '-n':2}, hiDefaults2024, {'--pileup':'HiMix'}, PUHI2024, step2Upg2015Defaults])
 steps['DIGIHI2023MIX']=merge([{'-s':'DIGI:pdigi_hi_nogen,L1,DIGI2RAW,HLT:@fake2', '-n':2}, hiDefaults2023_ppReco, {'--pileup':'HiMix'}, PUHI2023, step2Upg2015Defaults])
 steps['DIGIHI2022MIX']=merge([{'-s':'DIGI:pdigi_hi_nogen,L1,DIGI2RAW,HLT:@fake2', '-n':2}, hiDefaults2022_ppReco, {'--pileup':'HiMix'}, PUHI2022, step2Upg2015Defaults])
 steps['DIGIHIMIX']=merge([{'-s':'DIGI:pdigi_hi_nogen,L1,DIGI2RAW,HLT:@fake2', '-n':2}, hiDefaults2018_ppReco, {'--pileup':'HiMix'}, PUHI, step2Upg2015Defaults])
@@ -2777,6 +2780,11 @@ def gen2023HiMix(fragment,howMuch):
     global step1Up2023HiMixDefaults
     return merge([{'cfg':fragment},howMuch,step1Up2023HiMixDefaults])
 
+step1Up2024HiMixDefaults = merge ([{'--beamspot':'MatchHI', '--pileup':'HiMixGEN', '--scenario':'HeavyIons'},hiDefaults2024,PUHI2024,step1Up2024HiProdDefaults])
+def gen2024HiMix(fragment,howMuch):
+    global step1Up2024HiMixDefaults
+    return merge([{'cfg':fragment},howMuch,step1Up2024HiMixDefaults])
+
 steps['Pyquen_GammaJet_pt20_2760GeV']=gen2018HiMix('Pyquen_GammaJet_pt20_2760GeV_cfi',Kby(9,100))
 steps['Pyquen_DiJet_pt80to120_2760GeV']=gen2018HiMix('Pyquen_DiJet_pt80to120_2760GeV_cfi',Kby(9,100))
 steps['Pyquen_ZeemumuJets_pt10_2760GeV']=gen2018HiMix('Pyquen_ZeemumuJets_pt10_2760GeV_cfi',Kby(9,100))
@@ -2786,6 +2794,9 @@ steps['Pyquen_ZeemumuJets_pt10_2760GeV_2022']=gen2022HiMix('Pyquen_ZeemumuJets_p
 steps['Pyquen_GammaJet_pt20_5362GeV_2023']=gen2023HiMix('Pyquen_GammaJet_pt20_5362GeV_cfi',Kby(9,100))
 steps['Pyquen_DiJet_pt80to120_5362GeV_2023']=gen2023HiMix('Pyquen_DiJet_pt80to120_5362GeV_cfi',Kby(9,100))
 steps['Pyquen_ZeemumuJets_pt10_5362GeV_2023']=gen2023HiMix('Pyquen_ZeemumuJets_pt10_5362GeV_cfi',Kby(9,100))
+steps['Pyquen_GammaJet_pt20_5362GeV_2024']=gen2024HiMix('Pyquen_GammaJet_pt20_5362GeV_cfi',Kby(9,100))
+steps['Pyquen_DiJet_pt80to120_5362GeV_2024']=gen2024HiMix('Pyquen_DiJet_pt80to120_5362GeV_cfi',Kby(9,100))
+steps['Pyquen_ZeemumuJets_pt10_5362GeV_2024']=gen2024HiMix('Pyquen_ZeemumuJets_pt10_5362GeV_cfi',Kby(9,100))
 
 # step3
 step3Defaults = {
@@ -3344,6 +3355,11 @@ steps['RECOHI2018PPRECOMB']=merge([hiDefaults2018_ppReco,{'-s':'RAW2DIGI,L1Reco,
                                                           '--era':'Run2_2018_pp_on_AA',
                                                           '--procModifiers':'genJetSubEvent',
                                                       },step3Up2015Defaults])
+
+steps['RECOHI2024MIX']=merge([hiDefaults2024,{'-s':'RAW2DIGI,L1Reco,RECO,PAT,VALIDATION:@standardValidationNoHLTHiMix+@miniAODValidation,DQM:@standardDQMFakeHLT+@miniAODDQM',
+                                                     '--pileup':'HiMix',
+                                                     '--pileup_input':'das:/RelValHydjetQ_MinBias_5362GeV_2024/%s/GEN-SIM'%(baseDataSetRelease[26])
+                                                 },step3Up2015Defaults])
 
 steps['RECOHI2023MIX']=merge([hiDefaults2023_ppReco,{'-s':'RAW2DIGI,L1Reco,RECO,PAT,VALIDATION:@standardValidationNoHLTHiMix+@miniAODValidation,DQM:@standardDQMFakeHLT+@miniAODDQM',
                                                      '--pileup':'HiMix',
