@@ -37,8 +37,8 @@ autoCond = {
     'run3_data_express'            :    '141X_dataRun3_Express_frozen_v2',
     # GlobalTag for Run3 data relvals (prompt GT) - 140X_dataRun3_Prompt_v3 (+ the the SecondaryDataset TriggerBits tag and the DeDxCalibrationRcd for HI) but snapshot at 2024_06_12 13:47:20 (UTC)
     'run3_data_prompt'             :    '141X_dataRun3_Prompt_frozen_v1',
-    # GlobalTag for Run3 offline data reprocessing - snapshot at 2024-09-04 14:45:52 (UTC)
-    'run3_data'                    :    '140X_dataRun3_v8',
+    # GlobalTag for Run3 offline data reprocessing - snapshot at 2024-09-04 16:25:09 (UTC)
+    'run3_data'                    :    '140X_dataRun3_v9',
     # GlobalTag for Run3 offline data reprocessing with Prompt GT, currently for 2022FG - snapshot at 2024-02-12 12:00:00 (UTC)
     'run3_data_PromptAnalysis'     :    '140X_dataRun3_PromptAnalysis_v2',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2017 (and 0,0,~0-centred beamspot)
