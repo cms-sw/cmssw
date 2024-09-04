@@ -482,9 +482,9 @@ void DDHGCalSiliconRotatedCassette::positionSensitive(const DDLogicalPart& glog,
     int i(999);
     if (part == HGCalTypes::WaferFull) {
       i = type * facingTypes_ * orientationTypes_ + place - placeOffset_;
+#ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HGCalGeom") << "facitype " << facingTypes_ << ":" << orientationTypes_ << ":" << placeOffset_
                                     << " i " << i << ":" << waferFull_.size();
-#ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HGCalGeom") << " layertype:type:part:orien:cassette:place:offsets:ind " << layertype << ":"
                                     << type << ":" << part << ":" << orien << ":" << cassette << ":" << place << ":"
                                     << placeOffset_ << ":" << facingTypes_ << ":" << orientationTypes_ << " wafer " << i

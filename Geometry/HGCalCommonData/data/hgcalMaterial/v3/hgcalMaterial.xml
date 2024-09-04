@@ -79,17 +79,17 @@
     <rMaterial name="materials:Cables"/>
    </MaterialFraction>
   </CompositeMaterial>
-  <CompositeMaterial name="HGC_EEServicess" density="1.214*mg/cm3" symbol=" " method="mixture by weight">
+  <CompositeMaterial name="HGC_EEServices" density="1.214*mg/cm3" symbol=" " method="mixture by weight">
    <MaterialFraction fraction="1.0">
     <rMaterial name="materials:Air"/>
    </MaterialFraction>
   </CompositeMaterial>
-  <CompositeMaterial name="HGC_HEServicess" density="1.214*mg/cm3" symbol=" " method="mixture by weight">
+  <CompositeMaterial name="HGC_HEServices" density="1.214*mg/cm3" symbol=" " method="mixture by weight">
    <MaterialFraction fraction="1.0">
     <rMaterial name="materials:Air"/>
    </MaterialFraction>
   </CompositeMaterial>
-  <CompositeMaterial name="HGC_TileServicess" density="1.214*mg/cm3" symbol=" " method="mixture by weight">
+  <CompositeMaterial name="HGC_TileServices" density="1.214*mg/cm3" symbol=" " method="mixture by weight">
    <MaterialFraction fraction="1.0">
     <rMaterial name="materials:Air"/>
    </MaterialFraction>
