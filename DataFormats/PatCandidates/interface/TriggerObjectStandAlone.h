@@ -111,7 +111,7 @@ namespace pat {
     TriggerObjectStandAlone(const TriggerObjectStandAlone &) = default;
 
     /// Destructor
-    ~TriggerObjectStandAlone() override{};
+    ~TriggerObjectStandAlone() override {}
 
     /// Methods
 
