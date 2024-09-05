@@ -25,7 +25,7 @@ public:
         alignmentPinToFirstWire(0.),
         narrowWidthOfWirePlane(0.),
         wideWidthOfWirePlane(0.),
-        lengthOfWirePlane(0.){};
+        lengthOfWirePlane(0.) {}
 
   Container consecutiveGroups;
   Container wiresInEachGroup;

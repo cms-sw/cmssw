@@ -21,7 +21,7 @@ public:
     mySuper = s;
     myBase = b;
   };
-  ~LevelBaseNumber(){};
+  ~LevelBaseNumber() {}
 
   int level() const { return myLevel; };
   int super() const { return mySuper; };

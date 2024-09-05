@@ -708,7 +708,7 @@ void DDHCalEndcapAlgo::constructGeneralVolume(DDCompactView& cpv) {
 #endif
         rotation = DDrot(DDName(rotstr, rotns), 90._deg, phi, 90._deg, (90._deg + phi), 0, 0);
       }  //if !rotation
-    }    //if phi!=0
+    }  //if phi!=0
 
     cpv.position(seclogic, genlogich, ii + 1, DDTranslation(0.0, 0.0, 0.0), rotation);
 
