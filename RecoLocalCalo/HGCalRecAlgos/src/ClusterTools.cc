@@ -31,9 +31,10 @@ void ClusterTools::getEvent(const edm::Event& ev) {
   fhrh_ = &ev.get(fhtok);
   bhrh_ = &ev.get(bhtok);
   hitMap_ = &ev.get(hitMapToken_);
-  rechitManager_.addVector(*eerh_);
-  rechitManager_.addVector(*fhrh_);
-  rechitManager_.addVector(*bhrh_);
+  rechitManager_ = std::make_unique<MultiVectorManager<HGCRecHit>>();
+  rechitManager_->addVector(*eerh_);
+  rechitManager_->addVector(*fhrh_);
+  rechitManager_->addVector(*bhrh_);
 }
 
 void ClusterTools::getEventSetup(const edm::EventSetup& es) { rhtools_.setGeometry(es.getData(caloGeometryToken_)); }
@@ -41,14 +42,16 @@ void ClusterTools::getEventSetup(const edm::EventSetup& es) { rhtools_.setGeomet
 float ClusterTools::getClusterHadronFraction(const reco::CaloCluster& clus) const {
   float energy = 0.f, energyHad = 0.f;
   const auto& hits = clus.hitsAndFractions();
+  const auto& rhmanager = *rechitManager_;
   for (const auto& hit : hits) {
     const auto& id = hit.first;
     const float fraction = hit.second;
     auto hitIter = hitMap_->find(id.rawId());
-    if (hitIter == hitMap_->end())
+    if (hitIter == hitMap_->end()) {
       continue;
+    }
     unsigned int rechitIndex = hitIter->second;
-    float hitEnergy = rechitManager_[rechitIndex].energy() * fraction;
+    float hitEnergy = rhmanager[rechitIndex].energy() * fraction;
     energy += hitEnergy;
     if (id.det() == DetId::HGCalHSi || id.det() == DetId::HGCalHSc ||
         (id.det() == DetId::Forward && id.subdetId() == HGCHEF) ||
@@ -119,6 +122,7 @@ bool ClusterTools::getWidths(const reco::CaloCluster& clus,
 
   double sumw = 0.;
   double sumlogw = 0.;
+  const auto& rhmanager = *rechitManager_;
 
   for (unsigned int ih = 0; ih < nhit; ++ih) {
     const DetId& id = (clus.hitsAndFractions())[ih].first;
@@ -126,18 +130,19 @@ bool ClusterTools::getWidths(const reco::CaloCluster& clus,
       continue;
 
     if ((id.det() == DetId::HGCalEE) || (id.det() == DetId::Forward && id.subdetId() == HGCEE)) {
-      auto theHitIt = std::find(eerh_->begin(), eerh_->end(), id);
-      if (theHitIt == eerh_->end())
+      auto hitIter = hitMap_->find(id.rawId());
+      if (hitIter == hitMap_->end()) {
         continue;
-
-      const HGCRecHit* theHit = &(*theHitIt);
+      }
+      unsigned int rechitIndex = hitIter->second;
+      float hitEnergy = rhmanager[rechitIndex].energy();
 
       GlobalPoint cellPos = rhtools_.getPosition(id);
-      double weight = theHit->energy();
+      double weight = hitEnergy;
       // take w0=2 To be optimized
       double logweight = 0;
       if (clus.energy() != 0) {
-        logweight = std::max(0., 2 + log(theHit->energy() / clus.energy()));
+        logweight = std::max(0., 2 + log(hitEnergy / clus.energy()));
       }
       double deltaetaeta2 = (cellPos.eta() - position.eta()) * (cellPos.eta() - position.eta());
       double deltaphiphi2 = (cellPos.phi() - position.phi()) * (cellPos.phi() - position.phi());
