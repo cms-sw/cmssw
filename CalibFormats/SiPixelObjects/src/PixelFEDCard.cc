@@ -356,7 +356,7 @@ PixelFEDCard::PixelFEDCard(vector<vector<string> > &tableMat) : PixelConfigBase(
     SPARE9 = atoi(tableMat[1][colM["SPARE9"]].c_str());
     SPARE10 = atoi(tableMat[1][colM["SPARE10"]].c_str());
 
-  }                                  // end of 'first' condition
+  }  // end of 'first' condition
   for (int r = 1; r < size[0]; r++)  //Goes to every row of the FIRST Matrix (MUST BE 36, one for each FED channel)
   {
     //Number of ROCS per FED channel

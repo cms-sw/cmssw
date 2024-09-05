@@ -19,8 +19,8 @@ class DummyCondDBWriter : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::
 public:
   explicit DummyCondDBWriter(const edm::ParameterSet& iConfig);
   ~DummyCondDBWriter() override;
-  void analyze(const edm::Event& e, const edm::EventSetup& es) override{};
-  void beginRun(const edm::Run& run, const edm::EventSetup& es) override{};
+  void analyze(const edm::Event& e, const edm::EventSetup& es) override {}
+  void beginRun(const edm::Run& run, const edm::EventSetup& es) override {}
   void endRun(const edm::Run& run, const edm::EventSetup& es) override;
 
 private:

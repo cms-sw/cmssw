@@ -27,7 +27,7 @@ public:
     theOffsetX = 0.;
     theOffsetY = 0.;
   };
-  ~DeviationsFromFileSensor2D(){};
+  ~DeviationsFromFileSensor2D() {}
 
   // read file
   void readFile(ALIFileIn& ifdevi);

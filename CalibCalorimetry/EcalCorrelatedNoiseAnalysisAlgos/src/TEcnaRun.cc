@@ -1104,7 +1104,7 @@ Bool_t TEcnaRun::GetSampleAdcValues(const Int_t& n1EventNumber,
                       << " fT1d_StexStinFromIndex[] ALLOCATION NOT DONE" << fTTBELL << std::endl;
             ret_code = kFALSE;
           }  //.................................................................. (GetSampleAdcValues)
-        }    // end of if( i0Sample >= 0 && i0Sample < fNbSampForFic )
+        }  // end of if( i0Sample >= 0 && i0Sample < fNbSampForFic )
         else {
           //.......Reading data => Message and error only if sample >= fEcal->MaxSampADC()
           //       (not fNbSampForFic, the later is used only for calculations)
@@ -1117,7 +1117,7 @@ Bool_t TEcnaRun::GetSampleAdcValues(const Int_t& n1EventNumber,
             ret_code = kTRUE;
           }
         }  // else of if( i0Sample >= 0 && i0Sample < fNbSampForFic )
-      }    // end of if( i0StinEcha >= 0 && i0StinEcha < fEcal->MaxCrysInStin() )
+      }  // end of if( i0StinEcha >= 0 && i0StinEcha < fEcal->MaxCrysInStin() )
       else {
         std::cout << "!TEcnaRun::GetSampleAdcValues(...) *** ERROR ***> "
                   << " channel number in " << fStinName.Data() << " = " << i0StinEcha << ". OUT OF BOUNDS"

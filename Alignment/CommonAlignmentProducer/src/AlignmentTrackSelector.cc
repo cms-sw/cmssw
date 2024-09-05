@@ -710,7 +710,7 @@ AlignmentTrackSelector::Tracks AlignmentTrackSelector::checkPrescaledHits(const 
           continue;
         }
 
-      }       //end if hit in Strips
+      }  //end if hit in Strips
       else {  // test explicitely BPIX/FPIX
         const SiPixelRecHit* pixelhit = dynamic_cast<const SiPixelRecHit*>(hit);
         if (pixelhit != nullptr) {

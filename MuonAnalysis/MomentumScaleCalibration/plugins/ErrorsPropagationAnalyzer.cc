@@ -57,7 +57,7 @@ private:
                       const TString& type,
                       const TString& yLabel);
   void fillValueError();
-  void endJob() override{};
+  void endJob() override {}
   /// Modified method to take into account the error
   double massResolution(const lorentzVector& mu1,
                         const lorentzVector& mu2,

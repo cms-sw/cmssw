@@ -35,11 +35,11 @@ class TrackerGeometryAnalyzer : public edm::one::EDAnalyzer<edm::one::WatchRuns>
   //========================== PUBLIC METHODS =================================
 public:  //===================================================================
   TrackerGeometryAnalyzer(const edm::ParameterSet&);
-  virtual ~TrackerGeometryAnalyzer(){};
+  virtual ~TrackerGeometryAnalyzer() {}
 
   virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override{};
-  virtual void endRun(const edm::Run&, const edm::EventSetup&) override{};
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override {}
+  virtual void endRun(const edm::Run&, const edm::EventSetup&) override {}
 
   //========================= PRIVATE METHODS =================================
 private:  //==================================================================

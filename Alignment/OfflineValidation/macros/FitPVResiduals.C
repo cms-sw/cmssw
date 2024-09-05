@@ -3669,8 +3669,8 @@ void FillMap(TH2F *trendMap,
           std::cout << "FitPVResiduals::FillMap() " << fitPar_ << " unknown estimator!" << std::endl;
           break;
       }  // closes the switch statement
-    }    // closes loop on eta bins
-  }      // cloeses loop on phi bins
+    }  // closes loop on eta bins
+  }  // cloeses loop on phi bins
 }
 
 /*--------------------------------------------------------------------*/

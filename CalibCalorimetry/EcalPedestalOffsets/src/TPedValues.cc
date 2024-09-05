@@ -105,7 +105,7 @@ TPedResult TPedValues::terminate(const int &DACstart, const int &DACend) const {
       }
 
     }  // loop over crystals
-  }    // loop over gains
+  }  // loop over gains
   return bestDAC;
 }
 
@@ -142,8 +142,8 @@ int TPedValues::checkEntries(const int &DACstart, const int &DACend) const {
                                 << "\t" << crystal << std::endl ; //FIXME
         */
       }  //! loop over DAC values
-    }    // loop over crystals
-  }      // loop over gains
+    }  // loop over crystals
+  }  // loop over gains
   return returnCode;
 }
 
@@ -238,7 +238,7 @@ int TPedValues::makePlots(TFile *rootFile,
                                          << " gain:" << gainHuman;
       }
     }  // loop over the gains
-  }    // (loop over the crystals)
+  }  // (loop over the crystals)
 
   return 0;
 }

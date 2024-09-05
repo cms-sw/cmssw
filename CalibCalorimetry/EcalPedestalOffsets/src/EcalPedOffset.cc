@@ -362,7 +362,7 @@ void EcalPedOffset::writeDb() {
         }
       }
     }  // loop over the crystals
-  }    // loop over the super-modules
+  }  // loop over the super-modules
 
   // insert the map of tables in the database
   if (DBconnection) {

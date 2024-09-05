@@ -18,10 +18,10 @@ class LightRay;
 class OptOMirror : public OpticalObject {
 public:
   //---------- Constructors / Destructor
-  OptOMirror(){};
+  OptOMirror() {}
   OptOMirror(OpticalObject* parent, const ALIstring& type, const ALIstring& name, const ALIbool copy_data)
-      : OpticalObject(parent, type, name, copy_data){};
-  ~OptOMirror() override{};
+      : OpticalObject(parent, type, name, copy_data) {}
+  ~OptOMirror() override {}
 
   //---------- Propagate light for measurement meas
   //----- Default behaviour: detailed deviation

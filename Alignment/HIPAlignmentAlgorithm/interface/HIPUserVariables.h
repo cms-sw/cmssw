@@ -35,7 +35,7 @@ public:
         alierr(other.alierr) {}
 
   /** destructor */
-  ~HIPUserVariables() override{};
+  ~HIPUserVariables() override {}
 
   /** clone method (copy constructor) */
   HIPUserVariables* clone(void) const override { return new HIPUserVariables(*this); }

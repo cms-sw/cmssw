@@ -20,7 +20,7 @@ public:
     theDimType = ED_angle;
     //-    std::cout << "entryangle " << type << std::endl;
   };
-  ~EntryAngle() override{};
+  ~EntryAngle() override {}
 
   //----- Return value and sigma dimension factors
   ALIdouble ValueDimensionFactor() const override { return ALIUtils::AngleValueDimensionFactor(); }

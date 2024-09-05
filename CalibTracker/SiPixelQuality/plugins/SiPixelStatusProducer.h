@@ -115,8 +115,7 @@ public:
     /* Do nothing */
   }
 
-  static void globalEndJob(SiPixelStatusCache const*) { /* Do nothing */
-  }
+  static void globalEndJob(SiPixelStatusCache const*) { /* Do nothing */ }
 
   static std::shared_ptr<std::vector<SiPixelDetectorStatus>> globalBeginLuminosityBlockSummary(
       edm::LuminosityBlock const&, edm::EventSetup const&, LuminosityBlockContext const*) {

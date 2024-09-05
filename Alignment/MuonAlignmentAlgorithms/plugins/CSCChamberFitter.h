@@ -24,7 +24,7 @@
 class CSCChamberFitter {
 public:
   CSCChamberFitter(const edm::ParameterSet &iConfig, std::vector<CSCPairResidualsConstraint *> &residualsConstraints);
-  virtual ~CSCChamberFitter(){};
+  virtual ~CSCChamberFitter() {}
 
   bool fit(std::vector<CSCAlignmentCorrections *> &corrections) const;
   void radiusCorrection(AlignableNavigator *alignableNavigator,

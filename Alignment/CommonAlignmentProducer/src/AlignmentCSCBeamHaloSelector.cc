@@ -44,7 +44,7 @@ AlignmentCSCBeamHaloSelector::Tracks AlignmentCSCBeamHaloSelector::select(const 
         }
         station_map[station]++;
       }  // end if it's a CSC hit
-    }    // end loop over hits
+    }  // end loop over hits
 
     unsigned int stations = 0;
     for (std::map<int, unsigned int>::const_iterator station_iter = station_map.begin();

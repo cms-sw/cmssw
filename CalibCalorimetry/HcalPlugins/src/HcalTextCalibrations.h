@@ -49,7 +49,7 @@ public:
   HcalTextCalibrations(const edm::ParameterSet&);
   ~HcalTextCalibrations() override;
 
-  void produce(){};
+  void produce() {}
 
   template <class T>
   class CheckGetObject {

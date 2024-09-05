@@ -14,10 +14,10 @@ protected:
   enum PosType { Abs, Org, Rel };
 
   /// Constructor
-  AlignableDataIO(PosType p) : thePosType(p){};
+  AlignableDataIO(PosType p) : thePosType(p) {}
 
   /// Destructor
-  virtual ~AlignableDataIO(){};
+  virtual ~AlignableDataIO() {}
 
   /// Open IO handle
   virtual int open(const char* filename, int iteration, bool writemode) = 0;

@@ -160,8 +160,8 @@ void MillePedeDQMModule ::dqmEndJob(DQMStore::IBooker& booker, DQMStore::IGetter
       } else {
         vetoStr = "N/A";
       }  // if the alignment exceeds the cutoffs
-    }    // LG case
-  }      // if the alignment was not stored
+    }  // LG case
+  }  // if the alignment was not stored
 
   exitCode->Fill(exitCodeStr);
   isVetoed->Fill(vetoStr);

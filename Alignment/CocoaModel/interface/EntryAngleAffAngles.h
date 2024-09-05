@@ -15,7 +15,7 @@
 class EntryAngleAffAngles : public EntryAngle {
 public:
   EntryAngleAffAngles(const ALIstring& type);
-  ~EntryAngleAffAngles() override{};
+  ~EntryAngleAffAngles() override {}
 
   virtual void FillName(const ALIstring& name);
   void displace(ALIdouble disp) override;

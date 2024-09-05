@@ -1402,8 +1402,8 @@ std::unique_ptr<EcalLaserAlphas> EcalTrivialConditionRetriever::produceEcalLaser
           ical->setValue(ebid, laserAlphaMean_ + r * laserAlphaSigma_);
         }
       }  // loop over iphi
-    }    // loop over ieta
-  }      // do not read a file
+    }  // loop over ieta
+  }  // do not read a file
 
   edm::LogInfo(" produceEcalLaserAlphas EE");
   // read mean laser per ring per year
@@ -1546,7 +1546,7 @@ std::unique_ptr<EcalLaserAlphas> EcalTrivialConditionRetriever::produceEcalLaser
           ical->setValue(eedetidneg, laserAlphaMean_ + r1 * laserAlphaSigma_);
         }
       }  // loop over iY
-    }    // loop over iX
+    }  // loop over iX
   }
 
   return ical;

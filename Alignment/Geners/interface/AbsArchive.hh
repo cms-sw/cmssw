@@ -109,7 +109,7 @@ namespace gs {
 
   private:
     friend class AbsReference;
-    friend gs::AbsArchive & ::operator<<(gs::AbsArchive &ar, const gs::AbsRecord &record);
+    friend gs::AbsArchive & ::operator<<(gs::AbsArchive & ar, const gs::AbsRecord & record);
 
     // Search for items which correspond to the given reference.
     // The "reference" works both as the input and as the output in

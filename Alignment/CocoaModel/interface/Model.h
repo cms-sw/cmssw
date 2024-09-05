@@ -55,7 +55,7 @@ class Model {
 public:
   //---------- Constructor / destructor
   Model();
-  ~Model(){};
+  ~Model() {}
 
   ///---------- Gets the only instance of this class
   static Model& getInstance();

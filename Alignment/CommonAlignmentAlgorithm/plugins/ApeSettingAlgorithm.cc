@@ -234,7 +234,7 @@ void ApeSettingAlgorithm::terminate(const edm::EventSetup &iSetup) {
           am[2][1] = rt.zy();
           am[2][2] = rt.zz();
           sm = sm.similarity(am);  //symmetric matrix
-        }                          //transform to local
+        }  //transform to local
         for (int j = 0; j < sm.num_row(); ++j)
           for (int k = 0; k <= j; ++k)
             apeSaveFile << "  " << sm[j][k];  //always write full matrix

@@ -152,7 +152,7 @@ bool PedeReader::readIfSameLine(std::ifstream &aStream, T &outValue) const {
           return true;
         }
     }  // switch
-  }    // while
+  }  // while
 
   edm::LogError("Alignment") << "@SUB=PedeReader::readIfSameLine"
                              << "Should never come here!";
