@@ -94,8 +94,7 @@ namespace l1t {
             maskE_(0),
             maskSum_(0),
             maskRatio_(0),
-            doEncoding_(false) { /* no-op */
-      }
+            doEncoding_(false) { /* no-op */ }
 
       COND_SERIALIZABLE;
     };
@@ -150,8 +149,7 @@ namespace l1t {
             maxPtHOverEIsolation_(0),
             isoAreaNrTowersEta_(0),
             isoAreaNrTowersPhi_(0),
-            isoVetoNrTowersPhi_(0) { /* no-op */
-      }
+            isoVetoNrTowersPhi_(0) { /* no-op */ }
 
       COND_SERIALIZABLE;
     };
@@ -204,8 +202,7 @@ namespace l1t {
             isoEtaMax_(0),
             isoAreaNrTowersEta_(0),
             isoAreaNrTowersPhi_(0),
-            isoVetoNrTowersPhi_(0) { /* no-op */
-      }
+            isoVetoNrTowersPhi_(0) { /* no-op */ }
 
       COND_SERIALIZABLE;
     };
@@ -221,8 +218,7 @@ namespace l1t {
       // Et threshold on neighbouring towers/regions
       double neighbourThreshold_;
 
-      JetParams() : lsb_(0), seedThreshold_(0), neighbourThreshold_(0) { /* no-op */
-      }
+      JetParams() : lsb_(0), seedThreshold_(0), neighbourThreshold_(0) { /* no-op */ }
 
       COND_SERIALIZABLE;
     };

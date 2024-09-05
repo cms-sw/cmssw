@@ -19,8 +19,8 @@
  */
 struct L1TUtmCutValue {
   L1TUtmCutValue()
-      : value(std::numeric_limits<double>::max()), index(std::numeric_limits<unsigned int>::max()), version(0){};
-  L1TUtmCutValue(const tmeventsetup::esCutValue& esCV) : value(esCV.value), index(esCV.index), version(esCV.version){};
+      : value(std::numeric_limits<double>::max()), index(std::numeric_limits<unsigned int>::max()), version(0) {}
+  L1TUtmCutValue(const tmeventsetup::esCutValue& esCV) : value(esCV.value), index(esCV.index), version(esCV.version) {}
 
   virtual ~L1TUtmCutValue() = default;
 

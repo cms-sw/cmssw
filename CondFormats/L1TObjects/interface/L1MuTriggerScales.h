@@ -145,13 +145,13 @@ public:
   };
 
   /// destructor
-  virtual ~L1MuTriggerScales(){
-      //     for (int i=0; i<4; i++)
-      //       delete m_RegionalEtaScale[i];
+  virtual ~L1MuTriggerScales() {
+    //     for (int i=0; i<4; i++)
+    //       delete m_RegionalEtaScale[i];
 
-      //     delete m_GMTEtaScale;
-      //     delete m_PhiScale;
-      //     delete m_PtScale;
+    //     delete m_GMTEtaScale;
+    //     delete m_PhiScale;
+    //     delete m_PtScale;
   };
 
   /// get the regioanl muon trigger eta scale, isys = 0(DT), 1(bRPC), 2(CSC), 3(fwdRPC)
