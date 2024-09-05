@@ -31,7 +31,7 @@ public:
 public:
   /** Destructor
    */
-  virtual ~EcalSrFlag(){};
+  virtual ~EcalSrFlag() {}
 
   /** Gets the Det Id the flag is associated to.
    * @return the det id of the readout unit (a barrel TT or a SC).

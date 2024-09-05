@@ -6,7 +6,7 @@
 
 class PPSStripOrganization : public TotemRPVDetectorOrganization {
 public:
-  PPSStripOrganization(){};
+  PPSStripOrganization() {}
   ~PPSStripOrganization() override = default;
 
   uint32_t unitID(const G4Step* aStep) override;

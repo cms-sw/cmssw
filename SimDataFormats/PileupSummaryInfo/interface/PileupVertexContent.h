@@ -23,12 +23,12 @@ Usage: purely descriptive
 
 class PileupVertexContent {
 public:
-  PileupVertexContent(){};
+  PileupVertexContent() {}
 
   PileupVertexContent(const std::vector<float>& pT_hat,
                       const std::vector<float>& z_Vtx,
                       const std::vector<float>& t_Vtx)
-      : pT_hats_(pT_hat), z_Vtxs_(z_Vtx), t_Vtxs_(t_Vtx){};
+      : pT_hats_(pT_hat), z_Vtxs_(z_Vtx), t_Vtxs_(t_Vtx) {}
 
   ~PileupVertexContent() {
     pT_hats_.clear();

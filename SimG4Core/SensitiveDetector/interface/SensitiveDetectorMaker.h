@@ -31,7 +31,7 @@ namespace edm {
 template <class T>
 class SensitiveDetectorMaker : public SensitiveDetectorMakerBase {
 public:
-  explicit SensitiveDetectorMaker(edm::ParameterSet const&, edm::ConsumesCollector){};
+  explicit SensitiveDetectorMaker(edm::ParameterSet const&, edm::ConsumesCollector) {}
   SensitiveDetectorMaker(const SensitiveDetectorMaker&) = delete;
   const SensitiveDetectorMaker& operator=(const SensitiveDetectorMaker&) = delete;
 

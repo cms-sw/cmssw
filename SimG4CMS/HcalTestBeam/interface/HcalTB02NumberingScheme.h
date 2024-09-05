@@ -23,8 +23,8 @@
 
 class HcalTB02NumberingScheme {
 public:
-  HcalTB02NumberingScheme(){};
-  virtual ~HcalTB02NumberingScheme(){};
+  HcalTB02NumberingScheme() {}
+  virtual ~HcalTB02NumberingScheme() {}
   virtual int getUnitID(const G4Step* aStep) const = 0;
 };
 

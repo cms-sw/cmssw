@@ -823,8 +823,8 @@ MuonAssociatorByHitsHelper::IndexAssociation MuonAssociatorByHitsHelper::associa
           }
         }
       }  // loop over TrackingParticle's
-    }    // if(n_matching_simhits != 0)
-  }      // loop over reco Tracks
+    }  // if(n_matching_simhits != 0)
+  }  // loop over reco Tracks
 
   if (!any_trackingParticle_matched) {
     edm::LogVerbatim("MuonAssociatorByHitsHelper")
