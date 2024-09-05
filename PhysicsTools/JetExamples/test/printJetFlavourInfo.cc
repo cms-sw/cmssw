@@ -19,7 +19,7 @@
 class printJetFlavourInfo : public edm::one::EDAnalyzer<> {
 public:
   explicit printJetFlavourInfo(const edm::ParameterSet&);
-  ~printJetFlavourInfo(){};
+  ~printJetFlavourInfo() {}
   void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
 
 private:

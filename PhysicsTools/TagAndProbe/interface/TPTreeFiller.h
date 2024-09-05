@@ -6,7 +6,7 @@
 namespace tnp {
   class TPTreeFiller : public BaseTreeFiller {
   public:
-    TPTreeFiller(const edm::ParameterSet& config, edm::ConsumesCollector&& iC) : TPTreeFiller(config, iC){};
+    TPTreeFiller(const edm::ParameterSet& config, edm::ConsumesCollector&& iC) : TPTreeFiller(config, iC) {}
     TPTreeFiller(const edm::ParameterSet& config, edm::ConsumesCollector& iC);
     ~TPTreeFiller();
 

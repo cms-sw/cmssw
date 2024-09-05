@@ -798,8 +798,8 @@ int GenHFHadronMatcher::analyzeMothers(const reco::Candidate *thisParticle,
         else if (thisFlav == 5 && thisParticle->pt() > hadMothers.at(bId)->pt())
           bId = partIndex;
       }  // If daughter quark of the top not found yet
-    }    // If the mother is a top quark and hadron has been found
-  }      // End of loop over mothers
+    }  // If the mother is a top quark and hadron has been found
+  }  // End of loop over mothers
 
   analyzedParticles->erase(thisParticle);  // Removing current particle from the current chain that is being analyzed
 
