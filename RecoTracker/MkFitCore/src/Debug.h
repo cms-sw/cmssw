@@ -113,15 +113,19 @@ namespace mkfit_tbb {
 
 template<typename Range, typename Body>
 void parallel_for( const Range& range, const Body& body ) {
-  for (auto i = range.begin(); i != range.end(); ++i) {
-    body(Range(i, i+1, 1));
+  typename Range::const_iterator step = range.grainsize();
+  for (auto i = range.begin(); i < range.end(); i += step) {
+    step = std::min(step, range.end() - i);
+    body(Range(i, i + step, 1));
   }
 }
 
 template<typename Range, typename Body>
 void parallel_for( const Range& range, const Body& body, const tbb::simple_partitioner& partitioner ) {
-  for (auto i = range.begin(); i != range.end(); ++i) {
-    body(Range(i, i+1, 1));
+  typename Range::const_iterator step = range.grainsize();
+  for (auto i = range.begin(); i < range.end(); i += step) {
+    step = std::min(step, range.end() - i);
+    body(Range(i, i + step, 1));
   }
 }
 
