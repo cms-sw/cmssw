@@ -13,7 +13,7 @@
 #pragma GCC visibility push(hidden)
 class TECPetalBuilder {
 public:
-  TECPetalBuilder(){};
+  TECPetalBuilder() {}
   TECPetal* build(const GeometricDet* aTECPetal, const TrackerGeometry* theGeomDetGeometry) __attribute__((cold));
 };
 

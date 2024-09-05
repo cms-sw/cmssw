@@ -224,8 +224,8 @@ void UnifiedSCCollectionProducer::produce(edm::Event& evt, const edm::EventSetup
       basicClusterOwner.push_back(std::make_pair(jsc, 1));
     }
   }  // end loop over clean SC _________________________________________________
-     //
-     //
+  //
+  //
 
   // Final check: in the endcap BC may exist that are not associated to SC,
   // we need to recover them as well (e.g. multi5x5 algo)

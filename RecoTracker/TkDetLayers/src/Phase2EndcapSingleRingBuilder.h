@@ -13,7 +13,7 @@
 #pragma GCC visibility push(hidden)
 class Phase2EndcapSingleRingBuilder {
 public:
-  Phase2EndcapSingleRingBuilder(){};
+  Phase2EndcapSingleRingBuilder() {}
   Phase2EndcapSingleRing* build(const GeometricDet* aPhase2EndcapSingleRing, const TrackerGeometry* theGeomDetGeometry)
       __attribute__((cold));
 };

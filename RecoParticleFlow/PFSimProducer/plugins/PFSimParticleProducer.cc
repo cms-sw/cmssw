@@ -215,10 +215,10 @@ void PFSimParticleProducer::produce(Event& iEvent, const EventSetup& iSetup) {
           std::pair<double, unsigned> phitsimid = make_pair(it->energy(), it->geantTrackId());
           caloHitsEBID[detid.hashedIndex()].push_back(phitsimid);
           caloHitsEBTotE[detid.hashedIndex()] += it->energy();  //summing pcalhit energy
-        }                                                       //energy > 0
+        }  //energy > 0
 
       }  //loop PcaloHits
-    }    //pcalohit handle access
+    }  //pcalohit handle access
 
     //Retrieving the PFRecTrack collection for
     //Monte Carlo Truth Matching tool
@@ -287,7 +287,7 @@ void PFSimParticleProducer::produce(Event& iEvent, const EventSetup& iSetup) {
           if (i == recTrackSimID[lo]) {
             recTrackID = lo;
           }  //match track
-        }    //loop rectrack
+        }  //loop rectrack
 
         // get the ecalBarrel rechits for MC truth matching tool
         edm::Handle<EcalRecHitCollection> rhcHandle;
@@ -328,8 +328,8 @@ void PFSimParticleProducer::produce(Event& iEvent, const EventSetup& iSetup) {
                   recHitContrib.push_back(it_rh->id());
                   recHitContribFrac.push_back(pcalofraction);
                 }  //selected rechits
-              }    //matching
-            }      //loop pcalohit
+              }  //matching
+            }  //loop pcalohit
 
           }  //loop rechits
 
@@ -469,6 +469,6 @@ void PFSimParticleProducer::getSimIDs(const TrackHandle& trackh, std::vector<uns
           break;
         }
       }  //loop track rechit
-    }    //loop recTracks
-  }      //track handle valid
+    }  //loop recTracks
+  }  //track handle valid
 }

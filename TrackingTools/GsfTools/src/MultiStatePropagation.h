@@ -18,7 +18,7 @@ public:
    */
   MultiStatePropagation(const Propagator& aPropagator) : thePropagator(aPropagator) {}
 
-  ~MultiStatePropagation(){};
+  ~MultiStatePropagation() {}
 
   /** Propagation to surface with path length calculation:
    */

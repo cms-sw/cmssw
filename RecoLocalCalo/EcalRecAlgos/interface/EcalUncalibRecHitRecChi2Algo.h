@@ -24,9 +24,9 @@ template <class C>
 class EcalUncalibRecHitRecChi2Algo {
 public:
   // destructor
-  virtual ~EcalUncalibRecHitRecChi2Algo(){};
+  virtual ~EcalUncalibRecHitRecChi2Algo() {}
 
-  EcalUncalibRecHitRecChi2Algo(){};
+  EcalUncalibRecHitRecChi2Algo() {}
   EcalUncalibRecHitRecChi2Algo(const C& dataFrame,
                                const double amplitude,
                                const EcalTimeCalibConstant& timeIC,

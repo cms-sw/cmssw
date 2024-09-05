@@ -18,7 +18,7 @@
 template <class T>
 class PixelBladeBuilder {
 public:
-  PixelBladeBuilder(){};
+  PixelBladeBuilder() {}
 
   T* build(const GeometricDet* geometricDetFrontPanel,
            const GeometricDet* geometricDetBackPanel,

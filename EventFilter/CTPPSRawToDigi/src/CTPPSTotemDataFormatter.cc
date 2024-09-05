@@ -92,8 +92,8 @@ void CTPPSTotemDataFormatter::formatRawData(unsigned int lvl1_ID,
         m_WordCounter++;
         words[fedId].push_back(buf);
       }  // range
-    }    // mapIdCh
-  }      //digis
+    }  // mapIdCh
+  }  //digis
 
   typedef std::map<int, vector<std::array<uint16_t, 12>>>::const_iterator RI;
   std::map<int, vector<uint16_t>> words16;

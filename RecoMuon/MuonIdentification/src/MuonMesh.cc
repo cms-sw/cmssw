@@ -74,19 +74,19 @@ void MuonMesh::fillMesh(std::vector<reco::Muon>* inputMuons) {
                         mesh_[&*muonIter1].push_back(
                             std::make_pair(&*muonIter2, std::make_pair(&*chamberIter2, &*segmentIter2)));
                       }  // find
-                    }    // add segment?
-                         //} // both segments won arbitration
-                  }      // segmentIter 2
-                }        // chamberIter2
-              }          //segmentIter1
-            }            // chamberIter1
+                    }  // add segment?
+                    //} // both segments won arbitration
+                  }  // segmentIter 2
+                }  // chamberIter2
+              }  //segmentIter1
+            }  // chamberIter1
 
           }  // if different muon
-        }    // is tracker muon
-      }      // muonIter2
+        }  // is tracker muon
+      }  // muonIter2
 
     }  // is tracker muon
-  }    // muonIter1
+  }  // muonIter1
 
   // special cases
 
@@ -100,8 +100,8 @@ void MuonMesh::fillMesh(std::vector<reco::Muon>* inputMuons) {
            ++segmentIter1) {
         segmentIter1->setMask(reco::MuonSegmentMatch::BelongsToTrackByCleaning);
       }  // segmentIter1
-    }    // chamberIter1
-  }      // if only one tracker muon set winner bit boosted arbitration
+    }  // chamberIter1
+  }  // if only one tracker muon set winner bit boosted arbitration
 
   // segments that are not shared amongst muons and the have won all segment arbitration flags need to be promoted
   // also promote DT segments
@@ -134,8 +134,8 @@ void MuonMesh::fillMesh(std::vector<reco::Muon>* inputMuons) {
                                     std::make_pair(CSCDetId(j->second.first->id), j->second.second->cscSegmentRef)))
                   shared = true;
               }  // in CSCs?
-            }    // cscSegmentRef non null?
-          }      // j
+            }  // cscSegmentRef non null?
+          }  // j
 
           // Promote segments which have won all arbitration and are not shared or are DT segments
           if (((segmentIter1->mask & 0x1e0000) == 0x1e0000 && !shared) ||
@@ -143,9 +143,9 @@ void MuonMesh::fillMesh(std::vector<reco::Muon>* inputMuons) {
             segmentIter1->setMask(reco::MuonSegmentMatch::BelongsToTrackByCleaning);
 
         }  // segmentIter1
-      }    // chamberIter1
-    }      // i
-  }        // if non-trivial case
+      }  // chamberIter1
+    }  // i
+  }  // if non-trivial case
 }
 
 void MuonMesh::pruneMesh() {
@@ -185,7 +185,7 @@ void MuonMesh::pruneMesh() {
                   // leave this available for later
                 }
               }  // overlap duplicate resolution
-            }    // is overlap duplicate
+            }  // is overlap duplicate
 
             // do ME1/a arbitration second since the tie breaker depends on other stations
             // Unlike the other cleanings this one removes the bits from segments associated to tracks which
@@ -233,7 +233,7 @@ void MuonMesh::pruneMesh() {
                 //UNUSED		me1a = true;
 
               }  // ME1/a duplicate resolution
-            }    // is ME1/aduplicate?
+            }  // is ME1/aduplicate?
 
             if (doClustering &&
                 isClusteredWith(std::make_pair(CSCDetId(chamberIter1->id), segmentIter1->cscSegmentRef),
@@ -272,10 +272,10 @@ void MuonMesh::pruneMesh() {
             }  // is clustered with?
 
           }  // csc ref nonnull
-        }    // segmentIter1
-      }      // chamberIter1
-    }        // j, associated segments iterator
-  }          // i, map iterator
+        }  // segmentIter1
+      }  // chamberIter1
+    }  // j, associated segments iterator
+  }  // i, map iterator
 
   // final step: make sure everything that's won a cleaning flag has the "BelongsToTrackByCleaning" flag
 
@@ -290,8 +290,8 @@ void MuonMesh::pruneMesh() {
         if (!segmentIter1->isMask(reco::MuonSegmentMatch::BelongsToTrackByCleaning) && segmentIter1->isMask(0xe00000))
           segmentIter1->setMask(reco::MuonSegmentMatch::BelongsToTrackByCleaning);
       }  // segmentIter1
-    }    // chamberIter1
-  }      // i
+    }  // chamberIter1
+  }  // i
 }
 
 bool MuonMesh::isDuplicateOf(const CSCSegmentRef& lhs, const CSCSegmentRef& rhs)
@@ -434,8 +434,8 @@ bool MuonMesh::isDuplicateOf(const std::pair<CSCDetId, CSCSegmentRef>& rhs,
             rhs_z * lhs_z > 0)  // phi overlap region is 3.5 degrees and rhs is infront of lhs
           result = true;
       }  // loop over duplicate segments
-    }    // neighboring chamber
-  }      // same endcap,station,ring
+    }  // neighboring chamber
+  }  // same endcap,station,ring
 
   return result;
 }
@@ -508,7 +508,7 @@ bool MuonMesh::isClusteredWith(const std::pair<CSCDetId, CSCSegmentRef>& lhs,
       if (phidiff < ClusterDPhi && fabs(rhs_theta - lhs_theta) < ClusterDTheta)  // phi overlap region is 37 degrees
         result = true;
     }  // loop over duplicate segments
-  }    // same endcap,station,ring
+  }  // same endcap,station,ring
 
   return result;
 }

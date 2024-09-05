@@ -302,8 +302,8 @@ namespace mkfit {
                   tk.sortHitsByLayer();
               }
             }  //end of inner loop over tss
-          }    //eta bin
-        }      //phi bin
+          }  //eta bin
+        }  //phi bin
 
         if (writetrack[ts]) {
           cleanSeedTracks.emplace_back(seeds[ts]);
@@ -429,9 +429,9 @@ namespace mkfit {
               else
                 track.setDuplicateValue(true);
             }  //end of if dPt
-          }    //end of else
-        }      //end of loop over track2
-      }        //end of loop over track1
+          }  //end of else
+        }  //end of loop over track2
+      }  //end of loop over track1
 
       remove_duplicates(tracks);
     }
@@ -499,7 +499,7 @@ namespace mkfit {
               trk.setDuplicateValue(true);
           }
         }  // end sharing hits loop
-      }    // end trk loop
+      }  // end trk loop
 
       remove_duplicates(tracks);
     }

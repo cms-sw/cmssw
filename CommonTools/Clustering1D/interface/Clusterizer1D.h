@@ -15,7 +15,7 @@
 template <class T>
 class Clusterizer1D {
 public:
-  virtual ~Clusterizer1D(){};
+  virtual ~Clusterizer1D() {}
   virtual std::pair<std::vector<Cluster1D<T> >, std::vector<const T*> > operator()(
       const std::vector<Cluster1D<T> >&) const = 0;
 

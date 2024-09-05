@@ -277,7 +277,7 @@ void Multi5x5ClusterAlgo::makeCluster(const EcalRecHitCollection* hits,
     for (iter = current_v.begin(); iter != current_v.end(); iter++) {
       used_s.erase(iter->first);
     }  //for(iter)
-  }    //else
+  }  //else
 }
 
 bool Multi5x5ClusterAlgo::checkMaxima(CaloNavigator<DetId>& navigator, const EcalRecHitCollection* hits) {

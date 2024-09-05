@@ -10,8 +10,8 @@
 
 class RPCClusterizer {
 public:
-  RPCClusterizer(){};
-  ~RPCClusterizer(){};
+  RPCClusterizer() {}
+  ~RPCClusterizer() {}
   RPCClusterContainer doAction(const RPCDigiCollection::Range& digiRange);
 };
 #endif

@@ -249,9 +249,9 @@ namespace {
             }  // end ifs...
 
           }  // end t2
-        }    // end t1
-      }      // end colls
-    };       // end merger;
+        }  // end t1
+      }  // end colls
+    };  // end merger;
 
     const bool doMerging = m_enableMerging && collsSize > 1;
     if (doMerging)
@@ -337,7 +337,7 @@ namespace {
         ++jh;
         ++ih;
       }  // equal ids
-    }    //loop over ih & jh
+    }  //loop over ih & jh
 
     return noverlap >= int(m_minShareHits) &&
            (noverlap - firstoverlap) > (std::min(nh1, nh2) - firstoverlap) * m_shareFrac;

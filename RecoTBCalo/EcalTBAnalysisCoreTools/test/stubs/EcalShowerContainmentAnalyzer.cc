@@ -227,7 +227,7 @@ std::vector<EBDetId> EcalShowerContainmentAnalyzer::Xtals3x3(const edm::Event& i
       Xtals3x3.clear();
       return Xtals3x3;
     }  //catch
-  }    // for
+  }  // for
   return Xtals3x3;
 }
 
@@ -252,7 +252,7 @@ std::vector<EBDetId> EcalShowerContainmentAnalyzer::Xtals5x5(const edm::Event& i
       Xtals5x5.clear();
       return Xtals5x5;
     }  //catch
-  }    // for
+  }  // for
 
   return Xtals5x5;
 }

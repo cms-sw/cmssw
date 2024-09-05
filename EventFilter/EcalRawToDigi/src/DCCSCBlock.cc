@@ -124,7 +124,7 @@ int DCCSCBlock::unpackXtalData(unsigned int expStripID, unsigned int expXtalID) 
       lastStripId_ = stripId;
       lastXtalId_ = xtalId;
     }  // end else
-  }    // end if(zs_)
+  }  // end if(zs_)
 
   bool addedFrame = false;
 

@@ -367,12 +367,12 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index,
 
                       stationGroup++;
                     }  // if writeSC
-                  }    // if SC data
+                  }  // if SC data
                 } while (DTROSWordType(word).type() != DTROSWordType::SCTrailer);
 
               }  // end SC subheader
-            }    // end if SC send more than only its own header!
-          }      //  end if first data following SCheader is not SCData
+            }  // end if SC send more than only its own header!
+          }  //  end if first data following SCheader is not SCData
 
           if (DTROSWordType(word).type() == DTROSWordType::SCTrailer) {
             DTLocalTriggerTrailerWord scTrailerWord(word);

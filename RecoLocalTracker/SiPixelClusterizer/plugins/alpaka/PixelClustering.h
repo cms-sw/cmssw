@@ -380,7 +380,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
             }  // neighbours loop
             ++k;
           }  // pixel loop
-             /*
+          /*
               // use the outer loop to force a synchronisation
             } else {
               // odd iterations of the outer loop

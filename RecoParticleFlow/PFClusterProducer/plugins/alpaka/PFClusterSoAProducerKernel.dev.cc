@@ -241,8 +241,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         }
       }
       alpaka::syncBlockThreads(acc);  // all threads call sync
-    } while (notDone);                // shared variable condition ensures synchronization is well defined
-    if (once_per_block(acc)) {        // Cluster is finalized, assign cluster information to te SoA
+    } while (notDone);  // shared variable condition ensures synchronization is well defined
+    if (once_per_block(acc)) {  // Cluster is finalized, assign cluster information to te SoA
       int rhIdx =
           pfClusteringVars[pfClusteringVars[topoId].topoSeedOffsets()].topoSeedList();  // i is the seed rechit index
       int seedIdx = pfClusteringVars[rhIdx].rhIdxToSeedIdx();
@@ -526,7 +526,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         }
       }
       alpaka::syncBlockThreads(acc);  // all threads call sync
-    } while (notDone);                // shared variable condition ensures synchronization is well defined
+    } while (notDone);  // shared variable condition ensures synchronization is well defined
     if (once_per_block(acc))
       // Fill PFCluster-level info
       if (tid < nSeeds) {
@@ -801,7 +801,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         }
       }
       alpaka::syncBlockThreads(acc);  // all threads call sync
-    } while (notDone);                // shared variable ensures synchronization is well defined
+    } while (notDone);  // shared variable ensures synchronization is well defined
     if (once_per_block(acc))
       for (int s = alpaka::getIdx<alpaka::Block, alpaka::Threads>(acc)[0u]; s < nSeeds; s += stride) {
         int rhIdx = pfClusteringVars[s + pfClusteringVars[topoId].topoSeedOffsets()].topoSeedList();
@@ -1068,7 +1068,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         }
       }
       alpaka::syncBlockThreads(acc);  // all threads call sync
-    } while (notDone);                // shared variable ensures synchronization is well defined
+    } while (notDone);  // shared variable ensures synchronization is well defined
     if (once_per_block(acc))
       for (int s = alpaka::getIdx<alpaka::Block, alpaka::Threads>(acc)[0u]; s < nSeeds; s += stride) {
         int rhIdx = pfClusteringVars[s + pfClusteringVars[topoId].topoSeedOffsets()].topoSeedList();
@@ -1381,11 +1381,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             clusterView[seedIdx].z() = pfRecHits[rhIdx].z();
           }
           // singleSeed and multiSeedParallel functions work only for GPU backend
-        } else if ((not std::is_same_v<Device, alpaka::DevCpu>)&&nSeeds == 1) {
+        } else if ((not std::is_same_v<Device, alpaka::DevCpu>) && nSeeds == 1) {
           // Single seed cluster
           hcalFastCluster_singleSeed(
               acc, pfClusParams, topology, topoId, nRHTopo, pfRecHits, pfClusteringVars, clusterView, fracView);
-        } else if ((not std::is_same_v<Device, alpaka::DevCpu>)&&nSeeds <= 100 &&
+        } else if ((not std::is_same_v<Device, alpaka::DevCpu>) && nSeeds <= 100 &&
                    nRHTopo - nSeeds < threadsPerBlockForClustering) {
           hcalFastCluster_multiSeedParallel(
               acc, pfClusParams, topology, topoId, nSeeds, nRHTopo, pfRecHits, pfClusteringVars, clusterView, fracView);
