@@ -395,10 +395,17 @@ void Phase2L1CaloJetEmulator::produce(edm::Event& iEvent, const edm::EventSetup&
       hfTowers[2 * ieta + 1][iphi] = et / 8;
       hfTowers[2 * ieta][iphi + 1] = et / 8;
       hfTowers[2 * ieta + 1][iphi + 1] = et / 8;
-      hfTowers[2 * ieta][iphi + 2] = et / 8;
-      hfTowers[2 * ieta + 1][iphi + 2] = et / 8;
-      hfTowers[2 * ieta][iphi + 3] = et / 8;
-      hfTowers[2 * ieta + 1][iphi + 3] = et / 8;
+      if (iphi + 2 == nHfPhi) {
+        hfTowers[2 * ieta][0] = et / 8;
+        hfTowers[2 * ieta + 1][0] = et / 8;
+        hfTowers[2 * ieta][1] = et / 8;
+        hfTowers[2 * ieta + 1][1] = et / 8;
+      } else {
+        hfTowers[2 * ieta][iphi + 2] = et / 8;
+        hfTowers[2 * ieta + 1][iphi + 2] = et / 8;
+        hfTowers[2 * ieta][iphi + 3] = et / 8;
+        hfTowers[2 * ieta + 1][iphi + 3] = et / 8;
+      }
     } else if ((ieta >= 2 && ieta < nHfEta - 2) && iphi % 2 == 0) {
       hfTowers[2 * ieta][iphi] = et / 4;
       hfTowers[2 * ieta + 1][iphi] = et / 4;
