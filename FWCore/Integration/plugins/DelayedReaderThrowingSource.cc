@@ -46,8 +46,8 @@ namespace edm {
           throw copyException;
         }
       }
-      void mergeReaders_(DelayedReader*) final{};
-      void reset_() final{};
+      void mergeReaders_(DelayedReader*) final {}
+      void reset_() final {}
 
       signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> const* preEventReadFromSourceSignal_ =
           nullptr;

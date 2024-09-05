@@ -65,7 +65,7 @@ namespace edm {
 
     Ptr<T> const operator[](difference_type n) const {  // Otherwise the
       return base_->fromItr(iter_ + n);                 // boost::range
-    }                                                   // doesn't have []
+    }  // doesn't have []
 
     PtrHolder<T> operator->() const { return PtrHolder<T>(this->operator*()); }
 

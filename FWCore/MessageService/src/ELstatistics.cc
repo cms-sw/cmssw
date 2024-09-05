@@ -299,7 +299,7 @@ namespace edm {
           p3[lev].n += groupTotal;
           p3[lev].t += groupAggregateN;
         }  // end if groupTotal>0
-      }    // for g
+      }  // for g
 
       // -----  Provide footnote to part I, if needed:
       //
@@ -440,7 +440,7 @@ namespace edm {
           p3[lev].n += groupTotal;
           p3[lev].t += groupAggregateN;
         }  // end if groupTotal>0
-      }    // for g
+      }  // for g
 
       // part II (sample event numbers) does not exist for the job report.
 

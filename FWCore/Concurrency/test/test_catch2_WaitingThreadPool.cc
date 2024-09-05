@@ -28,8 +28,7 @@ TEST_CASE("Test WaitingThreadPool", "[edm::WaitingThreadPool") {
       using namespace edm::waiting_task::chain;
       auto h = first([&pool, &count](edm::WaitingTaskHolder h) {
                  edm::WaitingTaskWithArenaHolder h2(std::move(h));
-                 pool.runAsync(
-                     std::move(h2), [&count]() { ++count; }, errorContext);
+                 pool.runAsync(std::move(h2), [&count]() { ++count; }, errorContext);
                }) |
                lastTask(edm::WaitingTaskHolder(group, &waitTask));
       h.doneWaiting(std::exception_ptr());
@@ -62,8 +61,7 @@ TEST_CASE("Test WaitingThreadPool", "[edm::WaitingThreadPool") {
                        ++count;
                      },
                      errorContext);
-                 pool.runAsync(
-                     h2, [&count]() { ++count; }, errorContext);
+                 pool.runAsync(h2, [&count]() { ++count; }, errorContext);
                }) |
                lastTask(edm::WaitingTaskHolder(group, &waitTask));
       h.doneWaiting(std::exception_ptr());
@@ -90,8 +88,7 @@ TEST_CASE("Test WaitingThreadPool", "[edm::WaitingThreadPool") {
                   while (mayContinue != 2) {
                     hardware_pause();
                   }
-                  pool.runAsync(
-                      h2, [&count]() { ++count; }, errorContext);
+                  pool.runAsync(h2, [&count]() { ++count; }, errorContext);
                 }) |
                 lastTask(edm::WaitingTaskHolder(group, &waitTask));
 
@@ -101,8 +98,7 @@ TEST_CASE("Test WaitingThreadPool", "[edm::WaitingThreadPool") {
                   while (mayContinue != 2) {
                     hardware_pause();
                   }
-                  pool.runAsync(
-                      h2, [&count]() { ++count; }, errorContext);
+                  pool.runAsync(h2, [&count]() { ++count; }, errorContext);
                 }) |
                 lastTask(edm::WaitingTaskHolder(group, &waitTask));
       h2.doneWaiting(std::exception_ptr());
@@ -125,8 +121,7 @@ TEST_CASE("Test WaitingThreadPool", "[edm::WaitingThreadPool") {
         using namespace edm::waiting_task::chain;
         auto h = first([&pool](edm::WaitingTaskHolder h) {
                    edm::WaitingTaskWithArenaHolder h2(std::move(h));
-                   pool.runAsync(
-                       std::move(h2), []() { throw std::runtime_error("error"); }, errorContext);
+                   pool.runAsync(std::move(h2), []() { throw std::runtime_error("error"); }, errorContext);
                  }) |
                  lastTask(edm::WaitingTaskHolder(group, &waitTask));
         h.doneWaiting(std::exception_ptr());
@@ -265,8 +260,7 @@ TEST_CASE("Test WaitingThreadPool", "[edm::WaitingThreadPool") {
 
         auto h2 = first([&pool, &count](edm::WaitingTaskHolder h) {
                     edm::WaitingTaskWithArenaHolder h2(std::move(h));
-                    pool.runAsync(
-                        h2, [&count]() { ++count; }, errorContext);
+                    pool.runAsync(h2, [&count]() { ++count; }, errorContext);
                   }) |
                   lastTask(edm::WaitingTaskHolder(group, &waitTask));
         h2.doneWaiting(std::exception_ptr());

@@ -105,7 +105,7 @@ namespace edm {
       };
 
     }  // namespace filter
-  }    // namespace one
+  }  // namespace one
 }  // namespace edm
 
 #endif

@@ -78,7 +78,7 @@ namespace edm {
         this->acquire(s, ev, es, holder);
       }
     }  // namespace impl
-  }    // namespace global
+  }  // namespace global
 }  // namespace edm
 
 #endif

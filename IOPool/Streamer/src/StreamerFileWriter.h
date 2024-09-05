@@ -34,7 +34,7 @@ namespace edm {
       void doOutputEvent(EventMsgView const& msg);
 
       void start() {}
-      void stop(){};
+      void stop() {}
 
       uint32 get_adler32() const { return stream_writer_->adler32(); }
 
