@@ -25,8 +25,8 @@
 // class SiStripLorentzAngle : public SiStripBaseObject
 class SiStripLorentzAngle {
 public:
-  SiStripLorentzAngle(){};
-  ~SiStripLorentzAngle(){};
+  SiStripLorentzAngle() {}
+  ~SiStripLorentzAngle() {}
 
   inline void putLorentsAngles(std::map<unsigned int, float>& LA) { m_LA = LA; }
   inline const std::map<unsigned int, float>& getLorentzAngles() const { return m_LA; }

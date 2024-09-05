@@ -19,8 +19,8 @@ public:
   typedef typename std::vector<Item>::const_iterator const_iterator;
   typedef typename std::vector<Item>::iterator iterator;
 
-  EcalCondObjectContainer(){};
-  ~EcalCondObjectContainer(){};
+  EcalCondObjectContainer() {}
+  ~EcalCondObjectContainer() {}
 
   void clear() {
     eb_.clear();
@@ -153,7 +153,7 @@ public:
           mean_xx_EE = mean_xx_EE + x * x;
 
         }  //iy
-      }    //ix
+      }  //ix
     }
 
     mean_x_EB = mean_x_EB / num_x_EB;

@@ -8,8 +8,8 @@
 
 class PGeometricDet {
 public:
-  PGeometricDet(){};
-  ~PGeometricDet(){};
+  PGeometricDet() {}
+  ~PGeometricDet() {}
 
   struct Item {
     std::string _name;  // save only the name, not the namespace.
