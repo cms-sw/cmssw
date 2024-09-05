@@ -558,7 +558,7 @@ private:
   void beginRun(const edm::Run&, const edm::EventSetup&) override;
 
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void endRun(edm::Run const& iEvent, edm::EventSetup const&) override{};
+  void endRun(edm::Run const& iEvent, edm::EventSetup const&) override {};
   void endJob() override;
 
   // Define Tokens

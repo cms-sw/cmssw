@@ -243,7 +243,7 @@ std::unique_ptr<CaloObjCollType> HLTCaloObjInRegionsProducer<CaloObjType, CaloOb
         }
       }
     }  //end check of empty regions
-  }    //end check of empty rec-hits
+  }  //end check of empty rec-hits
   return outputColl;
 }
 

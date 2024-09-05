@@ -257,7 +257,7 @@ void HGCalValidator::bookHistograms(DQMStore::IBooker& ibook,
       histoProducerAlgo_->bookSimClusterAssociationHistos(
           ibook, histograms.histoProducerAlgo, totallayers_to_monitor_, thicknesses_to_monitor_);
     }  //end of loop over masks
-  }    //if for simCluster plots
+  }  //if for simCluster plots
 
   //Booking histograms concerning with hgcal layer clusters
   if (doLayerClustersPlots_) {

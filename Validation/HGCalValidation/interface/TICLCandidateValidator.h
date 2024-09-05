@@ -112,7 +112,7 @@ public:
   typedef dqm::legacy::DQMStore DQMStore;
   typedef dqm::legacy::MonitorElement MonitorElement;
 
-  TICLCandidateValidator(){};
+  TICLCandidateValidator() {};
   TICLCandidateValidator(edm::EDGetTokenT<std::vector<TICLCandidate>> TICLCandidates,
                          edm::EDGetTokenT<std::vector<TICLCandidate>> simTICLCandidatesToken,
                          edm::EDGetTokenT<std::vector<reco::Track>> recoTracksToken,
