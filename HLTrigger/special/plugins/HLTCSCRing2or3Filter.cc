@@ -53,7 +53,7 @@ bool HLTCSCRing2or3Filter::hltFilter(edm::Event& iEvent,
       }
       chamber_tohit[chamber_id].push_back(&hit);
     }  // end if this ring is selected
-  }    // end loop over hits
+  }  // end loop over hits
 
   unsigned int minHitsAlmostSquared = (m_minHits - 1) * (m_minHits - 2);
   for (std::map<int, std::vector<const CSCRecHit2D*> >::const_iterator chamber_iter = chamber_tohit.begin();
@@ -79,10 +79,10 @@ bool HLTCSCRing2or3Filter::hltFilter(edm::Event& iEvent,
           if (pairs_in_window >= minHitsAlmostSquared)
             return true;
         }  // end loop over hits
-      }    // end loop over hits
+      }  // end loop over hits
 
     }  // end if chamber has enough hits
-  }    // end loop over chambers
+  }  // end loop over chambers
 
   return false;
 }

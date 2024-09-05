@@ -25,7 +25,7 @@ class L2TauPixelIsoTagProducer : public edm::global::EDProducer<> {
 public:
   explicit L2TauPixelIsoTagProducer(const edm::ParameterSet&);
 
-  ~L2TauPixelIsoTagProducer() override{};
+  ~L2TauPixelIsoTagProducer() override {}
 
   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
