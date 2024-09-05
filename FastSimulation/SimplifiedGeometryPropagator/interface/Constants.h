@@ -14,7 +14,7 @@ namespace fastsim {
     static double constexpr muMass = 0.1056583745;      //!< Muon mass [GeV]
     static double constexpr epsilonDistance_ = 1.0e-7;  //!< some epsilon for numerical comparisons
     static double constexpr NA = 6.022e+23;             //!< Avogadro's number
-  };                                                    // namespace Constants
+  };  // namespace Constants
 }  // namespace fastsim
 
 #endif
