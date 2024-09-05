@@ -237,7 +237,7 @@ namespace cms {
                                                })});
       }
     }  // namespace impl
-  }    // namespace cuda
+  }  // namespace cuda
 }  // namespace cms
 
 #endif
