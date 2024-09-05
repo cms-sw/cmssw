@@ -198,7 +198,7 @@ public:
     assert(i >= 0 && i < 3);
 #endif
     return fbin_[i];
-  }                                 //!< Return lower bound of Qbin definition
+  }  //!< Return lower bound of Qbin definition
   float xsize() { return xsize_; }  //!< pixel x-size (microns)
   float ysize() { return ysize_; }  //!< pixel y-size (microns)
   float zsize() { return zsize_; }  //!< pixel z-size or thickness (microns)
