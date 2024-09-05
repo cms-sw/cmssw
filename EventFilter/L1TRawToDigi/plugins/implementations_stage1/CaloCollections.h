@@ -32,7 +32,7 @@ namespace l1t {
             calospareHFBitCounts_(new CaloSpareBxCollection()),
             calospareHFRingSums_(new CaloSpareBxCollection()),
             caloEmCands_(new L1CaloEmCollection()),
-            caloRegions_(new L1CaloRegionCollection()){};
+            caloRegions_(new L1CaloRegionCollection()) {}
 
       ~CaloCollections() override;
 

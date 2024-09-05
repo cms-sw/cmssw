@@ -838,7 +838,7 @@ void CSCAnodeLCTProcessor::ghostCancellationLogicOneWire(const int key_wire, int
       }
 
     }  // if qual_this > 0
-  }    //i_pattern
+  }  //i_pattern
 }
 
 void CSCAnodeLCTProcessor::lctSearch() {

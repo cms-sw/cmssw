@@ -779,7 +779,7 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
             }
 
           }  //check it is the EtSum we want
-        }    // loop over Etsums
+        }  // loop over Etsums
 
       }  // end case CondEnergySum
       break;
@@ -1072,7 +1072,7 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
               }
 
             }  //check it is the EtSum we want
-          }    // loop over Etsums
+          }  // loop over Etsums
 
         }  // end case EnergySum
         break;
@@ -1609,7 +1609,7 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
                 }
 
               }  //check it is the EtSum we want
-            }    // loop over Etsums
+            }  // loop over Etsums
 
           }  // end case CondEnerySum
           break;

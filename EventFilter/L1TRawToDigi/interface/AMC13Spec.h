@@ -14,8 +14,8 @@ namespace edm {
 namespace amc13 {
   class Header {
   public:
-    Header() : data_(0){};
-    Header(const uint64_t *data) : data_(data[0]){};
+    Header() : data_(0) {}
+    Header(const uint64_t *data) : data_(data[0]) {}
     Header(unsigned int namc, unsigned int orbit);
 
     inline uint64_t raw() const { return data_; };
@@ -41,7 +41,7 @@ namespace amc13 {
 
   class Trailer {
   public:
-    Trailer(const uint64_t *data) : data_(data[0]){};
+    Trailer(const uint64_t *data) : data_(data[0]) {}
     Trailer(unsigned int blk, unsigned int lv1, unsigned int bx);
 
     inline unsigned int getCRC() const { return (data_ >> CRC_shift) & CRC_mask; };
@@ -68,7 +68,7 @@ namespace amc13 {
 
   class Packet {
   public:
-    Packet(){};
+    Packet() {}
 
     unsigned int blocks() const;
     unsigned int size() const;

@@ -39,7 +39,7 @@ public:
   DTConfigTrigUnit(const edm::ParameterSet& ps);
 
   //! Constructor
-  DTConfigTrigUnit(){};
+  DTConfigTrigUnit() {}
 
   //! Destructor
   ~DTConfigTrigUnit() override;

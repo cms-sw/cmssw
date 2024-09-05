@@ -16,8 +16,8 @@ namespace l1tVertexFinder {
   //! Simple wrapper class for TTTrack
   class L1Track {
   public:
-    L1Track(const edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_>>& aTrack) : track_(aTrack){};
-    ~L1Track(){};
+    L1Track(const edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_>>& aTrack) : track_(aTrack) {}
+    ~L1Track() {}
 
     float eta() const { return track_->momentum().eta(); };
     float phi0() const { return track_->momentum().phi(); };

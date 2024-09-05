@@ -172,7 +172,7 @@ namespace l1t {
     bool BMTFUnpackerInputsNewQual::unpack(const Block& block, UnpackerCollections* coll) {
       return unpacking_bmtf(block, coll, linkAndQual_, true);
     }  //unpack new quality
-  }    // namespace stage2
+  }  // namespace stage2
 }  // namespace l1t
 
 DEFINE_L1T_UNPACKER(l1t::stage2::BMTFUnpackerInputsOldQual);

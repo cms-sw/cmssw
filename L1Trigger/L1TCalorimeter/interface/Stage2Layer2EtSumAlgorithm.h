@@ -25,7 +25,7 @@ namespace l1t {
   public:
     virtual void processEvent(const std::vector<l1t::CaloTower>& towers, std::vector<l1t::EtSum>& sums) = 0;
 
-    virtual ~Stage2Layer2EtSumAlgorithm(){};
+    virtual ~Stage2Layer2EtSumAlgorithm() {}
   };
 
 }  // namespace l1t

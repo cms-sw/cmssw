@@ -34,8 +34,8 @@ class DEcompare {
   typedef typename de_trait::coll_type const* typeT;
 
 public:
-  DEcompare(){};
-  ~DEcompare(){};
+  DEcompare() {}
+  ~DEcompare() {}
 
   DEcompare(typeT dt, typeT em) : data_(dt), emul_(em), t_match(false) {
     ncand_[0] = get_ncand(dt);
