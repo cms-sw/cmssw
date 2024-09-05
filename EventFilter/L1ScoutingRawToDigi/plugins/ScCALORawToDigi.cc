@@ -25,7 +25,7 @@ ScCaloRawToDigi::ScCaloRawToDigi(const edm::ParameterSet& iConfig) {
   produces<BxSumsOrbitCollection>("EtSum").setBranchAlias("BxSumsOrbitCollection");
 }
 
-ScCaloRawToDigi::~ScCaloRawToDigi(){};
+ScCaloRawToDigi::~ScCaloRawToDigi() {}
 
 void ScCaloRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;

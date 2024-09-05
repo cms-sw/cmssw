@@ -17,10 +17,10 @@ class FEDRawDataCollection;
 class RawDataFEDSelector {
 public:
   /// Constructor
-  RawDataFEDSelector(){};
+  RawDataFEDSelector() {}
 
   /// Destructor
-  virtual ~RawDataFEDSelector(){};
+  virtual ~RawDataFEDSelector() {}
 
   inline void setRange(const std::pair<int, int>& range) { fedRange = range; };
   inline void setRange(const std::vector<int>& list) { fedList = list; };

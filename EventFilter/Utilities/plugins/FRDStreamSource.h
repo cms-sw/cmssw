@@ -21,7 +21,7 @@ class FRDStreamSource : public edm::ProducerSourceFromFiles {
 public:
   // construction/destruction
   FRDStreamSource(edm::ParameterSet const& pset, edm::InputSourceDescription const& desc);
-  ~FRDStreamSource() override{};
+  ~FRDStreamSource() override {}
 
 private:
   // member functions
