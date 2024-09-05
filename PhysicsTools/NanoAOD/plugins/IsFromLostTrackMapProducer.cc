@@ -46,7 +46,7 @@ public:
   {
     produces<edm::ValueMap<bool>>("isFromLostTrack");  // name of the value map that I want to actually produce
   }
-  ~IsFromLostTrackMapProducer() override{};
+  ~IsFromLostTrackMapProducer() override {}
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
