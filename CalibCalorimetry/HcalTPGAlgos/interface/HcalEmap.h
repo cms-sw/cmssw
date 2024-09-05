@@ -54,7 +54,7 @@ public:
       topbottom = "";
       subdet = "";
     }
-    ~HcalEmapRow(){};
+    ~HcalEmapRow() {}
 
     bool operator<(const HcalEmapRow& other) const;
 

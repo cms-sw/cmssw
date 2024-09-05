@@ -275,10 +275,10 @@ void HcaluLUTTPGCoder::update(const char* filename, bool appendMSB) {
             } else
               inputLUT_[lutId][adc] = lutFromFile[i][adc];
           }  // for adc
-        }    // for depth
-      }      // for iphi
-    }        // for ieta
-  }          // for nCol
+        }  // for depth
+      }  // for iphi
+    }  // for ieta
+  }  // for nCol
 }
 
 void HcaluLUTTPGCoder::updateXML(const char* filename) {
