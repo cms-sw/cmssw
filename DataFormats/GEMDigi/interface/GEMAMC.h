@@ -93,7 +93,7 @@ public:
     };
   };
 
-  GEMAMC() : amch1_(0), amch2_(0), amct_(0), eh_(0), et_(0){};
+  GEMAMC() : amch1_(0), amch2_(0), amct_(0), eh_(0), et_(0) {}
   ~GEMAMC() { gebd_.clear(); }
 
   int status();

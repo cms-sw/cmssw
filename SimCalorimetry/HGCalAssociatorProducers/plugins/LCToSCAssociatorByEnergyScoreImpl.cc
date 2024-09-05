@@ -182,7 +182,7 @@ ticl::association LCToSCAssociatorByEnergyScoreImpl<HIT>::makeConnections(
         }
       }
     }  // End loop over hits on a LayerCluster
-  }    // End of loop over LayerClusters
+  }  // End of loop over LayerClusters
 
 #ifdef EDM_ML_DEBUG
   for (unsigned int lcId = 0; lcId < nLayerClusters; ++lcId) {
@@ -492,7 +492,7 @@ ticl::association LCToSCAssociatorByEnergyScoreImpl<HIT>::makeConnections(
               << "invSCEnergyWeight:\t" << invSCEnergyWeight << "\n";
 #endif
         }  // End of loop over LayerClusters linked to hits of this SimCluster
-      }    // End of loop over hits of SimCluster on a Layer
+      }  // End of loop over hits of SimCluster on a Layer
 #ifdef EDM_ML_DEBUG
       if (lcsInSimCluster[scId][layerId].layerClusterIdToEnergyAndScore.empty())
         LogDebug("LCToSCAssociatorByEnergyScoreImpl") << "SC Id: \t" << scId << "\tLC id:\t-1 "
@@ -507,7 +507,7 @@ ticl::association LCToSCAssociatorByEnergyScoreImpl<HIT>::makeConnections(
       }
 #endif
     }  // End of loop over layers
-  }    // End of loop over SimClusters
+  }  // End of loop over SimClusters
 
   return {scsInLayerCluster, lcsInSimCluster};
 }
