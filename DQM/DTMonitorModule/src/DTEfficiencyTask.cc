@@ -126,8 +126,8 @@ void DTEfficiencyTask::bookHistograms(DQMStore::IBooker& ibooker,
         histosPerL[layerId] = histos;
 
       }  // layer
-    }    // superlayer
-  }      // chambers
+    }  // superlayer
+  }  // chambers
 }
 
 void DTEfficiencyTask::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
@@ -402,7 +402,7 @@ void DTEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetup& s
       }
 
     }  // End of loop over the 4D segments inside a sigle chamber
-  }    // End of loop over all tha chamber with at least a 4D segment in the event
+  }  // End of loop over all tha chamber with at least a 4D segment in the event
 }
 
 // Fill a set of histograms for a given Layer

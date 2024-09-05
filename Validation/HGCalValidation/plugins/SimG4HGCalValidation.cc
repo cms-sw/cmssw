@@ -281,8 +281,8 @@ void SimG4HGCalValidation::update(const G4Step* aStep) {
           }
         }
       }  // it is right type of SD
-    }    // it is in a SD
-  }      //if aStep!=NULL
+    }  // it is in a SD
+  }  //if aStep!=NULL
 }  //end update aStep
 
 //================================================================ End of EVENT

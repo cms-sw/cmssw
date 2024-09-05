@@ -43,7 +43,7 @@ public:
         primaryOnly_(iConfig.getParameter<bool>("primaryOnly")),
         tpStatusBased_(iConfig.getParameter<bool>("tpStatusBased")),
         pdgId_(iConfig.getParameter<std::vector<int> >("pdgId")),
-        tTopoToken_(iC.esConsumes()){};
+        tTopoToken_(iC.esConsumes()) {}
 
   // select object from a collection and
   // possibly event content

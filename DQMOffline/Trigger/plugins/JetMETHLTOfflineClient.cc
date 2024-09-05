@@ -94,12 +94,12 @@ void JetMETHLTOfflineClient::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGe
                 delete teff;
               }
             }  // Denominator
-          }    // Loop-l
-        }      // Numerator
+          }  // Loop-l
+        }  // Numerator
 
       }  // Loop-k
-    }    // fullSubPath
-  }      // fullPath
+    }  // fullSubPath
+  }  // fullPath
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

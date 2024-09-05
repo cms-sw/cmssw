@@ -60,12 +60,12 @@ public:
 private:
   void beginJob() override;
   void beginRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup) override{};
+  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup) override {}
   void produce(edm::Event& e, edm::EventSetup const& eSetup) override;
   void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup) override;
-  void endLuminosityBlockProduce(edm::LuminosityBlock&, edm::EventSetup const&) override{};
+  void endLuminosityBlockProduce(edm::LuminosityBlock&, edm::EventSetup const&) override {}
   void endRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
-  void endRunProduce(edm::Run&, edm::EventSetup const&) override{};
+  void endRunProduce(edm::Run&, edm::EventSetup const&) override {}
   void endJob() override;
 
   void checkTrackerFEDs(edm::Event const& e);

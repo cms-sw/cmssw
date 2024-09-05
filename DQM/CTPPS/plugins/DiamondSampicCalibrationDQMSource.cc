@@ -90,7 +90,7 @@ private:
     MonitorElement *hitDistribution2d = nullptr;
     MonitorElement *recHitTime = nullptr;
 
-    PotPlots(){};
+    PotPlots() {}
     PotPlots(DQMStore::IBooker &ibooker, unsigned int id);
   };
 

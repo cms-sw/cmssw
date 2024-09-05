@@ -277,7 +277,7 @@ public:
   /// default constructor
   SingleTopTChannelLeptonDQM(const edm::ParameterSet& cfg);
   /// default destructor
-  ~SingleTopTChannelLeptonDQM() override{};
+  ~SingleTopTChannelLeptonDQM() override {}
 
   /// do this during the event loop
   void analyze(const edm::Event& event, const edm::EventSetup& setup) override;

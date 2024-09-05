@@ -102,7 +102,7 @@ namespace ecaldqm {
         //if(ttid.subDet() == EcalBarrel)
         meTTMaskMap.fill(getEcalDQMSetupObjects(), ttid, 1);
       }  //masked
-    }    //loop on towers
+    }  //loop on towers
 
     for (EcalTPGStripStatusMap::const_iterator stItr(stripMap.begin()); stItr != stripMap.end(); ++stItr) {
       if ((*stItr).second > 0) {
@@ -110,7 +110,7 @@ namespace ecaldqm {
         //if(stid.subdet() == EcalEndcap);
         meTTMaskMap.fill(getEcalDQMSetupObjects(), stid, 1);
       }  //masked
-    }    //loop on pseudo-strips
+    }  //loop on pseudo-strips
 
     //     if(HLTCaloPath_.size() || HLTMuonPath_.size()){
     //       edm::TriggerResultsByName results(_evt.triggerResultsByName("HLT"));
@@ -266,7 +266,7 @@ namespace ecaldqm {
       const EcalTrigTowerDetId ttid(ttItr->first);
       if (ttItr->second > 0)
         meTTMaskMapAll.setBinContent(getEcalDQMSetupObjects(), ttid, 1);  // TT is masked
-    }                                                                     // TTs
+    }  // TTs
 
     // Fill from Strip Status Rcd
     const EcalTPGStripStatusMap& StripStatusMap(StripStatus->getMap());
@@ -277,7 +277,7 @@ namespace ecaldqm {
       const EcalTrigTowerDetId ttid(GetElectronicsMap()->getTrigTowerDetId(stid.tccId(), stid.ttId()));
       if (stItr->second > 0)
         meTTMaskMapAll.setBinContent(getEcalDQMSetupObjects(), ttid, 1);  // PseudoStrip is masked
-    }                                                                     // PseudoStrips
+    }  // PseudoStrips
 
   }  // TrigPrimTask::runOnRealTPs()
 
@@ -347,7 +347,7 @@ namespace ecaldqm {
                   break;
                 }
               }  // Et match found
-            }    // iDigi
+            }  // iDigi
             if (matchedIndex.empty())
               matchedIndex.push_back(0);  // no Et match found => no emul
 

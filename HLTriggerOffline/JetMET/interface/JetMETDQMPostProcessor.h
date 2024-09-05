@@ -12,7 +12,7 @@
 class JetMETDQMPostProcessor : public DQMEDHarvester {
 public:
   JetMETDQMPostProcessor(const edm::ParameterSet &pset);
-  ~JetMETDQMPostProcessor() override{};
+  ~JetMETDQMPostProcessor() override {}
 
   void dqmEndJob(DQMStore::IBooker &,
                  DQMStore::IGetter &) override;  // performed in the endJob

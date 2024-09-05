@@ -114,7 +114,7 @@ private:
     MonitorElement* trackCorrelation = nullptr;
     MonitorElement* trackCorrelationLowMultiplicity = nullptr;
     MonitorElement* digiSentPercentage = nullptr;
-    SectorPlots(){};
+    SectorPlots() {}
     SectorPlots(DQMStore::IBooker& ibooker, unsigned int id, bool plotOnline);
   };
   /// plots related to one Diamond detector package

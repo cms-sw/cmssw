@@ -93,10 +93,10 @@ namespace egHLT {
             if (reco::deltaR(particles[partNr].eta(), particles[partNr].phi(), trigObjEta, trigObjPhi) < maxDeltaR) {
               partTrigBits[partNr] |= filterCode;
             }  //end dR<maxDeltaR trig obj match test
-          }    //end loop over all objects passing filter
-        }      //end loop over particles
-      }        //end check if filter is present
-    }          //end loop over all filters
+          }  //end loop over all objects passing filter
+        }  //end loop over particles
+      }  //end check if filter is present
+    }  //end loop over all filters
 
     //okay the first element is the key, the second is the filter that exists in trigger event
     for (const auto& l1PreAndSeedFilter : l1PreAndSeedFilters) {
@@ -116,11 +116,11 @@ namespace egHLT {
               if (reco::deltaR(particles[partNr].eta(), particles[partNr].phi(), trigObjEta, trigObjPhi) < maxDeltaR) {
                 partTrigBits[partNr] |= filterCode;
               }  //end dR<maxDeltaR trig obj match test
-            }    //end loop over all objects passing filter
-          }      //end loop over particles
-        }        //end check if filter is present
-      }          //end check if path has fired in the event
-    }            //end loop over all filters
+            }  //end loop over all objects passing filter
+          }  //end loop over particles
+        }  //end check if filter is present
+      }  //end check if path has fired in the event
+    }  //end loop over all filters
 
     for (size_t partNr = 0; partNr < particles.size(); partNr++)
       particles[partNr].setTrigBits(partTrigBits[partNr]);
@@ -151,10 +151,10 @@ namespace egHLT {
             hltData.HLTphi = trigObjPhi;
             hltData.HLTenergy = trigObjE;
           }  //end dR<maxDeltaR trig obj match test
-        }    //end loop over all objects passing filter`
-      }      //end check if filter is present
-    }        //end check if path has fired in the event
-  }          //end loop over all filters
+        }  //end loop over all objects passing filter`
+      }  //end check if filter is present
+    }  //end check if path has fired in the event
+  }  //end loop over all filters
 
 }  // namespace egHLT
 

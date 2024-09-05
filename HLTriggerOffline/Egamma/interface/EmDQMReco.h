@@ -27,8 +27,8 @@ class EmDQMReco;
 template <class T>
 class HistoFillerReco {
 public:
-  HistoFillerReco(EmDQMReco *d) : dqm(d){};
-  ~HistoFillerReco(){};
+  HistoFillerReco(EmDQMReco *d) : dqm(d) {}
+  ~HistoFillerReco() {}
 
   void fillHistos(edm::Handle<trigger::TriggerEventWithRefs> &triggerObj,
                   const edm::Event &iEvent,

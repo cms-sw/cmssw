@@ -203,7 +203,7 @@ void NoiseTask::book() {
                              << "Could not set Pedestals/Noises for DetId|Apv# -> " << connection().detId() << '|'
                              << (nAPV_PAIR * 2 + nLclApv) << ". !!! POSSIBLE BUG !!!";
     }  // End Try block
-  }    // End Local Apvs loop
+  }  // End Local Apvs loop
 }
 
 // -----------------------------------------------------------------------------

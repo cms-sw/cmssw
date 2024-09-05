@@ -289,9 +289,9 @@ void HLTBTagPerformanceAnalyzer::analyze(const edm::Event &iEvent, const edm::Ev
                 BtagJT.first->phi());  // fill 2D btag, jetPhi plot for 'b,c,uds'
           }
         }  /// for flavour
-      }    /// if MCOK
-    }      /// for BtagJT
-  }        // for triggers
+      }  /// if MCOK
+    }  /// for BtagJT
+  }  // for triggers
 }
 
 //// ------------ method called once each job just before starting event loop
@@ -432,7 +432,7 @@ void HLTBTagPerformanceAnalyzer::bookHistograms(DQMStore::IBooker &ibooker,
         H2EtaPhi_threshold_.back()[labelEtaPhi_threshold]->setAxisTitle("eta", 1);
       }
     }  /// for mc.size()
-  }    /// for hltPathNames_.size()
+  }  /// for hltPathNames_.size()
 }
 
 // define this as a plug-in

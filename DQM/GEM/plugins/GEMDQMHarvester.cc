@@ -22,7 +22,7 @@ using namespace edm;
 class GEMDQMHarvester : public DQMEDHarvester {
 public:
   GEMDQMHarvester(const edm::ParameterSet &);
-  ~GEMDQMHarvester() override{};
+  ~GEMDQMHarvester() override {}
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
   typedef std::tuple<int, int> IdChamber;
@@ -69,7 +69,7 @@ protected:
                              DQMStore::IGetter &,
                              edm::LuminosityBlock const &iLumi,
                              edm::EventSetup const &) override;
-  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override{};  // Cannot use; it is called after dqmSaver
+  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override {}  // Cannot use; it is called after dqmSaver
 
   void drawSummaryHistogram(edm::Service<DQMStore> &store, Int_t nLumiCurr);
   void createTableWatchingSummary();

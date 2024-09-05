@@ -181,8 +181,8 @@ void DTTriggerEfficiencyTask::analyze(const edm::Event& e, const edm::EventSetup
         }
 
       }  // end loop on matched segments
-    }    // end loop on compatible chambers
-  }      // end loop on muons
+    }  // end loop on compatible chambers
+  }  // end loop on muons
 
   // Plot filling
   vector<const DTRecSegment4D*>::const_iterator btrack;

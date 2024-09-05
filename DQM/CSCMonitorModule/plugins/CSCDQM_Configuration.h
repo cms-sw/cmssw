@@ -149,7 +149,7 @@
 #define CONFIG_PARAMETER_LOADPS_MACRO(r, data, i, elem)                               \
   BOOST_PP_CAT(set, BOOST_PP_TUPLE_ELEM(CONFIG_PARAMETERS_SEQ_LEN, 1, elem))          \
   (ps.getUntrackedParameter<BOOST_PP_TUPLE_ELEM(CONFIG_PARAMETERS_SEQ_LEN, 0, elem)>( \
-      BOOST_PP_STRINGIZE(BOOST_PP_TUPLE_ELEM(CONFIG_PARAMETERS_SEQ_LEN, 1, elem)),    \
+      BOOST_PP_STRINGIZE(BOOST_PP_TUPLE_ELEM(CONFIG_PARAMETERS_SEQ_LEN, 1, elem)),      \
                          BOOST_PP_TUPLE_ELEM(CONFIG_PARAMETERS_SEQ_LEN, 2, elem)));
 
 #endif
@@ -157,10 +157,10 @@
 #ifdef DQMLOCAL
 
 /** Load parameter from XML node line (Local DQM) */
-#define CONFIG_PARAMETER_LOADXML_MACRO(r, data, i, elem)                                                    \
+#define CONFIG_PARAMETER_LOADXML_MACRO(r, data, i, elem)                                                  \
   if (nodeName.compare(BOOST_PP_STRINGIZE(BOOST_PP_TUPLE_ELEM(CONFIG_PARAMETERS_SEQ_LEN, 1, elem))) == 0) { \
-    stm >> BOOST_PP_TUPLE_ELEM(CONFIG_PARAMETERS_SEQ_LEN, 1, elem);                                         \
-    continue;                                                                                               \
+    stm >> BOOST_PP_TUPLE_ELEM(CONFIG_PARAMETERS_SEQ_LEN, 1, elem);                                       \
+    continue;                                                                                             \
   }
 
 /** Include parameter into XML stream for printing */
@@ -169,7 +169,7 @@
     DOMComment* comment =                                                                                              \
         doc->createComment(XERCES_TRANSCODE(BOOST_PP_TUPLE_ELEM(CONFIG_PARAMETERS_SEQ_LEN, 3, elem)));                 \
     DOMElement* el = doc->createElement(                                                                               \
-        XERCES_TRANSCODE(BOOST_PP_STRINGIZE(BOOST_PP_TUPLE_ELEM(CONFIG_PARAMETERS_SEQ_LEN, 1, elem))));                \
+        XERCES_TRANSCODE(BOOST_PP_STRINGIZE(BOOST_PP_TUPLE_ELEM(CONFIG_PARAMETERS_SEQ_LEN, 1, elem))));                  \
     std::string value = toString(config.BOOST_PP_CAT(get, BOOST_PP_TUPLE_ELEM(CONFIG_PARAMETERS_SEQ_LEN, 1, elem))()); \
     DOMText* tdata = doc->createTextNode(XERCES_TRANSCODE(value.c_str()));                                             \
     el->appendChild(tdata);                                                                                            \

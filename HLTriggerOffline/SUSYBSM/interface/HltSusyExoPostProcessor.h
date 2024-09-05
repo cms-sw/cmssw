@@ -9,7 +9,7 @@
 class HltSusyExoPostProcessor : public DQMEDHarvester {
 public:
   HltSusyExoPostProcessor(const edm::ParameterSet &pset);
-  ~HltSusyExoPostProcessor() override{};
+  ~HltSusyExoPostProcessor() override {}
 
 protected:
   void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
