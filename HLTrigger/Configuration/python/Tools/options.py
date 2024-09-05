@@ -10,7 +10,7 @@ globalTag = {
   'PRef' : 'auto:run3_mc_PRef',
   'data' : 'auto:run3_hlt_relval',
   '2022v12' : 'auto:run3_mc_2022v12',
-  '2022v14' : 'auto:run3_mc_2022v14',
+  '2022v15' : 'auto:run3_mc_2022v15',
 }
 
 
