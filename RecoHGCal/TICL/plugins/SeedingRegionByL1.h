@@ -24,7 +24,7 @@ namespace ticl {
   public:
     SeedingRegionByL1(const edm::ParameterSet& conf, edm::ConsumesCollector& sumes);
 
-    void initialize(const edm::EventSetup& es) override{};
+    void initialize(const edm::EventSetup& es) override {}
     void makeRegions(const edm::Event& ev, const edm::EventSetup& es, std::vector<TICLSeedingRegion>& result) override;
     static void fillPSetDescription(edm::ParameterSetDescription& desc);
 

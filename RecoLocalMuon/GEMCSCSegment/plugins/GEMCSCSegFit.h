@@ -140,7 +140,7 @@ public:
     // Test whether id is found
     if (csclayermap_.find(id) == csclayermap_.end()) {  // id is not found
       throw cms::Exception("InvalidDetId") << "[GEMCSCSegFit] Failed to find CSCChamber in CSCLayerMap" << std::endl;
-    }       // chamber is not found and exception is thrown
+    }  // chamber is not found and exception is thrown
     else {  // id is found
       return (csclayermap_.find(id)->second)->chamber();
     }  // chamber found and returned

@@ -27,9 +27,9 @@
 class GEMCSCSegmentAlgorithm {
 public:
   /// Constructor
-  explicit GEMCSCSegmentAlgorithm(const edm::ParameterSet&){};
+  explicit GEMCSCSegmentAlgorithm(const edm::ParameterSet&) {}
   /// Destructor
-  virtual ~GEMCSCSegmentAlgorithm(){};
+  virtual ~GEMCSCSegmentAlgorithm() {}
   /// Run the algorithm = build segments
   virtual std::vector<GEMCSCSegment> run(const std::map<uint32_t, const CSCLayer*>& csclayermap,
                                          const std::map<uint32_t, const GEMEtaPartition*>& gemrollmap,

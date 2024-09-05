@@ -58,7 +58,7 @@ using namespace ticl;
 class TICLCandidateProducer : public edm::stream::EDProducer<> {
 public:
   explicit TICLCandidateProducer(const edm::ParameterSet &ps);
-  ~TICLCandidateProducer() override{};
+  ~TICLCandidateProducer() override {}
   void produce(edm::Event &, const edm::EventSetup &) override;
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 

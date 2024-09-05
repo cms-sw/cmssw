@@ -53,7 +53,7 @@ using namespace ticl;
 class TrackstersMergeProducer : public edm::stream::EDProducer<> {
 public:
   explicit TrackstersMergeProducer(const edm::ParameterSet &ps);
-  ~TrackstersMergeProducer() override{};
+  ~TrackstersMergeProducer() override {}
   void produce(edm::Event &, const edm::EventSetup &) override;
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
@@ -198,7 +198,7 @@ TrackstersMergeProducer::TrackstersMergeProducer(const edm::ParameterSet &ps)
 
 void TrackstersMergeProducer::beginJob() {}
 
-void TrackstersMergeProducer::endJob(){};
+void TrackstersMergeProducer::endJob() {}
 
 void TrackstersMergeProducer::beginRun(edm::Run const &iEvent, edm::EventSetup const &es) {
   edm::ESHandle<HGCalDDDConstants> hdc = es.getHandle(hdc_token_);

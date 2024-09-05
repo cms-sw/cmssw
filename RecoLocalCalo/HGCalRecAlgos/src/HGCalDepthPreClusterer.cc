@@ -56,7 +56,7 @@ std::vector<reco::HGCalMultiCluster> HGCalDepthPreClusterer::makePreClusters(
           else if (layer < rhtools_.firstLayerBH())
             radius = radii[1];
           float radius2 = radius * radius;
-          if (distanceCheck<radius2 &&int(thecls[es[j]]->z() * vused[i])> 0) {
+          if (distanceCheck < radius2 && int(thecls[es[j]]->z() * vused[i]) > 0) {
             temp.push_back(thecls[es[j]]);
             vused[j] = vused[i];
           }
