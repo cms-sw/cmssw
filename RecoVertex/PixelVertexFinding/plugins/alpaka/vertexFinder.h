@@ -25,9 +25,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::vertexFinder {
   class Init {
   public:
     template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-    ALPAKA_FN_ACC void operator()(const TAcc &acc, VtxSoAView pdata, WsSoAView pws) const {
-      pdata.nvFinal() = 0;  // initialization
-      ::vertexFinder::init(pws);
+    ALPAKA_FN_ACC void operator()(const TAcc &acc, VtxSoAView data, WsSoAView ws) const {
+      data.nvFinal() = 0;  // initialization
+      ::vertexFinder::init(ws);
     }
   };
 

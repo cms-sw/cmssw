@@ -31,9 +31,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
       ALPAKA_FN_ACC void operator()(const TAcc& acc,
                                     reco::TrackSoAConstView<TrackerTraits> tracks_view,
-                                    VtxSoAView soa,
-                                    TrkSoAView trksoa,
-                                    WsSoAView pws,
+                                    VtxSoAView data,
+                                    TrkSoAView trkdata,
+                                    WsSoAView ws,
                                     float ptMin,
                                     float ptMax) const {
         auto const* quality = tracks_view.quality();
@@ -43,57 +43,61 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           [[maybe_unused]] auto nHits = helper::nHits(tracks_view, idx);
           ALPAKA_ASSERT_ACC(nHits >= 3);
 
-          // initialize soa...
-          trksoa[idx].idv() = -1;
+          // initialize the track data
+          trkdata[idx].idv() = -1;
 
+          // do not use triplets
           if (reco::isTriplet(tracks_view, idx))
-            continue;  // no triplets
+            continue;
+
+          // use only "high purity" track
           if (quality[idx] < ::pixelTrack::Quality::highPurity)
             continue;
 
           auto pt = tracks_view[idx].pt();
-
+          // pT min cut
           if (pt < ptMin)
             continue;
 
-          // clamp pt
+          // clamp pT to the pTmax
           pt = std::min<float>(pt, ptMax);
 
-          auto& data = pws;
-          auto it = alpaka::atomicAdd(acc, &data.ntrks(), 1u, alpaka::hierarchy::Blocks{});
-          data[it].itrk() = idx;
-          data[it].zt() = reco::zip(tracks_view, idx);
-          data[it].ezt2() = tracks_view[idx].covariance()(14);
-          data[it].ptt2() = pt * pt;
+          // load the track data into the workspace
+          auto it = alpaka::atomicAdd(acc, &ws.ntrks(), 1u, alpaka::hierarchy::Blocks{});
+          ws[it].itrk() = idx;
+          ws[it].zt() = reco::zip(tracks_view, idx);
+          ws[it].ezt2() = tracks_view[idx].covariance()(14);
+          ws[it].ptt2() = pt * pt;
         }
       }
     };
+
 // #define THREE_KERNELS
 #ifndef THREE_KERNELS
     class VertexFinderOneKernel {
     public:
       template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
       ALPAKA_FN_ACC void operator()(const TAcc& acc,
-                                    VtxSoAView pdata,
-                                    TrkSoAView ptrkdata,
-                                    WsSoAView pws,
+                                    VtxSoAView data,
+                                    TrkSoAView trkdata,
+                                    WsSoAView ws,
                                     bool doSplit,
                                     int minT,      // min number of neighbours to be "seed"
                                     float eps,     // max absolute distance to cluster
                                     float errmax,  // max error to be "seed"
                                     float chi2max  // max normalized distance to cluster,
       ) const {
-        clusterTracksByDensity(acc, pdata, ptrkdata, pws, minT, eps, errmax, chi2max);
+        clusterTracksByDensity(acc, data, trkdata, ws, minT, eps, errmax, chi2max);
         alpaka::syncBlockThreads(acc);
-        fitVertices(acc, pdata, ptrkdata, pws, maxChi2ForFirstFit);
+        fitVertices(acc, data, trkdata, ws, maxChi2ForFirstFit);
         alpaka::syncBlockThreads(acc);
         if (doSplit) {
-          splitVertices(acc, pdata, ptrkdata, pws, maxChi2ForSplit);
+          splitVertices(acc, data, trkdata, ws, maxChi2ForSplit);
           alpaka::syncBlockThreads(acc);
-          fitVertices(acc, pdata, ptrkdata, pws, maxChi2ForFinalFit);
+          fitVertices(acc, data, trkdata, ws, maxChi2ForFinalFit);
           alpaka::syncBlockThreads(acc);
         }
-        sortByPt2(acc, pdata, ptrkdata, pws);
+        sortByPt2(acc, data, trkdata, ws);
       }
     };
 #else
@@ -101,25 +105,26 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     public:
       template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
       ALPAKA_FN_ACC void operator()(const TAcc& acc,
-                                    VtxSoAView pdata,
-                                    WsSoAView pws,
+                                    VtxSoAView data,
+                                    WsSoAView ws,
                                     int minT,      // min number of neighbours to be "seed"
                                     float eps,     // max absolute distance to cluster
                                     float errmax,  // max error to be "seed"
                                     float chi2max  // max normalized distance to cluster,
       ) const {
-        clusterTracksByDensity(pdata, pws, minT, eps, errmax, chi2max);
+        clusterTracksByDensity(acc, data, ws, minT, eps, errmax, chi2max);
         alpaka::syncBlockThreads(acc);
-        fitVertices(pdata, pws, maxChi2ForFirstFit);
+        fitVertices(acc, data, ws, maxChi2ForFirstFit);
       }
     };
+
     class VertexFinderKernel2 {
     public:
       template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-      ALPAKA_FN_ACC void operator()(const TAcc& acc, VtxSoAView pdata, WsSoAView pws) const {
-        fitVertices(pdata, pws, maxChi2ForFinalFit);
+      ALPAKA_FN_ACC void operator()(const TAcc& acc, VtxSoAView data, WsSoAView ws) const {
+        fitVertices(acc, data, ws, maxChi2ForFinalFit);
         alpaka::syncBlockThreads(acc);
-        sortByPt2(pdata, pws);
+        sortByPt2(data, ws);
       }
     };
 #endif
@@ -135,15 +140,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 #endif  // PIXVERTEX_DEBUG_PRODUCE
       const auto maxTracks = tracks_view.metadata().size();
       ZVertexSoACollection vertices({{maxVertices, maxTracks}}, queue);
-      auto soa = vertices.view();
-      auto trksoa = vertices.view<reco::ZVertexTracksSoA>();
+      auto data = vertices.view();
+      auto trkdata = vertices.view<reco::ZVertexTracksSoA>();
 
       PixelVertexWorkSpaceSoADevice workspace(maxTracks, queue);
       auto ws = workspace.view();
 
       // Initialize
       const auto initWorkDiv = cms::alpakatools::make_workdiv<Acc1D>(1, 1);
-      alpaka::exec<Acc1D>(queue, initWorkDiv, Init{}, soa, ws);
+      alpaka::exec<Acc1D>(queue, initWorkDiv, Init{}, data, ws);
 
       // Load Tracks
       const uint32_t blockSize = 128;
@@ -151,7 +156,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           cms::alpakatools::divide_up_by(tracks_view.metadata().size() + blockSize - 1, blockSize);
       const auto loadTracksWorkDiv = cms::alpakatools::make_workdiv<Acc1D>(numberOfBlocks, blockSize);
       alpaka::exec<Acc1D>(
-          queue, loadTracksWorkDiv, LoadTracks<TrackerTraits>{}, tracks_view, soa, trksoa, ws, ptMin, ptMax);
+          queue, loadTracksWorkDiv, LoadTracks<TrackerTraits>{}, tracks_view, data, trkdata, ws, ptMin, ptMax);
 
       // Running too many thread lead to problems when printf is enabled.
       const auto finderSorterWorkDiv = cms::alpakatools::make_workdiv<Acc1D>(1, 1024 - 128);
@@ -163,8 +168,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         alpaka::exec<Acc1D>(queue,
                             finderSorterWorkDiv,
                             VertexFinderOneKernel{},
-                            soa,
-                            trksoa,
+                            data,
+                            trkdata,
                             ws,
                             doSplitting_,
                             minT,
@@ -173,34 +178,34 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                             chi2max);
 #else
         alpaka::exec<Acc1D>(
-            queue, finderSorterWorkDiv, VertexFinderOneKernel{}, soa, trksoa, ws, minT, eps, errmax, chi2max);
+            queue, finderSorterWorkDiv, VertexFinderOneKernel{}, data, trkdata, ws, minT, eps, errmax, chi2max);
 
         // one block per vertex...
         if (doSplitting_)
-          alpaka::exec<Acc1D>(queue, splitterFitterWorkDiv, SplitVerticesKernel{}, soa, trksoa, ws, maxChi2ForSplit);
-        alpaka::exec<Acc1D>(queue, finderSorterWorkDiv{}, soa, ws);
+          alpaka::exec<Acc1D>(queue, splitterFitterWorkDiv, SplitVerticesKernel{}, data, trkdata, ws, maxChi2ForSplit);
+        alpaka::exec<Acc1D>(queue, finderSorterWorkDiv{}, data, ws);
 #endif
       } else {  // five kernels
         if (useDensity_) {
           alpaka::exec<Acc1D>(
-              queue, finderSorterWorkDiv, ClusterTracksByDensityKernel{}, soa, trksoa, ws, minT, eps, errmax, chi2max);
+              queue, finderSorterWorkDiv, ClusterTracksByDensityKernel{}, data, trkdata, ws, minT, eps, errmax, chi2max);
 
         } else if (useDBSCAN_) {
           alpaka::exec<Acc1D>(
-              queue, finderSorterWorkDiv, ClusterTracksDBSCAN{}, soa, trksoa, ws, minT, eps, errmax, chi2max);
+              queue, finderSorterWorkDiv, ClusterTracksDBSCAN{}, data, trkdata, ws, minT, eps, errmax, chi2max);
         } else if (useIterative_) {
           alpaka::exec<Acc1D>(
-              queue, finderSorterWorkDiv, ClusterTracksIterative{}, soa, trksoa, ws, minT, eps, errmax, chi2max);
+              queue, finderSorterWorkDiv, ClusterTracksIterative{}, data, trkdata, ws, minT, eps, errmax, chi2max);
         }
-        alpaka::exec<Acc1D>(queue, finderSorterWorkDiv, FitVerticesKernel{}, soa, trksoa, ws, maxChi2ForFirstFit);
+        alpaka::exec<Acc1D>(queue, finderSorterWorkDiv, FitVerticesKernel{}, data, trkdata, ws, maxChi2ForFirstFit);
 
         // one block per vertex...
         if (doSplitting_) {
-          alpaka::exec<Acc1D>(queue, splitterFitterWorkDiv, SplitVerticesKernel{}, soa, trksoa, ws, maxChi2ForSplit);
+          alpaka::exec<Acc1D>(queue, splitterFitterWorkDiv, SplitVerticesKernel{}, data, trkdata, ws, maxChi2ForSplit);
 
-          alpaka::exec<Acc1D>(queue, finderSorterWorkDiv, FitVerticesKernel{}, soa, trksoa, ws, maxChi2ForFinalFit);
+          alpaka::exec<Acc1D>(queue, finderSorterWorkDiv, FitVerticesKernel{}, data, trkdata, ws, maxChi2ForFinalFit);
         }
-        alpaka::exec<Acc1D>(queue, finderSorterWorkDiv, SortByPt2Kernel{}, soa, trksoa, ws);
+        alpaka::exec<Acc1D>(queue, finderSorterWorkDiv, SortByPt2Kernel{}, data, trkdata, ws);
       }
 
       return vertices;
