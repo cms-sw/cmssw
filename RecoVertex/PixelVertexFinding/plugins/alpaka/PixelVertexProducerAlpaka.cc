@@ -42,6 +42,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     const Algo algo_;
 
+    // Maximum number of vertices that will be reconstructed
+    const int maxVertices_;
+
     // Tracking cuts before sending tracks to vertex algo
     const float ptMin_;
     const float ptMax_;
@@ -61,6 +64,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
               conf.getParameter<double>("eps"),
               conf.getParameter<double>("errmax"),
               conf.getParameter<double>("chi2max")),
+        maxVertices_(conf.getParameter<int>("maxVertices")),
         ptMin_(conf.getParameter<double>("PtMin")),  // 0.5 GeV
         ptMax_(conf.getParameter<double>("PtMax")),  // 75. Onsumes
         tokenDeviceTrack_(consumes(conf.getParameter<edm::InputTag>("pixelTrackSrc"))),
@@ -83,6 +87,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     desc.add<double>("errmax", 0.01);  // max error to be "seed"
     desc.add<double>("chi2max", 9.);   // max normalized distance to cluster
 
+    desc.add<int>("maxVertices", 1024);
     desc.add<double>("PtMin", 0.5);
     desc.add<double>("PtMax", 75.);
     desc.add<edm::InputTag>("pixelTrackSrc", edm::InputTag("pixelTracksAlpaka"));
@@ -96,7 +101,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                                          const device::EventSetup& iSetup) const {
     auto const& hTracks = iEvent.get(tokenDeviceTrack_);
 
-    iEvent.emplace(tokenDeviceVertex_, algo_.makeAsync(iEvent.queue(), hTracks.view(), ptMin_, ptMax_));
+    iEvent.emplace(tokenDeviceVertex_, algo_.makeAsync(iEvent.queue(), hTracks.view(), maxVertices_, ptMin_, ptMax_));
   }
 
   using PixelVertexProducerAlpakaPhase1 = PixelVertexProducerAlpaka<pixelTopology::Phase1>;

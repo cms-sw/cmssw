@@ -13,7 +13,6 @@
   <class name="portablecollection::CollectionLeaf<1, reco::ZVertexTracksLayout<128, false>>"/>
 
   <!-- Collection declaration for dictionary -->
-  <class name="ZVertexHostSoABase"/>
   <class name="ZVertexHost"/>
   <class name="edm::Wrapper<ZVertexHost>" splitLevel="0"/>
 </lcgdict>

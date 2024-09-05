@@ -126,22 +126,24 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     template <typename TrackerTraits>
     ZVertexSoACollection Producer<TrackerTraits>::makeAsync(Queue& queue,
-                                                            const reco::TrackSoAConstView<TrackerTraits>& tracks_view,
+                                                            reco::TrackSoAConstView<TrackerTraits> const& tracks_view,
+                                                            int maxVertices,
                                                             float ptMin,
                                                             float ptMax) const {
 #ifdef PIXVERTEX_DEBUG_PRODUCE
       std::cout << "producing Vertices on GPU" << std::endl;
 #endif  // PIXVERTEX_DEBUG_PRODUCE
-      ZVertexSoACollection vertices(queue);
-
+      const auto maxTracks = tracks_view.metadata().size();
+      ZVertexSoACollection vertices({{maxVertices, maxTracks}}, queue);
       auto soa = vertices.view();
       auto trksoa = vertices.view<reco::ZVertexTracksSoA>();
 
-      auto ws_d = PixelVertexWorkSpaceSoADevice(::zVertex::MAXTRACKS, queue);
+      PixelVertexWorkSpaceSoADevice workspace(maxTracks, queue);
+      auto ws = workspace.view();
 
       // Initialize
       const auto initWorkDiv = cms::alpakatools::make_workdiv<Acc1D>(1, 1);
-      alpaka::exec<Acc1D>(queue, initWorkDiv, Init{}, soa, ws_d.view());
+      alpaka::exec<Acc1D>(queue, initWorkDiv, Init{}, soa, ws);
 
       // Load Tracks
       const uint32_t blockSize = 128;
@@ -149,7 +151,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           cms::alpakatools::divide_up_by(tracks_view.metadata().size() + blockSize - 1, blockSize);
       const auto loadTracksWorkDiv = cms::alpakatools::make_workdiv<Acc1D>(numberOfBlocks, blockSize);
       alpaka::exec<Acc1D>(
-          queue, loadTracksWorkDiv, LoadTracks<TrackerTraits>{}, tracks_view, soa, trksoa, ws_d.view(), ptMin, ptMax);
+          queue, loadTracksWorkDiv, LoadTracks<TrackerTraits>{}, tracks_view, soa, trksoa, ws, ptMin, ptMax);
 
       // Running too many thread lead to problems when printf is enabled.
       const auto finderSorterWorkDiv = cms::alpakatools::make_workdiv<Acc1D>(1, 1024 - 128);
@@ -163,7 +165,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                             VertexFinderOneKernel{},
                             soa,
                             trksoa,
-                            ws_d.view(),
+                            ws,
                             doSplitting_,
                             minT,
                             eps,
@@ -171,46 +173,34 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                             chi2max);
 #else
         alpaka::exec<Acc1D>(
-            queue, finderSorterWorkDiv, VertexFinderOneKernel{}, soa, trksoa, ws_d.view(), minT, eps, errmax, chi2max);
+            queue, finderSorterWorkDiv, VertexFinderOneKernel{}, soa, trksoa, ws, minT, eps, errmax, chi2max);
 
         // one block per vertex...
         if (doSplitting_)
-          alpaka::exec<Acc1D>(
-              queue, splitterFitterWorkDiv, SplitVerticesKernel{}, soa, trksoa, ws_d.view(), maxChi2ForSplit);
-        alpaka::exec<Acc1D>(queue, finderSorterWorkDiv{}, soa, ws_d.view());
+          alpaka::exec<Acc1D>(queue, splitterFitterWorkDiv, SplitVerticesKernel{}, soa, trksoa, ws, maxChi2ForSplit);
+        alpaka::exec<Acc1D>(queue, finderSorterWorkDiv{}, soa, ws);
 #endif
       } else {  // five kernels
         if (useDensity_) {
-          alpaka::exec<Acc1D>(queue,
-                              finderSorterWorkDiv,
-                              ClusterTracksByDensityKernel{},
-                              soa,
-                              trksoa,
-                              ws_d.view(),
-                              minT,
-                              eps,
-                              errmax,
-                              chi2max);
+          alpaka::exec<Acc1D>(
+              queue, finderSorterWorkDiv, ClusterTracksByDensityKernel{}, soa, trksoa, ws, minT, eps, errmax, chi2max);
 
         } else if (useDBSCAN_) {
           alpaka::exec<Acc1D>(
-              queue, finderSorterWorkDiv, ClusterTracksDBSCAN{}, soa, trksoa, ws_d.view(), minT, eps, errmax, chi2max);
+              queue, finderSorterWorkDiv, ClusterTracksDBSCAN{}, soa, trksoa, ws, minT, eps, errmax, chi2max);
         } else if (useIterative_) {
           alpaka::exec<Acc1D>(
-              queue, finderSorterWorkDiv, ClusterTracksIterative{}, soa, trksoa, ws_d.view(), minT, eps, errmax, chi2max);
+              queue, finderSorterWorkDiv, ClusterTracksIterative{}, soa, trksoa, ws, minT, eps, errmax, chi2max);
         }
-        alpaka::exec<Acc1D>(
-            queue, finderSorterWorkDiv, FitVerticesKernel{}, soa, trksoa, ws_d.view(), maxChi2ForFirstFit);
+        alpaka::exec<Acc1D>(queue, finderSorterWorkDiv, FitVerticesKernel{}, soa, trksoa, ws, maxChi2ForFirstFit);
 
         // one block per vertex...
         if (doSplitting_) {
-          alpaka::exec<Acc1D>(
-              queue, splitterFitterWorkDiv, SplitVerticesKernel{}, soa, trksoa, ws_d.view(), maxChi2ForSplit);
+          alpaka::exec<Acc1D>(queue, splitterFitterWorkDiv, SplitVerticesKernel{}, soa, trksoa, ws, maxChi2ForSplit);
 
-          alpaka::exec<Acc1D>(
-              queue, finderSorterWorkDiv, FitVerticesKernel{}, soa, trksoa, ws_d.view(), maxChi2ForFinalFit);
+          alpaka::exec<Acc1D>(queue, finderSorterWorkDiv, FitVerticesKernel{}, soa, trksoa, ws, maxChi2ForFinalFit);
         }
-        alpaka::exec<Acc1D>(queue, finderSorterWorkDiv, SortByPt2Kernel{}, soa, trksoa, ws_d.view());
+        alpaka::exec<Acc1D>(queue, finderSorterWorkDiv, SortByPt2Kernel{}, soa, trksoa, ws);
       }
 
       return vertices;

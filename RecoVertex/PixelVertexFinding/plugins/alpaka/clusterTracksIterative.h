@@ -7,7 +7,6 @@
 
 #include <alpaka/alpaka.hpp>
 
-#include "DataFormats/VertexSoA/interface/ZVertexDefinitions.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/HistoContainer.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
@@ -73,11 +72,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             printf("booked hist with %d bins, size %d for %d tracks\n", hist.nbins(), hist.capacity(), nt);
         }
 
+        ALPAKA_ASSERT_ACC(static_cast<int>(nt) <= std::numeric_limits<Hist::index_type>::max());
         ALPAKA_ASSERT_ACC(static_cast<int>(nt) <= hist.capacity());
+        ALPAKA_ASSERT_ACC(static_cast<int>(nt) <= ws.metadata().size());
+        ALPAKA_ASSERT_ACC(static_cast<int>(nt) <= trkdata.metadata().size());
 
         // fill hist  (bin shall be wider than "eps")
         for (auto i : cms::alpakatools::uniform_elements(acc, nt)) {
-          ALPAKA_ASSERT_ACC(i < ::zVertex::MAXTRACKS);
           int iz = int(zt[i] * 10.);  // valid if eps<=0.1
           iz = std::clamp(iz, INT8_MIN, INT8_MAX);
           izt[i] = iz - INT8_MIN;
@@ -206,7 +207,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         }
         alpaka::syncBlockThreads(acc);
 
-        ALPAKA_ASSERT_ACC(foundClusters < ::zVertex::MAXVTX);
+        ALPAKA_ASSERT_ACC(static_cast<int>(foundClusters) < data.metadata().size());
 
         // propagate the negative id to all the tracks in the cluster.
         for (auto i : cms::alpakatools::uniform_elements(acc, nt)) {

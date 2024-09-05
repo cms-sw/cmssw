@@ -75,11 +75,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::vertexFinder {
           printf("booked hist with %d bins, size %d for %d tracks\n", hist.nbins(), hist.capacity(), nt);
       }
 
+      ALPAKA_ASSERT_ACC(static_cast<int>(nt) <= std::numeric_limits<Hist::index_type>::max());
       ALPAKA_ASSERT_ACC(static_cast<int>(nt) <= hist.capacity());
+      ALPAKA_ASSERT_ACC(static_cast<int>(nt) <= ws.metadata().size());
+      ALPAKA_ASSERT_ACC(static_cast<int>(nt) <= trkdata.metadata().size());
 
       // fill hist  (bin shall be wider than "eps")
       for (auto i : cms::alpakatools::uniform_elements(acc, nt)) {
-        ALPAKA_ASSERT_ACC(i < ::zVertex::MAXTRACKS);
         int iz = int(zt[i] * 10.);  // valid if eps<=0.1
         iz = std::clamp(iz, INT8_MIN, INT8_MAX);
         izt[i] = iz - INT8_MIN;
@@ -97,7 +99,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::vertexFinder {
       alpaka::syncBlockThreads(acc);
       ALPAKA_ASSERT_ACC(hist.size() == nt);
       for (auto i : cms::alpakatools::uniform_elements(acc, nt)) {
-        hist.fill(acc, izt[i], uint32_t(i));
+        hist.fill(acc, izt[i], uint16_t(i));
       }
       alpaka::syncBlockThreads(acc);
 
@@ -234,7 +236,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::vertexFinder {
       }
       alpaka::syncBlockThreads(acc);
 
-      ALPAKA_ASSERT_ACC(foundClusters < ::zVertex::MAXVTX);
+      ALPAKA_ASSERT_ACC(static_cast<int>(foundClusters) < data.metadata().size());
 
       // propagate the negative id to all the tracks in the cluster.
       for (auto i : cms::alpakatools::uniform_elements(acc, nt)) {

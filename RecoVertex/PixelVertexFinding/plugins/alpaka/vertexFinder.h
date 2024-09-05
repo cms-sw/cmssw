@@ -58,7 +58,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::vertexFinder {
 
     ~Producer() = default;
 
-    ZVertexSoACollection makeAsync(Queue &queue, const TkSoAConstView &tracks_view, float ptMin, float ptMax) const;
+    ZVertexSoACollection makeAsync(
+        Queue &queue, TkSoAConstView const &tracks_view, int maxVertices, float ptMin, float ptMax) const;
 
   private:
     const bool oneKernel_;     // run everything (cluster,fit,split,sort) in one kernel. Uses only density clusterizer

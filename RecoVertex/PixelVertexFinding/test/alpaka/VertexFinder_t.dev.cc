@@ -119,10 +119,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     };
 
     void runKernels(Queue& queue) {
-      vertexFinder::PixelVertexWorkSpaceSoADevice ws_d(zVertex::MAXTRACKS, queue);
-      vertexFinder::PixelVertexWorkSpaceSoAHost ws_h(zVertex::MAXTRACKS, queue);
-      ZVertexHost vertices_h(queue);
-      ZVertexSoACollection vertices_d(queue);
+      // Run 3 values, used for testing
+      constexpr uint32_t maxTracks = 32 * 1024;
+      constexpr uint32_t maxVertices = 1024;
+
+      vertexFinder::PixelVertexWorkSpaceSoADevice ws_d(maxTracks, queue);
+      vertexFinder::PixelVertexWorkSpaceSoAHost ws_h(maxTracks, queue);
+      ZVertexHost vertices_h({{maxVertices, maxTracks}}, queue);
+      ZVertexSoACollection vertices_d({{maxVertices, maxTracks}}, queue);
 
       float eps = 0.1f;
       std::array<float, 3> par{{eps, 0.01f, 9.0f}};

@@ -29,7 +29,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::vertexFinder {
   ALPAKA_FN_ACC ALPAKA_FN_INLINE void __attribute__((always_inline)) clusterTracksByDensity(
       const TAcc& acc,
       VtxSoAView& pdata,
-      TrkSoAView ptrkdata,
+      TrkSoAView& ptrkdata,
       WsSoAView& pws,
       int minT,      // min number of neighbours to be "seed"
       float eps,     // max absolute distance to cluster
@@ -79,11 +79,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::vertexFinder {
       if (cms::alpakatools::once_per_block(acc))
         printf("booked hist with %d bins, size %d for %d tracks\n", hist.totbins(), hist.capacity(), nt);
     }
+
+    ALPAKA_ASSERT_ACC(static_cast<int>(nt) <= std::numeric_limits<Hist::index_type>::max());
     ALPAKA_ASSERT_ACC(static_cast<int>(nt) <= hist.capacity());
+    ALPAKA_ASSERT_ACC(static_cast<int>(nt) <= ws.metadata().size());
+    ALPAKA_ASSERT_ACC(static_cast<int>(nt) <= trkdata.metadata().size());
 
     // fill hist  (bin shall be wider than "eps")
     for (auto i : cms::alpakatools::uniform_elements(acc, nt)) {
-      ALPAKA_ASSERT_ACC(i < ::zVertex::MAXTRACKS);
       int iz = int(zt[i] * 10.);  // valid if eps<=0.1
       // iz = std::clamp(iz, INT8_MIN, INT8_MAX);  // sorry c++17 only
       iz = std::min(std::max(iz, INT8_MIN), INT8_MAX);
@@ -214,7 +217,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::vertexFinder {
     }
     alpaka::syncBlockThreads(acc);
 
-    ALPAKA_ASSERT_ACC(foundClusters < ::zVertex::MAXVTX);
+    ALPAKA_ASSERT_ACC(static_cast<int>(foundClusters) < data.metadata().size());
 
     // propagate the negative id to all the tracks in the cluster.
     for (auto i : cms::alpakatools::uniform_elements(acc, nt)) {
