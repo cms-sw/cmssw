@@ -215,7 +215,7 @@ namespace {
           std::cout << ss.str() << std::endl;
 
         }  // payload
-      }    // iovs
+      }  // iovs
       return true;
     }  // fill
   private:
@@ -414,9 +414,9 @@ namespace {
               //to be used to fill the histogram
               fillWithValue(ped);
             }  // loop over APVs
-          }    // loop over detIds
-        }      // payload
-      }        // iovs
+          }  // loop over detIds
+        }  // payload
+      }  // iovs
       return true;
     }  // fill
   };
@@ -452,8 +452,8 @@ namespace {
             //to be used to fill the histogram
             fillWithValue(noise);
           }  // loop over APVs
-        }    // payload
-      }      // iovs
+        }  // payload
+      }  // iovs
       return true;
     }  // fill
   };

@@ -176,8 +176,8 @@ namespace AlignPCLThresholdPlotHelper {
 
             yBin--;
           }  // loop on types
-        }    // loop on coordinates
-      }      // loop on alignables
+        }  // loop on coordinates
+      }  // loop on alignables
 
       Thresholds->GetXaxis()->LabelsOption(isHighGranularity_ ? "v" : "h");
       Thresholds->Draw("TEXT");
@@ -378,8 +378,8 @@ namespace AlignPCLThresholdPlotHelper {
 
             yBin--;
           }  // loop on types
-        }    // loop on coordinates
-      }      // loop on alignables
+        }  // loop on coordinates
+      }  // loop on alignables
 
       ThresholdsColor->Draw("COLZ0");
       ThresholdsColor->GetXaxis()->LabelsOption(isHighGranularity_ ? "v" : "h");

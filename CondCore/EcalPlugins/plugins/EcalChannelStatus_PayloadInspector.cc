@@ -64,7 +64,7 @@ namespace {
             ebmap_coarse->Fill(phi, eta);
           }
         }  // loop over cellid
-      }    // if payload.get()
+      }  // if payload.get()
       else
         return false;
 
@@ -181,7 +181,7 @@ namespace {
                   }
                 }
               }  // validDetId
-      }          // payload
+      }  // payload
 
       gStyle->SetOptStat(0);
       //set the background color to white
@@ -337,7 +337,7 @@ namespace {
               }
             }
           }  // loop over cellid
-        }    // if payload.get()
+        }  // if payload.get()
         else
           return false;
       }  // loop over IOV's
@@ -489,11 +489,11 @@ namespace {
                         eecount++;
                         eemap_coarse->Fill(ix + IX_MAX - 1, iy - 1, tmp3);
                       }  // z side
-                    }    //  any difference ?
-                  }      //   2nd IOV, fill the plots
-                }        //    validDetId
-        }                //     get the payload
-      }                  //      loop over payloads
+                    }  //  any difference ?
+                  }  //   2nd IOV, fill the plots
+                }  //    validDetId
+        }  //     get the payload
+      }  //      loop over payloads
 
       gStyle->SetOptStat(0);
       //set the background color to white

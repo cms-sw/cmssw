@@ -28,9 +28,9 @@ namespace cond {
     // implicit copy constructor
     // implicit assignment operator
     // implicit destructor
-    void beginJob() final{};
-    void beginRun(edm::Run const&, edm::EventSetup const&) final{};
-    void analyze(edm::Event const&, edm::EventSetup const&) final{};
+    void beginJob() final {}
+    void beginRun(edm::Run const&, edm::EventSetup const&) final {}
+    void analyze(edm::Event const&, edm::EventSetup const&) final {}
     void endRun(edm::Run const& run, edm::EventSetup const& eventSetup) final {
       edm::ESHandle<RunInfo> runInfoHandle = eventSetup.getHandle(m_RunInfoToken);
       edm::ESHandle<T> payloadHandle, payloadRefHandle;
@@ -69,7 +69,7 @@ namespace cond {
         edm::LogError("BTransitionAnalyzer") << "PoolDBOutputService unavailable";
       }
     }
-    void endJob() final{};
+    void endJob() final {}
     virtual bool equalPayloads(edm::ESHandle<T> const& payloadHandle, edm::ESHandle<T> const& payloadRefHandle) = 0;
 
   private:

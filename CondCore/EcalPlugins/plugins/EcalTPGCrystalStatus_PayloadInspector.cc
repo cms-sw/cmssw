@@ -78,9 +78,9 @@ namespace {
                   EEstat[0]++;
               }
             }  // iy
-          }    // ix
-        }      // side
-      }        // payload
+          }  // ix
+        }  // side
+      }  // payload
 
       gStyle->SetPalette(1);
       gStyle->SetOptStat(0);
@@ -213,9 +213,9 @@ namespace {
                   }
                 }
               }  // iy
-            }    // ix
-          }      // side
-        }        // payload
+            }  // ix
+          }  // side
+        }  // payload
         else
           return false;
       }  // loop over IOVs
@@ -270,7 +270,7 @@ namespace {
       canvas.SaveAs(ImageName.c_str());
       return true;
     }  // fill method
-  };   // class EcalTPGCrystalStatusDiffBase
+  };  // class EcalTPGCrystalStatusDiffBase
   using EcalTPGCrystalStatusDiffOneTag = EcalTPGCrystalStatusDiffBase<cond::payloadInspector::SINGLE_IOV, 1>;
   using EcalTPGCrystalStatusDiffTwoTags = EcalTPGCrystalStatusDiffBase<cond::payloadInspector::SINGLE_IOV, 2>;
 

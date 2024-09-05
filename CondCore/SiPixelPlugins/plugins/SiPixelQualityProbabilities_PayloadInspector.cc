@@ -193,7 +193,7 @@ namespace {
             probVec.emplace_back(pair.first, average);
           }
         }  // if the first PU bin is not 0
-      }    // if we're asking for all the PU bins
+      }  // if we're asking for all the PU bins
 
       TCanvas canvas("Canv", "Canv", 1200, 1000);
       canvas.cd();

@@ -450,12 +450,12 @@ void popcon::EcalPedestalsHandler::getNewObjectsP5() {
           ss << "Run=" << irun << "_WAS_BAD_" << std::endl;
           m_userTextLog = ss.str() + ";";
         }  //  bad run : do not write in DB
-      }    //  SubRunNumber
-    }      // loop over runs
+      }  //  SubRunNumber
+    }  // loop over runs
 
     delete econn;
     delete peds;  // this is the only one that popcon does not delete
-  }               // runs to analyze ?
+  }  // runs to analyze ?
   edm::LogInfo("Ecal - > end of getNewObjects -----------\n");
 }
 
@@ -708,8 +708,8 @@ void popcon::EcalPedestalsHandler::readPedestalFile() {
         item.rms_x12 = EBrms12[hieb];
         ped->insert(std::make_pair(ebdetid.rawId(), item));
       }  // valid EBId
-    }    //  loop over phi
-  }      //   loop over eta
+    }  //  loop over phi
+  }  //   loop over eta
   // endcaps
   //  std::ofstream fout;
   //  fout.open("Pedestal.check");
@@ -729,9 +729,9 @@ void popcon::EcalPedestalsHandler::readPedestalFile() {
           item.rms_x12 = EErms12[hiee];
           ped->insert(std::make_pair(eedetid.rawId(), item));
         }  // val EEId
-      }    //  loop over y
-    }      //   loop over x
-  }        //   loop over z
+      }  //  loop over y
+    }  //   loop over x
+  }  //   loop over z
   //  fout.close();
 
   unsigned int irun = m_firstRun;
@@ -926,7 +926,7 @@ void popcon::EcalPedestalsHandler::readPedestalMC() {
       if (ring == 16)
         fout << "*****  End caps *****     EE-                              EE+" << std::endl;
     }  //  loop over rings
-  }    //  loop over gains
+  }  //  loop over gains
 
   // read also the ring value from Crystal file
 
@@ -984,8 +984,8 @@ void popcon::EcalPedestalsHandler::readPedestalMC() {
           edm::LogInfo(" Channel ") << hieb << " 12 " << item.rms_x12 << " 6 " << item.rms_x6 << " 1 " << item.rms_x1;
         ped->insert(std::make_pair(ebdetid.rawId(), item));
       }  // valid EBId
-    }    //  loop over phi
-  }      //   loop over eta
+    }  //  loop over phi
+  }  //   loop over eta
 
   // endcaps
   for (int iz = -1; iz < 2; iz = iz + 2) {  // z : -1 and +1
@@ -1029,9 +1029,9 @@ void popcon::EcalPedestalsHandler::readPedestalMC() {
           }
           ped->insert(std::make_pair(eedetid.rawId(), item));
         }  // val EEId
-      }    //  loop over y
-    }      //   loop over x
-  }        //   loop over z
+      }  //  loop over y
+    }  //   loop over x
+  }  //   loop over z
   fout.close();
 
   unsigned int irun = m_firstRun;
@@ -1184,8 +1184,8 @@ void popcon::EcalPedestalsHandler::readPedestal2017() {
           item.rms_x12 = previous_ped.rms_x12;
         ped->insert(std::make_pair(ebdetid.rawId(), item));
       }  // valid EBId
-    }    //  loop over phi
-  }      //   loop over eta
+    }  //  loop over phi
+  }  //   loop over eta
   // endcaps
   //  std::ofstream fout;
   //  fout.open("Pedestal.check");
@@ -1229,9 +1229,9 @@ void popcon::EcalPedestalsHandler::readPedestal2017() {
             item.rms_x12 = previous_ped.rms_x12;
           ped->insert(std::make_pair(eedetid.rawId(), item));
         }  // val EEId
-      }    //  loop over y
-    }      //   loop over x
-  }        //   loop over z
+      }  //  loop over y
+    }  //   loop over x
+  }  //   loop over z
   //  fout.close();
 
   unsigned int irun = m_firstRun;
@@ -1630,7 +1630,7 @@ void popcon::EcalPedestalsHandler::readPedestalTree() {
         }
       }
     }  // new run
-  }    // end loop over all entries
+  }  // end loop over all entries
   // write also the last run
   fout << " last entry fill " << fill_num << " run " << runold << " nb of events " << RunEntry << " time " << run_time
        << " " << run_time_stablebeam << " " << time[0] << " run type " << run_type << std::endl;
@@ -2033,7 +2033,7 @@ void popcon::EcalPedestalsHandler::readPedestalTimestamp() {
         }
         fxml.close();
       }  // found a new gain 1 6 file
-    }    // check gain 1 and 6 results only for new runs
+    }  // check gain 1 and 6 results only for new runs
 
     EcalPedestals* pedestal = new EcalPedestals();
     EcalPedestals::Item item;

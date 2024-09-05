@@ -606,8 +606,8 @@ int cond::TestGTPerf::execute() {
         std::cout << "for payload type name: " << payloadTypeName << std::endl;
       }
       timex.deserInt(p->getBufferSize());  // keep track of time vs. size
-    }                                      // single-thread
-    index++;                               // increment index into payloads
+    }  // single-thread
+    index++;  // increment index into payloads
   }
   std::cout << std::endl;
 
