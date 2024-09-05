@@ -437,7 +437,7 @@ void MuonPathSLFitter::analyze(MuonPathPtr &inMPath,
                                                    -1}));
       }
     }  // (fit_common_out.valid_fit == 1)
-  }    // loop in lat_combs
+  }  // loop in lat_combs
   return;
 }
 

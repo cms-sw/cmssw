@@ -26,7 +26,7 @@ public:
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   static std::unique_ptr<tensorflow::SessionCache> initializeGlobalCache(const edm::ParameterSet&);
-  static void globalEndJob(const tensorflow::SessionCache*){};
+  static void globalEndJob(const tensorflow::SessionCache*) {}
 
 private:
   // There is te software and hardware emulator for the tau, default is the Hardware.

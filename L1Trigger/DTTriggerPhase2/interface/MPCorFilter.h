@@ -39,7 +39,7 @@ public:
   void run(edm::Event &iEvent,
            const edm::EventSetup &iEventSetup,
            std::vector<cmsdt::metaPrimitive> &inMPath,
-           std::vector<cmsdt::metaPrimitive> &outMPath) override{};
+           std::vector<cmsdt::metaPrimitive> &outMPath) override {};
   void run(edm::Event &iEvent,
            const edm::EventSetup &iEventSetup,
            std::vector<cmsdt::metaPrimitive> &inSLMPath,
@@ -48,7 +48,7 @@ public:
   void run(edm::Event &iEvent,
            const edm::EventSetup &iEventSetup,
            MuonPathPtrs &inMPath,
-           MuonPathPtrs &outMPath) override{};
+           MuonPathPtrs &outMPath) override {};
 
   void finish() override;
 

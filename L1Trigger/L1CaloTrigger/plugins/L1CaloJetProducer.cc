@@ -1177,7 +1177,7 @@ float L1CaloJetProducer::get_hcal_calibration(float &jet_pt,
       pt_index++;
     }
     calib = calibrationsBarrel[eta_index][em_index][pt_index];
-  }                         // end Barrel
+  }  // end Barrel
   else if (abs_eta <= 3.0)  // HGCal
   {
     // Start loop checking 2nd value
@@ -1201,7 +1201,7 @@ float L1CaloJetProducer::get_hcal_calibration(float &jet_pt,
       pt_index++;
     }
     calib = calibrationsHGCal[eta_index][em_index][pt_index];
-  }     // end HGCal
+  }  // end HGCal
   else  // HF
   {
     // Start loop checking 2nd value
@@ -1283,7 +1283,7 @@ float L1CaloJetProducer::get_tau_pt_calibration(
       pt_index++;
     }
     calib = tauPtCalibrationsBarrel[eta_index][n_L1EG_index][em_index][pt_index];
-  }                         // end Barrel
+  }  // end Barrel
   else if (abs_eta <= 3.0)  // HGCal
   {
     // Start loop checking 1st value

@@ -21,7 +21,7 @@ namespace l1ct {
     // note: this one will work only in CMSSW
     DeregionizerEmulator(const edm::ParameterSet &iConfig);
 
-    ~DeregionizerEmulator(){};
+    ~DeregionizerEmulator() {}
 
     void setDebug(bool debug = true) { debug_ = debug; }
 

@@ -703,7 +703,7 @@ float Phase2L1CaloJetEmulator::get_jet_pt_calibration(const float& jet_pt, const
       pt_index++;
     }
     calib = calibrationsBarrel[eta_index][pt_index];
-  }                         // end Barrel
+  }  // end Barrel
   else if (abs_eta <= 3.0)  // HGCal
   {
     // Start loop checking 2nd value
@@ -719,7 +719,7 @@ float Phase2L1CaloJetEmulator::get_jet_pt_calibration(const float& jet_pt, const
       pt_index++;
     }
     calib = calibrationsHGCal[eta_index][pt_index];
-  }     // end HGCal
+  }  // end HGCal
   else  // HF
   {
     // Start loop checking 2nd value
@@ -766,7 +766,7 @@ float Phase2L1CaloJetEmulator::get_tau_pt_calibration(const float& tau_pt, const
       pt_index++;
     }
     calib = tauPtCalibrationsBarrel[eta_index][pt_index];
-  }                         // end Barrel
+  }  // end Barrel
   else if (abs_eta <= 3.0)  // HGCal
   {
     // Start loop checking 2nd value
