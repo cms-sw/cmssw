@@ -137,7 +137,7 @@ bool HerwigMaxPtPartonFilter::filter(edm::Event& iEvent, const edm::EventSetup&)
             isFSQuark = true;
           }
         }  //end if FS Quark criterion
-      }    //End "Garbage" Cut
+      }  //End "Garbage" Cut
 
       if (isFSQuark) {
         hFSPartons_JS_PtWgting.Fill(
@@ -155,7 +155,7 @@ bool HerwigMaxPtPartonFilter::filter(edm::Event& iEvent, const edm::EventSetup&)
       accepted = true;  //Accept the Event
 
     }  //End Filtering
-  }    //end processId if statement
+  }  //end processId if statement
 
   else {
     accepted = true;
