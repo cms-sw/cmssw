@@ -100,8 +100,7 @@ namespace fwlite {
     // DataGetterHelper caching is enabled. When user sets useCache to
     // false no cache is created unless user attaches and controls it
     // himself.
-    Event(
-        TFile* iFile, bool useCache = true, std::function<void(TBranch const&)> baFunc = [](TBranch const&) {});
+    Event(TFile* iFile, bool useCache = true, std::function<void(TBranch const&)> baFunc = [](TBranch const&) {});
 
     Event(Event const&) = delete;  // stop default
 

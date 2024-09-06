@@ -1131,7 +1131,7 @@ namespace edm {
           }
           moduleIDVector.emplace_back(&engines.back(), moduleID);
         }  // if moduleID valid
-      }    // loop over seedsAndMap
+      }  // loop over seedsAndMap
       std::sort(moduleIDVector.begin(), moduleIDVector.end());
     }
 

@@ -502,7 +502,7 @@ namespace edm {
             }
           }
         }  // end loop over components used by record
-      }    // end loop over records
+      }  // end loop over records
 
       // Loop over candidates
       for (auto const& candidate : candidateNotRejectedYet) {

@@ -24,5 +24,5 @@ namespace edm {
       template class LuminosityBlockWatcher<edm::one::EDAnalyzerBase>;
       template class WatchProcessBlock<edm::one::EDAnalyzerBase>;
     }  // namespace impl
-  }    // namespace one
+  }  // namespace one
 }  // namespace edm

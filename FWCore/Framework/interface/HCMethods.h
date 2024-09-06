@@ -69,6 +69,6 @@ namespace edm {
         return static_cast<ItemType*>(iStorage.find(makeKey<typename type_from_itemtype<Key, ItemType>::Type, Key>()));
       }
     }  // namespace heterocontainer
-  }    // namespace eventsetup
+  }  // namespace eventsetup
 }  // namespace edm
 #endif
