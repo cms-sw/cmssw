@@ -431,7 +431,6 @@ CaloGeometryDBEP<ZdcGeometry, CaloGeometryDBWriter>::produceAligned(const typena
   return ptr;
 }
 
-
 template class CaloGeometryDBEP<EcalBarrelGeometry, CaloGeometryDBWriter>;
 template class CaloGeometryDBEP<EcalEndcapGeometry, CaloGeometryDBWriter>;
 template class CaloGeometryDBEP<EcalPreshowerGeometry, CaloGeometryDBWriter>;

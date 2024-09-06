@@ -12,8 +12,7 @@ DEFINE_FWK_EVENTSETUP_MODULE(CastorGeometryFromDBEP);
 
 template <>
 CaloGeometryDBEP<ZdcGeometry, CaloGeometryDBReader>::PtrType
-CaloGeometryDBEP<ZdcGeometry, CaloGeometryDBReader>::produceAligned(
-    const typename ZdcGeometry::AlignedRecord& iRecord) {
+CaloGeometryDBEP<ZdcGeometry, CaloGeometryDBReader>::produceAligned(const typename ZdcGeometry::AlignedRecord& iRecord) {
   const auto [alignPtr, globalPtr] = getAlignGlobal(iRecord);
 
   TrVec tvec;
@@ -95,8 +94,7 @@ CaloGeometryDBEP<ZdcGeometry, CaloGeometryDBReader>::produceAligned(
     const ROOT::Math::Transform3D rt(ea, tl);
     double xx, xy, xz, dx, yx, yy, yz, dy, zx, zy, zz, dz;
     rt.GetComponents(xx, xy, xz, dx, yx, yy, yz, dy, zx, zy, zz, dz);
-    tr = Tr3D(CLHEP::HepRep3x3(xx, xy, xz, yx, yy, yz, zx, zy, zz), CLHEP::Hep3Vector(dx
-, dy, dz));
+    tr = Tr3D(CLHEP::HepRep3x3(xx, xy, xz, yx, yy, yz, zx, zy, zz), CLHEP::Hep3Vector(dx, dy, dz));
 
     // now prepend alignment(s) for final transform
     const Tr3D atr(nullptr == at ? tr
