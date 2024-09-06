@@ -56,6 +56,12 @@ public:
   uint32_t kSizeForDenseIndexing() const;
   bool validDenseIndex(uint32_t din) const { return (din < kSizeForDenseIndexing()); }
 
+  DetId denseId2detId(uint32_t di) { return static_cast<DetId>(HcalZDCDetId::detIdFromDenseIndex(di)); }
+  uint32_t detIdFromDenseIndex(const DetId& id) {
+    HcalZDCDetId detId(id);
+    return detId.denseIndex();
+  }
+
 private:
   bool validRaw(const HcalZDCDetId& id) const;
 
