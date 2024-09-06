@@ -10,9 +10,9 @@
 class EcalBarrelHardcodedTopology final : public CaloSubdetectorTopology {
 public:
   /// create a new Topology
-  EcalBarrelHardcodedTopology(){};
+  EcalBarrelHardcodedTopology() {}
 
-  ~EcalBarrelHardcodedTopology() override{};
+  ~EcalBarrelHardcodedTopology() override {}
 
   /// move the Topology north (increment iphi)
   DetId goNorth(const DetId& id) const override { return incrementIphi(EBDetId(id)); }

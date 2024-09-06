@@ -14,7 +14,7 @@
 class ESElectronicsMapper {
 public:
   ESElectronicsMapper(const edm::ParameterSet& ps);
-  ~ESElectronicsMapper(){};
+  ~ESElectronicsMapper() {}
 
   int getFED(const ESDetId& id);
   int getFED(int zside, int plane, int x, int y);

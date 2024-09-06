@@ -40,7 +40,7 @@ public:
 
   CaloGeometryBuilder(const edm::ParameterSet& iConfig);
 
-  ~CaloGeometryBuilder() override{};
+  ~CaloGeometryBuilder() override {}
 
   ReturnType produceAligned(const CaloGeometryRecord& iRecord);
 

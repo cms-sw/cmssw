@@ -24,7 +24,7 @@ public:
    */
 
   MuonSubDetector(const std::string& name);
-  ~MuonSubDetector(){};
+  ~MuonSubDetector() {}
 
   bool isBarrel();
   bool isEndcap();
