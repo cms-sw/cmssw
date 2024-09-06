@@ -88,8 +88,8 @@ public:
   public:
     //      inSegment(const CaloSegment & ref):segment_(ref){;};
     inX0Segment(double depth)
-        : ref_(depth){
-              //std::cout << "inSegment " << std::endl;
+        : ref_(depth) {
+            //std::cout << "inSegment " << std::endl;
           };
     ~inX0Segment() { ; };
     // in X0 !!!
@@ -110,8 +110,8 @@ public:
   public:
     //      inSegment(const CaloSegment & ref):segment_(ref){;};
     inL0Segment(double depth)
-        : ref_(depth){
-              //std::cout << "inSegment " << std::endl;
+        : ref_(depth) {
+            //std::cout << "inSegment " << std::endl;
           };
     ~inL0Segment() { ; };
     // in X0 !!!
@@ -132,8 +132,8 @@ public:
   public:
     //      inSegment(const CaloSegment & ref):segment_(ref){;};
     inSegment(double depth)
-        : ref_(depth){
-              //std::cout << "inSegment " << std::endl;
+        : ref_(depth) {
+            //std::cout << "inSegment " << std::endl;
           };
     ~inSegment() { ; };
     // in X0 !!!

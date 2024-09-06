@@ -17,7 +17,7 @@ class TH1F;
 class TH2F;
 class SimpleHistogramGenerator {
 public:
-  SimpleHistogramGenerator(TH1F* hist) : hist_(hist){};
+  SimpleHistogramGenerator(TH1F* hist) : hist_(hist) {}
 
 private:
   TH1F* hist_;  // we don't own it
