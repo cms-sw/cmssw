@@ -18,13 +18,9 @@
 #include "DataFormats/GEMDigi/interface/GEMOHStatusCollection.h"
 #include "DataFormats/GEMDigi/interface/GEMAMCStatusCollection.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
-
+#include "DataFormats/GeometrySurface/interface/TrapezoidalPlaneBounds.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
-
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "DataFormats/GeometryCommonDetAlgo/interface/ErrorFrameTransformer.h"
 
 class GEMTnPEfficiencyTask : public BaseTnPEfficiencyTask {
 public:
@@ -33,10 +29,7 @@ public:
   uint16_t maskChamberWithError(const GEMDetId& chamber_id,
                                 const GEMOHStatusCollection*,
                                 const GEMVFATStatusCollection*);
-  bool checkBounds(const Plane& plane,
-                                        const GlobalPoint& global_point,
-                                        const LocalError& local_error,
-                                        const float scale);
+  bool checkBounds(const GeomDet* geomDet, const GlobalPoint& global_position, const float bordercut);
   /// Destructor
   ~GEMTnPEfficiencyTask() override;
 
@@ -65,7 +58,8 @@ GEMTnPEfficiencyTask::GEMTnPEfficiencyTask(const edm::ParameterSet& config)
       m_GEMAMCStatusCollectionToken_(
           consumes<GEMAMCStatusCollection>(config.getUntrackedParameter<edm::InputTag>("amcStatusTag"))) {
   LogTrace("DQMOffline|MuonDPG|GEMTnPEfficiencyTask") << "[GEMTnPEfficiencyTask]: Constructor" << std::endl;
-  muon_service_ = std::make_unique<MuonServiceProxy>(config.getParameter<edm::ParameterSet>("ServiceParameters"), consumesCollector());
+  muon_service_ = std::make_unique<MuonServiceProxy>(config.getParameter<edm::ParameterSet>("ServiceParameters"),
+                                                     consumesCollector());
 }
 
 GEMTnPEfficiencyTask::~GEMTnPEfficiencyTask() {
@@ -1295,6 +1289,7 @@ void GEMTnPEfficiencyTask::bookHistograms(DQMStore::IBooker& iBooker,
   m_histos["Cham_x_ME0"] = iBooker.book1D("Cham_x_ME0", "Cham_x;probe x [cm];Events", 100, -10., 10.);
   m_histos["Cham_x_GE1"] = iBooker.book1D("Cham_x_GE1", "Cham_x;probe x [cm];Events", 100, -10., 10.);
   m_histos["Cham_x_GE2"] = iBooker.book1D("Cham_x_GE2", "Cham_x;probe x [cm];Events", 100, -10., 10.);
+  m_histos["xyErr_GE1"] = iBooker.book2D("xyErr_GE1", "xyErr_GE1", 50, 0., 5., 50, 0., 5.);
 }
 
 uint16_t GEMTnPEfficiencyTask::maskChamberWithError(const GEMDetId& chamber_id,
@@ -1329,13 +1324,22 @@ uint16_t GEMTnPEfficiencyTask::maskChamberWithError(const GEMDetId& chamber_id,
   return oh_warning;
 }
 
-bool GEMTnPEfficiencyTask::checkBounds(const Plane& plane,
-                                          const GlobalPoint& global_point,
-                                          const LocalError& local_error,
-                                          const float scale) {
-  const LocalPoint local_point = plane.toLocal(global_point);
-  const LocalPoint local_point_2d{local_point.x(), local_point.y(), 0.0f};
-  return plane.bounds().inside(local_point_2d, local_error, scale);
+bool GEMTnPEfficiencyTask::checkBounds(const GeomDet* geomDet,
+                                       const GlobalPoint& global_position,
+                                       const float bordercut) {
+  const TrapezoidalPlaneBounds* bounds = dynamic_cast<const TrapezoidalPlaneBounds*>(&geomDet->surface().bounds());
+  LocalPoint localPoint = geomDet->surface().toLocal(global_position);
+  float wideWidth = bounds->width();
+  float narrowWidth = 2.f * bounds->widthAtHalfLength() - wideWidth;
+  float length = bounds->length();
+  float tangent = (wideWidth - narrowWidth) / (2.f * length);
+  float halfWidthAtY = tangent * localPoint.y() + 0.25f * (narrowWidth + wideWidth);
+  float distanceY = std::abs(localPoint.y()) - 0.5f * length;
+  float distanceX = std::abs(localPoint.x()) - halfWidthAtY;
+  if (distanceX < bordercut && distanceY < bordercut) {
+    return true;
+  }
+  return false;
 }
 
 void GEMTnPEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetup& context) {
@@ -1469,25 +1473,19 @@ void GEMTnPEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetu
           int ieta = 0;
           GEM_stationMatching = GEM_stationMatching | (1 << station);
 
-          //const GeomDet* geomDet = tGeom.idToDet(chId);
           const GeomDet* geomDet = muon_service_->trackingGeometry()->idToDet(chId);
-          
-          // edm::ESHandle<GlobalTrackingGeometry> tracking_geom = muon_service_->trackingGeometry();
-          // const GeomDet* geomDet = tracking_geom->idToDet(chId);
-          
-          LocalPoint pos(chambMatch.x,chambMatch.y);
-          LocalError err(chambMatch.xErr, 0, chambMatch.yErr); // We don't have xy error in ChamberMatch
+          LocalPoint pos(chambMatch.x, chambMatch.y);
 
-          const GlobalPoint& global_point = geomDet->toGlobal(pos);
-          
+          const GlobalPoint& global_position = geomDet->toGlobal(pos);
+
           if (const GEMChamber* gemChamber = dynamic_cast<const GEMChamber*>(geomDet)) {
             for (const GEMEtaPartition* eta_partition : gemChamber->etaPartitions())
-                if (checkBounds(eta_partition->surface(), global_point, err, 2)) {
-                  ieta = eta_partition->id().ieta();
-                  break;
-                }
+              if (checkBounds(eta_partition, global_position, m_borderCut)) {
+                ieta = eta_partition->id().ieta();
+                break;
+              }
           }
-          
+
           if (station == 1 || station == 2) {
             reco::MuonGEMHitMatch closest_matchedHit;
             double smallestDx = 99999.;
@@ -1528,12 +1526,12 @@ void GEMTnPEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetu
               probe_GE21_dx.push_back(smallestDx);
               probe_GE21_warnings.push_back(warnings);
             }
-
             if (m_detailedAnalysis && hit_matched) {
               if (station == 1) {
                 m_histos.find("GEMhit_dx_GE1")->second->Fill(smallestDx);
                 m_histos.find("GEMhit_x_GE1")->second->Fill(matched_GEMHit_x);
                 m_histos.find("Cham_x_GE1")->second->Fill(chambMatch.x);
+                m_histos.find("xyErr_GE1")->second->Fill(chambMatch.xErr, chambMatch.yErr);
               }
               if (station == 2) {
                 m_histos.find("GEMhit_dx_GE2")->second->Fill(smallestDx);
