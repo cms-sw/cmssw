@@ -30,7 +30,7 @@ public:
     produces<edm::ValueMap<float>>("jetRchg");
     produces<edm::ValueMap<int>>("nCharged");
   }
-  ~PileupJetIDVarProducer() override{};
+  ~PileupJetIDVarProducer() override {}
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 

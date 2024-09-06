@@ -55,7 +55,7 @@ public:
     produces<edm::ValueMap<float>>("jetNDauChargedMVASel");
     produces<edm::ValueMap<reco::CandidatePtr>>("jetForLepJetVar");
   }
-  ~LeptonJetVarProducer() override{};
+  ~LeptonJetVarProducer() override {}
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
