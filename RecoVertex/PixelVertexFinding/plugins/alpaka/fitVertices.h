@@ -15,8 +15,7 @@
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::vertexFinder {
 
-  template <typename TAcc>
-  ALPAKA_FN_ACC ALPAKA_FN_INLINE __attribute__((always_inline)) void fitVertices(const TAcc& acc,
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE __attribute__((always_inline)) void fitVertices(Acc1D const& acc,
                                                                                  VtxSoAView& pdata,
                                                                                  TrkSoAView& ptrkdata,
                                                                                  WsSoAView& pws,
@@ -125,8 +124,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::vertexFinder {
 
   class FitVerticesKernel {
   public:
-    template <typename TAcc>
-    ALPAKA_FN_ACC void operator()(const TAcc& acc,
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   VtxSoAView pdata,
                                   TrkSoAView ptrkdata,
                                   WsSoAView pws,

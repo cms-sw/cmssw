@@ -28,8 +28,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     template <typename TrackerTraits>
     class LoadTracks {
     public:
-      template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-      ALPAKA_FN_ACC void operator()(const TAcc& acc,
+      ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                     reco::TrackSoAConstView<TrackerTraits> tracks_view,
                                     VtxSoAView data,
                                     TrkSoAView trkdata,
@@ -76,8 +75,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 #ifndef THREE_KERNELS
     class VertexFinderOneKernel {
     public:
-      template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-      ALPAKA_FN_ACC void operator()(const TAcc& acc,
+      ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                     VtxSoAView data,
                                     TrkSoAView trkdata,
                                     WsSoAView ws,
@@ -103,8 +101,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 #else
     class VertexFinderKernel1 {
     public:
-      template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-      ALPAKA_FN_ACC void operator()(const TAcc& acc,
+      ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                     VtxSoAView data,
                                     WsSoAView ws,
                                     int minT,      // min number of neighbours to be "seed"
@@ -120,8 +117,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     class VertexFinderKernel2 {
     public:
-      template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-      ALPAKA_FN_ACC void operator()(const TAcc& acc, VtxSoAView data, WsSoAView ws) const {
+      ALPAKA_FN_ACC void operator()(Acc1D const& acc, VtxSoAView data, WsSoAView ws) const {
         fitVertices(acc, data, ws, maxChi2ForFinalFit);
         alpaka::syncBlockThreads(acc);
         sortByPt2(data, ws);

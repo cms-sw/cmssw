@@ -84,8 +84,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 #ifdef ONE_KERNEL
     class VertexFinderOneKernel {
     public:
-      template <typename TAcc>
-      ALPAKA_FN_ACC void operator()(const TAcc& acc,
+      ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                     vertexFinder::VtxSoAView pdata,
                                     vertexFinder::TrkSoAView ptrkdata,
                                     vertexFinder::WsSoAView pws,
@@ -110,8 +109,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     class Kernel_print {
     public:
-      template <typename TAcc>
-      ALPAKA_FN_ACC void operator()(const TAcc& acc,
+      ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                     vertexFinder::VtxSoAView pdata,
                                     vertexFinder::WsSoAView pws) const {
         printf("nt,nv %d %d,%d\n", pws.ntrks(), pdata.nvFinal(), pws.nvIntermediate());

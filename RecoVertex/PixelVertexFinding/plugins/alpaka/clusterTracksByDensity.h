@@ -21,8 +21,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::vertexFinder {
   // It should be good enough for <10K tracks we have.
   //
   // Based on Rodrighez&Laio algo.
-  template <typename TAcc>
-  ALPAKA_FN_ACC ALPAKA_FN_INLINE void clusterTracksByDensity(const TAcc& acc,
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE void clusterTracksByDensity(Acc1D const& acc,
                                                              VtxSoAView& data,
                                                              TrkSoAView& trkdata,
                                                              WsSoAView& ws,
@@ -230,8 +229,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::vertexFinder {
 
   class ClusterTracksByDensityKernel {
   public:
-    template <typename TAcc>
-    ALPAKA_FN_ACC void operator()(const TAcc& acc,
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   VtxSoAView data,
                                   TrkSoAView trkdata,
                                   WsSoAView ws,

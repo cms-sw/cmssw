@@ -21,8 +21,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::vertexFinder {
   // It should be good enough for <10K tracks we have.
   class ClusterTracksDBSCAN {
   public:
-    template <typename TAcc>
-    ALPAKA_FN_ACC void operator()(const TAcc& acc,
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   VtxSoAView data,
                                   TrkSoAView trkdata,
                                   WsSoAView ws,
