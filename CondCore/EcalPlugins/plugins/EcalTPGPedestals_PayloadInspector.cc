@@ -103,7 +103,7 @@ namespace {
               if (val > mEBmax[2])
                 mEBmax[2] = val;
             }  // iphi
-          }    // ieta
+          }  // ieta
 
           for (int ix = 0; ix < IX_MAX; ix++) {
             for (int iy = 0; iy < IY_MAX; iy++) {
@@ -139,9 +139,9 @@ namespace {
                 mEEmax[2] = val;
               //	      fout << " x " << ix << " y " << " val " << val << std::endl;
             }  // iy
-          }    // ix
-        }      // side
-      }        // if payload.get()
+          }  // ix
+        }  // side
+      }  // if payload.get()
       else
         return false;
       //      std::cout << " min " << rEEmin[2] << " max " << rEEmax[2] << std::endl;
@@ -328,7 +328,7 @@ namespace {
                     mEBmax[2] = dr;
                 }
               }  // iphi
-            }    // ieta
+            }  // ieta
 
             for (int ix = 0; ix < IX_MAX; ix++) {
               for (int iy = 0; iy < IY_MAX; iy++) {
@@ -410,9 +410,9 @@ namespace {
                 }
                 //	      fout << " x " << ix << " y " << " dr " << dr << std::endl;
               }  // iy
-            }    // ix
-          }      // side
-        }        //  if payload.get()
+            }  // ix
+          }  // side
+        }  //  if payload.get()
         else
           return false;
       }  // loop over IOVs
@@ -467,7 +467,7 @@ namespace {
       canvas.SaveAs(ImageName.c_str());
       return true;
     }  // fill method
-  };   // class EcalTPGPedestalsDiffBase
+  };  // class EcalTPGPedestalsDiffBase
   using EcalTPGPedestalsDiffOneTag = EcalTPGPedestalsBase<cond::payloadInspector::SINGLE_IOV, 1, 0>;
   using EcalTPGPedestalsDiffTwoTags = EcalTPGPedestalsBase<cond::payloadInspector::SINGLE_IOV, 2, 0>;
   using EcalTPGPedestalsRatioOneTag = EcalTPGPedestalsBase<cond::payloadInspector::SINGLE_IOV, 1, 1>;

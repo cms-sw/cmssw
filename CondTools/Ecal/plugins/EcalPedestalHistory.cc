@@ -329,14 +329,14 @@ void EcalPedestalHistory::beginRun(edm::Run const&, edm::EventSetup const& c) {
                 PedVal.Mean[iChanEE] = rd_ped.getPedMeanG12();
                 PedVal.RMS[iChanEE] = rd_ped.getPedRMSG12();
               }  // valid ee Id
-            }    // Endcaps
-          }      // loop over channels
+            }  // Endcaps
+          }  // loop over channels
           tPedHist->Fill();
           cout << " We got a good run " << irun << endl;
         }  // good run
-      }    // mon_run_vec
-    }      // loop over all runs
-  }        // number of runs > 0
+      }  // mon_run_vec
+    }  // loop over all runs
+  }  // number of runs > 0
   cout << "Exiting beginRun" << endl;
   for (int NbChan = 0; NbChan < 15; NbChan++) {
     if (hMean[NbChan]->GetEntries() > 0.) {  // save only when filled!

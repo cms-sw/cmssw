@@ -183,8 +183,8 @@ void CSCAFEBThrAnalysis::analyze(const CSCWireDigiCollection& wirecltn) {
             hf2ForId(mh_FirstTime, 100, idchamber, x, y, 1.0);
 
           }  // end if wireplane[iwire-1]==0
-        }    // end if iwire<=csctoafeb.getMaxWire(id.station(),id.ring()
-      }      // end of for digis in layer
+        }  // end if iwire<=csctoafeb.getMaxWire(id.station(),id.ring()
+      }  // end of for digis in layer
 
       /// Store time bin of the first hit into map
 
@@ -213,7 +213,7 @@ void CSCAFEBThrAnalysis::analyze(const CSCWireDigiCollection& wirecltn) {
         if ((*intIt).second[i] > 0)
           wiredacIt->second[i][indDac] = wiredacIt->second[i][indDac] + 1;
     }  // end of adding hits to the map of wire/DAC
-  }    // end of if wire collection not empty
+  }  // end of if wire collection not empty
   indDac++;
   if (dac == (float)EndDac)
     indDac = 0;
@@ -351,7 +351,7 @@ void CSCAFEBThrAnalysis::done() {
       inputy.clear();
 
     }  // end for(int iwire=0)
-  }    // end of iteration thru m_wire_dac map
+  }  // end of iteration thru m_wire_dac map
 
   std::cout << "Size of map for DB " << m_res_for_db.size() << std::endl;
 

@@ -79,7 +79,7 @@ namespace {
           e_12O6->Fill((*payload)[rawid].gain12Over6());
           e_6O1->Fill((*payload)[rawid].gain6Over1());
         }  // validDetId
-      }    // if payload.get()
+      }  // if payload.get()
       else
         return false;
 
@@ -261,7 +261,7 @@ namespace {
               e_6O1->Fill(diff2);
             }
           }  // loop over cellid
-        }    //  if payload.get()
+        }  //  if payload.get()
         else
           return false;
       }  // loop over IOVs
@@ -352,7 +352,7 @@ namespace {
       canvas.SaveAs(ImageName.c_str());
       return true;
     }  // fill method
-  };   // class EcalGainRatiosDiffBase
+  };  // class EcalGainRatiosDiffBase
   using EcalGainRatiosDiffOneTag = EcalGainRatiosDiffBase<cond::payloadInspector::SINGLE_IOV, 1>;
   using EcalGainRatiosDiffTwoTags = EcalGainRatiosDiffBase<cond::payloadInspector::SINGLE_IOV, 2>;
 

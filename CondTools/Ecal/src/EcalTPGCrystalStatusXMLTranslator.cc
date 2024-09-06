@@ -69,7 +69,7 @@ std::string EcalTPGCrystalStatusXMLTranslator::dumpXML(const EcalCondHeader& hea
           WriteNodeWithValue(cellnode, TPGCrystalStatus_tag, record[id.rawId()].getStatusCode());
         }
       }  // iphi
-    }    // ieta
+    }  // ieta
 
     for (int ix = 0; ix < kEndcWedgesX; ix++) {
       for (int iy = 0; iy < kEndcWedgesY; iy++) {
@@ -81,8 +81,8 @@ std::string EcalTPGCrystalStatusXMLTranslator::dumpXML(const EcalCondHeader& hea
           WriteNodeWithValue(cellnode, TPGCrystalStatus_tag, record[id.rawId()].getStatusCode());
         }
       }  // iy
-    }    // ix
-  }      // side
+    }  // ix
+  }  // side
 
   std::string dump = cms::xerces::toString(writer->writeToString(root));
   doc->release();

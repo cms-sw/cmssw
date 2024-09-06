@@ -212,7 +212,7 @@ void SiStripNoisesFromDBMiscalibrator::analyze(const edm::Event& iEvent, const e
       nStrips += 1;
 
     }  // loop over APVs
-  }    // loop over DetIds
+  }  // loop over DetIds
 
   SiStripNoises theSiStripNoises{};
   if (!m_fillDefaults) {
