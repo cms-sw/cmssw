@@ -2,7 +2,7 @@
 
 class TtSemiLepHypMaxSumPtWMass : public TtSemiLepHypothesis {
 public:
-  explicit TtSemiLepHypMaxSumPtWMass(const edm::ParameterSet& cfg) : TtSemiLepHypothesis(cfg){};
+  explicit TtSemiLepHypMaxSumPtWMass(const edm::ParameterSet& cfg) : TtSemiLepHypothesis(cfg) {}
 
 private:
   /// build the event hypothesis key

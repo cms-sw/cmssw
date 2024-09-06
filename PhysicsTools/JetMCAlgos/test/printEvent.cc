@@ -17,7 +17,7 @@
 class printEvent : public edm::one::EDAnalyzer<> {
 public:
   explicit printEvent(const edm::ParameterSet&);
-  ~printEvent(){};
+  ~printEvent() {}
   void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
 
 private:

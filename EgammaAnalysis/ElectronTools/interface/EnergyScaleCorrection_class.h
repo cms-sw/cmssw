@@ -125,7 +125,7 @@ public:
 
 public:
   EnergyScaleCorrection_class(std::string correctionFileName, unsigned int genSeed = 0);
-  EnergyScaleCorrection_class(){};  ///< dummy constructor needed in ElectronEnergyCalibratorRun2
+  EnergyScaleCorrection_class() {}  ///< dummy constructor needed in ElectronEnergyCalibratorRun2
   ~EnergyScaleCorrection_class(void);
 
   //------------------------------ scales

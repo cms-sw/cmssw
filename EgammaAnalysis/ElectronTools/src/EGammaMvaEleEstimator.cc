@@ -1501,8 +1501,8 @@ Double_t EGammaMvaEleEstimator::isoMvaValue(const reco::GsfElectron& ele,
             tmpNeutralHadronIso_DR0p4To0p5 += iP->pt();
         }
       }  //not lepton footprint
-    }    //in 1.0 dr cone
-  }      //loop over PF candidates
+    }  //in 1.0 dr cone
+  }  //loop over PF candidates
 
   fMVAVar_ChargedIso_DR0p0To0p1 = TMath::Min((tmpChargedIso_DR0p0To0p1) / ele.pt(), 2.5);
   fMVAVar_ChargedIso_DR0p1To0p2 = TMath::Min((tmpChargedIso_DR0p1To0p2) / ele.pt(), 2.5);
