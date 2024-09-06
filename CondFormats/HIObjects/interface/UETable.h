@@ -6,7 +6,7 @@
 
 class UETable {
 public:
-  UETable(){};
+  UETable() {}
   float getUE(int i) { return values[i]; }
   unsigned int getNp(int i) { return np[i]; }
   unsigned int getNi0(int i) { return ni0[i]; }

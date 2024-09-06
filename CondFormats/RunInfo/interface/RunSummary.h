@@ -32,7 +32,7 @@ public:
   enum subdet { PIXEL, TRACKER, ECAL, HCAL, DT, CSC, RPC };
 
   RunSummary();
-  virtual ~RunSummary(){};
+  virtual ~RunSummary() {}
   static RunSummary* Fake_RunSummary();
 
   void printAllValues() const;

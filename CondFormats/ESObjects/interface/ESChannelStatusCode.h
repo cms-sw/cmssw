@@ -10,7 +10,7 @@ class ESChannelStatusCode {
 public:
   ESChannelStatusCode();
   ESChannelStatusCode(const ESChannelStatusCode& codeStatus);
-  ESChannelStatusCode(const uint16_t& encodedStatus) : status_(encodedStatus){};
+  ESChannelStatusCode(const uint16_t& encodedStatus) : status_(encodedStatus) {}
   ~ESChannelStatusCode();
 
   //get Methods to be defined according to the final definition
