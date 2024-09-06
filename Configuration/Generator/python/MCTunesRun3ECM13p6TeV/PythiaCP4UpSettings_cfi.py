@@ -1,15 +1,15 @@
 import FWCore.ParameterSet.Config as cms
 
-pythia8CP4TuneDownSettingsBlock = cms.PSet(
-    pythia8CP4TuneDownSettings = cms.vstring(
+pythia8CP4UpSettingsBlock = cms.PSet(
+    pythia8CP4UpSettings = cms.vstring(
     'Tune:pp 14',
     'Tune:ee 7',
     'MultipartonInteractions:bProfile=2',
-    'MultipartonInteractions:pT0Ref=1.538',
+    'MultipartonInteractions:pT0Ref=1.482',
     'MultipartonInteractions:ecmPow=0.02012',
-    'MultipartonInteractions:coreFraction=0.3266',
-    'MultipartonInteractions:coreRadius=0.5718',
-    'ColourReconnection:range=6.881',
+    'MultipartonInteractions:coreFraction=0.3598',
+    'MultipartonInteractions:coreRadius=0.5752',
+    'ColourReconnection:range=7.93',
     'SigmaTotal:zeroAXB=off', 
     'SpaceShower:alphaSorder=2',
     'SpaceShower:alphaSvalue=0.118',

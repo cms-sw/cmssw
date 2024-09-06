@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-pythia8CP2TuneDownSettingsBlock = cms.PSet(
-    pythia8CP2TuneDownSettings = cms.vstring(
+pythia8CP2DownSettingsBlock = cms.PSet(
+    pythia8CP2DownSettings = cms.vstring(
 	'Tune:pp 14',
 	'Tune:ee 7',
 	'MultipartonInteractions:bProfile=2',
