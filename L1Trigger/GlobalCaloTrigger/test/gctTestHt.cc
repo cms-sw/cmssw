@@ -335,7 +335,7 @@ bool gctTestHt::checkHtSums(const L1GlobalCaloTrigger* gct) const {
       hyTotal = 2047;
     }
 
-    if ((((hxTotal)&0xff0) != 0) || (((hyTotal)&0xff0) != 0)) {
+    if ((((hxTotal) & 0xff0) != 0) || (((hyTotal) & 0xff0) != 0)) {
       double dhx = htComponentGeVForHtMiss(hxTotal);
       double dhy = htComponentGeVForHtMiss(hyTotal);
       double dhm = sqrt(dhx * dhx + dhy * dhy);

@@ -165,7 +165,7 @@ namespace l1tVertexFinder {
         const double mm = 0.1;  // [mm] --> [cm]
         hepMCVertex_ = Vertex(pos.z() * mm);
         break;  // there should be one single primary vertex
-      }         // end loop over gen vertices
+      }  // end loop over gen vertices
     }
     if (GenParticleHandle.isValid()) {
       for (const auto& genpart : *GenParticleHandle) {

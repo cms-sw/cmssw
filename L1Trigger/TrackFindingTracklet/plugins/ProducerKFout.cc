@@ -324,8 +324,8 @@ namespace trklet {
           inTrackStreams[iLink / setup_->kfNumWorker()][iLink % setup_->kfNumWorker()][iTrack] =
               (std::make_shared<TrackKFOut>(temp_track));
         }  // Iterate over Tracks
-      }    // Iterate over Links
-           // Route Tracks in eta based on their sort key
+      }  // Iterate over Links
+      // Route Tracks in eta based on their sort key
       for (int iRegion = 0; iRegion < setup_->numRegions(); iRegion++) {
         int buffered_tracks[] = {0, 0};
         for (int iTrack = 0; iTrack < setup_->numFramesIO() * ((double)TTBV::S_ / TTTrack_TrackWord::kTrackWordSize);
@@ -368,7 +368,7 @@ namespace trklet {
           sortedPartialTracks[iLink].push_back(nullBitTrack);  //Pad out final set of bits
           outputStreamsTracks[iLink].emplace_back(
               outputStreamsTracks[iLink][numLinkTracks++]);  //Pad out with final repeated track
-        }                                                    //If there is an odd number of tracks
+        }  //If there is an odd number of tracks
         for (int iTrack = 0; iTrack < (int)(sortedPartialTracks[iLink].size()); iTrack++) {
           if (iTrack % 2 != 1)  // Write to links every other partial track, 3 partial tracks per full TTTrack
             continue;
@@ -390,8 +390,8 @@ namespace trklet {
                                 sortedPartialTracks[iLink][iTrack].slice(partialTrackWordBits_))
                                    .bs()));
         }  //Iterate through sorted partial tracks
-      }    // Iterate through links
-    }      // Config Supported
+      }  // Iterate through links
+    }  // Config Supported
     // store products
     iEvent.emplace(edPutTokenAccepted_, std::move(accepted));
     iEvent.emplace(edPutTokenLost_, std::move(lost));

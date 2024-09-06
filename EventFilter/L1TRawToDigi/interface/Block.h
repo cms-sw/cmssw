@@ -29,14 +29,14 @@ namespace l1t {
   class BlockHeader {
   public:
     BlockHeader(unsigned int id, unsigned int size, unsigned int capID = 0, unsigned int flags = 0, block_t type = MP7)
-        : id_(id), size_(size), capID_(capID), flags_(flags), type_(type){};
+        : id_(id), size_(size), capID_(capID), flags_(flags), type_(type) {}
     // Create a MP7 block header: everything is contained in the raw uint32
     BlockHeader(const uint32_t* data)
         : id_((data[0] >> ID_shift) & ID_mask),
           size_((data[0] >> size_shift) & size_mask),
           capID_((data[0] >> capID_shift) & capID_mask),
           flags_((data[0] >> flags_shift) & flags_mask),
-          type_(MP7){};
+          type_(MP7) {}
 
     bool operator<(const BlockHeader& o) const { return getID() < o.getID(); };
 
@@ -70,13 +70,13 @@ namespace l1t {
   class Block {
   public:
     Block(const BlockHeader& h, const uint32_t* payload_start, const uint32_t* payload_end)
-        : header_(h), payload_(payload_start, payload_end){};
+        : header_(h), payload_(payload_start, payload_end) {}
     Block(unsigned int id,
           const std::vector<uint32_t>& payload,
           unsigned int capID = 0,
           unsigned int flags = 0,
           block_t type = MP7)
-        : header_(id, payload.size(), capID, flags, type), payload_(payload){};
+        : header_(id, payload.size(), capID, flags, type), payload_(payload) {}
 
     bool operator<(const Block& o) const { return header() < o.header(); };
 
@@ -100,8 +100,8 @@ namespace l1t {
 
   class Payload {
   public:
-    Payload(const uint32_t* data, const uint32_t* end) : data_(data), end_(end), algo_(0), infra_(0){};
-    virtual ~Payload(){};
+    Payload(const uint32_t* data, const uint32_t* end) : data_(data), end_(end), algo_(0), infra_(0) {}
+    virtual ~Payload() {}
     virtual unsigned getAlgorithmFWVersion() const { return algo_; };
     virtual unsigned getInfrastructureFWVersion() const { return infra_; };
     virtual unsigned getHeaderSize() const = 0;

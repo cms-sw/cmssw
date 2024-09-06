@@ -10,10 +10,10 @@
 namespace l1t {
   class MicroGMTRankPtQualLUT : public MicroGMTLUT {
   public:
-    MicroGMTRankPtQualLUT(){};
+    MicroGMTRankPtQualLUT() {}
     explicit MicroGMTRankPtQualLUT(const std::string&, const unsigned, const unsigned);
     explicit MicroGMTRankPtQualLUT(l1t::LUT*);
-    ~MicroGMTRankPtQualLUT() override{};
+    ~MicroGMTRankPtQualLUT() override {}
 
     int lookup(int pt, int qual) const;
     int lookupPacked(int in) const override;

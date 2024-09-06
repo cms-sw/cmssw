@@ -72,7 +72,7 @@ namespace l1t {
         return true;
       }
     }  // namespace legacy
-  }    // namespace stage1
+  }  // namespace stage1
 }  // namespace l1t
 
 DEFINE_L1T_UNPACKER(l1t::stage1::legacy::EtSumUnpacker);

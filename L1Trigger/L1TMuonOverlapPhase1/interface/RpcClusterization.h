@@ -23,7 +23,7 @@ public:
   //sub-bx timing, should be already in scale common for all muon subsystems
   int timing = 0;
 
-  RpcCluster(unsigned int firstStrip, unsigned int lastStrip) : firstStrip(firstStrip), lastStrip(lastStrip){};
+  RpcCluster(unsigned int firstStrip, unsigned int lastStrip) : firstStrip(firstStrip), lastStrip(lastStrip) {}
 
   float halfStrip() { return (lastStrip + firstStrip) / 2.; }
 
@@ -32,7 +32,7 @@ public:
 
 class RpcClusterization {
 public:
-  RpcClusterization(){};
+  RpcClusterization() {}
 
   virtual ~RpcClusterization();
 

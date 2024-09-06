@@ -22,7 +22,7 @@ namespace l1t {
                               const std::vector<l1t::CaloEmCand>& EMCands,
                               std::vector<l1t::Jet>* jets,
                               std::vector<l1t::Jet>* preGtJets) = 0;
-    virtual ~Stage1Layer2JetAlgorithm(){};
+    virtual ~Stage1Layer2JetAlgorithm() {}
 
     /* private: */
     /*   double regionLSB_; // least significant bit value. Usually = 0.5 */

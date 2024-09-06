@@ -173,11 +173,11 @@ void AngleCalculation::calculate_angles(EMTFTrack& track, const int izone) const
             best_phi_arr.at(ipair) = (ipair < 3) ? phB : phA;
           }
         }  // end loop over conv_hits in station B
-      }    // end loop over conv_hits in station A
+      }  // end loop over conv_hits in station A
 
       ++ipair;
     }  // end loop over station B
-  }    // end loop over station A
+  }  // end loop over station A
   emtf_assert(ipair == emtf::NUM_STATION_PAIRS);
 
   // Apply cuts on dtheta

@@ -28,9 +28,9 @@ public:
   ~L1CaloSummaryTreeProducer() override;
 
 private:
-  void beginJob() override{};
+  void beginJob() override {}
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void endJob() override{};
+  void endJob() override {}
 
 public:
   L1Analysis::L1AnalysisCaloSummaryDataFormat* caloSummaryData_;

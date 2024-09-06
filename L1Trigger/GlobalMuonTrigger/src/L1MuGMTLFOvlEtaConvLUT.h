@@ -46,7 +46,7 @@ public:
   };
 
   /// destructor
-  ~L1MuGMTLFOvlEtaConvLUT() override{};
+  ~L1MuGMTLFOvlEtaConvLUT() override {}
 
   /// specific lookup function for eta_ovl
   unsigned SpecificLookup_eta_ovl(int idx, unsigned eta6) const {

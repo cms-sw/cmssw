@@ -722,8 +722,8 @@ const bool l1t::CorrThreeBodyCondition::evaluateCondition(const int bxEval) cons
         }
 
       }  //end loop over third leg
-    }    //end loop over second leg
-  }      //end loop over first leg
+    }  //end loop over second leg
+  }  //end loop over first leg
 
   if (m_verbosity && condResult) {
     LogDebug("L1TGlobal") << " pass(es) the correlation condition.\n" << std::endl;

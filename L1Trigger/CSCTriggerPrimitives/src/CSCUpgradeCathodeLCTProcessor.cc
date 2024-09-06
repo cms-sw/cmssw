@@ -300,7 +300,7 @@ std::vector<CSCCLCTDigi> CSCUpgradeCathodeLCTProcessor::findLCTs(
           lctList.push_back(tempSecondCLCT);
         }
       }  //find CLCT, end of best_halfstrip[0] >= 0
-    }    //pre_trig
+    }  //pre_trig
     // The pattern finder runs continuously, so another pre-trigger
     // could occur already at the next bx.
     start_bx = first_bx + 1;

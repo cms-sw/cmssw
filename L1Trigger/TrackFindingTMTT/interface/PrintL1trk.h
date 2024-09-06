@@ -11,7 +11,7 @@ namespace tmtt {
 
   class PrintL1trk {
   public:
-    PrintL1trk(unsigned int nDigits = 4) : lv_("L1track"), nDigits_(nDigits){};
+    PrintL1trk(unsigned int nDigits = 4) : lv_("L1track"), nDigits_(nDigits) {}
 
     template <class T>
     edm::LogVerbatim& operator<<(const T& t) {

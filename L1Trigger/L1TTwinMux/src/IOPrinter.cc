@@ -64,7 +64,7 @@ void IOPrinter::run(edm::Handle<L1MuDTChambPhContainer> inphiDigis,
       cout << digi->bx() << "\t" << detid.ring() << "\t" << detid.sector() - 1 << "\t" << detid.station() << "\t"
            << detid.roll() << "\t" << detid.layer() << "\t" << digi->strip() << "\t" << phi << "\t" << localx << endl;
     }  ///for digicout
-  }    ///for chamber
+  }  ///for chamber
   cout << endl;
 
   cout << "TwinMux Output" << endl;
@@ -143,7 +143,7 @@ void IOPrinter::run(L1MuDTChambPhContainer const* inphiDigis,
       cout << digi->bx() << "\t" << detid.ring() << "\t" << detid.sector() - 1 << "\t" << detid.station() << "\t"
            << detid.roll() << "\t" << detid.layer() << "\t" << digi->strip() << "\t" << phi << "\t" << localx << endl;
     }  ///for digicout
-  }    ///for chamber
+  }  ///for chamber
   cout << endl;
 
   cout << "TwinMux Output" << endl;

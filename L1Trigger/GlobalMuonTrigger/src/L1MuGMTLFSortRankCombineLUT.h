@@ -51,7 +51,7 @@ public:
   };
 
   /// destructor
-  ~L1MuGMTLFSortRankCombineLUT() override{};
+  ~L1MuGMTLFSortRankCombineLUT() override {}
 
   /// specific lookup function for sort_rank
   unsigned SpecificLookup_sort_rank(int idx, unsigned rank_etaq, unsigned rank_ptq, unsigned rank_etaphi) const {

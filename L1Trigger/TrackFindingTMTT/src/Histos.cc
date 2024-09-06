@@ -673,8 +673,7 @@ namespace tmtt {
               std::stringstream text;
               text << "\n ===== HISTOS MESS UP: Increase size of nLinks ===== " << link << "\n";
               static std::once_flag printOnce;
-              std::call_once(
-                  printOnce, [](string t) { edm::LogWarning("L1track") << t; }, text.str());
+              std::call_once(printOnce, [](string t) { edm::LogWarning("L1track") << t; }, text.str());
             }
           }
         }

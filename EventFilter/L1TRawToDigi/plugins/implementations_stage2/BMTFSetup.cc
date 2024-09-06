@@ -12,7 +12,7 @@ namespace l1t {
       return std::unique_ptr<PackerTokens>(new BMTFTokens(cfg, cc));
     }
 
-    void BMTFSetup::fillDescription(edm::ParameterSetDescription& desc){};
+    void BMTFSetup::fillDescription(edm::ParameterSetDescription& desc) {}
 
     PackerMap BMTFSetup::getPackers(int fed, unsigned int fw) {
       PackerMap res;

@@ -13,7 +13,7 @@
 namespace L1Analysis {
   struct L1AnalysisGCTDataFormat {
     L1AnalysisGCTDataFormat() { Reset(); };
-    ~L1AnalysisGCTDataFormat(){};
+    ~L1AnalysisGCTDataFormat() {}
 
     void Reset() {
       IsoEmSize = 0;

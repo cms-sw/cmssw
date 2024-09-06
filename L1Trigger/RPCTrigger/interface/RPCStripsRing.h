@@ -26,8 +26,8 @@ class RPCRoll;
 
 // XXX TODO: move into namespace?
 struct TStrip {
-  TStrip() : m_detRawId(0), m_strip(0){};
-  TStrip(int rawId, int stripNo) : m_detRawId(rawId), m_strip(stripNo){};
+  TStrip() : m_detRawId(0), m_strip(0) {}
+  TStrip(int rawId, int stripNo) : m_detRawId(rawId), m_strip(stripNo) {}
   bool isVirtual() const { return m_detRawId == 0; };
   uint32_t m_detRawId;
   unsigned char m_strip;
@@ -39,7 +39,7 @@ public:
   typedef std::map<int, RPCStripsRing> TIdToRindMap;
 
   struct TOtherConnStruct {
-    TOtherConnStruct() : m_logplane(0), m_logplaneSize(0), m_it(nullptr){};
+    TOtherConnStruct() : m_logplane(0), m_logplaneSize(0), m_it(nullptr) {}
     short m_logplane;
     short m_logplaneSize;
     TIdToRindMap::iterator m_it;
@@ -50,7 +50,7 @@ public:
   RPCStripsRing(const RPCRoll* roll, std::shared_ptr<L1RPCConeBuilder::TConMap> cmap);
 
   RPCStripsRing();
-  virtual ~RPCStripsRing(){};
+  virtual ~RPCStripsRing() {}
 
   void addRoll(const RPCRoll* roll);
 

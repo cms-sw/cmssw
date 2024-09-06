@@ -10,7 +10,7 @@ namespace l1t {
     class CaloSummaryCollections : public UnpackerCollections {
     public:
       CaloSummaryCollections(edm::Event& e)
-          : UnpackerCollections(e), cicadaDigis_(std::make_unique<CICADABxCollection>()){};
+          : UnpackerCollections(e), cicadaDigis_(std::make_unique<CICADABxCollection>()) {}
       ~CaloSummaryCollections() override;
       inline CICADABxCollection* getCICADABxCollection() { return cicadaDigis_.get(); };
 

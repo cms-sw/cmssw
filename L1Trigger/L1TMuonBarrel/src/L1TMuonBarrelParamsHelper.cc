@@ -270,9 +270,9 @@ void L1TMuonBarrelParamsHelper::configFromDB(l1t::TriggerSystem& trgSys) {
             }
           }
         }  ///if register path
-      }    ///for masks
-    }      ///for it tRow
-  }        ///for it procRole
+      }  ///for masks
+    }  ///for it tRow
+  }  ///for it procRole
 }  ///if configDB
 
 int L1TMuonBarrelParamsHelper::load_pt(std::vector<LUT>& pta_lut,

@@ -14,7 +14,7 @@ namespace L1Analysis {
   class L1AnalysisSimulationDataFormat {
   public:
     L1AnalysisSimulationDataFormat() { Reset(); };
-    ~L1AnalysisSimulationDataFormat(){};
+    ~L1AnalysisSimulationDataFormat() {}
 
     void Reset() {
       meanInt = -1.;

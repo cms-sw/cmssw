@@ -24,7 +24,7 @@ namespace l1t {
       // };
 
     }  // namespace emtf
-  }    // namespace stage2
+  }  // namespace stage2
 }  // namespace l1t
 
 namespace l1t {
@@ -400,7 +400,7 @@ namespace l1t {
                   L1TMuonEndCap::calc_uGMT_chamber(conv_vals_SP.at(0), conv_vals_SP.at(2), conv_vals_SP.at(3), 1));
             }
             St_hits.at(0) += 1;  // Count the total number of matches for debugging purposes
-          }                      // End conditional: if ( Hit.Station() == 1
+          }  // End conditional: if ( Hit.Station() == 1
 
           // Match hit in station 2
           conv_vals_SP = convert_SP_location(SP_.ME2_CSC_ID(), (res->at(iOut)).PtrEventHeader()->Sector(), -99, 2);
@@ -621,7 +621,7 @@ namespace l1t {
       // } // End bool SPBlockPacker::pack
 
     }  // End namespace emtf
-  }    // End namespace stage2
+  }  // End namespace stage2
 }  // End namespace l1t
 
 DEFINE_L1T_UNPACKER(l1t::stage2::emtf::SPBlockUnpacker);
