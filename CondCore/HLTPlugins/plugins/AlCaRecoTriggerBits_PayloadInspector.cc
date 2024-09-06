@@ -360,8 +360,8 @@ namespace {
             y_line.push_back(y - 0.008);
 
           }  // close if there is at least a difference
-        }    // if there is a common key
-      }      //loop on the keys
+        }  // if there is a common key
+      }  //loop on the keys
 
       TCanvas canvas("AlCaRecoTriggerBits", "AlCaRecoTriggerBits", 2500., std::max(y_x1.size(), y_x2.size()) * 40);
 
