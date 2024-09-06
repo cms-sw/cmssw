@@ -1012,7 +1012,7 @@ bool PFElecTkProducer::isSharingEcalEnergyWithEgSC(const reco::GsfPFRecTrack& nG
           }
         }
       }  // END if angle preselection
-    }    // PFClusters Loop
+    }  // PFClusters Loop
     if (!vecPFClusters.empty()) {
       for (unsigned int pf = 0; pf < vecPFClusters.size(); pf++) {
         bool isCommon = ClusterClusterMapping::overlap(vecPFClusters[pf], *scRef);

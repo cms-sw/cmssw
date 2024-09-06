@@ -18,7 +18,7 @@ public:
       const CachingVertex<N>& v, typename CachingVertex<N>::RefCountedVertexTrack t) const = 0;
 
   virtual VertexTrackUpdator* clone() const = 0;
-  virtual ~VertexTrackUpdator(){};
+  virtual ~VertexTrackUpdator() {}
 };
 
 #endif

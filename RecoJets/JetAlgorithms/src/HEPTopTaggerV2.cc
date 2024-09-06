@@ -406,9 +406,9 @@ namespace external {
               _is_ptmincut_passed = true;
             }
           }  //end better
-        }    //end kk
-      }      //end ll
-    }        //end rr
+        }  //end kk
+      }  //end ll
+    }  //end rr
 
     return;
   }

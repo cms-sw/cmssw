@@ -96,7 +96,7 @@ struct MahiDebugInfo {
 class MahiFit {
 public:
   MahiFit();
-  ~MahiFit(){};
+  ~MahiFit() {}
 
   void setParameters(bool iDynamicPed,
                      double iTS4Thresh,

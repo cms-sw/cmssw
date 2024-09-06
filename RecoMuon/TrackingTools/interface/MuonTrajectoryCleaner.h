@@ -25,7 +25,7 @@ public:
   MuonTrajectoryCleaner(bool reportGhosts) : reportGhosts_(reportGhosts) {}
 
   /// Destructor
-  virtual ~MuonTrajectoryCleaner(){};
+  virtual ~MuonTrajectoryCleaner() {}
 
   // Operations
 

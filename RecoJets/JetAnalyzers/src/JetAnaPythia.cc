@@ -326,7 +326,7 @@ void JetAnaPythia<Jet>::analyze(edm::Event const& evt, edm::EventSetup const& iS
     mcTruthTree_->Fill();
 
     notDone = 0;  //We are done, exit the while loop
-  }               //end of while
+  }  //end of while
 }
 ////////////////////////////////////////////////////////////////////////////////////////
 template <class Jet>

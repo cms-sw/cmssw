@@ -6,7 +6,7 @@
 class ExpressionEvaluatorCut : public CutApplicatorBase {
 public:
   ExpressionEvaluatorCut(const edm::ParameterSet& c);
-  ~ExpressionEvaluatorCut() override{};
+  ~ExpressionEvaluatorCut() override {}
 
   result_type asCandidate(const argument_type& cand) const final { return (*cut_)(cand); }
 

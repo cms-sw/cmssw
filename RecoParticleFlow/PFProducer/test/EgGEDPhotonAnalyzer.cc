@@ -250,7 +250,7 @@ void EgGEDPhotonAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetu
             // all for the moment
           }
         }  // End PFCandidates Electron Selection
-      }    // End Loop PFCandidates
+      }  // End Loop PFCandidates
 
       if (MindR < 0.1) {
         h_etaec_ele->Fill(etamc);

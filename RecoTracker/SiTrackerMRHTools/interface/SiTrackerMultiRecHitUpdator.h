@@ -33,7 +33,7 @@ public:
                               const float Chi2Cut2D,
                               const std::vector<double>& anAnnealingProgram,
                               bool debug);
-  virtual ~SiTrackerMultiRecHitUpdator(){};
+  virtual ~SiTrackerMultiRecHitUpdator() {}
 
   //calls the update method in order to build a SiTrackerMultiRecHit
   virtual TransientTrackingRecHit::RecHitPointer buildMultiRecHit(const std::vector<const TrackingRecHit*>& rhv,

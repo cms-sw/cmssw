@@ -13,7 +13,7 @@
 #pragma GCC visibility push(hidden)
 class TOBLayerBuilder {
 public:
-  TOBLayerBuilder(){};
+  TOBLayerBuilder() {}
   TOBLayer* build(const GeometricDet* aTOBLayer, const TrackerGeometry* theGeomDetGeometry) __attribute__((cold));
 };
 

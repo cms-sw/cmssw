@@ -17,7 +17,7 @@ public:
   /// Constructor with GSF material effects updator and propagation direction.
   FullConvolutionWithMaterial(const GsfMaterialEffectsUpdator& aMEUpdator) : theMEUpdator(aMEUpdator.clone()) {}
 
-  ~FullConvolutionWithMaterial(){};
+  ~FullConvolutionWithMaterial() {}
 
   /// Convolution using the GsfMaterialEffectsUpdator
   TrajectoryStateOnSurface operator()(const TrajectoryStateOnSurface&, const PropagationDirection) const;

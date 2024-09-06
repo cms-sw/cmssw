@@ -171,7 +171,7 @@ public:
         }
 
       }  // loop over neighbours
-    }    // loop over denseId_
+    }  // loop over denseId_
   }
 
   // Print out neighbour DetId's

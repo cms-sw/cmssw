@@ -21,7 +21,7 @@ struct JetDistance {
 
 class JetDistanceCompare {
 public:
-  JetDistanceCompare(){};
+  JetDistanceCompare() {}
   bool operator()(const JetDistance& lhs, const JetDistance& rhs) const { return lhs.dij > rhs.dij; };
 };
 
@@ -65,7 +65,7 @@ public:
         _exp_max(exp_max),
         _rigidity(rigidity),
         _truncation_fctr(truncation_fctr),
-        _rnEngine(rnEngine){};
+        _rnEngine(rnEngine) {}
 
   void Cluster(fastjet::ClusterSequence& cs);
   void SetRandSeed(unsigned int seed); /* In case you want reproducible behavior */

@@ -16,7 +16,7 @@ public:
    */
   TrimmedTrackFilter();
 
-  ~TrimmedTrackFilter(){};
+  ~TrimmedTrackFilter() {}
 
   /** Access to pT cut
    */

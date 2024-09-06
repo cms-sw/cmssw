@@ -82,10 +82,8 @@ namespace reco {
     double Vertex_Prob() const { return TMath::Prob(vertex_chi2_, vertex_ndf_); }
     bool has3ProngSolution(unsigned int i) const { return has3ProngSolution_[i]; }
     double Solution_Chi2(unsigned int i) const { return solution_Chi2_[i]; }
-    double SignificanceOfThetaGJ(unsigned int i) const {
-      return thetaGJsig_[i];
-    }  // 0 or less means the theta_GF has
-       // a physical solution
+    double SignificanceOfThetaGJ(unsigned int i) const { return thetaGJsig_[i]; }  // 0 or less means the theta_GF has
+    // a physical solution
     const TLorentzVector& Tau(unsigned int i) const { return tau_p4_[i]; }
     const std::vector<int>& Daughter_PDGID(unsigned int i) const { return daughter_PDGID_[i]; }
     const std::vector<int>& Daughter_Charge(unsigned int i) const { return daughter_charge_[i]; }

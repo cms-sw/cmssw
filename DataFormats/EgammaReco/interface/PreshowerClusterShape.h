@@ -14,7 +14,7 @@ namespace reco {
   class PreshowerClusterShape {
   public:
     /// default constructor
-    PreshowerClusterShape(){};
+    PreshowerClusterShape() {}
 
     virtual ~PreshowerClusterShape();
 

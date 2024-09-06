@@ -9,8 +9,8 @@
 
 class Clustering1DException : public cms::Exception {
 public:
-  Clustering1DException(const char *reason) : cms::Exception(reason){};
-  Clustering1DException(const Clustering1DException &ex) : cms::Exception(ex){};
+  Clustering1DException(const char *reason) : cms::Exception(reason) {}
+  Clustering1DException(const Clustering1DException &ex) : cms::Exception(ex) {}
 };
 
 #endif

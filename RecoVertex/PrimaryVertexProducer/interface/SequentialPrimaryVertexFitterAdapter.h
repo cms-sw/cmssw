@@ -14,8 +14,8 @@
 
 class SequentialPrimaryVertexFitterAdapter : public PrimaryVertexFitterBase {
 public:
-  SequentialPrimaryVertexFitterAdapter() : fitter(nullptr){};
-  SequentialPrimaryVertexFitterAdapter(const VertexFitter<5>* vertex_fitter) : fitter(vertex_fitter){};
+  SequentialPrimaryVertexFitterAdapter() : fitter(nullptr) {}
+  SequentialPrimaryVertexFitterAdapter(const VertexFitter<5>* vertex_fitter) : fitter(vertex_fitter) {}
   ~SequentialPrimaryVertexFitterAdapter() override = default;
 
   std::vector<TransientVertex> fit(const std::vector<reco::TransientTrack>& dummy,

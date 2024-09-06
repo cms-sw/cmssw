@@ -187,7 +187,7 @@ void HFClusterAlgo::clusterize(const HFRecHitCollection& hf,
         }
       }
     }  //end protoseed loop
-  }    //end if seeCount
+  }  //end if seeCount
 }
 
 bool HFClusterAlgo::makeCluster(const HcalDetId& seedid,

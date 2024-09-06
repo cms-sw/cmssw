@@ -378,7 +378,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
             oc.setStatusBits(Cell::StatusBit::kUsed);
           }
         }  // loop on inner cells
-      }    // loop on outer cells
+      }  // loop on outer cells
     }
   };
   template <typename TrackerTraits>

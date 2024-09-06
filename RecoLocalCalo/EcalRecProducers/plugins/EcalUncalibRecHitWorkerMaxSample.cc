@@ -25,8 +25,8 @@
 class EcalUncalibRecHitWorkerMaxSample : public EcalUncalibRecHitWorkerRunOneDigiBase {
 public:
   EcalUncalibRecHitWorkerMaxSample(const edm::ParameterSet& ps, edm::ConsumesCollector& c);
-  EcalUncalibRecHitWorkerMaxSample(){};
-  ~EcalUncalibRecHitWorkerMaxSample() override{};
+  EcalUncalibRecHitWorkerMaxSample() {}
+  ~EcalUncalibRecHitWorkerMaxSample() override {}
 
   void set(const edm::EventSetup& es) override;
   bool run(const edm::Event& evt,

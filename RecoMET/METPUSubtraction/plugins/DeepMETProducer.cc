@@ -19,7 +19,7 @@ public:
 
   // static methods for handling the global cache
   static std::unique_ptr<tensorflow::SessionCache> initializeGlobalCache(const edm::ParameterSet&);
-  static void globalEndJob(tensorflow::SessionCache*){};
+  static void globalEndJob(tensorflow::SessionCache*) {}
 
 private:
   const edm::EDGetTokenT<std::vector<pat::PackedCandidate> > pf_token_;

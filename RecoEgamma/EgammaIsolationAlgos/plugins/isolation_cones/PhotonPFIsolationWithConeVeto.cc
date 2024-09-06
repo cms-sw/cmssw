@@ -58,7 +58,7 @@ public:
   bool isInIsolationCone(const reco::CandidatePtr& photon, const reco::CandidatePtr& pfCandidate) const final;
 
   //! Destructor
-  ~PhotonPFIsolationWithConeVeto() override{};
+  ~PhotonPFIsolationWithConeVeto() override {}
 
 private:
   const float _vetoConeSize2EB, _vetoConeSize2EE;

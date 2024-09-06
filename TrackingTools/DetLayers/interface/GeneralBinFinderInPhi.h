@@ -38,7 +38,7 @@ public:
     theNbins = theBins.size();
   }
 
-  ~GeneralBinFinderInPhi() override{};
+  ~GeneralBinFinderInPhi() override {}
 
   /// Returns an index in the valid range for the bin that contains
   /// AND is closest to phi

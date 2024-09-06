@@ -93,7 +93,7 @@ public:
   }
 
   //! Destructor
-  ~PhotonPFIsolationWithMapBasedVeto() override{};
+  ~PhotonPFIsolationWithMapBasedVeto() override {}
 
 private:
   const std::string _isolateAgainst, _vertexCollection;

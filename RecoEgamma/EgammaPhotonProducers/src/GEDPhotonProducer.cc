@@ -92,7 +92,7 @@ public:
   void produce(edm::Event& evt, const edm::EventSetup& es) override;
 
   static std::unique_ptr<CacheData> initializeGlobalCache(const edm::ParameterSet&);
-  static void globalEndJob(const CacheData*){};
+  static void globalEndJob(const CacheData*) {}
 
   void endStream() override;
 

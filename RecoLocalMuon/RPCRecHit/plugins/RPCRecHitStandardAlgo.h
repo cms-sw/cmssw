@@ -12,13 +12,13 @@
 class RPCRecHitStandardAlgo : public RPCRecHitBaseAlgo {
 public:
   /// Constructor
-  RPCRecHitStandardAlgo(const edm::ParameterSet& config) : RPCRecHitBaseAlgo(config){};
+  RPCRecHitStandardAlgo(const edm::ParameterSet& config) : RPCRecHitBaseAlgo(config) {}
 
   /// Destructor
-  ~RPCRecHitStandardAlgo() override{};
+  ~RPCRecHitStandardAlgo() override {}
 
   /// Pass the Event Setup to the algo at each event
-  void setES(const edm::EventSetup& setup) override{};
+  void setES(const edm::EventSetup& setup) override {}
 
   bool compute(const RPCRoll& roll,
                const RPCCluster& cluster,

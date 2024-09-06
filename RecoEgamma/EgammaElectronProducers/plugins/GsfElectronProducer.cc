@@ -129,7 +129,7 @@ public:
 
   void endStream() override;
 
-  static void globalEndJob(GsfElectronAlgo::HeavyObjectCache const*){};
+  static void globalEndJob(GsfElectronAlgo::HeavyObjectCache const*) {}
 
   // ------------ method called to produce the data  ------------
   void produce(edm::Event& event, const edm::EventSetup& setup) override;
