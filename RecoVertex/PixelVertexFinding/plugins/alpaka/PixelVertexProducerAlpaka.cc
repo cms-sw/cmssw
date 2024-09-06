@@ -87,7 +87,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     desc.add<double>("errmax", 0.01);  // max error to be "seed"
     desc.add<double>("chi2max", 9.);   // max normalized distance to cluster
 
-    desc.add<int>("maxVertices", 1024);
+    desc.add<int>("maxVertices", 256);
     desc.add<double>("PtMin", 0.5);
     desc.add<double>("PtMax", 75.);
     desc.add<edm::InputTag>("pixelTrackSrc", edm::InputTag("pixelTracksAlpaka"));
