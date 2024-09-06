@@ -17,7 +17,7 @@
 class TICLLayerTileProducer : public edm::stream::EDProducer<> {
 public:
   explicit TICLLayerTileProducer(const edm::ParameterSet &ps);
-  ~TICLLayerTileProducer() override{};
+  ~TICLLayerTileProducer() override {}
   void beginRun(edm::Run const &, edm::EventSetup const &) override;
   void produce(edm::Event &, const edm::EventSetup &) override;
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);

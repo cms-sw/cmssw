@@ -31,7 +31,7 @@
 
 class CSCStationIndex {
 public:
-  CSCStationIndex() : _region(0), _station(0), _ring(0), _chamber(0), _layer(0){};
+  CSCStationIndex() : _region(0), _station(0), _ring(0), _chamber(0), _layer(0) {}
   CSCStationIndex(int region, int station, int ring, int chamber, int layer)
       : _region(region), _station(station), _ring(ring), _chamber(chamber), _layer(layer) {}
   ~CSCStationIndex() {}
