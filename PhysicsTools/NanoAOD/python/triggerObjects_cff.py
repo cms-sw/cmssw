@@ -370,6 +370,9 @@ _run2_2018_jet_filters[2] = mksel(["hltPFJetFilterTwoC30"])
 _run2_2018_jet_filters.append(mksel(["hltBTagPFDeepCSV1p5Single"])) # 22
 run2_HLTconditions_2018.toModify(triggerObjectTable.selections.Jet, qualityBits = cms.VPSet(_run2_2018_jet_filters))
 
+_run2_2017_muon_filters = copy.deepcopy(triggerObjectTable.selections.Muon.qualityBits)
+_run2_2017_muon_filters.append(mksel(["hltIterL3MuonCandidates"], "2Mu filter Bit for 2017")) #14
+run2_HLTconditions_2017.toModify(triggerObjectTable.selections.Muon, qualityBits = cms.VPSet(_run2_2017_muon_filters))
 
 from PhysicsTools.PatUtils.L1PrefiringWeightProducer_cff import prefiringweight
 #Next lines are for UL2016 maps
