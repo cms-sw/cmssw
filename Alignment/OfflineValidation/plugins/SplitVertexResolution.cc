@@ -87,7 +87,7 @@ private:
   virtual void beginEvent() final;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void endJob() override;
-  void endRun(edm::Run const&, edm::EventSetup const&) override{};
+  void endRun(edm::Run const&, edm::EventSetup const&) override {}
 
   template <std::size_t SIZE>
   bool checkBinOrdering(std::array<float, SIZE>& bins);

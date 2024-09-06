@@ -60,8 +60,8 @@ AlignmentTrackFromVertexCompositeCandidateSelector::Tracks AlignmentTrackFromVer
         LogDebug("AlignmentTrackFromVertexSelector") << "track index: " << indx << "filling result vector" << std::endl;
         result.push_back(&(*tk));
       }  // if a valid key is found
-    }    // end loop over tracks
-  }      // if the handle is valid
+    }  // end loop over tracks
+  }  // if the handle is valid
 
   LogDebug("AlignmentTrackFromVertexCompositeCandidateSelector")
       << "collection will have size: " << result.size() << std::endl;

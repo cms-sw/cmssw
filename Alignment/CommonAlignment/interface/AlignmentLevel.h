@@ -10,7 +10,7 @@ class AlignmentLevel {
   //========================== PUBLIC METHODS =================================
 public:  //===================================================================
   AlignmentLevel(align::StructureType levelType, unsigned int maxNumComponents, bool isFlat)
-      : levelType(levelType), maxNumComponents(maxNumComponents), isFlat(isFlat){};
+      : levelType(levelType), maxNumComponents(maxNumComponents), isFlat(isFlat) {}
   // copy construction + assignment
   AlignmentLevel(const AlignmentLevel&) = default;
   AlignmentLevel& operator=(const AlignmentLevel&) = default;

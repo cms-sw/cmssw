@@ -26,7 +26,7 @@ public:
   FittedEntriesSet(const std::vector<ALIstring>& wl);
   //---- Average a list of FittedEntriesSet's
   FittedEntriesSet(const std::vector<FittedEntriesSet*>& vSets);
-  ~FittedEntriesSet(){};
+  ~FittedEntriesSet() {}
   void Fill();
   void FillEntries();
   void FillCorrelations();

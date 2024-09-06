@@ -668,10 +668,10 @@ void DiJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& evS
                     }
                     tpfjet_rechits[(*ith).id()].second.insert(hitsAndFracs[iHit].second);
                   }
-                }                                                           // Test if ieta,iphi matches
-              }                                                             // Loop over rechits
-            }                                                               // Loop over hits
-          }                                                                 // Test if element is from HCAL
+                }  // Test if ieta,iphi matches
+              }  // Loop over rechits
+            }  // Loop over hits
+          }  // Test if element is from HCAL
           else if (elements[iEle].type() == reco::PFBlockElement::HFHAD) {  // Element is HF
             for (edm::SortedCollection<HFRecHit, edm::StrictWeakOrdering<HFRecHit>>::const_iterator ith =
                      hfreco->begin();
@@ -823,12 +823,12 @@ void DiJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& evS
                     tpfjet_rechits[(*ith).id()].second.insert(hitsAndFracs[iHit].second);
                   }
                 }  // Test if ieta,iphi match
-              }    // Loop over rechits
-            }      // Loop over hits
-          }        // Test if element is HO
-        }          // Test for right element index
-      }            // Loop over elements
-    }              // Loop over elements in blocks
+              }  // Loop over rechits
+            }  // Loop over hits
+          }  // Test if element is HO
+        }  // Test for right element index
+      }  // Loop over elements
+    }  // Loop over elements in blocks
 
     switch (candidateType) {
       case reco::PFCandidate::h_HF:
@@ -1085,10 +1085,10 @@ void DiJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& evS
                     }
                     ppfjet_rechits[(*ith).id()].second.insert(hitsAndFracs[iHit].second);
                   }
-                }                                                           // Test if ieta,iphi matches
-              }                                                             // Loop over rechits
-            }                                                               // Loop over hits
-          }                                                                 // Test if element is from HCAL
+                }  // Test if ieta,iphi matches
+              }  // Loop over rechits
+            }  // Loop over hits
+          }  // Test if element is from HCAL
           else if (elements[iEle].type() == reco::PFBlockElement::HFHAD) {  // Element is HF
             for (edm::SortedCollection<HFRecHit, edm::StrictWeakOrdering<HFRecHit>>::const_iterator ith =
                      hfreco->begin();
@@ -1238,12 +1238,12 @@ void DiJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& evS
                     ppfjet_rechits[(*ith).id()].second.insert(hitsAndFracs[iHit].second);
                   }
                 }  // Test if ieta,iphi match
-              }    // Loop over rechits
-            }      // Loop over hits
-          }        // Test if element is from HO
-        }          // Test for right element index
-      }            // Loop over elements
-    }              // Loop over elements in blocks
+              }  // Loop over rechits
+            }  // Loop over hits
+          }  // Test if element is from HO
+        }  // Test for right element index
+      }  // Loop over elements
+    }  // Loop over elements in blocks
     switch (candidateType) {
       case reco::PFCandidate::h_HF:
         ppfjet_had_emf_.push_back(HFEM_E / (HFEM_E + HFHAD_E));

@@ -35,8 +35,8 @@ public:
   virtual void beginRun(const edm::Run& run, const edm::EventSetup& setup) override;
   virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
   virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) override {}
-  virtual void endRun(const edm::Run& run, const edm::EventSetup& setup) override{};
-  virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override{};
+  virtual void endRun(const edm::Run& run, const edm::EventSetup& setup) override {}
+  virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override {}
   virtual void endJob() override;
 
   // TOF computation

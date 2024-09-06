@@ -37,11 +37,11 @@ SiPixelFedFillerWordEventNumber ::~SiPixelFedFillerWordEventNumber() {}
 unsigned int SiPixelFedFillerWordEventNumber ::CalibStatFillWord(unsigned int totword, int status) {
   //===== Variables to get each filler word out of the totword and
   //      to conform the last 16 bit filler word if Filler3 is zero.
-  unsigned int Filler1 = (totword)&0x000000ff;
-  unsigned int Filler2 = ((totword)&0x0000ff00) >> 8;
-  unsigned int Filler3 = ((totword)&0x00ff0000) >> 16;
-  unsigned int Filler4 = ((totword)&0xffff0000) >> 16;
-  unsigned int maskFiller4 = ((totword)&0xff000000) >> 16;
+  unsigned int Filler1 = (totword) & 0x000000ff;
+  unsigned int Filler2 = ((totword) & 0x0000ff00) >> 8;
+  unsigned int Filler3 = ((totword) & 0x00ff0000) >> 16;
+  unsigned int Filler4 = ((totword) & 0xffff0000) >> 16;
+  unsigned int maskFiller4 = ((totword) & 0xff000000) >> 16;
   unsigned int Filler14 = (Filler1 & maskFiller4);
   unsigned int Filler24 = (Filler2 & maskFiller4);
   unsigned int CalibFiller1 = 0;

@@ -31,11 +31,11 @@
 
 class HDetIdAssociator {
 public:
-  HDetIdAssociator() : theMap_(nullptr), nPhi_(0), nEta_(0), etaBinSize_(0), ivProp_(nullptr){};
+  HDetIdAssociator() : theMap_(nullptr), nPhi_(0), nEta_(0), etaBinSize_(0), ivProp_(nullptr) {}
   HDetIdAssociator(const int nPhi, const int nEta, const double etaBinSize)
-      : theMap_(nullptr), nPhi_(nPhi), nEta_(nEta), etaBinSize_(etaBinSize), ivProp_(nullptr){};
+      : theMap_(nullptr), nPhi_(nPhi), nEta_(nEta), etaBinSize_(etaBinSize), ivProp_(nullptr) {}
 
-  virtual ~HDetIdAssociator(){};
+  virtual ~HDetIdAssociator() {}
   virtual std::vector<GlobalPoint> getTrajectory(const FreeTrajectoryState&, const std::vector<GlobalPoint>&);
   // find DetIds arround given direction
   // idR is a number of the adjacent bins to retrieve

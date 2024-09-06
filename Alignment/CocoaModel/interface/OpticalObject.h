@@ -37,7 +37,7 @@ class OpticalObject {
 
 public:
   //---------- Constructors / destructor
-  OpticalObject(){};
+  OpticalObject() {}
   OpticalObject(OpticalObject* parent, const ALIstring& type, const ALIstring& name, const ALIbool copy_data);
   virtual ~OpticalObject();
 
@@ -51,8 +51,8 @@ public:
   virtual void constructMaterial();
   virtual void constructSolidShape();
 
-  virtual void fillVRML(){};
-  virtual void fillIguana(){};
+  virtual void fillVRML() {}
+  virtual void fillIguana() {}
 
   // ACCESS DATA MEMBERS
   const ALIstring& name() const { return theName; };

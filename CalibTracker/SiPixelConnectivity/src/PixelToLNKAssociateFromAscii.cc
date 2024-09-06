@@ -461,7 +461,7 @@ void PixelToLNKAssociateFromAscii::addConnections(int fedId, int linkId, std::st
           theConnection.push_back(make_pair(detectorRocId, cablingRocId));
           //         cout <<"PLAQ:"<<plaq<<" rocDetId: "<<rocDetId<<" rocLnkId:"<<rocLnkId<<endl;
         }  // for
-      }    // for
+      }  // for
 
     } else if (pannelType == PixelPannelType::p2x8) {  // phase-1 blades
       //       cout <<"----------- p2x8"<<endl;

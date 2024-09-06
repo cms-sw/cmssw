@@ -41,7 +41,7 @@ namespace pos {
     PixelFEDCard();                                             // empty
     PixelFEDCard(std::string filename);                         // create from files
     PixelFEDCard(std::vector<std::vector<std::string> > &tab);  // create from DB
-    ~PixelFEDCard() override{};
+    ~PixelFEDCard() override {}
 
     void readDBTBMLevels(std::vector<std::vector<std::string> > &tableMat, int first, int last);
     void readDBROCLevels(std::vector<std::vector<std::string> > &tableMat, int first, int last);

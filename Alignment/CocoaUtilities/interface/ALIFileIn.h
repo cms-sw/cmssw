@@ -19,7 +19,7 @@
 
 class ALIFileIn {
 public:
-  ALIFileIn(){};
+  ALIFileIn() {}
   ~ALIFileIn() {}
 
 private:

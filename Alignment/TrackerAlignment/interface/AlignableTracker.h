@@ -20,7 +20,7 @@ class AlignableTracker : public AlignableComposite {
 
 public:
   AlignableTracker(const TrackerGeometry*, const TrackerTopology*);
-  ~AlignableTracker() override{/* TODO: delete all tracker-alignables? */};
+  ~AlignableTracker() override { /* TODO: delete all tracker-alignables? */ }
 
   /// Return alignables of subdet and hierarchy level determined by name
   /// as defined in tracker part of Alignment/CommonAlignment/StructureType.h

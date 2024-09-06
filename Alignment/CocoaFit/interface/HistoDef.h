@@ -17,9 +17,9 @@ class Entry;
 class HistoDef {
 public:
   //---------- Constructors / Destructor
-  HistoDef(){};
+  HistoDef() {}
   void init(ALIstring name);
-  ~HistoDef(){};
+  ~HistoDef() {}
 
   ALIstring name() const { return theName; }
   float minimum() const { return theMin; }

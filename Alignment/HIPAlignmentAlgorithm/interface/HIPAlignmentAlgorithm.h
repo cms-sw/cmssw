@@ -39,7 +39,7 @@ public:
   HIPAlignmentAlgorithm(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC);
 
   /// Destructor
-  ~HIPAlignmentAlgorithm() override{};
+  ~HIPAlignmentAlgorithm() override {}
 
   /// Call at beginning of job
   void initialize(const edm::EventSetup& setup,

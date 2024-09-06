@@ -108,7 +108,7 @@ PixelFEDConfig::PixelFEDConfig(std::vector<std::vector<std::string> > &tableMat)
         fedconfig_.push_back(tmp);
       }
     }  //end else
-  }    //end for r
+  }  //end for r
   /*   
    std::cout << __LINE__ << "]\t"    << mthn                      << std::endl;
    
