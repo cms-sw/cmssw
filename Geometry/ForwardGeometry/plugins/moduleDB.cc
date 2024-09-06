@@ -81,7 +81,7 @@ CaloGeometryDBEP<ZdcGeometry, CaloGeometryDBReader>::produceAligned(
 
     Pt3D lRef;
     Pt3DVec lc(8, Pt3D(0, 0, 0));
-    ctg->localCorners(lc, &dims.front(), dins[i], lRef);
+    zdcGeometry->localCorners(lc, &dims.front(), dins[i], lRef);
 
     const Pt3D lBck(0.25 * (lc[4] + lc[5] + lc[6] + lc[7]));  // ctr rear  face in local
     const Pt3D lCor(lc[0]);
