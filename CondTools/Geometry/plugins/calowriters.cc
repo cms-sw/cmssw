@@ -9,6 +9,7 @@
 #include "Geometry/HcalTowerAlgo/interface/CaloGeometryDBCaloTower.h"
 #include "Geometry/ForwardGeometry/interface/ZdcGeometry.h"
 #include "Geometry/ForwardGeometry/interface/ZdcTopology.h"
+#include "Geometry/ForwardGeometry/interface/CaloGeometryDBZdc.h"
 #include "Geometry/ForwardGeometry/interface/CastorGeometry.h"
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
@@ -347,7 +348,7 @@ CaloGeometryDBEP<ZdcGeometry, CaloGeometryDBWriter>::produceAligned(const typena
   // a way either to store or calculate the number of shapes or be able
   // to deal with only max numer of shapes.
   assert(dvec.size() <= zdcTopology.kSizeForDenseIndexing() * ZdcGeometry::k_NumberOfParametersPerShape);
-  ZdcGeometry* zdcGeometry = new ZdcGeometry(zdcTopology);
+  ZdcGeometry* zdcGeometry = new ZdcGeometry(&zdcTopology);
   PtrType ptr(zdcGeometry);
 
   const unsigned int nTrParm(tvec.size() / zdcTopology.kSizeForDenseIndexing());
@@ -372,7 +373,7 @@ CaloGeometryDBEP<ZdcGeometry, CaloGeometryDBWriter>::produceAligned(const typena
 
     const CCGFloat* myParm(CaloCellGeometry::getParmPtr(dims, ptr->parMgr(), ptr->parVecVec()));
 
-    const DetId id(zdcTopology.denseId2detId(dins[i]));
+    const DetId id(HcalZDCDetId::detIdFromDenseIndex(dins[i]));
 
     const unsigned int iGlob(nullptr == globalPtr ? 0 : ZdcGeometry::alignmentTransformIndexGlobal(id));
 
