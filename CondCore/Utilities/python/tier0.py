@@ -38,44 +38,52 @@ def unique(seq, keepstr=True):
             seen = []
             return t(c for c in seq if not (c in seen or seen.append(c)))
 
+#note: this exception seems unused
 class ResponseError( Tier0Error ):
 
-    def __init__( self, curl, response, proxy, timeout ):
+    def __init__( self, curl, response, proxy, timeout, maxTime ):
         super( ResponseError, self ).__init__( response )
         self.args += ( curl, proxy )
         self.timeout = timeout
+        self.maxTime = maxTime
 
-    def __str__( self ):
-        errStr = """Wrong response for curl connection to Tier0DataSvc from URL \"%s\"""" %( self.args[1].getinfo( self.args[1].EFFECTIVE_URL ), )
-        if self.args[ -1 ]:
-            errStr += """ using proxy \"%s\"""" %( str( self.args[ -1 ] ), )
-        errStr += """ with timeout \"%d\" with error code \"%d\".""" %( self.timeout, self.args[1].getinfo( self.args[1].RESPONSE_CODE) )
-        if self.args[0].find( '<p>' ) != -1:
-            errStr += """\nFull response: \"%s\".""" %( self.args[0].partition('<p>')[-1].rpartition('</p>')[0], )
+    def __str__(self):
+        errStr = f'Wrong response for curl connection to Tier0DataSvc'\
+                 f' from URL "{self.args[1].getinfo(self.args[1].EFFECTIVE_URL)}"'
+        if self.args[-1]:
+            errStr += f' using proxy "{str(self.args[-1])}"'
+        errStr += f' with connection-timeout "{self.timeout}", max-time "{self.maxtime}"'\
+                  f' with error code "{self.args[1].getinfo(self.args[1].RESPONSE_CODE)}".'
+        if '<p>' in self.args[0]:
+            full_response = self.args[0].partition('<p>')[-1].rpartition('</p>')[0]
+            errStr += f'\nFull response: "{full_response}".'
         else:
-            errStr += """\nFull response: \"%s\".""" %( self.args[0], )
+            errStr += f'\nFull response: "{self.args[0]}".'
+        
         return errStr
 
 #TODO: Add exceptions for each category of HTTP error codes
 #TODO: check response code and raise corresponding exceptions
-
-def _raise_http_error( curl, response, proxy, timeout ):
-    raise ResponseError( curl, response, proxy, timeout )
+#note: this function seems to be unused
+def _raise_http_error( curl, response, proxy, timeout, maxTime ):
+    raise ResponseError( curl, response, proxy, timeout, maxTime )
 
 class Tier0Handler( object ):
 
-    def __init__( self, uri, timeOut, retries, retryPeriod, proxy, debug ):
+    def __init__( self, uri, timeOut, maxTime, retries, retryPeriod, proxy, debug ):
         """
         Parameters:
         uri: Tier0DataSvc URI;
-        timeOut: time out for Tier0DataSvc HTTPS calls;
+        timeOut: time out for connection of Tier0DataSvc HTTPS calls [seconds];
+        maxTime: maximum time for Tier0DataSvc HTTPS calls (including data transfer) [seconds];
         retries: maximum retries for Tier0DataSvc HTTPS calls;
-        retryPeriod: sleep time between two Tier0DataSvc HTTPS calls;
+        retryPeriod: sleep time between two Tier0DataSvc HTTPS calls [seconds];
         proxy: HTTP proxy for accessing Tier0DataSvc HTTPS calls;
         debug: if set to True, enables debug information.
         """
         self._uri = uri
         self._timeOut = timeOut
+        self._maxTime = maxTime
         self._retries = retries
         self._retryPeriod = retryPeriod
         self._proxy = proxy
@@ -98,7 +106,9 @@ class Tier0Handler( object ):
         if cert_path:
             certs += f' --cert {cert_path}'
         else:
-            logging.warning("No certificate provided for Tier0 access")
+            logging.warning("No certificate provided for Tier0 access, use X509_USER_CERT and"
+                            " optionally X509_USER_KEY env variables to specify the path to the cert"
+                            " (and the key unless included in the cert file)")
         if key_path:
             certs += f' --key {key_path}'
         return certs
@@ -110,9 +120,10 @@ class Tier0Handler( object ):
 
         proxy = f"--proxy {self._proxy}" if self._proxy else ""
         certs = self._getCerts() if not self._proxy or force_cert else ""
-    
-        cmd = '/usr/bin/curl -k -L --user-agent "%s" %s --connect-timeout %i --retry %i %s %s %s' \
-            % (userAgent, proxy, self._timeOut, self._retries, debug, url, certs)
+        
+        cmd = f'/usr/bin/curl -k -L --user-agent "{userAgent}" {proxy}'\
+              f' --connect-timeout {self._timeOut} --max-time {self._maxTime} --retry {self._retries}'\
+              f' {debug} {url} {certs}'
 
         # time the curl to understand if re-tries have been carried out
         start = time.time()
@@ -140,7 +151,7 @@ class Tier0Handler( object ):
             if self._proxy:
                 logging.info("before assumed proxy provides authentication, now trying with both proxy and certificate")
                 
-            time.sleep(10)
+            time.sleep(self._retryPeriod)
             retcode, stdoutdata, stderrdata, query_time = self._curlQueryTier0(url, force_debug=True, force_cert=True)
             if retcode != 0:
                 msg = "looks like curl returned an error for the second time: retcode=%s" % (retcode,)
@@ -164,7 +175,8 @@ class Tier0Handler( object ):
         firstConditionSafeRunAPI = "firstconditionsaferun"
         safeRunDict = self._queryTier0DataSvc( os.path.join( self._uri, firstConditionSafeRunAPI ) )
         if safeRunDict is None:
-            errStr = """First condition safe run is not available in Tier0DataSvc from URL \"%s\"""" %( os.path.join( self._uri, firstConditionSafeRunAPI ), )
+            errStr = """First condition safe run is not available in Tier0DataSvc from URL \"%s\"""" \
+                %( os.path.join( self._uri, firstConditionSafeRunAPI ), )
             if self._proxy:
                 errStr += """ using proxy \"%s\".""" %( str( self._proxy ), )
             raise Tier0Error( errStr )
@@ -179,19 +191,20 @@ class Tier0Handler( object ):
         Raises if connection error, bad response, timeout after retries occur, or if no Global Tags are available.
         """
         data = self._queryTier0DataSvc( os.path.join( self._uri, config ) )
-        gtnames = sorted(unique( [ str( di[ 'global_tag' ] ) for di in data['result'] if di[ 'global_tag' ] is not None ] ))
+        gtnames = sorted(unique( [ str( di['global_tag'] ) for di in data['result'] if di['global_tag'] is not None ] ))
         try:
             recentGT = gtnames[-1]
             return recentGT
         except IndexError:
-            errStr = """No Global Tags for \"%s\" are available in Tier0DataSvc from URL \"%s\"""" %( config, os.path.join( self._uri, config ) )
+            errStr = """No Global Tags for \"%s\" are available in Tier0DataSvc from URL \"%s\"""" \
+                %( config, os.path.join( self._uri, config ) )
             if self._proxy:
                 errStr += """ using proxy \"%s\".""" %( str( self._proxy ), )
         raise Tier0Error( errStr )
 
 
 def test( url ):
-    t0 = Tier0Handler( url, 1, 1, 1, None, debug=False)
+    t0 = Tier0Handler( url, 1, 5, 1, 10, None, debug=False)
 
     print('   fcsr = %s (%s)' % (t0.getFirstSafeRun(), type(t0.getFirstSafeRun()) ))
     print('   reco_config = %s' % t0.getGlobalTag('reco_config'))
@@ -201,4 +214,3 @@ def test( url ):
 
 if __name__ == '__main__':
     test( tier0Url )
-
