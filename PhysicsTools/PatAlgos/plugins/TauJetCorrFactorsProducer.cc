@@ -43,7 +43,7 @@ namespace pat {
     /// default constructor
     explicit TauJetCorrFactorsProducer(const edm::ParameterSet&);
     /// default destructor
-    ~TauJetCorrFactorsProducer() override{};
+    ~TauJetCorrFactorsProducer() override {}
 
     /// everything that needs to be done per event
     void produce(edm::Event&, const edm::EventSetup&) override;

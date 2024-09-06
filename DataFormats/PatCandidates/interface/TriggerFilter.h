@@ -61,7 +61,7 @@ namespace pat {
     TriggerFilter(const edm::InputTag& tag, int status = -1, bool saveTags = false);
 
     /// Destructor
-    virtual ~TriggerFilter(){};
+    virtual ~TriggerFilter() {}
 
     /// Methods
 
