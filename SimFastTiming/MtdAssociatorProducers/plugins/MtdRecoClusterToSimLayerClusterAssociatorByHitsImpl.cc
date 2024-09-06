@@ -131,7 +131,7 @@ reco::RecoToSimCollectionMtd MtdRecoClusterToSimLayerClusterAssociatorByHitsImpl
         outputCollection.emplace_back(recoClusterRef, simClusterRefs);
 
       }  // -- end loop over reco clus
-    }    // -- end loop over detsetclus
+    }  // -- end loop over detsetclus
   }
 
   outputCollection.post_insert();
@@ -232,7 +232,7 @@ reco::SimToRecoCollectionMtd MtdRecoClusterToSimLayerClusterAssociatorByHitsImpl
           }
 
         }  // end loop ove reco clus
-      }    // end loop over detsets
+      }  // end loop over detsets
     }
 
     // -- Now fill the output collection
