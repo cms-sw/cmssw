@@ -17,7 +17,7 @@ namespace l1tp2 {
           clusterIEta_(-99),
           clusterIPhi_(-99),
           clusterEta_(-99.),
-          clusterPhi_(-99.){};
+          clusterPhi_(-99.) {}
 
     CaloPFCluster(const PolarLorentzVector& p4,
                   float clusterEt,
@@ -30,7 +30,7 @@ namespace l1tp2 {
           clusterIEta_(clusterIEta),
           clusterIPhi_(clusterIPhi),
           clusterEta_(clusterEta),
-          clusterPhi_(clusterPhi){};
+          clusterPhi_(clusterPhi) {}
 
     inline float clusterEt() const { return clusterEt_; };
     inline int clusterIEta() const { return clusterIEta_; };

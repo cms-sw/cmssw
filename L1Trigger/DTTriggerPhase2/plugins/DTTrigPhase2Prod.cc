@@ -1210,7 +1210,7 @@ void DTTrigPhase2Prod::assignIndexPerBX(std::vector<metaPrimitive>& inMPaths) {
         }
       }
     }  // ending second for
-  }    // ending first for
+  }  // ending first for
 }
 
 int DTTrigPhase2Prod::assignQualityOrder(const metaPrimitive& mP) const {

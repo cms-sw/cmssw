@@ -42,7 +42,7 @@ void MPCoincidenceFilter::run(edm::Event &iEvent,
     outMPaths.push_back(mp);
 }
 
-void MPCoincidenceFilter::finish(){};
+void MPCoincidenceFilter::finish() {}
 
 ///////////////////////////
 ///  OTHER METHODS
@@ -189,7 +189,7 @@ std::vector<metaPrimitive> MPCoincidenceFilter::filter(std::vector<metaPrimitive
         outMPs.push_back(mp);
 
     }  // co check decision
-  }    // input MP iterator
+  }  // input MP iterator
 
   return outMPs;
 }

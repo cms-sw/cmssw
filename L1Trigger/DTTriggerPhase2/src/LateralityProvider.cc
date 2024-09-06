@@ -16,9 +16,9 @@ LateralityProvider::~LateralityProvider() {}
 // ============================================================================
 void LateralityProvider::initialise(const edm::EventSetup& iEventSetup) {}
 
-void LateralityProvider::finish(){};
+void LateralityProvider::finish() {}
 
 void LateralityProvider::run(edm::Event& iEvent,
                              const edm::EventSetup& iEventSetup,
                              MuonPathPtrs& inMpath,
-                             std::vector<lat_vector>& lateralities){};
+                             std::vector<lat_vector>& lateralities) {};

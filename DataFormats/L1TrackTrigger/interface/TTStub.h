@@ -111,7 +111,7 @@ private:
   bool thePSModule;
 
   static constexpr float dummyBend = 999999;  // Dumy value should be away from potential bends
-};                                            /// Close class
+};  /// Close class
 
 /*! \brief   Implementation of methods
  *  \details Here, in the header file, the methods which do not depend

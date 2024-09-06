@@ -117,7 +117,7 @@ void MuonPathCorFitter::run(edm::Event& iEvent,
           }
         }
       }  // looping over the 0 -> N-1 BX groups
-    }    // looping over the 1 -> N BX groups
+    }  // looping over the 1 -> N BX groups
     int iq = 0;
     for (size_t i = 0; i < mps_q8.size(); i++) {
       if (iq >= MAX_PRIM_FOR_COR)

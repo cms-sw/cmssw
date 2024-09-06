@@ -4,7 +4,7 @@
 class HGCalTriggerNtupleHGCTowers : public HGCalTriggerNtupleBase {
 public:
   HGCalTriggerNtupleHGCTowers(const edm::ParameterSet& conf);
-  ~HGCalTriggerNtupleHGCTowers() override{};
+  ~HGCalTriggerNtupleHGCTowers() override {}
   void initialize(TTree&, const edm::ParameterSet&, edm::ConsumesCollector&&) final;
   void fill(const edm::Event& e, const HGCalTriggerNtupleEventSetup& es) final;
 
