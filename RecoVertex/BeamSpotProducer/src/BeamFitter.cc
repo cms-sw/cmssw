@@ -738,7 +738,7 @@ void BeamFitter::dumpTxtFile(std::string &fileName, bool append) {
       outFile << "maxPV " << (int)ForDIPPV_[5] << std::endl;
       outFile << "nPV " << (int)ForDIPPV_[6] << std::endl;
     }  //writeDIPPVInfo_
-  }    //else end  here
+  }  //else end  here
 
   outFile.close();
 }
