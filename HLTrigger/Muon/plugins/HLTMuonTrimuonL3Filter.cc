@@ -174,8 +174,8 @@ bool HLTMuonTrimuonL3Filter::hltFilter(edm::Event& iEvent,
           L2toL3s[staTrack].push_back(RecoChargedCandidateRef(cand));
         }
       }  //MTL loop
-    }    //RCC loop
-  }      //end of using normal TrajectorySeeds
+    }  //RCC loop
+  }  //end of using normal TrajectorySeeds
 
   Handle<TriggerFilterObjectWithRefs> previousLevelCands;
   iEvent.getByToken(previousCandToken_, previousLevelCands);
@@ -498,7 +498,7 @@ bool HLTMuonTrimuonL3Filter::hltFilter(edm::Event& iEvent,
             if (atLeastOneTriplet && fast_Accept_)
               break;
           }  //loop on the third L2
-        }    //loop on the track of the second L2
+        }  //loop on the track of the second L2
         //break the loop if fast accept.
         if (atLeastOneTriplet && fast_Accept_)
           break;

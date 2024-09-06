@@ -218,7 +218,7 @@ void HLTHcalTowerNoiseCleaner::produce(edm::Event& iEvent, const edm::EventSetup
         }
       }
     }  // done with noise loop
-  }    //if(severity_>0)
+  }  //if(severity_>0)
 
   //output collection
   std::unique_ptr<CaloTowerCollection> OutputTowers(new CaloTowerCollection());

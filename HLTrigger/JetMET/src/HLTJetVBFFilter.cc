@@ -153,11 +153,11 @@ bool HLTJetVBFFilter<T>::hltFilter(edm::Event& iEvent,
           filterproduct.addObject(triggerType_, ref1);
           filterproduct.addObject(triggerType_, ref2);
         }  // VBF cuts
-           //if(n>=1) break; //Store all possible pairs
+        //if(n>=1) break; //Store all possible pairs
       }
       //if(n>=1) break; //Store all possible pairs
     }  // loop on all jets
-  }    // events with two or more jets
+  }  // events with two or more jets
 
   // filter decision
   bool accept(n >= 1);
