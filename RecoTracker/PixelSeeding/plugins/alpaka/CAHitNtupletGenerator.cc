@@ -300,9 +300,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     TrackSoA tracks(queue);
 
     // Don't bother if less than 2 this
-    if (hits_d.view().metadata().size() < 2)
+    if (hits_d.view().metadata().size() < 2) {
+      const auto device = alpaka::getDev(queue);
+      auto ntracks_d = cms::alpakatools::make_device_view(device, tracks.view().nTracks());
+      alpaka::memset(queue, ntracks_d, 0);
       return tracks;
-
+    }
     GPUKernels kernels(m_params, hits_d.view().metadata().size(), hits_d.offsetBPIX2(), queue);
 
     kernels.buildDoublets(hits_d.view(), hits_d.offsetBPIX2(), queue);
