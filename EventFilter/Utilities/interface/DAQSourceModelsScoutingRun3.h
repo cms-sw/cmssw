@@ -20,7 +20,7 @@
 class DataModeScoutingRun3 : public DataMode {
 public:
   DataModeScoutingRun3(DAQSource* daqSource) : DataMode(daqSource) {}
-  ~DataModeScoutingRun3() override{};
+  ~DataModeScoutingRun3() override {}
   std::vector<std::shared_ptr<const edm::DaqProvenanceHelper>>& makeDaqProvenanceHelpers() override;
   void readEvent(edm::EventPrincipal& eventPrincipal) override;
 

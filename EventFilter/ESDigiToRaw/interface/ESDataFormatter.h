@@ -24,7 +24,7 @@ public:
     int kchip_ec = 0;
     Meta_Data() = default;
     Meta_Data(int r, int o, int b, int l, int k_bc, int k_ec)
-        : run_number(r), orbit_number(o), bx(b), lv1(l), kchip_bc(k_bc), kchip_ec(k_ec){};
+        : run_number(r), orbit_number(o), bx(b), lv1(l), kchip_bc(k_bc), kchip_ec(k_ec) {}
   };
 
   typedef std::vector<ESDataFrame> DetDigis;
@@ -39,8 +39,8 @@ public:
       : pset_(ps),
         trgtype_(0),
         debug_(pset_.getUntrackedParameter<bool>("debugMode", false)),
-        printInHex_(pset_.getUntrackedParameter<bool>("printInHex", false)){};
-  virtual ~ESDataFormatter(){};
+        printInHex_(pset_.getUntrackedParameter<bool>("printInHex", false)) {}
+  virtual ~ESDataFormatter() {}
 
   virtual void DigiToRaw(int fedId, Digis& digis, FEDRawData& fedRawData, const Meta_Data& meta_data) const = 0;
 
