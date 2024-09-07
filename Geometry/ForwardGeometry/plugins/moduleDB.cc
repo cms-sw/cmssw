@@ -29,13 +29,17 @@ CaloGeometryDBEP<ZdcGeometry, CaloGeometryDBReader>::produceAligned(const typena
   //*********************************************************************************************
 
   const auto& zdcTopology = iRecord.get(additionalTokens_.topology);
-  assert(dvec.size() <= zdcTopology.kSizeForDenseIndexing() * ZdcGeometry::k_NumberOfParametersPerShape);
+  edm::LogWarning("Modl") << "sizes T " << tvec.size() << " D " << dvec.size() << " IV " << ivec.size() << " Dins " << dins.size();
+  
+  assert(dvec.size() <= ZdcGeometry::k_NumberOfShapes * ZdcGeometry::k_NumberOfParametersPerShape);
   ZdcGeometry* zdcGeometry = new ZdcGeometry(&zdcTopology);
   PtrType ptr(zdcGeometry);
 
+  edm::LogWarning("Modl") << "zdctop " << zdcTopology.kSizeForDenseIndexing() << " " << ZdcGeometry::k_NumberOfParametersPerShape << " " << zdcGeometry->numberOfShapes();;
+
   const unsigned int nTrParm(tvec.size() / zdcTopology.kSizeForDenseIndexing());
 
-  assert(dvec.size() == zdcTopology.kSizeForDenseIndexing() * ZdcGeometry::k_NumberOfParametersPerShape);
+  assert(dvec.size() == ZdcGeometry::k_NumberOfShapes * ZdcGeometry::k_NumberOfParametersPerShape);
 
   ptr->fillDefaultNamedParameters();
 

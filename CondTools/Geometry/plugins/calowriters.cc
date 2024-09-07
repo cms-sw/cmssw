@@ -347,7 +347,7 @@ CaloGeometryDBEP<ZdcGeometry, CaloGeometryDBWriter>::produceAligned(const typena
   // so, this check is temporary disabled. We need to implement
   // a way either to store or calculate the number of shapes or be able
   // to deal with only max numer of shapes.
-  assert(dvec.size() <= zdcTopology.kSizeForDenseIndexing() * ZdcGeometry::k_NumberOfParametersPerShape);
+  assert(dvec.size() <= ZdcGeometry::k_NumberOfShapes * ZdcGeometry::k_NumberOfParametersPerShape);
   ZdcGeometry* zdcGeometry = new ZdcGeometry(&zdcTopology);
   PtrType ptr(zdcGeometry);
 
