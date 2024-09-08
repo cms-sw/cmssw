@@ -166,7 +166,7 @@ void L3TkMuonProducer::produce(Event& event, const EventSetup& eventSetup) {
         //	edm::LogError(metname)<<" we have a shared seed right there.";
         allPossibleOrderedLx.push_back(thisSharedSeedRef);
       }  //seed is shared
-    }    //loop all other existing seed for overlaps
+    }  //loop all other existing seed for overlaps
 
     //now you have the full list of Lx objects that have seed this tracker track.
     // order the list in pT of Lx objects
@@ -204,7 +204,7 @@ void L3TkMuonProducer::produce(Event& event, const EventSetup& eventSetup) {
         break;
       }
     }  //loop possible Lx for possible assignement
-  }    //loop over ordered list of tracker track refs
+  }  //loop over ordered list of tracker track refs
 
   //prepare the output
   auto outTracks = std::make_unique<TrackCollection>(LXtoL3s.size());
