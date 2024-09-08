@@ -354,38 +354,40 @@
       hgcalPassive:HGCalHECoolingPlateL21F06, hgcalPassive:HGCalHECoolingPlateL21F07, 
       hgcalPassive:HGCalHECoolingPlateL21F08, hgcalPassive:HGCalHECoolingPlateL21F09, 
       hgcalPassive:HGCalHECoolingPlateL21F10, hgcalPassive:HGCalHECoolingPlateL21F11</Vector>
-    <Vector name="MaterialNames" type="string" nEntries="7"> 
+    <Vector name="MaterialNames" type="string" nEntries="8"> 
       materials:StainlessSteel, materials:StainlessSteel, materials:Air,
-      materials:Air, materials:Air, materials:Air, materials:Air</Vector>
-    <Vector name="VolumeNames" type="string" nEntries="7">
+      materials:Air, materials:Air, materials:Air, materials:Air,
+      materials:Air</Vector>
+    <Vector name="VolumeNames" type="string" nEntries="8">
       HGCalHEAbsorber1, HGCalHEAbsorber2, HGCalHEAirGap0, HGCalHEAirGap1,
-      HGCalHESteelCover, HGCalHECoolingPlate, HGCalHESiliconLayer</Vector>
-    <Vector name="Thickness" type="numeric" nEntries="7">
+      HGCalHESteelCover, HGCalHECoolingPlate, HGCalHESiliconLayer,
+      HGCalHEAirGap2</Vector>
+    <Vector name="Thickness" type="numeric" nEntries="8">
       [hgcal:thickHEAbsorber1], [hgcal:thickHEAbsorber2], [hgcal:thickHEAirGap],
       [hgcal:thickHEService], [hgcal:thickHESteelCover], [hgcal:thickHECooling],
-      [hgcal:ModuleThicknessHE] </Vector>
+      [hgcal:ModuleThicknessHE], 1.045*mm </Vector>
     <Vector name="Layers" type="numeric" nEntries="7">
-      5, 5, 5, 5, 5, 5, 5</Vector>
+      6, 6, 6, 6, 6, 6, 6</Vector>
     <Vector name="LayerThick" type="numeric" nEntries="7">
       [hgcal:thickHEModule1], [hgcal:thickHEModule2], [hgcal:thickHEModule2],
       [hgcal:thickHEModule2], [hgcal:thickHEModule2], [hgcal:thickHEModule2],
       [hgcal:thickHEModule2]</Vector>
-    <Vector name="LayerType" type="numeric" nEntries="35">
-      0, 2, 4, 6, 5,
-      1, 2, 4, 6, 5,
-      1, 2, 4, 6, 5,
-      1, 2, 4, 6, 5,
-      1, 2, 4, 6, 5,
-      1, 2, 4, 6, 5,
-      1, 2, 4, 6, 5 </Vector>
-    <Vector name="LayerSense" type="numeric" nEntries="35">
-       0, 0, -1, 1, -2,
-       0, 0, -1, 1, -2,
-       0, 0, -1, 1, -2,
-       0, 0, -1, 1, -2,
-       0, 0, -1, 1, -2,
-       0, 0, -1, 1, -2,
-       0, 0, -1, 1, -2</Vector>
+    <Vector name="LayerType" type="numeric" nEntries="42">
+      0, 2, 4, 7, 6, 5,
+      1, 2, 4, 7, 6, 5,
+      1, 2, 4, 7, 6, 5,
+      1, 2, 4, 7, 6, 5,
+      1, 2, 4, 7, 6, 5,
+      1, 2, 4, 7, 6, 5,
+      1, 2, 4, 7, 6, 5 </Vector>
+    <Vector name="LayerSense" type="numeric" nEntries="42">
+       0, 0, -1, 0, 1, -2,
+       0, 0, -1, 0, 1, -2,
+       0, 0, -1, 0, 1, -2,
+       0, 0, -1, 0, 1, -2,
+       0, 0, -1, 0, 1, -2,
+       0, 0, -1, 0, 1, -2,
+       0, 0, -1, 0, 1, -2</Vector>
     <Vector name="SlopeBottom" type="numeric" nEntries="4">
       0, 0, 0, 0</Vector>
     <Vector name="ZFrontBottom" type="numeric" nEntries="4">
