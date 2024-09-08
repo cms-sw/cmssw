@@ -70,6 +70,9 @@ The offsets currently in use are:
 * 0.75: HLT phase-2 timing menu
 * 0.751: HLT phase-2 timing menu Alpaka variant
 * 0.752: HLT phase-2 timing menu ticl_v5 variant
+* 0.753: HLT phase-2 timing menu Alpaka, single tracking iteration variant
+* 0.754: HLT phase-2 timing menu Alpaka, single tracking iteration, LST building variant
+* 0.755: HLT phase-2 timing menu Alpaka, LST building variant
 * 0.78: Complete L1 workflow
 * 0.8: BPH Parking (Run-2)
 * 0.81: Running also HeavyFlavor DQM
@@ -91,7 +94,6 @@ The offsets currently in use are:
 * 0.633: ECAL phase2 Trigger Primitive
 * 0.634: ECAL phase2 Trigger Primitive + component-method based digis
 * 0.635: ECAL phase2 Trigger Primitive + component-method based finely-sampled waveforms
-* 0.75: Phase-2 HLT Timing menu
 * 0.91: Track DNN modifier
 * 0.97: Premixing stage1
 * 0.98: Premixing stage2
