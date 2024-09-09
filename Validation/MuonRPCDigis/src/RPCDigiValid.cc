@@ -26,6 +26,8 @@ RPCDigiValid::RPCDigiValid(const ParameterSet &ps) {
   rpcDigiToken_ = consumes<RPCDigiCollection>(
       ps.getUntrackedParameter<edm::InputTag>("rpcDigiTag", edm::InputTag("simMuonRPCDigis")));
 
+  isDigiTimeAvailable_ = ps.getUntrackedParameter<bool>("digiTime", false);
+
   rpcGeomToken_ = esConsumes();
 }
 
@@ -122,14 +124,16 @@ void RPCDigiValid::analyze(const Event &event, const EventSetup &eventSetup) {
       }
 
       // Fill timing information
-      const double digiTime = digiIt->hasTime() ? digiIt->time() : digiIt->bx() * 25;
-      hDigiTimeAll_->Fill(digiTime);
-      if (digiIt->hasTime()) {
-        hDigiTime_->Fill(digiTime);
-        if (roll->isIRPC())
-          hDigiTimeIRPC_->Fill(digiTime);
-        else
-          hDigiTimeNoIRPC_->Fill(digiTime);
+      if (isDigiTimeAvailable_) {
+        const double digiTime = digiIt->hasTime() ? digiIt->time() : digiIt->bx() * 25;
+        hDigiTimeAll_->Fill(digiTime);
+        if (digiIt->hasTime()) {
+          hDigiTime_->Fill(digiTime);
+          if (roll->isIRPC())
+            hDigiTimeIRPC_->Fill(digiTime);
+          else
+            hDigiTimeNoIRPC_->Fill(digiTime);
+        }
       }
 
       // Keep digi position
@@ -201,9 +205,11 @@ void RPCDigiValid::bookHistograms(DQMStore::IBooker &booker, edm::Run const &run
 
   // RZ plot
   hRZ_ = booker.book2D("RZ", "R-Z view;Z (cm);R (cm)", nbinsZ, -maxZ, maxZ, nbinsR, minR, maxR);
+  hRZ_->setOption("colz");
 
   // XY plots
   hXY_Barrel_ = booker.book2D("XY_Barrel", "X-Y view of Barrel", nbinsXY, -maxXY, maxXY, nbinsXY, -maxXY, maxXY);
+  hXY_Barrel_->setOption("colz");
   for (int disk = 1; disk <= 4; ++disk) {
     const std::string meNameP = fmt::format("XY_Endcap_p{:1d}", disk);
     const std::string meNameN = fmt::format("XY_Endcap_m{:1d}", disk);
@@ -211,6 +217,8 @@ void RPCDigiValid::bookHistograms(DQMStore::IBooker &booker, edm::Run const &run
     const std::string meTitleN = fmt::format("X-Y view of Endcap{:+1d};X (cm);Y (cm)", -disk);
     hXY_Endcap_[disk] = booker.book2D(meNameP, meTitleP, nbinsXY, -maxXY, maxXY, nbinsXY, -maxXY, maxXY);
     hXY_Endcap_[-disk] = booker.book2D(meNameN, meTitleN, nbinsXY, -maxXY, maxXY, nbinsXY, -maxXY, maxXY);
+    hXY_Endcap_[disk]->setOption("colz");
+    hXY_Endcap_[-disk]->setOption("colz");
   }
 
   // Z-phi plots
@@ -218,6 +226,7 @@ void RPCDigiValid::bookHistograms(DQMStore::IBooker &booker, edm::Run const &run
     const std::string meName = fmt::format("ZPhi_Layer{:1d}", layer);
     const std::string meTitle = fmt::format("Z-#phi view of Layer{:1d};Z (cm);#phi (degree)", layer);
     hZPhi_[layer] = booker.book2D(meName, meTitle, nbinsBarrelZ, -maxBarrelZ, maxBarrelZ, nbinsPhi, -180, 180);
+    hZPhi_[layer]->setOption("colz");
   }
 
   // Strip profile
@@ -233,11 +242,13 @@ void RPCDigiValid::bookHistograms(DQMStore::IBooker &booker, edm::Run const &run
   hBxDisc_4Min_ = booker.book1D("BxDisc_4Min", "BxDisc_4Min", 20, -10., 10.);
 
   // Timing informations
-  hDigiTimeAll_ =
-      booker.book1D("DigiTimeAll", "Digi time including present electronics;Digi time (ns)", 100, -12.5, 12.5);
-  hDigiTime_ = booker.book1D("DigiTime", "Digi time only with timing information;Digi time (ns)", 100, -12.5, 12.5);
-  hDigiTimeIRPC_ = booker.book1D("DigiTimeIRPC", "IRPC Digi time;Digi time (ns)", 100, -12.5, 12.5);
-  hDigiTimeNoIRPC_ = booker.book1D("DigiTimeNoIRPC", "non-IRPC Digi time;Digi time (ns)", 100, -12.5, 12.5);
+  if (isDigiTimeAvailable_) {
+    hDigiTimeAll_ =
+        booker.book1D("DigiTimeAll", "Digi time including present electronics;Digi time (ns)", 100, -12.5, 12.5);
+    hDigiTime_ = booker.book1D("DigiTime", "Digi time only with timing information;Digi time (ns)", 100, -12.5, 12.5);
+    hDigiTimeIRPC_ = booker.book1D("DigiTimeIRPC", "IRPC Digi time;Digi time (ns)", 100, -12.5, 12.5);
+    hDigiTimeNoIRPC_ = booker.book1D("DigiTimeNoIRPC", "non-IRPC Digi time;Digi time (ns)", 100, -12.5, 12.5);
+  }
 
   // SimHit and Digi multiplicity per roll
   hNSimHitPerRoll_ = booker.book1D("NSimHitPerRoll", "SimHit multiplicity per Roll;Multiplicity", 10, 0, 10);
@@ -267,9 +278,7 @@ void RPCDigiValid::bookHistograms(DQMStore::IBooker &booker, edm::Run const &run
     hResEndcapDisks_[-disk] = booker.book1D(meNameN, meTitleN, 100, -8, 8);
   }
 
-  for (int ring = 1; ring <= 3; ++ring) {
-    const std::string meName = fmt::format("Residual_Endcap_Ring{:1d}", ring);
-    const std::string meTitle = fmt::format("Residual of Endcap Ring{:1d};dx (cm)", ring);
-    hResEndcapRings_[ring] = booker.book1D(meName, meTitle, 100, -8, 8);
-  }
+  hResEndcapRings_[1] = booker.book1D("Residual_Endcap_Ring1", "Residual of Endcap Ring1;dx (cm)", 100, -12, 12);
+  hResEndcapRings_[2] = booker.book1D("Residual_Endcap_Ring2", "Residual of Endcap Ring2;dx (cm)", 100, -8, 8);
+  hResEndcapRings_[3] = booker.book1D("Residual_Endcap_Ring3", "Residual of Endcap Ring3;dx (cm)", 100, -8, 8);
 }
