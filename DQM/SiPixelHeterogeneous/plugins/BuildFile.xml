@@ -11,5 +11,4 @@
 <use name="DataFormats/BeamSpot"/>
 <use name="CUDADataFormats/TrackingRecHit"/>
 <use name="CUDADataFormats/Track"/>
-<use name="CUDADataFormats/Vertex"/>
 <flags EDM_PLUGIN="1"/>
