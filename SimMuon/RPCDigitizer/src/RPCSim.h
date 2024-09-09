@@ -32,7 +32,7 @@ public:
   typedef edm::DetSet<StripDigiSimLink> DigiSimLinks;
   typedef edm::DetSet<RPCDigiSimLink> RPCDigiSimLinks;
 
-  virtual ~RPCSim(){};
+  virtual ~RPCSim() {}
 
   virtual void simulate(const RPCRoll* roll, const edm::PSimHitContainer& rpcHits, CLHEP::HepRandomEngine*) = 0;
 

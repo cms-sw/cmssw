@@ -16,7 +16,7 @@ HOTriggerPrimitiveDigi::HOTriggerPrimitiveDigi(
     samples = HO_TP_SAMPLES_MAX;
 
   theHO_TP = (abs(ieta) & 0xf) | ((ieta < 0) ? (0x10) : (0x00)) | ((iphi & 0x7F) << 5) | ((samples & 0xF) << 12) |
-             (((whichSampleTriggered)&0xF) << 16) | ((databits & 0x3FF) << 20);
+             (((whichSampleTriggered) & 0xF) << 16) | ((databits & 0x3FF) << 20);
 }
 
 //Request the value of a given HO TP bit in the HO TP Digi.

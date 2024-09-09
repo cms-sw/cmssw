@@ -32,7 +32,7 @@ public:
   // Two methods are needed to be implemented in the thread
   // safe watchers and producers
   virtual void registerConsumes(edm::ConsumesCollector){};
-  virtual void beginRun(edm::EventSetup const &){};
+  virtual void beginRun(edm::EventSetup const &) {}
 
   bool isMT() const { return applicableForMT; }
 

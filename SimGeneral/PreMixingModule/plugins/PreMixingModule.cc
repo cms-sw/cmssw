@@ -42,7 +42,7 @@ namespace edm {
 
     ~PreMixingModule() override = default;
 
-    void checkSignal(const edm::Event& e) override{};
+    void checkSignal(const edm::Event& e) override {}
     void createnewEDProduct() override {}
     void addSignals(const edm::Event& e, const edm::EventSetup& ES) override;
     void doPileUp(edm::Event& e, const edm::EventSetup& ES) override;
