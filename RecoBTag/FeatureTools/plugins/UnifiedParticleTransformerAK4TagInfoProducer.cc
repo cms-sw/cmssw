@@ -79,6 +79,7 @@ private:
   const double jet_radius_;
   const double min_candidate_pt_;
   const bool flip_;
+  const bool sort_cand_by_pt_;
   const bool fix_lt_sorting_;
 
   const edm::EDGetTokenT<edm::View<reco::Jet>> jet_token_;
@@ -109,6 +110,7 @@ UnifiedParticleTransformerAK4TagInfoProducer::UnifiedParticleTransformerAK4TagIn
     : jet_radius_(iConfig.getParameter<double>("jet_radius")),
       min_candidate_pt_(iConfig.getParameter<double>("min_candidate_pt")),
       flip_(iConfig.getParameter<bool>("flip")),
+      sort_cand_by_pt_(iConfig.getParameter<bool>("sort_cand_by_pt")),
       fix_lt_sorting_(iConfig.getParameter<bool>("fix_lt_sorting")),
       jet_token_(consumes<edm::View<reco::Jet>>(iConfig.getParameter<edm::InputTag>("jets"))),
       vtx_token_(consumes<VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices"))),
@@ -156,6 +158,7 @@ void UnifiedParticleTransformerAK4TagInfoProducer::fillDescriptions(edm::Configu
   desc.add<double>("jet_radius", 0.4);
   desc.add<double>("min_candidate_pt", 0.10);
   desc.add<bool>("flip", false);
+  desc.add<bool>("sort_cand_by_pt", false);
   desc.add<bool>("fix_lt_sorting", false);
   desc.add<edm::InputTag>("vertices", edm::InputTag("offlinePrimaryVertices"));
   desc.add<edm::InputTag>("losttracks", edm::InputTag("lostTracks"));
@@ -278,10 +281,16 @@ void UnifiedParticleTransformerAK4TagInfoProducer::produce(edm::Event& iEvent, c
             auto& trackinfo = lt_trackinfos.emplace(i, track_builder).first->second;
             trackinfo.buildTrackInfo(PackedCandidate_, jet_dir, jet_ref_track_dir, pv);
 
-            lt_sorted.emplace_back(i,
-                                   trackinfo.getTrackSip2dSig(),
-                                   -btagbtvdeep::mindrsvpfcand(svs_unsorted, PackedCandidate_),
-                                   PackedCandidate_->pt() / jet.pt());
+            if (sort_cand_by_pt_)
+              lt_sorted.emplace_back(i,
+                                     PackedCandidate_->pt() / jet.pt(),
+                                     trackinfo.getTrackSip2dSig(),
+                                     -btagbtvdeep::mindrsvpfcand(svs_unsorted, PackedCandidate_));
+            else
+              lt_sorted.emplace_back(i,
+                                     trackinfo.getTrackSip2dSig(),
+                                     -btagbtvdeep::mindrsvpfcand(svs_unsorted, PackedCandidate_),
+                                     PackedCandidate_->pt() / jet.pt());
 
             ltPtrs.push_back(cand);
           }
@@ -356,12 +365,21 @@ void UnifiedParticleTransformerAK4TagInfoProducer::produce(edm::Event& iEvent, c
             auto& trackinfo = trackinfos.emplace(i, track_builder).first->second;
             trackinfo.buildTrackInfo(cand, jet_dir, jet_ref_track_dir, pv);
 
-            c_sorted.emplace_back(i,
-                                  trackinfo.getTrackSip2dSig(),
-                                  -btagbtvdeep::mindrsvpfcand(svs_unsorted, cand),
-                                  cand->pt() / jet.pt());
+            if (sort_cand_by_pt_)
+              c_sorted.emplace_back(i,
+                                    cand->pt() / jet.pt(),
+                                    trackinfo.getTrackSip2dSig(),
+                                    -btagbtvdeep::mindrsvpfcand(svs_unsorted, cand));
+            else
+              c_sorted.emplace_back(i,
+                                    trackinfo.getTrackSip2dSig(),
+                                    -btagbtvdeep::mindrsvpfcand(svs_unsorted, cand),
+                                    cand->pt() / jet.pt());
           } else {
-            n_sorted.emplace_back(i, -1, -btagbtvdeep::mindrsvpfcand(svs_unsorted, cand), cand->pt() / jet.pt());
+            if (sort_cand_by_pt_)
+              n_sorted.emplace_back(i, cand->pt() / jet.pt(), -btagbtvdeep::mindrsvpfcand(svs_unsorted, cand), -1);
+            else
+              n_sorted.emplace_back(i, -1, -btagbtvdeep::mindrsvpfcand(svs_unsorted, cand), cand->pt() / jet.pt());
           }
         }
       }
