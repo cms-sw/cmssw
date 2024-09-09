@@ -1317,7 +1317,7 @@ uint16_t GEMTnPEfficiencyTask::maskChamberWithError(const GEMDetId& chamber_id,
         }
       }
     }  // range
-  }  // collection
+  }    // collection
   if (!oh_exists) {
     oh_warning = oh_warning | 1;
   }
