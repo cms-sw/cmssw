@@ -22,3 +22,13 @@ hltSiPixelClusters = cms.EDProducer("SiPixelClusterProducer",
     payloadType = cms.string('None'),
     src = cms.InputTag("simSiPixelDigis","Pixel")
 )
+
+from Configuration.ProcessModifiers.alpaka_cff import alpaka
+_hltSiPixelClusters = cms.EDProducer('SiPixelDigisClustersFromSoAAlpakaPhase2',
+    src = cms.InputTag('hltPhase2SiPixelClustersSoA'),
+    clusterThreshold_layer1 = cms.int32(4000),
+    clusterThreshold_otherLayers = cms.int32(4000),
+    produceDigis = cms.bool(False),
+    storeDigis = cms.bool(False)
+)
+alpaka.toReplaceWith(hltSiPixelClusters, _hltSiPixelClusters)

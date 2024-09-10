@@ -3,6 +3,7 @@ import FWCore.ParameterSet.Config as cms
 fragment = cms.ProcessFragment("HLT")
 
 ### Non HLT-specific event-setups
+fragment.load("Configuration/StandardSequences/Accelerators_cff")
 fragment.load("CalibMuon/CSCCalibration/CSCChannelMapper_cfi")
 fragment.load("CalibMuon/CSCCalibration/CSCIndexer_cfi")
 fragment.load("RecoHGCal/TICL/tracksterSelectionTf_cfi")
@@ -90,6 +91,10 @@ fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPKFTrajectoryFi
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPKFTrajectorySmootherForL2Muon_cfi")
 
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/trackdnn_source_cfi")
+
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPPixelCPEFastParams_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPSiPixelCablingSoA_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPSiPixelGainCalibrationForHLTSoA_cfi")
 
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_AK4PFPuppiJet520_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_Diphoton30_23_IsoCaloId_L1Seeded_cfi")
