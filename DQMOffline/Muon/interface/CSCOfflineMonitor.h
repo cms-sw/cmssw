@@ -69,7 +69,7 @@
 class CSCOfflineMonitor : public DQMEDAnalyzer {
 public:
   CSCOfflineMonitor(const edm::ParameterSet &pset);
-  ~CSCOfflineMonitor() override{};
+  ~CSCOfflineMonitor() override {}
 
   enum LabelType { SMALL, EXTENDED };
   enum AxisType { X = 1, Y = 2, Z = 3 };

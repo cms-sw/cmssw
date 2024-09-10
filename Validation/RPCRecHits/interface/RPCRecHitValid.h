@@ -26,7 +26,7 @@
 class RPCRecHitValid : public DQMEDAnalyzer {
 public:
   RPCRecHitValid(const edm::ParameterSet &pset);
-  ~RPCRecHitValid() override{};
+  ~RPCRecHitValid() override {}
 
   void analyze(const edm::Event &event, const edm::EventSetup &eventSetup) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;

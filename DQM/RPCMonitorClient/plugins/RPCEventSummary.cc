@@ -189,7 +189,7 @@ void RPCEventSummary::clientOperation(DQMStore::IGetter& igetter) {
 
       barrelFactor += wheelFactor;
     }  //
-  }    //end loop on wheel
+  }  //end loop on wheel
 
   barrelFactor = barrelFactor / 5;
 

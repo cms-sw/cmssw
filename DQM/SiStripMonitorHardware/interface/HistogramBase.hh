@@ -39,7 +39,7 @@ public:
     bool globalswitchon;
   };
 
-  virtual ~HistogramBase(){};
+  virtual ~HistogramBase() {}
 
   //initialise histograms
   //make it pure abstract: implementation in derived class.

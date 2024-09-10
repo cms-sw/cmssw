@@ -369,5 +369,5 @@ void DiMuonHistograms::analyze(const edm::Event& iEvent, const edm::EventSetup& 
         }
       }
     }  //muon2
-  }    //Muon1
+  }  //Muon1
 }

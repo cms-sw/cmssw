@@ -58,6 +58,6 @@ void MuonGEMRecHitsHarvestor::dqmEndJob(DQMStore::IBooker& booker, DQMStore::IGe
 
         bookEff1D(booker, getter, rechit_phi_path, simhit_phi_path, eff_folder, eff_phi_name, eff_phi_title);
       }  // layer loop
-    }    // station loop
-  }      // region loop
+    }  // station loop
+  }  // region loop
 }

@@ -10,9 +10,9 @@
 
 class BaseTagInfoPlotter : public BaseBTagPlotter {
 public:
-  BaseTagInfoPlotter(const std::string &tagName, const EtaPtBin &etaPtBin) : BaseBTagPlotter(tagName, etaPtBin){};
+  BaseTagInfoPlotter(const std::string &tagName, const EtaPtBin &etaPtBin) : BaseBTagPlotter(tagName, etaPtBin) {}
 
-  ~BaseTagInfoPlotter() override{};
+  ~BaseTagInfoPlotter() override {}
   virtual void analyzeTag(const reco::BaseTagInfo *tagInfo, double jec, int jetFlavour, float w = 1);
   virtual void analyzeTag(const std::vector<const reco::BaseTagInfo *> &tagInfos,
                           double jec,

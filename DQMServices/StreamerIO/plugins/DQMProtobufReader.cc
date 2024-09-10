@@ -281,7 +281,7 @@ void DQMProtobufReader::load(DQMStore* store, std::string filename) {
   }
 }
 
-void DQMProtobufReader::readEvent_(edm::EventPrincipal&){};
+void DQMProtobufReader::readEvent_(edm::EventPrincipal&) {}
 
 void DQMProtobufReader::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;

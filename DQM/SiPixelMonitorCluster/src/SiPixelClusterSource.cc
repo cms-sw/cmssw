@@ -490,8 +490,8 @@ void SiPixelClusterSource::getrococcupancy(DetId detId,
 
       float modsign = (float)DBmodule / (abs((float)DBmodule));
       float ladsign = (float)DBladder / (abs((float)DBladder));
-      float rocx = ((float)col / (52. * 8.)) * modsign + ((float)DBmodule - (modsign)*0.5);
-      float rocy = ((float)row / (80. * 2.)) * ladsign + ((float)DBladder - (ladsign)*0.5);
+      float rocx = ((float)col / (52. * 8.)) * modsign + ((float)DBmodule - (modsign) * 0.5);
+      float rocy = ((float)row / (80. * 2.)) * ladsign + ((float)DBladder - (ladsign) * 0.5);
 
       // do the flip where need
       bool flip = false;
@@ -499,9 +499,9 @@ void SiPixelClusterSource::getrococcupancy(DetId detId,
         flip = true;
       }
       if ((flip) && (DBladder > 0)) {
-        if ((((float)DBladder - (ladsign)*0.5) <= rocy) && (rocy < (float)DBladder)) {
+        if ((((float)DBladder - (ladsign) * 0.5) <= rocy) && (rocy < (float)DBladder)) {
           rocy = rocy + ladsign * 0.5;
-        } else if ((((float)DBladder) <= rocy) && (rocy < ((float)DBladder + (ladsign)*0.5))) {
+        } else if ((((float)DBladder) <= rocy) && (rocy < ((float)DBladder + (ladsign) * 0.5))) {
           rocy = rocy - ladsign * 0.5;
         }
       }

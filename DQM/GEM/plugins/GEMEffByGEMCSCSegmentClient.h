@@ -15,7 +15,7 @@
 class GEMEffByGEMCSCSegmentClient : public GEMDQMEfficiencyClientBase {
 public:
   GEMEffByGEMCSCSegmentClient(const edm::ParameterSet &);
-  ~GEMEffByGEMCSCSegmentClient() override{};
+  ~GEMEffByGEMCSCSegmentClient() override {}
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
 protected:
@@ -24,7 +24,7 @@ protected:
                              edm::LuminosityBlock const &,
                              edm::EventSetup const &) override;
 
-  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override{};
+  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override {}
 
   const std::string kFolder_;
 };

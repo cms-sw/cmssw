@@ -35,7 +35,7 @@ public:
   DQMFileSaver(const edm::ParameterSet &ps);
 
 protected:
-  void beginRun(edm::Run const &, edm::EventSetup const &) override{};
+  void beginRun(edm::Run const &, edm::EventSetup const &) override {}
   void analyze(const edm::Event &e, const edm::EventSetup &) override;
   void endRun(const edm::Run &, const edm::EventSetup &) override;
   void endProcessBlock(const edm::ProcessBlock &) override;

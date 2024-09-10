@@ -35,7 +35,7 @@ public:
   MuonRecoTest(const edm::ParameterSet& ps);
 
   /// Destructor
-  ~MuonRecoTest() override{};
+  ~MuonRecoTest() override {}
 
 protected:
   /// Endjob

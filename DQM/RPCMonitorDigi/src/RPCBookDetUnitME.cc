@@ -180,8 +180,8 @@ void RPCMonitorDigi::bookSectorRingME(DQMStore::IBooker& ibooker,
         meMap[meClus3] = mecl3;
         meMap[meClus4] = mecl4;
       }  //loop ring
-    }    //loop disk
-  }      //loop region
+    }  //loop disk
+  }  //loop region
 }
 
 void RPCMonitorDigi::bookWheelDiskME(DQMStore::IBooker& ibooker,

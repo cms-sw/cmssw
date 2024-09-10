@@ -771,7 +771,7 @@ void SiPixelActionExecutor::fillFEDErrorSummary(DQMStore::IBooker &iBooker,
             temp = iGetter.get(fullpathname);
             temp->Reset();
           }  // If I don't reset this one, then I instead start adding error
-             // codes..
+          // codes..
         }
         sum_mes.push_back(temp);
       }
@@ -1245,14 +1245,14 @@ void SiPixelActionExecutor::fillGrandBarrelSummaryHistos(DQMStore::IBooker &iBoo
                     (*igm)->setBinContent(k + nbin_i, me->getBinContent(k));
               }
             }  // end var in igm (gsum_mes)
-          }    // end igm loop
-        }      // end var in im (contents)
-      }        // end of iv loop
-    }          // end of im loop
+          }  // end igm loop
+        }  // end var in im (contents)
+      }  // end of iv loop
+    }  // end of im loop
     iDir++;
     first_subdir = false;  // We are done processing the first directory, we
                            // don't add any new MEs in the future passes.
-  }                        // end of it loop (subdirs)
+  }  // end of it loop (subdirs)
   //  cout<<"...leaving
   //  SiPixelActionExecutor::fillGrandBarrelSummaryHistos!"<<endl;
 }
@@ -1569,7 +1569,7 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(DQMStore::IBooker &iBoo
 
     first_subdir = false;  // We are done processing the first directory, we
                            // don't add any new MEs in the future passes.
-  }                        // end for it (subdirs)
+  }  // end for it (subdirs)
 }
 //=============================================================================================================
 //

@@ -36,14 +36,14 @@
 class HLTGenValClient : public DQMEDHarvester {
 public:
   HLTGenValClient(const edm::ParameterSet& pset);
-  ~HLTGenValClient() override{};
+  ~HLTGenValClient() override {}
 
   void dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
                              DQMStore::IGetter& igetter,
                              const edm::LuminosityBlock& lumiSeg,
                              const edm::EventSetup& c) override;
   void dqmEndRun(DQMStore::IBooker&, DQMStore::IGetter&, edm::Run const&, edm::EventSetup const&) override;
-  void dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter&) override{};
+  void dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter&) override {}
 
   struct EfficOption {
     std::string name, title;

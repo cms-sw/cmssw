@@ -21,7 +21,7 @@ protected:
                              edm::LuminosityBlock const& iLumi,
                              edm::EventSetup const& /* iSetup */) override;
 
-  void dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter&) override{};
+  void dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter&) override {}
 
 private:
   std::string eventInfoFolder_;
