@@ -310,10 +310,11 @@ void HGCalUnpacker::parseFEDData(unsigned fedId,
         //    << "  expected payload length=" << econd_payload_length;
       }
     }
-    // skip the padding word as capture blocks are padded to 128b
-    if (std::distance(ptr, header) % 2) {
-      ++ptr;
-    }
+  }
+
+  // skip the padding word as the last capture block will be aligned to 128b if needed
+  if (std::distance(ptr, header) % 2) {
+    ++ptr;
   }
 
   // check SLink trailer (128b)
