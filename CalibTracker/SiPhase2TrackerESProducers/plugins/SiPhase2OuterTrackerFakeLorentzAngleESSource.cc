@@ -61,8 +61,8 @@ namespace fakeOTLA {
             edm::LogError("SiPhase2OuterTrackerFakeLorentzAngleESSource")
                 << "[SiPhase2OuterTrackerFakeLorentzAngleESSource::produce] detid already exists" << std::endl;
         }  // if it's a OT DetId
-      }    // check if Tracker
-    }      // loop on DetIds
+      }  // check if Tracker
+    }  // loop on DetIds
     return std::unique_ptr<T>(obj);
   }
 }  // namespace fakeOTLA
