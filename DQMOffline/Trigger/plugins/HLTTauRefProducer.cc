@@ -31,7 +31,7 @@ HLTTauRefProducer::HLTTauRefProducer(const edm::ParameterSet& iConfig) {
   {
     auto const& pfTau = iConfig.getUntrackedParameter<edm::ParameterSet>("PFTaus");
     PFTaus_ = consumes<reco::PFTauCollection>(pfTau.getUntrackedParameter<InputTag>("PFTauProducer", InputTag()));
-    PATTaus_ = consumes<edm::View<pat::Tau>>(pfTau.getUntrackedParameter<InputTag>("PFTauProducer", InputTag()));
+    PATTaus_ = consumes<edm::View<pat::Tau>>(pfTau.getUntrackedParameter<InputTag>("PatTauProducer", InputTag()));
     auto discs = pfTau.getUntrackedParameter<vector<InputTag>>("PFTauDiscriminators");
     auto discConts = pfTau.getUntrackedParameter<vector<InputTag>>("PFTauDiscriminatorContainers");
     PFTauDisContWPs_ = pfTau.getUntrackedParameter<vector<std::string>>("PFTauDiscriminatorContainerWPs");
