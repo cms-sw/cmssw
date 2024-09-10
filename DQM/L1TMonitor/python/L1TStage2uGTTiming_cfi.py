@@ -58,8 +58,8 @@ l1tStage2uGTTiming = DQMEDAnalyzer('L1TStage2uGTTiming',
     useAlgoDecision = cms.untracked.string("initial")
 )
 
-from Configuration.Eras.Modifier_run3_2024_L1T_cff import run3_2024_L1T
-run3_2024_L1T.toModify(l1tStage2uGTTiming,
+from Configuration.Eras.Modifier_stage2L1Trigger_2024_cff import stage2L1Trigger_2024
+stage2L1Trigger_2024.toModify(l1tStage2uGTTiming,
     unprescaledAlgoShortList = unprescaledAlgoList_2024,
     prescaledAlgoShortList = prescaledAlgoList_2024
 )
