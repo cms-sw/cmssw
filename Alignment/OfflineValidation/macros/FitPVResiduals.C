@@ -3083,11 +3083,26 @@ std::pair<params::measurement, params::measurement> fitResiduals(TH1 *hist, bool
     sigma = func.GetParameter(2);
 
     if (!singleTime) {
-      // second fit: three sigma of first fit around mean of first fit
+      // Check if histogram is weighted
+      double sumWeights = hist->GetSumOfWeights();
+      double effectiveEntries = hist->GetEffectiveEntries();
+      bool isWeighted = !(sumWeights == effectiveEntries);
+
+      if (isWeighted && isDebugMode) {
+        std::cout << "A weighted input histogram has been provided, will use least squares fit instead of likelihood!"
+                  << " Sum of weights: " << sumWeights << " effective entries: " << hist->GetEffectiveEntries()
+                  << std::endl;
+      }
+      // If histogram is weighted, exclude the "L" option (Likelihood fit)
+      std::string fitOptions = isWeighted ? "Q0R" : "Q0LR";
+
+      // second fit: two sigma of first fit around mean of first fit
       func.SetRange(std::max(mean - 2 * sigma, minHist), std::min(mean + 2 * sigma, maxHist));
+
+      // Perform fit with the appropriate options
       // I: integral gives more correct results if binning is too wide
       // L: Likelihood can treat empty bins correctly (if hist not weighted...)
-      if (0 == hist->Fit(&func, "Q0LR")) {
+      if (0 == hist->Fit(&func, fitOptions.c_str())) {
         if (hist->GetFunction(func.GetName())) {  // Take care that it is later on drawn:
           hist->GetFunction(func.GetName())->ResetBit(TF1::kNotDraw);
         }
