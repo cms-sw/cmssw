@@ -6,8 +6,6 @@
 <use name="RecoLocalTracker/Records"/>
 <use name="RecoLocalTracker/SiPixelRecHits"/>
 <library file="*.cc" name="RecoLocalTrackerSiPixelRecHitsPlugins">
-  <use name="CUDADataFormats/BeamSpot"/>
-  <use name="HeterogeneousCore/CUDACore"/>
   <flags EDM_PLUGIN="1"/>
 </library>
 <library file="alpaka/*.cc" name="RecoLocalTrackerSiPixelRecHitsPluginsPortable">
