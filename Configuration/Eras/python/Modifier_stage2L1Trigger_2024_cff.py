@@ -1,3 +1,3 @@
 import FWCore.ParameterSet.Config as cms
 
-run3_2024_L1T = cms.Modifier()
+stage2L1Trigger_2024 = cms.Modifier()
