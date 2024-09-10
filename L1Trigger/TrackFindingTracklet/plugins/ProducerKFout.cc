@@ -352,7 +352,7 @@ namespace trklet {
             sortedPartialTracks[iLink].push_back({nullPartialBits, nullTrackRef});
           // keep TTTrackRef null every third (96 bits / 32 partial bits) output packet
           TTTrackRef fillTrackRef;
-          if ((iTrack / partialFactor + 1) % (TTTrack_TrackWord::TrackBitWidths::kTrackWordSize / partialTrackWordBits_) != 0)
+          if ((iTrack / partialFactor + 1) % (TTTrack_TrackWord::kTrackWordSize / partialTrackWordBits_) != 0)
             fillTrackRef = sortedPartialTracks[iLink][iTrack + 1].trackRef;
 
           // if there are too many output packets, truncate and put remaining outputs in lost collection
