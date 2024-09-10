@@ -94,9 +94,29 @@
     <rMaterial name="materials:Air"/>
    </MaterialFraction>
   </CompositeMaterial>
-  <CompositeMaterial name="HGC_Kapton" density="1.11*g/cm3" symbol=" " method="mixture by weight">
-   <MaterialFraction fraction="1.0">
-    <rMaterial name="materials:Kapton"/>
+  <CompositeMaterial name="HGC_Kapton_PDG" density="1.42*g/cm3" symbol=" " method="mixture by weight">
+   <MaterialFraction fraction="0.0264">
+    <rMaterial name="materials:Hydrogen"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.0733">
+    <rMaterial name="materials:Nitrogen"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.2092">
+    <rMaterial name="materials:Oxygen"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.6911">
+    <rMaterial name="materials:Carbon"/>
+   </MaterialFraction>
+  </CompositeMaterial>
+  <CompositeMaterial name="HGC_Kapton" density="1.681*g/cm3" symbol=" " method="mixture by weight">
+   <MaterialFraction fraction="0.422">
+    <rMaterial name="hgcalMaterial:HGC_Kapton_PDG"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.320">
+    <rMaterial name="materials:Copper"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.258">
+    <rMaterial name="materials:Epoxy"/>
    </MaterialFraction>
   </CompositeMaterial>
   <CompositeMaterial name="HGC_Epoxy" density="1.30*g/cm3" symbol=" " method="mixture by weight">
@@ -104,9 +124,12 @@
     <rMaterial name="materials:Epoxy"/>
    </MaterialFraction>
   </CompositeMaterial>
-  <CompositeMaterial name="HGC_Hexaboard" density="1.70*g/cm3" symbol=" " method="mixture by weight">
-   <MaterialFraction fraction="1.0">
-    <rMaterial name="hgcalMaterial:HGC_G10-FR4"/>
+  <CompositeMaterial name="HGC_Hexaboard" density="2.432*g/cm3" symbol=" " method="mixture by weight">
+   <MaterialFraction fraction="0.581">
+    <rMaterial name="materials:M_NEMA FR4 plate"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.419">
+    <rMaterial name="materials:Copper"/>
    </MaterialFraction>
   </CompositeMaterial>
   <CompositeMaterial name="HGC_HEBasePlate" density="1.70*g/cm3" symbol=" " method="mixture by weight">

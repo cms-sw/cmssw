@@ -269,7 +269,7 @@
     <Vector name="Thickness" type="numeric" nEntries="9">
       [hgcal:thickEEAbsorber1], [hgcal:thickEEAbsorber2], [hgcal:thickEEAbsorber3],
       [hgcal:thickEECooling], 1.0*mm, [hgcal:ModuleThicknessEE],
-      [hgcal:ModuleThicknessEE], 1.490*mm, 1.465*mm</Vector>
+      [hgcal:ModuleThicknessEE], 1.375*mm, 1.350*mm</Vector>
     <Vector name="Layers" type="numeric" nEntries="13"> 
       6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 7</Vector>
     <Vector name="LayerThick" type="numeric" nEntries="13"> 

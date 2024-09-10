@@ -12,8 +12,8 @@
   <Constant name="GuardRingOffset"       value="0.90*mm"/>
   <Constant name="MouseBite"             value="5.00*mm"/>
   <Constant name="UseOffset"             value="1"/>
-  <Constant name="ModuleThicknessEE"     value="8.37*mm"/>
-  <Constant name="ModuleThicknessHE"     value="9.18*mm"/>
+  <Constant name="ModuleThicknessEE"     value="8.485*mm"/>
+  <Constant name="ModuleThicknessHE"     value="8.135*mm"/>
   <Constant name="CellThicknessFine"     value="0.12*mm"/>
   <Constant name="CellThicknessCoarse1"  value="0.20*mm"/>
   <Constant name="CellThicknessCoarse2"  value="0.30*mm"/>
