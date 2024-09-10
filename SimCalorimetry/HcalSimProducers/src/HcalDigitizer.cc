@@ -204,7 +204,8 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet &ps, edm::ConsumesCollector
       std::make_unique<QIE10Digitizer>(theHFQIE10Response.get(), theHFQIE10ElectronicsSim.get(), doEmpty);
   theHFDigitizer = std::make_unique<HFDigitizer>(theHFResponse.get(), theHFElectronicsSim.get(), doEmpty);
 
-  theZDCDigitizer = std::make_unique<ZDCDigitizer>(theZDCResponse.get(), theZDCElectronicsSim.get(), doEmpty);
+  // temporary move until Run3 ZDC will be added
+  //  theZDCDigitizer = std::make_unique<ZDCDigitizer>(theZDCResponse.get(), theZDCElectronicsSim.get(), doEmpty);
 
   testNumbering_ = ps.getParameter<bool>("TestNumbering");
   //  edm::LogVerbatim("HcalSim") << "Flag to see if Hit Relabeller to be initiated " << testNumbering_;
@@ -233,7 +234,8 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet &ps, edm::ConsumesCollector
       theHFDigitizer->setDebugCaloSamples(true);
     if (theHFQIE10Digitizer)
       theHFQIE10Digitizer->setDebugCaloSamples(true);
-    theZDCDigitizer->setDebugCaloSamples(true);
+    if (theZDCDigitizer)
+      theZDCDigitizer->setDebugCaloSamples(true);
   }
 
   // option to ignore Geant time distribution in SimHits, for debugging
@@ -298,8 +300,10 @@ void HcalDigitizer::setHONoiseSignalGenerator(HcalBaseSignalGenerator *noiseGene
 void HcalDigitizer::setZDCNoiseSignalGenerator(HcalBaseSignalGenerator *noiseGenerator) {
   noiseGenerator->setParameterMap(&theParameterMap);
   noiseGenerator->setElectronicsSim(theZDCElectronicsSim.get());
-  theZDCDigitizer->setNoiseSignalGenerator(noiseGenerator);
-  theZDCAmplifier->setNoiseSignalGenerator(noiseGenerator);
+  if (theZDCDigitizer) {
+    theZDCDigitizer->setNoiseSignalGenerator(noiseGenerator);
+    theZDCAmplifier->setNoiseSignalGenerator(noiseGenerator);
+  }
 }
 
 void HcalDigitizer::initializeEvent(edm::Event const &e, edm::EventSetup const &eventSetup) {
@@ -336,7 +340,8 @@ void HcalDigitizer::initializeEvent(edm::Event const &e, edm::EventSetup const &
     theHFQIE10Digitizer->initializeHits();
   if (theHFDigitizer)
     theHFDigitizer->initializeHits();
-  theZDCDigitizer->initializeHits();
+  if (theZDCDigitizer)
+    theZDCDigitizer->initializeHits();
 }
 
 void HcalDigitizer::accumulateCaloHits(edm::Handle<std::vector<PCaloHit>> const &hcalHandle,
@@ -414,7 +419,7 @@ void HcalDigitizer::accumulateCaloHits(edm::Handle<std::vector<PCaloHit>> const 
   }
 
   if (isZDC) {
-    if (zdcgeo) {
+    if (zdcgeo && theZDCDigitizer) {
       theZDCDigitizer->add(*zdcHandle.product(), bunchCrossing, engine);
     }
   } else {
@@ -488,7 +493,7 @@ void HcalDigitizer::finalizeEvent(edm::Event &e, const edm::EventSetup &eventSet
     if (theHFQIE10Digitizer)
       theHFQIE10Digitizer->run(*hfQIE10Result, engine);
   }
-  if (isZDC && zdcgeo) {
+  if (isZDC && zdcgeo && theZDCDigitizer) {
     theZDCDigitizer->run(*zdcResult, engine);
   }
 
@@ -538,8 +543,9 @@ void HcalDigitizer::finalizeEvent(edm::Event &e, const edm::EventSetup &eventSet
     if (theHFQIE10Digitizer)
       csResult->insert(
           csResult->end(), theHFQIE10Digitizer->getCaloSamples().begin(), theHFQIE10Digitizer->getCaloSamples().end());
-    csResult->insert(
-        csResult->end(), theZDCDigitizer->getCaloSamples().begin(), theZDCDigitizer->getCaloSamples().end());
+    if (theZDCDigitizer)
+      csResult->insert(
+          csResult->end(), theZDCDigitizer->getCaloSamples().begin(), theZDCDigitizer->getCaloSamples().end());
     e.put(std::move(csResult), "HcalSamples");
   }
 
@@ -637,7 +643,8 @@ void HcalDigitizer::updateGeometry(const edm::EventSetup &eventSetup) {
   // handle mixed QIE8/10 scenario in HF
   buildHFQIECells(hfCells, eventSetup);
 
-  theZDCDigitizer->setDetIds(zdcCells);
+  if (theZDCDigitizer)
+    theZDCDigitizer->setDetIds(zdcCells);
 
   // fill test hits collection if desired and empty
   if (injectTestHits_ && injectedHits_.empty() && !injectedHitsCells_.empty() && !injectedHitsEnergy_.empty()) {
