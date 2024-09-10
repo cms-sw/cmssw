@@ -45,6 +45,7 @@ private:
   MonitorElement *hBxDisc_4Min_;
 
   // Timing information
+  bool isDigiTimeAvailable_;
   MonitorElement *hDigiTimeAll_, *hDigiTime_, *hDigiTimeIRPC_, *hDigiTimeNoIRPC_;
 
   // Multiplicity plots
