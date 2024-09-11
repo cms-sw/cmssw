@@ -1051,11 +1051,13 @@ namespace trklet {
     // All layers, disks disabled by default, also is overwritten by above duplicateMPs bool
 
     // EqualProjBalancing is for layers for which the projections to each duplicated MP are split in half sequentially
-    std::array<bool, N_LAYER + N_DISK> layersDisksDuplicatedEqualProjBalance_{{false, false, false, false, false, false, false, false, false, false, false}};
+    std::array<bool, N_LAYER + N_DISK> layersDisksDuplicatedEqualProjBalance_{
+        {false, false, false, false, false, false, false, false, false, false, false}};
 
     // Weighted proj balancing is for specifically L4, L5 where the split of the projections is weighted to account for
     // Higher occupancy in the L1L2 seed to minimize truncation
-    std::array<bool, N_LAYER + N_DISK> layersDisksDuplicatedWeightedProjBalance_{{false, false, false, false, false, false, false, false, false, false, false}};
+    std::array<bool, N_LAYER + N_DISK> layersDisksDuplicatedWeightedProjBalance_{
+        {false, false, false, false, false, false, false, false, false, false, false}};
 
     // Example use where for L3, L4, L5, D2, D3, the layers/disks where truncation is worst
     //std::array<bool, N_LAYER + N_DISK> layersDisksDuplicatedEqualProjBalance_{{0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 0}};
