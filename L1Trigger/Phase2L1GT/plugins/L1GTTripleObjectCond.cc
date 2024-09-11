@@ -204,6 +204,10 @@ bool L1GTTripleObjectCond::filter(edm::StreamID, edm::Event& event, const edm::E
     }
   }
 
+  condition_result &= collection1Cuts_.checkCollection(*col1);
+  condition_result &= collection2Cuts_.checkCollection(*col2);
+  condition_result &= collection3Cuts_.checkCollection(*col3);
+
   if (condition_result) {
     std::unique_ptr<P2GTCandidateVectorRef> triggerCol1 = std::make_unique<P2GTCandidateVectorRef>();
 
