@@ -1,6 +1,6 @@
+// -*- C++ -*-
 #ifndef FWCore_Framework_EventSetupRecordImpl_h
 #define FWCore_Framework_EventSetupRecordImpl_h
-// -*- C++ -*-
 //
 // Package:     Framework
 // Class  :     EventSetupRecordImpl
@@ -37,7 +37,6 @@ through the 'validityInterval' method.
 // user include files
 #include "FWCore/Framework/interface/FunctorESHandleExceptionFactory.h"
 #include "FWCore/Framework/interface/DataKey.h"
-#include "FWCore/Framework/interface/NoProductResolverException.h"
 #include "FWCore/Framework/interface/ValidityInterval.h"
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
@@ -46,8 +45,6 @@ through the 'validityInterval' method.
 #include "FWCore/Utilities/interface/ESIndices.h"
 
 // system include files
-#include <exception>
-#include <limits>
 #include <memory>
 #include <vector>
 #include <atomic>
@@ -166,23 +163,9 @@ namespace edm {
                              ComponentDescription const*& oDesc,
                              std::shared_ptr<ESHandleExceptionFactory>& whyFailedFactory) const {
         DataKey const* dataKey = nullptr;
-        if (iResolverIndex.value() == std::numeric_limits<int>::max()) {
-          whyFailedFactory = makeESHandleExceptionFactory([this] {
-            NoProductResolverException<DataT> ex(this->key(), {});
-            return std::make_exception_ptr(ex);
-          });
-          iData = nullptr;
-          return;
-        }
         assert(iResolverIndex.value() > -1 and
                iResolverIndex.value() < static_cast<ESResolverIndex::Value_t>(keysForProxies_.size()));
         void const* pValue = this->getFromResolverAfterPrefetch(iResolverIndex, iTransientAccessOnly, oDesc, dataKey);
-        if (nullptr == pValue) {
-          whyFailedFactory = makeESHandleExceptionFactory([this, dataKey] {
-            NoProductResolverException<DataT> ex(this->key(), *dataKey);
-            return std::make_exception_ptr(ex);
-          });
-        }
         iData = reinterpret_cast<DataT const*>(pValue);
       }
 

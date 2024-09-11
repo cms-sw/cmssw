@@ -2,6 +2,7 @@
 
 #include "FWCore/Framework/interface/ESRecordsToProductResolverIndices.h"
 #include "FWCore/Framework/interface/ComponentDescription.h"
+#include "FWCore/Utilities/interface/ESIndices.h"
 
 #include <memory>
 #include <string>
@@ -44,7 +45,7 @@ TEST_CASE("test ESRecordsToProductResolverIndices", "[ESRecordsToProductResolver
   auto const rcd3Key = EventSetupRecordKey::makeKey<Rcd3>();
   auto const missingRcdKey = EventSetupRecordKey::makeKey<MissingRcd>();
 
-  auto constexpr kMissingKey = ESRecordsToProductResolverIndices::missingResolverIndex();
+  auto constexpr kMissingKey = edm::ESResolverIndex::noResolverConfigured();
 
   SECTION("test empty") {
     ESRecordsToProductResolverIndices empty{{}};
