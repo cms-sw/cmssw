@@ -36,15 +36,61 @@ print(options)
 
 from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
 
-if (options.type == "DDD"):
-    process = cms.Process('G4PrintGeometry',Phase2C17I13M9)
-    geomFile = "Configuration.Geometry.GeometryExtended2026" + options.geometry + "Reco_cff"
-    process.load(geomFile)
+if (options.geometry == "D115"):
+    from Configuration.Eras.Era_Phase2C20I13M9_cff import Phase2C20I13M9
+    if (options.type == "DD4hep"):
+        process = cms.Process('G4PrintGeometry',Phase2C20I13M9,dd4hep)
+    else:
+        process = cms.Process('G4PrintGeometry',Phase2C20I13M9)
+elif (options.geometry == "D104"):
+    from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
+    if (options.type == "DD4hep"):
+        process = cms.Process('G4PrintGeometry',Phase2C22I13M9,dd4hep)
+    else:
+        process = cms.Process('G4PrintGeometry',Phase2C22I13M9)
+elif (options.geometry == "D106"):
+    from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
+    if (options.type == "DD4hep"):
+        process = cms.Process('G4PrintGeometry',Phase2C22I13M9,dd4hep)
+    else:
+        process = cms.Process('G4PrintGeometry',Phase2C22I13M9)
+elif (options.geometry == "D109"):
+    from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
+    if (options.type == "DD4hep"):
+        process = cms.Process('G4PrintGeometry',Phase2C22I13M9,dd4hep)
+    else:
+        process = cms.Process('G4PrintGeometry',Phase2C22I13M9)
+elif (options.geometry == "D111"):
+    from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
+    if (options.type == "DD4hep"):
+        process = cms.Process('G4PrintGeometry',Phase2C22I13M9,dd4hep)
+    else:
+        process = cms.Process('G4PrintGeometry',Phase2C22I13M9)
+elif (options.geometry == "D112"):
+    from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
+    if (options.type == "DD4hep"):
+        process = cms.Process('G4PrintGeometry',Phase2C22I13M9,dd4hep)
+    else:
+        process = cms.Process('G4PrintGeometry',Phase2C22I13M9)
+elif (options.geometry == "D113"):
+    from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
+    if (options.type == "DD4hep"):
+        process = cms.Process('G4PrintGeometry',Phase2C22I13M9,dd4hep)
+    else:
+        process = cms.Process('G4PrintGeometry',Phase2C22I13M9)
 else:
-    from Configuration.ProcessModifiers.dd4hep_cff import dd4hep
-    process = cms.Process('G4PrintGeometry',Phase2C17I13M9,dd4hep)
+    from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
+    if (options.type == "DD4hep"):
+        process = cms.Process('G4PrintGeometry',Phase2C17I13M9,dd4hep)
+    else:
+        process = cms.Process('G4PrintGeometry',Phase2C17I13M9)
+
+if (options.type == "DDD"):
+    geomFile = "Configuration.Geometry.GeometryExtended2026" + options.geometry + "Reco_cff"
+else:
     geomFile = "Configuration.Geometry.GeometryDD4hepExtended2026" + options.geometry + "Reco_cff"
-    process.load(geomFile)
+
+process.load(geomFile)
 
 print("Geometry file Name: ", geomFile)
 

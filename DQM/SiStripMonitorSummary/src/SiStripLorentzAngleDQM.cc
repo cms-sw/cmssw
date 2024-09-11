@@ -252,5 +252,5 @@ void SiStripLorentzAngleDQM::fillMEsForLayer(
         selME_.SummaryOfCumulDistr->Fill(condObj_->getLorentzAngle(sameLayerDetIds_[i]));
       }
     }  // if Fill ...
-  }    // FILLING FOR LAYER LEVEL
+  }  // FILLING FOR LAYER LEVEL
 }

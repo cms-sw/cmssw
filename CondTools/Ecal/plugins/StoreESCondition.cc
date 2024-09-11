@@ -424,10 +424,10 @@ std::shared_ptr<ESChannelStatus> StoreESCondition::readESChannelStatusFromFile(c
             }  // valid DetId
             //	    catch ( cms::Exception &e ) { }
           }  // loop over z
-        }    //  loop over plane
-      }      //   loop over y
-    }        //    loop over x
-  }          //     loop over strips
+        }  //  loop over plane
+      }  //   loop over y
+    }  //    loop over x
+  }  //     loop over strips
   edm::LogInfo("StoreESCondition") << " Nb of strips " << Nbstrip << " Number of bad channels " << Nbstatus << "\n";
   statusFile.close();
 

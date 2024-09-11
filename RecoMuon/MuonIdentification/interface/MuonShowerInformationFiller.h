@@ -73,7 +73,7 @@ public:
 
 public:
   ///constructors
-  MuonShowerInformationFiller(){};
+  MuonShowerInformationFiller() {}
   MuonShowerInformationFiller(const edm::ParameterSet&, edm::ConsumesCollector&);
 
   ///destructor

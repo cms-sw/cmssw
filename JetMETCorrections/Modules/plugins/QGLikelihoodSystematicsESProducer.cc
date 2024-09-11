@@ -25,7 +25,7 @@
 class QGLikelihoodSystematicsESProducer : public edm::ESProducer {
 public:
   QGLikelihoodSystematicsESProducer(const edm::ParameterSet&);
-  ~QGLikelihoodSystematicsESProducer() override{};
+  ~QGLikelihoodSystematicsESProducer() override {}
 
   std::shared_ptr<const QGLikelihoodSystematicsObject> produce(const QGLikelihoodSystematicsRcd&);
 

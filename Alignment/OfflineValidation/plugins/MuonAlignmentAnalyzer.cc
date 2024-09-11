@@ -2461,7 +2461,7 @@ void MuonAlignmentAnalyzer::analyze(const edm::Event &event, const edm::EventSet
               }
 
             }  //loop over my4DTrack
-          }    //TSOS was valid
+          }  //TSOS was valid
 
         }  // cut in at least 4 segments
 

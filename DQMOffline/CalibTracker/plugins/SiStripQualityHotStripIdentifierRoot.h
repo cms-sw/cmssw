@@ -49,7 +49,7 @@ private:
   void algoEndJob() override;
 
   //Will be called at every event
-  void algoAnalyze(const edm::Event&, const edm::EventSetup&) override{};
+  void algoAnalyze(const edm::Event&, const edm::EventSetup&) override {}
 
   std::unique_ptr<SiStripBadStrip> getNewObject() override;
 

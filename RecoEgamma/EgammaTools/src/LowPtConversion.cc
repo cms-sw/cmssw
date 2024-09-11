@@ -192,7 +192,7 @@ bool LowPtConversion::match(const reco::BeamSpot& beamSpot,
         }
       }
     }  // track loop
-  }    // conversions loop
+  }  // conversions loop
 
   return matched_;
 }

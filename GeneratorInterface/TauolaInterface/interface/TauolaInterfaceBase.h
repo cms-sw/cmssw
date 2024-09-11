@@ -18,19 +18,19 @@
 namespace gen {
   class TauolaInterfaceBase {
   public:
-    TauolaInterfaceBase(){};
-    TauolaInterfaceBase(const edm::ParameterSet&){};
-    virtual ~TauolaInterfaceBase(){};
+    TauolaInterfaceBase() {}
+    TauolaInterfaceBase(const edm::ParameterSet&) {}
+    virtual ~TauolaInterfaceBase() {}
 
-    virtual void SetDecayRandomEngine(CLHEP::HepRandomEngine* decayRandomEngine){};
-    virtual void enablePolarization(){};
-    virtual void disablePolarization(){};
-    virtual void init(const edm::EventSetup&){};
+    virtual void SetDecayRandomEngine(CLHEP::HepRandomEngine* decayRandomEngine) {}
+    virtual void enablePolarization() {}
+    virtual void disablePolarization() {}
+    virtual void init(const edm::EventSetup&) {}
     virtual const std::vector<int>& operatesOnParticles() { return fPDGs; }
     virtual HepMC::GenEvent* decay(HepMC::GenEvent* evt) { return evt; }
-    virtual void statistics(){};
+    virtual void statistics() {}
     virtual void setRandomEngine(CLHEP::HepRandomEngine* v) = 0;
-    virtual void SetLHE(lhef::LHEEvent* l){};
+    virtual void SetLHE(lhef::LHEEvent* l) {}
 
   protected:
     std::vector<int> fPDGs;

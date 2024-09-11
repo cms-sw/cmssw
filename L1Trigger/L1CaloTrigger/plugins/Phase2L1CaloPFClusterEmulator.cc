@@ -33,6 +33,11 @@
 #include "DataFormats/L1TCalorimeterPhase2/interface/CaloTower.h"
 #include "DataFormats/L1TCalorimeterPhase2/interface/CaloPFCluster.h"
 #include "DataFormats/L1Trigger/interface/EGamma.h"
+#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
+#include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
+#include "CalibFormats/CaloTPG/interface/CaloTPGTranscoder.h"
+#include "CalibFormats/CaloTPG/interface/CaloTPGRecord.h"
+#include "L1Trigger/L1TCalorimeter/interface/CaloTools.h"
 
 #include <ap_int.h>
 #include <fstream>
@@ -56,14 +61,18 @@ private:
   void produce(edm::Event&, const edm::EventSetup&) override;
 
   // ----------member data ---------------------------
-  const edm::EDGetTokenT<l1tp2::CaloTowerCollection> caloTowerToken_;
+  edm::EDGetTokenT<l1tp2::CaloTowerCollection> caloTowerToken_;
+  edm::EDGetTokenT<HcalTrigPrimDigiCollection> hfToken_;
+  edm::ESGetToken<CaloTPGTranscoder, CaloTPGRecord> decoderTag_;
 };
 
 //
 // constructors and destructor
 //
 Phase2L1CaloPFClusterEmulator::Phase2L1CaloPFClusterEmulator(const edm::ParameterSet& iConfig)
-    : caloTowerToken_(consumes<l1tp2::CaloTowerCollection>(iConfig.getParameter<edm::InputTag>("gctFullTowers"))) {
+    : caloTowerToken_(consumes<l1tp2::CaloTowerCollection>(iConfig.getParameter<edm::InputTag>("gctFullTowers"))),
+      hfToken_(consumes<HcalTrigPrimDigiCollection>(iConfig.getParameter<edm::InputTag>("hcalDigis"))),
+      decoderTag_(esConsumes<CaloTPGTranscoder, CaloTPGRecord>(edm::ESInputTag("", ""))) {
   produces<l1tp2::CaloPFClusterCollection>("GCTPFCluster");
 }
 
@@ -163,6 +172,130 @@ void Phase2L1CaloPFClusterEmulator::produce(edm::Event& iEvent, const edm::Event
     }
   }
 
+  edm::Handle<HcalTrigPrimDigiCollection> hfHandle;
+  if (!iEvent.getByToken(hfToken_, hfHandle))
+    edm::LogError("Phase2L1CaloJetEmulator") << "Failed to get HcalTrigPrimDigi for HF!";
+  iEvent.getByToken(hfToken_, hfHandle);
+
+  float hfTowers[2 * nHfEta][nHfPhi];  // split 12 -> 24
+  float hfEta[nHfEta][nHfPhi];
+  float hfPhi[nHfEta][nHfPhi];
+  for (int iphi = 0; iphi < nHfPhi; iphi++) {
+    for (int ieta = 0; ieta < nHfEta; ieta++) {
+      hfTowers[2 * ieta][iphi] = 0;
+      hfTowers[2 * ieta + 1][iphi] = 0;
+      int temp;
+      if (ieta < nHfEta / 2)
+        temp = ieta - l1t::CaloTools::kHFEnd;
+      else
+        temp = ieta - nHfEta / 2 + l1t::CaloTools::kHFBegin + 1;
+      hfEta[ieta][iphi] = l1t::CaloTools::towerEta(temp);
+      hfPhi[ieta][iphi] = l1t::CaloTools::towerPhi(temp, iphi + 1);
+    }
+  }
+
+  float regionsHF[nHfRegions][nHfEta]
+                 [nHfPhi /
+                  6];  // 6 regions each 3 sectors (1 sector = 20 deg in phi), 12x12->24x12 unique towers, no overlap in phi
+
+  for (int ieta = 0; ieta < nHfEta; ieta++) {
+    for (int iphi = 0; iphi < nHfPhi / 6; iphi++) {
+      for (int k = 0; k < nHfRegions; k++) {
+        regionsHF[k][ieta][iphi] = 0.;
+      }
+    }
+  }
+
+  // Assign ET to 12 24x12 regions
+  const auto& decoder = iSetup.getData(decoderTag_);
+  for (const auto& hit : *hfHandle.product()) {
+    double et = decoder.hcaletValue(hit.id(), hit.t0());
+    int ieta = 0;
+    if (abs(hit.id().ieta()) < l1t::CaloTools::kHFBegin)
+      continue;
+    if (abs(hit.id().ieta()) > l1t::CaloTools::kHFEnd)
+      continue;
+    if (hit.id().ieta() <= -(l1t::CaloTools::kHFBegin + 1)) {
+      ieta = hit.id().ieta() + l1t::CaloTools::kHFEnd;
+    } else if (hit.id().ieta() >= (l1t::CaloTools::kHFBegin + 1)) {
+      ieta = nHfEta / 2 + (hit.id().ieta() - (l1t::CaloTools::kHFBegin + 1));
+    }
+    int iphi = hit.id().iphi() - 1;  // HF phi runs between 1-72
+    // split tower energy
+    hfTowers[2 * ieta][iphi] = et / 2;
+    hfTowers[2 * ieta + 1][iphi] = et / 2;
+    if ((ieta < 2 || ieta >= nHfEta - 2) && iphi % 4 == 2) {
+      hfTowers[2 * ieta][iphi] = et / 8;
+      hfTowers[2 * ieta + 1][iphi] = et / 8;
+      hfTowers[2 * ieta][iphi + 1] = et / 8;
+      hfTowers[2 * ieta + 1][iphi + 1] = et / 8;
+      hfTowers[2 * ieta][iphi + 2] = et / 8;
+      hfTowers[2 * ieta + 1][iphi + 2] = et / 8;
+      hfTowers[2 * ieta][iphi + 3] = et / 8;
+      hfTowers[2 * ieta + 1][iphi + 3] = et / 8;
+    } else if ((ieta >= 2 && ieta < nHfEta - 2) && iphi % 2 == 0) {
+      hfTowers[2 * ieta][iphi] = et / 4;
+      hfTowers[2 * ieta + 1][iphi] = et / 4;
+      hfTowers[2 * ieta][iphi + 1] = et / 4;
+      hfTowers[2 * ieta + 1][iphi + 1] = et / 4;
+    }
+  }
+
+  for (int ieta = 0; ieta < 2 * nHfEta; ieta++) {
+    for (int iphi = 0; iphi < nHfPhi / 6; iphi++) {
+      if (ieta < nHfEta) {
+        regionsHF[0][ieta][0] = hfTowers[ieta][70];
+        regionsHF[0][ieta][1] = hfTowers[ieta][71];
+        for (int k = 0; k < nHfRegions; k += 2) {
+          if (k != 0 || iphi > 1)
+            regionsHF[k][ieta][iphi] = hfTowers[ieta][iphi + k * (nHfRegions / 2) - 2];
+        }
+      } else {
+        regionsHF[1][ieta - nHfEta][0] = hfTowers[ieta][70];
+        regionsHF[1][ieta - nHfEta][1] = hfTowers[ieta][71];
+        for (int k = 1; k < nHfRegions; k += 2) {
+          if (k != 1 || iphi > 1)
+            regionsHF[k][ieta - nHfEta][iphi] = hfTowers[ieta][iphi + (k - 1) * (nHfRegions / 2) - 2];
+        }
+      }
+    }
+  }
+
+  float temporaryHF[nHfEta][nHfPhi / 6];
+  int etaoffsetHF = 0;
+  int phioffsetHF = -2;
+
+  for (int k = 0; k < nHfRegions; k++) {
+    for (int ieta = 0; ieta < nHfEta; ieta++) {
+      for (int iphi = 0; iphi < nHfPhi / 6; iphi++) {
+        temporaryHF[ieta][iphi] = regionsHF[k][ieta][iphi];
+      }
+    }
+    if (k % 2 == 0)
+      etaoffsetHF = 0;
+    else
+      etaoffsetHF = nHfEta;
+    if (k > 1 && k % 2 == 0)
+      phioffsetHF = phioffsetHF + nHfPhi / 6;
+
+    gctpf::PFcluster_t tempPfclustersHF;
+    tempPfclustersHF = gctpf::pfclusterHF(temporaryHF, etaoffsetHF, phioffsetHF);
+
+    for (int i = 0; i < nPFClusterSLR; i++) {
+      int hfeta = tempPfclustersHF.GCTpfclusters[i].eta / 2;  // turn back 24 -> 12
+      int hfphi = tempPfclustersHF.GCTpfclusters[i].phi;
+      float towereta = hfEta[hfeta][hfphi];
+      float towerphi = hfPhi[hfeta][hfphi];
+      l1tp2::CaloPFCluster l1CaloPFCluster;
+      l1CaloPFCluster.setClusterEt(tempPfclustersHF.GCTpfclusters[i].et);
+      l1CaloPFCluster.setClusterIEta(hfeta);
+      l1CaloPFCluster.setClusterIPhi(hfphi);
+      l1CaloPFCluster.setClusterEta(towereta);
+      l1CaloPFCluster.setClusterPhi(towerphi);
+      pfclusterCands->push_back(l1CaloPFCluster);
+    }
+  }
+
   iEvent.put(std::move(pfclusterCands), "GCTPFCluster");
 }
 
@@ -170,6 +303,7 @@ void Phase2L1CaloPFClusterEmulator::produce(edm::Event& iEvent, const edm::Event
 void Phase2L1CaloPFClusterEmulator::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("gctFullTowers", edm::InputTag("l1tPhase2L1CaloEGammaEmulator", "GCTFullTowers"));
+  desc.add<edm::InputTag>("hcalDigis", edm::InputTag("simHcalTriggerPrimitiveDigis"));
   descriptions.addWithDefaultLabel(desc);
 }
 

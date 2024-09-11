@@ -306,7 +306,7 @@ bool HLTMuonDimuonL3Filter::hltFilter(edm::Event& iEvent,
         }
       }
     }  //RCC loop
-  }    //end of using normal TrajectorySeeds
+  }  //end of using normal TrajectorySeeds
 
   // Needed for DCA calculation
   auto const& bFieldHandle = iSetup.getHandle(idealMagneticFieldRecordToken_);

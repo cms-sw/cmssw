@@ -58,7 +58,7 @@ namespace TopSingleLepton {
     /// default contructor
     MonitorEnsemble(const char* label, const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC);
     /// default destructor
-    ~MonitorEnsemble(){};
+    ~MonitorEnsemble() {}
 
     /// book histograms in subdirectory _directory_
     void book(DQMStore::IBooker& ibooker);
@@ -266,7 +266,7 @@ public:
   /// default constructor
   TopSingleLeptonDQM(const edm::ParameterSet& cfg);
   /// default destructor
-  ~TopSingleLeptonDQM() override{};
+  ~TopSingleLeptonDQM() override {}
 
   /// do this during the event loop
   void analyze(const edm::Event& event, const edm::EventSetup& setup) override;

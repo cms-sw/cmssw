@@ -1041,7 +1041,7 @@ void L1TCSCTF::analyze(const Event& e, const EventSetup& c) {
         theStub.setEtaPacked(gblEta.global_eta);
 
         float etaG = theStub.etaValue();
-        float phiG = fmod(theStub.phiValue() + 15.0 * M_PI / 180 + (sector)*60.0 * M_PI / 180, 2. * M_PI);
+        float phiG = fmod(theStub.phiValue() + 15.0 * M_PI / 180 + (sector) * 60.0 * M_PI / 180, 2. * M_PI);
 
         //BX plots
         // endcap==1: minus side; endcap==0: plus side
@@ -1284,8 +1284,8 @@ void L1TCSCTF::analyze(const Event& e, const EventSetup& c) {
         //std::cout << "LCT Eta & Phi Coordinates: " << etaP << ", " << phiP << "." << std::endl;
         //csctfoccupancies->Fill( gblEta.global_eta/127. * 1.5 + 0.9, (gblPhi.global_phi + ( sector + (endcap?0:6) )*4096 + station*4096*12) * 1./(4*4096*12) );
       }  //lct != range1.scond
-    }    //csc!=corrlcts.product()->end()
-  }      // lctProducer.label() != "null"
+    }  //csc!=corrlcts.product()->end()
+  }  // lctProducer.label() != "null"
 
   if (trackProducer.label() != "null") {
     edm::Handle<L1CSCTrackCollection> tracks;
@@ -1293,7 +1293,7 @@ void L1TCSCTF::analyze(const Event& e, const EventSetup& c) {
     for (L1CSCTrackCollection::const_iterator trk = tracks->begin(); trk < tracks->end(); trk++) {
       NumCSCTfTracksRep++;
       long LUTAdd = trk->first.ptLUTAddress();
-      int trigMode = ((LUTAdd)&0xf0000) >> 16;
+      int trigMode = ((LUTAdd) & 0xf0000) >> 16;
       int trEta = (trk->first.eta_packed());
 
       // trk->first.endcap() = 2 for - endcap
@@ -1540,8 +1540,8 @@ void L1TCSCTF::analyze(const Event& e, const EventSetup& c) {
               DTstubsTimeTrackMenTimeArrival[mbId - 1]->Fill(bxDT - trkBX - 6, subDT);  //subsec
             }
           }  // loop on the tracks
-        }    //if (isCSCcand_){
-      }      //if (stub->getKeyWG() == 0) {
+        }  //if (isCSCcand_){
+      }  //if (stub->getKeyWG() == 0) {
     }
   }
 }

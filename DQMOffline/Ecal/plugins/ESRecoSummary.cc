@@ -145,7 +145,7 @@ void ESRecoSummary::analyze(const edm::Event &ev, const edm::EventSetup &) {
           ESenergyPlane2 += esCluster->energy();
         }
       }  // end of y loop
-    }    // end loop over all basic clusters in the supercluster
+    }  // end loop over all basic clusters in the supercluster
 
     // cout<<"DQM : "<<ESenergyPlane1<<" "<<ESenergyPlane2<<endl;
     h_esClusters_energy_plane1->Fill(ESenergyPlane1);

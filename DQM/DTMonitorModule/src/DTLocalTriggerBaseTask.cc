@@ -36,7 +36,7 @@ using namespace std;
 class DTTPGCompareUnit {
 public:
   DTTPGCompareUnit() { m_qual = -1; }
-  ~DTTPGCompareUnit(){};
+  ~DTTPGCompareUnit() {}
 
   void setTM(int qual, int bx) {
     m_qual = qual;

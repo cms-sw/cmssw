@@ -473,8 +473,8 @@ void MuonTrackProducer::produce(edm::StreamID, edm::Event &iEvent, const edm::Ev
               }  //  else if (subdet == MuonSubdetId::CSC)
 
             }  // loop on vector<MuonSegmentMatch>
-          }    // loop on vector<MuonChamberMatch>
-        }      // if (trackType == "innerTrackPlusSegments")
+          }  // loop on vector<MuonChamberMatch>
+        }  // if (trackType == "innerTrackPlusSegments")
 
         //      edm::LogVerbatim("MuonTrackProducer")<<"\n printing final
         //      hit_pattern"; newTrk->hitPattern().print();
@@ -486,7 +486,7 @@ void MuonTrackProducer::produce(edm::StreamID, edm::Event &iEvent, const edm::Ev
         selectedTrackExtras->push_back(*newExtra);
 
       }  // if (isGoodResult)
-    }    // loop on reco::MuonCollection
+    }  // loop on reco::MuonCollection
 
     iEvent.put(std::move(selectedTracks));
     iEvent.put(std::move(selectedTrackExtras));

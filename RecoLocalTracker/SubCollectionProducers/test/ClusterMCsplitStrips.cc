@@ -222,7 +222,7 @@ void ClusterMCsplitStrips::refineCluster(const edm::Handle<edmNew::DetSetVector<
         }
       }
     }  // end loop over original clusters
-  }    // end loop over sensors
+  }  // end loop over sensors
 }
 
 template <class T>

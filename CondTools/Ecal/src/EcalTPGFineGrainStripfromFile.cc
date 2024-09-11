@@ -67,7 +67,7 @@ void popcon::EcalTPGFineGrainStripfromFile::getNewObjects() {
     fgrStripEE->setValue(stripId, item);
     if (istrip == 12239)
       getline(fLin, line);  // 1 empty line between EB and EE
-  }                         // end loop over EB + EE strips
+  }  // end loop over EB + EE strips
   fLin.close();
 
   m_to_transfer.push_back(std::make_pair(fgrStripEE, fileIOV));

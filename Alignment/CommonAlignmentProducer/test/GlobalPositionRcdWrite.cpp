@@ -29,7 +29,7 @@ public:
         m_ecal(iConfig.getParameter<edm::ParameterSet>("ecal")),
         m_hcal(iConfig.getParameter<edm::ParameterSet>("hcal")),
         m_calo(iConfig.getParameter<edm::ParameterSet>("calo")),
-        nEventCalls_(0){};
+        nEventCalls_(0) {}
   ~GlobalPositionRcdWrite() {}
   virtual void analyze(const edm::Event& evt, const edm::EventSetup& evtSetup);
 

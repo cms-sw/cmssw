@@ -632,7 +632,7 @@ bool FEDErrors::fillChannelErrors(const sistrip::FEDBuffer& aBuffer,
         }  //loop on APVs
 
       }  //if FE good
-    }    //if connected
+    }  //if connected
 
     if (lFailUnpackerChannelCheck != lFailMonitoringChannelCheck && connected_[iCh]) {
       if (aPrintDebug > 1) {

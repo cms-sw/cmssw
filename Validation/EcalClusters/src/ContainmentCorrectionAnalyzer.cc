@@ -459,7 +459,7 @@ std::vector<EcalSimPhotonMCTruth> ContainmentCorrectionAnalyzer::findMcTruth(std
       }
       iPho++;
     }  // loop over the primary photons
-  }    // Event with one or two photons
+  }  // Event with one or two photons
 
   return result;
 }

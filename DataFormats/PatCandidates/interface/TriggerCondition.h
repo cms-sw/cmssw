@@ -61,7 +61,7 @@ namespace pat {
     TriggerCondition(const std::string& name, bool accept);
 
     /// Destructor
-    virtual ~TriggerCondition(){};
+    virtual ~TriggerCondition() {}
 
     /// Methods
 

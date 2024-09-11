@@ -17,7 +17,7 @@ namespace l1t {
   namespace stage2 {
     class L1TObjectCollections : public UnpackerCollections {
     public:
-      L1TObjectCollections(edm::Event& e) : UnpackerCollections(e){};
+      L1TObjectCollections(edm::Event& e) : UnpackerCollections(e) {}
       ~L1TObjectCollections() override;
 
       virtual MuonBxCollection* getMuons(const unsigned int copy) { return nullptr; }

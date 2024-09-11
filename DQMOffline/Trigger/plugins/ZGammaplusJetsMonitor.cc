@@ -444,7 +444,7 @@ void ZGammaplusJetsMonitor::analyze(edm::Event const& iEvent, edm::EventSetup co
             trigobj_pt.push_back(Zhltreco.Pt());
             trigobj_eta.push_back(Zhltreco.Eta());
             trigobj_phi.push_back(Zhltreco.Phi());
-          }       //end check di-object
+          }  //end check di-object
           else {  //if not di-object
             return;
           }
@@ -453,7 +453,7 @@ void ZGammaplusJetsMonitor::analyze(edm::Event const& iEvent, edm::EventSetup co
       }  // key1
       kCnt0++;
     }  // key
-  }    // end else
+  }  // end else
 
   // ---------------- module for Jet leg Jets --------------------------
   // index of last module executed in this Path

@@ -16,13 +16,13 @@
 class RBCLinkBoardGLSignal : public RPCInputSignal {
 public:
   /// Standard constructor
-  RBCLinkBoardGLSignal(){};
+  RBCLinkBoardGLSignal() {}
 
   RBCLinkBoardGLSignal(std::map<int, RBCInput*>*);
 
   ~RBCLinkBoardGLSignal() override;  ///< Destructor
 
-  void clear() override{};
+  void clear() override {}
 
   std::map<int, RBCInput*>* m_linkboardin;
 

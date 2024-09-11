@@ -67,8 +67,8 @@ private:
     hTMaxCell* getHists() { return histos; }
 
   private:
-    cellInfo(){};
-    cellInfo(const cellInfo&){};
+    cellInfo() {}
+    cellInfo(const cellInfo&) {}
 
     std::vector<dttmaxenums::TMaxCells> addedCells;
     hTMaxCell* histos;

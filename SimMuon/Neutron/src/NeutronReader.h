@@ -10,8 +10,8 @@
 
 class NeutronReader {
 public:
-  NeutronReader(){};
-  virtual ~NeutronReader(){};
+  NeutronReader() {}
+  virtual ~NeutronReader() {}
 
   virtual void readNextEvent(int chamberType, edm::PSimHitContainer& result) = 0;
 };

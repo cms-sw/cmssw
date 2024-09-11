@@ -448,8 +448,8 @@ void reco::helper::JetIDHelper::classifyJetComponents(const edm::Event &event,
         if (iDbg > 6)
           cout << "EcalNum: " << EcalNum << " hitE: " << hitE << endl;
       }  //
-    }    // loop on cells
-  }      // loop on towers
+    }  // loop on cells
+  }  // loop on towers
 
   /* Disabling check until HO is accounted for in EMF. Check was used in CMSSW_2, where HE was excluded.
   double expHcalE = jet.energy() * (1-jet.emEnergyFraction());
@@ -613,8 +613,8 @@ void reco::helper::JetIDHelper::classifyJetTowers(const edm::Event &event,
         if (iDbg > 5)
           cout << " --> H[" << iHPD << "]=" << HPD_energy_map[iHPD] << ", R[" << iRBX << "]=" << RBX_energy_map[iRBX];
       }  // HBHE
-    }    // E_had > 0
-  }      // loop on towers
+    }  // E_had > 0
+  }  // loop on towers
 
   // sort the subtowers
   // std::sort( Hcal_subtowers.begin(), Hcal_subtowers.end(), subtower_has_greater_E );

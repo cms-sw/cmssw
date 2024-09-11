@@ -148,7 +148,7 @@ public:
 private:
   void beginStream(edm::StreamID) override{};
   void produce(edm::Event&, const edm::EventSetup&) override;
-  void endStream() override{};
+  void endStream() override {}
 
   ///to be implemented in derived classes, filling values for additional variables
   virtual void readAdditionalCollections(edm::Event&, const edm::EventSetup&) {}

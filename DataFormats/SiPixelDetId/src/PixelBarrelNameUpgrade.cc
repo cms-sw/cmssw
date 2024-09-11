@@ -412,7 +412,7 @@ PXBDetId PixelBarrelNameUpgrade::getDetId() {
       ladder = tmpLadder + 11;
     else if (layer == 4)
       ladder = tmpLadder + 16;
-  }       // outer
+  }  // outer
   else {  // inner
     if (layer == 1) {
       if (tmpLadder <= 3)
@@ -438,7 +438,7 @@ PXBDetId PixelBarrelNameUpgrade::getDetId() {
       else if (tmpLadder <= 32)
         ladder = 81 - tmpLadder;
     }  // layer 4
-  }    // inner
+  }  // inner
 
   // translate the module number from naming convention to cmssw convention
   // numbering starts at positive z

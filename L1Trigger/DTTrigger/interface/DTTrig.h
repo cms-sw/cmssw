@@ -90,51 +90,33 @@ public:
   int size() const { return _cache.size(); }
 
   //! Begin of the trigger units store
-  TU_iterator begin() { /*check();*/
-    return _cache.begin();
-  }
+  TU_iterator begin() { /*check();*/ return _cache.begin(); }
 
   //! End of the trigger units store
-  TU_iterator end() { /*check();*/
-    return _cache.end();
-  }
+  TU_iterator end() { /*check();*/ return _cache.end(); }
 
   //! Find a trigger unit in the map
-  TU_iterator find(DTChamberId id) { /*check();*/
-    return _cache.find(id);
-  }
+  TU_iterator find(DTChamberId id) { /*check();*/ return _cache.find(id); }
 
   //! Begin of the trigger units store
-  Range cache() { /*check();*/
-    return Range(_cache.begin(), _cache.end());
-  }
+  Range cache() { /*check();*/ return Range(_cache.begin(), _cache.end()); }
 
   // ------------ do the same for Sector Collector
 
   //! Size of the sector collector store
-  int size1() const { /*check();*/
-    return _cache1.size();
-  }
+  int size1() const { /*check();*/ return _cache1.size(); }
 
   //! Begin of the sector collector store
-  SC_iterator begin1() { /*check();*/
-    return _cache1.begin();
-  }
+  SC_iterator begin1() { /*check();*/ return _cache1.begin(); }
 
   //! End of the sectoor collector store
-  SC_iterator end1() { /*check();*/
-    return _cache1.end();
-  }
+  SC_iterator end1() { /*check();*/ return _cache1.end(); }
 
   //! Find a Sector Collector in the map
-  SC_iterator find1(DTSectCollId id) { /*check();*/
-    return _cache1.find(id);
-  }
+  SC_iterator find1(DTSectCollId id) { /*check();*/ return _cache1.find(id); }
 
   //! Range of the sector collector store
-  SCRange cache1() { /*check();*/
-    return SCRange(_cache1.begin(), _cache1.end());
-  }
+  SCRange cache1() { /*check();*/ return SCRange(_cache1.begin(), _cache1.end()); }
 
   //! Return a trigger unit - Muon numbering
   DTSCTrigUnit* trigUnit(DTChamberId sid);

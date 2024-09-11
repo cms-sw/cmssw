@@ -38,7 +38,7 @@ public:
   /// default constructor
   explicit PatZToMuMuAnalyzer(const edm::ParameterSet& cfg);
   /// default destructor
-  ~PatZToMuMuAnalyzer() override{};
+  ~PatZToMuMuAnalyzer() override {}
 
 private:
   /// everything that needs to be done during the event loop

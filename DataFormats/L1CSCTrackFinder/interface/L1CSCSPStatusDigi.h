@@ -22,7 +22,7 @@ private:
     NORMAL = 4,
     ERROR = 8,
     FIFO = 16
-  };                               // States of optical receivers + Alignment FIFO full OR empty status
+  };  // States of optical receivers + Alignment FIFO full OR empty status
   unsigned short link_status[15];  // Optical receiver status ORed for all tbins
   unsigned short mpc_link_id;      // MPC_id and link# from MEx Data Record ORed for all tbins
 

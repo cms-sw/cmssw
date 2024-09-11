@@ -25,23 +25,23 @@ public:
   /// parameters (no covariance) created from current (mis-)placement of
   /// alignable (if calcMis = true).
   RigidBodyAlignmentParameters4D(Alignable *alignable, bool calcMis)
-      : RigidBodyAlignmentParameters(alignable, calcMis){};
+      : RigidBodyAlignmentParameters(alignable, calcMis) {}
 
   /// Constructor for full set of parameters
   RigidBodyAlignmentParameters4D(Alignable *alignable,
                                  const AlgebraicVector &parameters,
                                  const AlgebraicSymMatrix &covMatrix)
-      : RigidBodyAlignmentParameters(alignable, parameters, covMatrix){};
+      : RigidBodyAlignmentParameters(alignable, parameters, covMatrix) {}
 
   /// Constructor for selection
   RigidBodyAlignmentParameters4D(Alignable *alignable,
                                  const AlgebraicVector &parameters,
                                  const AlgebraicSymMatrix &covMatrix,
                                  const std::vector<bool> &selection)
-      : RigidBodyAlignmentParameters(alignable, parameters, covMatrix, selection){};
+      : RigidBodyAlignmentParameters(alignable, parameters, covMatrix, selection) {}
 
   /// Destructor
-  ~RigidBodyAlignmentParameters4D() override{};
+  ~RigidBodyAlignmentParameters4D() override {}
 
   int type() const override;
 

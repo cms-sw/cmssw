@@ -743,8 +743,8 @@ void EcalTB07DaqFormatter::DecodeMEM(DCCTBTowerBlock* towerblock,
         data_MEM[memStoreIndex] = new_data & 0x3fff;
 
       }  // loop on samples
-    }    // loop on strips
-  }      // loop on channels
+    }  // loop on strips
+  }  // loop on channels
 
   for (int pnId = 0; pnId < kPnPerTowerBlock; pnId++)
     pnIsOkInBlock[pnId] = true;
@@ -783,7 +783,7 @@ void EcalTB07DaqFormatter::DecodeMEM(DCCTBTowerBlock* towerblock,
     thePnDigi.setSize(kSamplesPerPn);
 
     for (int sample = 0; sample < kSamplesPerPn; sample++) {
-      EcalFEMSample thePnSample(data_MEM[(mem_id)*250 + (pnId - 1) * kSamplesPerPn + sample]);
+      EcalFEMSample thePnSample(data_MEM[(mem_id) * 250 + (pnId - 1) * kSamplesPerPn + sample]);
       thePnDigi.setSample(sample, thePnSample);
     }
     pndigicollection.push_back(thePnDigi);

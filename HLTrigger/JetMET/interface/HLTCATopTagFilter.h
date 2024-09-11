@@ -98,8 +98,8 @@ inline reco::CATopJetProperties CATopJetHelperUser::operator()(reco::Jet const& 
           properties.minMass = imw;
         }
       }  // end second loop over subjets
-    }    // end first loop over subjets
-  }      // endif 3 subjets
+    }  // end first loop over subjets
+  }  // endif 3 subjets
 
   if (properties.minMass == 999999)
     properties.minMass = -1;

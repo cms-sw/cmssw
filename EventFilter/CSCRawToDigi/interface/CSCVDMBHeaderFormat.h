@@ -7,7 +7,7 @@
 
 class CSCVDMBHeaderFormat {
 public:
-  virtual ~CSCVDMBHeaderFormat(){};
+  virtual ~CSCVDMBHeaderFormat() {}
   /*
   void init() {
     bzero(this, sizeInWords()*2);

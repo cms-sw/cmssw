@@ -16,7 +16,7 @@ namespace reco {
   class BaseTauTagInfo {
   public:
     BaseTauTagInfo();
-    virtual ~BaseTauTagInfo(){};
+    virtual ~BaseTauTagInfo() {}
 
     // Tracks which are components of JetTracksAssociation object and which were filtered by RecoTauTag/TauTagTools/ TauTagTools::filteredTracks(.,...) function through RecoTauTag/RecoTauTag/ CaloRecoTauTagInfoProducer or PFRecoTauTagInfoProducer EDProducer
     const reco::TrackRefVector& Tracks() const;

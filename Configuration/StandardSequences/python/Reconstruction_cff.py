@@ -26,7 +26,7 @@ from RecoMuon.Configuration.RecoMuon_cff import *
 # Higher level objects
 from RecoVertex.Configuration.RecoVertex_cff import *
 from RecoEgamma.Configuration.RecoEgamma_cff import *
-from RecoTracker.Configuration.RecoPixelVertexing_cff import *
+from RecoVertex.Configuration.RecoPixelVertexing_cff import *
 
 
 from RecoJets.Configuration.RecoJetsGlobal_cff import *

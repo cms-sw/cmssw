@@ -12,8 +12,8 @@ namespace amc {
   // be used when packing/unpacking AMC payloads into AMC13 blocks.
   class BlockHeader {
   public:
-    BlockHeader() : data_(0){};
-    BlockHeader(const uint64_t *data) : data_(data[0]){};
+    BlockHeader() : data_(0) {}
+    BlockHeader(const uint64_t *data) : data_(data[0]) {}
     // size is the total size of the AMC payload, not just of the
     // block
     BlockHeader(unsigned int amc_no, unsigned int board_id, unsigned int size, unsigned int block = 0);
@@ -58,8 +58,8 @@ namespace amc {
   // AMC payload of an AMC13 packet/block.
   class Header {
   public:
-    Header() : data0_(0), data1_(0){};
-    Header(const uint64_t *data) : data0_(data[0]), data1_(data[1]){};
+    Header() : data0_(0), data1_(0) {}
+    Header(const uint64_t *data) : data0_(data[0]), data1_(data[1]) {}
     Header(unsigned int amc_no,
            unsigned int lv1_id,
            unsigned int bx_id,
@@ -101,8 +101,8 @@ namespace amc {
 
   class Trailer {
   public:
-    Trailer() : data_(0){};
-    Trailer(const uint64_t *data) : data_(data[0]){};
+    Trailer() : data_(0) {}
+    Trailer(const uint64_t *data) : data_(data[0]) {}
     Trailer(unsigned int crc, unsigned int lv1_id, unsigned int size);
 
     inline unsigned int getCRC() const { return (data_ >> CRC_shift) & CRC_mask; };
@@ -127,7 +127,7 @@ namespace amc {
 
   class Packet {
   public:
-    Packet(const uint64_t *d) : block_header_(d){};
+    Packet(const uint64_t *d) : block_header_(d) {}
     Packet(unsigned int amc,
            unsigned int board,
            unsigned int lv1id,

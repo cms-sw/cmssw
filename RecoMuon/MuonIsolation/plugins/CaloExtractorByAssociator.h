@@ -49,7 +49,7 @@ namespace muonisolation {
   class CaloExtractorByAssociator : public reco::isodeposit::IsoDepositExtractor {
   public:
     //! constructors
-    CaloExtractorByAssociator(){};
+    CaloExtractorByAssociator() {}
     CaloExtractorByAssociator(const edm::ParameterSet& par, edm::ConsumesCollector&& iC);
 
     //! destructor

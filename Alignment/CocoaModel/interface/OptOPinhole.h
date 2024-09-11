@@ -18,10 +18,10 @@ class LightRay;
 class OptOPinhole : public OpticalObject {
 public:
   //---------- Constructors / Destructor
-  OptOPinhole(){};
+  OptOPinhole() {}
   OptOPinhole(OpticalObject* parent, const ALIstring& type, const ALIstring& name, const ALIbool copy_data)
-      : OpticalObject(parent, type, name, copy_data){};
-  ~OptOPinhole() override{};
+      : OpticalObject(parent, type, name, copy_data) {}
+  ~OptOPinhole() override {}
 
   //---------- Default behaviour
   void defaultBehaviour(LightRay& lightray, Measurement& meas) override;

@@ -57,7 +57,7 @@ namespace lutNN {
       lutLayer3_1.setName("lutLayer3_1");
     };
 
-    ~LutNetworkFixedPointRegression2Outputs() override{};
+    ~LutNetworkFixedPointRegression2Outputs() override {}
 
     typedef LutNeuronLayerFixedPoint<input_I, input_F, inputSize, layer1_lut_I, layer1_lut_F, layer1_neurons, layer1_output_I>
         LutLayer1;

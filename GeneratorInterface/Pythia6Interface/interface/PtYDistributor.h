@@ -13,11 +13,11 @@ namespace CLHEP {
 namespace gen {
   class PtYDistributor {
   public:
-    PtYDistributor(){};
+    PtYDistributor() {}
     //PtYDistributor(std::string inputfile, CLHEP::HepRandomEngine& fRandomEngine, double ptmax, double ptmin, double ymax, double ymin, int ptbins, int ybins);
     PtYDistributor(
         const edm::FileInPath& fip, double ptmax, double ptmin, double ymax, double ymin, int ptbins, int ybins);
-    virtual ~PtYDistributor(){};
+    virtual ~PtYDistributor() {}
 
     double fireY(CLHEP::HepRandomEngine*);
     double firePt(CLHEP::HepRandomEngine*);

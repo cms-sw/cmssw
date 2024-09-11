@@ -112,10 +112,10 @@ public:
   };
 
   /// Constructor
-  AlignmentAlgorithmBase(const edm::ParameterSet &, const edm::ConsumesCollector &){};
+  AlignmentAlgorithmBase(const edm::ParameterSet &, const edm::ConsumesCollector &) {}
 
   /// Destructor
-  virtual ~AlignmentAlgorithmBase(){};
+  virtual ~AlignmentAlgorithmBase() {}
 
   /// Call at beginning of job (must be implemented in derived class)
   virtual void initialize(const edm::EventSetup &setup,
@@ -161,16 +161,16 @@ public:
   virtual void run(const edm::EventSetup &setup, const EventInfo &eventInfo) = 0;
 
   /// called at begin of run
-  virtual void beginRun(const edm::Run &, const edm::EventSetup &, bool changed){};
+  virtual void beginRun(const edm::Run &, const edm::EventSetup &, bool changed) {}
 
   /// called at end of run - order of arguments like in EDProducer etc.
-  virtual void endRun(const EndRunInfo &runInfo, const edm::EventSetup &setup){};
+  virtual void endRun(const EndRunInfo &runInfo, const edm::EventSetup &setup) {}
 
   /// called at begin of luminosity block (no lumi block info passed yet)
-  virtual void beginLuminosityBlock(const edm::EventSetup &setup){};
+  virtual void beginLuminosityBlock(const edm::EventSetup &setup) {}
 
   /// called at end of luminosity block (no lumi block info passed yet)
-  virtual void endLuminosityBlock(const edm::EventSetup &setup){};
+  virtual void endLuminosityBlock(const edm::EventSetup &setup) {}
 
   /// called in order to pass parameters to alignables for a specific run
   /// range in case the algorithm supports run range dependent alignment.

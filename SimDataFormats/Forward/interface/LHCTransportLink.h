@@ -26,8 +26,8 @@ class LHCTransportLink {
 public:
   // ---------- Constructor and destructor -----------------
   explicit LHCTransportLink(int& beforeHector, int& afterHector)
-      : beforeHector_(beforeHector), afterHector_(afterHector){};
-  LHCTransportLink() : beforeHector_(0), afterHector_(0){};
+      : beforeHector_(beforeHector), afterHector_(afterHector) {}
+  LHCTransportLink() : beforeHector_(0), afterHector_(0) {}
 
   // ---------- Member functions ---------------------------
 

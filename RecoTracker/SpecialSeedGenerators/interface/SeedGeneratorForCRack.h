@@ -26,7 +26,7 @@ class SeedGeneratorForCRack {
 public:
   typedef TrajectoryStateOnSurface TSOS;
   SeedGeneratorForCRack(const edm::ParameterSet &conf, edm::ConsumesCollector);
-  virtual ~SeedGeneratorForCRack(){};
+  virtual ~SeedGeneratorForCRack() {}
   void init(const SiStripRecHit2DCollection &collstereo,
             const SiStripRecHit2DCollection &collrphi,
             const SiStripMatchedRecHit2DCollection &collmatched,

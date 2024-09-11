@@ -9,8 +9,8 @@
 
 class SimTauCPLink {
 public:
-  SimTauCPLink(){};
-  ~SimTauCPLink(){};
+  SimTauCPLink() {}
+  ~SimTauCPLink() {}
   struct DecayNav {
     int pdgId_;
     int resonance_idx_;

@@ -302,11 +302,11 @@ bool popcon::EcalDCSHandler::insertHVDataSetToOffline(const std::map<EcalLogicID
               if (new_dbStatus != dbStatus) {
                 std::cout << "Dee/chan:" << dee << "/" << chan << " new db status =" << new_dbStatus << " old  "
                           << dbStatus << " HV: " << hv.getHV() << "/" << hv.getHVNominal() << std::endl;
-              }         // if (new_dbStatus != dbStatus)
-            }           // if (EcalScDetId::validDetId(ik, ip, iz))
-          }             // if (not_excluded)
-        }               // for (int ip = j1; ip <= j2; ip++)
-      }                 // for (int ik = i1; ik <= i2; ik++)
+              }  // if (new_dbStatus != dbStatus)
+            }  // if (EcalScDetId::validDetId(ik, ip, iz))
+          }  // if (not_excluded)
+        }  // for (int ip = j1; ip <= j2; ip++)
+      }  // for (int ik = i1; ik <= i2; ik++)
       if (chan == 1) {  // channel 1 has half a dee plus 6 more towers
         for (int l = 0; l < 6; l++) {
           int ik = ex_x[l];

@@ -56,7 +56,7 @@ void MPCorFilter::run(edm::Event &iEvent,
     outMPaths.push_back(mp);
 }
 
-void MPCorFilter::finish(){};
+void MPCorFilter::finish() {}
 
 ///////////////////////////
 ///  OTHER METHODS

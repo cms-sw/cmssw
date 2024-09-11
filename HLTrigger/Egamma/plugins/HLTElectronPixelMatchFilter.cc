@@ -176,7 +176,7 @@ int HLTElectronPixelMatchFilter::getNrOfMatches(edm::Handle<reco::ElectronSeedCo
       } else
         nrMatch++;
     }  //end sc ref match
-  }    //end loop over ele seeds
+  }  //end loop over ele seeds
   return nrMatch;
 }
 

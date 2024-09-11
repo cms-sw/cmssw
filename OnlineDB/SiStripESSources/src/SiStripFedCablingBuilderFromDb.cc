@@ -919,13 +919,13 @@ void SiStripFedCablingBuilderFromDb::assignDcuAndDetIds(SiStripFecCabling& fec_c
                 in.erase(iter);
 
               }  // Set for DCU in static table
-            }    // Check for null DetId
+            }  // Check for null DetId
 
           }  // Module loop
-        }    // CCU loop
-      }      // FEC ring loop
-    }        // FEC loop
-  }          // FEC crate loop
+        }  // CCU loop
+      }  // FEC ring loop
+    }  // FEC loop
+  }  // FEC crate loop
 
   std::stringstream sss;
   sss << "[SiStripFedCablingBuilderFromDb::" << __func__ << "]" << std::endl
@@ -1027,10 +1027,10 @@ void SiStripFedCablingBuilderFromDb::assignDcuAndDetIds(SiStripFecCabling& fec_c
             }
 
           }  // Module loop
-        }    // CCU loop
-      }      // FEC ring loop
-    }        // FEC loop
-  }          // FEC crate loop
+        }  // CCU loop
+      }  // FEC ring loop
+    }  // FEC loop
+  }  // FEC crate loop
 
   LogTrace(mlCabling_) << "[SiStripFedCablingBuilderFromDb::" << __func__ << "]"
                        << " Finished assigning \"random\" DetIds to modules with DCU ids not found in static table...";

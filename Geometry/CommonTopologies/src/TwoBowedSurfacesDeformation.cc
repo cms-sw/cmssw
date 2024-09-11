@@ -112,7 +112,7 @@ bool TwoBowedSurfacesDeformation::add(const SurfaceDeformation &other) {
                                    << otherParameters[k_ySplit()];
       }
     }  // same size
-  }    // same type
+  }  // same type
 
   edm::LogError("Alignment") << "@SUB=TwoBowedSurfacesDeformation::add"
                              << "Types are different!";

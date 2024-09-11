@@ -16,7 +16,7 @@ public:
   // Constructor
   explicit TrackingTruthValid(const edm::ParameterSet &conf);
   // Destructor
-  ~TrackingTruthValid() override{};
+  ~TrackingTruthValid() override {}
 
   void analyze(const edm::Event &, const edm::EventSetup &) override;
 

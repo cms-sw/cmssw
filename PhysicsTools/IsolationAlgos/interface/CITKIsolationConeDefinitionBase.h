@@ -33,7 +33,7 @@ namespace citk {
     const std::string& additionalCode() const { return _additionalCode; }
 
     //! Destructor
-    virtual ~IsolationConeDefinitionBase(){};
+    virtual ~IsolationConeDefinitionBase() {}
 
   protected:
     const float _coneSize2;

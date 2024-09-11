@@ -23,8 +23,8 @@
 class CSCAlignmentCorrections {
 public:
   CSCAlignmentCorrections(std::string fitterName, double oldchi2, double newchi2)
-      : m_fitterName(fitterName), m_oldchi2(oldchi2), m_newchi2(newchi2){};
-  virtual ~CSCAlignmentCorrections(){};
+      : m_fitterName(fitterName), m_oldchi2(oldchi2), m_newchi2(newchi2) {}
+  virtual ~CSCAlignmentCorrections() {}
 
   void insertCorrection(std::string name, CSCDetId id, double value) {
     m_name.push_back(name);

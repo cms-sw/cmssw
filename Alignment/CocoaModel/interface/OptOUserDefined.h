@@ -18,10 +18,10 @@ class LightRay;
 class OptOUserDefined : public OpticalObject {
 public:
   //---------- Constructors / Destructor
-  OptOUserDefined(){};
+  OptOUserDefined() {}
   OptOUserDefined(OpticalObject* parent, const ALIstring& type, const ALIstring& name, const ALIbool copy_data)
-      : OpticalObject(parent, type, name, copy_data){};
-  ~OptOUserDefined() override{};
+      : OpticalObject(parent, type, name, copy_data) {}
+  ~OptOUserDefined() override {}
 
 #ifdef COCOA_VIS
   virtual void fillVRML() override;

@@ -45,8 +45,8 @@ public:
   float minW_subVtx1;
   float minW_subVtx2;
 
-  pvCand(){};
-  virtual ~pvCand(){};
+  pvCand() {}
+  virtual ~pvCand() {}
 
   ClassDef(pvCand, 1)
 };
@@ -61,8 +61,8 @@ public:
 
   std::vector<pvCand> pvs;
 
-  pvEvent(){};
-  virtual ~pvEvent(){};
+  pvEvent() {}
+  virtual ~pvEvent() {}
 
   ClassDef(pvEvent, 1)
 };

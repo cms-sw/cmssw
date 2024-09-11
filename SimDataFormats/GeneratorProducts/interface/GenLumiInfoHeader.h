@@ -11,7 +11,7 @@
 
 class GenLumiInfoHeader {
 public:
-  GenLumiInfoHeader() : randomConfigIndex_(-1){};
+  GenLumiInfoHeader() : randomConfigIndex_(-1) {}
 
   int randomConfigIndex() const { return randomConfigIndex_; }
   void setRandomConfigIndex(int idx) { randomConfigIndex_ = idx; }

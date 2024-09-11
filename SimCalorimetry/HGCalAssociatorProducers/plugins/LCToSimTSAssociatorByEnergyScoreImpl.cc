@@ -84,7 +84,7 @@ ticl::RecoToSimTracksterCollection LCToSimTSAssociatorByEnergyScoreImpl::associa
             << " is neither a CaloParticle nor a SimCluster!\n";
       }
     }  // end loop over simTracksters
-  }    // end loop over layerClusters
+  }  // end loop over layerClusters
 
   return returnValue;
 }

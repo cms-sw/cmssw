@@ -167,5 +167,5 @@ void TTClusterAlgorithm_official<Ref_Phase2TrackerDigi_>::Cluster(
         output.push_back(candCluster);
       }
     }  /// End of non-PS case
-  }    /// End of loop over mapped 1D Clusters
+  }  /// End of loop over mapped 1D Clusters
 }

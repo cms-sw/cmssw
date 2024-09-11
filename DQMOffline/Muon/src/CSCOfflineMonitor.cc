@@ -1969,13 +1969,13 @@ void CSCOfflineMonitor::doBXMonitor(edm::Handle<CSCALCTDigiCollection> alcts,
               hCLCTL1A2Denominator->Fill(layer.chamber(), typeIndex(layer, 2));
 
             }  // end if goodTMB and goodALCT
-          }    // end loop CSCData
-        }      // end loop DDU
-      }        // end if good event
+          }  // end loop CSCData
+        }  // end loop DDU
+      }  // end if good event
       if (examiner != nullptr)
         delete examiner;
     }  // end if non-zero fed data
-  }    // end DCC loop for NON-REFERENCE
+  }  // end DCC loop for NON-REFERENCE
 
   return;
 }

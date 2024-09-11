@@ -41,8 +41,8 @@ public:
 
   RPCInputSignal* retrievedata() override { return m_lbin.get(); };
 
-  void mask(){};
-  void force(){};
+  void mask() {}
+  void force() {}
 
 protected:
 private:

@@ -34,7 +34,7 @@ namespace ticl {
   public:
     TICLInterpretationAlgoBase(const edm::ParameterSet& conf, edm::ConsumesCollector)
         : algo_verbosity_(conf.getParameter<int>("algo_verbosity")) {}
-    virtual ~TICLInterpretationAlgoBase(){};
+    virtual ~TICLInterpretationAlgoBase() {}
     struct Inputs {
       const edm::Event& ev;
       const edm::EventSetup& es;

@@ -82,7 +82,7 @@ public:
                   AlignableExtras* extras,
                   AlignmentParameterStore* alignmentParameterStore) override;
 
-  void startNewLoop() override{};
+  void startNewLoop() override {}
 
   void run(const edm::EventSetup& iSetup, const EventInfo& eventInfo) override;
 
@@ -490,7 +490,7 @@ void MuonAlignmentFromReference::run(const edm::EventSetup& iSetup, const EventI
             std::cout << "JUST AFTER PROCESS" << std::endl;
         }
       }  // end if track p is within range
-    }    // end if track pT is within range
+    }  // end if track pT is within range
     if (m_debug)
       std::cout << "JUST AFTER LOOP OVER trajTrackPairs" << std::endl;
 
@@ -726,10 +726,10 @@ void MuonAlignmentFromReference::processMuonResidualsFromTrack(MuonResidualsFrom
               assert(false);
 
           }  // end loop over chamberIds
-        }    // # crossed muon chambers ok
-      }      // endcap tracker ok
-    }        // chi2 ok
-  }          // trackerNumHits ok
+        }  // # crossed muon chambers ok
+      }  // endcap tracker ok
+    }  // chi2 ok
+  }  // trackerNumHits ok
 }
 
 void MuonAlignmentFromReference::terminate(const edm::EventSetup& iSetup) {
@@ -2027,7 +2027,7 @@ void MuonAlignmentFromReference::parseReference(align::Alignables& reference,
           }
         }
       }  // if (!parsing_error)
-    }    // endcap
+    }  // endcap
 
     if (parsing_error)
       throw cms::Exception("MuonAlignmentFromReference")

@@ -61,12 +61,12 @@ private:
   inline void save(Archive& ar, const unsigned /* version */) const {
     if (!validate())
       throw cms::Exception("In HBHENegativeEFilter::save: invalid data");
-    ar& a1v_& a2v_& iEtaLimits_& cut_& minCharge_& tFirst_& tLast_;
+    ar & a1v_ & a2v_ & iEtaLimits_ & cut_ & minCharge_ & tFirst_ & tLast_;
   }
 
   template <class Archive>
   inline void load(Archive& ar, const unsigned /* version */) {
-    ar& a1v_& a2v_& iEtaLimits_& cut_& minCharge_& tFirst_& tLast_;
+    ar & a1v_ & a2v_ & iEtaLimits_ & cut_ & minCharge_ & tFirst_ & tLast_;
     if (!validate())
       throw cms::Exception("In HBHENegativeEFilter::load: invalid data");
   }

@@ -252,7 +252,7 @@ void HLTRecHitInAllL1RegionsProducer<RecHitType>::produce(edm::Event& event, con
           }
         }
       }  //end check of empty regions
-    }    //end check of empty rec-hits
+    }  //end check of empty rec-hits
     //   std::cout <<"putting fileter coll in "<<filteredRecHits->size()<<std::endl;
     event.put(std::move(filteredRecHits), productLabels_[recHitCollNr]);
   }  //end loop over all rec hit collections

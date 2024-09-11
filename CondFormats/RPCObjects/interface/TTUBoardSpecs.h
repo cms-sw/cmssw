@@ -25,7 +25,7 @@ public:
   class TTUBoardConfig : public RPCTechTriggerConfig {
   public:
     /// Standard constructor
-    TTUBoardConfig() : RPCTechTriggerConfig(){};
+    TTUBoardConfig() : RPCTechTriggerConfig() {}
 
     int m_Firmware;
     int m_LengthOfFiber;

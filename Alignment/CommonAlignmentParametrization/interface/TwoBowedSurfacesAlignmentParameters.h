@@ -84,7 +84,7 @@ public:
                                       const std::vector<bool> &selection);
 
   /// Destructor
-  ~TwoBowedSurfacesAlignmentParameters() override{};
+  ~TwoBowedSurfacesAlignmentParameters() override {}
   void apply() override;
   int type() const override;
 

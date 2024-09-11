@@ -368,7 +368,7 @@ void HGCalSimHitValidation::fillMuonTomoHistos(int partialType, std::pair<hitsin
     if (nameDetector_ == "HGCalHEScintillatorSensitive") {
       hitXYB_.at(ilayer)->Fill(x, y);
     }  //is Scintillator
-  }    //layer condition
+  }  //layer condition
 }
 
 // ------------ method called when starting to processes a run  ------------

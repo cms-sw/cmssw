@@ -35,7 +35,7 @@
 class EcalUncalibRecHitWorkerAnalFit : public EcalUncalibRecHitWorkerRunOneDigiBase {
 public:
   EcalUncalibRecHitWorkerAnalFit(const edm::ParameterSet& ps, edm::ConsumesCollector& c);
-  EcalUncalibRecHitWorkerAnalFit(){};
+  EcalUncalibRecHitWorkerAnalFit() {}
 
   void set(const edm::EventSetup& es) override;
   bool run(const edm::Event& evt,

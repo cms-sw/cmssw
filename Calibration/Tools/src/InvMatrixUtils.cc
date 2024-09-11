@@ -265,7 +265,7 @@ int extract(std::vector<int> *output, const std::string &dati) {
       if (buffer != -1)
         output->push_back(buffer);
     }  // loop over the line
-  }    // loop over the file
+  }  // loop over the file
   return output->size();
 }
 

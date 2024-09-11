@@ -91,7 +91,7 @@ namespace reco {
                        const TrackRef &closestCtfTrack,
                        const TrackBaseRef &conversionPartner,
                        const GsfTrackRefVector &ambiguousTracks) const;
-    ~GsfElectron() override{};
+    ~GsfElectron() override {}
 
   private:
     void init();
@@ -512,7 +512,7 @@ namespace reco {
     struct SaturationInfo {
       int nSaturatedXtals;
       bool isSeedSaturated;
-      SaturationInfo() : nSaturatedXtals(0), isSeedSaturated(false){};
+      SaturationInfo() : nSaturatedXtals(0), isSeedSaturated(false) {}
     };
 
     // accessors
@@ -680,7 +680,7 @@ namespace reco {
             sumPhotonEtHighThreshold(0),
             sumPUPt(0),
             sumEcalClusterEt(0),
-            sumHcalClusterEt(0){};
+            sumHcalClusterEt(0) {}
     };
 
     struct MvaInput {

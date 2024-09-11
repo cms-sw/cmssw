@@ -110,9 +110,9 @@ bool HLTEgammaDoubleXGBoostCombFilter::hltFilter(edm::Event& event,
                   (mvaScorej > leadCutHighMass3_[eta1] && mvaScorei > subCutHighMass3_[eta2]))) {
           accept = true;
         }  // if scoreJ > scoreI
-      }    //If high mass
-    }      //j loop
-  }        //i loop
+      }  //If high mass
+    }  //j loop
+  }  //i loop
   return accept;
 }  //Definition
 

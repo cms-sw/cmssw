@@ -1770,9 +1770,9 @@ void TestClusters::endJob() {
               hbadMap1->Fill(float(mod), float(lad));
             }
           }  //if
-        }    // loop over rocs
-      }      // mod
-    }        // lad
+        }  // loop over rocs
+      }  // mod
+    }  // lad
 
     for (int ilad = 0; ilad < 32; ++ilad) {
       int lad = ladders2[ilad];
@@ -1813,9 +1813,9 @@ void TestClusters::endJob() {
               hbadMap2->Fill(float(mod), float(lad));
             }
           }  //if
-        }    // loop over rocs
-      }      // mod
-    }        // lad
+        }  // loop over rocs
+      }  // mod
+    }  // lad
 
     for (int ilad = 0; ilad < 44; ++ilad) {
       int lad = ladders3[ilad];
@@ -1852,9 +1852,9 @@ void TestClusters::endJob() {
               hbadMap3->Fill(float(mod), float(lad));
             }
           }  //if
-        }    // loop over rocs
-      }      // mod
-    }        // lad
+        }  // loop over rocs
+      }  // mod
+    }  // lad
 
     edm::LogPrint("TestClusters") << " Bad Rocs " << deadRocs1 << " " << deadRocs2 << " " << deadRocs3
                                   << ", Inefficient Rocs " << ineffRocs1 << " " << ineffRocs2 << " " << ineffRocs3;
@@ -1974,8 +1974,8 @@ void TestClusters::analyze(const edm::Event &e, const edm::EventSetup &es) {
           edm::LogPrint("TestClusters") << ", sumpt " << iVertex->p4().pt();
           edm::LogPrint("TestClusters");
         }  // print
-      }    // for loop
-    }      // if vertex
+      }  // for loop
+    }  // if vertex
 
     hpvs->Fill(float(numPVsGood));
     hpvls->Fill(float(lumiBlock), float(numPVsGood));
@@ -2148,8 +2148,8 @@ void TestClusters::analyze(const edm::Event &e, const edm::EventSetup &es) {
 
       }  // if hlt
 
-    }   // loop
-  }     // if valid
+    }  // loop
+  }  // if valid
 #endif  // HLT
 
 #ifdef USE_RESYNCS
@@ -3646,7 +3646,7 @@ void TestClusters::analyze(const edm::Event &e, const edm::EventSetup &es) {
         if (t1flag > 0 && i < 64)
           hl1t1->Fill(float(i));
       }  // for loop
-    }    // if l1a
+    }  // if l1a
 
     // HLT bits
     for (unsigned int i = 0; i < 256; i++)

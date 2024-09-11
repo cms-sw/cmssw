@@ -655,7 +655,7 @@ int EcalDeadCellTriggerPrimitiveFilter::getChannelStatusMaps() {
         EcalAllDeadChannelsBitMap.insert(std::make_pair(detid, bitVec));
       }
     }  // end loop iphi
-  }    // end loop ieta
+  }  // end loop ieta
 
   // Loop over EE detid
   if (doEEfilter_) {
@@ -692,8 +692,8 @@ int EcalDeadCellTriggerPrimitiveFilter::getChannelStatusMaps() {
             EcalAllDeadChannelsBitMap.insert(std::make_pair(detid, bitVec));
           }
         }  // end loop iz
-      }    // end loop iy
-    }      // end loop ix
+      }  // end loop iy
+    }  // end loop ix
   }
 
   EcalAllDeadChannelsTTMap.clear();

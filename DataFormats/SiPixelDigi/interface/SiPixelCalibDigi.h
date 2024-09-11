@@ -30,7 +30,7 @@ public:
   }  // returns the sum of the squares of adc counts for the collected events at point ipoint
   uint32_t getnentries(uint32_t ipoint) const {
     return m_data[ipoint].nentries;
-  }                                             // returns the number of entries made for calibration point ipoint
+  }  // returns the number of entries made for calibration point ipoint
   std::vector<uint32_t> getsum() const;         // returns the sum of adc counts for the collected events for all points
   std::vector<uint32_t> getsumsquares() const;  // returns the sum of the squares of adc counts
   std::vector<uint8_t> getnentries() const;     // returns the number of entries made

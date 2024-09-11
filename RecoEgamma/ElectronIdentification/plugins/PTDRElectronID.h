@@ -5,9 +5,9 @@
 
 class PTDRElectronID : public ElectronIDAlgo {
 public:
-  PTDRElectronID(){};
+  PTDRElectronID() {}
 
-  ~PTDRElectronID() override{};
+  ~PTDRElectronID() override {}
 
   void setup(const edm::ParameterSet& conf) override;
   double result(const reco::GsfElectron*, const edm::Event&, const edm::EventSetup&) override;

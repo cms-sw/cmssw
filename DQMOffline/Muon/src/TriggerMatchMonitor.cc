@@ -251,6 +251,6 @@ void TriggerMatchMonitor::analyze(const edm::Event& iEvent, const edm::EventSetu
           }
         }
       }  //isolated tight muon
-    }    //pat muon loop
-  }      //valid pat muon
+    }  //pat muon loop
+  }  //valid pat muon
 }

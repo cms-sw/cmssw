@@ -68,7 +68,7 @@ void OptoScanTask::book() {
       opto_[igain][ihisto].vSumOfSquares_.resize(nbins, 0);
 
     }  // end loop on histos
-  }    // end loop on gains
+  }  // end loop on gains
 }
 
 // -----------------------------------------------------------------------------

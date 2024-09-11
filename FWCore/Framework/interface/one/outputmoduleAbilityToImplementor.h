@@ -41,7 +41,7 @@ namespace edm {
         RunWatcher(edm::ParameterSet const& iPSet) : OutputModuleBase(iPSet) {}
         RunWatcher(RunWatcher const&) = delete;
         RunWatcher& operator=(RunWatcher const&) = delete;
-        ~RunWatcher() noexcept(false) override{};
+        ~RunWatcher() noexcept(false) override {}
 
       private:
         void doBeginRun_(RunForOutput const& r) final;
@@ -56,7 +56,7 @@ namespace edm {
         LuminosityBlockWatcher(edm::ParameterSet const& iPSet) : OutputModuleBase(iPSet) {}
         LuminosityBlockWatcher(LuminosityBlockWatcher const&) = delete;
         LuminosityBlockWatcher& operator=(LuminosityBlockWatcher const&) = delete;
-        ~LuminosityBlockWatcher() noexcept(false) override{};
+        ~LuminosityBlockWatcher() noexcept(false) override {}
 
       private:
         void doBeginLuminosityBlock_(LuminosityBlockForOutput const& lb) final;
@@ -71,7 +71,7 @@ namespace edm {
         InputFileWatcher(edm::ParameterSet const& iPSet) : OutputModuleBase(iPSet) {}
         InputFileWatcher(InputFileWatcher const&) = delete;
         InputFileWatcher& operator=(InputFileWatcher const&) = delete;
-        ~InputFileWatcher() noexcept(false) override{};
+        ~InputFileWatcher() noexcept(false) override {}
 
       private:
         void doRespondToOpenInputFile_(FileBlock const&) final;
@@ -87,7 +87,7 @@ namespace edm {
         RunCacheHolder(edm::ParameterSet const& iPSet) : OutputModuleBase(iPSet) {}
         RunCacheHolder(RunCacheHolder<C> const&) = delete;
         RunCacheHolder<C>& operator=(RunCacheHolder<C> const&) = delete;
-        ~RunCacheHolder() noexcept(false) override{};
+        ~RunCacheHolder() noexcept(false) override {}
 
       protected:
         C* runCache(edm::RunIndex iID) { return cache_.get(); }
@@ -113,7 +113,7 @@ namespace edm {
         LuminosityBlockCacheHolder(edm::ParameterSet const& iPSet) : OutputModuleBase(iPSet) {}
         LuminosityBlockCacheHolder(LuminosityBlockCacheHolder<C> const&) = delete;
         LuminosityBlockCacheHolder<C>& operator=(LuminosityBlockCacheHolder<C> const&) = delete;
-        ~LuminosityBlockCacheHolder() noexcept(false) override{};
+        ~LuminosityBlockCacheHolder() noexcept(false) override {}
 
       protected:
         void preallocLumis(unsigned int iNLumis) final { caches_.reset(new std::shared_ptr<C>[iNLumis]); }
@@ -168,7 +168,7 @@ namespace edm {
         typedef edm::one::outputmodule::LuminosityBlockCacheHolder<C> Type;
       };
     }  // namespace outputmodule
-  }    // namespace one
+  }  // namespace one
 }  // namespace edm
 
 #endif

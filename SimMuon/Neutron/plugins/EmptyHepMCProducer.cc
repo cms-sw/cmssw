@@ -31,7 +31,7 @@
 class EmptyHepMCProducer : public edm::stream::EDProducer<> {
 public:
   explicit EmptyHepMCProducer(const edm::ParameterSet&);
-  ~EmptyHepMCProducer() override{};
+  ~EmptyHepMCProducer() override {}
 
 private:
   virtual void beginJob();

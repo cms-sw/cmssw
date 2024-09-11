@@ -51,7 +51,7 @@ elif (options.geometry == "2021"):
 elif (options.geometry == "2026"):
     from Configuration.Eras.Era_Phase2C11M9_cff import Phase2C11M9
     process = cms.Process('Sim',Phase2C11M9)
-    geomFile = "Configuration.Geometry.GeometryExtended" + options.geometry + "D88Reco_cff"
+    geomFile = "Configuration.Geometry.GeometryExtended" + options.geometry + "D110Reco_cff"
     globalTag = "auto:phase2_realistic"
 else:
     process = cms.Process('Sim')

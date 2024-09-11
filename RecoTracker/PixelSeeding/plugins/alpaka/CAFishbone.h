@@ -120,8 +120,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
               }
             }
           }  // cj
-        }    // ci
-      }      // hits
+        }  // ci
+      }  // hits
     }
   };
 

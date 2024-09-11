@@ -37,7 +37,7 @@ namespace l1t {
                               std::vector<l1t::Jet>& jets,
                               std::vector<l1t::EtSum>& etSums) = 0;
 
-    virtual ~Stage2MainProcessor(){};
+    virtual ~Stage2MainProcessor() {}
   };
 
 }  // namespace l1t

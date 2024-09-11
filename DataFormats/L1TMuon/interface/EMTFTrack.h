@@ -82,9 +82,9 @@ namespace l1t {
           gmt_charge(-99),
           gmt_charge_valid(-99),
           track_num(-99),
-          numHits(-99){};
+          numHits(-99) {}
 
-    virtual ~EMTFTrack(){};
+    virtual ~EMTFTrack() {}
 
     void ImportSP(const emtf::SP _SP, int _sector);
     // void ImportPtLUT( int _mode, unsigned long _address );

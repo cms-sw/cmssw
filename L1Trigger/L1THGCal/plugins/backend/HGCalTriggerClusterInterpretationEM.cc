@@ -7,7 +7,7 @@
 class HGCalTriggerClusterInterpretationEM : public HGCalTriggerClusterInterpreterBase {
 public:
   HGCalTriggerClusterInterpretationEM();
-  ~HGCalTriggerClusterInterpretationEM() override{};
+  ~HGCalTriggerClusterInterpretationEM() override {}
   void initialize(const edm::ParameterSet& conf) final;
   void setGeometry(const HGCalTriggerGeometryBase* const) final;
   void interpret(l1t::HGCalMulticlusterBxCollection& multiclusters) const final;

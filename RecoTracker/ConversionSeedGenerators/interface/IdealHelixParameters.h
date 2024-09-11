@@ -25,8 +25,8 @@ public:
         _track(nullptr),
         _refPoint(math::XYZVector(0, 0, 0)),
         _tangentPoint(math::XYZVector(0, 0, 0)),
-        _MomentumAtTangentPoint(math::XYZVector(0, 0, 0)){};
-  ~IdealHelixParameters(){};
+        _MomentumAtTangentPoint(math::XYZVector(0, 0, 0)) {}
+  ~IdealHelixParameters() {}
 
   inline void setMagnField(const MagneticField* magnField) { _magnField = magnField; }
   inline void setData(const reco::Track* track, const math::XYZVector& refPoint = math::XYZVector(0, 0, 0));

@@ -305,7 +305,7 @@ void HGCalHitCalibration::analyze(const edm::Event& iEvent, const edm::EventSetu
             fillWithRecHits(hitmap, hitid, hitlayer, it_haf.second, seedDet, seedEnergy);
         }
       }  // end simHit
-    }    // end simCluster
+    }  // end simCluster
 
     auto sumCalibRecHitCalib_fraction =
         std::accumulate(Energy_layer_calib_fraction_.begin(), Energy_layer_calib_fraction_.end(), 0.);

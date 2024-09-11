@@ -2,7 +2,7 @@
 
 class TtSemiLepHypMVADisc : public TtSemiLepHypothesis {
 public:
-  explicit TtSemiLepHypMVADisc(const edm::ParameterSet& cfg) : TtSemiLepHypothesis(cfg){};
+  explicit TtSemiLepHypMVADisc(const edm::ParameterSet& cfg) : TtSemiLepHypothesis(cfg) {}
 
 private:
   /// build the event hypothesis key

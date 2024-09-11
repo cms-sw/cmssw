@@ -69,8 +69,8 @@ private:
 public:
   class DistanceToVertex {
   public:
-    DistanceToVertex(const XYZPoint& vert) : vertex(vert){};
-    ~DistanceToVertex(){};
+    DistanceToVertex(const XYZPoint& vert) : vertex(vert) {}
+    ~DistanceToVertex() {}
     bool operator()(const CaloPoint& point1, const CaloPoint& point2) {
       return ((point1 - vertex).mag2() < (point2 - vertex).mag2());
     }

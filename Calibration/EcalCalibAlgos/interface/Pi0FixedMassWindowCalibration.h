@@ -49,7 +49,7 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   /// Dummy implementation (job done in duringLoop)
-  virtual void produce(edm::Event&, const edm::EventSetup&){};
+  virtual void produce(edm::Event&, const edm::EventSetup&) {}
 
   /// Called at beginning of job
   void beginOfJob() override;

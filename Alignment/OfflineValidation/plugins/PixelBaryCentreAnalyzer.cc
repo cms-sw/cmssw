@@ -67,8 +67,8 @@ public:
 
   struct SimplePoint {
     float x, y, z;
-    SimplePoint(const GlobalPoint& p) : x(p.x()), y(p.y()), z(p.z()){};
-    SimplePoint() : x(0), y(0), z(0){};
+    SimplePoint(const GlobalPoint& p) : x(p.x()), y(p.y()), z(p.z()) {}
+    SimplePoint() : x(0), y(0), z(0) {}
   };
   static const unsigned int nPixelLayers = 4;
   static const unsigned int nPixelDiscs = 3;

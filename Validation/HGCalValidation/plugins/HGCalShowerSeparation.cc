@@ -200,7 +200,7 @@ void HGCalShowerSeparation::analyze(const edm::Event& iEvent, const edm::EventSe
             energy += hit->energy() * it_haf.second;
           }
         }  //hits and fractions
-      }    // simcluster
+      }  // simcluster
       if (count == 1) {
         energy1_->Fill(energy);
         energy_tmp = energy;
@@ -271,8 +271,8 @@ void HGCalShowerSeparation::analyze(const edm::Event& iEvent, const edm::EventSe
             showerProfile_->Fill(10. * distance, hitlayer, hit->energy() * it_haf.second);
           }
         }  // end simHit
-      }    // end simCluster
-    }      // end caloparticle
+      }  // end simCluster
+    }  // end caloparticle
   }
 }
 

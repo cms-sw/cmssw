@@ -19,7 +19,7 @@ public:
                      const EcalRecHitCollection* rechits,
                      const CaloTopology*,
                      const CaloGeometry*);
-  ~SuperClusterHelper(){};
+  ~SuperClusterHelper() {}
 
   float rawEnergy() const { return theSuperCluster_->rawEnergy(); }
   float eta() const { return theSuperCluster_->eta(); }

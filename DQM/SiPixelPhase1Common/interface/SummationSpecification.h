@@ -55,7 +55,7 @@ struct SummationStep {
 
 struct SummationSpecification {
   std::vector<SummationStep> steps;
-  SummationSpecification(){};
+  SummationSpecification() {}
   SummationSpecification(edm::ParameterSet const&, GeometryInterface&);
 
   template <class stream, class GI>

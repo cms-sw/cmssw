@@ -102,7 +102,7 @@ public:
   template <class M, class K>
   class MEMapInfT {
   public:
-    MEMapInfT() : bOperating_(false), bIsNoUnderOverflowBin_(false){};
+    MEMapInfT() : bOperating_(false), bIsNoUnderOverflowBin_(false) {}
 
     MEMapInfT(
         GEMDQMBase *pDQMBase, TString strName, TString strTitle, TString strTitleX = "", TString strTitleY = "Entries")
@@ -111,7 +111,7 @@ public:
           strTitle_(strTitle),
           strTitleX_(strTitleX),
           strTitleY_(strTitleY),
-          log_category_own_(pDQMBase->log_category_){};
+          log_category_own_(pDQMBase->log_category_) {}
 
     MEMapInfT(GEMDQMBase *pDQMBase,
               TString strName,
@@ -133,7 +133,7 @@ public:
           dXL_(dXL),
           dXH_(dXH),
           nBinsY_(-1),
-          log_category_own_(pDQMBase->log_category_){};
+          log_category_own_(pDQMBase->log_category_) {}
 
     MEMapInfT(GEMDQMBase *pDQMBase,
               TString strName,
@@ -183,7 +183,7 @@ public:
           dYH_(dYH),
           dZL_(0),
           dZH_(1024),
-          log_category_own_(pDQMBase->log_category_){};
+          log_category_own_(pDQMBase->log_category_) {}
 
     MEMapInfT(GEMDQMBase *pDQMBase,  // For TProfile2D
               TString strName,
@@ -214,7 +214,7 @@ public:
           dYH_(dYH),
           dZL_(dZL),
           dZH_(dZH),
-          log_category_own_(pDQMBase->log_category_){};
+          log_category_own_(pDQMBase->log_category_) {}
 
     //MEMapInfT(GEMDQMBase *pDQMBase,
     //          TString strName,
@@ -238,7 +238,7 @@ public:
     //      dYH_(dYH),
     //      log_category_own_(pDQMBase->log_category_){};
 
-    ~MEMapInfT(){};
+    ~MEMapInfT() {}
 
     Bool_t isOperating() { return bOperating_; };
     void SetOperating(Bool_t bOperating) { bOperating_ = bOperating; };
@@ -477,7 +477,7 @@ public:
 
   class MEStationInfo {
   public:
-    MEStationInfo() : nNumChambers_(-1){};
+    MEStationInfo() : nNumChambers_(-1) {}
     MEStationInfo(Int_t nRegion,
                   Int_t nStation,
                   Int_t nLayer,
@@ -500,7 +500,7 @@ public:
           nNumDigi_(nNumDigi),
           nMinIdxChamber_(nMinIdxChamber),
           nMaxIdxChamber_(nMaxIdxChamber),
-          fMinPhi_(0){};
+          fMinPhi_(0) {}
 
     bool operator==(const MEStationInfo &other) const {
       return (nRegion_ == other.nRegion_ && nStation_ == other.nStation_ && nLayer_ == other.nLayer_ &&
@@ -532,7 +532,7 @@ public:
 
 public:
   explicit GEMDQMBase(const edm::ParameterSet &cfg);
-  ~GEMDQMBase() override{};
+  ~GEMDQMBase() override {}
 
   enum {
     GEMDQM_RUNTYPE_ONLINE,

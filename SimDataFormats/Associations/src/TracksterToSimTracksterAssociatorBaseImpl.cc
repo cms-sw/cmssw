@@ -3,8 +3,8 @@
 #include "SimDataFormats/Associations/interface/TracksterToSimTracksterAssociatorBaseImpl.h"
 
 namespace ticl {
-  TracksterToSimTracksterAssociatorBaseImpl::TracksterToSimTracksterAssociatorBaseImpl(){};
-  TracksterToSimTracksterAssociatorBaseImpl::~TracksterToSimTracksterAssociatorBaseImpl(){};
+  TracksterToSimTracksterAssociatorBaseImpl::TracksterToSimTracksterAssociatorBaseImpl() {}
+  TracksterToSimTracksterAssociatorBaseImpl::~TracksterToSimTracksterAssociatorBaseImpl() {}
 
   ticl::RecoToSimCollectionSimTracksters TracksterToSimTracksterAssociatorBaseImpl::associateRecoToSim(
       const edm::Handle<ticl::TracksterCollection> &tCH,

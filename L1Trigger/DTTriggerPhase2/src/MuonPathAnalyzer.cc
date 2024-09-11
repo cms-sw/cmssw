@@ -16,4 +16,4 @@ MuonPathAnalyzer::~MuonPathAnalyzer() {}
 // ============================================================================
 void MuonPathAnalyzer::initialise(const edm::EventSetup& iEventSetup) {}
 
-void MuonPathAnalyzer::finish(){};
+void MuonPathAnalyzer::finish() {}

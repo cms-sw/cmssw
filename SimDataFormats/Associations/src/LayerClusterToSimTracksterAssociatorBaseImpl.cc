@@ -3,8 +3,8 @@
 #include "SimDataFormats/Associations/interface/LayerClusterToSimTracksterAssociatorBaseImpl.h"
 
 namespace ticl {
-  LayerClusterToSimTracksterAssociatorBaseImpl::LayerClusterToSimTracksterAssociatorBaseImpl(){};
-  LayerClusterToSimTracksterAssociatorBaseImpl::~LayerClusterToSimTracksterAssociatorBaseImpl(){};
+  LayerClusterToSimTracksterAssociatorBaseImpl::LayerClusterToSimTracksterAssociatorBaseImpl() {}
+  LayerClusterToSimTracksterAssociatorBaseImpl::~LayerClusterToSimTracksterAssociatorBaseImpl() {}
 
   ticl::RecoToSimTracksterCollection LayerClusterToSimTracksterAssociatorBaseImpl::associateRecoToSim(
       const edm::Handle<reco::CaloClusterCollection> &cCCH,

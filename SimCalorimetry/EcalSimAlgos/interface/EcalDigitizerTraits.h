@@ -26,7 +26,7 @@ public:
   typedef CaloTSamples<float, 10> EcalSamples;
   typedef EcalElectronicsSim<EcalCoder, EcalSamples, EcalDataFrame> ElectronicsSim;
 
-  static void fix(Digi& digi, edm::DataFrame df){};
+  static void fix(Digi& digi, edm::DataFrame df) {}
 };
 
 class EEDigitizerTraits {
@@ -86,7 +86,7 @@ public:
   typedef CaloTSamples<float, ecalPh2::sampleSize> EcalSamples;
   typedef EcalElectronicsSim<EcalLiteDTUCoder, EcalSamples, Digi> ElectronicsSim;
 
-  static void fix(Digi& digi, edm::DataFrame df){};
+  static void fix(Digi& digi, edm::DataFrame df) {}
 };
 
 #endif

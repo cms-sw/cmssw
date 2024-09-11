@@ -231,7 +231,7 @@ bool WPlusJetsEventSelector::operator()(edm::EventBase const& event, pat::strbit
             if (!indeltaR) {
               cleanedJets_.push_back(scaledJet);
             }  // end if jet is not within dR of a muon
-          }    // end if mu+jets
+          }  // end if mu+jets
           else {
             //Remove some jets
             bool indeltaR = false;
@@ -247,9 +247,9 @@ bool WPlusJetsEventSelector::operator()(edm::EventBase const& event, pat::strbit
             if (!indeltaR) {
               cleanedJets_.push_back(scaledJet);
             }  // end if jet is not within dR of an electron
-          }    // end if e+jets
-        }      // end if pass id and kin cuts
-      }        // end loop over jets
+          }  // end if e+jets
+        }  // end if pass id and kin cuts
+      }  // end loop over jets
 
       int nleptons = 0;
       if (muPlusJets_)

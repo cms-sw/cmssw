@@ -624,8 +624,8 @@ void ValidationMisalignedTracker::analyze(const edm::Event& iEvent, const edm::E
           tree_eff->Fill();
 
         }  // end of loop on muons
-      }    // end of loop for tracking particle
-    }      // end of loop for efficiency
+      }  // end of loop for tracking particle
+    }  // end of loop for efficiency
 
     //
     // Fake Rate

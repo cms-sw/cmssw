@@ -202,7 +202,7 @@ void L1Analysis::L1AnalysisCSCTF::SetTracks(const edm::Handle<L1CSCTrackCollecti
         ++LctTrkId_;
 
       }  // for(CSCCorrelatedLCTDigiCollection::const_iterator lctTrk
-    }    // for(CSCCorrelatedLCTDigiCollection::DigiRangeIterator lctOfTrks
+    }  // for(CSCCorrelatedLCTDigiCollection::DigiRangeIterator lctOfTrks
 
     csctf_.trNumLCTs.push_back(LctTrkId_);
     //}
@@ -336,7 +336,7 @@ void L1Analysis::L1AnalysisCSCTF::SetLCTs(const edm::Handle<CSCCorrelatedLCTDigi
       }
 
     }  // for(CSCCorrelatedLCTDigiCollection::const_iterator lct
-  }    // for(CSCCorrelatedLCTDigiCollection::DigiRangeIterator lct
+  }  // for(CSCCorrelatedLCTDigiCollection::DigiRangeIterator lct
 
   csctf_.lctSize = nLCT;
 }

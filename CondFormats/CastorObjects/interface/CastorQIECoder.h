@@ -53,7 +53,7 @@ public:
         mSlope30(0),
         mSlope31(0),
         mSlope32(0),
-        mSlope33(0){};
+        mSlope33(0) {}
 
   /// ADC [0..127] + capid [0..3] -> fC conversion
   float charge(const CastorQIEShape& fShape, unsigned fAdc, unsigned fCapId) const;

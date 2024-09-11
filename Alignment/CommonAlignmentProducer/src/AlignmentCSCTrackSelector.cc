@@ -51,7 +51,7 @@ AlignmentCSCTrackSelector::Tracks AlignmentCSCTrackSelector::select(const Tracks
           hitsOnStationB++;
 
       }  // end if CSC
-    }    // end loop over hits
+    }  // end loop over hits
 
     bool stationAokay;
     if (m_stationA == 0)

@@ -46,7 +46,7 @@ public:
   ~PrintMaterialBudgetInfo() override;
 
 private:
-  void update(const BeginOfJob* job) override{};
+  void update(const BeginOfJob* job) override {}
   void update(const BeginOfRun* run) override;
   void dumpHeader(std::ostream& out = G4cout);
   void dumpLaTeXHeader(std::ostream& out = G4cout);

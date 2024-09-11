@@ -472,7 +472,7 @@ void EcalElectronicsMapper::fillMaps() {
             xtalDetIds_[smId - 1][feChannel - 1][stripId - 1][xtalId - 1] = detId;
 
           }  // close loop over xtals
-        }    // close loop over strips
+        }  // close loop over strips
 
       }  // close loop over fechannels
 
@@ -592,8 +592,8 @@ void EcalElectronicsMapper::fillMaps() {
         tTandPs_[tccId][psCounter][1] = ps + 1;
         psCounter++;
       }  // loop on TCC's
-    }    // loop on towers in TCC
-  }      // loop in ps in tower
+    }  // loop on towers in TCC
+  }  // loop in ps in tower
 
   //   for (int tccId=0; tccId<EcalTriggerElectronicsId::MAX_TCCID; tccId++) {
   //       for (int psCounter=0; psCounter<EcalTrigTowerDetId::kEBTowersPerSM*5; psCounter++) {

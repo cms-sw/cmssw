@@ -35,8 +35,8 @@ namespace CLHEP {
 namespace edm {
   class HcalNoiseStorage : public CaloVNoiseSignalGenerator {
   public:
-    HcalNoiseStorage(){};
-    ~HcalNoiseStorage() override{};
+    HcalNoiseStorage() {}
+    ~HcalNoiseStorage() override {}
 
     /** standard constructor*/
     // explicit HcalNoiseStorage();
@@ -44,7 +44,7 @@ namespace edm {
     /**Default destructor*/
     // virtual ~HcalNoiseStorage();
 
-    void fillNoiseSignals(CLHEP::HepRandomEngine *) override{};
+    void fillNoiseSignals(CLHEP::HepRandomEngine *) override {}
 
   private:
   };

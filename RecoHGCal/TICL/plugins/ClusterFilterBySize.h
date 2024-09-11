@@ -16,7 +16,7 @@ namespace ticl {
   public:
     ClusterFilterBySize(const edm::ParameterSet& ps)
         : ClusterFilterBase(ps), max_cluster_size_(ps.getParameter<int>("max_cluster_size")) {}
-    ~ClusterFilterBySize() override{};
+    ~ClusterFilterBySize() override {}
 
     void filter(const std::vector<reco::CaloCluster>& layerClusters,
                 std::vector<float>& layerClustersMask,

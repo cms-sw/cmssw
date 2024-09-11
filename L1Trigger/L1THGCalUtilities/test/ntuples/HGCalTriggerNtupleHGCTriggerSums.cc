@@ -11,7 +11,7 @@
 class HGCalTriggerNtupleHGCTriggerSums : public HGCalTriggerNtupleBase {
 public:
   HGCalTriggerNtupleHGCTriggerSums(const edm::ParameterSet& conf);
-  ~HGCalTriggerNtupleHGCTriggerSums() override{};
+  ~HGCalTriggerNtupleHGCTriggerSums() override {}
   void initialize(TTree&, const edm::ParameterSet&, edm::ConsumesCollector&&) final;
   void fill(const edm::Event& e, const HGCalTriggerNtupleEventSetup& es) final;
 

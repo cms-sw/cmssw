@@ -20,8 +20,8 @@ class TClonesArray;
 class NtupleManager {
 public:
   //---------- Constructors / Destructor
-  NtupleManager(){};
-  ~NtupleManager(){};
+  NtupleManager() {}
+  ~NtupleManager() {}
   static NtupleManager* getInstance();
   void BookNtuple();
   void InitNtuple();

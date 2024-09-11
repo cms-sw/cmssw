@@ -29,7 +29,7 @@ namespace l1t {
                               const std::vector<l1t::Tau>* taus,
                               l1t::CaloSpare* spare) = 0;
 
-    virtual ~Stage1Layer2HFRingSumAlgorithm(){};
+    virtual ~Stage1Layer2HFRingSumAlgorithm() {}
   };
 
 }  // namespace l1t

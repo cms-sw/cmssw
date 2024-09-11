@@ -82,16 +82,16 @@ void DTGeometryBuilderFromDDD::buildGeometry(DTGeometry& theGeometry,
 
         fv.parent();
         doL = fv.nextSibling();  // go to next layer
-      }                          // layers
+      }  // layers
 
       fv.parent();
       doSL = fv.nextSibling();  // go to next SL
-    }                           // sls
+    }  // sls
     theGeometry.add(chamber);
 
     fv.parent();
     doChamber = fv.nextSibling();  // go to next chamber
-  }                                // chambers
+  }  // chambers
 }
 
 DTChamber* DTGeometryBuilderFromDDD::buildChamber(DDFilteredView& fv,

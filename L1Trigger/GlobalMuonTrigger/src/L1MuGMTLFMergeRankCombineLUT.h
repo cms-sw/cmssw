@@ -51,7 +51,7 @@ public:
   };
 
   /// destructor
-  ~L1MuGMTLFMergeRankCombineLUT() override{};
+  ~L1MuGMTLFMergeRankCombineLUT() override {}
 
   /// specific lookup function for merge_rank
   unsigned SpecificLookup_merge_rank(int idx, unsigned rank_etaq, unsigned rank_ptq, unsigned rank_etaphi) const {

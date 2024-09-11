@@ -611,7 +611,7 @@ void TrackDerTable::fillTable() {
             ider++;
 
           }  // for (unsigned int ihit = 1; ihit < 12; ++ihit)
-        }    // if (goodseed)
+        }  // if (goodseed)
 
         FPGAWord tmprinvdphi[N_PROJ];
         int nbits = 16;

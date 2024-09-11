@@ -17,7 +17,7 @@
  */
 class PtAssignmentBase {
 public:
-  PtAssignmentBase(const OMTFConfiguration* omtfConfig) : omtfConfig(omtfConfig){};
+  PtAssignmentBase(const OMTFConfiguration* omtfConfig) : omtfConfig(omtfConfig) {}
   virtual ~PtAssignmentBase();
 
   virtual std::vector<float> getPts(AlgoMuons::value_type& algoMuon,

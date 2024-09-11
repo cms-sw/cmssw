@@ -45,7 +45,7 @@ public:
     }
   }
 
-  ~HcalUHTRTableProducer() override{};
+  ~HcalUHTRTableProducer() override {}
 
   /*
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

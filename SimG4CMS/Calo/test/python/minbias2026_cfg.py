@@ -2,7 +2,7 @@
 # Way to use this:
 #   cmsRun testHGCalParametersDDD_cfg.py type=V18
 #
-#   Options for type D88, D92, V17Shift, V18
+#   Options for type V16, V17, V17Shift, V18
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -16,7 +16,7 @@ options.register('type',
                  "V18",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "type of operations: D88, D92, V17Shift, V18")
+                  "type of operations: V16, V17, V17Shift, V18")
 
 ### get and parse the command line arguments
 options.parseArguments()
@@ -30,8 +30,11 @@ if (options.type == "V18"):
     geomFile = "Geometry.HGCalCommonData.testHGCal" + options.type + "Reco_cff"
 elif (options.type == "V17Shift"):
     geomFile = "Geometry.HGCalCommonData.testHGCal" + options.type + "Reco_cff"
+elif (options.type == "V17"):
+    geomFile = "Configuration.Geometry.GeometryExtended2026D110Reco_cffelse:
 else:
-    geomFile = "Configuration.Geometry.GeometryExtended2026" + options.type + "Reco_cff"
+    geomFile = "Configuration.Geometry.GeometryExtended2026D100Reco_cff"
+
 outFile = "minbias" + options.type + ".root"
 
 print("Geometry file: ", geomFile)

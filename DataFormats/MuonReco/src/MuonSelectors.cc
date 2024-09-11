@@ -1002,10 +1002,10 @@ int muon::sharedSegments(const reco::Muon& mu, const reco::Muon& mu2, unsigned i
               (segmentMatch->dtSegmentRef.isNonnull() && segmentMatch->dtSegmentRef == segmentMatch2->dtSegmentRef)) {
             ++ret;
           }  // is the same
-        }    // segment of mu2 in chamber
-      }      // segment of mu1 in chamber
-    }        // chamber of mu2
-  }          // chamber of mu1
+        }  // segment of mu2 in chamber
+      }  // segment of mu1 in chamber
+    }  // chamber of mu2
+  }  // chamber of mu1
 
   return ret;
 }

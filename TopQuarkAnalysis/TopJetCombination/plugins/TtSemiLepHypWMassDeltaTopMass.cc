@@ -2,7 +2,7 @@
 
 class TtSemiLepHypWMassDeltaTopMass : public TtSemiLepHypothesis {
 public:
-  explicit TtSemiLepHypWMassDeltaTopMass(const edm::ParameterSet& cfg) : TtSemiLepHypothesis(cfg){};
+  explicit TtSemiLepHypWMassDeltaTopMass(const edm::ParameterSet& cfg) : TtSemiLepHypothesis(cfg) {}
 
 private:
   /// build the event hypothesis key

@@ -55,7 +55,7 @@ void MPQualityEnhancerFilter::run(edm::Event &iEvent,
   buff2.clear();
 }
 
-void MPQualityEnhancerFilter::finish(){};
+void MPQualityEnhancerFilter::finish() {}
 
 ///////////////////////////
 ///  OTHER METHODS

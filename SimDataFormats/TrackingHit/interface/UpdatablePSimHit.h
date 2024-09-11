@@ -24,7 +24,7 @@ public:
                    float phi,
                    unsigned short processType = 0)
       : PSimHit(entry, exit, pabs, tof, eloss, particleType, detId, trackId, theta, phi, processType) {}
-  ~UpdatablePSimHit(){};
+  ~UpdatablePSimHit() {}
   void updateExitPoint(const Local3DPoint& exit) { theSegment = exit - theEntryPoint; }
   void setExitPoint(const Local3DPoint& exit) { updateExitPoint(exit); }
   void setEntryPoint(const Local3DPoint& entry) {

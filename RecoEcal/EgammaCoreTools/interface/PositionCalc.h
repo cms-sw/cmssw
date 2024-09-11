@@ -34,7 +34,7 @@ public:
   // covariances.
 
   PositionCalc(const edm::ParameterSet& par);
-  PositionCalc(){};
+  PositionCalc() {}
 
   const PositionCalc& operator=(const PositionCalc& rhs);
 

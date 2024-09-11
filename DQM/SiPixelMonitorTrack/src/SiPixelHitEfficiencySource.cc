@@ -760,7 +760,7 @@ void SiPixelHitEfficiencySource::analyze(const edm::Event &iEvent, const edm::Ev
                       dy_cl[1] = lp.y();
                     }
                   }  // loop on clusterSets
-                }    // loop on clusterCollection
+                }  // loop on clusterCollection
                 for (size_t i = 0; i < 2; i++) {
                   if (minD[i] < 9999.) {
                     dx_cl[i] = fabs(dx_cl[i] - lx);
@@ -768,8 +768,8 @@ void SiPixelHitEfficiencySource::analyze(const edm::Event &iEvent, const edm::Ev
                   }
                 }
               }  // valid clusterCollectionHandle
-            }    // valid tracker
-          }      // valid cpEstimator
+            }  // valid tracker
+          }  // valid cpEstimator
           // distance of hit from closest cluster!
           float d_cl[2];
           d_cl[0] = d_cl[1] = -9999.;
@@ -807,7 +807,7 @@ void SiPixelHitEfficiencySource::analyze(const edm::Event &iEvent, const edm::Ev
         }  // end of else
 
       }  // end for (all traj measurements of pixeltrack)
-    }    // end if (is pixeltrack)
+    }  // end if (is pixeltrack)
     else if (debug_)
       std::cout << "no pixeltrack:\n";
 

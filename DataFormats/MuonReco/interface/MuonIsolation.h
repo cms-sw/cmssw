@@ -23,7 +23,7 @@ namespace reco {
           trackerVetoPt(0),
           emVetoEt(0),
           hadVetoEt(0),
-          hoVetoEt(0){};
+          hoVetoEt(0) {}
   };
 }  // namespace reco
 #endif

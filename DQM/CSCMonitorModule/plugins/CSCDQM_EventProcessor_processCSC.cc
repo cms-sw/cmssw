@@ -358,7 +358,7 @@ namespace cscdqm {
       mo->Fill(0.0);
       float alct_dav_number = mo->GetBinContent(1);
       if (getCSCHisto(h::CSC_DMB_FEB_DAV_EFFICIENCY, crateID, dmbID, mo)) {
-        mo->SetBinContent(1, ((float)alct_dav_number / (float)(DMBEvents)*100.0));
+        mo->SetBinContent(1, ((float)alct_dav_number / (float)(DMBEvents) * 100.0));
         mo->SetEntries((int)DMBEvents);
       }
     }
@@ -367,7 +367,7 @@ namespace cscdqm {
       mo->Fill(1.0);
       float tmb_dav_number = mo->GetBinContent(2);
       if (getCSCHisto(h::CSC_DMB_FEB_DAV_EFFICIENCY, crateID, dmbID, mo)) {
-        mo->SetBinContent(2, ((float)tmb_dav_number / (float)(DMBEvents)*100.0));
+        mo->SetBinContent(2, ((float)tmb_dav_number / (float)(DMBEvents) * 100.0));
         mo->SetEntries((int)DMBEvents);
       }
     }
@@ -376,7 +376,7 @@ namespace cscdqm {
       mo->Fill(2.0);
       float cfeb_dav2_number = mo->GetBinContent(3);
       if (getCSCHisto(h::CSC_DMB_FEB_DAV_EFFICIENCY, crateID, dmbID, mo)) {
-        mo->SetBinContent(3, ((float)cfeb_dav2_number / (float)(DMBEvents)*100.0));
+        mo->SetBinContent(3, ((float)cfeb_dav2_number / (float)(DMBEvents) * 100.0));
         mo->SetEntries((int)DMBEvents);
       }
     }
@@ -404,7 +404,7 @@ namespace cscdqm {
       float feb_combination_dav_number = mo->GetBinContent((int)(feb_combination_dav + 1.0));
       if (getCSCHisto(h::CSC_DMB_FEB_COMBINATIONS_DAV_EFFICIENCY, crateID, dmbID, mo)) {
         mo->SetBinContent((int)(feb_combination_dav + 1.0),
-                          ((float)feb_combination_dav_number / (float)(DMBEvents)*100.0));
+                          ((float)feb_combination_dav_number / (float)(DMBEvents) * 100.0));
         mo->SetEntries((int)DMBEvents);
       }
     }
@@ -444,7 +444,7 @@ namespace cscdqm {
             if (config->getNEvents() > 0) {
               /** KK */
               /** h[hname]->SetBinContent(3, ((float)ALCTEvent/(float)(config->getNEvents()) * 100.0)); */
-              mo->SetBinContent(1, ((float)ALCTEvent / (float)(DMBEvents)*100.0));
+              mo->SetBinContent(1, ((float)ALCTEvent / (float)(DMBEvents) * 100.0));
               /** KKend */
               mo->SetEntries((int)DMBEvents);
             }
@@ -503,7 +503,7 @@ namespace cscdqm {
           mo->Fill(alctsDatas.size());
           int nALCT = (int)mo->GetBinContent((int)(alctsDatas.size() + 1));
           if (getCSCHisto(h::CSC_ALCT_NUMBER_EFFICIENCY, crateID, dmbID, mo))
-            mo->SetBinContent((int)(alctsDatas.size() + 1), (float)(nALCT) / (float)(DMBEvents)*100.0);
+            mo->SetBinContent((int)(alctsDatas.size() + 1), (float)(nALCT) / (float)(DMBEvents) * 100.0);
         }
 
         if (getCSCHisto(h::CSC_ALCT_WORD_COUNT, crateID, dmbID, mo))
@@ -790,7 +790,7 @@ namespace cscdqm {
         mo->Fill(0);
         int nALCT = (int)mo->GetBinContent(1);
         if (getCSCHisto(h::CSC_ALCT_NUMBER_EFFICIENCY, crateID, dmbID, mo))
-          mo->SetBinContent(1, (float)(nALCT) / (float)(DMBEvents)*100.0);
+          mo->SetBinContent(1, (float)(nALCT) / (float)(DMBEvents) * 100.0);
       }
 
       if ((alct_dav > 0) && (getCSCHisto(h::CSC_DMB_FEB_UNPACKED_VS_DAV, crateID, dmbID, mo))) {
@@ -959,12 +959,12 @@ namespace cscdqm {
                               /// Fill summary GEM VFATs occupancies plots for endcaps
                               if ((cid.endcap() == 1) && getEMUHisto(h::EMU_GEM_PLUS_ENDCAP_VFAT_OCCUPANCY, mo)) {
                                 int vfat = (pads_hits[0] / 192) + ((pads_hits[0] % 192) / 64) * 8;
-                                mo->Fill((cscPosition)*2 + i - 1, vfat);
+                                mo->Fill((cscPosition) * 2 + i - 1, vfat);
                               }
 
                               if ((cid.endcap() == 2) && getEMUHisto(h::EMU_GEM_MINUS_ENDCAP_VFAT_OCCUPANCY, mo)) {
                                 int vfat = (pads_hits[0] / 192) + ((pads_hits[0] % 192) / 64) * 8;
-                                mo->Fill((cscPosition)*2 + i - 1, vfat);
+                                mo->Fill((cscPosition) * 2 + i - 1, vfat);
                               }
 
                               for (unsigned pad = 0; pad < pads_hits.size(); pad++) {
@@ -1042,7 +1042,7 @@ namespace cscdqm {
                     }
                   }
                 }  // OTMB hasGEM
-              }    // isGEM_df
+              }  // isGEM_df
 
               /// Summary occupancy plot for Anode HMT bits from OTMB
               if (getEMUHisto(h::EMU_CSC_ANODE_HMT_REPORTING, mo)) {
@@ -1389,7 +1389,7 @@ namespace cscdqm {
             config->setChamberCounterValue(CLCT_TRIGGERS, crateID, dmbID, CLCTEvent);
             if (getCSCHisto(h::CSC_CSC_EFFICIENCY, crateID, dmbID, mo)) {
               if (config->getNEvents() > 0) {
-                mo->SetBinContent(2, ((float)CLCTEvent / (float)(DMBEvents)*100.0));
+                mo->SetBinContent(2, ((float)CLCTEvent / (float)(DMBEvents) * 100.0));
                 mo->SetEntries(DMBEvents);
               }
             }
@@ -1440,7 +1440,7 @@ namespace cscdqm {
             mo->Fill(clctsDatas.size());
             int nCLCT = (int)mo->GetBinContent((int)(clctsDatas.size() + 1));
             if (getCSCHisto(h::CSC_CLCT_NUMBER, crateID, dmbID, mo))
-              mo->SetBinContent((int)(clctsDatas.size() + 1), (float)(nCLCT) / (float)(DMBEvents)*100.0);
+              mo->SetBinContent((int)(clctsDatas.size() + 1), (float)(nCLCT) / (float)(DMBEvents) * 100.0);
           }
 
           if (clctsDatas.size() == 1) {
@@ -1804,7 +1804,7 @@ namespace cscdqm {
         mo->Fill(0);
         int nCLCT = (int)mo->GetBinContent(1);
         if (getCSCHisto(h::CSC_CLCT_NUMBER, crateID, dmbID, mo))
-          mo->SetBinContent(1, (float)(nCLCT) / (float)(DMBEvents)*100.0);
+          mo->SetBinContent(1, (float)(nCLCT) / (float)(DMBEvents) * 100.0);
       }
       if ((tmb_dav > 0) && (getCSCHisto(h::CSC_DMB_FEB_UNPACKED_VS_DAV, crateID, dmbID, mo))) {
         mo->Fill(1.0, 1.0);
@@ -1886,7 +1886,7 @@ namespace cscdqm {
             config->setChamberCounterValue(CFEB_TRIGGERS, crateID, dmbID, CFEBEvent);
             if (getCSCHisto(h::CSC_CSC_EFFICIENCY, crateID, dmbID, mo)) {
               if (config->getNEvents() > 0) {
-                mo->SetBinContent(3, ((float)CFEBEvent / (float)(DMBEvents)*100.0));
+                mo->SetBinContent(3, ((float)CFEBEvent / (float)(DMBEvents) * 100.0));
                 mo->SetEntries((int)DMBEvents);
               }
             }

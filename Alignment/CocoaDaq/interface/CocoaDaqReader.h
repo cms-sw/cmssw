@@ -7,11 +7,11 @@ class OpticalAlignMeasurementInfo;
 
 class CocoaDaqReader {
 public:
-  CocoaDaqReader(){};
+  CocoaDaqReader() {}
   static CocoaDaqReader* GetDaqReader() { return theDaqReader; }
   static void SetDaqReader(CocoaDaqReader* reader);
 
-  virtual ~CocoaDaqReader(){};
+  virtual ~CocoaDaqReader() {}
 
   virtual bool ReadNextEvent() = 0;
   virtual bool ReadEvent(int nev) { return false; };

@@ -18,7 +18,7 @@ public:
   CTPPSDiamondDigi(
       unsigned int ledgt_, unsigned int tedgt_, unsigned int threvolt, bool mhit_, unsigned short hptdcerror_);
   CTPPSDiamondDigi();
-  ~CTPPSDiamondDigi(){};
+  ~CTPPSDiamondDigi() {}
 
   /// Digis are equal if they are have same  ledt and tedt, threshold voltage, multihit flag, hptdcerror flags
   bool operator==(const CTPPSDiamondDigi& digi) const;

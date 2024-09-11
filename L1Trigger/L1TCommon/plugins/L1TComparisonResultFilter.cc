@@ -47,7 +47,7 @@ public:
 private:
   void beginStream(edm::StreamID) override{};
   bool filter(edm::Event&, const edm::EventSetup&) override;
-  void endStream() override{};
+  void endStream() override {}
 
   // ----------member data ---------------------------
   edm::InputTag inputTag_;

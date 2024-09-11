@@ -24,7 +24,7 @@ class TestOnlineMetaDataRecord : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE_END();
 
 public:
-  void setUp() override{};
+  void setUp() override {}
   void tearDown() override;
 
   void testDCSRecord_v1();

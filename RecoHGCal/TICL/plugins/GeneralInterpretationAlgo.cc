@@ -7,7 +7,7 @@ using namespace ticl;
 
 using Vector = ticl::Trackster::Vector;
 
-GeneralInterpretationAlgo::~GeneralInterpretationAlgo(){};
+GeneralInterpretationAlgo::~GeneralInterpretationAlgo() {}
 
 GeneralInterpretationAlgo::GeneralInterpretationAlgo(const edm::ParameterSet &conf, edm::ConsumesCollector cc)
     : TICLInterpretationAlgoBase(conf, cc),

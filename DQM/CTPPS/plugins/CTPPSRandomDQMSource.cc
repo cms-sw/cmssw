@@ -147,8 +147,8 @@ void CTPPSRandomDQMSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run c
         h2HitsVsBXRandoms_[indexP]->getTH2F()->SetOption("colz");
 
       }  // end for(int rp=0; rp<kNRPotsMAX_;...
-    }    // end of for(int stn=0; stn<
-  }      // end of for(int arm=0; arm<2;...
+    }  // end of for(int stn=0; stn<
+  }  // end of for(int arm=0; arm<2;...
 
   return;
 }
@@ -183,8 +183,8 @@ void CTPPSRandomDQMSource::analyze(edm::Event const &event, edm::EventSetup cons
           }
         }
       }  // end for (int rp=0; rp<kNRPotsMAX_; rp++) {
-    }    // end for (int stn = 0; stn < kNStationMAX_; stn++) {
-  }      // end for (int arm=0; arm<2; arm++) {
+    }  // end for (int stn = 0; stn < kNStationMAX_; stn++) {
+  }  // end for (int arm=0; arm<2; arm++) {
 }
 
 //---------------------------------------------------------------------------

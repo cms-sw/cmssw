@@ -45,7 +45,7 @@ namespace ticl {
     void initialize(const HGCalDDDConstants* hgcons,
                     const hgcal::RecHitTools rhtools,
                     const edm::ESHandle<MagneticField> bfieldH,
-                    const edm::ESHandle<Propagator> propH) override{};
+                    const edm::ESHandle<Propagator> propH) override {};
 
     static void fillPSetDescription(edm::ParameterSetDescription& iDesc) {
       iDesc.add<int>("algo_verbosity", 0);

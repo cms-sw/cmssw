@@ -384,7 +384,7 @@ LocalPoint PixelCPETemplateReco::localPosition(DetParam const& theDetParam, Clus
         //   <<" "<<theDetParam.lorentzShiftInCmY
         //   << endl; //dk
       }  //else {cout<<" LA is 0, disable offset corrections "<<endl;} //dk
-    }    //else {cout<<" Do not do LA offset correction "<<endl;} //dk
+    }  //else {cout<<" Do not do LA offset correction "<<endl;} //dk
   }
 
   // Save probabilities and qBin in the quantities given to us by the base class

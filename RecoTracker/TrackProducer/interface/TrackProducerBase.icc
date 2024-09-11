@@ -286,7 +286,7 @@ void TrackProducerBase<T>::setSecondHitPattern(Trajectory* traj,
             track.appendHitPattern(tmpHit, *ttopo);
           }
         }  //end loop over layers
-      };   // end lambda
+      };  // end lambda
 
   localProp->setPropagationDirection(oppositeToMomentum);
   loopOverLayer(innerCompLayers, innerTSOS);

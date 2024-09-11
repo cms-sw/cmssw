@@ -2,6 +2,7 @@
 <use name="fastjet-contrib"/>
 <use name="roothistmatrix"/>
 <use name="tbb"/>
+<use name="tauolapp"/>
 <use name="CommonTools/Egamma"/>
 <use name="CondFormats/BTauObjects"/>
 <use name="CondFormats/DataRecord"/>

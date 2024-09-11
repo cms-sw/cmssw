@@ -22,7 +22,7 @@ public:
         matchedToken_(consumes<reco::JetView>(iConfig.getParameter<edm::InputTag>("matched"))) {
     produces<JetMatchMap>();
   };
-  ~JetMatcherDR() override{};
+  ~JetMatcherDR() override {}
   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
 private:

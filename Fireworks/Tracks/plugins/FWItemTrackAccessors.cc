@@ -29,7 +29,7 @@
 class BeamSpotSingleAccessor : public FWItemSingleAccessor {
 public:
   BeamSpotSingleAccessor(const TClass* x) : FWItemSingleAccessor(x) {}
-  ~BeamSpotSingleAccessor() override{};
+  ~BeamSpotSingleAccessor() override {}
   REGISTER_FWITEMACCESSOR_METHODS();
 };
 

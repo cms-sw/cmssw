@@ -74,8 +74,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
     int phiCuts[T::nPairs];
 
     template <typename TAcc>
-    ALPAKA_FN_ACC ALPAKA_FN_INLINE bool __attribute__((always_inline))
-    zSizeCut(const TAcc& acc, H hh, int i, int o) const {
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE bool __attribute__((always_inline)) zSizeCut(const TAcc& acc,
+                                                                                H hh,
+                                                                                int i,
+                                                                                int o) const {
       const uint32_t mi = hh[i].detectorIndex();
 
       bool innerB1 = mi < T::last_bpix1_detIndex;
@@ -103,8 +105,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
     }
 
     template <typename TAcc>
-    ALPAKA_FN_ACC ALPAKA_FN_INLINE bool __attribute__((always_inline))
-    clusterCut(const TAcc& acc, H hh, uint32_t i) const {
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE bool __attribute__((always_inline)) clusterCut(const TAcc& acc,
+                                                                                  H hh,
+                                                                                  uint32_t i) const {
       const uint32_t mi = hh[i].detectorIndex();
       bool innerB1orB2 = mi < T::last_bpix2_detIndex;
 
@@ -128,18 +131,18 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
   };
 
   template <typename TrackerTraits, typename TAcc>
-  ALPAKA_FN_ACC ALPAKA_FN_INLINE void __attribute__((always_inline))
-  doubletsFromHisto(const TAcc& acc,
-                    uint32_t nPairs,
-                    const uint32_t maxNumOfDoublets,
-                    CACellT<TrackerTraits>* cells,
-                    uint32_t* nCells,
-                    CellNeighborsVector<TrackerTraits>* cellNeighbors,
-                    CellTracksVector<TrackerTraits>* cellTracks,
-                    HitsConstView<TrackerTraits> hh,
-                    OuterHitOfCell<TrackerTraits> isOuterHitOfCell,
-                    CellCutsT<TrackerTraits> const& cuts) {  // ysize cuts (z in the barrel)  times 8
-                                                             // these are used if doClusterCut is true
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE void __attribute__((always_inline)) doubletsFromHisto(
+      const TAcc& acc,
+      uint32_t nPairs,
+      const uint32_t maxNumOfDoublets,
+      CACellT<TrackerTraits>* cells,
+      uint32_t* nCells,
+      CellNeighborsVector<TrackerTraits>* cellNeighbors,
+      CellTracksVector<TrackerTraits>* cellTracks,
+      HitsConstView<TrackerTraits> hh,
+      OuterHitOfCell<TrackerTraits> isOuterHitOfCell,
+      CellCutsT<TrackerTraits> const& cuts) {  // ysize cuts (z in the barrel)  times 8
+                                               // these are used if doClusterCut is true
 
     const bool doClusterCut = cuts.doClusterCut_;
     const bool doZ0Cut = cuts.doZ0Cut_;

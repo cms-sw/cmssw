@@ -18,10 +18,10 @@ class LightRay;
 class OptOCameraDetector : public OpticalObject {
 public:
   //---------- Constructors / Destructor
-  OptOCameraDetector(){};
+  OptOCameraDetector() {}
   OptOCameraDetector(OpticalObject* parent, const ALIstring& type, const ALIstring& name, const ALIbool copy_data)
-      : OpticalObject(parent, type, name, copy_data){};
-  ~OptOCameraDetector() override{};
+      : OpticalObject(parent, type, name, copy_data) {}
+  ~OptOCameraDetector() override {}
 
   //---------- Propagate light for measurement meas
   void participateInMeasurement(LightRay& lightray, Measurement& meas, const ALIstring& behav) override;

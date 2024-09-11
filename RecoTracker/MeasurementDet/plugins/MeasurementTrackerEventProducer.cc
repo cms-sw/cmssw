@@ -224,8 +224,8 @@ void MeasurementTrackerEventProducer::updatePixels(const edm::Event& event,
           thePxDets.addBadFEDChannelPositions(i, positions);
         }
       }  // loop on DetId-s
-    }    // loop on labels
-  }      // if collection labels are populated
+    }  // loop on labels
+  }  // if collection labels are populated
 
   // Pixel Clusters
   if (thePixelClusterLabel.isUninitialized()) {  //clusters have not been produced

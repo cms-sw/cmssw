@@ -27,7 +27,7 @@ namespace pat {
   class PATTriggerObjectStandAloneUnpacker : public edm::global::EDProducer<> {
   public:
     explicit PATTriggerObjectStandAloneUnpacker(const edm::ParameterSet& iConfig);
-    ~PATTriggerObjectStandAloneUnpacker() override{};
+    ~PATTriggerObjectStandAloneUnpacker() override {}
 
   private:
     void produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const override;

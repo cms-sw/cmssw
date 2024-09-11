@@ -89,7 +89,7 @@ namespace {
                 else
                   endc_m->Fill(ix, iy, weight);
               }  // validDetId
-      }          // payload
+      }  // payload
 
       gStyle->SetPalette(1);
       gStyle->SetOptStat(0);

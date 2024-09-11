@@ -119,7 +119,7 @@ void HLTVertexPerformanceAnalyzer::analyze(const edm::Event &iEvent, const edm::
         H1_.at(ind)["Vertex_" + VertexCollection_Label.at(coll)]->Fill(value);
       }
     }  // for on VertexCollection_
-  }    // for on hltPathNames_
+  }  // for on hltPathNames_
 }
 
 void HLTVertexPerformanceAnalyzer::bookHistograms(DQMStore::IBooker &ibooker,

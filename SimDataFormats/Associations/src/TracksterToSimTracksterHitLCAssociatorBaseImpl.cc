@@ -1,8 +1,8 @@
 #include "SimDataFormats/Associations/interface/TracksterToSimTracksterHitLCAssociatorBaseImpl.h"
 
 namespace ticl {
-  TracksterToSimTracksterHitLCAssociatorBaseImpl::TracksterToSimTracksterHitLCAssociatorBaseImpl(){};
-  TracksterToSimTracksterHitLCAssociatorBaseImpl::~TracksterToSimTracksterHitLCAssociatorBaseImpl(){};
+  TracksterToSimTracksterHitLCAssociatorBaseImpl::TracksterToSimTracksterHitLCAssociatorBaseImpl() {}
+  TracksterToSimTracksterHitLCAssociatorBaseImpl::~TracksterToSimTracksterHitLCAssociatorBaseImpl() {}
 
   ticl::association_t TracksterToSimTracksterHitLCAssociatorBaseImpl::makeConnections(
       const edm::Handle<ticl::TracksterCollection> &tCH,

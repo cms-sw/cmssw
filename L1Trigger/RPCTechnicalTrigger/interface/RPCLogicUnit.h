@@ -13,7 +13,7 @@
 class RPCLogicUnit {
 public:
   /// Standard constructor
-  RPCLogicUnit(){};
+  RPCLogicUnit() {}
 
   RPCLogicUnit(int, int, int);
 

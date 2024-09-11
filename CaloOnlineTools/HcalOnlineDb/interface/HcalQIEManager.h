@@ -19,8 +19,8 @@
 
 class HcalChannelId {
 public:
-  HcalChannelId(){};
-  ~HcalChannelId(){};
+  HcalChannelId() {}
+  ~HcalChannelId() {}
 
   int eta, phi, depth;
   std::string subdetector;
@@ -30,8 +30,8 @@ public:
 
 class HcalQIECaps {
 public:
-  HcalQIECaps(){};
-  ~HcalQIECaps(){};
+  HcalQIECaps() {}
+  ~HcalQIECaps() {}
 
   // cap0 offset x 4, cap1 offset x 4...
   // cap0 slope  x 4, cap1 slope  x 4...

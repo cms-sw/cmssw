@@ -13,7 +13,7 @@ public:
                   const std::vector<double>& alpha,
                   const std::vector<double>& sigma,
                   const std::map<ChipId, float>& gain)
-      : thr_(thr), alpha_(alpha), sigma_(sigma), gain_(gain){};
+      : thr_(thr), alpha_(alpha), sigma_(sigma), gain_(gain) {}
 
   const std::vector<double>& thr() const { return thr_; }
   const std::vector<double>& alpha() const { return alpha_; }

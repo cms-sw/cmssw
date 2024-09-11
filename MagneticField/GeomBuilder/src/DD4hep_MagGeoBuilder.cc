@@ -94,7 +94,7 @@ void MagGeoBuilder::summary(handles& volumes) const {
         }
       }
     }  // end if theShape
-  }    // end for
+  }  // end for
   iunique = ptrs.size();
 
   LogTrace("MagGeoBuilder") << "    volumes   " << ivolumes << newln << "    surfaces  " << isurfaces << newln

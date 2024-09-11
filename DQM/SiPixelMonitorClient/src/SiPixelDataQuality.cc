@@ -931,7 +931,7 @@ void SiPixelDataQuality::fillGlobalQualityPlot(DQMStore::IBooker &iBooker,
           }
         }
       }  // end loop over MEs
-    }    // end of module dir's
+    }  // end of module dir's
     vector<string> subDirVec = iGetter.getSubdirs();
     for (vector<string>::const_iterator ic = subDirVec.begin(); ic != subDirVec.end(); ic++) {
       iBooker.cd(*ic);
@@ -978,10 +978,10 @@ void SiPixelDataQuality::fillGlobalQualityPlot(DQMStore::IBooker &iBooker,
             }
             SummaryReportMap->setBinContent(lumisec + 1, i, contents);
           }  // end for loop over summaryReportMap bins
-        }    // end if reportSummaryMap ME exists
-      }      // end if in summary directory
-    }        // end if modCounter_
-  } else {   // Offline
+        }  // end if reportSummaryMap ME exists
+      }  // end if in summary directory
+    }  // end if modCounter_
+  } else {  // Offline
     float barrel_errors_temp[1] = {-1.};
     int barrel_cuts_temp[6] = {6 * -1};
     float endcap_errors_temp[1] = {-1.};

@@ -13,7 +13,7 @@ public:
     floatParams_.resize(FSIZE, std::vector<float>(0, 0.));
     boolParams_.resize(BSIZE, std::vector<bool>(0, false));
   };
-  ~PTrackerAdditionalParametersPerDet(){};
+  ~PTrackerAdditionalParametersPerDet() {}
 
   enum IntParamIndex { GEOGRAPHICAL_ID = 0, BIGPIXELS_X = 1, BIGPIXELS_Y = 2, ISIZE = 3 };
   enum BoolParamIndex { BSIZE = 0 };

@@ -276,9 +276,9 @@ G4bool FullModelReactionDynamics::GenerateXandPt(
           if (--vecLen == 0)
             return false;  // all the secondaries have been eliminated
           break;           // --+
-        }                  //   |
-      }                    //   |
-    }                      // break goes down to here
+        }  //   |
+      }  //   |
+    }  // break goes down to here
     // DEBUGGING --> DumpFrames::DumpFrame(vec, vecLen);
     if (forwardParticlesLeft == 0) {
       forwardEnergy += currentParticle.GetMass() / GeV;

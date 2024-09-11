@@ -24,7 +24,7 @@ namespace l1t {
     virtual void processEvent(const std::vector<l1t::EGamma>& inputEgammas,
                               std::vector<l1t::EGamma>& outputEgammas) = 0;
 
-    virtual ~Stage2Layer2DemuxEGAlgo(){};
+    virtual ~Stage2Layer2DemuxEGAlgo() {}
   };
 
 }  // namespace l1t

@@ -125,7 +125,7 @@ public:
     }
   }
 
-  ~BTagSFProducer() override{};
+  ~BTagSFProducer() override {}
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;

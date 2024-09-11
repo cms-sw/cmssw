@@ -7,13 +7,11 @@ namespace cms::perftools {
   class AllocTester {
   public:
     void callAlloc(size_t iRequested, size_t iActual) {
-      reg_.allocCalled(
-          iRequested, []() { return nullptr; }, [iActual](auto) { return iActual; });
+      reg_.allocCalled(iRequested, []() { return nullptr; }, [iActual](auto) { return iActual; });
     }
 
     void callDealloc(size_t iActual) {
-      reg_.deallocCalled(
-          reinterpret_cast<void*>(1), [](auto) {}, [iActual](auto) { return iActual; });
+      reg_.deallocCalled(reinterpret_cast<void*>(1), [](auto) {}, [iActual](auto) { return iActual; });
     }
 
     template <typename A>
@@ -27,8 +25,7 @@ namespace cms::perftools {
     }
 
     void callDeallocNull() {
-      reg_.deallocCalled(
-          nullptr, [](auto) {}, [](auto) { return 0; });
+      reg_.deallocCalled(nullptr, [](auto) {}, [](auto) { return 0; });
     }
 
     AllocMonitorRegistry reg_;

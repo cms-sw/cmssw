@@ -17,7 +17,7 @@
 
 class TTULogic {
 public:
-  virtual ~TTULogic(){};
+  virtual ~TTULogic() {}
 
   virtual bool process(const TTUInput&) = 0;
 

@@ -40,7 +40,7 @@ template <typename T>
 class PATLeptonTimeLifeInfoProducer : public edm::stream::EDProducer<> {
 public:
   explicit PATLeptonTimeLifeInfoProducer(const edm::ParameterSet&);
-  ~PATLeptonTimeLifeInfoProducer() override{};
+  ~PATLeptonTimeLifeInfoProducer() override {}
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   void produce(edm::Event&, const edm::EventSetup&) override;

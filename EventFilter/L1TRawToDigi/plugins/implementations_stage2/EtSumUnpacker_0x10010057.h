@@ -8,7 +8,7 @@ namespace l1t {
     class EtSumUnpacker_0x10010057 : public EtSumUnpacker {
     public:
       EtSumUnpacker_0x10010057();
-      ~EtSumUnpacker_0x10010057() override{};
+      ~EtSumUnpacker_0x10010057() override {}
 
       bool unpack(const Block& block, UnpackerCollections* coll) override;
 

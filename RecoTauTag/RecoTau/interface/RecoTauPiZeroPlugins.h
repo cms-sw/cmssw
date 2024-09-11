@@ -40,7 +40,7 @@ namespace reco {
       /// Build a collection of piZeros from objects in the input jet
       virtual return_type operator()(const Jet&) const = 0;
       /// Hook called at the beginning of the event.
-      void beginEvent() override{};
+      void beginEvent() override {}
     };
 
     class RecoTauPiZeroQualityPlugin : public RecoTauNamedPlugin {

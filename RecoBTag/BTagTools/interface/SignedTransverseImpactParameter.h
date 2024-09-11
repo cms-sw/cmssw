@@ -16,7 +16,7 @@ class SignedTransverseImpactParameter {
 public:
   // construct
 
-  SignedTransverseImpactParameter(){};
+  SignedTransverseImpactParameter() {}
 
   std::pair<bool, Measurement1D> apply(const reco::TransientTrack &, const GlobalVector &, const reco::Vertex &) const;
 

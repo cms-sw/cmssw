@@ -52,11 +52,11 @@ class MuScleFitUtils {
 public:
   // Constructor
   // ----------
-  MuScleFitUtils(){};
+  MuScleFitUtils() {}
 
   // Destructor
   // ----------
-  virtual ~MuScleFitUtils(){};
+  virtual ~MuScleFitUtils() {}
 
   // Operations
   // ----------

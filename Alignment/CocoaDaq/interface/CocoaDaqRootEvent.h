@@ -195,7 +195,7 @@ public:
 
 public:
   CocoaDaqRootEvent();
-  ~CocoaDaqRootEvent() override{};
+  ~CocoaDaqRootEvent() override {}
   void SetHeader(int run, int evt) { Header->SetRunEvt(run, evt); }
   void DumpIt();
 

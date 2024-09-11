@@ -72,7 +72,7 @@ public:
   int getRefStripNum() const;
 
   struct TDigiLink {
-    TDigiLink(short int l, short int d) : m_layer(l), m_digiIdx(d){};
+    TDigiLink(short int l, short int d) : m_layer(l), m_digiIdx(d) {}
     short int m_layer;
     short int m_digiIdx;  // vec?
   };

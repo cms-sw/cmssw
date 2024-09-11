@@ -4233,7 +4233,7 @@ void PhotonValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) 
             }
 
           }  // dr=0.4
-        }    // loop over all PF Candidates
+        }  // loop over all PF Candidates
 
         h_SumPtOverPhoPt_ChHad_Cleaned_[0]->Fill(SumPtIsoValCleanCh / matchingPho->pt());
         h_SumPtOverPhoPt_NeuHad_Cleaned_[0]->Fill(SumPtIsoValCleanNh / matchingPho->pt());
@@ -4758,8 +4758,8 @@ void PhotonValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) 
                 }
 
               }  // end loop over track
-            }    // end analysis of two associated tracks
-          }      // end analysis of two  tracks
+            }  // end analysis of two associated tracks
+          }  // end analysis of two  tracks
 
         }  // loop over conversions
 
@@ -4827,8 +4827,8 @@ void PhotonValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) 
         }
 
       }  // if !fastSim
-    }    // End loop over generated particles
-  }      // End loop over simulated Photons
+    }  // End loop over generated particles
+  }  // End loop over simulated Photons
 
   if (!isRunCentrally_) {
     h_nSimPho_[0]->Fill(float(nSimPho_[0]));
@@ -5008,9 +5008,9 @@ void PhotonValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) 
           }
 
         }  // end conversion vertex valid
-      }    // end loop over reco conversions
-    }      // end loop on all reco photons
-  }        // if !fastSim
+      }  // end loop over reco conversions
+    }  // end loop on all reco photons
+  }  // if !fastSim
 
   ///////////////// histograms for background
   float nPho = 0;
@@ -5300,8 +5300,8 @@ void PhotonValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) 
         }  // end vertex valid
 
       }  // end loop over conversions
-    }    // if !fastSim
-  }      // end loop over sim jets
+    }  // if !fastSim
+  }  // end loop over sim jets
 
   /////// separate loop to compare with miniAOD
   for (reco::GenParticleCollection::const_iterator mcIter = genParticles->begin(); mcIter != genParticles->end();

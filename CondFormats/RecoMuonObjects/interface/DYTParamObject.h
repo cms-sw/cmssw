@@ -7,8 +7,8 @@
 
 class DYTParamObject {
 public:
-  DYTParamObject(){};
-  DYTParamObject(uint32_t id, std::vector<double>& params) : m_id(id), m_params(params){};
+  DYTParamObject() {}
+  DYTParamObject(uint32_t id, std::vector<double>& params) : m_id(id), m_params(params) {}
   ~DYTParamObject() { m_params.clear(); };
 
   // Return raw id

@@ -56,7 +56,7 @@ namespace emtf::phase2 {
     constexpr int kPatternMatchingPadding = 55;
     constexpr int kMaxPatternActivation = 63;
     constexpr int kMaxPatternActivationLog2 = 6;  // (1 << 6) - 1 = 63
-  }                                               // namespace v3
+  }  // namespace v3
 }  // namespace emtf::phase2
 
 #endif  // L1Trigger_L1TMuonEndCapPhase2_EMTFConstants_h

@@ -121,7 +121,7 @@ void SiStripPedestalsDQM::fillMEsForLayer(
       }
 
     }  // istrip
-  }    // if Fill ...
+  }  // if Fill ...
 
   if (hPSet_.getParameter<bool>("FillSummaryAtLayerLevel")) {
     // -->  summary

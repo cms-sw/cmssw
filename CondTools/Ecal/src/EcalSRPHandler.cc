@@ -391,7 +391,7 @@ void popcon::EcalSRPHandler::getNewObjects() {
             if (m_debug)
               fout << " weight size after DB " << sr->dccNormalizedWeights_.size() << std::endl;
           }  // WEI_ID != 0
-        }    // weights got from FE
+        }  // weights got from FE
 
         // check if we have found the weights
         if (sr->dccNormalizedWeights_.empty()) {  // use the firmware default weights
@@ -726,8 +726,8 @@ void popcon::EcalSRPHandler::getNewObjects() {
         m_i_version = myconfig_version;
         fe_conf_id_old = fe_conf_id;
       }  // different tag or version or fe config
-    }    // loop over runs
-  }      // test on number of runs
+    }  // loop over runs
+  }  // test on number of runs
 
   // disconnect from DB
   delete econn;
@@ -808,7 +808,7 @@ void popcon::EcalSRPHandler::importDccConfigFile(EcalSRSettings& sr, const std::
         }
       }  // loop over subchild
     }
-  }                                                             // loop over child
+  }  // loop over child
   sr.srpLowInterestChannelZS_.push_back(L1ZS[0] * 0.035 / 4);   //  EB
   sr.srpLowInterestChannelZS_.push_back(L1ZS[1] * 0.060 / 4);   //  EE
   sr.srpHighInterestChannelZS_.push_back(L2ZS[0] * 0.035 / 4);  //  EB

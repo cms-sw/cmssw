@@ -13,7 +13,7 @@
 
 class RooCBExGaussShape : public RooAbsPdf {
 public:
-  RooCBExGaussShape(){};
+  RooCBExGaussShape() {}
   RooCBExGaussShape(const char* name,
                     const char* title,
                     RooAbsReal& _m,

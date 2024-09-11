@@ -29,7 +29,7 @@
 class PATRefitVertexProducer : public edm::stream::EDProducer<> {
 public:
   explicit PATRefitVertexProducer(const edm::ParameterSet&);
-  ~PATRefitVertexProducer() override{};
+  ~PATRefitVertexProducer() override {}
 
   void produce(edm::Event&, const edm::EventSetup&) override;
   static void fillDescriptions(edm::ConfigurationDescriptions&);

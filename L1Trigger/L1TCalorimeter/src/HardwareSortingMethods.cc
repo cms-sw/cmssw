@@ -124,7 +124,7 @@ std::vector<std::vector<l1t::L1Candidate> > extract_sub_jet_energy_position_matr
       else
         output_matrix[i][j] = input_matrix[row_i + i][col_i + j];
     }  //j
-  }    //i
+  }  //i
   return output_matrix;
 }
 
@@ -192,7 +192,7 @@ std::vector<l1t::L1Candidate> array_from_row_sorted_matrix(
       output_array[array_position] = input_matrix[i][j];
       array_position++;
     }  //j
-  }    //i
+  }  //i
 
   //fill rest with zeros
   l1t::L1Candidate dummyJet;

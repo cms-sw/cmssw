@@ -19,7 +19,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   public:
     template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
     ALPAKA_FN_ACC void operator()(TAcc const& acc, portabletest::TestDeviceCollection::View view, double xvalue) const {
-      // global index of the thread within the grid
       const portabletest::Matrix matrix{{1, 2, 3, 4, 5, 6}, {2, 4, 6, 8, 10, 12}, {3, 6, 9, 12, 15, 18}};
       const portabletest::Array flags = {{6, 4, 2, 0}};
 
@@ -41,12 +40,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     ALPAKA_FN_ACC void operator()(TAcc const& acc,
                                   portabletest::TestDeviceMultiCollection2::View<1> view,
                                   double xvalue) const {
-      // global index of the thread within the grid
-      const int32_t thread = alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc)[0u];
       const portabletest::Matrix matrix{{1, 2, 3, 4, 5, 6}, {2, 4, 6, 8, 10, 12}, {3, 6, 9, 12, 15, 18}};
 
       // set this only once in the whole kernel grid
-      if (thread == 0) {
+      if (once_per_grid(acc)) {
         view.r2() = 2.;
       }
 
@@ -63,12 +60,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     ALPAKA_FN_ACC void operator()(TAcc const& acc,
                                   portabletest::TestDeviceMultiCollection3::View<2> view,
                                   double xvalue) const {
-      // global index of the thread within the grid
-      const int32_t thread = alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc)[0u];
       const portabletest::Matrix matrix{{1, 2, 3, 4, 5, 6}, {2, 4, 6, 8, 10, 12}, {3, 6, 9, 12, 15, 18}};
 
       // set this only once in the whole kernel grid
-      if (thread == 0) {
+      if (once_per_grid(acc)) {
         view.r3() = 3.;
       }
 
@@ -340,6 +335,141 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                         collection.view<portabletest::TestSoA3>());
 
     return collection;
+  }
+
+  class TestZeroCollectionKernel {
+  public:
+    template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
+    ALPAKA_FN_ACC void operator()(TAcc const& acc, portabletest::TestDeviceCollection::ConstView view) const {
+      const portabletest::Matrix matrix{{0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}};
+      const portabletest::Array flags = {{0, 0, 0, 0}};
+
+      // check this only once in the whole kernel grid
+      if (once_per_grid(acc)) {
+        ALPAKA_ASSERT(view.r() == 0.);
+      }
+
+      // make a strided loop over the kernel grid, covering up to "size" elements
+      for (int32_t i : uniform_elements(acc, view.metadata().size())) {
+        auto element = view[i];
+        ALPAKA_ASSERT(element.x() == 0.);
+        ALPAKA_ASSERT(element.y() == 0.);
+        ALPAKA_ASSERT(element.z() == 0.);
+        ALPAKA_ASSERT(element.id() == 0.);
+        ALPAKA_ASSERT(element.flags() == flags);
+        ALPAKA_ASSERT(element.m() == matrix);
+      }
+    }
+  };
+
+  class TestZeroMultiCollectionKernel2 {
+  public:
+    template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
+    ALPAKA_FN_ACC void operator()(TAcc const& acc, portabletest::TestDeviceMultiCollection2::ConstView<1> view) const {
+      const portabletest::Matrix matrix{{0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}};
+
+      // check this only once in the whole kernel grid
+      if (once_per_grid(acc)) {
+        ALPAKA_ASSERT(view.r2() == 0.);
+      }
+
+      // make a strided loop over the kernel grid, covering up to "size" elements
+      for (int32_t i : uniform_elements(acc, view.metadata().size())) {
+        auto element = view[i];
+        ALPAKA_ASSERT(element.x2() == 0.);
+        ALPAKA_ASSERT(element.y2() == 0.);
+        ALPAKA_ASSERT(element.z2() == 0.);
+        ALPAKA_ASSERT(element.id2() == 0.);
+        ALPAKA_ASSERT(element.m2() == matrix);
+      }
+    }
+  };
+
+  class TestZeroMultiCollectionKernel3 {
+  public:
+    template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
+    ALPAKA_FN_ACC void operator()(TAcc const& acc, portabletest::TestDeviceMultiCollection3::ConstView<2> view) const {
+      const portabletest::Matrix matrix{{0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}};
+
+      // check this only once in the whole kernel grid
+      if (once_per_grid(acc)) {
+        ALPAKA_ASSERT(view.r3() == 0.);
+      }
+
+      // make a strided loop over the kernel grid, covering up to "size" elements
+      for (int32_t i : uniform_elements(acc, view.metadata().size())) {
+        auto element = view[i];
+        ALPAKA_ASSERT(element.x3() == 0.);
+        ALPAKA_ASSERT(element.y3() == 0.);
+        ALPAKA_ASSERT(element.z3() == 0.);
+        ALPAKA_ASSERT(element.id3() == 0.);
+        ALPAKA_ASSERT(element.m3() == matrix);
+      }
+    }
+  };
+
+  class TestZeroStructKernel {
+  public:
+    template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
+    ALPAKA_FN_ACC void operator()(TAcc const& acc, portabletest::TestDeviceObject::Product const* data) const {
+      // check this only once in the whole kernel grid
+      if (once_per_grid(acc)) {
+        ALPAKA_ASSERT(data->x == 0.);
+        ALPAKA_ASSERT(data->y == 0.);
+        ALPAKA_ASSERT(data->z == 0.);
+        ALPAKA_ASSERT(data->id == 0);
+      }
+    }
+  };
+
+  // Check that the collection has been filled with zeroes.
+  void TestAlgo::checkZero(Queue& queue, portabletest::TestDeviceCollection const& collection) const {
+    // create a work division with a single block and
+    //   - 32 threads with a single element per thread on a GPU backend
+    //   - 32 elements within a single thread on a CPU backend
+    auto workDiv = make_workdiv<Acc1D>(1, 32);
+
+    // the kernel will make a strided loop over the launch grid to cover all elements in the collection
+    alpaka::exec<Acc1D>(queue, workDiv, TestZeroCollectionKernel{}, collection.const_view());
+  }
+
+  // Check that the collection has been filled with zeroes.
+  void TestAlgo::checkZero(Queue& queue, portabletest::TestDeviceMultiCollection2 const& collection) const {
+    // create a work division with a single block and
+    //   - 32 threads with a single element per thread on a GPU backend
+    //   - 32 elements within a single thread on a CPU backend
+    auto workDiv = make_workdiv<Acc1D>(1, 32);
+
+    // the kernels will make a strided loop over the launch grid to cover all elements in the collection
+    alpaka::exec<Acc1D>(queue, workDiv, TestZeroCollectionKernel{}, collection.const_view<portabletest::TestSoA>());
+    alpaka::exec<Acc1D>(
+        queue, workDiv, TestZeroMultiCollectionKernel2{}, collection.const_view<portabletest::TestSoA2>());
+  }
+
+  // Check that the collection has been filled with zeroes.
+  void TestAlgo::checkZero(Queue& queue, portabletest::TestDeviceMultiCollection3 const& collection) const {
+    // create a work division with a single block and
+    //   - 32 threads with a single element per thread on a GPU backend
+    //   - 32 elements within a single thread on a CPU backend
+    auto workDiv = make_workdiv<Acc1D>(1, 32);
+
+    // the kernels will make a strided loop over the launch grid to cover all elements in the collection
+    alpaka::exec<Acc1D>(queue, workDiv, TestZeroCollectionKernel{}, collection.const_view<portabletest::TestSoA>());
+    alpaka::exec<Acc1D>(
+        queue, workDiv, TestZeroMultiCollectionKernel2{}, collection.const_view<portabletest::TestSoA2>());
+    alpaka::exec<Acc1D>(
+        queue, workDiv, TestZeroMultiCollectionKernel3{}, collection.const_view<portabletest::TestSoA3>());
+  }
+
+  // Check that the object has been filled with zeroes.
+  void TestAlgo::checkZero(Queue& queue, portabletest::TestDeviceObject const& object) const {
+    // create a work division with a single block and
+    //   - 32 threads with a single element per thread on a GPU backend
+    //   - 32 elements within a single thread on a CPU backend
+    auto workDiv = make_workdiv<Acc1D>(1, 32);
+
+    // the kernel will actually use a single thread
+    alpaka::exec<Acc1D>(queue, workDiv, TestZeroStructKernel{}, object.data());
   }
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE

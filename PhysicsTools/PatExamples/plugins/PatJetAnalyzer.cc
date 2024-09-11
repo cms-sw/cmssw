@@ -44,7 +44,7 @@ public:
   /// default contructor
   explicit PatJetAnalyzer(const edm::ParameterSet& cfg);
   /// default destructor
-  ~PatJetAnalyzer() override{};
+  ~PatJetAnalyzer() override {}
 
 private:
   /// everything that needs to be done during the even loop

@@ -744,9 +744,9 @@ namespace mkfit {
               }
             }
           }  //hi
-        }    //pi
-      }      //qi
-    }        //itrack
+        }  //pi
+      }  //qi
+    }  //itrack
   }
 
   //==============================================================================
@@ -1081,8 +1081,8 @@ namespace mkfit {
               pqueue.push({new_ddphi, hi_orig});
             }
           }  //hi
-        }    //pi
-      }      //qi
+        }  //pi
+      }  //qi
 
       dprintf(" PQUEUE (%d)", pqueue_size);
 #ifdef RNT_DUMP_MkF_SelHitIdcs

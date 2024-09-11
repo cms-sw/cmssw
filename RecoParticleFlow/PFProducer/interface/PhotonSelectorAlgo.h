@@ -19,7 +19,7 @@ public:
                      float comb_iso,
                      float loose_hoe);
 
-  ~PhotonSelectorAlgo(){};
+  ~PhotonSelectorAlgo() {}
 
   bool passPhotonSelection(const reco::Photon &) const;
 

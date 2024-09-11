@@ -53,6 +53,6 @@ namespace edm {
       inline dummy_ptr makeInputProcessBlockCacheImpl(void const*) { return dummy_ptr(); }
 
     }  // namespace impl
-  }    // namespace stream
+  }  // namespace stream
 }  // namespace edm
 #endif

@@ -40,7 +40,7 @@ public:
   SiPhase2OuterTrackerFakeLorentzAngleESSource(const edm::ParameterSet &);
   ~SiPhase2OuterTrackerFakeLorentzAngleESSource() override;
 
-  void produce(){};
+  void produce() {}
   static void fillDescriptions(edm::ConfigurationDescriptions &);
 
 protected:

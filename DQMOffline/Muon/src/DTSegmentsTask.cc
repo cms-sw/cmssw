@@ -209,5 +209,5 @@ void DTSegmentsTask::analyze(const edm::Event& event, const edm::EventSetup& set
       }
 
     }  //loop over segments
-  }    // loop over chambers
+  }  // loop over chambers
 }

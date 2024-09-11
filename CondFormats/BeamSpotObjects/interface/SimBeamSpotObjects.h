@@ -45,7 +45,7 @@ public:
     fTimeOffset = 0.0;
   };
 
-  virtual ~SimBeamSpotObjects(){};
+  virtual ~SimBeamSpotObjects() {}
 
   /// set X, Y, Z positions
   void setX(double val) { fX0 = val; }

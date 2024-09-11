@@ -13,7 +13,7 @@
 namespace L1Analysis {
   struct L1AnalysisCSCTFDataFormat {
     L1AnalysisCSCTFDataFormat() { Reset(); };
-    ~L1AnalysisCSCTFDataFormat(){};
+    ~L1AnalysisCSCTFDataFormat() {}
 
     static const int MAXCSCTFTR = 60;
     static const int MAXCSCTFLCTSTR = 4;

@@ -59,7 +59,7 @@ namespace {
       m_valueToFill = iPSet.getUntrackedParameter<double>("value");
     }
 
-    ~TH1FFiller() override{};
+    ~TH1FFiller() override {}
 
     void reset() override { m_element->Reset(); }
     void fill() override { m_element->Fill(m_valueToFill); }
@@ -90,7 +90,7 @@ namespace {
       m_valueToFill = iPSet.getUntrackedParameter<double>("value");
     }
 
-    ~TH2FFiller() override{};
+    ~TH2FFiller() override {}
 
     void reset() override { m_element->Reset(); }
     void fill() override { m_element->Fill(m_valueToFill, m_valueToFill); }

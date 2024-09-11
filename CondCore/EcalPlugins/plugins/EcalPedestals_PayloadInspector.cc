@@ -83,7 +83,7 @@ namespace {
                 endcap_m[2]->Fill((*payload)[rawid].mean_x1);
                 endcap_r[2]->Fill((*payload)[rawid].rms_x1);
               }  // validDetId
-      }          // if payload.get()
+      }  // if payload.get()
       else
         return false;
 
@@ -125,7 +125,7 @@ namespace {
       canvas.SaveAs(ImageName.c_str());
       return true;
     }  // fill method
-  };   //   class EcalPedestalsHist
+  };  //   class EcalPedestalsHist
 
   /**************************************
      2d plot of ECAL pedestal of 1 IOV
@@ -310,7 +310,7 @@ namespace {
                   }
                 }
               }  // validDetId
-      }          // if payload.get()
+      }  // if payload.get()
       else
         return false;
 
@@ -605,7 +605,7 @@ namespace {
                 }
               }
             }  // loop over cellid
-          }    //  barrel data present
+          }  //  barrel data present
           if (payload->endcapItems().empty()) {
             // looping over the EE channels
             for (int iz = -1; iz < 2; iz = iz + 2) {  // -1 or +1
@@ -730,12 +730,12 @@ namespace {
                         EEtot[2]++;
                       }
                     }  // second run
-                  }    // validDetId
-                }      //   loop over ix
-              }        //  loop over iy
-            }          //  loop over iz
-          }            //  endcap data present
-        }              //  if payload.get()
+                  }  // validDetId
+                }  //   loop over ix
+              }  //  loop over iy
+            }  //  loop over iz
+          }  //  endcap data present
+        }  //  if payload.get()
         else
           return false;
       }  // loop over IOVs
@@ -823,7 +823,7 @@ namespace {
       canvas.SaveAs(ImageName.c_str());
       return true;
     }  // fill method
-  };   // class EcalPedestalsBase
+  };  // class EcalPedestalsBase
   using EcalPedestalsDiffOneTag = EcalPedestalsBase<cond::payloadInspector::SINGLE_IOV, 1, 0>;
   using EcalPedestalsDiffTwoTags = EcalPedestalsBase<cond::payloadInspector::SINGLE_IOV, 2, 0>;
   using EcalPedestalsRatioOneTag = EcalPedestalsBase<cond::payloadInspector::SINGLE_IOV, 1, 1>;
@@ -881,8 +881,8 @@ namespace {
             //	    if(valped < 150.) valped = 150.;
             fillWithValue((EBDetId(rawid)).iphi(), (EBDetId(rawid)).ieta(), valped);
           }  // loop over cellid
-        }    // if payload.get()
-      }      // loop over IOV's (1 in this case)
+        }  // if payload.get()
+      }  // loop over IOV's (1 in this case)
       return true;
     }  // fill method
   };
@@ -929,8 +929,8 @@ namespace {
             //	    if(valped < 150.) valped = 150.;
             fillWithValue((EBDetId(rawid)).iphi(), (EBDetId(rawid)).ieta(), valped);
           }  // loop over cellid
-        }    // if payload.get()
-      }      // loop over IOV's (1 in this case)
+        }  // if payload.get()
+      }  // loop over IOV's (1 in this case)
       return true;
     }  // fill method
   };
@@ -977,8 +977,8 @@ namespace {
             //	    if(valped < 150.) valped = 150.;
             fillWithValue((EBDetId(rawid)).iphi(), (EBDetId(rawid)).ieta(), valped);
           }  // loop over cellid
-        }    // if payload.get()
-      }      // loop over IOV's (1 in this case)
+        }  // if payload.get()
+      }  // loop over IOV's (1 in this case)
       return true;
     }  // fill method
   };
@@ -1030,8 +1030,8 @@ namespace {
                     fillWithValue(ix + IX_MAX + 20, iy, valped);
 
                 }  // validDetId
-        }          // payload
-      }            // loop over IOV's (1 in this case)
+        }  // payload
+      }  // loop over IOV's (1 in this case)
       return true;
     }  // fill method
   };
@@ -1081,8 +1081,8 @@ namespace {
                   else
                     fillWithValue(ix + IX_MAX + 20, iy, valped);
                 }  // validDetId
-        }          // payload
-      }            // loop over IOV's (1 in this case)
+        }  // payload
+      }  // loop over IOV's (1 in this case)
       return true;
     }  // fill method
   };
@@ -1132,8 +1132,8 @@ namespace {
                   else
                     fillWithValue(ix + IX_MAX + 20, iy, valped);
                 }  // validDetId
-        }          // if payload.get()
-      }            // loop over IOV's (1 in this case)
+        }  // if payload.get()
+      }  // loop over IOV's (1 in this case)
       return true;
     }  // fill method
   };
@@ -1184,8 +1184,8 @@ namespace {
               valrms = 4.0;
             fillWithValue((EBDetId(rawid)).iphi(), (EBDetId(rawid)).ieta(), valrms);
           }  // loop over cellid
-        }    // if payload.get()
-      }      // loop over IOV's (1 in this case)
+        }  // if payload.get()
+      }  // loop over IOV's (1 in this case)
       return true;
     }  // fill method
   };
@@ -1231,8 +1231,8 @@ namespace {
               valrms = 2.5;
             fillWithValue((EBDetId(rawid)).iphi(), (EBDetId(rawid)).ieta(), valrms);
           }  // loop over cellid
-        }    // if payload.get()
-      }      // loop over IOV's (1 in this case)
+        }  // if payload.get()
+      }  // loop over IOV's (1 in this case)
       return true;
     }  // fill method
   };
@@ -1278,8 +1278,8 @@ namespace {
               valrms = 1.2;
             fillWithValue((EBDetId(rawid)).iphi(), (EBDetId(rawid)).ieta(), valrms);
           }  // loop over cellid
-        }    // if payload.get()
-      }      // loop over IOV's (1 in this case)
+        }  // if payload.get()
+      }  // loop over IOV's (1 in this case)
       return true;
     }  // fill method
   };
@@ -1330,8 +1330,8 @@ namespace {
                     fillWithValue(ix + IX_MAX + 20, iy, valrms);
 
                 }  // validDetId
-        }          // payload
-      }            // loop over IOV's (1 in this case)
+        }  // payload
+      }  // loop over IOV's (1 in this case)
       return true;
     }  // fill method
   };
@@ -1380,8 +1380,8 @@ namespace {
                   else
                     fillWithValue(ix + IX_MAX + 20, iy, valrms);
                 }  // validDetId
-        }          // payload
-      }            // loop over IOV's (1 in this case)
+        }  // payload
+      }  // loop over IOV's (1 in this case)
       return true;
     }  // fill method
   };
@@ -1430,8 +1430,8 @@ namespace {
                   else
                     fillWithValue(ix + IX_MAX + 20, iy, valrms);
                 }  // validDetId
-        }          // if payload.get()
-      }            // loop over IOV's (1 in this case)
+        }  // if payload.get()
+      }  // loop over IOV's (1 in this case)
       return true;
     }  // fill method
   };

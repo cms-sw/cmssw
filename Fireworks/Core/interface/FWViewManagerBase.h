@@ -61,8 +61,8 @@ public:
   void modelChangesComingSlot();
   void modelChangesDoneSlot();
   void colorsChangedSlot();
-  virtual void eventBegin(){};
-  virtual void eventEnd(){};
+  virtual void eventBegin() {}
+  virtual void eventEnd() {}
 
   // ---------- const member functions ---------------------
 

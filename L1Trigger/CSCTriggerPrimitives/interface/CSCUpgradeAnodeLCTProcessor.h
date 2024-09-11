@@ -24,7 +24,7 @@ public:
                               CSCBaseboard::Parameters& conf);
 
   /** Default destructor. */
-  ~CSCUpgradeAnodeLCTProcessor() override{};
+  ~CSCUpgradeAnodeLCTProcessor() override {}
 
 private:
   /* This function looks for LCTs on the previous and next wires.  If one

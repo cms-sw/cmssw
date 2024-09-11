@@ -202,7 +202,7 @@ void SiStripChannelGainFromDBMiscalibrator::analyze(const edm::Event& iEvent, co
       theMap[index] = Gain;
 
     }  // loop over APVs
-  }    // loop over DetIds
+  }  // loop over DetIds
 
   SiStripApvGain theAPVGains = this->getNewObject(theMap);
 

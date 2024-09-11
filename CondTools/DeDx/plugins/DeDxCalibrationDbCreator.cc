@@ -17,11 +17,11 @@ public:
   enum AllDetector { PXB = 0, PXF = 1, TIB = 2, TID = 3, TOB = 4, TECThin = 5, TECThick = 6, nDets };
 
   explicit DeDxCalibrationDbCreator(const edm::ParameterSet&);
-  ~DeDxCalibrationDbCreator() override{};
+  ~DeDxCalibrationDbCreator() override {}
 
 private:
   void beginJob() override;
-  void analyze(const edm::Event&, const edm::EventSetup&) override{};
+  void analyze(const edm::Event&, const edm::EventSetup&) override {}
 
   void readStripProps(std::vector<double>&, std::vector<double>&, std::vector<double>&);
   void readGainCorrection(std::map<ChipId, float>&);

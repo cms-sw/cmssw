@@ -39,4 +39,7 @@
   <class name="portabletest::TestHostMultiCollection3"/>
 
   <class name="edm::Wrapper<portabletest::TestHostMultiCollection3>" splitLevel="0"/>
+
+  <class name="portabletest::TestProductWithPtr<alpaka_common::DevHost>"/>
+  <class name="edm::Wrapper<portabletest::TestProductWithPtr<alpaka_common::DevHost>>" persistent="false"/>
 </lcgdict>

@@ -81,7 +81,7 @@ private:
   void beginJob() override;
   void beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void endRun(edm::Run const&, edm::EventSetup const&) override{};
+  void endRun(edm::Run const&, edm::EventSetup const&) override {}
   void endJob() override;
 
   // user defined methods

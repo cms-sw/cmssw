@@ -45,7 +45,7 @@ public:
 private:
   virtual void beginRun(edm::Run const& run, const edm::EventSetup&) override;
   virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void endRun(edm::Run const& run, const edm::EventSetup&) override{};
+  virtual void endRun(edm::Run const& run, const edm::EventSetup&) override {}
 
   const std::string theNavigationSchoolName_;
   const edm::ESGetToken<NavigationSchool, NavigationSchoolRecord> navSchoolToken_;

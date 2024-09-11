@@ -125,7 +125,7 @@ public:
 
 public:
   EnergyScaleCorrection(const std::string& correctionFileName, unsigned int genSeed = 0);
-  EnergyScaleCorrection(){};
+  EnergyScaleCorrection() {}
   ~EnergyScaleCorrection() {}
 
   float scaleCorr(unsigned int runnr,

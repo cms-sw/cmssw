@@ -705,7 +705,7 @@ void TMultiDimFet::MakeCandidates() {
             powers[j] = iv[i];
           }
         }  // if (Select())
-      }    // if (s <= fPowerLimit)
+      }  // if (s <= fPowerLimit)
 
       for (i = 0; i < fNVariables; i++)
         if (iv[i] < fMaxPowers[i])

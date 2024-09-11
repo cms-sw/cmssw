@@ -41,7 +41,7 @@ namespace edm {
       ELsev_highestSeverity,      // threshold use only
       // -----
       nLevels  // how many levels?
-    };         // ELsev_
+    };  // ELsev_
 
     // -----  Birth/death:
     //

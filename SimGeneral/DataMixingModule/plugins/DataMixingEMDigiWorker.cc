@@ -336,7 +336,7 @@ namespace edm {
           EcalMGPASample sample(adc_sum, gain_consensus);
           EB_old.setSample(isamp,
                            sample);  // overwrite old sample, adding new info
-        }                            // for sample
+        }  // for sample
 
       }  // if current = former
       else {

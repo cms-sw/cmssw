@@ -36,11 +36,11 @@ public:
   MuonTrackResidualsTest(const edm::ParameterSet& ps);
 
   /// Destructor
-  ~MuonTrackResidualsTest() override{};
+  ~MuonTrackResidualsTest() override {}
 
 protected:
   void dqmEndRun(DQMStore::IBooker&, DQMStore::IGetter&, edm::Run const&, edm::EventSetup const&) override;
-  void dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter&) override{};
+  void dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter&) override {}
 
 private:
   // Switch for verbosity

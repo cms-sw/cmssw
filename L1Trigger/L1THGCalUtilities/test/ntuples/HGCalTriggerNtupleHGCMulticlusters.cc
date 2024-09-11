@@ -7,7 +7,7 @@
 class HGCalTriggerNtupleHGCMulticlusters : public HGCalTriggerNtupleBase {
 public:
   HGCalTriggerNtupleHGCMulticlusters(const edm::ParameterSet& conf);
-  ~HGCalTriggerNtupleHGCMulticlusters() override{};
+  ~HGCalTriggerNtupleHGCMulticlusters() override {}
   void initialize(TTree&, const edm::ParameterSet&, edm::ConsumesCollector&&) final;
   void fill(const edm::Event& e, const HGCalTriggerNtupleEventSetup& es) final;
 

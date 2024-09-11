@@ -67,9 +67,9 @@ private:
               theOTDets.push_back(pixdet);
             }
           }  // if it's a Strip module
-        }    // if it's OT
-      }      // if it's Tracker
-    }        // loop of geomdets
+        }  // if it's OT
+      }  // if it's Tracker
+    }  // loop of geomdets
   };
 
   void algoAnalyze(const edm::Event& event, const edm::EventSetup& es) override {

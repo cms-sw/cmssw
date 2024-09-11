@@ -17,7 +17,7 @@ public:
   explicit ElectronIDSelector(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC)
       : select_(iConfig, iC), threshold_(iConfig.getParameter<double>("threshold")) {}
 
-  virtual ~ElectronIDSelector(){};
+  virtual ~ElectronIDSelector() {}
 
   // Collections to be selected
   typedef reco::GsfElectronCollection collection;

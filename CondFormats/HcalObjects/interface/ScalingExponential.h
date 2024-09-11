@@ -34,7 +34,7 @@ private:
 
   template <class Archive>
   inline void serialize(Archive& ar, unsigned /* version */) {
-    ar& p0_& p1_& linear_;
+    ar & p0_ & p1_ & linear_;
   }
 };
 

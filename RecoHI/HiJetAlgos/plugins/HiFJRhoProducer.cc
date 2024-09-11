@@ -143,7 +143,7 @@ void HiFJRhoProducer::produce(edm::StreamID, edm::Event& iEvent, edm::EventSetup
         rhoVecCur.push_back(rhoVec[i]);
         rhomVecCur.push_back(rhomVec[i]);
       }  // eta selection
-    }    // accepted jet loop
+    }  // accepted jet loop
 
     if (not rhoVecCur.empty()) {
       mapToRhoOut->at(ieta) = calcMedian(rhoVecCur);

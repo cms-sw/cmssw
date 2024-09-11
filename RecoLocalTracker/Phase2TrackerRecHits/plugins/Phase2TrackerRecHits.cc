@@ -30,7 +30,7 @@
 class Phase2TrackerRecHits : public edm::global::EDProducer<> {
 public:
   explicit Phase2TrackerRecHits(const edm::ParameterSet& conf);
-  ~Phase2TrackerRecHits() override{};
+  ~Phase2TrackerRecHits() override {}
   void produce(edm::StreamID sid, edm::Event& event, const edm::EventSetup& eventSetup) const final;
 
 private:

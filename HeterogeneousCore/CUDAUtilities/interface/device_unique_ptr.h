@@ -46,7 +46,7 @@ namespace cms {
           struct bounded_array {};
         };
       }  // namespace impl
-    }    // namespace device
+    }  // namespace device
 
     template <typename T>
     typename device::impl::make_device_unique_selector<T>::non_array make_device_unique(cudaStream_t stream) {

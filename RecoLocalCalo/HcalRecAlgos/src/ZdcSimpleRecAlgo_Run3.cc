@@ -103,7 +103,7 @@ ZDCRecHit ZdcSimpleRecAlgo_Run3::reco0(const QIE10DataFrame& digi,
   int noiseslices = 0;
   int CurrentTS = 0;
   double noise = 0;
-  int digi_size = digi.size();
+  int digi_size = digi.samples();
   HcalZDCDetId cell = digi.id();
   int zdcsection = cell.section();
 
@@ -165,7 +165,6 @@ ZDCRecHit ZdcSimpleRecAlgo_Run3::reco0(const QIE10DataFrame& digi,
   // determine energy if using Template Fit method
   if (correctionMethod_.at(zdcsection) == 1 && templateFitValid_.at(zdcsection)) {
     double energy = 0;
-    int digi_size = digi.size();
     for (int iv = 0; iv < nTs_; iv++) {
       int capid = digi[iv].capid();
       float ped = effPeds.getValue(capid);

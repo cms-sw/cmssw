@@ -23,7 +23,7 @@ namespace l1t {
   public:
     virtual void processEvent(const std::vector<l1t::Jet>& inputJets, std::vector<l1t::Jet>& outputJets) = 0;
 
-    virtual ~Stage2Layer2DemuxJetAlgo(){};
+    virtual ~Stage2Layer2DemuxJetAlgo() {}
   };
 
 }  // namespace l1t

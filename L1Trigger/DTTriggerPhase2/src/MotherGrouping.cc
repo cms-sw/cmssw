@@ -22,4 +22,4 @@ void MotherGrouping::run(Event& iEvent,
                          const DTDigiCollection& digis,
                          MuonPathPtrs& mpaths) {}
 
-void MotherGrouping::finish(){};
+void MotherGrouping::finish() {}

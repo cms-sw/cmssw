@@ -263,7 +263,7 @@ void ShallowTrackClustersProducer::produce(edm::Event& iEvent, const edm::EventS
 
         ontrk_cluster_idx++;
       }  //for(unsigned h=0; h<2; h++) { //loop over possible Hit options (1D, 2D)
-    }    //for(auto const& measurement : traj->measurements() )
+    }  //for(auto const& measurement : traj->measurements() )
 
     onTrkClustersBegin->at(trk_idx) = trk_strt_idx;
     onTrkClustersEnd->at(trk_idx) = ontrk_cluster_idx;

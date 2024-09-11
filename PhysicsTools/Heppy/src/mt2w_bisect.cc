@@ -111,7 +111,7 @@ namespace heppy {
         mlsq = msqtemp;
       } else {
         mlsq = 0.0;
-      }                 //mass squared can not be negative
+      }  //mass squared can not be negative
       ml = sqrt(mlsq);  // all the input masses are calculated from sqrt(p^2)
 
       //b1 is the bottom on the same side as the visible lepton
@@ -128,7 +128,7 @@ namespace heppy {
         mb1sq = msqtemp;
       } else {
         mb1sq = 0.0;
-      }                   //mass squared can not be negative
+      }  //mass squared can not be negative
       mb1 = sqrt(mb1sq);  // all the input masses are calculated from sqrt(p^2)
 
       //b2 is the other bottom (paired with the invisible W)
@@ -145,7 +145,7 @@ namespace heppy {
         mb2sq = msqtemp;
       } else {
         mb2sq = 0.0;
-      }                   //mass squared can not be negative
+      }  //mass squared can not be negative
       mb2 = sqrt(mb2sq);  // all the input masses are calculated from sqrt(p^2)
 
       //missing pt

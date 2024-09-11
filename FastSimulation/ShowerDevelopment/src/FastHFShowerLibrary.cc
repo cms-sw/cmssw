@@ -125,7 +125,7 @@ void FastHFShowerLibrary::recoHFShowerLibrary(const FSimTrack& myTrack) {
         cellitr->second += 1.0;
       }
     }  // end of isItinFidVolume check
-  }    // end loop over hits
+  }  // end loop over hits
 }
 
 void FastHFShowerLibrary::modifyDepth(HcalNumberingFromDDD::HcalID& id) {

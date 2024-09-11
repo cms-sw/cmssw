@@ -235,7 +235,7 @@ void EcalEBTrigPrimAnalyzer::analyze(const edm::Event& iEvent, const edm::EventS
         }
 
       }  // end loop of recHits
-    }    // if recHits
+    }  // if recHits
 
   }  // end loop over TP collection
 

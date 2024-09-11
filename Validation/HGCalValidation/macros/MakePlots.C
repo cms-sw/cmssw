@@ -17,12 +17,12 @@
 //
 //   where
 //     fanme     (std::string)  Input ROOT file name
-//                              ("hfnRecHitD31tt.root" for noseRecHitPlots,
-//                               "roots/hgcSimHitD83tt.root" hgcalStudyPlots,
-//                               "roots/hgcGeomCheckD83.root" hgcalGeomCheck,
-//                               "roots/hgcBHValidD83.root" hgcalBHValid,
-//                               "roots/hgcSilValidD86.root" hgcalSiliconAnalysis,
-//                               "missedRecHitD88.root" hgcalMissedHitPlots,
+//                              ("hfnRecHitD115tt.root" for noseRecHitPlots,
+//                               "roots/hgcSimHitD95tt.root" hgcalStudyPlots,
+//                               "roots/hgcGeomCheckD95.root" hgcalGeomCheck,
+//                               "roots/hgcBHValidD95.root" hgcalBHValid,
+//                               "roots/hgcSilValidD100.root" hgcalSiliconAnalysis,
+//                               "missedRecHitD105.root" hgcalMissedHitPlots,
 //                               "ecalHitdd4hep.root" ehcalPlot)
 //     dirnm     (std::string)  Directory name
 //                              ("hfnoseRecHitStudy" for noseRecHitPlots
@@ -33,17 +33,17 @@
 //     type      (int)          Type: 0 SimHit; 1 Digi; 2 RecHit (0)
 //     tag       (std::string)  Name of the tag for the canvas name
 //                              ("HFNose" for noseRecHitPlots,
-//                               "SimHitD83" for hgcalStudyPlots,
-//                               "GeomChkD83" for hgcalGeomCheck,
-//                               "BHValidD83" for hgcalBHValid,
-//                               "SilValidD86" for hgcalSiliconAnalysisPlots,
-//                               "MissedHitD88" for hgcalMissedHitPlots,
+//                               "SimHitD95" for hgcalStudyPlots,
+//                               "GeomChkD95" for hgcalGeomCheck,
+//                               "BHValidD95" for hgcalBHValid,
+//                               "SilValidD100" for hgcalSiliconAnalysisPlots,
+//                               "MissedHitD105" for hgcalMissedHitPlots,
 //                               "DD4Hep" for ehcalPlots)
 //     dtype     (std::string)  Data type added for canvas name
-//                              ("ttbar D83" for hgcalStudyPlots,
-//                               "#mu D83" for hgcalGeomCheck, hgcalBHValid',
-//                               "ttbar D86" for hgcalSiliconAnalysisPlots,
-//                               "#mu D88" for hgcalMissedHitPlots)
+//                              ("ttbar D95" for hgcalStudyPlots,
+//                               "#mu D95" for hgcalGeomCheck, hgcalBHValid',
+//                               "ttbar D100" for hgcalSiliconAnalysisPlots,
+//                               "#mu D105" for hgcalMissedHitPlots)
 //     save      (bool)         Flag to save the canvas (false)
 //     debug     (bool)         Debug flag (false)
 //
@@ -76,7 +76,7 @@
 #include <iostream>
 #include <fstream>
 
-void noseRecHitPlots(std::string fname = "hfnRecHitD31tt.root",
+void noseRecHitPlots(std::string fname = "hfnRecHitD115tt.root",
                      std::string dirnm = "hfnoseRecHitStudy",
                      std::string tag = "HFNose",
                      bool save = false) {
@@ -176,10 +176,10 @@ void noseRecHitPlots(std::string fname = "hfnRecHitD31tt.root",
   }
 }
 
-void hgcalStudyPlots(std::string fname = "roots/hgcSimHitD83tt.root",
+void hgcalStudyPlots(std::string fname = "roots/hgcSimHitD95tt.root",
                      int type = 0,
-                     std::string tag = "SimHitD83",
-                     std::string dtype = "ttbar D83",
+                     std::string tag = "SimHitD95",
+                     std::string dtype = "ttbar D95",
                      bool save = false,
                      bool debug = false) {
   int ndir[3] = {1, 3, 3};
@@ -290,9 +290,9 @@ void hgcalStudyPlots(std::string fname = "roots/hgcSimHitD83tt.root",
   }
 }
 
-void hgcalGeomCheckPlots(std::string fname = "roots/hgcGeomCheckD83.root",
-                         std::string tag = "GeomChkD83",
-                         std::string dtype = "#mu D83",
+void hgcalGeomCheckPlots(std::string fname = "roots/hgcGeomCheckD95.root",
+                         std::string tag = "GeomChkD95",
+                         std::string dtype = "#mu D95",
                          bool statbox = true,
                          bool save = false,
                          bool debug = false) {
@@ -375,9 +375,9 @@ void hgcalGeomCheckPlots(std::string fname = "roots/hgcGeomCheckD83.root",
   }
 }
 
-void hgcalBHValidPlots(std::string fname = "roots/hgcBHValidD83.root",
-                       std::string tag = "BHValidD83",
-                       std::string dtype = "#mu D83",
+void hgcalBHValidPlots(std::string fname = "roots/hgcBHValidD95.root",
+                       std::string tag = "BHValidD95",
+                       std::string dtype = "#mu D95",
                        bool save = false,
                        bool debug = false) {
   std::string dirnm = "hgcalBHAnalysis";
@@ -481,9 +481,9 @@ void hgcalBHValidPlots(std::string fname = "roots/hgcBHValidD83.root",
   }
 }
 
-void hgcalSiliconAnalysisPlots(std::string fname = "roots/hgcSilValidD86.root",
-                               std::string tag = "SilValidD86",
-                               std::string dtype = "ttbar D86",
+void hgcalSiliconAnalysisPlots(std::string fname = "roots/hgcSilValidD100.root",
+                               std::string tag = "SilValidD100",
+                               std::string dtype = "ttbar D100",
                                bool save = false,
                                bool debug = false) {
   std::string dirnm[2] = {"hgcalSiliconAnalysisEE", "hgcalSiliconAnalysisHEF"};
@@ -590,9 +590,9 @@ void hgcalSiliconAnalysisPlots(std::string fname = "roots/hgcSilValidD86.root",
   }
 }
 
-void hgcalMissedHitPlots(std::string fname = "missedRecHitD88.root",
-                         std::string tag = "MissedHitD88",
-                         std::string dtype = "#mu D88",
+void hgcalMissedHitPlots(std::string fname = "missedRecHitD105.root",
+                         std::string tag = "MissedHitD105",
+                         std::string dtype = "#mu D105",
                          bool save = false,
                          bool debug = false) {
   std::string dirnm = "hgcMissingRecHit";

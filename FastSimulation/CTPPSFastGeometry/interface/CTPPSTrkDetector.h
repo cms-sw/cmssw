@@ -5,7 +5,7 @@
 class CTPPSTrkDetector {
 public:
   CTPPSTrkDetector(double detw, double deth, double detin);
-  virtual ~CTPPSTrkDetector(){};
+  virtual ~CTPPSTrkDetector() {}
 
 public:
   const double ppsDetectorWidth_;

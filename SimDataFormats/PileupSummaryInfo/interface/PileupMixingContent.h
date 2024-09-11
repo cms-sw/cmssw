@@ -23,7 +23,7 @@ Usage: purely descriptive
 
 class PileupMixingContent {
 public:
-  PileupMixingContent(){};
+  PileupMixingContent() {}
 
   PileupMixingContent(std::vector<int>& bunchCrossing,
                       std::vector<int>& n_interactions,

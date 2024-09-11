@@ -1,6 +1,6 @@
 ###############################################################################
 # Way to use this:
-#   cmsRun runMaterialBudgetVolume2026DDD_cfg.py geometry=D92
+#   cmsRun runMaterialBudgetVolume2026DDD_cfg.py geometry=D110
 #
 #   Options for geometry D98, D99, D103, D104, D105, D106, D107, D108, D109
 #                        D110, D111, D112, D113, D114, D115

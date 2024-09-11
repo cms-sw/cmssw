@@ -15,7 +15,7 @@
 class MuonResidualsTwoBin {
 public:
   MuonResidualsTwoBin(bool twoBin, MuonResidualsFitter *pos, MuonResidualsFitter *neg)
-      : m_twoBin(twoBin), m_pos(pos), m_neg(neg){};
+      : m_twoBin(twoBin), m_pos(pos), m_neg(neg) {}
   ~MuonResidualsTwoBin() {
     if (m_pos != nullptr)
       delete m_pos;

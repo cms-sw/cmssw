@@ -17,7 +17,7 @@
 class RPCRecHitValidClient : public DQMEDHarvester {
 public:
   RPCRecHitValidClient(const edm::ParameterSet &pset);
-  ~RPCRecHitValidClient() override{};
+  ~RPCRecHitValidClient() override {}
 
   void dqmEndJob(DQMStore::IBooker &booker, DQMStore::IGetter &getter) override;
 

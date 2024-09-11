@@ -16,9 +16,9 @@
 class DeviationSensor2D {
 public:
   //---------- Constructors / Destructor
-  DeviationSensor2D(){};
+  DeviationSensor2D() {}
   DeviationSensor2D(ALIdouble posDimFactor, ALIdouble angDimFactor);
-  ~DeviationSensor2D(){};
+  ~DeviationSensor2D() {}
 
   // read file
   void fillData(const std::vector<ALIstring>& wl);

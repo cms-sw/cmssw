@@ -21,8 +21,8 @@ public:
     for (unsigned int ii = 0; ii < 4; ii++)
       theXlaserLine[ii] = -1;
   };
-  MeasurementCOPS(){};
-  ~MeasurementCOPS() override{};
+  MeasurementCOPS() {}
+  ~MeasurementCOPS() override {}
 
   // Get simulated value (called every time a parameter is displaced)
   void calculateSimulatedValue(ALIbool firstTime) override;

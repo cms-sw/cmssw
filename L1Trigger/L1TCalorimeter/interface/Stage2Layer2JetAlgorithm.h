@@ -27,7 +27,7 @@ namespace l1t {
                               std::vector<l1t::Jet>& jets,
                               std::vector<l1t::Jet>& alljets) = 0;
 
-    virtual ~Stage2Layer2JetAlgorithm(){};
+    virtual ~Stage2Layer2JetAlgorithm() {}
   };
 
 }  // namespace l1t

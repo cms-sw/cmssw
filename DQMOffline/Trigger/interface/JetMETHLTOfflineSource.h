@@ -189,7 +189,7 @@ private:
           DenomfilterName_("unset"),
           processName_("unset"),
           objectType_(-1),
-          triggerType_("unset"){};
+          triggerType_("unset") {}
 
   public:
     void setHistos(MonitorElement* const N,
@@ -934,7 +934,7 @@ private:
   // simple collection
   class PathInfoCollection : public std::vector<PathInfo> {
   public:
-    PathInfoCollection() : std::vector<PathInfo>(){};
+    PathInfoCollection() : std::vector<PathInfo>() {}
     std::vector<PathInfo>::iterator find(const std::string& pathName) { return std::find(begin(), end(), pathName); }
   };
   PathInfoCollection hltPathsAllTriggerSummary_;

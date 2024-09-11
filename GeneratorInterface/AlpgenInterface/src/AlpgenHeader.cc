@@ -112,8 +112,7 @@ bool AlpgenHeader::parse(const std::vector<std::string>::const_iterator &begin,
 
 // create human-readable representation for all Alpgen parameter indices
 
-#define DEFINE_ALPGEN_PARAMETER(x) \
-  { AlpgenHeader::x, #x }
+#define DEFINE_ALPGEN_PARAMETER(x) {AlpgenHeader::x, #x}
 
 namespace {
   struct AlpgenParameterName {

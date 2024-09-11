@@ -37,7 +37,7 @@ public:
 
 private:
   void beginRun(const edm::Run&, const edm::EventSetup&) override;
-  void endRun(const edm::Run&, const edm::EventSetup&) override{};
+  void endRun(const edm::Run&, const edm::EventSetup&) override {}
   bool filter(edm::Event&, const edm::EventSetup&) override;
 
   // ----------member data ---------------------------

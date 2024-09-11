@@ -274,9 +274,9 @@ void RecHitProcessor::processLook(const edm::Event &iEvent,
             }
           }
         }  // Condition to save the CPPFDigi
-      }    // Loop over the LUTVector
-    }      //end loop over cludters
-  }        //end loop over digis
+      }  // Loop over the LUTVector
+    }  //end loop over cludters
+  }  //end loop over digis
 }  //end processlook function
 
 void RecHitProcessor::process(const edm::Event &iEvent,
@@ -498,6 +498,6 @@ void RecHitProcessor::process(const edm::Event &iEvent,
           continue;
         }
       }  // No barrel hits
-    }    //end loop over clusters
-  }      //end loop over digis
+    }  //end loop over clusters
+  }  //end loop over digis
 }  // End function: void RecHitProcessor::process()

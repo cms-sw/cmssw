@@ -54,7 +54,7 @@ private:
   template <class Archive>
   inline void serialize(Archive& ar, unsigned /* version */) {
     boost::serialization::base_object<AbsHcalFunctor>(*this);
-    ar& coeffs_& shift_& xmin_& xmax_& outOfRangeValue_;
+    ar & coeffs_ & shift_ & xmin_ & xmax_ & outOfRangeValue_;
   }
 };
 

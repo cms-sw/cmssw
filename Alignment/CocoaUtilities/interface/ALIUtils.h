@@ -22,8 +22,8 @@
 
 class ALIUtils {
 public:
-  ALIUtils(){};
-  ~ALIUtils(){};
+  ALIUtils() {}
+  ~ALIUtils() {}
 
   static int IsNumber(const ALIstring& str);
   static void dump3v(const CLHEP::Hep3Vector& vec, const std::string& msg);

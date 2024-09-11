@@ -25,7 +25,7 @@ namespace ticl {
   public:
     LinkingAlgoBase(const edm::ParameterSet& conf) : algo_verbosity_(conf.getParameter<int>("algo_verbosity")) {}
 
-    virtual ~LinkingAlgoBase(){};
+    virtual ~LinkingAlgoBase() {}
 
     virtual void initialize(const HGCalDDDConstants* hgcons,
                             const hgcal::RecHitTools rhtools,

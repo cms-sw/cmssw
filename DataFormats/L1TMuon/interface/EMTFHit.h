@@ -88,9 +88,9 @@ namespace l1t {
           rho_sim(-99),
           z_sim(-99),
           alct_quality(-99),
-          clct_quality(-99){};
+          clct_quality(-99) {}
 
-    virtual ~EMTFHit(){};
+    virtual ~EMTFHit() {}
 
     CSCDetId CreateCSCDetId() const;
     RPCDetId CreateRPCDetId() const;

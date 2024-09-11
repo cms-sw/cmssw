@@ -362,8 +362,8 @@ void PFAlgo::egammaFilters(const reco::PFBlockRef& blockref,
         pfCandidates_->push_back(myPFPhoton);
 
       }  // end isSafe
-    }    // end isGoodPhoton
-  }      // end loop on EGM candidates
+    }  // end isGoodPhoton
+  }  // end loop on EGM candidates
   LogTrace("PFAlgo|egammaFilters") << "end of function PFAlgo::egammaFilters";
 }
 
@@ -1409,7 +1409,7 @@ void PFAlgo::createCandidatesHF(const reco::PFBlock& block,
           associatedHfEms.emplace(iTrack, associatedHfEm);
 
         }  // End loop hfem associated to iTrack
-      }    // sortedTracks
+      }  // sortedTracks
 
       // HfHad energy
       double uncalibratedenergyHfHad = hclusterRef->energy();
@@ -1463,8 +1463,8 @@ void PFAlgo::createCandidatesHF(const reco::PFBlock& block,
               energyHfHad = thepfEnergyCalibrationHF_.energyEmHad(
                   0.0, uncalibratedenergyHfHad, hclusterRef->positionREP().Eta(), hclusterRef->positionREP().Phi());
             }  // calib true
-          }    // loop over sortedHfEm
-        }      // if !sortedHfEms.empty()
+          }  // loop over sortedHfEm
+        }  // if !sortedHfEms.empty()
         //
         // Create HF candidates
         unsigned tmpi = reconstructCluster(*hclusterRef, energyHfEm + energyHfHad);
@@ -1542,7 +1542,7 @@ void PFAlgo::createCandidatesHF(const reco::PFBlock& block,
           }
           break;
         }  // loop over hfemsattelites ends
-      }    // if HFHAD is excessive or not
+      }  // if HFHAD is excessive or not
 
       //
       // Loop over all tracks associated to this HFHAD cluster *again* in order to produce charged hadrons
@@ -2042,7 +2042,7 @@ void PFAlgo::createCandidatesHCAL(const reco::PFBlock& block,
           associatedEcals.emplace(iTrack, associatedEcal);
 
         }  // End loop ecal associated to iTrack
-      }    // end case: at least one ecal element associated to iTrack
+      }  // end case: at least one ecal element associated to iTrack
 
       if (useHO_ && !sortedHOs.empty()) {  // start case: at least one ho element associated to iTrack
 
@@ -2084,7 +2084,7 @@ void PFAlgo::createCandidatesHCAL(const reco::PFBlock& block,
           associatedHOs.emplace(iTrack, associatedHO);
 
         }  // End loop ho associated to iTrack
-      }    // end case: at least one ho element associated to iTrack
+      }  // end case: at least one ho element associated to iTrack
 
     }  // end loop on tracks associated to hcal element iHcal
 
@@ -2499,7 +2499,7 @@ void PFAlgo::createCandidatesHCAL(const reco::PFBlock& block,
               continue;
             a(i, j) = 1. / sigma2E;
           }  // end loop on j
-        }    // end loop on i
+        }  // end loop on i
 
         // solve ax = b
         TDecompChol decomp(a);

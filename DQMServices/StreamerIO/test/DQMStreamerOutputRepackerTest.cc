@@ -40,8 +40,8 @@ namespace dqmservices {
     void doOutputHeader(InitMsgBuilder const& init_message) override;
     void doOutputEvent(EventMsgBuilder const& msg) override;
 
-    void beginLuminosityBlock(edm::LuminosityBlockForOutput const&) override{};
-    void endLuminosityBlock(edm::LuminosityBlockForOutput const&) override{};
+    void beginLuminosityBlock(edm::LuminosityBlockForOutput const&) override {}
+    void endLuminosityBlock(edm::LuminosityBlockForOutput const&) override {}
 
   private:
     void openFile_(uint32_t run, uint32_t lumi);

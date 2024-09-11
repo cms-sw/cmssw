@@ -137,7 +137,7 @@ ticl::association TSToSimTSAssociatorByEnergyScoreImpl::makeConnections(
         }
       }
     }  // End loop over LayerClusters in Trackster
-  }    // End of loop over Tracksters
+  }  // End of loop over Tracksters
 
 #ifdef EDM_ML_DEBUG
   for (unsigned int tsId = 0; tsId < nTracksters; ++tsId) {
@@ -249,7 +249,7 @@ ticl::association TSToSimTSAssociatorByEnergyScoreImpl::makeConnections(
           << maxEnergySharedLCandST << "\t" << std::setw(22) << totalSTEnergyOnLayer << "\t" << std::setw(22)
           << energyFractionOfLCinST << "\t" << std::setw(25) << energyFractionOfSTinLC << "\n";
     }  // End of loop over LayerClusters in Trackster
-  }    // End of loop over Tracksters
+  }  // End of loop over Tracksters
 
   LogDebug("TSToSimTSAssociatorByEnergyScoreImpl")
       << "Improved tssInSimTrackster INFO (Now containing the linked tracksters id and energy - score still empty)"
@@ -422,8 +422,8 @@ ticl::association TSToSimTSAssociatorByEnergyScoreImpl::makeConnections(
               << "invSTEnergyWeight:\t" << invSTEnergyWeight << "\n";
 #endif
         }  // End of loop over Trackster's LayerClusters
-      }    // End of loop over Tracksters linked to hits of this SimTrackster
-    }      // End of loop over hits of SimTrackster on a Layer
+      }  // End of loop over Tracksters linked to hits of this SimTrackster
+    }  // End of loop over hits of SimTrackster on a Layer
 #ifdef EDM_ML_DEBUG
     if (tssInSimTrackster[stId].tracksterIdToEnergyAndScore.empty())
       LogDebug("TSToSimTSAssociatorByEnergyScoreImpl") << "ST Id:\t" << stId << "\tTS id:\t-1 "

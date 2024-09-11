@@ -193,7 +193,7 @@ ticl::association LCToCPAssociatorByEnergyScoreImpl<HIT>::makeConnections(
         }
       }
     }  // End loop over hits on a LayerCluster
-  }    // End of loop over LayerClusters
+  }  // End of loop over LayerClusters
 
 #ifdef EDM_ML_DEBUG
   for (unsigned int lcId = 0; lcId < nLayerClusters; ++lcId) {
@@ -395,7 +395,7 @@ ticl::association LCToCPAssociatorByEnergyScoreImpl<HIT>::makeConnections(
         cpPair.second += std::min(std::pow(rhFraction - cpFraction, 2), std::pow(rhFraction, 2)) * hitEnergyWeight *
                          invLayerClusterEnergyWeight;
       }  //End of loop over CaloParticles related the this LayerCluster.
-    }    // End of loop over Hits within a LayerCluster
+    }  // End of loop over Hits within a LayerCluster
 #ifdef EDM_ML_DEBUG
     if (cpsInLayerCluster[lcId].empty())
       LogDebug("LCToCPAssociatorByEnergyScoreImpl") << "layerCluster Id: \t" << lcId << "\tCP id:\t-1 "
@@ -476,7 +476,7 @@ ticl::association LCToCPAssociatorByEnergyScoreImpl<HIT>::makeConnections(
               << "invCPEnergyWeight:\t" << invCPEnergyWeight << "\n";
 #endif
         }  // End of loop over LayerClusters linked to hits of this CaloParticle
-      }    // End of loop over hits of CaloParticle on a Layer
+      }  // End of loop over hits of CaloParticle on a Layer
 #ifdef EDM_ML_DEBUG
       if (cPOnLayer[cpId][layerId].layerClusterIdToEnergyAndScore.empty())
         LogDebug("LCToCPAssociatorByEnergyScoreImpl") << "CP Id: \t" << cpId << "\tLC id:\t-1 "
@@ -490,7 +490,7 @@ ticl::association LCToCPAssociatorByEnergyScoreImpl<HIT>::makeConnections(
       }
 #endif
     }  // End of loop over layers
-  }    // End of loop over CaloParticles
+  }  // End of loop over CaloParticles
 
   return {cpsInLayerCluster, cPOnLayer};
 }

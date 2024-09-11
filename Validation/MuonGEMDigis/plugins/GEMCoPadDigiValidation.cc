@@ -78,7 +78,7 @@ void GEMCoPadDigiValidation::bookHistograms(DQMStore::IBooker& booker,
         me_detail_occ_det_[key2] = bookDetectorOccupancy(booker, key2, station, "copad", "CoPad");
       }
     }  // station loop
-  }    // region loop
+  }  // region loop
 
   // NOTE Bunch Crossing
   if (detail_plot_) {
@@ -91,8 +91,8 @@ void GEMCoPadDigiValidation::bookHistograms(DQMStore::IBooker& booker,
         me_detail_bx_[key2] =
             bookHist1D(booker, key2, "copad_bx", "CoPad Bunch Crossing", 5, -2.5, 2.5, "Bunch crossing");
       }  // station loop
-    }    // region loop
-  }      // detail plot
+    }  // region loop
+  }  // detail plot
 }
 
 GEMCoPadDigiValidation::~GEMCoPadDigiValidation() {}
@@ -175,7 +175,7 @@ void GEMCoPadDigiValidation::analyze(const edm::Event& event, const edm::EventSe
           break;
         }
         lpArray[ptCounter] = etaPartition->centreOfPad(padArray[ptCounter]);
-      }                     // end for
+      }  // end for
       if (ptCounter < 2) {  // Broke out of "for" loop
         edm::LogError(kLogCategory_) << "Skipping a digi due to bad chamber " << (ptCounter + 1);
         continue;
@@ -209,6 +209,6 @@ void GEMCoPadDigiValidation::analyze(const edm::Event& event, const edm::EventSe
         me_detail_bx_[key2]->Fill(bx1);
         me_detail_bx_[key2]->Fill(bx2);
       }  // detail_plot_
-    }    // loop over digis
-  }      // loop over range iters
+    }  // loop over digis
+  }  // loop over range iters
 }

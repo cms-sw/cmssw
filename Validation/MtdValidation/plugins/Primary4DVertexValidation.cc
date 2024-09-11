@@ -1722,7 +1722,7 @@ std::vector<Primary4DVertexValidation::recoPrimaryVertex> Primary4DVertexValidat
       }
 
     }  // End of for loop on daughters reconstructed tracks
-  }    // End of for loop on tracking vertices
+  }  // End of for loop on tracking vertices
 
   // In case of no reco vertices, break here
   if (recopv.empty())
@@ -1874,7 +1874,7 @@ void Primary4DVertexValidation::matchReco2Sim(std::vector<recoPrimaryVertex>& re
         simpv.at(iev).matchQuality = rank;
       }
     }  // iev
-  }    // rank
+  }  // rank
 
   // Reco vertices that are not necessarily dominated by a sim vertex, or whose dominating sim-vertex
   // has been matched already to another overlapping reco vertex, can still be associated to a specific
@@ -2448,7 +2448,7 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
               }
             }
           }  // if tp_info != nullptr && MatchCategory == 0
-        }    // loop on reco tracks
+        }  // loop on reco tracks
         if (selectedVtxMatching) {
           meVtxTrackMult_->Fill(log10(nt));
           mePUTrackRelMult_->Fill(static_cast<double>(PUnt) / nt);
@@ -2591,8 +2591,8 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
           }
         }
       }  // loop on simpv
-    }    // ndof
-  }      // loop on recopv
+    }  // ndof
+  }  // loop on recopv
 
   int real = 0;
   int fake = 0;

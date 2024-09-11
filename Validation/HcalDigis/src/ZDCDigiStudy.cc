@@ -226,7 +226,7 @@ void ZDCDigiStudy::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
                   i, digi.sample(i).nominal_fC());  //filling the plot name with the nominal fC value for each TS
               if (i == 0)
                 meZdcPHAD1fCvsTS->Fill(-1, 1);  // on first iteration of loop, increment underflow bin
-            }                                   //NEW AVERAGE Thingy
+            }  //NEW AVERAGE Thingy
             if (digi.id().channel() == 2) {
               meZdcPHAD2fCvsTS->Fill(i, digi.sample(i).nominal_fC());
               if (i == 0)
@@ -270,8 +270,8 @@ void ZDCDigiStudy::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
             if (i == 4 || i == 5 || i == 6)
               totalNHADCharge += digi.sample(i).nominal_fC();
           }  //loop over all 10 TS
-        }    //Requires NHAd
-      }      //Requires HAD sections
+        }  //Requires NHAd
+      }  //Requires HAD sections
       ///////////////////////////////EM SECTIONS////////////////////////////
       if (digi.id().section() ==
           1) {  //require EM....here i do the smae thing that i did above but now for P/N EM sections

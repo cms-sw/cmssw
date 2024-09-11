@@ -26,9 +26,9 @@
 
 class CaloDetIdAssociator : public DetIdAssociator {
 public:
-  CaloDetIdAssociator() : DetIdAssociator(72, 70, 0.087), geometry_(nullptr){};
+  CaloDetIdAssociator() : DetIdAssociator(72, 70, 0.087), geometry_(nullptr) {}
   CaloDetIdAssociator(const int nPhi, const int nEta, const double etaBinSize, CaloGeometry const* geom)
-      : DetIdAssociator(nPhi, nEta, etaBinSize), geometry_(geom){};
+      : DetIdAssociator(nPhi, nEta, etaBinSize), geometry_(geom) {}
 
   const GeomDet* getGeomDet(const DetId& id) const override { return nullptr; };
 

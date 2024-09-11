@@ -50,7 +50,7 @@ public:
   /// Constructor
   explicit ME0SegAlgoRU(const edm::ParameterSet& ps);
   /// Destructor
-  ~ME0SegAlgoRU() override{};
+  ~ME0SegAlgoRU() override {}
 
   /**
 	 * Here we must implement the algorithm

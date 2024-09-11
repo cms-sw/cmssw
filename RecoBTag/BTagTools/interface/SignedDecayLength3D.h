@@ -16,7 +16,7 @@ class SignedDecayLength3D {
 public:
   // construct
 
-  SignedDecayLength3D(){};
+  SignedDecayLength3D() {}
 
   static std::pair<bool, Measurement1D> apply(const reco::TransientTrack &track,
                                               const GlobalVector &direction,

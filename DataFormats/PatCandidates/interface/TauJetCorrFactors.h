@@ -36,7 +36,7 @@ namespace pat {
 
   public:
     // default Constructor
-    TauJetCorrFactors(){};
+    TauJetCorrFactors() {}
     // constructor by value
     TauJetCorrFactors(const std::string& label, const std::vector<CorrectionFactor>& jec);
 

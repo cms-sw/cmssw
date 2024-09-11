@@ -259,8 +259,8 @@ void StdHitNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es) {
           }  // end of simhit loop
           closest_simhit = closestit;
         }  // end matched emtpy
-           /////comment out begin
-           /*
+        /////comment out begin
+        /*
 	unsigned int subdetId = detId.subdetId();
 	int layerNumber=0;
 	int ringNumber = 0;
@@ -310,7 +310,7 @@ void StdHitNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es) {
                   << geomDet->surface().toGlobal(iterRecHit->localPosition()).z() << " " 
                   << geomDet->surface().toGlobal(iterRecHit->localPosition()).perp() << std::endl;
 */
-           //comment out end
+        //comment out end
         unsigned int subid = detId.subdetId();
         int layer_num = 0;
         if ((subid == 1) || (subid == 2)) {
@@ -342,8 +342,8 @@ void StdHitNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es) {
 */
         }
       }  // end of rechit loop
-    }    // end of detid loop
-  }      // end of loop test on recHitColl size
+    }  // end of detid loop
+  }  // end of loop test on recHitColl size
 
   // Now loop over recotracks
 
@@ -440,7 +440,7 @@ void StdHitNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es) {
       }
       delete hit;
     }  //end of loop on tracking rechits
-  }    // end of loop on recotracks
+  }  // end of loop on recotracks
 
   // now for strip rechits
   edm::Handle<SiStripRecHit2DCollection> rechitsrphi;
@@ -538,8 +538,8 @@ void StdHitNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es) {
         striptree_->Fill();
         init();
       }  // end of rechit loop
-    }    // end of detid loop
-  }      // end of loop test on rechit size
+    }  // end of detid loop
+  }  // end of loop test on rechit size
 
   // now stereo hits
   if (rechitsstereo.product()->dataSize() > 0) {
@@ -627,8 +627,8 @@ void StdHitNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es) {
         striptree_->Fill();
         init();
       }  // end of rechit loop
-    }    // end of detid loop
-  }      // end of loop test on rechit size
+    }  // end of detid loop
+  }  // end of loop test on rechit size
 
   // now matched hits
   if (rechitsmatched.product()->dataSize() > 0) {
@@ -715,8 +715,8 @@ void StdHitNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es) {
         striptree_->Fill();
         init();
       }  // end of rechit loop
-    }    // end of detidt loop
-  }      // end of loop test on rechit size
+    }  // end of detidt loop
+  }  // end of loop test on rechit size
 
 }  // end analyze function
 

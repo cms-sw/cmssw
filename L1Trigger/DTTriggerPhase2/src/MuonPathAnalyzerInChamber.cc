@@ -379,7 +379,7 @@ void MuonPathAnalyzerInChamber::buildLateralities(MuonPathPtr &mpath) {
         lateralities_[iall + ncurrentoptions][ilat] = RIGHT;
       }
     }  // else
-  }    // Iterate over input array
+  }  // Iterate over input array
 
   totalNumValLateralities_ = (int)lateralities_.size();
   if (totalNumValLateralities_ > 128) {

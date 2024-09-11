@@ -9,9 +9,9 @@ private:
   const OMTFConfiguration* omtfConfig;
 
 public:
-  GhostBuster(const OMTFConfiguration* omtfConfig) : omtfConfig(omtfConfig){};
+  GhostBuster(const OMTFConfiguration* omtfConfig) : omtfConfig(omtfConfig) {}
 
-  ~GhostBuster() override{};
+  ~GhostBuster() override {}
   AlgoMuons select(AlgoMuons refHitCands, int charge = 0) override;
 };
 #endif

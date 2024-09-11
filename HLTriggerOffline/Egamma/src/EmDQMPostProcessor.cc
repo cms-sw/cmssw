@@ -357,7 +357,7 @@ void EmDQMPostProcessor::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter
             break;
 
         }  // loop over variables
-      }    // loop over monitoring modules within path
+      }  // loop over monitoring modules within path
 
       ibooker.goUp();
 

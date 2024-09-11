@@ -72,7 +72,7 @@ public:
           }
         }
       }  // for digis in layer
-    }    // for layers
+    }  // for layers
 
     for (edm::DetSetVector<RPCDigiSimLink>::const_iterator itlink = thelinkDigis->begin();
          itlink != thelinkDigis->end();

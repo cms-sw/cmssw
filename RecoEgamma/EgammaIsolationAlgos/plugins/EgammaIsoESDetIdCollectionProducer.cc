@@ -151,5 +151,5 @@ void EgammaIsoESDetIdCollectionProducer::addDetIds(const reco::SuperCluster& sup
       }
 
     }  //end of endcap & dR check
-  }    //end of cluster loop
+  }  //end of cluster loop
 }

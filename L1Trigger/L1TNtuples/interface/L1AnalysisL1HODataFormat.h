@@ -6,7 +6,7 @@
 namespace L1Analysis {
   struct L1AnalysisL1HODataFormat {
     L1AnalysisL1HODataFormat() { Reset(); };
-    ~L1AnalysisL1HODataFormat(){};
+    ~L1AnalysisL1HODataFormat() {}
 
     void Reset() {
       nHcalDetIds = 0;

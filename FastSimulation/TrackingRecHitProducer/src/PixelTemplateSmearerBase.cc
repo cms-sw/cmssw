@@ -279,7 +279,7 @@ TrackingRecHitProductPtr PixelTemplateSmearerBase::process(TrackingRecHitProduct
           listOfUnmergedHits.push_back(simHitIdPairs[i]);
         }
       }  //--- end of loop over i
-    }    // --- end of if (mergeHitsOn)
+    }  // --- end of if (mergeHitsOn)
     else {
       // Now we've turned off hit merging, so all hits should be pushed
       // back to listOfUnmergedHits

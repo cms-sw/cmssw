@@ -13,7 +13,7 @@
 namespace L1Analysis {
   struct L1AnalysisL1CaloClusterDataFormat {
     L1AnalysisL1CaloClusterDataFormat() { Reset(); };
-    ~L1AnalysisL1CaloClusterDataFormat(){};
+    ~L1AnalysisL1CaloClusterDataFormat() {}
 
     void Reset() {
       nCluster = 0;

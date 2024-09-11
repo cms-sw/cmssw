@@ -39,14 +39,14 @@ namespace l1t {
           hasMTF7Trailer(false),
           hasAMC13Trailer(false),
           format_errors(0),
-          dataword(-99){};
+          dataword(-99) {}
 
     /* // Fill constructor - should we included a copy constructor for classes and collections (vectors)? - AWB 28.01.16 */
     /* EMTFDaqOut(emtf::AMC13Header class_AMC13Header, emtf::SPCollection coll_SPCollection) : */
     /*   AMC13Header(class_AMC13Header), SPCollection(coll_SPCollection), format_errors(0), dataword(-99) */
     /*   {}; */
 
-    virtual ~EMTFDaqOut(){};
+    virtual ~EMTFDaqOut() {}
 
     void set_AMC13Header(emtf::AMC13Header bits) {
       AMC13Header = bits;

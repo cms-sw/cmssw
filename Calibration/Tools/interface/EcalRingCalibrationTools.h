@@ -22,8 +22,8 @@ class CaloGeometry;
 
 class EcalRingCalibrationTools {
 public:
-  EcalRingCalibrationTools(){};
-  ~EcalRingCalibrationTools(){};
+  EcalRingCalibrationTools() {}
+  ~EcalRingCalibrationTools() {}
 
   /// Retrieve the phi-ring index corresponding to a DetId
   static short getRingIndex(DetId aDetId);

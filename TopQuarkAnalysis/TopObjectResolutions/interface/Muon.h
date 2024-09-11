@@ -6,8 +6,8 @@
 namespace res {
   class HelperMuon {
   public:
-    HelperMuon(){};
-    ~HelperMuon(){};
+    HelperMuon() {}
+    ~HelperMuon() {}
 
     inline double pt(double pt, double eta);
     inline double eta(double pt, double eta);

@@ -16,7 +16,7 @@ using namespace ticl;
 class MergedTrackstersProducer : public edm::stream::EDProducer<> {
 public:
   explicit MergedTrackstersProducer(const edm::ParameterSet &ps);
-  ~MergedTrackstersProducer() override{};
+  ~MergedTrackstersProducer() override {}
   void produce(edm::Event &, const edm::EventSetup &) override;
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 

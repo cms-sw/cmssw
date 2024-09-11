@@ -6,8 +6,8 @@
 
 class HGCalTriggerClusterIdentificationBase {
 public:
-  HGCalTriggerClusterIdentificationBase(){};
-  virtual ~HGCalTriggerClusterIdentificationBase(){};
+  HGCalTriggerClusterIdentificationBase() {}
+  virtual ~HGCalTriggerClusterIdentificationBase() {}
   virtual void initialize(const edm::ParameterSet& conf) = 0;
   virtual float value(const l1t::HGCalMulticluster& cluster) const = 0;
   virtual bool decision(const l1t::HGCalMulticluster& cluster, unsigned wp = 0) const = 0;

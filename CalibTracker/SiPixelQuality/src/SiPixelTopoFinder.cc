@@ -68,7 +68,7 @@ void SiPixelTopoFinder::init(const TrackerGeometry* trackerGeometry,
         int value = roc;
         rocIdMap[key] = value;
       }  // column
-    }    // row
+    }  // row
 
     fRocIds_[detid] = rocIdMap;
 

@@ -1470,8 +1470,8 @@ bool SiStripMonitorTrack::fillControlViewHistos(const edm::Event& ev) {
         }
 
       }  // end of looping over the fed chan connections
-    }    // end of looping over the rechits of the track
-  }      // end of looping over the tracks
+    }  // end of looping over the rechits of the track
+  }  // end of looping over the tracks
 
   return true;
 }

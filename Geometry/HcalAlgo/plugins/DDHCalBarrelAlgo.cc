@@ -625,7 +625,7 @@ void DDHCalBarrelAlgo::constructGeneralVolume(DDCompactView& cpv) {
 #endif
         rotation = DDrot(DDName(rotstr, rotns), theta, phi, theta, phiy, 0, 0);
       }  //if !rotation
-    }    //if phideg!=0
+    }  //if phideg!=0
 
     cpv.position(seclogic, genlogich, ii + 1, r0, rotation);
 #ifdef EDM_ML_DEBUG

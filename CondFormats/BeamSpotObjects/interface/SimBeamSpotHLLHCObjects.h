@@ -43,7 +43,7 @@ public:
     fTimeOffset = 0.0;
   };
 
-  virtual ~SimBeamSpotHLLHCObjects(){};
+  virtual ~SimBeamSpotHLLHCObjects() {}
 
   /// set meanX, meanY, meanZ
   void setMeanX(double val) { fMeanX = val; }

@@ -473,8 +473,8 @@ void AlignmentMonitorSegmentDifferences::processMuonResidualsFromTrack(MuonResid
                   }
                 }
               }  // end other numhits
-            }    // end this near other
-          }      // end other is DT
+            }  // end this near other
+          }  // end other is DT
 
           // cross-system: other is CSC
           // only do it for DT stubs in W+-2 St1&2:
@@ -516,8 +516,8 @@ void AlignmentMonitorSegmentDifferences::processMuonResidualsFromTrack(MuonResid
               }
             }
           }  // end other is CSC
-        }    // end loop over other
-      }      // end if DT13
+        }  // end loop over other
+      }  // end if DT13
 
       // z-direction
       if (dt2 != nullptr && dt2->numHits() >= m_minDT2Hits && (dt2->chi2() / double(dt2->ndof())) < 2.0) {
@@ -550,11 +550,11 @@ void AlignmentMonitorSegmentDifferences::processMuonResidualsFromTrack(MuonResid
                   }
                 }
               }  // end other numhits
-            }    // end this near other
-          }      // end other is DT
-        }        // end loop over other
-      }          // end if DT2
-    }            // end if DT
+            }  // end this near other
+          }  // end other is DT
+        }  // end loop over other
+      }  // end if DT2
+    }  // end if DT
 
     // **************** CSC ****************
     else if (m_doCSC && chamberId->subdetId() == MuonSubdetId::CSC) {
@@ -610,13 +610,13 @@ void AlignmentMonitorSegmentDifferences::processMuonResidualsFromTrack(MuonResid
                     }
                   }
                 }  // end of same ring&chamber
-              }    // end other min numhits
-            }      // end this near other
-          }        // end other is CSC
-        }          // end loop over other
+              }  // end other min numhits
+            }  // end this near other
+          }  // end other is CSC
+        }  // end loop over other
 
       }  // end if this min numhits
-    }    // end if CSC
+    }  // end if CSC
 
   }  // end loop over chamberIds
 }

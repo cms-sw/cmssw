@@ -19,7 +19,7 @@ namespace l1t {
 
     class GTSetup : public PackingSetup {
     public:
-      ~GTSetup() override{};
+      ~GTSetup() override {}
       std::unique_ptr<PackerTokens> registerConsumes(const edm::ParameterSet& cfg, edm::ConsumesCollector& cc) override;
       void fillDescription(edm::ParameterSetDescription& desc) override;
       PackerMap getPackers(int fed, unsigned int fw) override;

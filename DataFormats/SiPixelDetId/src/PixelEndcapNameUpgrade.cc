@@ -38,7 +38,7 @@ PixelEndcapNameUpgrade::PixelEndcapNameUpgrade(const DetId& id) : PixelModuleNam
     theBlade = 38 - tmpBlade;  //18...31-->20...7
   } else if (tmpBlade >= 49 && tmpBlade <= 56) {
     theBlade = 77 - tmpBlade;  //49...56-->28...21
-  }                            //  iasonas2-end
+  }  //  iasonas2-end
 
   if (side == 1 && outer)
     thePart = mO;

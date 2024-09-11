@@ -393,7 +393,7 @@ L1TMuonBarrelParamsESProducer::L1TMuonBarrelParamsESProducer(const edm::Paramete
       }///for it procRole */
     m_params_helper.configFromDB(trgSys);
   }  ///if configDB
-     //m_params = cast_to_L1TMuonBarrelParams((L1TMuonBarrelParams_PUBLIC)m_params_helper);
+  //m_params = cast_to_L1TMuonBarrelParams((L1TMuonBarrelParams_PUBLIC)m_params_helper);
 }
 
 L1TMuonBarrelParamsESProducer::~L1TMuonBarrelParamsESProducer() {}

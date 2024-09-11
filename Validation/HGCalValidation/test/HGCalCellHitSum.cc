@@ -1499,7 +1499,7 @@ void HGCalCellHitSum::analyze(const edm::Event &iEvent, const edm::EventSetup &i
           }
 
         }  //is Sci or Si
-      }    //valid detid
+      }  //valid detid
       //Now for invalid detids
       else {
         if (rhtools_.isSilicon(id1)) {

@@ -263,7 +263,7 @@ const bool l1t::MuCondition::evaluateCondition(const int bxEval) const {
           }
         }
       }  // end require nObjInCond > 1
-    }    // end signchecks
+    }  // end signchecks
 
     if (m_gtMuonTemplate->wsc()) {
       // wsc requirements have always nObjInCond = 2

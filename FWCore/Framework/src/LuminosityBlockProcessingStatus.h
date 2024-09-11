@@ -106,7 +106,7 @@ namespace edm {
     WaitingTaskList endIOVWaitingTasks_;
     edm::WaitingTaskHolder globalEndRunHolder_;
     edm::Timestamp endTime_{};
-    CMS_THREAD_GUARD(state_) unsigned int nStreamsProcessingLumi_{0};
+    CMS_THREAD_GUARD(state_) unsigned int nStreamsProcessingLumi_ { 0 };
     std::atomic<unsigned int> nStreamsStillProcessingLumi_{0};
     enum class State { kRunning, kUpdating, kNoMoreEvents };
     std::atomic<State> state_{State::kRunning};

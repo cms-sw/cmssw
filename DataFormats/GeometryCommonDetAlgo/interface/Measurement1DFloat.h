@@ -18,7 +18,7 @@ public:
 
   //destruct
 
-  ~Measurement1DFloat(){};
+  ~Measurement1DFloat() {}
 
   float value() const { return theValue; }
 

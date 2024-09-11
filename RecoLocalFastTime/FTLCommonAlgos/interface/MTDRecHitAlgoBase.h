@@ -22,10 +22,10 @@ class MTDRecHitAlgoBase {
 public:
   /// Constructor
   MTDRecHitAlgoBase(const edm::ParameterSet& conf, edm::ConsumesCollector& sumes)
-      : name_(conf.getParameter<std::string>("algoName")){};
+      : name_(conf.getParameter<std::string>("algoName")) {}
 
   /// Destructor
-  virtual ~MTDRecHitAlgoBase(){};
+  virtual ~MTDRecHitAlgoBase() {}
 
   /// get event and eventsetup information
   virtual void getEvent(const edm::Event&) = 0;

@@ -12,9 +12,9 @@ namespace l1t {
     public:
       explicit MTF7Trailer(uint64_t dataword);
 
-      MTF7Trailer() : crc_32(-99), lv1_id(-99), data_length(-99), format_errors(0), dataword(-99){};
+      MTF7Trailer() : crc_32(-99), lv1_id(-99), data_length(-99), format_errors(0), dataword(-99) {}
 
-      virtual ~MTF7Trailer(){};
+      virtual ~MTF7Trailer() {}
 
       void set_crc_32(int bits) { crc_32 = bits; }
       void set_lv1_id(int bits) { lv1_id = bits; }
@@ -36,7 +36,7 @@ namespace l1t {
       uint64_t dataword;
 
     };  // End class MTF7Trailer
-  }     // End namespace emtf
+  }  // End namespace emtf
 }  // End namespace l1t
 
 #endif /* define __l1t_emtf_MTF7Trailer_h__ */

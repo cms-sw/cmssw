@@ -830,7 +830,7 @@ bool CSCSkim::doDTOverlap(Handle<CSCSegmentCollection> cscSegments) {
         }
       }
     }  // this is a good segment
-  }    // end loop over segments
+  }  // end loop over segments
 
   // ---------------------------------------------
   // veto messy events
@@ -972,7 +972,7 @@ bool CSCSkim::doHaloLike(Handle<CSCSegmentCollection> cscSegments) {
         }
       }
     }  // this is a good segment
-  }    // end loop over segments
+  }  // end loop over segments
 
   // ---------------------------------------------
   // veto messy events
@@ -1262,7 +1262,7 @@ bool CSCSkim::doBFieldStudySelection(edm::Handle<reco::TrackCollection> saMuons,
       }
 
     }  // this is a global muon
-  }    // end loop over stand-alone muon collection
+  }  // end loop over stand-alone muon collection
 
   //-----------------------------------
   // do we accept this event?

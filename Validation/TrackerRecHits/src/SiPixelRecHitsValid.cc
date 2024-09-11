@@ -344,7 +344,7 @@ void SiPixelRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 
         if (subid == 1) {  //<----------barrel
           fillBarrel(*pixeliter, *closestit, detId, theGeomDet, tTopo);
-        }                  // end barrel
+        }  // end barrel
         if (subid == 2) {  // <-------forward
           fillForward(*pixeliter, *closestit, detId, theGeomDet, tTopo);
         }
@@ -356,7 +356,7 @@ void SiPixelRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
         for (unsigned int i = 0; i < 3; i++)
           if (tTopo->pxbLayer(detId) == i + 1)
             recHitNsimHitLayer[i]->Fill(NsimHit);
-      }                  // end barrel
+      }  // end barrel
       if (subid == 2) {  // <-------forward
         if (tTopo->pxfDisk(detId) == 1)
           recHitNsimHitDisk1->Fill(NsimHit);
@@ -364,7 +364,7 @@ void SiPixelRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
           recHitNsimHitDisk2->Fill(NsimHit);
       }
     }  // <-----end rechit loop
-  }    // <------ end detunit loop
+  }  // <------ end detunit loop
 }
 
 void SiPixelRecHitsValid::fillBarrel(const SiPixelRecHit& recHit,
@@ -573,7 +573,7 @@ void SiPixelRecHitsValid::fillForward(const SiPixelRecHit& recHit,
         recHitYPullDisk2Plaquettes[i]->Fill(pull_y);
 
       }  // end else
-    }    // end if module
+    }  // end if module
     else if (tTopo->pxfPanel(detId) == 2 && (tTopo->pxfModule(detId) + 4) == i + 1) {
       if (tTopo->pxfDisk(detId) == 1) {
         int sizeX = (*clust).sizeX();
@@ -607,7 +607,7 @@ void SiPixelRecHitsValid::fillForward(const SiPixelRecHit& recHit,
         recHitYPullDisk2Plaquettes[i]->Fill(pull_y);
 
       }  // end else
-    }    // end else
-  }      // end for
+    }  // end else
+  }  // end for
 }
 DEFINE_FWK_MODULE(SiPixelRecHitsValid);

@@ -293,7 +293,7 @@ namespace {
       }  // for iovs
       return false;
     }  // fill
-  };   // class
+  };  // class
 
   class JetCorrectorVsEtaSummary
       : public cond::payloadInspector::PlotImage<JetCorrectorParametersCollection, SINGLE_IOV> {

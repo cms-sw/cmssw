@@ -171,8 +171,8 @@ void DQMHOAlCaRecoStream::analyze(const edm::Event &iEvent, const edm::EventSetu
           hSignal3x3[k]->Fill((*hoC).hosig[k]);
         }
       }  // for (HOCalibVariableCollection::const_iterator hoC=(*HOCalib).begin()
-    }    // if ((*HOCalib).size() >0 ) {
-  }      // if (isCosMu) {
+    }  // if ((*HOCalib).size() >0 ) {
+  }  // if (isCosMu) {
 }
 
 // ------------ method called once each job just before starting event loop

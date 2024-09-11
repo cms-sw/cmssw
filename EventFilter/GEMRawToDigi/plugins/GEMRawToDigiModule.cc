@@ -36,7 +36,7 @@ public:
   // global::EDProducer
   std::shared_ptr<GEMChMap> globalBeginRun(edm::Run const&, edm::EventSetup const&) const override;
   void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override;
-  void globalEndRun(edm::Run const&, edm::EventSetup const&) const override{};
+  void globalEndRun(edm::Run const&, edm::EventSetup const&) const override {}
 
   // Fill parameters descriptions
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);

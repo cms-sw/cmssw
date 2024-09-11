@@ -335,7 +335,7 @@ int CMSCGEN::generate() {
         break;
 
     }  //end of CMSCGEN energy-dependence
-  }    //end of while
+  }  //end of while
 
   pq = e;
 

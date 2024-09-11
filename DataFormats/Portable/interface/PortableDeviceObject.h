@@ -50,9 +50,11 @@ public:
   // access the product
   Product& value() { return *buffer_->data(); }
   Product const& value() const { return *buffer_->data(); }
+  Product const& const_value() const { return *buffer_->data(); }
 
   Product* data() { return buffer_->data(); }
   Product const* data() const { return buffer_->data(); }
+  Product const* const_data() const { return buffer_->data(); }
 
   Product& operator*() { return *buffer_->data(); }
   Product const& operator*() const { return *buffer_->data(); }
@@ -64,6 +66,12 @@ public:
   Buffer buffer() { return *buffer_; }
   ConstBuffer buffer() const { return *buffer_; }
   ConstBuffer const_buffer() const { return *buffer_; }
+
+  // erases the data in the Buffer by writing zeros (bytes containing '\0') to it
+  template <typename TQueue, typename = std::enable_if_t<alpaka::isQueue<TQueue>>>
+  void zeroInitialise(TQueue&& queue) {
+    alpaka::memset(std::forward<TQueue>(queue), *buffer_, 0x00);
+  }
 
 private:
   std::optional<Buffer> buffer_;

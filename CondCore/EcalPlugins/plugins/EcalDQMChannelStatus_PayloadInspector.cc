@@ -67,7 +67,7 @@ namespace {
             ebmap_coarse->Fill(phi, eta);
           }
         }  // loop over cellid
-      }    // if payload.get()
+      }  // if payload.get()
       else
         return false;
 
@@ -350,7 +350,7 @@ namespace {
               }
             }
           }  // loop over cellid
-        }    // if payload.get()
+        }  // if payload.get()
         else
           return false;
       }  // loop over IOV's
@@ -421,7 +421,7 @@ namespace {
       c1.SaveAs(ImageName.c_str());
       return true;
     }  // fill method
-  };   // class EcalDQMChannelStatusEBDiffBase
+  };  // class EcalDQMChannelStatusEBDiffBase
   using EcalDQMChannelStatusEBDiffOneTag = EcalDQMChannelStatusEBDiffBase<cond::payloadInspector::SINGLE_IOV, 1>;
   using EcalDQMChannelStatusEBDiffTwoTags = EcalDQMChannelStatusEBDiffBase<cond::payloadInspector::SINGLE_IOV, 2>;
 
@@ -499,11 +499,11 @@ namespace {
                         eecount++;
                         eemap_coarse->Fill(ix + IX_MAX - 1, iy - 1, tmp3);
                       }  // z side
-                    }    //  any difference ?
-                  }      //   2nd IOV, fill the plots
-                }        //    validDetId
-        }                //     get the payload
-      }                  //      loop over payloads
+                    }  //  any difference ?
+                  }  //   2nd IOV, fill the plots
+                }  //    validDetId
+        }  //     get the payload
+      }  //      loop over payloads
 
       gStyle->SetOptStat(0);
       //set the background color to white
@@ -593,7 +593,7 @@ namespace {
       c1.SaveAs(ImageName.c_str());
       return true;
     }  // fill method
-  };   // class EcalDQMChannelStatusEEDiffBase
+  };  // class EcalDQMChannelStatusEEDiffBase
   using EcalDQMChannelStatusEEDiffOneTag = EcalDQMChannelStatusEEDiffBase<cond::payloadInspector::SINGLE_IOV, 1>;
   using EcalDQMChannelStatusEEDiffTwoTags = EcalDQMChannelStatusEEDiffBase<cond::payloadInspector::SINGLE_IOV, 2>;
 

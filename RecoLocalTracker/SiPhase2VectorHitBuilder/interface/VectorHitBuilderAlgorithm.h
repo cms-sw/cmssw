@@ -20,7 +20,7 @@ public:
                             const TrackerGeometry* tkGeomProd,
                             const TrackerTopology* tkTopoProd,
                             const ClusterParameterEstimator<Phase2TrackerCluster1D>* cpeProd)
-      : VectorHitBuilderAlgorithmBase(conf, tkGeomProd, tkTopoProd, cpeProd){};
+      : VectorHitBuilderAlgorithmBase(conf, tkGeomProd, tkTopoProd, cpeProd) {}
   ~VectorHitBuilderAlgorithm() override = default;
 
   void run(edm::Handle<edmNew::DetSetVector<Phase2TrackerCluster1D>> clusters,

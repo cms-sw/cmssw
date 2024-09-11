@@ -32,7 +32,7 @@ public:
   virtual void getEventContent(const edm::EventBase&) = 0;
 
   //! Destructor
-  ~CutApplicatorWithEventContentBase() override{};
+  ~CutApplicatorWithEventContentBase() override {}
 
 protected:
 #if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)

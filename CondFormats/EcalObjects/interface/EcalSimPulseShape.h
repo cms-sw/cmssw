@@ -6,8 +6,8 @@
 
 class EcalSimPulseShape {
 public:
-  EcalSimPulseShape(){};
-  ~EcalSimPulseShape(){};
+  EcalSimPulseShape() {}
+  ~EcalSimPulseShape() {}
   void setTimeInterval(float x) { time_interval = x; };
   float getTimeInterval() { return time_interval; };
 

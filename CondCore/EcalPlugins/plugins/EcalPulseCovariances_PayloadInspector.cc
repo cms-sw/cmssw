@@ -124,9 +124,9 @@ namespace {
                   endc_m[s]->Fill(ix, iy, val);
               }
             }  // iy
-          }    // ix
-        }      // side
-      }        // payload
+          }  // ix
+        }  // side
+      }  // payload
       /*
       for(int s = 0; s < TEMPLATESAMPLES; ++s) {
 	std::cout << "EB sample " << s << " mean " << EBmean[s] << " rms " << EBrms[s] << " entries " << EBtot[s] 
@@ -260,9 +260,9 @@ namespace {
                 }
               }
             }  // iy
-          }    // ix
-        }      // side
-      }        // payload
+          }  // ix
+        }  // side
+      }  // payload
 
       TH2F* barrel_m =
           new TH2F("EBm", "EB mean", TEMPLATESAMPLES, 0, TEMPLATESAMPLES, TEMPLATESAMPLES, 0., TEMPLATESAMPLES);

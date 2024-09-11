@@ -21,9 +21,9 @@ class EcalTBHodoscopeGeometry;
 
 class EcalTBHodoscopeGeometryLoaderFromDDD {
 public:
-  EcalTBHodoscopeGeometryLoaderFromDDD(){};
+  EcalTBHodoscopeGeometryLoaderFromDDD() {}
 
-  virtual ~EcalTBHodoscopeGeometryLoaderFromDDD(){};
+  virtual ~EcalTBHodoscopeGeometryLoaderFromDDD() {}
 
   std::unique_ptr<CaloSubdetectorGeometry> load(const DDCompactView* cpv);
 

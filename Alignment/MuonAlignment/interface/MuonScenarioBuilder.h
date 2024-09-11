@@ -22,7 +22,7 @@ public:
   explicit MuonScenarioBuilder(Alignable* alignable);
 
   /// Destructor
-  ~MuonScenarioBuilder() override{};
+  ~MuonScenarioBuilder() override {}
 
   /// Apply misalignment scenario to the Muon
   void applyScenario(const edm::ParameterSet& scenario) override;

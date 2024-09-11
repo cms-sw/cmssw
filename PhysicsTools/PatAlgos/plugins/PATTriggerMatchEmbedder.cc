@@ -46,7 +46,7 @@ namespace pat {
 
   public:
     explicit PATTriggerMatchEmbedder(const edm::ParameterSet& iConfig);
-    ~PATTriggerMatchEmbedder() override{};
+    ~PATTriggerMatchEmbedder() override {}
 
   private:
     void produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const override;

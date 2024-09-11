@@ -152,8 +152,8 @@ void LaserBeamsBarrel::GeneratePrimaries(G4Event *myEvent) {
           theParticleGun->GeneratePrimaryVertex(myEvent);
         }
       }  // end looop over both beam directions
-    }    // end looop over particles in beam
-  }      // end loop over beams
+    }  // end looop over particles in beam
+  }  // end loop over beams
 }
 
 void LaserBeamsBarrel::setOptPhotonPolar(G4double Angle) {

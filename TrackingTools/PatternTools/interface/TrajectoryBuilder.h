@@ -20,7 +20,7 @@ public:
   typedef std::vector<Trajectory> TrajectoryContainer;
   typedef TrajectoryContainer::iterator TrajectoryIterator;
 
-  virtual ~TrajectoryBuilder(){};
+  virtual ~TrajectoryBuilder() {}
 
   virtual TrajectoryContainer trajectories(const TrajectorySeed&) const = 0;
 

@@ -18,8 +18,8 @@ class OpticalObject;
 
 class OpticalObjectMgr {
 public:
-  OpticalObjectMgr(){};
-  ~OpticalObjectMgr(){};
+  OpticalObjectMgr() {}
+  ~OpticalObjectMgr() {}
 
   /// Get the only instance
   static OpticalObjectMgr* getInstance();

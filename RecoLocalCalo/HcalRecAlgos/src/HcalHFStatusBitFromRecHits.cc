@@ -115,7 +115,7 @@ void HcalHFStatusBitFromRecHits::hfSetFlagFromRecHits(HFRecHitCollection& rec,
       else if (depth == 2 && ratio > short_HFlongshortratio_)
         status = 1;
       break;  // once partner channel found, break out of loop
-    }         // inner loop
+    }  // inner loop
 
     // Consider the case where only one depth present
     if (en2 ==

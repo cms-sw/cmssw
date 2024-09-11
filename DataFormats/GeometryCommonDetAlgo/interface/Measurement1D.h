@@ -12,15 +12,15 @@ class Measurement1D {
 public:
   // construct
 
-  Measurement1D() : theValue(0.), theError(0.){};
+  Measurement1D() : theValue(0.), theError(0.) {}
 
-  Measurement1D(const double& aValue) : theValue(aValue), theError(0.){};
+  Measurement1D(const double& aValue) : theValue(aValue), theError(0.) {}
 
-  Measurement1D(const double& aValue, const double& aError) : theValue(aValue), theError(aError){};
+  Measurement1D(const double& aValue, const double& aError) : theValue(aValue), theError(aError) {}
 
   //destruct
 
-  ~Measurement1D(){};
+  ~Measurement1D() {}
 
   double value() const { return theValue; }
 

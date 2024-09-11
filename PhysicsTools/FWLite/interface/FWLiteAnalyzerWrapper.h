@@ -103,7 +103,7 @@ namespace fwlite {
     /// default constructor
     AnalyzerWrapper(const edm::ParameterSet& cfg, std::string analyzerName, std::string directory = "");
     /// default destructor
-    virtual ~AnalyzerWrapper(){};
+    virtual ~AnalyzerWrapper() {}
     /// everything which has to be done before the event loop
     virtual void beginJob() { analyzer_->beginJob(); }
     /// everything which has to be done during the event loop. NOTE: the event will be looped inside this function

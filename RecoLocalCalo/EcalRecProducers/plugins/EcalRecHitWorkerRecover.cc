@@ -449,7 +449,7 @@ bool EcalRecHitWorkerRecover::run(const edm::Event& evt,
         insertRecHit(hit, result);
 
       }  // for
-    }    // if
+    }  // if
   }
   return true;
 }

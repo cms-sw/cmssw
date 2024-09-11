@@ -129,8 +129,8 @@ void SiPixelDigitizerAlgorithm::init(const edm::EventSetup& es) {
             allScenariosInProb.push_back(scenario);
           }
         }  // if prob!=0
-      }    // loop on the scenarios for that PU bin
-    }      // loop on PU bins
+      }  // loop on the scenarios for that PU bin
+    }  // loop on PU bins
 
     std::vector<std::string> notFound;
     std::copy_if(allScenariosInProb.begin(),
@@ -853,8 +853,8 @@ void SiPixelDigitizerAlgorithm::accumulateSimHits(std::vector<PSimHit>::const_it
                     tofBin,
                     pixdet,
                     collection_points);  // 1st 3 args needed only for SimHit<-->Digi link
-    }                                    //  end if
-  }                                      // end for
+    }  //  end if
+  }  // end for
 }
 
 //============================================================================
@@ -1551,7 +1551,7 @@ void SiPixelDigitizerAlgorithm::induce_signal(std::vector<PSimHit>::const_iterat
 #endif
 
       }  // endfor iy
-    }    //endfor ix
+    }  //endfor ix
 
   }  // loop over charge distributions
 
@@ -1787,7 +1787,7 @@ void SiPixelDigitizerAlgorithm::make_digis(float thePixelThresholdInE,
             }
           }
         }  // end for
-      }    // end if store_SimHitEntryExitPoints_
+      }  // end if store_SimHitEntryExitPoints_
     }
   }
 }
@@ -1938,8 +1938,8 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency(const PixelEfficiencies& eff,
           }
         }
       }  // loop over channels
-    }    // detID in PixelFEDChannelCollection_
-  }      // has PixelFEDChannelCollection_
+    }  // detID in PixelFEDChannelCollection_
+  }  // has PixelFEDChannelCollection_
 
   if (eff.FromConfig) {
     // setup the chip indices conversion
@@ -2007,7 +2007,7 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency(const PixelEfficiencies& eff,
       pixelEfficiency = 0.999;
       columnEfficiency = 0.999;
       chipEfficiency = 0.999;
-    }       // if barrel/forward
+    }  // if barrel/forward
   } else {  // Load precomputed factors from Database
     pixelEfficiency = eff.PixelGeomFactors.at(detID);
     columnEfficiency = eff.ColGeomFactors.at(detID) * eff.pu_scale[eff.iPU.at(detID)];
@@ -2108,15 +2108,15 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency(const PixelEfficiencies& eff,
         (pixelBig.count(chipIndex) && pixelBig[chipIndex] == 0)) {
       // make pixel amplitude =0, pixel will be lost at clusterization
       i->second.set(0.);  // reset amplitude,
-    }                     // end if
+    }  // end if
     if (isPhase1) {
       if ((pixelStd.count(chipIndex) && pixelStd[chipIndex] == 0) ||
           (pixelBig.count(chipIndex) && pixelBig[chipIndex] == 0) || (badRocsFromFEDChannels.at(chipIndex) == 1)) {
         //============================================================
         // make pixel amplitude =0, pixel will be lost at clusterization
         i->second.set(0.);  // reset amplitude,
-      }                     // end if
-    }                       // is Phase 1
+      }  // end if
+    }  // is Phase 1
     if (KillBadFEDChannels && badRocsFromFEDChannels.at(chipIndex) == 1) {
       i->second.set(0.);
     }
@@ -2359,8 +2359,8 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency_db(uint32_t detID) {
       LogDebug("Pixel Digitizer") << "now in isdead check, row " << detID << " " << col << "," << row << "\n";
       // make pixel amplitude =0, pixel will be lost at clusterization
       i->second.set(0.);  // reset amplitude,
-    }                     // end if
-  }                       // end pixel loop
+    }  // end if
+  }  // end pixel loop
 }  // end pixel_indefficiency
 
 //****************************************************************************************************

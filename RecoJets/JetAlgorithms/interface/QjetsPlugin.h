@@ -23,7 +23,7 @@ public:
         _exp_max(exp_max),
         _rigidity(rigidity),
         _truncation_fctr(truncation_fctr),
-        _rnEngine(nullptr){};
+        _rnEngine(nullptr) {}
   void SetRandSeed(unsigned int seed); /* In case you want reproducible behavior */
   void SetRNEngine(CLHEP::HepRandomEngine* rnEngine) { _rnEngine = rnEngine; };
   double R() const override;

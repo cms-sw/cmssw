@@ -100,7 +100,7 @@ namespace emtf {
         }  // end loop over tracks
 
       }  // end loop over sector
-    }    // end loop over endcap
+    }  // end loop over endcap
   }
 
 }  // namespace emtf

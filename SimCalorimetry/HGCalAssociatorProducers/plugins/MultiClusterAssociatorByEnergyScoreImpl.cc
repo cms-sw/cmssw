@@ -116,8 +116,8 @@ hgcal::association MultiClusterAssociatorByEnergyScoreImpl::makeConnections(
           }
         }
       }  // end of loop through simHits
-    }    // end of loop through simclusters
-  }      // end of loop through caloParticles
+    }  // end of loop through simclusters
+  }  // end of loop through caloParticles
 
 #ifdef EDM_ML_DEBUG
   LogDebug("MultiClusterAssociatorByEnergyScoreImpl") << "cPOnLayer INFO" << std::endl;
@@ -483,7 +483,7 @@ hgcal::association MultiClusterAssociatorByEnergyScoreImpl::makeConnections(
                                      << "\tcurrent score numerator:\t" << mcPair.second.second << "\n";
 #endif
         }  // End of loop over MultiClusters linked to hits of this CaloParticle
-      }    // End of loop over hits of CaloParticle on a Layer
+      }  // End of loop over hits of CaloParticle on a Layer
 #ifdef EDM_ML_DEBUG
       if (cPOnLayer[cpId][layerId].multiClusterIdToEnergyAndScore.empty())
         LogDebug("HGCalValidator") << "CP Id: \t" << cpId << "\t MCL id:\t-1 "

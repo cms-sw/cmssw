@@ -24,7 +24,7 @@
 class DTRPCBxCorrection {
 public:
   DTRPCBxCorrection(L1MuDTChambPhContainer, L1MuDTChambPhContainer);
-  ~DTRPCBxCorrection(){};
+  ~DTRPCBxCorrection() {}
 
   void run(const L1TTwinMuxParams&);
 

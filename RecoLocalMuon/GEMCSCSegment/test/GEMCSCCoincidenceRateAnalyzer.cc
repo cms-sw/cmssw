@@ -269,9 +269,9 @@ std::vector<const CSCSegment*> GEMCSCCoincidenceRateAnalyzer::findMuonSegments(
             break;
           }
         }  // MuonSegmentMatch
-      }    // checkCSCChamberType
-    }      // MuonChamberMatch
-  }        // MuonCollection
+      }  // checkCSCChamberType
+    }  // MuonChamberMatch
+  }  // MuonCollection
 
   return muon_segment_vec;
 }
@@ -324,8 +324,8 @@ bool GEMCSCCoincidenceRateAnalyzer::checkGEMChamberStatus(const GEMDetId& chambe
         // GEMOHStatus is bad. Mask this chamber.
         return has_error;
       }  // isBad
-    }    // range
-  }      // collection
+    }  // range
+  }  // collection
 
   for (auto iter = vfat_status_collection->begin(); iter != vfat_status_collection->end(); iter++) {
     const auto [vfat_id, range] = (*iter);
@@ -337,7 +337,7 @@ bool GEMCSCCoincidenceRateAnalyzer::checkGEMChamberStatus(const GEMDetId& chambe
         return has_error;
       }
     }  // range
-  }    // collection
+  }  // collection
 
   return not has_error;
 }

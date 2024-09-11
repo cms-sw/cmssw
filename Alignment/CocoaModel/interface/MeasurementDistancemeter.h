@@ -18,9 +18,9 @@
 class MeasurementDistancemeter : public Measurement {
 public:
   MeasurementDistancemeter(const ALIint measdim, ALIstring& type, ALIstring& name)
-      : Measurement(measdim, type, name), theFactor(1.), theFactorSigma(0.){};
-  MeasurementDistancemeter(){};
-  ~MeasurementDistancemeter() override{};
+      : Measurement(measdim, type, name), theFactor(1.), theFactorSigma(0.) {}
+  MeasurementDistancemeter() {}
+  ~MeasurementDistancemeter() override {}
 
   // Get simulated value (called every time a parameter is displaced)
   void calculateSimulatedValue(ALIbool firstTime) override;

@@ -250,7 +250,7 @@ std::shared_ptr<EcalIntercalibConstants> EcalTestDevDB::generateEcalIntercalibCo
       double r = (double)std::rand() / (double(RAND_MAX) + double(1));
       ical->setValue(ebid.rawId(), 0.85 + r * 0.3);
     }  // loop over phi
-  }    // loop over eta
+  }  // loop over eta
   return ical;
 }
 
@@ -337,7 +337,7 @@ std::shared_ptr<EcalGainRatios> EcalTestDevDB::generateEcalGainRatios() {
       gratio->setValue(ebid.rawId(), gr);
 
     }  // loop over phi
-  }    // loop over eta
+  }  // loop over eta
   return gratio;
 }
 

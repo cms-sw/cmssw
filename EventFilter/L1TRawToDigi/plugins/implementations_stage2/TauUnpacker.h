@@ -8,7 +8,7 @@ namespace l1t {
     class TauUnpacker : public Unpacker {
     public:
       TauUnpacker();
-      ~TauUnpacker() override{};
+      ~TauUnpacker() override {}
 
       bool unpack(const Block& block, UnpackerCollections* coll) override;
 

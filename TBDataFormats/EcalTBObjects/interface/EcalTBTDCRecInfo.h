@@ -11,10 +11,10 @@
 
 class EcalTBTDCRecInfo {
 public:
-  EcalTBTDCRecInfo(){};
-  EcalTBTDCRecInfo(const float& offset) : offset_(offset){};
+  EcalTBTDCRecInfo() {}
+  EcalTBTDCRecInfo(const float& offset) : offset_(offset) {}
 
-  ~EcalTBTDCRecInfo(){};
+  ~EcalTBTDCRecInfo() {}
 
   float offset() const { return offset_; }
 

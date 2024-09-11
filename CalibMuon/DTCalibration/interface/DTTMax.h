@@ -83,7 +83,7 @@ public:
   InfoLayer*& getInfoLayer(int layer) { return theInfoLayers[layer - 1]; }
 
 private:
-  DTTMax(){};  // Hide default constructor
+  DTTMax() {}  // Hide default constructor
 
   //debug flag
   bool debug;

@@ -122,7 +122,7 @@ float ECFAdder::getECF(unsigned index, const edm::Ptr<reco::Jet>& object) const 
           }
         }
       }  // end if basic jet
-    }    // end if daughter pointer is nonnull and available
+    }  // end if daughter pointer is nonnull and available
     else
       edm::LogWarning("MissingJetConstituent") << "Jet constituent required for ECF computation is missing!";
   }

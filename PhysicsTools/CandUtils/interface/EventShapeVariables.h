@@ -40,7 +40,7 @@ public:
   /// constructor from r theta phi coordinates
   explicit EventShapeVariables(const std::vector<math::RThetaPhiVector>& inputVectors);
   /// default destructor
-  ~EventShapeVariables(){};
+  ~EventShapeVariables() {}
 
   /// the return value is 1 for spherical events and 0 for events linear in r-phi. This function
   /// needs the number of steps to determine how fine the granularity of the algorithm in phi

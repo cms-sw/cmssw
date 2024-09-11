@@ -200,7 +200,7 @@ namespace {
 
   class FunctionFinder : public ExpressionElementFinderBase {
   public:
-    FunctionFinder(ExpressionFinder const* iEF) : m_expressionFinder(iEF){};
+    FunctionFinder(ExpressionFinder const* iEF) : m_expressionFinder(iEF) {}
 
     bool checkStart(char iSymbol) const final { return std::isalpha(iSymbol); }
 

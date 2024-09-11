@@ -54,7 +54,7 @@ public:
     return vlp;
   }
 
-  MTDClusterParameterEstimator(){};
+  MTDClusterParameterEstimator() {}
 };
 
 #endif

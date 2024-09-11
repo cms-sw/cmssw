@@ -83,7 +83,7 @@ void BlockFormatter::DigiToRaw(FEDRawDataCollection* productRawData) {
       }
 
     }  // endif rawdatasize == 0
-  }    // loop on id
+  }  // loop on id
 }
 
 void BlockFormatter::print(FEDRawData& rawdata) {

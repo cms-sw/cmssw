@@ -182,8 +182,8 @@ void TTStubAssociator<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, const
                 /// At this point, go to the next Stub
                 continue;
               }  /// End of one single SimTrack in both clusters
-            }    /// End of "at least one cluster is combinatoric"
-          }      /// End of "both clusters are known, somehow..."
+            }  /// End of "at least one cluster is combinatoric"
+          }  /// End of "both clusters are known, somehow..."
         }
       }  /// End of loop over Stubs
     }

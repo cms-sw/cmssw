@@ -26,7 +26,7 @@ class MuonOffsetMap;
 class MuonG4Numbering {
 public:
   MuonG4Numbering(const MuonGeometryConstants& muonConstants, const MuonOffsetMap* offMap, bool dd4hep);
-  ~MuonG4Numbering(){};
+  ~MuonG4Numbering() {}
 
   MuonBaseNumber PhysicalVolumeToBaseNumber(const G4Step* aStep);
 

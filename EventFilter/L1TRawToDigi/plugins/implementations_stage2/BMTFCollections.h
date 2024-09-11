@@ -16,7 +16,7 @@ namespace l1t {
             outputMuons_(new RegionalMuonCandBxCollection()),
             outputMuons2_(new RegionalMuonCandBxCollection()),
             inputMuonsPh_(new L1MuDTChambPhContainer),
-            inputMuonsTh_(new L1MuDTChambThContainer){};
+            inputMuonsTh_(new L1MuDTChambThContainer) {}
 
       ~BMTFCollections() override;
 

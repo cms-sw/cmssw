@@ -221,7 +221,7 @@ void AlignmentMonitorMuonVsCurvature::event(const edm::Event &iEvent,
             builder, magneticField, globalGeometry, muonDetIdAssociator_, prop, traj, track, pNavigator(), 1000.);
         processMuonResidualsFromTrack(muonResidualsFromTrack, traj);
       }  // end if track pT is within range
-    }    // end loop over tracks
+    }  // end loop over tracks
   } else {
     const edm::Handle<reco::MuonCollection> &muons = iEvent.getHandle(muonToken_);
 
@@ -287,7 +287,7 @@ void AlignmentMonitorMuonVsCurvature::processMuonResidualsFromTrack(MuonResidual
           tprofile_wheel_st_sector[wheel][station][sector][kDeltaDxDz]->Fill(qoverpt, resid_dxdz);
         }
       }  // if it's a good segment
-    }    // if DT
+    }  // if DT
 
     if (m_doCSC && chamberId->subdetId() == MuonSubdetId::CSC) {
       CSCDetId cscid(chamberId->rawId());
@@ -310,7 +310,7 @@ void AlignmentMonitorMuonVsCurvature::processMuonResidualsFromTrack(MuonResidual
           tprofile_st_ring_chamber[station][ring][chamber][kDeltaDxDz]->Fill(qoverpz, resid_dxdz);
         }
       }  // if it's a good segment
-    }    // if CSC
+    }  // if CSC
 
   }  // end loop over chamberIds
 }

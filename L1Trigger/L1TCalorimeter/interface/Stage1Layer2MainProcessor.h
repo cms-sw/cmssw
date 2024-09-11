@@ -40,7 +40,7 @@ namespace l1t {
                               CaloSpare *hfSums,
                               CaloSpare *hfCounts) = 0;
 
-    virtual ~Stage1Layer2MainProcessor(){};
+    virtual ~Stage1Layer2MainProcessor() {}
   };
 
 }  // namespace l1t

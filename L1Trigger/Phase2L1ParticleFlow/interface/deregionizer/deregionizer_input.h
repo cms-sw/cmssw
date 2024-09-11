@@ -49,7 +49,7 @@ namespace l1ct {
     // note: this one will work only in CMSSW
     DeregionizerInput(const std::vector<edm::ParameterSet> linkConfigs);
 
-    ~DeregionizerInput(){};
+    ~DeregionizerInput() {}
 
     std::vector<std::pair<l1ct::PuppiObjEmu, LPI>> inputOrderInfo(
         const std::vector<l1ct::OutputRegion> &inputRegions) const;

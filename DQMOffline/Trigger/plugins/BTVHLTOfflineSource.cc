@@ -84,6 +84,9 @@ private:
   float turnon_threshold_loose_;
   float turnon_threshold_medium_;
   float turnon_threshold_tight_;
+  float turnon_threshold_offline_loose_;
+  float turnon_threshold_offline_medium_;
+  float turnon_threshold_offline_tight_;
 
   edm::EDGetTokenT<reco::JetTagCollection> offlineDiscrTokenb_;
   edm::EDGetTokenT<edm::View<reco::BaseTagInfo>> offlineIPToken_;
@@ -227,7 +230,7 @@ private:
 
   class PathInfoCollection : public std::vector<PathInfo> {
   public:
-    PathInfoCollection() : std::vector<PathInfo>(){};
+    PathInfoCollection() : std::vector<PathInfo>() {};
     std::vector<PathInfo>::iterator find(const std::string& pathName) { return std::find(begin(), end(), pathName); }
   };
 
@@ -248,6 +251,9 @@ BTVHLTOfflineSource::BTVHLTOfflineSource(const edm::ParameterSet& iConfig)
       turnon_threshold_loose_(iConfig.getParameter<double>("turnon_threshold_loose")),
       turnon_threshold_medium_(iConfig.getParameter<double>("turnon_threshold_medium")),
       turnon_threshold_tight_(iConfig.getParameter<double>("turnon_threshold_tight")),
+      turnon_threshold_offline_loose_(iConfig.getParameter<double>("turnon_threshold_offline_loose")),
+      turnon_threshold_offline_medium_(iConfig.getParameter<double>("turnon_threshold_offline_medium")),
+      turnon_threshold_offline_tight_(iConfig.getParameter<double>("turnon_threshold_offline_tight")),
       offlineDiscrTokenb_(consumes<reco::JetTagCollection>(iConfig.getParameter<edm::InputTag>("offlineDiscrLabelb"))),
       offlineIPToken_(consumes<View<BaseTagInfo>>(iConfig.getParameter<edm::InputTag>("offlineIPLabel"))),
 
@@ -354,7 +360,7 @@ void BTVHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetu
 
     iEvent.getByToken(SVTagInfosTokenPf_, jetSVTagsCollPF);
 
-    // PF and Calo btagging
+    // PF btagging
     if (v.getTriggerType() == "PF" && pfTags.isValid()) {
       const auto& iter = pfTags->begin();
 
@@ -384,35 +390,42 @@ void BTVHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetu
             v.Discr_turnon_medium.denominator->Fill(Discr_offline);
             v.Discr_turnon_tight.denominator->Fill(Discr_offline);
 
-            v.Pt_turnon_loose.denominator->Fill(Pt_offline);
-            v.Pt_turnon_medium.denominator->Fill(Pt_offline);
-            v.Pt_turnon_tight.denominator->Fill(Pt_offline);
-
-            v.Eta_turnon_loose.denominator->Fill(Eta_offline);
-            v.Eta_turnon_medium.denominator->Fill(Eta_offline);
-            v.Eta_turnon_tight.denominator->Fill(Eta_offline);
-
-            v.Phi_turnon_loose.denominator->Fill(Phi_offline);
-            v.Phi_turnon_medium.denominator->Fill(Phi_offline);
-            v.Phi_turnon_tight.denominator->Fill(Phi_offline);
-
-            if (Discr_online > turnon_threshold_loose_) {
+            if (Discr_online > turnon_threshold_loose_)
               v.Discr_turnon_loose.numerator->Fill(Discr_offline);
-              v.Pt_turnon_loose.numerator->Fill(Pt_offline);
-              v.Eta_turnon_loose.numerator->Fill(Eta_offline);
-              v.Phi_turnon_loose.numerator->Fill(Phi_offline);
-            }
-            if (Discr_online > turnon_threshold_medium_) {
+            if (Discr_online > turnon_threshold_medium_)
               v.Discr_turnon_medium.numerator->Fill(Discr_offline);
-              v.Pt_turnon_medium.numerator->Fill(Pt_offline);
-              v.Eta_turnon_medium.numerator->Fill(Eta_offline);
-              v.Phi_turnon_medium.numerator->Fill(Phi_offline);
-            }
-            if (Discr_online > turnon_threshold_tight_) {
+            if (Discr_online > turnon_threshold_tight_)
               v.Discr_turnon_tight.numerator->Fill(Discr_offline);
-              v.Pt_turnon_tight.numerator->Fill(Pt_offline);
-              v.Eta_turnon_tight.numerator->Fill(Eta_offline);
-              v.Phi_turnon_tight.numerator->Fill(Phi_offline);
+
+            if (Discr_offline > turnon_threshold_offline_loose_) {
+              v.Pt_turnon_loose.denominator->Fill(Pt_offline);
+              v.Eta_turnon_loose.denominator->Fill(Eta_offline);
+              v.Phi_turnon_loose.denominator->Fill(Phi_offline);
+              if (Discr_online > turnon_threshold_loose_) {
+                v.Pt_turnon_loose.numerator->Fill(Pt_offline);
+                v.Eta_turnon_loose.numerator->Fill(Eta_offline);
+                v.Phi_turnon_loose.numerator->Fill(Phi_offline);
+              }
+            }
+            if (Discr_offline > turnon_threshold_offline_medium_) {
+              v.Pt_turnon_medium.denominator->Fill(Pt_offline);
+              v.Eta_turnon_medium.denominator->Fill(Eta_offline);
+              v.Phi_turnon_medium.denominator->Fill(Phi_offline);
+              if (Discr_online > turnon_threshold_medium_) {
+                v.Pt_turnon_medium.numerator->Fill(Pt_offline);
+                v.Eta_turnon_medium.numerator->Fill(Eta_offline);
+                v.Phi_turnon_medium.numerator->Fill(Phi_offline);
+              }
+            }
+            if (Discr_offline > turnon_threshold_offline_tight_) {
+              v.Pt_turnon_tight.denominator->Fill(Pt_offline);
+              v.Eta_turnon_tight.denominator->Fill(Eta_offline);
+              v.Phi_turnon_tight.denominator->Fill(Phi_offline);
+              if (Discr_online > turnon_threshold_tight_) {
+                v.Pt_turnon_tight.numerator->Fill(Pt_offline);
+                v.Eta_turnon_tight.numerator->Fill(Eta_offline);
+                v.Phi_turnon_tight.numerator->Fill(Phi_offline);
+              }
             }
 
             break;

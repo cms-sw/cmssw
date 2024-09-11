@@ -66,7 +66,7 @@ private:
   void beginJob() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void beginRun(edm::Run const&, edm::EventSetup const&) override;
-  void endRun(edm::Run const&, edm::EventSetup const&) override{};
+  void endRun(edm::Run const&, edm::EventSetup const&) override {}
   std::map<uint32_t, TH2F*> bookModuleHistograms(const TrackerTopology* tTopo);
   std::tuple<std::string, int, int, int> setTopoInfo(uint32_t detId, const TrackerTopology* tTopo);
   void endJob() override;

@@ -35,7 +35,7 @@ private:
   template <class Archive>
   inline void serialize(Archive& ar, unsigned /* version */) {
     boost::serialization::base_object<AbsHcalFunctor>(*this);
-    ar& value_;
+    ar & value_;
   }
 };
 

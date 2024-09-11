@@ -40,7 +40,7 @@ public:
                                const std::vector<bool> &selection);
 
   /// Destructor
-  ~RigidBodyAlignmentParameters() override{};
+  ~RigidBodyAlignmentParameters() override {}
   void apply() override;
   int type() const override;
 

@@ -20,8 +20,8 @@ namespace reco {
 namespace ticl {
   class ClusterFilterBase {
   public:
-    explicit ClusterFilterBase(const edm::ParameterSet&){};
-    virtual ~ClusterFilterBase(){};
+    explicit ClusterFilterBase(const edm::ParameterSet&) {}
+    virtual ~ClusterFilterBase() {}
 
     virtual void filter(const std::vector<reco::CaloCluster>& layerClusters,
                         std::vector<float>& layerClustersMask,

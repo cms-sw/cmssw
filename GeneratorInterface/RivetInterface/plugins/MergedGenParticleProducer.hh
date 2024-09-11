@@ -11,7 +11,7 @@
 class MergedGenParticleProducer : public edm::stream::EDProducer<> {
 public:
   MergedGenParticleProducer(const edm::ParameterSet& pset);
-  ~MergedGenParticleProducer() override{};
+  ~MergedGenParticleProducer() override {}
 
 private:
   void produce(edm::Event& event, const edm::EventSetup&) override;

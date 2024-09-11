@@ -125,8 +125,7 @@ namespace cms {
   // Virtual destructor needed.
   CkfTrackCandidateMakerBase::~CkfTrackCandidateMakerBase() noexcept(false) {}
 
-  void CkfTrackCandidateMakerBase::beginRunBase(edm::Run const& r, EventSetup const& es) { /* no op*/
-  }
+  void CkfTrackCandidateMakerBase::beginRunBase(edm::Run const& r, EventSetup const& es) { /* no op*/ }
 
   void CkfTrackCandidateMakerBase::setEventSetup(const edm::EventSetup& es) {
     //services

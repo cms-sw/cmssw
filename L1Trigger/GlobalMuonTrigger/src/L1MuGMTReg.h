@@ -44,10 +44,10 @@
 class L1MuGMTReg {
 public:
   /// default constructor
-  L1MuGMTReg(int ninst = 2) : m_value(ninst, 0){};
+  L1MuGMTReg(int ninst = 2) : m_value(ninst, 0) {}
 
   /// destructor
-  virtual ~L1MuGMTReg(){};
+  virtual ~L1MuGMTReg() {}
 
   /// get Value
   unsigned getValue(int idx) { return m_value[idx]; };
@@ -80,7 +80,7 @@ public:
   };
 
   //// destructor
-  ~L1MuGMTRegMMConfig() override{};
+  ~L1MuGMTRegMMConfig() override {}
 
   //// get Name
   std::string getName() override { return "MMConfig_" + m_param; };
@@ -147,7 +147,7 @@ protected:
 
 class L1MuGMTRegMMConfigPhi : public L1MuGMTRegMMConfig {
 public:
-  L1MuGMTRegMMConfigPhi() : L1MuGMTRegMMConfig("Phi", L1MuGMTRegMMConfig::takeDTCSC, L1MuGMTRegMMConfig::takeDTCSC){};
+  L1MuGMTRegMMConfigPhi() : L1MuGMTRegMMConfig("Phi", L1MuGMTRegMMConfig::takeDTCSC, L1MuGMTRegMMConfig::takeDTCSC) {}
 };
 
 //
@@ -157,7 +157,7 @@ public:
 
 class L1MuGMTRegMMConfigEta : public L1MuGMTRegMMConfig {
 public:
-  L1MuGMTRegMMConfigEta() : L1MuGMTRegMMConfig("Eta", L1MuGMTRegMMConfig::Special, L1MuGMTRegMMConfig::Special){};
+  L1MuGMTRegMMConfigEta() : L1MuGMTRegMMConfig("Eta", L1MuGMTRegMMConfig::Special, L1MuGMTRegMMConfig::Special) {}
 };
 
 //
@@ -167,7 +167,7 @@ public:
 
 class L1MuGMTRegMMConfigPt : public L1MuGMTRegMMConfig {
 public:
-  L1MuGMTRegMMConfigPt() : L1MuGMTRegMMConfig("Pt", L1MuGMTRegMMConfig::byMinPt, L1MuGMTRegMMConfig::byMinPt){};
+  L1MuGMTRegMMConfigPt() : L1MuGMTRegMMConfig("Pt", L1MuGMTRegMMConfig::byMinPt, L1MuGMTRegMMConfig::byMinPt) {}
 };
 
 //
@@ -178,7 +178,7 @@ public:
 class L1MuGMTRegMMConfigCharge : public L1MuGMTRegMMConfig {
 public:
   L1MuGMTRegMMConfigCharge()
-      : L1MuGMTRegMMConfig("Charge", L1MuGMTRegMMConfig::takeDTCSC, L1MuGMTRegMMConfig::takeDTCSC){};
+      : L1MuGMTRegMMConfig("Charge", L1MuGMTRegMMConfig::takeDTCSC, L1MuGMTRegMMConfig::takeDTCSC) {}
 };
 
 //
@@ -219,7 +219,7 @@ public:
   };
 
   //// destructor
-  ~L1MuGMTRegMMConfigMIPISO() override{};
+  ~L1MuGMTRegMMConfigMIPISO() override {}
 };
 
 //
@@ -230,7 +230,7 @@ public:
 class L1MuGMTRegMMConfigMIP : public L1MuGMTRegMMConfigMIPISO {
 public:
   L1MuGMTRegMMConfigMIP()
-      : L1MuGMTRegMMConfigMIPISO("MIP", L1MuGMTRegMMConfig::Special, L1MuGMTRegMMConfig::Special, false, false){};
+      : L1MuGMTRegMMConfigMIPISO("MIP", L1MuGMTRegMMConfig::Special, L1MuGMTRegMMConfig::Special, false, false) {}
 };
 
 //
@@ -241,7 +241,7 @@ public:
 class L1MuGMTRegMMConfigISO : public L1MuGMTRegMMConfigMIPISO {
 public:
   L1MuGMTRegMMConfigISO()
-      : L1MuGMTRegMMConfigMIPISO("ISO", L1MuGMTRegMMConfig::Special, L1MuGMTRegMMConfig::Special, true, true){};
+      : L1MuGMTRegMMConfigMIPISO("ISO", L1MuGMTRegMMConfig::Special, L1MuGMTRegMMConfig::Special, true, true) {}
 };
 
 //
@@ -274,7 +274,7 @@ public:
   };
 
   //// destructor
-  ~L1MuGMTRegMMConfigSRK() override{};
+  ~L1MuGMTRegMMConfigSRK() override {}
 };
 
 //
@@ -300,7 +300,7 @@ public:
   std::string getName() override { return "SortRankOffset"; };
 
   //// destructor
-  ~L1MuGMTRegSortRankOffset() override{};
+  ~L1MuGMTRegSortRankOffset() override {}
 };
 
 //
@@ -315,7 +315,7 @@ public:
   L1MuGMTRegCDLConfig() : L1MuGMTReg(4) { setCDLConfig(); };
 
   //// destructor
-  ~L1MuGMTRegCDLConfig() override{};
+  ~L1MuGMTRegCDLConfig() override {}
 
   //// get Name
   std::string getName() override { return std::string("CDLConfig"); };

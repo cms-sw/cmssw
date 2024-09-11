@@ -320,8 +320,8 @@ void GEMEffByGEMCSCSegmentSource::findMatchedME11Segments(const reco::MuonCollec
         }
         matched_me11_segment_vector_.push_back(segment_match.cscSegmentRef.get());
       }  // MuonSegmentMatch
-    }    // MuonChamberMatch
-  }      // MuonCollection
+    }  // MuonChamberMatch
+  }  // MuonCollection
 }
 
 // TODO

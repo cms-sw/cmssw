@@ -171,6 +171,6 @@ void EleHLTFilterMon::fill(const OffEvt& evt, float weight) {
           }
         }
       }  //end inner ele loop
-    }    //end outer ele loop
-  }      //end check if filter is present
+    }  //end outer ele loop
+  }  //end check if filter is present
 }

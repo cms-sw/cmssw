@@ -173,9 +173,9 @@ double EgammaRecHitIsolation::getSum_(const reco::Candidate* emObject,
           }
 
         }  //End if not end of list
-      }    //End loop over rechits
-    }      //End loop over barrel/endcap
-  }        //End if caloHits_
+      }  //End loop over rechits
+    }  //End loop over barrel/endcap
+  }  //End if caloHits_
 
   return energySum;
 }
@@ -285,9 +285,9 @@ double EgammaRecHitIsolation::getSum_(const reco::SuperCluster* sc,
           }
 
         }  //End if not end of list
-      }    //End loop over rechits
-    }      //End loop over barrel/endcap
-  }        //End if caloHits_
+      }  //End loop over rechits
+    }  //End loop over barrel/endcap
+  }  //End if caloHits_
 
   return energySum;
 }

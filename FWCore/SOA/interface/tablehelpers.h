@@ -42,7 +42,7 @@ namespace edm {
       };
 
     }  // namespace impl
-  }    // namespace soa
+  }  // namespace soa
 }  // namespace edm
 
 #endif

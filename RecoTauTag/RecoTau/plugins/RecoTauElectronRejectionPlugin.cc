@@ -181,10 +181,10 @@ namespace reco {
                   }
                 }
               }  //end elements in blocks
-            }    //end loop over PFcands
-          }      //end RECO case
-        }        // end check for null electrk
-      }          // end check for null pfChargedHadrCand
+            }  //end loop over PFcands
+          }  //end RECO case
+        }  // end check for null electrk
+      }  // end check for null pfChargedHadrCand
 
       if ((myHCALenergy + myECALenergy) > 0.)
         myEmfrac = myECALenergy / (myHCALenergy + myECALenergy);

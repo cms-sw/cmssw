@@ -66,14 +66,18 @@ private:
         // SingleTrackVertexConstraint uses the width for the constraint,
         // not the error)
         if ((BeamWidthXError / BeamWidthX < 0.3) && (BeamWidthYError / BeamWidthY < 0.3)) {
-          SingleTrackVertexConstraint::BTFtuple btft =
-              stvc.constrain(ttkb->build(muon.muonBestTrack()), *beamSpotHandle);
-          if (std::get<0>(btft)) {
-            const reco::Track& trkBS = std::get<1>(btft).track();
-            pts.push_back(trkBS.pt());
-            ptErrs.push_back(trkBS.ptError());
-            chi2s.push_back(std::get<2>(btft));
-            tbd = false;
+          try {
+            SingleTrackVertexConstraint::BTFtuple btft =
+                stvc.constrain(ttkb->build(muon.muonBestTrack()), *beamSpotHandle);
+            if (std::get<0>(btft)) {
+              const reco::Track& trkBS = std::get<1>(btft).track();
+              pts.push_back(trkBS.pt());
+              ptErrs.push_back(trkBS.ptError());
+              chi2s.push_back(std::get<2>(btft));
+              tbd = false;
+            }
+          } catch (const VertexException& exc) {
+            // Update failed; give up.
           }
         }
       }

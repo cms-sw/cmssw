@@ -23,7 +23,7 @@ namespace l1t {
           first_strip_(-99),
           cluster_size_(-99),
           phi_glob_(-99),
-          theta_glob_(-99){};
+          theta_glob_(-99) {}
 
     explicit CPPFDigi(const RPCDetId& rpcId0,
                       int bx0,
@@ -39,7 +39,7 @@ namespace l1t {
                       float phi_glob0,
                       float theta_glob0);
 
-    virtual ~CPPFDigi(){};
+    virtual ~CPPFDigi() {}
 
     virtual CPPFDigi* clone() const;
 

@@ -45,7 +45,7 @@ public:
   DTRefitAndCombineReco4D(const edm::ParameterSet &pset, edm::ConsumesCollector cc);
 
   /// Destructor
-  ~DTRefitAndCombineReco4D() override{};
+  ~DTRefitAndCombineReco4D() override {}
 
   /// Operations
   edm::OwnVector<DTRecSegment4D> reconstruct() override;
@@ -54,7 +54,7 @@ public:
 
   void setES(const edm::EventSetup &setup) override;
 
-  void setDTRecHit1DContainer(edm::Handle<DTRecHitCollection> all1DHits) override{};
+  void setDTRecHit1DContainer(edm::Handle<DTRecHitCollection> all1DHits) override {}
   void setDTRecSegment2DContainer(edm::Handle<DTRecSegment2DCollection> all2DSegments) override;
   void setChamber(const DTChamberId &chId) override;
   bool wants2DSegments() override { return true; }

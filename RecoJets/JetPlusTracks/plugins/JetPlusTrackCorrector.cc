@@ -963,7 +963,7 @@ JetPlusTrackCorrector::P4 JetPlusTrackCorrector::calculateCorr(const P4& jet,
         }
         if (is_pion) {
           outer *= response_.value(ieta, ipt);
-        }                     //@@ Scale by pion response
+        }  //@@ Scale by pion response
         correction -= outer;  //@@ Subtract
 
         // Calculate the sum of responses
@@ -994,7 +994,7 @@ JetPlusTrackCorrector::P4 JetPlusTrackCorrector::calculateCorr(const P4& jet,
       }
 
     }  // loop through tracks
-  }    // ntracks != 0
+  }  // ntracks != 0
 
   if (in_cone_at_vertex) {
     theResponseOfChargedWithEff += theSumResp;

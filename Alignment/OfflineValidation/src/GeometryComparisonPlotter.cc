@@ -742,7 +742,7 @@ void GeometryComparisonPlotter::MakePlots(
         // printing will be performed after customisation (e.g. legend or title) just after the loops on ix and iy
       }
     }  // end of loop on y
-  }    // end of loop on x
+  }  // end of loop on x
 
   // CUSTOMISATION
   gStyle->SetOptTitle(0);  // otherwise, the title is repeated in every pad of the global canvases
@@ -1066,7 +1066,7 @@ void GeometryComparisonPlotter::MakePlots(
         }
 
       }  // end of loop on y
-    }    // end of loop on x
+    }  // end of loop on x
 
     // CUSTOMISATION
     gStyle->SetOptTitle(0);  // otherwise, the title is repeated in every pad of the global canvases

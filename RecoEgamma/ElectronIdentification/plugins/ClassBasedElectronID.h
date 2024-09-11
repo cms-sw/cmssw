@@ -5,9 +5,9 @@
 
 class ClassBasedElectronID : public ElectronIDAlgo {
 public:
-  ClassBasedElectronID(){};
+  ClassBasedElectronID() {}
 
-  ~ClassBasedElectronID() override{};
+  ~ClassBasedElectronID() override {}
 
   void setup(const edm::ParameterSet& conf) override;
   double result(const reco::GsfElectron*, const edm::Event&, const edm::EventSetup&) override;

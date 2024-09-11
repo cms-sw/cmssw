@@ -53,8 +53,7 @@ public:
   static auto begin() { return StoreT::instance().begin(); }
 
   DDBase() : prep_(nullptr) {}
-  virtual ~DDBase() { /*never do this here: if (prep_) delete prep_;*/
-  }
+  virtual ~DDBase() { /*never do this here: if (prep_) delete prep_;*/ }
 
   const N& name() const { return prep_->name(); }
 

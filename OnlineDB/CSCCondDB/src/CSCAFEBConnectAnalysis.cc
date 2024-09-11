@@ -175,8 +175,8 @@ void CSCAFEBConnectAnalysis::analyze(const CSCWireDigiCollection& wirecltn) {
             wireplane[iwire - 1] = 1;
 
           }  // end if wireplane[iwire-1]==0
-        }    // end if iwire<=csctoafeb.getMaxWire(id.station(),id.ring()
-      }      // end of for digis in layer
+        }  // end if iwire<=csctoafeb.getMaxWire(id.station(),id.ring()
+      }  // end of for digis in layer
 
       if (m_wire_ev.count(idlayer) == 0)
         m_wire_ev[idlayer] = wireplane;
@@ -217,7 +217,7 @@ void CSCAFEBConnectAnalysis::analyze(const CSCWireDigiCollection& wirecltn) {
           vvfIt->second[i][3] = vvfIt->second[i][3] + (*viIt).second[i];
       }
     }  // end of adding hits to the maps
-  }    // end of   if(wirecltn.begin() !=  wirecltn.end())
+  }  // end of   if(wirecltn.begin() !=  wirecltn.end())
 }  // end of void CSCAFEBConnectAnalysis
 
 void CSCAFEBConnectAnalysis::done() {

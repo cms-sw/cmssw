@@ -10,8 +10,8 @@
 
 class TotemVDetectorOrganization {
 public:
-  TotemVDetectorOrganization(){};
-  virtual ~TotemVDetectorOrganization(){};
+  TotemVDetectorOrganization() {}
+  virtual ~TotemVDetectorOrganization() {}
   virtual uint32_t getUnitID(const G4Step* aStep) const = 0;
 };
 

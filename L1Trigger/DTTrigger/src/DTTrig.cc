@@ -242,9 +242,7 @@ void DTTrig::clear() {
   _cache1.clear();
 }
 
-DTSCTrigUnit* DTTrig::trigUnit(DTChamberId chid) { /*check();*/
-  return const_cast<DTSCTrigUnit*>(constTrigUnit(chid));
-}
+DTSCTrigUnit* DTTrig::trigUnit(DTChamberId chid) { /*check();*/ return const_cast<DTSCTrigUnit*>(constTrigUnit(chid)); }
 
 DTSCTrigUnit const* DTTrig::constTrigUnit(DTChamberId chid) const {
   //    std::cout << " SC: running DTTrig::constTrigUnit(DTChamberId chid)" << std::endl;

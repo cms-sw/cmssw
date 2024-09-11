@@ -138,8 +138,8 @@ RPCTriggerConfig::ReturnType RPCTriggerConfig::produce(const L1RPCConfigRcd& iRe
                                      << std::endl;
 
       }  // segments
-    }    // sectors
-  }      // towers
+    }  // sectors
+  }  // towers
 
   return pL1RPCConfig;
 }

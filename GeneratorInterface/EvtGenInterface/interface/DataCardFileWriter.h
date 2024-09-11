@@ -20,9 +20,9 @@ namespace gen {
   class DataCardFileWriter : public edm::stream::EDAnalyzer<> {
   public:
     DataCardFileWriter(const edm::ParameterSet&);
-    ~DataCardFileWriter() override{};
+    ~DataCardFileWriter() override {}
 
-    void analyze(const edm::Event&, const edm::EventSetup&) override{};
+    void analyze(const edm::Event&, const edm::EventSetup&) override {}
   };
 
 };  // namespace gen

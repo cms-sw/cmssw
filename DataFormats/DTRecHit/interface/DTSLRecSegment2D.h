@@ -15,7 +15,7 @@
 class DTSLRecSegment2D : public DTRecSegment2D {
 public:
   /// Constructor
-  DTSLRecSegment2D(){};
+  DTSLRecSegment2D() {}
 
   /// c'tor from hits
   DTSLRecSegment2D(const DTSuperLayerId id, const std::vector<DTRecHit1D> &hits);
@@ -29,7 +29,7 @@ public:
                    std::vector<DTRecHit1D> &hits1D);
 
   /// Destructor
-  ~DTSLRecSegment2D() override{};
+  ~DTSLRecSegment2D() override {}
 
   // Operations
 

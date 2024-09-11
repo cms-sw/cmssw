@@ -356,7 +356,7 @@ void tutorial() {
         vecF.back()->setCriteria(ddval, cop[cs]);
 
       }  //<- moreFilterCriteria
-    }    //<- morFilters
+    }  //<- morFilters
 
     std::string ans;
     ans = "";

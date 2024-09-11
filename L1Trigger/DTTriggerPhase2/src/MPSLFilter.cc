@@ -56,7 +56,7 @@ void MPSLFilter::run(edm::Event &iEvent,
   }
 }
 
-void MPSLFilter::finish(){};
+void MPSLFilter::finish() {}
 
 ///////////////////////////
 ///  OTHER METHODS

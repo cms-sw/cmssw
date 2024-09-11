@@ -4,7 +4,7 @@
 namespace L1Analysis {
   struct L1AnalysisCaloSummaryDataFormat {
     L1AnalysisCaloSummaryDataFormat() { Reset(); }
-    ~L1AnalysisCaloSummaryDataFormat(){};
+    ~L1AnalysisCaloSummaryDataFormat() {}
 
     void Reset() {
       CICADAScore = 0;

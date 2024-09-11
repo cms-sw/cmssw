@@ -22,7 +22,7 @@ namespace fwlite {
     OutputFiles() { throw cms::Exception("InvalidInput") << "Must specify a string fileName" << std::endl; }
     /// default constructor from parameter set
     OutputFiles(const edm::ParameterSet& cfg)
-        : file_(cfg.getParameterSet("fwliteOutput").getParameter<std::string>("fileName")){};
+        : file_(cfg.getParameterSet("fwliteOutput").getParameter<std::string>("fileName")) {}
     /// return output fuke name
     std::string const& file() const { return file_; }
 

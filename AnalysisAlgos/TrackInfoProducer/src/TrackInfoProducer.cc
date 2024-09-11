@@ -33,7 +33,7 @@ class TrackInfoProducer : public edm::stream::EDProducer<> {
 public:
   explicit TrackInfoProducer(const edm::ParameterSet& iConfig);
 
-  ~TrackInfoProducer() override{};
+  ~TrackInfoProducer() override {}
 
   void produce(edm::Event&, const edm::EventSetup&) override;
 

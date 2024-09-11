@@ -46,9 +46,9 @@ namespace l1t {
             // metadata
             stub_num(-99),
             format_errors(0),
-            dataword(-99){};
+            dataword(-99) {}
 
-      virtual ~ME(){};
+      virtual ~ME() {}
 
       void set_wire(int bits) { wire = bits; }
       void set_quality(int bits) { quality = bits; }

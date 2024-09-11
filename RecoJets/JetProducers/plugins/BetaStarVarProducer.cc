@@ -50,7 +50,7 @@ public:
     produces<edm::ValueMap<float>>("chargedFromPV2EnergyFraction");
     produces<edm::ValueMap<float>>("chargedFromPV3EnergyFraction");
   }
-  ~BetaStarVarProducer() override{};
+  ~BetaStarVarProducer() override {}
 
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 

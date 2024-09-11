@@ -45,73 +45,72 @@ namespace {
       std::string IOVsince = std::to_string(std::get<0>(iov));
       auto tagname = tag.name;
       std::shared_ptr<L1TUtmTriggerMenu> payload = fetchPayload(std::get<1>(iov));
+
       if (payload.get()) {
-        /// Create a canvas
         const auto& theMap = payload->getAlgorithmMap();
-
         unsigned int mapsize = theMap.size();
-        float pitch = 1. / (mapsize);
 
-        float y, x1, x2;
+        // Dynamically calculate the pitch and canvas height
+        float canvasHeight = std::max(800.0f, mapsize * 30.0f);  // Adjust canvas height based on entries
+        float pitch = 1.0 / (mapsize + 2.0);                     // Adjusted pitch for better spacing
+
+        float y = 1.0;
+        float x1 = 0.02, x2 = x1 + 0.15;
         std::vector<float> y_x1, y_x2, y_line;
-        std::vector<std::string> s_x1, s_x2, s_x3;
+        std::vector<std::string> s_x1, s_x2;
 
-        // starting table at y=1.0 (top of the canvas)
-        // first column is at 0.02, second column at 0.32 NDC
-        y = 1.0;
-        x1 = 0.02;
-        x2 = x1 + 0.15;
-
+        // Title for the plot
         y -= pitch;
         y_x1.push_back(y);
         s_x1.push_back("#scale[1.2]{Algo Name}");
         y_x2.push_back(y);
         s_x2.push_back("#scale[1.2]{tag: " + tag.name + " in IOV: " + IOVsince + "}");
 
-        y -= pitch / 2.;
+        y -= pitch / 2.0;
         y_line.push_back(y);
 
+        // Populate the content
         for (const auto& [name, algo] : theMap) {
           y -= pitch;
           y_x1.push_back(y);
           s_x1.push_back("''");
-
           y_x2.push_back(y);
           s_x2.push_back("#color[2]{" + name + "}");
-          y_line.push_back(y - (pitch / 2.));
+          y_line.push_back(y - (pitch / 2.0));
         }
 
-        TCanvas canvas("L1TriggerAlgos", "L1TriggerAlgos", 2000, mapsize * 40);
+        // Dynamically adjust canvas size
+        TCanvas canvas("L1TriggerAlgos", "L1TriggerAlgos", 2000, static_cast<int>(canvasHeight));
         TLatex l;
-        // Draw the columns titles
         l.SetTextAlign(12);
-        l.SetTextSize(pitch * 10);
+
+        // Set the text size dynamically based on pitch
+        float textSize = std::clamp(pitch * 10.0f, 0.015f, 0.035f);
+        l.SetTextSize(textSize);
+
+        // Draw the columns
         canvas.cd();
         for (unsigned int i = 0; i < y_x1.size(); i++) {
-          l.DrawLatexNDC(x1, 1 - (1 - y_x1[i]), s_x1[i].c_str());
+          l.DrawLatexNDC(x1, y_x1[i], s_x1[i].c_str());
         }
-
         for (unsigned int i = 0; i < y_x2.size(); i++) {
-          l.DrawLatexNDC(x2, 1 - (1 - y_x2[i]), s_x2[i].c_str());
+          l.DrawLatexNDC(x2, y_x2[i], s_x2[i].c_str());
         }
 
-        canvas.cd();
-        canvas.Update();
-
+        // Draw horizontal lines separating records
         TLine lines[y_line.size()];
-        unsigned int iL = 0;
-        for (const auto& line : y_line) {
-          lines[iL] = TLine(gPad->GetUxmin(), 1 - (1 - line), gPad->GetUxmax(), 1 - (1 - line));
-          lines[iL].SetLineWidth(1);
-          lines[iL].SetLineStyle(9);
-          lines[iL].SetLineColor(2);
-          lines[iL].Draw("same");
-          iL++;
+        for (unsigned int i = 0; i < y_line.size(); i++) {
+          lines[i] = TLine(gPad->GetUxmin(), y_line[i], gPad->GetUxmax(), y_line[i]);
+          lines[i].SetLineWidth(1);
+          lines[i].SetLineStyle(9);
+          lines[i].SetLineColor(2);
+          lines[i].Draw("same");
         }
 
+        // Save the canvas as an image
         std::string fileName(m_imageFileName);
         canvas.SaveAs(fileName.c_str());
-      }  // payload
+      }
       return true;
     }  // fill
   };

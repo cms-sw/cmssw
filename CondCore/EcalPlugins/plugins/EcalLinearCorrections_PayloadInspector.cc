@@ -91,7 +91,7 @@ namespace {
             EBrms[2] = EBrms[2] + val * val;
             EBtot[2]++;
           }  // iphi
-        }    // ieta
+        }  // ieta
 
         for (int sign = 0; sign < kSides; sign++) {
           int thesign = sign == 1 ? 1 : -1;
@@ -125,9 +125,9 @@ namespace {
               else
                 endc_m[2]->Fill(ix, iy, val);
             }  // iy
-          }    // ix
-        }      // side
-      }        // if payload.get()
+          }  // ix
+        }  // side
+      }  // if payload.get()
       else
         return false;
 
@@ -200,7 +200,7 @@ namespace {
       canvas.SaveAs(ImageName.c_str());
       return true;
     }  // fill method
-  };   // class EcalLinearCorrectionsPlot
+  };  // class EcalLinearCorrectionsPlot
 
   /****************************************************************
      2d plot of ECAL LinearCorrections difference between 2 IOVs
@@ -312,7 +312,7 @@ namespace {
                 EBtot[2]++;
               }
             }  // iphi
-          }    // ieta
+          }  // ieta
 
           for (int sign = 0; sign < kSides; sign++) {
             int thesign = sign == 1 ? 1 : -1;
@@ -362,9 +362,9 @@ namespace {
                     endc_m[2]->Fill(ix, iy, diff);
                 }
               }  // iy
-            }    // ix
-          }      // side
-        }        // if payload.get()
+            }  // ix
+          }  // side
+        }  // if payload.get()
         else
           return false;
       }  // loop over IOVs
@@ -454,7 +454,7 @@ namespace {
       canvas.SaveAs(ImageName.c_str());
       return true;
     }  // fill method
-  };   // class EcalLinearCorrectionsDiffBase
+  };  // class EcalLinearCorrectionsDiffBase
   using EcalLinearCorrectionsDiffOneTag = EcalLinearCorrectionsDiffBase<cond::payloadInspector::SINGLE_IOV, 1>;
   using EcalLinearCorrectionsDiffTwoTags = EcalLinearCorrectionsDiffBase<cond::payloadInspector::SINGLE_IOV, 2>;
 

@@ -9,8 +9,8 @@
 
 class SiStripRunSummary {
 public:
-  SiStripRunSummary(){};
-  ~SiStripRunSummary(){};
+  SiStripRunSummary() {}
+  ~SiStripRunSummary() {}
 
   bool put(std::string runSummary) {
     runSummary_ = runSummary;

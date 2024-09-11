@@ -572,7 +572,7 @@ void BeamMonitor::beginLuminosityBlock(const LuminosityBlock& lumiSeg, const Eve
       mapBeginBSTime[countLumi_] = ftmptime;
       mapBeginPVTime[countLumi_] = ftmptime;
     }  //processed fails for last lumi
-  }    //nthLumi > nextlumi
+  }  //nthLumi > nextlumi
 
   if (StartAverage_) {
     //Just Make sure it get rest
@@ -742,9 +742,9 @@ void BeamMonitor::analyze(const Event& iEvent, const EventSetup& iSetup) {
           if (triggerResults->accept(thisTrigger_))
             JetTrigPass = true;
         }  //if trigger found
-      }    //for(t=0;..)
-    }      //for(i=0; ..)
-  }        //if trigger colleciton exist)
+      }  //for(t=0;..)
+    }  //for(i=0; ..)
+  }  //if trigger colleciton exist)
 
   //------ Primary Vertices-------
   edm::Handle<reco::VertexCollection> PVCollection;
@@ -1106,7 +1106,7 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg, int& lastlumi, int&
         h_PVz[1]->getTH1()->Fit(fgaus.get(), "QLM");
       }
     }  //check if found min Vertices
-  }    //do PVfit
+  }  //do PVfit
 
   if ((resetPVNLumi_ > 0 && countLumi_ == resetPVNLumi_) || StartAverage_) {
     beginLumiOfPVFit_ = 0;
@@ -1468,7 +1468,7 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg, int& lastlumi, int&
       }
       edm::LogInfo("BeamMonitor") << "FitAndFill::[PayloadCreation] BeamSpotOnline payload created \n" << std::endl;
 
-    }       //if (theBeamFitter->runPVandTrkFitter())
+    }  //if (theBeamFitter->runPVandTrkFitter())
     else {  // beam fit fails
       reco::BeamSpot bs = theBeamFitter->getBeamSpot();
       edm::LogInfo("BeamMonitor") << "FitAndFill::   [BeamMonitor] Beam fit fails!!! \n" << endl;
@@ -1490,7 +1490,7 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg, int& lastlumi, int&
       hs[k_z0_lumi]->ShiftFillLast(bs.z0(), bs.z0Error(), fitNLumi_);
     }  // end of beam fit fails
 
-  }       //-------- end of countFitting------------------------------------------
+  }  //-------- end of countFitting------------------------------------------
   else {  // no fit
     // Overwrite Fit LS and fit time when no event processed or no track selected
     theBeamFitter->setFitLSRange(beginLumiOfBSFit_, endLumiOfBSFit_);

@@ -31,7 +31,7 @@ public:
       : TrajectorySeed(base), theL2Track(l2Ref) {}
 
   /// Destructor
-  ~L3MuonTrajectorySeed() override{};
+  ~L3MuonTrajectorySeed() override {}
 
   //accessors
 

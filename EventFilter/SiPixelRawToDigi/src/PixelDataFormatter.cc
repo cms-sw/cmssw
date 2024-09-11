@@ -266,8 +266,8 @@ void PixelDataFormatter::formatRawData(unsigned int lvl1_ID,
                                           << print(digi) << endl;
         }
       }  // if (fedId)
-    }    // for (DetDigis
-  }      // for (Digis
+    }  // for (DetDigis
+  }  // for (Digis
   LogTrace(" allDetDigis_/hasDetDigis_ : ") << allDetDigis_ << "/" << hasDetDigis_;
 
   // fill FED error 25 words
@@ -446,5 +446,5 @@ void PixelDataFormatter::unpackFEDErrors(PixelDataFormatter::Errors const& error
       }
 
     }  // if error assigned to a real DetId
-  }    // loop on errors in event for this FED
+  }  // loop on errors in event for this FED
 }

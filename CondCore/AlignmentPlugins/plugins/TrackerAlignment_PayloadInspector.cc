@@ -1143,8 +1143,8 @@ namespace {
               edm::LogError("TrackerAlignment_PayloadInspector") << "Unrecognized coordinate " << myCoord << std::endl;
               break;
           }  // switch on the coordinate
-        }    // check on the same detID
-      }      // loop on the components
+        }  // check on the same detID
+      }  // loop on the components
     }
   };
 
@@ -1215,7 +1215,7 @@ namespace {
             edm::LogError("TrackerAlignment_PayloadInspector") << "Unrecognized coordinate " << coord << std::endl;
             break;
         }  // switch on the coordinate (only X,Y,Z are interesting)
-      }    // ends loop on the alignments
+      }  // ends loop on the alignments
 
       edm::LogInfo("TrackerAlignment_PayloadInspector") << "barycenter (" << barycenter << ")/n. modules (" << nmodules
                                                         << ") =  " << barycenter / nmodules << std::endl;

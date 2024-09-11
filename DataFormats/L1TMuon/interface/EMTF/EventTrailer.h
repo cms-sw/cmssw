@@ -27,9 +27,9 @@ namespace l1t {
             lfff(-99),
             bb(-99),
             format_errors(0),
-            dataword(-99){};
+            dataword(-99) {}
 
-      virtual ~EventTrailer(){};
+      virtual ~EventTrailer() {}
 
       void set_crc22(int bits) { crc22 = bits; }
       void set_lp(int bits) { lp = bits; }
@@ -87,7 +87,7 @@ namespace l1t {
       uint64_t dataword;
 
     };  // End of class EventTrailer
-  }     // End of namespace emtf
+  }  // End of namespace emtf
 }  // End of namespace l1t
 
 #endif /* define __l1t_emtf_EventTrailer_h__ */

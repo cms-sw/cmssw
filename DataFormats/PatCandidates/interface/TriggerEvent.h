@@ -105,7 +105,7 @@ namespace pat {
                  bool physDecl = true);
 
     /// Destructor
-    virtual ~TriggerEvent(){};
+    virtual ~TriggerEvent() {}
 
     /// Methods
 

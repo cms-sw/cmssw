@@ -307,7 +307,7 @@ void SiPixelGainCalibScaler::computeAndStorePalyoads(const edm::EventSetup& iSet
           }
         }
       }  // loop on rows
-    }    // loop on columns
+    }  // loop on columns
 
     typename PayloadType::Range outrange(theSiPixelGainCalibration.begin(), theSiPixelGainCalibration.end());
     if (!SiPixelGainCalibration_.put(d, outrange, ncols))

@@ -34,7 +34,7 @@ public:
   };
 
   HGCalSiNoiseMap();
-  ~HGCalSiNoiseMap(){};
+  ~HGCalSiNoiseMap() {}
 
   /**
      @short set the ileak parameters to use

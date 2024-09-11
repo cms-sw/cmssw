@@ -377,7 +377,7 @@ public:
     int xoffset = XPSUOFFSET;
     int yoffset = YPSUOFFSET;
     xmin = 0;
-    xmax = (NUMPSUCRATE_INCOLUMN)*1.5;
+    xmax = (NUMPSUCRATE_INCOLUMN) * 1.5;
     ymin = 0;
     ymax = NUMPSUCH_INROW;
 

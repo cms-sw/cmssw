@@ -172,7 +172,7 @@ void L1TdeStage2uGT::analyze(const edm::Event& event, const edm::EventSetup& es)
         }
 
       }  // end loop over algoBits
-    }    // end loop over globalalgblk vector
+    }  // end loop over globalalgblk vector
     if (foundInitalMismatchDataNoEmul) {
       fillHist(m_SummaryHistograms, hsummary, float(NInitalMismatchDataNoEmul), 1.);
     }

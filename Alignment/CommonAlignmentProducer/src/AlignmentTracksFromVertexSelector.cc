@@ -122,7 +122,7 @@ AlignmentTrackFromVertexSelector::Tracks AlignmentTrackFromVertexSelector::selec
         LogDebug("AlignmentTrackFromVertexSelector") << "track index: " << indx << "filling result vector" << std::endl;
         result.push_back(&(*tk));
       }  // if a valid key is found
-    }    // end loop over tracks
-  }      // if the handle is valid
+    }  // end loop over tracks
+  }  // if the handle is valid
   return result;
 }

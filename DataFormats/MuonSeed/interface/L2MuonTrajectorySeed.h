@@ -32,7 +32,7 @@ public:
                        l1t::MuonRef l1Ref);
 
   /// Destructor
-  ~L2MuonTrajectorySeed() override{};
+  ~L2MuonTrajectorySeed() override {}
 
   // Operations
 

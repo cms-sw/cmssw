@@ -11,8 +11,8 @@
 
 class RPCMaskReClusterizer {
 public:
-  RPCMaskReClusterizer(){};
-  ~RPCMaskReClusterizer(){};
+  RPCMaskReClusterizer() {}
+  ~RPCMaskReClusterizer() {}
   RPCClusterContainer doAction(const RPCDetId& id, RPCClusterContainer& initClusters, const RollMask& mask) const;
   bool get(const RollMask& mask, int strip) const;
 };

@@ -18,7 +18,7 @@
 class HGCalTriggerNtupleHGCTriggerCells : public HGCalTriggerNtupleBase {
 public:
   HGCalTriggerNtupleHGCTriggerCells(const edm::ParameterSet& conf);
-  ~HGCalTriggerNtupleHGCTriggerCells() override{};
+  ~HGCalTriggerNtupleHGCTriggerCells() override {}
   void initialize(TTree&, const edm::ParameterSet&, edm::ConsumesCollector&&) final;
   void fill(const edm::Event& e, const HGCalTriggerNtupleEventSetup& es) final;
 

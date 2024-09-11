@@ -12,7 +12,7 @@ class CutBasedElectronID : public ElectronIDAlgo {
 public:
   CutBasedElectronID(const edm::ParameterSet& conf, edm::ConsumesCollector& iC);
 
-  ~CutBasedElectronID() override{};
+  ~CutBasedElectronID() override {}
 
   void setup(const edm::ParameterSet& conf) override;
   double result(const reco::GsfElectron*, const edm::Event&, const edm::EventSetup&) override;

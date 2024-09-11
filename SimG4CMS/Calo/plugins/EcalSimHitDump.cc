@@ -39,10 +39,9 @@ private:
 EcalSimHitDump::EcalSimHitDump(const edm::ParameterSet& ps)
     : g4Label_(ps.getParameter<std::string>("ModuleLabel")),
       hitLab_(ps.getParameter<std::vector<std::string>>("HitCollections")),
-      toksCalo_{edm::vector_transform(hitLab_,
-                                      [this](const std::string& name) {
-                                        return consumes<edm::PCaloHitContainer>(edm::InputTag{g4Label_, name});
-                                      })},
+      toksCalo_{edm::vector_transform(
+          hitLab_,
+          [this](const std::string& name) { return consumes<edm::PCaloHitContainer>(edm::InputTag{g4Label_, name}); })},
       types_(ps.getParameter<std::vector<int>>("CollectionTypes")),
       maxEvent_(ps.getParameter<int>("MaxEvent")),
       kount_(0) {

@@ -13,4 +13,4 @@ TrackTimeLifeInfo::TrackTimeLifeInfo()
       flightLength_(Measurement1D()),
       ipLength_(Measurement1D()),
       track_(reco::Track()),
-      bField_z_(0.){};
+      bField_z_(0.) {}

@@ -2,7 +2,7 @@
 
 class TtSemiLepHypGeom : public TtSemiLepHypothesis {
 public:
-  explicit TtSemiLepHypGeom(const edm::ParameterSet& cfg) : TtSemiLepHypothesis(cfg){};
+  explicit TtSemiLepHypGeom(const edm::ParameterSet& cfg) : TtSemiLepHypothesis(cfg) {}
 
 private:
   /// build the event hypothesis key

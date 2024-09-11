@@ -83,13 +83,13 @@
 
 struct wafer {
   int thick, partial, orient, cassette;
-  wafer(int t = 0, int p = 0, int o = 0, int c = 0) : thick(t), partial(p), orient(o), cassette(c){};
+  wafer(int t = 0, int p = 0, int o = 0, int c = 0) : thick(t), partial(p), orient(o), cassette(c) {}
 };
 
 struct layerInfo {
   int layer, type;
   std::vector<double> deltaR;
-  layerInfo(int ly, int ty, std::vector<double> dR) : layer(ly), type(ty), deltaR(dR){};
+  layerInfo(int ly, int ty, std::vector<double> dR) : layer(ly), type(ty), deltaR(dR) {}
 };
 
 struct tile {
@@ -108,7 +108,7 @@ struct tile {
 
 struct tileZone {
   tileZone(int l0 = 0, int r0 = 0, int r1 = 0, int f0 = 0, int f1 = 0, int c0 = 0)
-      : layer(l0), rmin(r0), rmax(r1), phimin(f0), phimax(f1), cassette(c0){};
+      : layer(l0), rmin(r0), rmax(r1), phimin(f0), phimax(f1), cassette(c0) {}
   int layer, rmin, rmax, phimin, phimax, cassette;
 };
 

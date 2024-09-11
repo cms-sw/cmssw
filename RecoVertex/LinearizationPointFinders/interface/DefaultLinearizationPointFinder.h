@@ -12,10 +12,10 @@
 
 class DefaultLinearizationPointFinder : public FsmwLinearizationPointFinder {
 public:
-  DefaultLinearizationPointFinder() : FsmwLinearizationPointFinder(400, -.5, .4, 10, 5){};
+  DefaultLinearizationPointFinder() : FsmwLinearizationPointFinder(400, -.5, .4, 10, 5) {}
 
   DefaultLinearizationPointFinder(const RecTracksDistanceMatrix* m)
-      : FsmwLinearizationPointFinder(m, 400, -.5, .4, 10, 5){};
+      : FsmwLinearizationPointFinder(m, 400, -.5, .4, 10, 5) {}
 };
 
 #endif

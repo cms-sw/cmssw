@@ -282,7 +282,7 @@ private:
 
   template <class Archive>
   inline void serialize(Archive& ar, unsigned /* version */) {
-    ar& tmin_& width_& length_;
+    ar & tmin_ & width_ & length_;
 
     // In case we are reading, it may be useful to verify
     // that the length is reasonable

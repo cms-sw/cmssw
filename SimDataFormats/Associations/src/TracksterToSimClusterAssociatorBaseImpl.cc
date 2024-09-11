@@ -3,8 +3,8 @@
 #include "SimDataFormats/Associations/interface/TracksterToSimClusterAssociatorBaseImpl.h"
 
 namespace ticl {
-  TracksterToSimClusterAssociatorBaseImpl::TracksterToSimClusterAssociatorBaseImpl(){};
-  TracksterToSimClusterAssociatorBaseImpl::~TracksterToSimClusterAssociatorBaseImpl(){};
+  TracksterToSimClusterAssociatorBaseImpl::TracksterToSimClusterAssociatorBaseImpl() {}
+  TracksterToSimClusterAssociatorBaseImpl::~TracksterToSimClusterAssociatorBaseImpl() {}
 
   ticl::RecoToSimCollectionTracksters TracksterToSimClusterAssociatorBaseImpl::associateRecoToSim(
       const edm::Handle<ticl::TracksterCollection> &tCH,

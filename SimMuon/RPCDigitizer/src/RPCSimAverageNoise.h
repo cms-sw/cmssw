@@ -36,7 +36,7 @@ public:
   int getClSize(float posX, CLHEP::HepRandomEngine*);
 
 private:
-  void init() override{};
+  void init() override {}
 
 private:
   double aveEff;

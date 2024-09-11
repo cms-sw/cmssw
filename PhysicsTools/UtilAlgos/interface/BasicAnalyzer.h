@@ -42,10 +42,10 @@ namespace edm {
   class BasicAnalyzer {
   public:
     /// default constructor
-    BasicAnalyzer(const edm::ParameterSet& cfg, TFileDirectory& fileService){};
-    BasicAnalyzer(const edm::ParameterSet& cfg, TFileDirectory& fileService, edm::ConsumesCollector&& iC){};
+    BasicAnalyzer(const edm::ParameterSet& cfg, TFileDirectory& fileService) {}
+    BasicAnalyzer(const edm::ParameterSet& cfg, TFileDirectory& fileService, edm::ConsumesCollector&& iC) {}
     /// default destructor
-    virtual ~BasicAnalyzer(){};
+    virtual ~BasicAnalyzer() {}
 
     /**
        The following functions have to be implemented for any class

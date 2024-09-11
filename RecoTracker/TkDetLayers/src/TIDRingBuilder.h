@@ -13,7 +13,7 @@
 #pragma GCC visibility push(hidden)
 class TIDRingBuilder {
 public:
-  TIDRingBuilder(){};
+  TIDRingBuilder() {}
   TIDRing* build(const GeometricDet* aTIDRing, const TrackerGeometry* theGeomDetGeometry) __attribute__((cold));
 };
 

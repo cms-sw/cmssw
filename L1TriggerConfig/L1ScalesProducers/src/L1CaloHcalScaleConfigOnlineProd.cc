@@ -284,8 +284,8 @@ std::unique_ptr<L1CaloHcalScale> L1CaloHcalScaleConfigOnlineProd::newObject(cons
         hcalScale->setBin(irank, ieta, zside, etvalue);
 
       }  // rank
-    }    // zside
-  }      // eta
+    }  // zside
+  }  // eta
 
   std::stringstream s;
   s << std::setprecision(10);

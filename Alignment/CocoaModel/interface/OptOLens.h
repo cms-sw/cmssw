@@ -20,8 +20,8 @@ public:
   //---------- Constructors / Destructor
   OptOLens();
   OptOLens(OpticalObject* parent, const ALIstring& type, const ALIstring& name, const ALIbool copy_data)
-      : OpticalObject(parent, type, name, copy_data){};
-  ~OptOLens() override{};
+      : OpticalObject(parent, type, name, copy_data) {}
+  ~OptOLens() override {}
 
   //---------- Propagate light for measurement meas
   void participateInMeasurement(LightRay& lightray, Measurement& meas, const ALIstring& behav) override;

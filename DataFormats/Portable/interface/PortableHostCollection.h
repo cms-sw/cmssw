@@ -69,6 +69,16 @@ public:
   ConstBuffer buffer() const { return *buffer_; }
   ConstBuffer const_buffer() const { return *buffer_; }
 
+  // erases the data in the Buffer by writing zeros (bytes containing '\0') to it
+  void zeroInitialise() {
+    std::memset(std::data(*buffer_), 0x00, alpaka::getExtentProduct(*buffer_) * sizeof(std::byte));
+  }
+
+  template <typename TQueue, typename = std::enable_if_t<alpaka::isQueue<TQueue>>>
+  void zeroInitialise(TQueue&& queue) {
+    alpaka::memset(std::forward<TQueue>(queue), *buffer_, 0x00);
+  }
+
   // part of the ROOT read streamer
   static void ROOTReadStreamer(PortableHostCollection* newObj, Layout& layout) {
     // destroy the default-constructed collection
@@ -278,12 +288,23 @@ public:
   ConstBuffer buffer() const { return *buffer_; }
   ConstBuffer const_buffer() const { return *buffer_; }
 
-  // Extract the sizes array
+  // erases the data in the Buffer by writing zeros (bytes containing '\0') to it
+  void zeroInitialise() {
+    std::memset(std::data(*buffer_), 0x00, alpaka::getExtentProduct(*buffer_) * sizeof(std::byte));
+  }
+
+  template <typename TQueue, typename = std::enable_if_t<alpaka::isQueue<TQueue>>>
+  void zeroInitialise(TQueue&& queue) {
+    alpaka::memset(std::forward<TQueue>(queue), *buffer_, 0x00);
+  }
+
+  // extract the sizes array
   SizesArray sizes() const {
     SizesArray ret;
     portablecollection::constexpr_for<0, members_>([&](auto i) { ret[i] = get<i>().layout_.metadata().size(); });
     return ret;
   }
+
   // part of the ROOT read streamer
   static void ROOTReadStreamer(PortableHostMultiCollection* newObj, Implementation& onfileImpl) {
     newObj->~PortableHostMultiCollection();

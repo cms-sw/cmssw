@@ -507,8 +507,8 @@ void Triplet::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
           bestPvx = *iVertex;
         }
       }  // non-fake
-    }    //valid
-  }      // loop over vertices
+    }  //valid
+  }  // loop over vertices
 
   h022->Fill(maxSumPt);
 

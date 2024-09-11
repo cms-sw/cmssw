@@ -13,7 +13,7 @@ public:
     this->folder = folder;
   }
 
-  BookerFiller(){};
+  BookerFiller() {}
 
   void bookall(BOOKERLIKE& ibooker) {
     mes_1D.clear();
@@ -95,7 +95,7 @@ public:
       : mymes_(iConfig.getParameter<std::string>("folder"), iConfig.getParameter<int>("howmany")),
         myvalue_(iConfig.getParameter<double>("value")) {}
 
-  ~TestDQMEDAnalyzer() override{};
+  ~TestDQMEDAnalyzer() override {}
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
@@ -126,7 +126,7 @@ public:
       : mymes_(iConfig.getParameter<std::string>("folder"), iConfig.getParameter<int>("howmany")),
         myvalue_(iConfig.getParameter<double>("value")) {}
 
-  ~TestDQMOneEDAnalyzer() override{};
+  ~TestDQMOneEDAnalyzer() override {}
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
@@ -156,7 +156,7 @@ public:
       : mymes_(iConfig.getParameter<std::string>("folder"), iConfig.getParameter<int>("howmany")),
         myvalue_(iConfig.getParameter<double>("value")) {}
 
-  ~TestDQMOneFillRunEDAnalyzer() override{};
+  ~TestDQMOneFillRunEDAnalyzer() override {}
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
@@ -185,7 +185,7 @@ public:
       : mymes_(iConfig.getParameter<std::string>("folder"), iConfig.getParameter<int>("howmany")),
         myvalue_(iConfig.getParameter<double>("value")) {}
 
-  ~TestDQMOneLumiEDAnalyzer() override{};
+  ~TestDQMOneLumiEDAnalyzer() override {}
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
@@ -215,7 +215,7 @@ public:
       : mymes_(iConfig.getParameter<std::string>("folder"), iConfig.getParameter<int>("howmany")),
         myvalue_(iConfig.getParameter<double>("value")) {}
 
-  ~TestDQMOneLumiFillLumiEDAnalyzer() override{};
+  ~TestDQMOneLumiFillLumiEDAnalyzer() override {}
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
@@ -249,7 +249,7 @@ public:
       : folder_(iConfig.getParameter<std::string>("folder")),
         howmany_(iConfig.getParameter<int>("howmany")),
         myvalue_(iConfig.getParameter<double>("value")) {}
-  ~TestDQMGlobalEDAnalyzer() override{};
+  ~TestDQMGlobalEDAnalyzer() override {}
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
@@ -286,7 +286,7 @@ public:
       : folder_(iConfig.getParameter<std::string>("folder")),
         howmany_(iConfig.getParameter<int>("howmany")),
         myvalue_(iConfig.getParameter<double>("value")) {}
-  ~TestDQMGlobalRunSummaryEDAnalyzer() override{};
+  ~TestDQMGlobalRunSummaryEDAnalyzer() override {}
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
@@ -344,7 +344,7 @@ public:
     usesResource("DQMStore");
   }
 
-  ~TestLegacyEDAnalyzer() override{};
+  ~TestLegacyEDAnalyzer() override {}
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
@@ -381,7 +381,7 @@ public:
     usesResource("DQMStore");
   }
 
-  ~TestLegacyFillRunEDAnalyzer() override{};
+  ~TestLegacyFillRunEDAnalyzer() override {}
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
@@ -418,7 +418,7 @@ public:
     usesResource("DQMStore");
   }
 
-  ~TestLegacyFillLumiEDAnalyzer() override{};
+  ~TestLegacyFillLumiEDAnalyzer() override {}
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;

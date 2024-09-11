@@ -96,7 +96,7 @@ public:
     }
   };
 
-  GEMROMapping(){};
+  GEMROMapping() {}
 
   bool isValidChipID(const vfatEC& r) const { return vfatMap_.find(r) != vfatMap_.end(); }
   bool isValidChamber(const chamEC& r) const { return chamberMap_.find(r) != chamberMap_.end(); }

@@ -132,7 +132,7 @@ namespace edm {
         using Type = edm::limited::impl::EmptyType;
       };
     }  // namespace producer
-  }    // namespace limited
+  }  // namespace limited
 }  // namespace edm
 
 #endif

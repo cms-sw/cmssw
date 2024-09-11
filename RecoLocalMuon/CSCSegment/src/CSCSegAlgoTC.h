@@ -48,7 +48,7 @@ public:
   /// Constructor
   explicit CSCSegAlgoTC(const edm::ParameterSet& ps);
   /// Destructor
-  ~CSCSegAlgoTC() override{};
+  ~CSCSegAlgoTC() override {}
 
   /**
    * Build track segments in this chamber (this is where the actual

@@ -205,7 +205,7 @@ void Phase2ITValidateCluster::fillITHistos(const edm::Event& iEvent,
             }
           }
         }  //end loop over PSimhitcontainers
-      }    //end loop over simHits
+      }  //end loop over simHits
 
       if (!closestSimHit)
         continue;

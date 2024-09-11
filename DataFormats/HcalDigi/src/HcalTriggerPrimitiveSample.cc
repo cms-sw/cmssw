@@ -4,7 +4,7 @@ HcalTriggerPrimitiveSample::HcalTriggerPrimitiveSample() : theSample(0) {}
 HcalTriggerPrimitiveSample::HcalTriggerPrimitiveSample(uint16_t data) : theSample(data) {}
 
 HcalTriggerPrimitiveSample::HcalTriggerPrimitiveSample(int encodedEt, bool fineGrain, int slb, int slbchan) {
-  theSample = (((slb)&0x7) << 13) | ((slbchan & 0x3) << 11) | (encodedEt & 0xFF) | ((fineGrain) ? (0x100) : (0));
+  theSample = (((slb) & 0x7) << 13) | ((slbchan & 0x3) << 11) | (encodedEt & 0xFF) | ((fineGrain) ? (0x100) : (0));
 }
 
 HcalTriggerPrimitiveSample::HcalTriggerPrimitiveSample(int encodedEt, int fineGrainExt) {

@@ -25,7 +25,7 @@
 class EcalUncalibRecHitWorkerRatio : public EcalUncalibRecHitWorkerRunOneDigiBase {
 public:
   EcalUncalibRecHitWorkerRatio(const edm::ParameterSet&, edm::ConsumesCollector& c);
-  EcalUncalibRecHitWorkerRatio(){};
+  EcalUncalibRecHitWorkerRatio() {}
 
   void set(const edm::EventSetup& es) override;
   bool run(const edm::Event& evt,

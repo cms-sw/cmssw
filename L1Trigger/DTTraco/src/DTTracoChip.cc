@@ -395,7 +395,7 @@ void DTTracoChip::run() {
         }
       }
     }  // end debugging
-  }    // end loop on step
+  }  // end loop on step
 }
 
 void DTTracoChip::raiseOverlap(int step) {
@@ -520,9 +520,9 @@ void DTTracoChip::DoAdjBtiLts(DTTracoCand *candidate, std::vector<DTTracoCand> &
           (*p).print();
           std::cout << "Suppressed because adiacent to H trig" << std::endl;
         }  // end debug
-      }    // end if
-    }      // end candidate loop
-  }        // end if H
+      }  // end if
+    }  // end candidate loop
+  }  // end if H
 }
 
 int DTTracoChip::AdjBtiLTSuppressed(DTTracoCand *candidate) {

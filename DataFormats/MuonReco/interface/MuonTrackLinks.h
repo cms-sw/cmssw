@@ -23,7 +23,7 @@ namespace reco {
         : theTkTrack(tk), theStaTrack(sta), theGlbTrack(glb) {}
 
     /// Destructor
-    virtual ~MuonTrackLinks(){};
+    virtual ~MuonTrackLinks() {}
 
     // Operations
 

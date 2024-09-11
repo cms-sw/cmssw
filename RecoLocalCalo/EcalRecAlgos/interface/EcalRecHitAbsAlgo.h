@@ -17,7 +17,7 @@ public:
   //EcalRecHitAbsAlgo() { };
 
   /// Destructor
-  virtual ~EcalRecHitAbsAlgo(){};
+  virtual ~EcalRecHitAbsAlgo() {}
 
   /// make rechits from dataframes
 

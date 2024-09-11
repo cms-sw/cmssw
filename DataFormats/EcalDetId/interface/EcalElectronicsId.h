@@ -43,7 +43,7 @@ public:
   EcalSubdetector subdet() const;
 
   /// get a fast, compact, unique index for linear lookups (maximum value = 4194303)
-  int linearIndex() const { return (EcalElectronicsId_)&0x3FFFFF; }
+  int linearIndex() const { return (EcalElectronicsId_) & 0x3FFFFF; }
 
   /// so far for EndCap only :
   int channelId() const;  // xtal id between 1 and 25

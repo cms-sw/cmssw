@@ -55,15 +55,15 @@ void DTGeometryParserFromDDD::parseGeometry(DDFilteredView& fv,
 
         fv.parent();
         doL = fv.nextSibling();  // go to next layer
-      }                          // layers
+      }  // layers
 
       fv.parent();
       doSL = fv.nextSibling();  // go to next SL
-    }                           // sls
+    }  // sls
 
     fv.parent();
     doChamber = fv.nextSibling();  // go to next chamber
-  }                                // chambers
+  }  // chambers
 }
 
 void DTGeometryParserFromDDD::buildLayer(DDFilteredView& fv,

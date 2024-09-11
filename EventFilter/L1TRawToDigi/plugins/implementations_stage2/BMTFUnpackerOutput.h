@@ -18,7 +18,7 @@ namespace l1t {
         isKalman = false;
         isTriggeringAlgo = isTriggering_;
       }
-      ~BMTFUnpackerOutput() override{};
+      ~BMTFUnpackerOutput() override {}
       bool unpack(const Block& block, UnpackerCollections* coll) override;
       void setKalmanAlgoTrue() { isKalman = true; }
 

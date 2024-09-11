@@ -38,7 +38,7 @@ process.load("RecoLocalTracker.SiStripRecHitConverter.StripCPEfromTrackAngle_cfi
 process.load("RecoLocalTracker.SiStripZeroSuppression.SiStripZeroSuppression_cfi")
 
 process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
-process.load("RecoPixelVertexing.Configuration.RecoPixelVertexing_cff")
+process.load("RecoVertex.Configuration.RecoPixelVertexing_cff")
 process.load("RecoTracker.Configuration.RecoTracker_cff")
   
 process.load("DQM.SiPixelMonitorRawData.SiPixelMonitorRawData_cfi")

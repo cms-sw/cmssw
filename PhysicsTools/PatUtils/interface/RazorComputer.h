@@ -18,7 +18,7 @@ private:
 class RazorComputer : public VariableComputer {
 public:
   RazorComputer(const CachingVariable::CachingVariableFactoryArg& arg, edm::ConsumesCollector& iC);
-  ~RazorComputer() override{};
+  ~RazorComputer() override {}
 
   void compute(const edm::Event& iEvent) const override;
 

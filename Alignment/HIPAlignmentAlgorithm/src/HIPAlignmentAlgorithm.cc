@@ -848,7 +848,7 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo& e
                     << "ERROR in <HIPAlignmentAlgorithm::run>: Dynamic cast of Strip RecHit failed! "
                     << "TypeId of the TTRH: " << className(*hit);
             }  //end if type == SiStripRecHit2D
-          }    //end if hit from strips
+          }  //end if hit from strips
           else {
             const SiPixelRecHit* pixelhit = dynamic_cast<const SiPixelRecHit*>(rechit);
             if (pixelhit) {
@@ -1375,7 +1375,7 @@ void HIPAlignmentAlgorithm::collector(void) {
         }
         iuvar++;
       }  // End loop over alignables
-    }    // End loop over subjobs
+    }  // End loop over subjobs
   }
 
   for (int ijob = 1; ijob <= theCollectorNJobs; ijob++) {

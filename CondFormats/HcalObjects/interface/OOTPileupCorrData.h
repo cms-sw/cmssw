@@ -133,13 +133,13 @@ private:
     if (!validate())
       throw cms::Exception("In OOTPileupCorrData::save: invalid data");
     boost::serialization::base_object<AbsOOTPileupCorrection>(*this);
-    ar& corrs_& iEtaLimits_& chargeLimit_& requireFirstTS_& requireNTS_& readjustTiming_;
+    ar & corrs_ & iEtaLimits_ & chargeLimit_ & requireFirstTS_ & requireNTS_ & readjustTiming_;
   }
 
   template <class Archive>
   inline void load(Archive& ar, const unsigned /* version */) {
     boost::serialization::base_object<AbsOOTPileupCorrection>(*this);
-    ar& corrs_& iEtaLimits_& chargeLimit_& requireFirstTS_& requireNTS_& readjustTiming_;
+    ar & corrs_ & iEtaLimits_ & chargeLimit_ & requireFirstTS_ & requireNTS_ & readjustTiming_;
     if (!validate())
       throw cms::Exception("In OOTPileupCorrData::load: invalid data");
   }

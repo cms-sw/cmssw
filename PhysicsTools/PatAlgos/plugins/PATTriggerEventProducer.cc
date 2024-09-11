@@ -53,7 +53,7 @@ namespace pat {
   class PATTriggerEventProducer : public edm::stream::EDProducer<> {
   public:
     explicit PATTriggerEventProducer(const edm::ParameterSet& iConfig);
-    ~PATTriggerEventProducer() override{};
+    ~PATTriggerEventProducer() override {}
 
   private:
     void beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) override;

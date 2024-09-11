@@ -115,7 +115,7 @@ FreeTrajectoryState MuonErrorMatrixAnalyzer::refLocusState(const FreeTrajectoryS
                                      << ((fts.momentum().z() > 0) ? "+" : "-") << theZ << " either.";
           return FreeTrajectoryState();
         }  //invalid state
-      }    //z plane is set
+      }  //z plane is set
       else {
         return FreeTrajectoryState();
       }
@@ -127,7 +127,7 @@ FreeTrajectoryState MuonErrorMatrixAnalyzer::refLocusState(const FreeTrajectoryS
         edm::LogError(theCategory) << " cannot propagate to the plane of Z: " << ((fts.momentum().z() > 0) ? "+" : "-")
                                    << theZ << " even though cylinder z indicates it should.";
       }  //invalid state
-    }    //z further than the planes
+    }  //z further than the planes
 
     LogDebug(theCategory) << "reference state is:\n" << onRef;
 

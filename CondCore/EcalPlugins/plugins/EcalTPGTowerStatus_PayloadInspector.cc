@@ -155,8 +155,8 @@ namespace {
                   if (towerId >= kEBTotalTowers)
                     std::cout << " strange tower Id " << towerId << std::endl;
                 }
-              }                          // barrel
-            }                            // 1st run
+              }  // barrel
+            }  // 1st run
             else {                       // 2nd run
               if (ttId.subDet() == 1) {  // barrel
                 if (stat > 0) {          // bad tower
@@ -172,9 +172,9 @@ namespace {
                 //		  vEB[towerId] = 0;
                 EBstat += diff;
               }  // barrel
-            }    // 2nd run
-          }      // loop over towers
-        }        // payload
+            }  // 2nd run
+          }  // loop over towers
+        }  // payload
         else
           return false;
       }  // loop over IOVs
@@ -242,7 +242,7 @@ namespace {
       canvas.SaveAs(ImageName.c_str());
       return true;
     }  // fill method
-  };   // class EcalTPGTowerStatusDiffBase
+  };  // class EcalTPGTowerStatusDiffBase
   using EcalTPGTowerStatusDiffOneTag = EcalTPGTowerStatusDiffBase<cond::payloadInspector::SINGLE_IOV, 1>;
   using EcalTPGTowerStatusDiffTwoTags = EcalTPGTowerStatusDiffBase<cond::payloadInspector::SINGLE_IOV, 2>;
 

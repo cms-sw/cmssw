@@ -101,7 +101,7 @@ namespace pat {
     private:
       std::vector<std::pair<std::string, edm::EDGetTokenT<typename A::product_type>>> labelsAndTokens_;
     };  // class NamedUserDataLoader
-  }     // namespace helper
+  }  // namespace helper
 
   template <typename T, typename ParentType = T>
   class PATObjectUserDataEmbedder : public edm::stream::EDProducer<> {

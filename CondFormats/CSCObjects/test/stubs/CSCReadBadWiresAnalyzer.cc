@@ -183,8 +183,8 @@ namespace edmtest {
               << " chamber index=" << indexc << " layer index=" << indexl << std::endl;
 
           badWireWords[indexl - 1].set(chan - 1, 1);  // set bit in 112-bit bitset representing this layer
-        }                                             // j
-      }                                               // i
+        }  // j
+      }  // i
     }
   }
 

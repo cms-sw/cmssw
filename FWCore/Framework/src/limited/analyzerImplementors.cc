@@ -14,5 +14,5 @@ namespace edm {
     namespace impl {
       template class WatchProcessBlock<edm::limited::EDAnalyzerBase>;
     }  // namespace impl
-  }    // namespace limited
+  }  // namespace limited
 }  // namespace edm

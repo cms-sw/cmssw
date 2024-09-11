@@ -20,12 +20,12 @@ public:
   ~BrilClient() override;
 
 protected:
-  void beginJob() override{};
+  void beginJob() override {}
   void dqmEndLuminosityBlock(DQMStore::IBooker &,
                              DQMStore::IGetter &,
                              edm::LuminosityBlock const &,
                              edm::EventSetup const &) override;
-  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override{};
+  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override {}
 
 private:
   edm::EDGetTokenT<std::string> pathToken_;

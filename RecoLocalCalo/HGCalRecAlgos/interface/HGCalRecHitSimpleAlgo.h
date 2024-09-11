@@ -36,7 +36,7 @@ public:
   }
 
   // destructor
-  ~HGCalRecHitSimpleAlgo() override{};
+  ~HGCalRecHitSimpleAlgo() override {}
 
   /// Compute parameters
   HGCRecHit makeRecHit(const HGCUncalibratedRecHit& uncalibRH, const uint32_t& flags = 0) const override {

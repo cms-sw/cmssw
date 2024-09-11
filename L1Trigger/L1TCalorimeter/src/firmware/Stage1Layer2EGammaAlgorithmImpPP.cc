@@ -21,7 +21,7 @@
 using namespace std;
 using namespace l1t;
 
-Stage1Layer2EGammaAlgorithmImpPP::Stage1Layer2EGammaAlgorithmImpPP(CaloParamsHelper const* params) : params_(params){};
+Stage1Layer2EGammaAlgorithmImpPP::Stage1Layer2EGammaAlgorithmImpPP(CaloParamsHelper const* params) : params_(params) {}
 
 void l1t::Stage1Layer2EGammaAlgorithmImpPP::processEvent(const std::vector<l1t::CaloEmCand>& EMCands,
                                                          const std::vector<l1t::CaloRegion>& regions,

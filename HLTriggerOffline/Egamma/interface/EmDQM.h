@@ -44,8 +44,8 @@ class EmDQM;
 template <class T>
 class HistoFiller {
 public:
-  HistoFiller(EmDQM *d) : dqm(d){};
-  ~HistoFiller(){};
+  HistoFiller(EmDQM *d) : dqm(d) {}
+  ~HistoFiller() {}
 
   void fillHistos(edm::Handle<trigger::TriggerEventWithRefs> &,
                   const edm::Event &,

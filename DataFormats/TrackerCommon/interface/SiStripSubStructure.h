@@ -58,5 +58,5 @@ namespace SiStripSubStructure {
                        uint32_t petal = 0,                           // petal = 1..8, 0(ALL)
                        uint32_t ring = 0,                            // ring = 1..7, 0(ALL)
                        uint32_t ster = 0);                           // ster = 1(sterero), else(nonstereo), 0(ALL)
-};                                                                   // namespace SiStripSubStructure
+};  // namespace SiStripSubStructure
 #endif

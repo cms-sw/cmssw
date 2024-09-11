@@ -1,8 +1,7 @@
 
 #include "FWCore/Utilities/interface/EDMException.h"
 
-#define FILLENTRY(name) \
-  { name, #name }
+#define FILLENTRY(name) {name, #name}
 
 namespace edm {
   namespace errors {

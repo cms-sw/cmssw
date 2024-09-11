@@ -145,7 +145,7 @@ void GflashHadronShowerProfile::hadronicParameterization() {
       theGflashHitList.push_back(aHit);
 
     }  // end of for spot iteration
-  }    // end of while for longitudinal integration
+  }  // end of while for longitudinal integration
 
   // HO parameterization
 
@@ -237,7 +237,7 @@ void GflashHadronShowerProfile::hadronicParameterization() {
           theGflashHitList.push_back(aHit);
 
         }  // end of for HO spot iteration
-      }    // end of while for HO longitudinal integration
+      }  // end of while for HO longitudinal integration
     }
   }
 

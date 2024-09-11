@@ -17,7 +17,7 @@
  */
 class ProcessInputSignal {
 public:
-  virtual ~ProcessInputSignal(){};
+  virtual ~ProcessInputSignal() {}
 
   virtual int next() = 0;
 

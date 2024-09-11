@@ -315,7 +315,7 @@ int HcalRecHitsDQMClient::HcalRecHitsEndjob(const std::vector<MonitorElement *> 
         occupancy_vs_ieta[vsIetaIdx]->setBinError(ietabin, enorm);
 
       }  // Fill occupancy_vs_ieta
-    }    // if omatched
+    }  // if omatched
   }
 
   // Status Word

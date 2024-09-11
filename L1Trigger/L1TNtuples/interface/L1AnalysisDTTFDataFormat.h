@@ -14,7 +14,7 @@
 namespace L1Analysis {
   struct L1AnalysisDTTFDataFormat {
     L1AnalysisDTTFDataFormat() { Reset(); };
-    ~L1AnalysisDTTFDataFormat(){};
+    ~L1AnalysisDTTFDataFormat() {}
 
     void Reset() {
       phSize = 0;

@@ -28,6 +28,29 @@ namespace cms::alpakatools {
    * queue. The ExampleDeviceProduct and ExampleHostProduct can be the
    * same type, if they internally are able to handle the memory
    * allocation difference between host and device.
+   *
+   * Data products that contain pointers to memory elsewhere in the
+   * data product need those pointers to be updated after the copy
+   * from device-to-host completes. While such data structures are
+   * generally discouraged, such an update of the data product can be
+   * implemented (without any additional synchronization) with an
+   * optional postCopy() static member function in the CopyToHost
+   * specialization. The postCopy() is called for the host-side data
+   * product after the copy operations enqueued in the copyAsync()
+   * have finished. Following the example above, the expected
+   * signature is
+   * \code
+   * template <>
+   * struct CopyToHost<ExampleDeviceProduct> {
+   *   // copyAsync() definition from above
+   *
+   *   static void postCopy(ExampleHostProduct& obj) {
+   *     // modify obj
+   *     // any modifications must be such that the postCopy() can be
+   *     // skipped when the obj originates from the host (i.e. on CPU backends)
+   *   }
+   * };
+   * \endcode
    */
   template <typename TDeviceData>
   struct CopyToHost;

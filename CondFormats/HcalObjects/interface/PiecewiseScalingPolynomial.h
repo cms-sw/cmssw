@@ -53,12 +53,12 @@ private:
   inline void save(Archive& ar, const unsigned /* version */) const {
     if (!validate())
       throw cms::Exception("In PiecewiseScalingPolynomial::save: invalid data");
-    ar& coeffs_& limits_;
+    ar & coeffs_ & limits_;
   }
 
   template <class Archive>
   inline void load(Archive& ar, const unsigned /* version */) {
-    ar& coeffs_& limits_;
+    ar & coeffs_ & limits_;
     if (!validate())
       throw cms::Exception("In PiecewiseScalingPolynomial::load: invalid data");
   }

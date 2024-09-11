@@ -1,6 +1,8 @@
 <use name="FWCore/Framework"/>
 <use name="DQMServices/Core"/>
 <use name="HLTrigger/HLTcore"/>
+<use name="Geometry/GEMGeometry"/>
+<use name="RecoMuon/TrackingTools"/>
 <use name="boost"/>
 <use name="rootgraphics"/>
 <export>

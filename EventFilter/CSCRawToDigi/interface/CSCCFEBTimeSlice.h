@@ -64,9 +64,7 @@ public:
   CSCCFEBDataWord *timeSample(int layer, int channel, bool isDCFEB = false) const;
 
   /// whether we keep 8 or 16 time samples
-  bool sixteenSamples() const { /*return scaControllerWord(1).ts_flag;i*/
-    return timeSample(95)->controllerData;
-  }
+  bool sixteenSamples() const { /*return scaControllerWord(1).ts_flag;i*/ return timeSample(95)->controllerData; }
   unsigned sizeInWords() const { return 100; }
 
   /// unpacked from the controller words for each channel in the layer

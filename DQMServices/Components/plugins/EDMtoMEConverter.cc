@@ -58,11 +58,11 @@ public:
   explicit EDMtoMEConverter(const edm::ParameterSet &);
   ~EDMtoMEConverter() override = default;
 
-  void beginRun(const edm::Run &, const edm::EventSetup &) final{};
-  void endRun(const edm::Run &, const edm::EventSetup &) final{};
-  void beginLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &) final{};
-  void endLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &) final{};
-  void produce(edm::Event &, edm::EventSetup const &) final{};
+  void beginRun(const edm::Run &, const edm::EventSetup &) final {}
+  void endRun(const edm::Run &, const edm::EventSetup &) final {}
+  void beginLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &) final {}
+  void endLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &) final {}
+  void produce(edm::Event &, edm::EventSetup const &) final {}
 
   void endLuminosityBlockProduce(edm::LuminosityBlock &, edm::EventSetup const &) override;
   void endRunProduce(edm::Run &run, edm::EventSetup const &setup) override;

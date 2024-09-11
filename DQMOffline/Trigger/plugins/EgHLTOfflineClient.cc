@@ -485,7 +485,7 @@ void EgHLTOfflineClient::createLooseTightTrigEff(const std::vector<std::string>&
       makeEffMonElemFromPassAndFail("LooseTight", newHistName, effHistTitle, pass, fail, ibooker, igetter);
 
     }  //end loop over trigger pairs
-  }    //end loop over vsVarNames
+  }  //end loop over vsVarNames
 }
 //-----Morse-------
 EgHLTOfflineClient::MonitorElement* EgHLTOfflineClient::makeEffMonElemFromPassAndAll(const std::string& filterName,

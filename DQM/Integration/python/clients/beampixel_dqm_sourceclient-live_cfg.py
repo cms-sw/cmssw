@@ -93,7 +93,7 @@ process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
 from RecoTracker.PixelLowPtUtilities.siPixelClusterShapeCache_cfi import *
 process.siPixelClusterShapeCachePreSplitting = siPixelClusterShapeCache.clone(src = 'siPixelClustersPreSplitting')
 process.load("RecoLocalTracker.SiPixelRecHits.PixelCPEGeneric_cfi")
-process.load("RecoTracker.Configuration.RecoPixelVertexing_cff")
+process.load("RecoVertex.Configuration.RecoPixelVertexing_cff")
 from RecoVertex.PrimaryVertexProducer.OfflinePixel3DPrimaryVertices_cfi import *
 process.pixelVertices = pixelVertices.clone(
     TkFilterParameters = dict(

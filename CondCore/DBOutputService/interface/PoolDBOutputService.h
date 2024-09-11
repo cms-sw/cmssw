@@ -311,6 +311,6 @@ namespace cond {
       std::map<std::string, cond::UserLogInfo> m_logheaders;
 
     };  //PoolDBOutputService
-  }     // namespace service
+  }  // namespace service
 }  // namespace cond
 #endif

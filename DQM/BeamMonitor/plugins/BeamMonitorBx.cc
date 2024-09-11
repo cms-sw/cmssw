@@ -312,7 +312,7 @@ void BeamMonitorBx::BookTrendHistos(
         }
       }
     }  //End of variable loop
-  }    // End of type loop (lumi, time)
+  }  // End of type loop (lumi, time)
 
   // num of PVs(#Bx) per LS
   dbe_->cd(monitorName_ + subDir_ + "/All_nPVs");

@@ -24,7 +24,7 @@ namespace l1tp2 {
           towerIEta_(-99),
           towerIPhi_(-99),
           towerEta_(-99.),
-          towerPhi_(-99.){};
+          towerPhi_(-99.) {}
 
     Phase2L1CaloJet(const PolarLorentzVector& p4,
                     float jetEt,
@@ -49,7 +49,7 @@ namespace l1tp2 {
           towerIEta_(towerIEta),
           towerIPhi_(towerIPhi),
           towerEta_(towerEta),
-          towerPhi_(towerPhi){};
+          towerPhi_(towerPhi) {}
 
     inline float jetEt() const { return jetEt_; };
     inline float tauEt() const { return tauEt_; };

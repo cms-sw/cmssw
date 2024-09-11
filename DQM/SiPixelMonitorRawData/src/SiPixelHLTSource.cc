@@ -130,10 +130,10 @@ void SiPixelHLTSource::analyze(const edm::Event &iEvent, const edm::EventSetup &
             default:
               break;
           };  // end switch
-        }     // end for(di
-      }       // end if( isearch
-    }         // end if( ((*it)->subDetector()
-  }           // for(TrackerGeometry
+        }  // end for(di
+      }  // end if( isearch
+    }  // end if( ((*it)->subDetector()
+  }  // for(TrackerGeometry
 
   edm::DetSetVector<SiPixelRawDataError>::const_iterator isearch = errorinput->find(0xffffffff);
 
@@ -160,8 +160,8 @@ void SiPixelHLTSource::analyze(const edm::Event &iEvent, const edm::EventSetup &
         default:
           break;
       };  // end switch
-    }     // end for(di
-  }       // end if( isearch
+    }  // end for(di
+  }  // end if( isearch
   // slow down...
   if (slowDown)
     usleep(100000);

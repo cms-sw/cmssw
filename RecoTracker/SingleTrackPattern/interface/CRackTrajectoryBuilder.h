@@ -139,7 +139,7 @@ public:
 
   class CompareDetByTraj {
   public:
-    CompareDetByTraj(const TSOS& tSos) : _tSos(tSos){};
+    CompareDetByTraj(const TSOS& tSos) : _tSos(tSos) {}
     bool operator()(const std::pair<TrackingRecHitRangeIterator, TSOS> rh1,
                     const std::pair<TrackingRecHitRangeIterator, TSOS> rh2) {
       GlobalPoint gp1 = rh1.second.globalPosition();

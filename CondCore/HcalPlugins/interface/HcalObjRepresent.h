@@ -42,7 +42,7 @@ namespace HcalObjRepresent {
       PlotMode_ = "Map";
     }
 
-    virtual ~HcalDataContainer(){};
+    virtual ~HcalDataContainer() {}
     // For easier channel mapping
     typedef std::tuple<int, int, int> Coord;
     typedef std::map<Coord, Item> tHcalValCont;
@@ -1006,8 +1006,8 @@ namespace HcalObjRepresent {
             hh[d].SetBinContent(eta + 1, (iphi + 2) % 72 + 1, hh[d].GetBinContent(eta + 1, iphi));
           }
         }  // for (int phi...)
-      }    // for (int eta...)
-    }      // for (int d=0;...)
+      }  // for (int eta...)
+    }  // for (int d=0;...)
     // no corrections needed for HO (depth 4)
     return;
   }  // FillUnphysicalHEHFBins(MonitorElement* hh)
@@ -1037,7 +1037,7 @@ namespace HcalObjRepresent {
         {
           binval = hh.GetBinContent(eta + 1, iphi);
           hh.SetBinContent(eta + 1, iphi + 1, binval);
-        }                                                       // if (iphi%2==1...)
+        }  // if (iphi%2==1...)
         else if (abs(ieta) > 39 && iphi % 4 == 3 && iphi < 73)  // 20 degree phi binning condition
         {
           // Set last two eta strips where each cell spans 20 degrees in phi
@@ -1046,7 +1046,7 @@ namespace HcalObjRepresent {
           hh.SetBinContent(eta + 1, (iphi + 1) % 72 + 1, hh.GetBinContent(eta + 1, iphi));
           hh.SetBinContent(eta + 1, (iphi + 2) % 72 + 1, hh.GetBinContent(eta + 1, iphi));
         }  // else if (abs(ieta)>39 ...)
-      }    // for (int phi=0;phi<72;++phi)
+      }  // for (int phi=0;phi<72;++phi)
 
     }  // for (int eta=0; eta< (etaBins_-2);++eta)
 
@@ -1207,8 +1207,8 @@ namespace HcalObjRepresent {
   class ADataRepr  //Sample base class for c++ inheritance tutorial
   {
   public:
-    ADataRepr(unsigned int d) : m_total(d){};
-    virtual ~ADataRepr(){};
+    ADataRepr(unsigned int d) : m_total(d) {}
+    virtual ~ADataRepr() {}
     unsigned int nr, id;
     std::stringstream filename, rootname, plotname;
 

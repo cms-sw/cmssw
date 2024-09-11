@@ -12,7 +12,7 @@ class DTtcpExcp {
   int errornumber;
 
 public:
-  DTtcpExcp(int err) : errornumber(err){};
+  DTtcpExcp(int err) : errornumber(err) {}
 };
 
 class DTCtcp {

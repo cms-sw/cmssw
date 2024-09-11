@@ -137,8 +137,8 @@ bool SiStripShotFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
             break;
         }
       }  //loop on shots
-    }    //loop on channels
-  }      //loop on FEDs.
+    }  //loop on channels
+  }  //loop on FEDs.
 
   if (lShots > 0)
     fOut_ << "### " << iEvent.id().event() << " " << lShots << std::endl;

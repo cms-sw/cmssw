@@ -728,14 +728,13 @@ void TrackerMap::drawModule(TmModule *mod, int key, int mlay, bool print_total, 
     nams.erase(found, 1);
     found = nams.find("  ", found);
   }
-  std::replace_if(
-      nams.begin(), nams.end(), [](char c) { return c == ' '; }, '_');
+  std::replace_if(nams.begin(), nams.end(), [](char c) { return c == ' '; }, '_');
 
   if (mod->red < 0) {  //use count to compute color
     int color = getcolor(mod->value, palette);
     red = (color >> 16) & 0xFF;
     green = (color >> 8) & 0xFF;
-    blue = (color)&0xFF;
+    blue = (color) & 0xFF;
 
     if (!print_total)
       mod->value = mod->value * mod->count;  //restore mod->value
@@ -1289,7 +1288,7 @@ void TrackerMap::drawApvPair(
         color = getcolor(apvPair->value, palette);
         red = (color >> 16) & 0xFF;
         green = (color >> 8) & 0xFF;
-        blue = (color)&0xFF;
+        blue = (color) & 0xFF;
         if (!print_total)
           apvPair->value = apvPair->value * apvPair->count;  //restore mod->value
         if (temporary_file)
@@ -1344,7 +1343,7 @@ void TrackerMap::drawApvPair(
         color = getcolor(apvPair->mod->value, palette);
         red = (color >> 16) & 0xFF;
         green = (color >> 8) & 0xFF;
-        blue = (color)&0xFF;
+        blue = (color) & 0xFF;
         if (temporary_file)
           *svgfile << nams << " " << vals << " " << red << " " << green << " " << blue << " ";
         else
@@ -1453,7 +1452,7 @@ void TrackerMap::drawCcu(
       color = getcolor(ccu->value, palette);
       red = (color >> 16) & 0xFF;
       green = (color >> 8) & 0xFF;
-      blue = (color)&0xFF;
+      blue = (color) & 0xFF;
       if (!print_total)
         ccu->value = ccu->value * ccu->count;  //restore mod->value
       if (temporary_file)
@@ -1564,7 +1563,7 @@ void TrackerMap::drawPsu(
       color = getcolor(psu->value, palette);
       red = (color >> 16) & 0xFF;
       green = (color >> 8) & 0xFF;
-      blue = (color)&0xFF;
+      blue = (color) & 0xFF;
       if (!print_total)
         psu->value = psu->value * psu->count;  //restore mod->value
       if (temporary_file)
@@ -1668,7 +1667,7 @@ void TrackerMap::drawHV2(
       color = getcolor(psu->valueHV2, palette);
       redHV2 = (color >> 16) & 0xFF;
       greenHV2 = (color >> 8) & 0xFF;
-      blueHV2 = (color)&0xFF;
+      blueHV2 = (color) & 0xFF;
       if (!print_total)
         psu->valueHV2 = psu->valueHV2 * psu->countHV2;  //restore mod->value
       if (temporary_file)
@@ -1771,7 +1770,7 @@ void TrackerMap::drawHV3(
       color = getcolor(psu->valueHV3, palette);
       redHV3 = (color >> 16) & 0xFF;
       greenHV3 = (color >> 8) & 0xFF;
-      blueHV3 = (color)&0xFF;
+      blueHV3 = (color) & 0xFF;
       if (!print_total)
         psu->valueHV3 = psu->valueHV3 * psu->countHV3;  //restore mod->value
       if (temporary_file)
@@ -2119,7 +2118,7 @@ void TrackerMap::save_as_fectrackermap(
       }
 
     }  //if(temporary_file)
-  }    //if(enabledFecProcessing)
+  }  //if(enabledFecProcessing)
 }
 void TrackerMap::save_as_HVtrackermap(
     bool print_total, float minval, float maxval, std::string s, int width, int height) {
@@ -2441,7 +2440,7 @@ void TrackerMap::save_as_HVtrackermap(
       }
 
     }  //if(temporary_file)
-  }    //if(enabledHVProcessing)
+  }  //if(enabledHVProcessing)
 }
 
 void TrackerMap::save_as_psutrackermap(
@@ -2749,7 +2748,7 @@ void TrackerMap::save_as_psutrackermap(
       }
 
     }  //if(temporary_file)
-  }    //if(enabledFedProcessing)
+  }  //if(enabledFedProcessing)
 }
 
 void TrackerMap::save_as_fedtrackermap(
@@ -3056,7 +3055,7 @@ void TrackerMap::save_as_fedtrackermap(
       }
 
     }  //if(temporary_file)
-  }    //if(enabledFedProcessing)
+  }  //if(enabledFedProcessing)
 }
 
 void TrackerMap::load(std::string inputfilename) {
@@ -3180,7 +3179,7 @@ void TrackerMap::drawPalette(std::ofstream *svgfile, int xoffset, int yoffset) {
     color = getcolor(val, palette);
     red = (color >> 16) & 0xFF;
     green = (color >> 8) & 0xFF;
-    blue = (color)&0xFF;
+    blue = (color) & 0xFF;
     //   if(!temporary_file)*svgfile <<"<svg:rect  x=\"3010\" y=\""<<(1550-6*i)<<"\" width=\"50\" height=\"6\" fill=\"rgb("<<red<<","<<green<<","<<blue<<")\" />\n";
     //  else *svgfile << red << " " << green << " " << blue << " 4 " << (6*i)+40 << " 3010. " <<//
     //           (6*i)+40 << " 3060. " <<//
@@ -3775,8 +3774,8 @@ void TrackerMap::printonline() {
 
             *txtfile << "</pre><h4>" << outs.str() << "</h4>" << std::endl;
           }  //ifccu->nmod==0
-        }    //if ccu!=0
-      }      //for i_ccu
+        }  //if ccu!=0
+      }  //for i_ccu
       *txtfile << "</body></html>" << std::endl;
       txtfile->close();
       delete txtfile;
@@ -4158,8 +4157,8 @@ void TrackerMap::printall(bool print_total, float minval1, float maxval1, std::s
 
               *txtfile << "</pre><h4>" << outs.str() << "</h4>" << std::endl;
             }  //ifccu->nmod==0
-          }    //if ccu!=0
-        }      //for i_ccu
+          }  //if ccu!=0
+        }  //for i_ccu
         *txtfile << "</body></html>" << std::endl;
         txtfile->close();
       }  //for int crate

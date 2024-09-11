@@ -61,6 +61,31 @@ pfUnifiedParticleTransformerAK4DiscriminatorsJetTags = cms.EDProducer(
             ),
          ),
       cms.PSet(
+         name = cms.string('SvsUDG'),
+         numerator = cms.VInputTag(
+            cms.InputTag('pfUnifiedParticleTransformerAK4JetTags', 'probs'),
+            ),
+         denominator = cms.VInputTag(
+            cms.InputTag('pfUnifiedParticleTransformerAK4JetTags', 'probs'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4JetTags', 'probu'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4JetTags', 'probd'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4JetTags', 'probg'),
+            ),
+         ),
+      cms.PSet(
+         name = cms.string('SvsBC'),
+         numerator = cms.VInputTag(
+            cms.InputTag('pfUnifiedParticleTransformerAK4JetTags', 'probs'),
+            ),
+         denominator = cms.VInputTag(
+            cms.InputTag('pfUnifiedParticleTransformerAK4JetTags', 'probs'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4JetTags', 'probb'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4JetTags', 'probbb'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4JetTags', 'problepb'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4JetTags', 'probc'),
+            ),
+         ),
+      cms.PSet(
          name = cms.string('TauVsJet'),
          numerator = cms.VInputTag(
             cms.InputTag('pfUnifiedParticleTransformerAK4JetTags', 'probtaup1h0p'),

@@ -107,6 +107,7 @@ private:
   int fwVersion;
 
   edm::EDGetTokenT<L1CaloRegionCollection> regionToken;
+  edm::EDGetTokenT<L1CaloRegionCollection> backupRegionToken;
 
   UCTLayer1* layer1;
 
@@ -141,7 +142,8 @@ L1TCaloSummary<INPUT, OUTPUT>::L1TCaloSummary(const edm::ParameterSet& iConfig)
       boostedJetPtFactor(iConfig.getParameter<double>("boostedJetPtFactor")),
       verbose(iConfig.getParameter<bool>("verbose")),
       fwVersion(iConfig.getParameter<int>("firmwareVersion")),
-      regionToken(consumes<L1CaloRegionCollection>(edm::InputTag("simCaloStage2Layer1Digis"))),
+      regionToken(consumes<L1CaloRegionCollection>(iConfig.getParameter<edm::InputTag>("caloLayer1Regions"))),
+      backupRegionToken(consumes<L1CaloRegionCollection>(edm::InputTag("simCaloStage2Layer1Digis"))),
       loader(hls4mlEmulator::ModelLoader(iConfig.getParameter<string>("CICADAModelVersion"))),
       overwriteWithTestPatterns(iConfig.getParameter<bool>("useTestPatterns")),
       testPatterns(iConfig.getParameter<std::vector<edm::ParameterSet>>("testPatterns")) {
@@ -198,6 +200,12 @@ void L1TCaloSummary<INPUT, OUTPUT>::produce(edm::Event& iEvent, const edm::Event
   if (!iEvent.getByToken(regionToken, regionCollection))
     edm::LogError("L1TCaloSummary") << "UCT: Failed to get regions from region collection!";
   iEvent.getByToken(regionToken, regionCollection);
+
+  if (regionCollection->size() == 0) {
+    iEvent.getByToken(backupRegionToken, regionCollection);
+    edm::LogWarning("L1TCaloSummary") << "Switched to emulated regions since data regions was empty.\n";
+  }
+
   //Model input
   //This is done as a flat vector input, but future versions may involve 2D input
   //This will have to be handled later

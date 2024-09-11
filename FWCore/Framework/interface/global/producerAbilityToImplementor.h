@@ -137,7 +137,7 @@ namespace edm {
         using Type = edm::global::impl::EmptyType;
       };
     }  // namespace producer
-  }    // namespace global
+  }  // namespace global
 }  // namespace edm
 
 #endif

@@ -8,7 +8,7 @@ class AnnealingSchedule {
    *  annealing schedules.
    */
 public:
-  virtual ~AnnealingSchedule(){};
+  virtual ~AnnealingSchedule() {}
   virtual void anneal() = 0;  //< One annealing step.
   virtual void resetAnnealing() = 0;
 

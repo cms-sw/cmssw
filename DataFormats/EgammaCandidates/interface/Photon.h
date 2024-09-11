@@ -305,7 +305,7 @@ namespace reco {
     struct SaturationInfo {
       int nSaturatedXtals;
       bool isSeedSaturated;
-      SaturationInfo() : nSaturatedXtals(0), isSeedSaturated(false){};
+      SaturationInfo() : nSaturatedXtals(0), isSeedSaturated(false) {}
     };
 
     // accessors

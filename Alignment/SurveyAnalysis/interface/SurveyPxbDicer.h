@@ -28,7 +28,7 @@ public:
   typedef std::pair<id_t, id_t> idPair_t;
 
   // Constructors
-  SurveyPxbDicer(){};
+  SurveyPxbDicer() {}
   // Constructor from VPSet
   SurveyPxbDicer(const std::vector<edm::ParameterSet> &pars, unsigned int seed);
 

@@ -22,7 +22,7 @@
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 class EcalDetIdAssociator : public CaloDetIdAssociator {
 public:
-  EcalDetIdAssociator() : CaloDetIdAssociator(360, 300, 0.02, nullptr){};
+  EcalDetIdAssociator() : CaloDetIdAssociator(360, 300, 0.02, nullptr) {}
 
   using CaloDetIdAssociator::CaloDetIdAssociator;
 

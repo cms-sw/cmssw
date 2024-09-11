@@ -13,7 +13,7 @@
 namespace L1Analysis {
   struct L1AnalysisCaloTPDataFormat {
     L1AnalysisCaloTPDataFormat() { Reset(); };
-    ~L1AnalysisCaloTPDataFormat(){};
+    ~L1AnalysisCaloTPDataFormat() {}
 
     void Reset() {
       nHCALTP = 0;

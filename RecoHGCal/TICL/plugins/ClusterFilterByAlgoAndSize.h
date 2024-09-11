@@ -20,7 +20,7 @@ namespace ticl {
               "algo_number")),  // hgcal_em = 6, hgcal_had = 7, hgcal_scintillator = 8, hfnose = 9
           min_cluster_size_(ps.getParameter<int>("min_cluster_size")),
           max_cluster_size_(ps.getParameter<int>("max_cluster_size")) {}
-    ~ClusterFilterByAlgoAndSize() override{};
+    ~ClusterFilterByAlgoAndSize() override {}
 
     void filter(const std::vector<reco::CaloCluster>& layerClusters,
                 std::vector<float>& layerClustersMask,

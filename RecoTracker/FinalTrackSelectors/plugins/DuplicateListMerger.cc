@@ -119,8 +119,7 @@ namespace {
     produces<QualityMaskCollection>("QualityMasks");
   }
 
-  DuplicateListMerger::~DuplicateListMerger() { /* no op */
-  }
+  DuplicateListMerger::~DuplicateListMerger() { /* no op */ }
 
   void DuplicateListMerger::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
     TrackCollectionCloner::Producer producer(iEvent, collectionCloner);

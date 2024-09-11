@@ -33,11 +33,11 @@ using namespace reco;
 class RPCMuonAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   RPCMuonAnalyzer(const edm::ParameterSet& pset);
-  ~RPCMuonAnalyzer() override{};
+  ~RPCMuonAnalyzer() override {}
 
   void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) override;
-  void beginJob() override{};
-  void endJob() override{};
+  void beginJob() override {}
+  void endJob() override {}
 
 private:
   edm::InputTag muonLabel_;

@@ -184,7 +184,7 @@ namespace cscdqm {
               mo->Fill(i);
             }
             float cfeb_entries = mo->GetBinContent(i + 1);
-            mof->SetBinContent(i + 1, ((float)cfeb_entries / (float)(DMBEvents)*100.0));
+            mof->SetBinContent(i + 1, ((float)cfeb_entries / (float)(DMBEvents) * 100.0));
           }
           mof->SetEntries((int)DMBEvents);
         }
@@ -193,7 +193,7 @@ namespace cscdqm {
             getCSCHisto(h::CSC_ACTUAL_DMB_CFEB_DAV_MULTIPLICITY_FREQUENCY, crateID, dmbSlot, mof)) {
           for (unsigned short i = 1; i < 7; i++) {
             float cfeb_entries = mo->GetBinContent(i);
-            mof->SetBinContent(i, ((float)cfeb_entries / (float)(DMBEvents)*100.0));
+            mof->SetBinContent(i, ((float)cfeb_entries / (float)(DMBEvents) * 100.0));
           }
           mof->SetEntries((int)DMBEvents);
 
@@ -219,7 +219,7 @@ namespace cscdqm {
           if (getCSCHisto(h::CSC_ACTUAL_DMB_FEB_DAV_FREQUENCY, crateID, dmbSlot, mo1)) {
             for (int i = 1; i < 4; i++) {
               float dav_num = mo->GetBinContent(i);
-              mo1->SetBinContent(i, ((float)dav_num / (float)(DMBEvents)*100.0));
+              mo1->SetBinContent(i, ((float)dav_num / (float)(DMBEvents) * 100.0));
             }
             mo1->SetEntries((int)DMBEvents);
 
@@ -272,7 +272,7 @@ namespace cscdqm {
           if (getCSCHisto(h::CSC_ACTUAL_DMB_FEB_COMBINATIONS_DAV_FREQUENCY, crateID, dmbSlot, mo1)) {
             for (int i = 1; i < 9; i++) {
               float feb_combination_dav_number = mo->GetBinContent(i);
-              mo1->SetBinContent(i, ((float)feb_combination_dav_number / (float)(DMBEvents)*100.0));
+              mo1->SetBinContent(i, ((float)feb_combination_dav_number / (float)(DMBEvents) * 100.0));
             }
             mo1->SetEntries(DMBEvents);
 

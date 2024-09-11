@@ -87,8 +87,8 @@ public:
 
   SiStripSummary(std::vector<std::string>& userDBContent);
   SiStripSummary(const SiStripSummary& input);
-  SiStripSummary(){};
-  ~SiStripSummary(){};
+  SiStripSummary() {}
+  ~SiStripSummary() {}
 
   ContainerIterator getDataVectorBegin() const { return v_sum_.begin(); }
   ContainerIterator getDataVectorEnd() const { return v_sum_.end(); }

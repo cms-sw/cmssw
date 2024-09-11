@@ -495,8 +495,8 @@ const indexedCorners Phase1PixelMaps::retrieveCorners(const std::vector<edm::Fil
         theOutMap[id] = std::make_pair(xP, yP);
 
       }  // if line is empty
-    }    // loop on lines
-  }      // loop on files
+    }  // loop on lines
+  }  // loop on files
   return theOutMap;
 }
 

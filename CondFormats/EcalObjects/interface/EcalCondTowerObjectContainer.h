@@ -25,7 +25,7 @@ public:
     size_t eesize = (size_t)632;
     ee_.checkAndResize(eesize);
   };
-  ~EcalCondTowerObjectContainer(){};
+  ~EcalCondTowerObjectContainer() {}
 
   inline const Items &barrelItems() const { return eb_.items(); };
 

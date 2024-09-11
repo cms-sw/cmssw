@@ -171,8 +171,8 @@ void HtrXmlPatternTool::writeXML() {
           }
 
         }  //end fiber loop
-      }    // end tb loop
-    }      //end slot loop
+      }  // end tb loop
+    }  //end slot loop
 
     if (m_params->m_XML_file_mode == 2) {
       (*of) << "</CFGBrickSet>" << std::endl;

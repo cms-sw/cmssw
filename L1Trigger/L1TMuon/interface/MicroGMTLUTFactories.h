@@ -14,8 +14,8 @@
 namespace l1t {
   class MicroGMTRankPtQualLUTFactory {
   public:
-    MicroGMTRankPtQualLUTFactory(){};
-    ~MicroGMTRankPtQualLUTFactory(){};
+    MicroGMTRankPtQualLUTFactory() {}
+    ~MicroGMTRankPtQualLUTFactory() {}
 
     typedef std::shared_ptr<MicroGMTRankPtQualLUT> ReturnType;
 
@@ -28,8 +28,8 @@ namespace l1t {
 
   class MicroGMTMatchQualLUTFactory {
   public:
-    MicroGMTMatchQualLUTFactory(){};
-    ~MicroGMTMatchQualLUTFactory(){};
+    MicroGMTMatchQualLUTFactory() {}
+    ~MicroGMTMatchQualLUTFactory() {}
 
     typedef std::shared_ptr<MicroGMTMatchQualLUT> ReturnType;
 
@@ -45,8 +45,8 @@ namespace l1t {
 
   class MicroGMTExtrapolationLUTFactory {
   public:
-    MicroGMTExtrapolationLUTFactory(){};
-    ~MicroGMTExtrapolationLUTFactory(){};
+    MicroGMTExtrapolationLUTFactory() {}
+    ~MicroGMTExtrapolationLUTFactory() {}
 
     typedef std::shared_ptr<MicroGMTExtrapolationLUT> ReturnType;
 
@@ -56,8 +56,8 @@ namespace l1t {
 
   class MicroGMTCaloIndexSelectionLUTFactory {
   public:
-    MicroGMTCaloIndexSelectionLUTFactory(){};
-    ~MicroGMTCaloIndexSelectionLUTFactory(){};
+    MicroGMTCaloIndexSelectionLUTFactory() {}
+    ~MicroGMTCaloIndexSelectionLUTFactory() {}
 
     typedef std::shared_ptr<MicroGMTCaloIndexSelectionLUT> ReturnType;
 
@@ -67,8 +67,8 @@ namespace l1t {
 
   class MicroGMTAbsoluteIsolationCheckLUTFactory {
   public:
-    MicroGMTAbsoluteIsolationCheckLUTFactory(){};
-    ~MicroGMTAbsoluteIsolationCheckLUTFactory(){};
+    MicroGMTAbsoluteIsolationCheckLUTFactory() {}
+    ~MicroGMTAbsoluteIsolationCheckLUTFactory() {}
 
     typedef std::shared_ptr<MicroGMTAbsoluteIsolationCheckLUT> ReturnType;
 
@@ -78,8 +78,8 @@ namespace l1t {
 
   class MicroGMTRelativeIsolationCheckLUTFactory {
   public:
-    MicroGMTRelativeIsolationCheckLUTFactory(){};
-    ~MicroGMTRelativeIsolationCheckLUTFactory(){};
+    MicroGMTRelativeIsolationCheckLUTFactory() {}
+    ~MicroGMTRelativeIsolationCheckLUTFactory() {}
 
     typedef std::shared_ptr<MicroGMTRelativeIsolationCheckLUT> ReturnType;
 

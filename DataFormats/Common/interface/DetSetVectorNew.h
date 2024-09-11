@@ -690,7 +690,7 @@ namespace edm {
       typedef FindSetForNewDetSetVector<T> value;
     };
   }  // namespace refhelper
-     /* ... implementation is provided, just in case it's needed */
+  /* ... implementation is provided, just in case it's needed */
 }  // namespace edm
 
 namespace edmNew {

@@ -1041,7 +1041,7 @@ std::vector<PrimaryVertexAnalyzer4PUSlimmed::recoPrimaryVertex> PrimaryVertexAna
       }
 
     }  // End of for loop on daughters reconstructed tracks
-  }    // End of for loop on tracking vertices
+  }  // End of for loop on tracking vertices
 
   if (verbose_) {
     std::cout << "------- PrimaryVertexAnalyzer4PUSlimmed recoPVs from "

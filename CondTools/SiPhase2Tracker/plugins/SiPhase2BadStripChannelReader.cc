@@ -73,7 +73,7 @@ void SiPhase2BadStripChannelReader::analyze(edm::StreamID,
              << badStrip.second << ")" << std::endl;
         }
       }  // if doesn't exceed the maximum printout level
-    }    // loop over the range
+    }  // loop over the range
     countMessages++;
   }  // loop over the detids
 

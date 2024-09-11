@@ -10,9 +10,9 @@ class CSCBadChambers {
 public:
   typedef uint16_t IndexType;
 
-  CSCBadChambers() : numberOfBadChambers(0), chambers(std::vector<int>()){};
-  CSCBadChambers(int nch, const std::vector<int>& ch) : numberOfBadChambers(nch), chambers(ch){};
-  ~CSCBadChambers(){};
+  CSCBadChambers() : numberOfBadChambers(0), chambers(std::vector<int>()) {}
+  CSCBadChambers(int nch, const std::vector<int>& ch) : numberOfBadChambers(nch), chambers(ch) {}
+  ~CSCBadChambers() {}
 
   /// How many bad chambers are there>
   int numberOfChambers() const { return numberOfBadChambers; }

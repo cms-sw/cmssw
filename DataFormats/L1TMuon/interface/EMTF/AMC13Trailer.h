@@ -22,9 +22,9 @@ namespace l1t {
             t(-99),
             r(-99),
             format_errors(0),
-            dataword(-99){};
+            dataword(-99) {}
 
-      virtual ~AMC13Trailer(){};
+      virtual ~AMC13Trailer() {}
 
       void set_evt_lgth(int bits) { evt_lgth = bits; }
       void set_crc16(int bits) { crc16 = bits; }
@@ -61,7 +61,7 @@ namespace l1t {
       uint64_t dataword;
 
     };  // End class AMC13Trailer
-  }     // End namespace emtf
+  }  // End namespace emtf
 }  // End namespace l1t
 
 #endif /* define __l1t_emtf_AMC13Trailer_h__ */

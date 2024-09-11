@@ -321,7 +321,7 @@ void DTLocalTriggerTest::runClientDiagnostic(DQMStore::IBooker& ibooker, DQMStor
               }  // closes BXvsQual && Flag1stvsQual && BestQual
 
             }  // Check on TM source
-               //Theta part
+            //Theta part
             if (hwSource == "TM") {
               // Perform TM plot analysis (Theta ones)
               TH2F* ThetaPosvsBX = getHisto<TH2F>(igetter.get(getMEName("PositionvsBX", "LocalTriggerTheta", chId)));

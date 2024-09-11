@@ -19,7 +19,7 @@ public:
   /// constructor from  stream to read
   FileBlob(std::istream &is, bool zip);
 
-  ~FileBlob(){};
+  ~FileBlob() {}
 
   /// read from real file
   void read(const std::string &);

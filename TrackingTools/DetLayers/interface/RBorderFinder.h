@@ -26,7 +26,7 @@ public:
 
   RBorderFinder(const std::vector<const Det*>& utheDets);
 
-  virtual ~RBorderFinder(){};
+  virtual ~RBorderFinder() {}
 
   /// Returns true if the Dets are periodic in R.
   inline bool isRPeriodic() const { return isRPeriodic_; }

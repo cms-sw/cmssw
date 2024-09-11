@@ -11,16 +11,16 @@
 
 class EcalTBHodoscopeRecInfo {
 public:
-  EcalTBHodoscopeRecInfo(){};
+  EcalTBHodoscopeRecInfo() {}
   EcalTBHodoscopeRecInfo(const float& xpos,
                          const float& ypos,
                          const float& xslope,
                          const float& yslope,
                          const float& xqual,
                          const float& yqual)
-      : pos_x_(xpos), pos_y_(ypos), slope_x_(xslope), slope_y_(yslope), qual_x_(xqual), qual_y_(yqual){};
+      : pos_x_(xpos), pos_y_(ypos), slope_x_(xslope), slope_y_(yslope), qual_x_(xqual), qual_y_(yqual) {}
 
-  ~EcalTBHodoscopeRecInfo(){};
+  ~EcalTBHodoscopeRecInfo() {}
 
   float posX() const { return pos_x_; }
   float posY() const { return pos_y_; }

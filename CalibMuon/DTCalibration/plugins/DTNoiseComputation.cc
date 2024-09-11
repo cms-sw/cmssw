@@ -203,9 +203,9 @@ void DTNoiseComputation::beginRun(const edm::Run &, const EventSetup &setup) {
             }
 
           }  // done if the layer has digi
-        }    // loop over layers
-      }      // loop over superlayers
-    }        // loop over chambers
+        }  // loop over layers
+      }  // loop over superlayers
+    }  // loop over chambers
 
     count++;
   }

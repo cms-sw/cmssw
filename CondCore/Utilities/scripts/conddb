@@ -706,12 +706,13 @@ def _get_hlt_fcsr( session, timeType ):
 
 def _get_prompt_fcsr( session, timeType ):
     tier0timeout = 5
+    tier0maxtime = 60
     tier0retries = 3 
     tier0retryPeriod = 5
     tier0proxy = None
     try:
         t0DataSvc = Tier0Handler( tier0Url,
-                                  tier0timeout, tier0retries, tier0retryPeriod,
+                                  tier0timeout, tier0maxtime, tier0retries, tier0retryPeriod,
                                   tier0proxy, False )
         try:
             fcsr = t0DataSvc.getFirstSafeRun()

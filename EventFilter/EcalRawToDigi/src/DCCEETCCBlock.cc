@@ -182,7 +182,7 @@ void DCCEETCCBlock::addTriggerPrimitivesToCollection() {
         (*tps_)->push_back(*pTP_);
       }
     }  // end if(processTPG2)
-  }    // end FOV==1 or 2
+  }  // end FOV==1 or 2
 }
 
 bool DCCEETCCBlock::checkTccIdAndNumbTTs() {

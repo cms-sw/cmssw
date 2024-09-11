@@ -762,7 +762,7 @@ DetId PixelBarrelName::getDetId(const TrackerTopology* tt) {
       ladder = tmpLadder + lL[ind][6];
     else if (layer == 4)
       ladder = tmpLadder + lL[ind][9];
-  }       // outer
+  }  // outer
   else {  // inner
     if (layer == 1) {
       if (tmpLadder <= lL[ind][0])
@@ -785,7 +785,7 @@ DetId PixelBarrelName::getDetId(const TrackerTopology* tt) {
       else
         ladder = lL[ind][11] - tmpLadder;
     }  // layer
-  }    // inner
+  }  // inner
 
   // translate the module number from naming convention to cmssw convention
   // numbering starts at positive z
@@ -846,7 +846,7 @@ PXBDetId PixelBarrelName::getDetId() {
         else if (tmpLadder <= 32)
           ladder = 81 - tmpLadder;
       }  // layer
-    }    // inner
+    }  // inner
 
   } else {        // phase 0
     if (outer) {  // outer
@@ -873,7 +873,7 @@ PXBDetId PixelBarrelName::getDetId() {
         else if (tmpLadder <= 22)
           ladder = 56 - tmpLadder;
       }  // end layer
-    }    // inner
+    }  // inner
 
   }  // phase
 

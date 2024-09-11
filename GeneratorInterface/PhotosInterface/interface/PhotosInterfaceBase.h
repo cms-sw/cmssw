@@ -13,11 +13,11 @@
 namespace gen {
   class PhotosInterfaceBase {
   public:
-    PhotosInterfaceBase(){};
-    PhotosInterfaceBase(const edm::ParameterSet&){};
-    virtual ~PhotosInterfaceBase(){};
+    PhotosInterfaceBase() {}
+    PhotosInterfaceBase(const edm::ParameterSet&) {}
+    virtual ~PhotosInterfaceBase() {}
 
-    virtual void SetDecayRandomEngine(CLHEP::HepRandomEngine* decayRandomEngine){};
+    virtual void SetDecayRandomEngine(CLHEP::HepRandomEngine* decayRandomEngine) {}
     virtual void init() = 0;
     virtual const std::vector<std::string>& specialSettings() { return fSpecialSettings; }
     virtual HepMC::GenEvent* apply(HepMC::GenEvent* evt) { return evt; }
@@ -25,7 +25,7 @@ namespace gen {
     ;
     virtual void configureOnlyFor(int) = 0;
     virtual void setRandomEngine(CLHEP::HepRandomEngine* decayRandomEngine) = 0;
-    virtual void statistics(){};
+    virtual void statistics() {}
 
   protected:
     std::vector<std::string> fSpecialSettings;

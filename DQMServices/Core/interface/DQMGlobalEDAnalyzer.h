@@ -57,7 +57,7 @@ public:
 
   // Subsystems could safely override this, but any changes to MEs would not be
   // noticeable since the product was made already.
-  void globalEndRun(edm::Run const&, edm::EventSetup const&) const final{};
+  void globalEndRun(edm::Run const&, edm::EventSetup const&) const final {}
 
   // methods to be implemented by the user, in order of invocation
   virtual void dqmBeginRun(edm::Run const&, edm::EventSetup const&, H&) const {}

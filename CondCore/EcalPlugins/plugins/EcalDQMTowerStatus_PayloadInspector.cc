@@ -281,7 +281,7 @@ namespace {
       canvas.SaveAs(ImageName.c_str());
       return true;
     }  // fill method
-  };   // class EcalDQMTowerStatusDiffBase
+  };  // class EcalDQMTowerStatusDiffBase
   using EcalDQMTowerStatusDiffOneTag = EcalDQMTowerStatusDiffBase<cond::payloadInspector::SINGLE_IOV, 1>;
   using EcalDQMTowerStatusDiffTwoTags = EcalDQMTowerStatusDiffBase<cond::payloadInspector::SINGLE_IOV, 2>;
 

@@ -9,7 +9,7 @@
 namespace l1t {
   class MicroGMTExtrapolationLUT : public MicroGMTLUT {
   public:
-    MicroGMTExtrapolationLUT(){};
+    MicroGMTExtrapolationLUT() {}
     explicit MicroGMTExtrapolationLUT(const std::string& fname,
                                       const int outWidth,
                                       const int etaRedInWidth,
@@ -18,7 +18,7 @@ namespace l1t {
                                       const int outWidth,
                                       const int etaRedInWidth,
                                       const int ptRedInWidth);
-    ~MicroGMTExtrapolationLUT() override{};
+    ~MicroGMTExtrapolationLUT() override {}
 
     // returns the index corresponding to the calo tower sum
     int lookup(int angle, int pt) const;

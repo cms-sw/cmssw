@@ -16,8 +16,8 @@
 class FittedEntriesManager {
 public:
   //---------- Constructors / Destructor
-  FittedEntriesManager(){};
-  ~FittedEntriesManager(){};
+  FittedEntriesManager() {}
+  ~FittedEntriesManager() {}
   static FittedEntriesManager* getInstance();
   void AddFittedEntriesSet(FittedEntriesSet* fents);
   void MakeHistos();

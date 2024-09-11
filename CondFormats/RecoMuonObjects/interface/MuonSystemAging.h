@@ -12,8 +12,8 @@ enum CSCInefficiencyType { EFF_CHAMBER = 0, EFF_STRIPS = 1, EFF_WIRES = 2 };
 
 class MuonSystemAging {
 public:
-  MuonSystemAging(){};
-  ~MuonSystemAging(){};
+  MuonSystemAging() {}
+  ~MuonSystemAging() {}
 
   std::map<unsigned int, float> m_RPCChambEffs;
   std::map<unsigned int, float> m_DTChambEffs;

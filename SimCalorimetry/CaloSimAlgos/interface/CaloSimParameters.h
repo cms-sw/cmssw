@@ -25,7 +25,7 @@ public:
 
   CaloSimParameters(const edm::ParameterSet &p, bool skipPe2Fc = false);
 
-  virtual ~CaloSimParameters(){};
+  virtual ~CaloSimParameters() {}
 
   /// the factor which goes from whatever units the SimHit amplitudes
   /// are in (could be deposited GeV, real GeV, or photoelectrons)

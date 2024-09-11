@@ -45,7 +45,7 @@ public:
   };
 
   /// destructor
-  ~L1MuGMTLFPhiProLUT() override{};
+  ~L1MuGMTLFPhiProLUT() override {}
 
   /// specific lookup function for dphi
   unsigned SpecificLookup_dphi(int idx, unsigned eta, unsigned pt, unsigned charge) const {

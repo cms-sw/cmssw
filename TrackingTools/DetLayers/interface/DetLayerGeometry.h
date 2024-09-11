@@ -17,7 +17,7 @@ class DetLayer;
 
 class DetLayerGeometry {
 public:
-  DetLayerGeometry(){};
+  DetLayerGeometry() {}
 
   virtual ~DetLayerGeometry() {}
 

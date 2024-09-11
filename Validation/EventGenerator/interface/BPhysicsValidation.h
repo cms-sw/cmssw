@@ -43,8 +43,8 @@ private:
   class ParticleMonitor {
   public:
     ParticleMonitor(std::string name_, const edm::ParameterSet &p_)
-        : p(p_), name(name_), pdgid(p.getParameter<int>("pdgid")){};
-    ~ParticleMonitor(){};
+        : p(p_), name(name_), pdgid(p.getParameter<int>("pdgid")) {}
+    ~ParticleMonitor() {}
 
     void Configure(DQMStore::IBooker &i) {
       std::string pname = p.getParameter<std::string>("pname");

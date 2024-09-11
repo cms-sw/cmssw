@@ -51,8 +51,9 @@ namespace testinter {
     }
 
     template <typename SERIAL>
-    auto doTransition(SERIAL& iDeserializer, edm::Transition iTrans, unsigned long long iTransitionID)
-        -> decltype(iDeserializer.deserialize()) {
+    auto doTransition(SERIAL& iDeserializer,
+                      edm::Transition iTrans,
+                      unsigned long long iTransitionID) -> decltype(iDeserializer.deserialize()) {
       decltype(iDeserializer.deserialize()) value;
       if (not channel_.doTransition(
               [&value, this]() {

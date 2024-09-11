@@ -86,7 +86,7 @@ namespace {
           objContainer->printAll();
 
         }  // payload
-      }    // iovs
+      }  // iovs
       return true;
     }  // fill
   };
@@ -242,9 +242,9 @@ namespace {
               fillWithValue(payload->getApvGain(it, range));
 
             }  // loop over APVs
-          }    // loop over detIds
-        }      // payload
-      }        // iovs
+          }  // loop over detIds
+        }  // payload
+      }  // iovs
       return true;
     }  // fill
   };
@@ -296,7 +296,7 @@ namespace {
               sumOfGainsByLayer[layer].first += payload->getApvGain(it, range);
               sumOfGainsByLayer[layer].second += 1.;
             }  // loop over APVs
-          }    // loop over detIds
+          }  // loop over detIds
 
           // loop on the map to fill the plot
           for (auto& data : sumOfGainsByLayer) {
@@ -304,7 +304,7 @@ namespace {
           }
 
         }  // payload
-      }    // iovs
+      }  // iovs
       return true;
     }  // fill
   };
@@ -348,8 +348,8 @@ namespace {
                             (gain > 2.0) ? 2.0 : gain);
             }
           }  //loop over detIds
-        }    // loop over payloads
-      }      // loop over iovs
+        }  // loop over payloads
+      }  // loop over iovs
       return true;
     }  // fill
   };
@@ -409,7 +409,7 @@ namespace {
               sumOfGainsByDisk[disk].first += payload->getApvGain(it, range);
               sumOfGainsByDisk[disk].second += 1.;
             }  // loop over APVs
-          }    // loop over detIds
+          }  // loop over detIds
 
           // loop on the map to fill the plot
           for (auto& data : sumOfGainsByDisk) {
@@ -417,7 +417,7 @@ namespace {
           }
 
         }  // payload
-      }    // iovs
+      }  // iovs
       return true;
     }  // fill
   };
@@ -478,7 +478,7 @@ namespace {
               sumOfGainsByDisk[disk].first += payload->getApvGain(it, range);
               sumOfGainsByDisk[disk].second += 1.;
             }  // loop over APVs
-          }    // loop over detIds
+          }  // loop over detIds
 
           // loop on the map to fill the plot
           for (auto& data : sumOfGainsByDisk) {
@@ -486,7 +486,7 @@ namespace {
           }
 
         }  // payload
-      }    // iovs
+      }  // iovs
       return true;
     }  // fill
   };
@@ -542,7 +542,7 @@ namespace {
               float gain = payload->getApvGain(it, range);
               fillWithValue((float)disk - 1, (gain > 2.0) ? 2.0 : gain);
             }  // apvs
-          }    // detids
+          }  // detids
         }
       }  // iovs
       return true;
@@ -599,7 +599,7 @@ namespace {
               float gain = payload->getApvGain(it, range);
               fillWithValue((float)disk - 1, (gain > 2.0) ? 2.0 : gain);
             }  //apvs
-          }    //detids
+          }  //detids
         }
       }  // iovs
       return true;
@@ -911,7 +911,7 @@ namespace {
           std::pair<uint32_t, int> index = std::make_pair(d, nAPV);
           lastmap[index] = Gain;
         }  // loop over APVs
-      }    // loop over detIds
+      }  // loop over detIds
 
       detid.clear();
 
@@ -927,7 +927,7 @@ namespace {
           std::pair<uint32_t, int> index = std::make_pair(d, nAPV);
           firstmap[index] = Gain;
         }  // loop over APVs
-      }    // loop over detIds
+      }  // loop over detIds
 
       // find the largest deviation
       std::map<uint32_t, float> cachedRatio;
@@ -1099,7 +1099,7 @@ namespace {
           nAPVs += 1;
           sumOfGains += payload.getApvGain(it, range);
         }  // loop over APVs
-      }    // loop over detIds
+      }  // loop over detIds
 
       return sumOfGains / nAPVs;
     }  // payload
@@ -1139,7 +1139,7 @@ namespace {
           sumOfGains += gain;
           rmsOfGains += (gain * gain);
         }  // loop over APVs
-      }    // loop over detIds
+      }  // loop over detIds
 
       meanOfGains = sumOfGains / nAPVs;
 
@@ -1201,7 +1201,7 @@ namespace {
           nAPVs += 1;
           sumOfGains += payload.getApvGain(it, range);
         }  // loop over APVs
-      }    // loop over detIds
+      }  // loop over detIds
 
       return sumOfGains / nAPVs;
 
@@ -1235,7 +1235,7 @@ namespace {
           nAPVs += 1;
           sumOfGains += payload.getApvGain(it, range);
         }  // loop over APVs
-      }    // loop over detIds
+      }  // loop over detIds
 
       return sumOfGains / nAPVs;
 
@@ -1269,7 +1269,7 @@ namespace {
           nAPVs += 1;
           sumOfGains += payload.getApvGain(it, range);
         }  // loop over APVs
-      }    // loop over detIds
+      }  // loop over detIds
 
       return sumOfGains / nAPVs;
 
@@ -1304,7 +1304,7 @@ namespace {
           nAPVs += 1;
           sumOfGains += payload.getApvGain(it, range);
         }  // loop over APVs
-      }    // loop over detIds
+      }  // loop over detIds
 
       return sumOfGains / nAPVs;
 
@@ -1349,7 +1349,7 @@ namespace {
           std::cout << ss.str() << std::endl;
 
         }  // payload
-      }    // iovs
+      }  // iovs
       return true;
     }  // fill
   private:
@@ -1406,7 +1406,7 @@ namespace {
           std::pair<uint32_t, int> index = std::make_pair(d, nAPV);
           lastmap[index] = Gain;
         }  // end loop on APVs
-      }    // end loop on detids
+      }  // end loop on detids
 
       detid.clear();
       first_payload->getDetIds(detid);
@@ -1422,7 +1422,7 @@ namespace {
           std::pair<uint32_t, int> index = std::make_pair(d, nAPV);
           firstmap[index] = Gain;
         }  // end loop on APVs
-      }    // end loop on detids
+      }  // end loop on detids
 
       TCanvas canvas("Payload comparison", "payload comparison", 1400, 1000);
       canvas.Divide(2, 1);
@@ -1622,7 +1622,7 @@ namespace {
           float gain = payload->getApvGain(it, range);
           h_gains[region]->Fill(gain);
         }  // end loop on APVs
-      }    // end loop on detids
+      }  // end loop on detids
 
       TCanvas canvas("Payload breakout", "payload breakout", 1200, 800);
       canvas.Divide(2, 1);
@@ -1831,7 +1831,7 @@ namespace {
           auto index = std::make_pair(d, nAPV);
           lastmap[index] = last_payload->getApvGain(it, range);
         }  // end loop on APVs
-      }    // end loop on detids
+      }  // end loop on detids
 
       detid.clear();
       first_payload->getDetIds(detid);
@@ -1845,7 +1845,7 @@ namespace {
           auto index = std::make_pair(d, nAPV);
           firstmap[index] = last_payload->getApvGain(it, range);
         }  // end loop on APVs
-      }    // end loop on detids
+      }  // end loop on detids
 
       TCanvas canvas("Payload comparison", "payload comparison", 1000, 1000);
       canvas.cd();
@@ -2014,7 +2014,7 @@ namespace {
           std::pair<uint32_t, int> index = std::make_pair(d, nAPV);
           lastmap[index] = Gain;
         }  // end loop on APVs
-      }    // end loop on detids
+      }  // end loop on detids
 
       detid.clear();
       first_payload->getDetIds(detid);
@@ -2030,7 +2030,7 @@ namespace {
           std::pair<uint32_t, int> index = std::make_pair(d, nAPV);
           firstmap[index] = Gain;
         }  // end loop on APVs
-      }    // end loop on detids
+      }  // end loop on detids
 
       TCanvas canvas("Payload comparison by Tracker Region", "payload comparison by Tracker Region", 1800, 800);
       canvas.Divide(2, 1);

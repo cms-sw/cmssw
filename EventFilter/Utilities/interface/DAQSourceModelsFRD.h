@@ -10,7 +10,7 @@ class FEDRawDataCollection;
 class DataModeFRD : public DataMode {
 public:
   DataModeFRD(DAQSource* daqSource) : DataMode(daqSource) {}
-  ~DataModeFRD() override{};
+  ~DataModeFRD() override {}
   std::vector<std::shared_ptr<const edm::DaqProvenanceHelper>>& makeDaqProvenanceHelpers() override;
   void readEvent(edm::EventPrincipal& eventPrincipal) override;
 
@@ -57,7 +57,7 @@ public:
   bool fitToBuffer() const override { return false; }
   bool dataBlockInitialized() const override { return true; }
 
-  void setDataBlockInitialized(bool) override{};
+  void setDataBlockInitialized(bool) override {}
 
   void setTCDSSearchRange(uint16_t MINTCDSuTCAFEDID, uint16_t MAXTCDSuTCAFEDID) override {
     MINTCDSuTCAFEDID_ = MINTCDSuTCAFEDID;
@@ -94,7 +94,7 @@ private:
 class DataModeFRDStriped : public DataMode {
 public:
   DataModeFRDStriped(DAQSource* daqSource) : DataMode(daqSource) {}
-  ~DataModeFRDStriped() override{};
+  ~DataModeFRDStriped() override {}
   std::vector<std::shared_ptr<const edm::DaqProvenanceHelper>>& makeDaqProvenanceHelpers() override;
   void readEvent(edm::EventPrincipal& eventPrincipal) override;
 
@@ -166,7 +166,7 @@ public:
 
   bool dataBlockInitialized() const override { return dataBlockInitialized_; }
 
-  void setDataBlockInitialized(bool val) override { dataBlockInitialized_ = val; };
+  void setDataBlockInitialized(bool val) override { dataBlockInitialized_ = val; }
 
   void setTCDSSearchRange(uint16_t MINTCDSuTCAFEDID, uint16_t MAXTCDSuTCAFEDID) override {
     MINTCDSuTCAFEDID_ = MINTCDSuTCAFEDID;

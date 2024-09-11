@@ -17,7 +17,7 @@
 
 class EcalWeightSetXMLTranslator {
 public:
-  EcalWeightSetXMLTranslator(){};
+  EcalWeightSetXMLTranslator() {}
 
   static int readXML(const std::string& filename, EcalCondHeader& header, EcalWeightSet& record);
 

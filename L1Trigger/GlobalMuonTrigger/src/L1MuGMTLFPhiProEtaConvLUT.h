@@ -45,7 +45,7 @@ public:
   };
 
   /// destructor
-  ~L1MuGMTLFPhiProEtaConvLUT() override{};
+  ~L1MuGMTLFPhiProEtaConvLUT() override {}
 
   /// specific lookup function for eta_out
   unsigned SpecificLookup_eta_out(int idx, unsigned eta_in) const {

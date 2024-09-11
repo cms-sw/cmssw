@@ -19,7 +19,7 @@ private:
   void beginJob() override;
   void beginRun(edm::Run const&, edm::EventSetup const&) override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void endRun(edm::Run const&, edm::EventSetup const&) override{};
+  void endRun(edm::Run const&, edm::EventSetup const&) override {}
   void endJob() override;
 
   void fillDetectorId(void);

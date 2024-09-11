@@ -70,7 +70,7 @@ namespace {
               }
             }
           }  // validHashIndex
-      }      // payload
+      }  // payload
 
       gStyle->SetOptStat(0);
       gStyle->SetPalette(1);
@@ -189,9 +189,9 @@ namespace {
                   }
                 }
               }  // 2nd IOV
-            }    // validHashIndex
-        }        // payload
-      }          // loop over IOVs
+            }  // validHashIndex
+        }  // payload
+      }  // loop over IOVs
 
       gStyle->SetOptStat(0);
       gStyle->SetPalette(1);

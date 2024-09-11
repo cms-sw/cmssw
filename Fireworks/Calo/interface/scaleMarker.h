@@ -24,7 +24,7 @@ class FWViewContext;
 namespace fireworks {
   struct scaleMarker {
     scaleMarker(TEveScalableStraightLineSet* ls, float et, float e, const FWViewContext* vc)
-        : m_ls(ls), m_et(et), m_energy(e), m_vc(vc){};
+        : m_ls(ls), m_et(et), m_energy(e), m_vc(vc) {}
 
     virtual ~scaleMarker() {}
 

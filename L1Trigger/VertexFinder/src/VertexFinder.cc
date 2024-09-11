@@ -627,7 +627,7 @@ namespace l1tVertexFinder {
 
     vertices_.emplace_back(leading_vertex);
     pv_index_ = 0;  // by default fastHistoLooseAssociation algorithm finds only hard PV
-  }                 // end of fastHistoLooseAssociation
+  }  // end of fastHistoLooseAssociation
 
   void VertexFinder::fastHisto(const TrackerTopology* tTopo) {
     // Create the histogram

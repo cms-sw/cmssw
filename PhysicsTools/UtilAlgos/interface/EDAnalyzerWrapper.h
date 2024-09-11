@@ -46,7 +46,7 @@ namespace edm {
     /// default contructor
     AnalyzerWrapper(const edm::ParameterSet& cfg);
     /// default destructor
-    ~AnalyzerWrapper() override{};
+    ~AnalyzerWrapper() override {}
     /// everything which has to be done before the event loop
     void beginJob() override { analyzer_->beginJob(); }
     /// everything which has to be done during the event loop. NOTE: We can't use the eventSetup in FWLite so ignore it

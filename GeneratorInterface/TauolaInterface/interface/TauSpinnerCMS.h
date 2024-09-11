@@ -48,7 +48,7 @@
 class TauSpinnerCMS : public edm::one::EDProducer<edm::one::SharedResources> {
 public:
   explicit TauSpinnerCMS(const edm::ParameterSet &);
-  ~TauSpinnerCMS() override{};  // no need to delete ROOT stuff
+  ~TauSpinnerCMS() override {}  // no need to delete ROOT stuff
 
   void produce(edm::Event &, const edm::EventSetup &) final;
   void beginJob() final;

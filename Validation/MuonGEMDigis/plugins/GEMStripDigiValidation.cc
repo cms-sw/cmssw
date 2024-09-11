@@ -66,8 +66,8 @@ void GEMStripDigiValidation::bookHistograms(DQMStore::IBooker& booker,
           me_detail_bx_layer_[key3] =
               bookHist1D(booker, key3, "bx", "Strip Digi Bunch Crossing", 5, -2.5, 2.5, "Bunch crossing");
         }  // chamber loop
-      }    // station loop
-    }      // region loop
+      }  // station loop
+    }  // region loop
   }
 
   // NOTE Occupancy
@@ -151,9 +151,9 @@ void GEMStripDigiValidation::bookHistograms(DQMStore::IBooker& booker,
                                                     "strip number");
           }
         }  // chamber
-      }    // end else
-    }      // station looop
-  }        // region loop
+      }  // end else
+    }  // station looop
+  }  // region loop
 }
 
 GEMStripDigiValidation::~GEMStripDigiValidation() {}

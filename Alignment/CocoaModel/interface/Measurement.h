@@ -28,7 +28,7 @@ class Measurement {
 public:
   //----- Constructors / destructor
   Measurement(const ALIint measdim, ALIstring& type, ALIstring& name);
-  Measurement(){};
+  Measurement() {}
   virtual ~Measurement();
 
   // construct Measurement reading date from file
@@ -47,7 +47,7 @@ public:
   void addAffectingEntriesFromOptO(const OpticalObject* optoP);
 
   // Get simulated value (called every time a parameter is displaced)
-  virtual void calculateSimulatedValue(ALIbool firstTime){};
+  virtual void calculateSimulatedValue(ALIbool firstTime) {}
   // Get simulated value original (called every time a parameter value is changed: after getting values from file and every non-linear fit iteration )
   void calculateOriginalSimulatedValue();
 
@@ -63,7 +63,7 @@ public:
   // Get the previous OptOs in the list of OptO that take part in this measurement
   const OpticalObject* getPreviousOptO(const OpticalObject* Popto) const;
   //---------- Add any correction between the measurement data and the default format in COCOA
-  virtual void correctValueAndSigma(){};
+  virtual void correctValueAndSigma() {}
 
   //---------- Convert from V to rad
   virtual void setConversionFactor(const std::vector<ALIstring>& wordlist) {
@@ -155,7 +155,7 @@ public:
   // Check is value is simulated
   bool valueIsSimulated(ALIint coor) { return theValueIsSimulated[coor]; }
 
-  virtual void setXlaserLine(ALIuint ii, int val){};
+  virtual void setXlaserLine(ALIuint ii, int val) {}
 
   static ALIdouble cameraScaleFactor;
 

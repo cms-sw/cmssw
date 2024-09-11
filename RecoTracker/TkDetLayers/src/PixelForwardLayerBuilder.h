@@ -19,7 +19,7 @@
 template <class T1, class T2>
 class PixelForwardLayerBuilder {
 public:
-  PixelForwardLayerBuilder(){};
+  PixelForwardLayerBuilder() {}
   ForwardDetLayer* build(const GeometricDet* aPixelForwardLayer, const TrackerGeometry* theGeomDetGeometry)
       __attribute__((cold));
 };

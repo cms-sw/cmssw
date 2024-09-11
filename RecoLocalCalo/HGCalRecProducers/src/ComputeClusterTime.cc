@@ -27,7 +27,7 @@ ComputeClusterTime::ComputeClusterTime(float Xmin, float Xmax, float Cterm, floa
     xMin_ = 0.1;
 };
 
-ComputeClusterTime::ComputeClusterTime() : xMin_(1.), xMax_(5.), cTerm_(0), aTerm_(0){};
+ComputeClusterTime::ComputeClusterTime() : xMin_(1.), xMax_(5.), cTerm_(0), aTerm_(0) {}
 
 void ComputeClusterTime::setParameters(float Xmin, float Xmax, float Cterm, float Aterm) {
   xMin_ = (Xmin > 0) ? Xmin : 0.1;

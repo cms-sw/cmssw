@@ -15,7 +15,7 @@ using namespace ticl;
 SeedingRegionGlobal::SeedingRegionGlobal(const edm::ParameterSet &conf, edm::ConsumesCollector &sumes)
     : SeedingRegionAlgoBase(conf, sumes) {}
 
-SeedingRegionGlobal::~SeedingRegionGlobal(){};
+SeedingRegionGlobal::~SeedingRegionGlobal() {}
 
 void SeedingRegionGlobal::makeRegions(const edm::Event &ev,
                                       const edm::EventSetup &es,

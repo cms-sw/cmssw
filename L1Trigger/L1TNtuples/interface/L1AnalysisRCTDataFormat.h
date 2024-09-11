@@ -14,7 +14,7 @@ namespace L1Analysis {
   struct L1AnalysisRCTDataFormat {
     //  L1AnalysisRCTDataFormat(){Reset();};
     L1AnalysisRCTDataFormat() { Reset(); };
-    ~L1AnalysisRCTDataFormat(){};
+    ~L1AnalysisRCTDataFormat() {}
 
     void Reset() {
       RegSize = -999;

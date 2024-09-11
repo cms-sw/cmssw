@@ -1,8 +1,8 @@
 #include "SimDataFormats/Associations/interface/MtdSimLayerClusterToTPAssociatorBaseImpl.h"
 
 namespace reco {
-  MtdSimLayerClusterToTPAssociatorBaseImpl::MtdSimLayerClusterToTPAssociatorBaseImpl(){};
-  MtdSimLayerClusterToTPAssociatorBaseImpl::~MtdSimLayerClusterToTPAssociatorBaseImpl(){};
+  MtdSimLayerClusterToTPAssociatorBaseImpl::MtdSimLayerClusterToTPAssociatorBaseImpl() {}
+  MtdSimLayerClusterToTPAssociatorBaseImpl::~MtdSimLayerClusterToTPAssociatorBaseImpl() {}
 
   reco::SimToTPCollectionMtd MtdSimLayerClusterToTPAssociatorBaseImpl::associateSimToTP(
       const edm::Handle<MtdSimLayerClusterCollection> &simClusH,

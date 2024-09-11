@@ -174,8 +174,8 @@ TauDiscriminationAgainstElectronMVA6<TauType, TauDiscriminator, ElectronType>::d
           result.rawValues.at(0) = std::min(result.rawValues.at(0), float(mva_match));
           isGsfElectronMatched = true;
         }  // deltaR < deltaREleTauMax_
-      }    // electron pt > 10
-    }      // end of loop over electrons
+      }  // electron pt > 10
+    }  // end of loop over electrons
 
     if (!isGsfElectronMatched) {
       double mva_nomatch = mva_->mvaValue(*theTauRef);

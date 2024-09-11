@@ -650,8 +650,8 @@ void CTPPSPixelDQMSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run co
         }  // end of for(int p=0; p<NplaneMAX;..
 
       }  // end for(int rp=0; rp<NRPotsMAX;...
-    }    // end of for(int stn=0; stn<
-  }      // end of for(int arm=0; arm<2;...
+    }  // end of for(int stn=0; stn<
+  }  // end of for(int arm=0; arm<2;...
 
   return;
 }
@@ -854,8 +854,8 @@ void CTPPSPixelDQMSource::analyze(edm::Event const &event, edm::EventSetup const
           }  // end if(RPindexValid[index]) {
         }
       }  // end  if(StationStatus[station]) {
-    }    // end for(const auto &ds_digi : *pixDigi)
-  }      // if(pixDigi.isValid()) {
+    }  // end for(const auto &ds_digi : *pixDigi)
+  }  // if(pixDigi.isValid()) {
 
   if (pixError.isValid()) {
     std::map<CTPPSPixelFramePosition, CTPPSPixelROCInfo> rocMapping = mapping->ROCMapping;
@@ -1240,8 +1240,8 @@ void CTPPSPixelDQMSource::analyze(edm::Event const &event, edm::EventSetup const
           }  // end if(RPindexValid[index]) {
         }
       }  // end  if(StationStatus[station]) {
-    }    // end for(const auto &ds_error : *pixDigi)
-  }      // if(pixError.isValid())
+    }  // end for(const auto &ds_error : *pixDigi)
+  }  // if(pixError.isValid())
 
   if (pixClus.isValid() && onlinePlots)
     for (const auto &ds : *pixClus) {

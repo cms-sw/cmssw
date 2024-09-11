@@ -50,7 +50,7 @@ namespace l1t {
   class GtInputDump : public edm::one::EDAnalyzer<> {
   public:
     explicit GtInputDump(const edm::ParameterSet&);
-    ~GtInputDump() override{};
+    ~GtInputDump() override {}
     void analyze(const edm::Event&, const edm::EventSetup&) override;
 
     EDGetToken egToken;

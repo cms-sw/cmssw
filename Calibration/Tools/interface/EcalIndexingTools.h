@@ -9,7 +9,7 @@
 class EcalIndexingTools {
 private:
   EcalIndexingTools()
-      : totNumberOfBins_(-1), nBinsEt_(-1), nBinsEta_(-1), maxEta_(-1.), maxEt_(-1.), minEta_(-1.), minEt_(-1.){};
+      : totNumberOfBins_(-1), nBinsEt_(-1), nBinsEta_(-1), maxEta_(-1.), maxEt_(-1.), minEta_(-1.), minEt_(-1.) {}
 
   static EcalIndexingTools* instance_;
 
@@ -18,7 +18,7 @@ private:
   double maxEta_, maxEt_, minEta_, minEt_;
 
 public:
-  ~EcalIndexingTools(){};
+  ~EcalIndexingTools() {}
 
   static EcalIndexingTools* getInstance() {
     if (instance_ == nullptr) {

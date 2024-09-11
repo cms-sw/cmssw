@@ -21,7 +21,7 @@ template <class C>
 class HGCalUncalibRecHitRecWeightsAlgo {
 public:
   // destructor
-  virtual ~HGCalUncalibRecHitRecWeightsAlgo(){};
+  virtual ~HGCalUncalibRecHitRecWeightsAlgo() {}
 
   void set_isSiFESim(const bool isSiFE) { isSiFESim_ = isSiFE; }
   bool isSiFESim() const { return isSiFESim_; }
@@ -74,8 +74,8 @@ public:
         amplitude_ = (std::floor(tdcOnsetfC_ / adcLSB_) + 1.0) * adcLSB_ + (double(sample.data()) + 0.5) * tdcLSB_;
       } else {
         amplitude_ = double(sample.data()) * adcLSB_;  // why do we not have +0.5 here ?
-      }                                                //isSiFESim_
-    }                                                  //mode()
+      }  //isSiFESim_
+    }  //mode()
 
     // trivial digitization, i.e. no signal shape
     else {

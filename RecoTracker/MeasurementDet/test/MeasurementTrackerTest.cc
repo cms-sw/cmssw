@@ -170,8 +170,8 @@ void MeasurementTrackerTest::analyze(const edm::Event& iEvent, const edm::EventS
           std::cout << tsos.globalPosition() << ' ' << tsos.localError().positionError() << std::endl;
         }
       }  // layer loop
-    }    // loop on moms
-  }      // loop  on tanLa
+    }  // loop on moms
+  }  // loop  on tanLa
 }
 
 //define this as a plug-in

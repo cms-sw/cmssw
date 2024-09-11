@@ -63,7 +63,7 @@ std::vector<CSCWireDigi> CSCAnodeData2007::wireDigis(int layer) const {
         tbinbits = 0;
       }
     }  ///end of the loop over bits in the data frame
-  }    ///end of the loop over layer parts
+  }  ///end of the loop over layer parts
 
   return digis;
 }

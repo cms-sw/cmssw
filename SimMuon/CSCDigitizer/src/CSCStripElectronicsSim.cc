@@ -200,8 +200,8 @@ void CSCStripElectronicsSim::runComparator(std::vector<CSCComparatorDigi> &resul
         }
 
       }  // if over threshold
-    }    // loop over time samples
-  }      // loop over comparators
+    }  // loop over time samples
+  }  // loop over comparators
   // sort by time
   sort(result.begin(), result.end());
 }

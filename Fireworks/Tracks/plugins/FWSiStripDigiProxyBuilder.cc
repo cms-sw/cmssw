@@ -72,7 +72,7 @@ void FWSiStripDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList*
 
       lineSet->AddLine(globalTop[0], globalTop[1], globalTop[2], globalBottom[0], globalBottom[1], globalBottom[2]);
     }  // end of iteration over digis
-  }    // end of iteration over the DetSetVector
+  }  // end of iteration over the DetSetVector
 }
 
 REGISTER_FWPROXYBUILDER(FWSiStripDigiProxyBuilder,

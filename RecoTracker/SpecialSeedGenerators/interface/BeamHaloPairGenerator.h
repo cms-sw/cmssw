@@ -16,7 +16,7 @@ class SeedingLayerSetsHits;
 class BeamHaloPairGenerator : public OrderedHitsGenerator {
 public:
   BeamHaloPairGenerator(const edm::ParameterSet& conf, edm::ConsumesCollector& iC);
-  ~BeamHaloPairGenerator() override{};
+  ~BeamHaloPairGenerator() override {}
   const OrderedSeedingHits& run(const TrackingRegion& region, const edm::Event& ev, const edm::EventSetup& es) override;
 
 private:

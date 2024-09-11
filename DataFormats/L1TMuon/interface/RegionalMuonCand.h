@@ -120,7 +120,7 @@ namespace l1t {
       setTFIdentifiers(processor, trackFinder);
     };
 
-    virtual ~RegionalMuonCand(){};
+    virtual ~RegionalMuonCand() {}
 
     /// Set compressed pT as transmitted by hardware LSB = 0.5 (9 bits)
     void setHwPt(int bits) { m_hwPt = bits; };

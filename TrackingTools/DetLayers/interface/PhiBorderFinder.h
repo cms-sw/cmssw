@@ -31,7 +31,7 @@ public:
 
   PhiBorderFinder(const std::vector<const Det*>& utheDets);
 
-  virtual ~PhiBorderFinder(){};
+  virtual ~PhiBorderFinder() {}
 
   inline unsigned int nBins() { return theNbins; }
 

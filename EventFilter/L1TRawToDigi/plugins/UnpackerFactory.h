@@ -15,7 +15,7 @@ namespace l1t {
     std::shared_ptr<Unpacker> make(const std::string&) const;
 
   private:
-    UnpackerFactory(){};
+    UnpackerFactory() {}
     static const UnpackerFactory instance_;
   };
 }  // namespace l1t

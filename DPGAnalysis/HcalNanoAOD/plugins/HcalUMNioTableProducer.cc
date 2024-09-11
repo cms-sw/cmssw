@@ -29,7 +29,7 @@ public:
     produces<nanoaod::FlatTable>("uMNioTable");
   }
 
-  ~HcalUMNioTableProducer() override{};
+  ~HcalUMNioTableProducer() override {}
 
   /*
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

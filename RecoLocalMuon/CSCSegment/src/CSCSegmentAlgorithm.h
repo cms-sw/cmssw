@@ -23,9 +23,9 @@
 class CSCSegmentAlgorithm {
 public:
   /// Constructor
-  explicit CSCSegmentAlgorithm(const edm::ParameterSet&){};
+  explicit CSCSegmentAlgorithm(const edm::ParameterSet&) {}
   /// Destructor
-  virtual ~CSCSegmentAlgorithm(){};
+  virtual ~CSCSegmentAlgorithm() {}
 
   /** Run the algorithm = build the segments in this chamber
     */

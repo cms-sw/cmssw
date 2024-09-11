@@ -10,7 +10,7 @@
 template <class T>
 class BaseBinFinder {
 public:
-  BaseBinFinder(){};
+  BaseBinFinder() {}
 
   virtual ~BaseBinFinder() {}
 

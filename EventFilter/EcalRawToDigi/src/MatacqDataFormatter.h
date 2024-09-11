@@ -15,7 +15,7 @@ class FEDRawData;
  */
 class MatacqDataFormatter {
 public:
-  MatacqDataFormatter(){};
+  MatacqDataFormatter() {}
 
   /** Callback method for decoding raw data
    * @param data raw data

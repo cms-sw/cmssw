@@ -7,8 +7,8 @@
 
 class HGCalTriggerClusterInterpreterBase {
 public:
-  HGCalTriggerClusterInterpreterBase(){};
-  virtual ~HGCalTriggerClusterInterpreterBase(){};
+  HGCalTriggerClusterInterpreterBase() {}
+  virtual ~HGCalTriggerClusterInterpreterBase() {}
   virtual void initialize(const edm::ParameterSet& conf) = 0;
   virtual void setGeometry(const HGCalTriggerGeometryBase* const) = 0;
   virtual void interpret(l1t::HGCalMulticlusterBxCollection& multiclusters) const = 0;

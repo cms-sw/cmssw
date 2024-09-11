@@ -21,7 +21,7 @@ public:
   /// Construct from a vector of GeomDet*
   MTDDetSector(const std::vector<const GeomDet*>& dets, const MTDTopology& topo);
 
-  ~MTDDetSector() override{};
+  ~MTDDetSector() override {}
 
   // GeometricSearchDet structure
 

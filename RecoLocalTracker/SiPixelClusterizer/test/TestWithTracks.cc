@@ -565,7 +565,7 @@ void TestWithTracks::analyze(const edm::Event &e, const edm::EventSetup &es) {
       if (t1flag > 0 && i < 64)
         hl1t->Fill(float(i));
     }  // for loop
-  }    // if l1a
+  }  // if l1a
 #endif
 
 #ifdef HLT
@@ -597,7 +597,7 @@ void TestWithTracks::analyze(const edm::Event &e, const edm::EventSetup &es) {
       }  // if hlt
 
     }  // loop
-  }    // if valid
+  }  // if valid
 #endif
 
   // Get event setup
@@ -643,7 +643,7 @@ void TestWithTracks::analyze(const edm::Event &e, const edm::EventSetup &es) {
         pvzVector.push_back(pvz);
         //if(PRINT) edm::LogPrint("TestWithTracks")<<"PV "<<pvsTrue<<" "<<pvz<<endl;
       }  //pvr
-    }    // pvz
+    }  // pvz
 
     //if(pvsTrue<1) continue; // skip events with no PV
 
@@ -1361,7 +1361,7 @@ void TestWithTracks::analyze(const edm::Event &e, const edm::EventSetup &es) {
 
           //clust_.normalized_charge = clust_.charge*sqrt(1.0/(1.0/pow(tan(clust_.clust_alpha),2)+1.0/pow(tan(clust_.clust_beta),2)+1.0));
         }  // valid cluster
-      }    // valid peristant hit
+      }  // valid peristant hit
 
     }  // loop over trajectory meas.
 

@@ -278,10 +278,10 @@ namespace ecaldqm {
             if (npi0_s == MAXPI0S)
               return;
           }  // pi0 inv mass window
-        }    // pt and S4S9 cut
-      }      // cluster "j" index loop
-    }        // cluster "i" index loop
-  }          // runonEBRecHits()
+        }  // pt and S4S9 cut
+      }  // cluster "j" index loop
+    }  // cluster "i" index loop
+  }  // runonEBRecHits()
 
   DEFINE_ECALDQM_WORKER(PiZeroTask);
 }  // namespace ecaldqm

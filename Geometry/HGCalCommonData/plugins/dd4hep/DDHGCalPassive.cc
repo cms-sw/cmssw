@@ -37,8 +37,10 @@ struct HGCalPassive {
     std::vector<std::string> tagSector =
         args.value<std::vector<std::string>>("TagSector");  // Tag of the sector (to be added to name)
     int parts = args.value<int>("Parts");                   // number of parts in units of 30 degree
-    double phi0 = args.value<double>("PhiStart");           // Start phi of the first cassette
-    double dphi = (2._pi) / tagSector.size();               // delta phi of the cassette
+    if (parts < 0)
+      parts = 1;
+    double phi0 = args.value<double>("PhiStart");  // Start phi of the first cassette
+    double dphi = (2._pi) / tagSector.size();      // delta phi of the cassette
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "DDHGCalPassive: " << tagLayer.size() << " Modules with base name " << parentName
                                   << " made of " << material << " T " << thick << " Sectors " << tagSector.size()
@@ -103,29 +105,21 @@ struct HGCalPassive {
       for (unsigned int k = 0; k < tagSector.size(); ++k) {
         std::string parentName = args.parentName() + tagLayer[j] + tagSector[k];
         double phi1 = phi0 + k * dphi;
-        double phi2 = phi1 + dphi;
-        double phi0 = phi1 + 0.5 * dphi;
+        double dphi0 = dphi / parts;
         // First the mother
-        std::vector<double> xM, yM;
-        if (parts == 1) {
-          xM = {rinB * cos(phi1), routF * cos(phi1), routF * cos(phi2), rinB * cos(phi2)};
-          yM = {rinB * sin(phi1), routF * sin(phi1), routF * sin(phi2), rinB * sin(phi2)};
-        } else {
-          // workaround for https://github.com/cms-sw/cmssw/issues/44931#issuecomment-2134850535
-          std::vector<double> xTmp = {rinB * cos(phi1),
-                                      routF * cos(phi1),
-                                      routF * cos(phi0),
-                                      routF * cos(phi2),
-                                      rinB * cos(phi2),
-                                      rinB * cos(phi0)};
-          std::vector<double> yTmp = {rinB * sin(phi1),
-                                      routF * sin(phi1),
-                                      routF * sin(phi0),
-                                      routF * sin(phi2),
-                                      rinB * sin(phi2),
-                                      rinB * sin(phi0)};
-          xM = std::move(xTmp);
-          yM = std::move(yTmp);
+        int nsec = 2 * parts + 2;
+        std::vector<double> xM(nsec, 0), yM(nsec, 0);
+        for (int n = 0; n <= parts; ++n) {
+          double phi0 = phi1 + n * dphi0;
+          if (n == 0) {
+            xM[0] = rinB * cos(phi0);
+            yM[0] = rinB * sin(phi0);
+          } else {
+            xM[nsec - n] = rinB * cos(phi0);
+            yM[nsec - n] = rinB * sin(phi0);
+          }
+          xM[n + 1] = routF * cos(phi0);
+          yM[n + 1] = routF * sin(phi0);
         }
         std::vector<double> zw = {-0.5 * thick, 0.5 * thick};
         std::vector<double> zx(2, 0), zy(2, 0), scale(2, 1.0);
@@ -134,10 +128,12 @@ struct HGCalPassive {
         dd4hep::Material matter = ns.material(material);
         dd4hep::Volume glogM = dd4hep::Volume(solid.name(), solid, matter);
 #ifdef EDM_ML_DEBUG
+        double phi2 = phi1 + dphi;
         edm::LogVerbatim("HGCalGeom") << "DDHGCalPassive: " << solid.name() << " extruded polygon made of "
                                       << matter.name() << " z|x|y|s (0) " << zw[0] << ":" << zx[0] << ":" << zy[0]
                                       << ":" << scale[0] << " z|x|y|s (1) " << zw[1] << ":" << zx[1] << ":" << zy[1]
-                                      << ":" << scale[1] << " and " << xM.size() << " edges";
+                                      << ":" << scale[1] << " and " << xM.size() << " edges with " << parts
+                                      << " parts between " << convertRadToDeg(phi1) << " and " << convertRadToDeg(phi2);
         for (unsigned int kk = 0; kk < xM.size(); ++kk)
           edm::LogVerbatim("HGCalGeom") << "[" << kk << "] " << xM[kk] << ":" << yM[kk];
 #endif

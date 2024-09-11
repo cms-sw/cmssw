@@ -663,8 +663,8 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
           mc1.craweta_ = centerhit.position().eta();
           cluster_list[cc].push_back(mc1);
         }  // End if 5 clusters per region
-      }    // End while to find the 5 clusters
-    }      // End loop over regions to search for clusters
+      }  // End while to find the 5 clusters
+    }  // End loop over regions to search for clusters
     std::sort(begin(cluster_list[cc]), end(cluster_list[cc]), [](mycluster a, mycluster b) { return a.cpt > b.cpt; });
 
     // Merge clusters from different regions
@@ -755,7 +755,7 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
           }
         }
       }  // end of check if inside card
-    }    // end of loop over hits to build towers
+    }  // end of loop over hits to build towers
 
     // Loop over hcal hits to get the HCAL towers.
     for (const auto& hit : hcalhits) {
@@ -771,8 +771,8 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
             }  // end of loop over eta towers
           }
         }  // end of loop over phi links
-      }    // end of check if inside card
-    }      // end of loop over hits to build towers
+      }  // end of check if inside card
+    }  // end of loop over hits to build towers
 
     // Give back energy of not used clusters to the towers (if there are more than 12 clusters)
     for (unsigned int kk = n_clusters_4link; kk < cluster_list_merged[cc].size(); ++kk) {
@@ -916,8 +916,8 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
                     brem_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_right] = 1;
                   }
                 }  //max distance eta
-              }    //max distance phi
-            }      //max distance phi
+              }  //max distance phi
+            }  //max distance phi
           }
         }
       }

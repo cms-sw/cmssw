@@ -53,8 +53,8 @@ public:
   typedef Registry::const_iterator RegistryIterator;
   typedef std::vector<uint16_t> InputVector;
 
-  SiStripPedestals(){};
-  ~SiStripPedestals(){};
+  SiStripPedestals() {}
+  ~SiStripPedestals() {}
 
   //bool  put(const uint32_t& detID,Range input);
   bool put(const uint32_t& detID, InputVector& input);

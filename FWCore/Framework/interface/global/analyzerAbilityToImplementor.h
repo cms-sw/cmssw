@@ -67,7 +67,7 @@ namespace edm {
         using Type = edm::global::impl::WatchProcessBlock<edm::global::EDAnalyzerBase>;
       };
     }  // namespace analyzer
-  }    // namespace global
+  }  // namespace global
 }  // namespace edm
 
 #endif

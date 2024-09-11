@@ -25,7 +25,7 @@ public:
 
   std::vector<TransientVertex> vertices(const std::vector<reco::TransientTrack>& tracks) const override;
 
-  ~GapClusterizerInZ() override{};
+  ~GapClusterizerInZ() override {}
 
 private:
   float zSep;

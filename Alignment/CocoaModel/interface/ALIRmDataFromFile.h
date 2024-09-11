@@ -16,7 +16,7 @@ class ALIRmDataFromFile {
 public:
   //----- Constructor / destructor
   ALIRmDataFromFile();
-  ~ALIRmDataFromFile(){};
+  ~ALIRmDataFromFile() {}
 
   // Access DATA MEMBERS
   ALIbool setAngle(const ALIstring& coord, const ALIdouble val);

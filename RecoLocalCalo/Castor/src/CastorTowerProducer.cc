@@ -210,9 +210,9 @@ void CastorTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
             }
             negcastorusedrechits[j].push_back(rechit_p);
           }  // end condition over rechit z value
-        }    // end phi matching condition
-      }      // end loop over the 16 towers possibilities
-    }        // end time conditions
+        }  // end phi matching condition
+      }  // end loop over the 16 towers possibilities
+    }  // end time conditions
 
   }  // end loop over rechits to build castortowerarray[4][16] and castorusedrechits[16]
 

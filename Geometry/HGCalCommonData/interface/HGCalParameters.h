@@ -16,7 +16,7 @@ class HGCalParameters {
 public:
   struct waferInfo {
     int32_t type, part, orient, cassette;
-    waferInfo(int32_t t = 0, int32_t p = 0, int32_t o = 0, int32_t c = 0) : type(t), part(p), orient(o), cassette(c){};
+    waferInfo(int32_t t = 0, int32_t p = 0, int32_t o = 0, int32_t c = 0) : type(t), part(p), orient(o), cassette(c) {}
   };
   struct tileInfo {
     int32_t type, sipm, cassette, hex[6];

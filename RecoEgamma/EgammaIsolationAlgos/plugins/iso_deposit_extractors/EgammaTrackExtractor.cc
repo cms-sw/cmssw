@@ -28,7 +28,7 @@ namespace egammaisolation {
 
   class EgammaTrackExtractor : public reco::isodeposit::IsoDepositExtractor {
   public:
-    EgammaTrackExtractor(){};
+    EgammaTrackExtractor() {}
     EgammaTrackExtractor(const edm::ParameterSet& par, edm::ConsumesCollector&& iC) : EgammaTrackExtractor(par, iC) {}
     EgammaTrackExtractor(const edm::ParameterSet& par, edm::ConsumesCollector& iC);
 

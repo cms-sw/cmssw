@@ -19,7 +19,7 @@ namespace muonisolation {
 
   class PixelTrackExtractor : public reco::isodeposit::IsoDepositExtractor {
   public:
-    PixelTrackExtractor(){};
+    PixelTrackExtractor() {}
     PixelTrackExtractor(const edm::ParameterSet& par, edm::ConsumesCollector&& iC);
 
     ~PixelTrackExtractor() override {}

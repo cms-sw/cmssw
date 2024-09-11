@@ -46,7 +46,7 @@ namespace pat {
                         const AlgebraicSymMatrix44 &covariance,
                         const pat::CandKinResolution::LorentzVector &p4);
     }  // namespace ResolutionHelper
-  }    // namespace helper
+  }  // namespace helper
 }  // namespace pat
 
 #endif

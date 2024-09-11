@@ -344,7 +344,7 @@ double HICaloCompatibleTrackSelector::matchPFCandToTrack(const edm::Handle<reco:
       // We could also add in the PS, HO, ..
 
     }  // end of elementsInBlocks()
-  }    // end of isCandFound
+  }  // end of isCandFound
 
   return sum_ecal + sum_hcal;
 }

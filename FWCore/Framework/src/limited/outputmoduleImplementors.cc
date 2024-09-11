@@ -23,5 +23,5 @@ namespace edm {
       void InputFileWatcher::doRespondToOpenInputFile_(FileBlock const& iB) { respondToOpenInputFile(iB); }
       void InputFileWatcher::doRespondToCloseInputFile_(FileBlock const& iB) { respondToCloseInputFile(iB); }
     }  // namespace outputmodule
-  }    // namespace limited
+  }  // namespace limited
 }  // namespace edm

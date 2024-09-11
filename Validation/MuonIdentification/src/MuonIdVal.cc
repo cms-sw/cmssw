@@ -341,7 +341,7 @@ void MuonIdVal::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run &, con
                   sector + 1);
           hDTChamberEdgeYWithNoSegment[station][wheel][sector] = ibooker.book1D(name, title, 100, -140., 30.);
         }  // sector
-      }    // wheel
+      }  // wheel
 
       // CSC endcaps: 1 -> 2
       for (int endcap = 0; endcap < 2; ++endcap) {
@@ -407,9 +407,9 @@ void MuonIdVal::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run &, con
                     chamber + 1);
             hCSCChamberEdgeYWithNoSegment[endcap][station][ring][chamber] = ibooker.book1D(name, title, 100, -70., 20.);
           }  // chamber
-        }    // ring
-      }      // endcap
-    }        // station
+        }  // ring
+      }  // endcap
+    }  // station
   }
 }
 

@@ -214,8 +214,8 @@ void PileUpSubtractor::calculateOrphanInput(vector<fastjet::PseudoJet>& orphanIn
       if (exclude != excludedTowers.end()) {
         jettowers.push_back(index);
       }  //dr < radiusPU_
-    }    // initial input collection
-  }      // pseudojets
+    }  // initial input collection
+  }  // pseudojets
 
   //
   // Create a new collections from the towers not included in jets

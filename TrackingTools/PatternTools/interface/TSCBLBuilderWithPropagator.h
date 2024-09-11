@@ -21,7 +21,7 @@ public:
   /// constructor with user-supplied propagator
   TSCBLBuilderWithPropagator(const Propagator& u);
 
-  ~TSCBLBuilderWithPropagator() override{};
+  ~TSCBLBuilderWithPropagator() override {}
 
   TrajectoryStateClosestToBeamLine operator()(const FTS& originalFTS, const reco::BeamSpot& beamSpot) const override;
 

@@ -28,7 +28,7 @@ private:
       : cut_to_avoid_signal_(sigma),
         iterations_(iterations),
         noiseToken_(iC.esConsumes<SiStripNoises, SiStripNoisesRcd>()),
-        qualityToken_(iC.esConsumes<SiStripQuality, SiStripQualityRcd>()){};
+        qualityToken_(iC.esConsumes<SiStripQuality, SiStripQualityRcd>()) {}
   double cut_to_avoid_signal_;
   int iterations_;
   edm::ESGetToken<SiStripNoises, SiStripNoisesRcd> noiseToken_;

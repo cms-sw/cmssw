@@ -13,7 +13,7 @@
 #pragma GCC visibility push(hidden)
 class TIBLayerBuilder {
 public:
-  TIBLayerBuilder(){};
+  TIBLayerBuilder() {}
   TIBLayer* build(const GeometricDet* aTIBLayer, const TrackerGeometry* theGeomDetGeometry) __attribute__((cold));
 
   void constructRings(std::vector<const GeometricDet*>& theGeometricRods,

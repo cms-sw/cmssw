@@ -62,7 +62,7 @@ private:
                                std::vector<uint8_t>& muonBits,
                                std::vector<uint8_t>& eleBits,
                                std::vector<uint8_t>& tauBits,
-                               std::vector<uint8_t>& photonBits){};
+                               std::vector<uint8_t>& photonBits) {};
 
   // ----------member data ---------------------------
   const std::string name_;

@@ -156,8 +156,8 @@ ticl::association TSToSCAssociatorByEnergyScoreImpl::makeConnections(
           }
         }
       }  // End loop over hits on a LayerCluster
-    }    // End loop over LayerClusters in Trackster
-  }      // End of loop over Tracksters
+    }  // End loop over LayerClusters in Trackster
+  }  // End of loop over Tracksters
 
 #ifdef EDM_ML_DEBUG
   for (unsigned int tsId = 0; tsId < nTracksters; ++tsId) {
@@ -273,7 +273,7 @@ ticl::association TSToSCAssociatorByEnergyScoreImpl::makeConnections(
           << maxEnergySharedLCandSC << "\t" << std::setw(22) << totalSCEnergyOnLayer << "\t" << std::setw(22)
           << energyFractionOfLCinSC << "\t" << std::setw(25) << energyFractionOfSCinLC << "\n";
     }  // End of loop over LayerClusters in Trackster
-  }    // End of loop over Tracksters
+  }  // End of loop over Tracksters
 
   LogDebug("TSToSCAssociatorByEnergyScoreImpl")
       << "Improved tssInSimCluster INFO (Now containing the linked tracksters id and energy - score still empty)"
@@ -383,7 +383,7 @@ ticl::association TSToSCAssociatorByEnergyScoreImpl::makeConnections(
 #endif
         }
       }  // End of loop over Hits within a LayerCluster
-    }    // End of loop over LayerClusters in Trackster
+    }  // End of loop over LayerClusters in Trackster
 
 #ifdef EDM_ML_DEBUG
     if (scsInTrackster[tsId].empty())
@@ -471,8 +471,8 @@ ticl::association TSToSCAssociatorByEnergyScoreImpl::makeConnections(
               << "invSCEnergyWeight:\t" << invSCEnergyWeight << "\n";
 #endif
         }  // End of loop over Trackster's LayerClusters
-      }    // End of loop over Tracksters linked to hits of this SimCluster
-    }      // End of loop over hits of SimCluster on a Layer
+      }  // End of loop over Tracksters linked to hits of this SimCluster
+    }  // End of loop over hits of SimCluster on a Layer
 #ifdef EDM_ML_DEBUG
     if (tssInSimCluster[scId].tracksterIdToEnergyAndScore.empty())
       LogDebug("TSToSCAssociatorByEnergyScoreImpl") << "SC Id:\t" << scId << "\tTS id:\t-1 "

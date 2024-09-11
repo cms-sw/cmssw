@@ -101,7 +101,7 @@ namespace pat {
                       const AlgebraicVector4 &v4,
                       const math::PtEtaPhiMLorentzVector &initialP4);
     }  // namespace ParametrizationHelper
-  }    // namespace helper
+  }  // namespace helper
 }  // namespace pat
 
 #endif

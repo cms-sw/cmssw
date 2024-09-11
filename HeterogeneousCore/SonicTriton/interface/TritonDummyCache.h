@@ -14,7 +14,7 @@ namespace edm {
         return new T(iPSet);
       }
     }  // namespace impl
-  }    // namespace stream
+  }  // namespace stream
 }  // namespace edm
 
 #endif

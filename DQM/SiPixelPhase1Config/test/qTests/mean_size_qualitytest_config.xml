@@ -9,7 +9,7 @@
       <PARAM name="error">0.65</PARAM>
       <PARAM name="warning">0.80</PARAM>
       <PARAM name="ymin">1.5</PARAM>
-      <PARAM name="ymax">6.</PARAM>
+      <PARAM name="ymax">7.</PARAM>
     </QTEST>
 
     <QTEST name="Yrange:PXLayer_1__Shell_mO:mean_size" activate="true">
@@ -18,7 +18,7 @@
       <PARAM name="error">0.65</PARAM>
       <PARAM name="warning">0.80</PARAM>
       <PARAM name="ymin">1.5</PARAM>
-      <PARAM name="ymax">6.</PARAM>
+      <PARAM name="ymax">7.</PARAM>
     </QTEST>
 
     <QTEST name="Yrange:PXLayer_1__Shell_pI:mean_size" activate="true">
@@ -27,7 +27,7 @@
       <PARAM name="error">0.65</PARAM>
       <PARAM name="warning">0.80</PARAM>
       <PARAM name="ymin">1.5</PARAM>
-      <PARAM name="ymax">6.</PARAM>
+      <PARAM name="ymax">7.</PARAM>
     </QTEST>
 
     <QTEST name="Yrange:PXLayer_1__Shell_pO:mean_size" activate="true">
@@ -36,7 +36,7 @@
       <PARAM name="error">0.65</PARAM>
       <PARAM name="warning">0.80</PARAM>
       <PARAM name="ymin">1.5</PARAM>
-      <PARAM name="ymax">6.</PARAM>
+      <PARAM name="ymax">7.</PARAM>
     </QTEST>
 
     <!-- PXLAYER 2 -->

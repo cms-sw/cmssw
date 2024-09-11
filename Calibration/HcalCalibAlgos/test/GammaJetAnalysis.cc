@@ -1459,10 +1459,10 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
                           }
                           ppfjet_rechits[(*ith).id()].second.insert(hitsAndFracs[iHit].second);
                         }
-                      }                                                           // Test if ieta,iphi matches
-                    }                                                             // Loop over rechits
-                  }                                                               // Loop over hits
-                }                                                                 // Test if element is from HCAL
+                      }  // Test if ieta,iphi matches
+                    }  // Loop over rechits
+                  }  // Loop over hits
+                }  // Test if element is from HCAL
                 else if (elements[iEle].type() == reco::PFBlockElement::HFHAD) {  // Element is HF
                   ////	h_etaHFHAD_->Fill((*it)->eta());
 
@@ -1623,12 +1623,12 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
                           ppfjet_rechits[(*ith).id()].second.insert(hitsAndFracs[iHit].second);
                         }
                       }  // Test if ieta,iphi match
-                    }    // Loop over rechits
-                  }      // Loop over hits
-                }        // Test if element is from HO
-              }          // Test for right element index
-            }            // Loop over elements
-          }              // Loop over elements in blocks
+                    }  // Loop over rechits
+                  }  // Loop over hits
+                }  // Test if element is from HO
+              }  // Test for right element index
+            }  // Loop over elements
+          }  // Loop over elements in blocks
           switch (candidateType) {
             case reco::PFCandidate::h_HF:
               ppfjet_had_emf_.push_back(HFEM_E / (HFEM_E + HFHAD_E));

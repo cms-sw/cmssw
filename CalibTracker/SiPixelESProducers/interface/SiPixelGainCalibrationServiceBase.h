@@ -31,8 +31,8 @@ class SiPixelGainCalibrationServiceBase {
 public:
   typedef edm::DetSet<PixelDigi>::const_iterator DigiIterator;
 
-  SiPixelGainCalibrationServiceBase(){};
-  virtual ~SiPixelGainCalibrationServiceBase(){};
+  SiPixelGainCalibrationServiceBase() {}
+  virtual ~SiPixelGainCalibrationServiceBase() {}
 
   static void fillPSetDescription(edm::ParameterSetDescription& desc) {}
 

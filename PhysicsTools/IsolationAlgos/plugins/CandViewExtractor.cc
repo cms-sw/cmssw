@@ -15,7 +15,7 @@ namespace muonisolation {
 
   class CandViewExtractor : public reco::isodeposit::IsoDepositExtractor {
   public:
-    CandViewExtractor(){};
+    CandViewExtractor() {}
     CandViewExtractor(const edm::ParameterSet& par, edm::ConsumesCollector&& iC);
 
     ~CandViewExtractor() override {}

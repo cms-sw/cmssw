@@ -23,8 +23,8 @@ struct HGCalTriggerNtupleEventSetup {
 
 class HGCalTriggerNtupleBase {
 public:
-  HGCalTriggerNtupleBase(const edm::ParameterSet& conf) : name_(conf.getParameter<std::string>("NtupleName")){};
-  virtual ~HGCalTriggerNtupleBase(){};
+  HGCalTriggerNtupleBase(const edm::ParameterSet& conf) : name_(conf.getParameter<std::string>("NtupleName")) {}
+  virtual ~HGCalTriggerNtupleBase() {}
   const std::string& name() const { return name_; }
   virtual void initialize(TTree&, const edm::ParameterSet&, edm::ConsumesCollector&&) = 0;
   virtual void fill(const edm::Event&, const HGCalTriggerNtupleEventSetup&) {

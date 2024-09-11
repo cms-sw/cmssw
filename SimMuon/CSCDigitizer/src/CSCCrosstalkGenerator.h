@@ -18,7 +18,7 @@ class CSCAnalogSignal;
 
 class CSCCrosstalkGenerator {
 public:
-  CSCCrosstalkGenerator() : theCrosstalk(0), theDelay(0), theResistiveFraction(0.){};
+  CSCCrosstalkGenerator() : theCrosstalk(0), theDelay(0), theResistiveFraction(0.) {}
 
   void setParameters(float crosstalk, float delay, float resistiveFraction) {
     theCrosstalk = crosstalk;

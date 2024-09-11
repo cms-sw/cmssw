@@ -21,7 +21,7 @@ using namespace reco;
 class PFTauDiscriminatorLogicalAndProducer : public PFTauDiscriminationProducerBase {
 public:
   explicit PFTauDiscriminatorLogicalAndProducer(const edm::ParameterSet&);
-  ~PFTauDiscriminatorLogicalAndProducer() override{};
+  ~PFTauDiscriminatorLogicalAndProducer() override {}
   double discriminate(const PFTauRef& pfTau) const override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 

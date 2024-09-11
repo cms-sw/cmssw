@@ -9,7 +9,7 @@
 
 class LinPtException : public cms::Exception {
 public:
-  LinPtException(const char* reason) : cms::Exception(reason){};
+  LinPtException(const char* reason) : cms::Exception(reason) {}
 };
 
 #endif

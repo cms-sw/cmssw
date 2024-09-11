@@ -107,7 +107,7 @@ void BestTrackSelection::cancel_one_bx(const std::deque<EMTFTrackCollection>& ex
         segments.at(zn).push_back(segment);
       }
     }  // end loop over n
-  }    // end loop over z
+  }  // end loop over z
 
   // Simultaneously compare each rank with each other
   int i = 0, j = 0, ri = 0, rj = 0, gt = 0, eq = 0, sum = 0;
@@ -315,8 +315,8 @@ void BestTrackSelection::cancel_multi_bx(const std::deque<EMTFTrackCollection>& 
           segments.at(hzn).push_back(segment);
         }
       }  // end loop over n
-    }    // end loop over z
-  }      // end loop over h
+    }  // end loop over z
+  }  // end loop over h
 
   // Simultaneously compare each rank with each other
   int i = 0, j = 0, ri = 0, rj = 0, sum = 0;

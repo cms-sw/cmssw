@@ -105,7 +105,7 @@ void popcon::EcalLaser_weekly_Linearization::getNewObjects() {
       //      corr.p1=corr.p2=corr.p3 = corrp;
       //      corrSet->setValue((int)ebId, corr );
       //      cryst ="";
-    }                      // end loop over EB channels
+    }  // end loop over EB channels
     getline(fWeek, line);  // cmment before EE crystals
     std::cout << " comment line " << line << std::endl;
     for (int iChannel = 0; iChannel < kEEChannels; iChannel++) {

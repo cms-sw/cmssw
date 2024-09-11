@@ -67,7 +67,7 @@ __global__ static void unpackChannels(const ChannelLocsView *chanlocs,
         }
       }
     }  // choff < end
-  }    // data != nullptr && len > 0
+  }  // data != nullptr && len > 0
 }  // chan < chanlocs->size()
 
 __global__ static void setSeedStripsGPU(StripDataView *sst_data_d, const ConditionsDeviceView *conditions) {
@@ -233,7 +233,7 @@ __global__ static void findLeftRightBoundaryGPU(const StripDataView *sst_data_d,
           sameDetLeft = false;
         }
       }  // while loop
-    }    // testIndex >= 0
+    }  // testIndex >= 0
 
     // find right boundary
     auto indexRight = index;
@@ -264,7 +264,7 @@ __global__ static void findLeftRightBoundaryGPU(const StripDataView *sst_data_d,
           sameDetRight = false;
         }
       }  // while loop
-    }    // testIndex < nStrips
+    }  // testIndex < nStrips
     clusterIndexLeft[i] = indexLeft;
     clusterSize[i] = indexRight - indexLeft + 1;
     clusterDetId[i] = det;
@@ -358,8 +358,8 @@ __global__ static void checkClusterConditionGPU(StripDataView *sst_data_d,
         barycenter[i] = static_cast<float>(stripId[left] & stripIndexMask) + bary_i + 0.5f;
         clusterSize[i] = j;
       }  // not a duplicate cluster
-    }    // trueCluster[i] is true
-  }      // i < nSeedStripsNC
+    }  // trueCluster[i] is true
+  }  // i < nSeedStripsNC
 }
 
 namespace stripgpu {

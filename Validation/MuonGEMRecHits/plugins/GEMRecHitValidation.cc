@@ -67,11 +67,11 @@ void GEMRecHitValidation::bookHistograms(DQMStore::IBooker& booker, edm::Run con
 
               me_detail_cls_[key4] = bookHist1D(booker, key4, "cls", "Cluster Size Distribution", 11, -0.5, 10.5);
             }  // roll loop
-          }    // chamber loop
-        }      // end else
-      }        // station loop
-    }          // region loop
-  }            // detail plot
+          }  // chamber loop
+        }  // end else
+      }  // station loop
+    }  // region loop
+  }  // detail plot
 
   // NOTE Residual
   for (const auto& station : gem->regions()[0]->stations()) {
@@ -123,11 +123,11 @@ void GEMRecHitValidation::bookHistograms(DQMStore::IBooker& booker, edm::Run con
                                                           15,
                                                           "Residual in r #times #phi [cm]");
             }  // roll loop
-          }    // chamber loop
-        }      // end if
-      }        // station loop
-    }          // region loop
-  }            // detail plot
+          }  // chamber loop
+        }  // end if
+      }  // station loop
+    }  // region loop
+  }  // detail plot
 
   // NOTE Pull
   if (detail_plot_) {
@@ -164,11 +164,11 @@ void GEMRecHitValidation::bookHistograms(DQMStore::IBooker& booker, edm::Run con
 
               me_detail_pull_y_la_[key4] = bookHist1D(booker, key4, "pull_y", "Pull in y", 60, -3, 3);
             }  // roll loop
-          }    // chamber loop
-        }      // end if
-      }        // station loop
-    }          // region loop
-  }            // detail plot
+          }  // chamber loop
+        }  // end if
+      }  // station loop
+    }  // region loop
+  }  // detail plot
 
   // NOTE Occupancy
   for (const auto& region : gem->regions()) {
@@ -225,9 +225,9 @@ void GEMRecHitValidation::bookHistograms(DQMStore::IBooker& booker, edm::Run con
             me_detail_occ_polar_[key3] = bookPolarOccupancy(booker, key3, "rechit", "RecHit");
           }
         }  // chamber loop
-      }    // end if
-    }      // station loop
-  }        // region_loop
+      }  // end if
+    }  // station loop
+  }  // region_loop
 }
 
 Bool_t GEMRecHitValidation::matchRecHitAgainstSimHit(GEMRecHitCollection::const_iterator rechit, Int_t simhit_strip) {
@@ -433,6 +433,6 @@ void GEMRecHitValidation::analyze(const edm::Event& event, const edm::EventSetup
         break;
 
       }  // if rechit matches against simhit
-    }    // rechit loop
-  }      // simhit loop
+    }  // rechit loop
+  }  // simhit loop
 }

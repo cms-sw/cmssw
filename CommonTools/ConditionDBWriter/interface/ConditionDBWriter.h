@@ -33,17 +33,17 @@
  *  The user can optionally implement the following methods 
  *
  *    //Will be called at the beginning of the job
- *    virtual void algoBeginJob(const edm::EventSetup&){};
+ *    virtual void algoBeginJob(const edm::EventSetup&){}
  *    //Will be called at the beginning of each run in the job
- *    virtual void algoBeginRun(const edm::Run &, const edm::EventSetup &){};
+ *    virtual void algoBeginRun(const edm::Run &, const edm::EventSetup &){}
  *    //Will be called at the beginning of each luminosity block in the run
- *    virtual void algoBeginLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &){};
+ *    virtual void algoBeginLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &){}
  *    //Will be called at every event
- *    virtual void algoAnalyze(const edm::Event&, const edm::EventSetup&){};
+ *    virtual void algoAnalyze(const edm::Event&, const edm::EventSetup&){}
  *    //Will be called at the end of each run in the job
- *    virtual void algoEndRun(const edm::Run &, const edm::EventSetup &){};
+ *    virtual void algoEndRun(const edm::Run &, const edm::EventSetup &){}
  *    //Will be called at the end of the job
- *    virtual void algoEndJob(){};
+ *    virtual void algoEndJob(){}
  *
  *  where he can access information needed to build his object. For instance, if
  *  he is computing a calibration that is computed as the mean of a certain
@@ -202,17 +202,17 @@ private:
   // Optional methods that may be implemented (technically "overridden") in the derived classes if needed
 
   //Will be called at the beginning of the job
-  virtual void algoBeginJob(const edm::EventSetup &){};
+  virtual void algoBeginJob(const edm::EventSetup &) {}
   //Will be called at the beginning of each run in the job
-  virtual void algoBeginRun(const edm::Run &, const edm::EventSetup &){};
+  virtual void algoBeginRun(const edm::Run &, const edm::EventSetup &) {}
   //Will be called at the beginning of each luminosity block in the run
-  virtual void algoBeginLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &){};
+  virtual void algoBeginLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &) {}
   //Will be called at every event
-  virtual void algoAnalyze(const edm::Event &, const edm::EventSetup &){};
+  virtual void algoAnalyze(const edm::Event &, const edm::EventSetup &) {}
   //Will be called at the end of each run in the job
-  virtual void algoEndRun(const edm::Run &, const edm::EventSetup &){};
+  virtual void algoEndRun(const edm::Run &, const edm::EventSetup &) {}
   //Will be called at the end of the job
-  virtual void algoEndJob(){};
+  virtual void algoEndJob() {}
 
   void beginJob() override {}
 
@@ -268,7 +268,7 @@ private:
     }
   }
 
-  virtual void algoEndLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &){};
+  virtual void algoEndLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &) {}
 
   void endRun(const edm::Run &run, const edm::EventSetup &es) override {
     edm::LogInfo("ConditionDBWriter") << "endRun";

@@ -14,7 +14,7 @@ private:
   float percentile(std::vector<T>&, double);
   template <typename T>
   void subtract_(uint32_t detId, uint16_t firstAPV, std::vector<T>& digis);
-  PercentileCMNSubtractor(double in) : percentile_(in){};
+  PercentileCMNSubtractor(double in) : percentile_(in) {}
   double percentile_;
 };
 #endif

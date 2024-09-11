@@ -6,8 +6,8 @@
 namespace res {
   class HelperElectron {
   public:
-    HelperElectron(){};
-    ~HelperElectron(){};
+    HelperElectron() {}
+    ~HelperElectron() {}
 
     inline double pt(double pt, double eta);
     inline double eta(double pt, double eta);

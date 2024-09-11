@@ -225,9 +225,9 @@ void DTDataIntegrityTest::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
               if (nFEDEvtsUros != 0)
                 sectPerc2 = max((float)0., ((float)nFEDEvtsUros - nErrors2) / (float)nFEDEvtsUros);
               glbSummaryHisto->setBinContent(iros, wheel * 2 + 3, sectPerc2);
-            }   //loop in three ros
-          }     // this uROS is active
-        }       //loop on uros
+            }  //loop in three ros
+          }  // this uROS is active
+        }  //loop on uros
       } else {  // no data in this FED: it is off, no ROS suummary/status or evLength and fedNotReadout
         for (int i = 1; i <= DOCESLOTS; ++i) {
           summaryHisto->setBinContent(i, wheel + 3, 0.5);
@@ -239,7 +239,7 @@ void DTDataIntegrityTest::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
           summaryTDCHisto->setBinContent(i, wheel * 2 + 3, 1.5);
           glbSummaryHisto->setBinContent(i, wheel * 2 + 3, 0.5);
         }  //loop on uros
-      }    // no data in this FED: it is off, no ROS suummary/status or evLength
+      }  // no data in this FED: it is off, no ROS suummary/status or evLength
 
     }  //FEDentry
 

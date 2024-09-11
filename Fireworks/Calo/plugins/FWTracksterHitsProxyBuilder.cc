@@ -262,7 +262,7 @@ void FWTracksterHitsProxyBuilder::build(const ticl::Trackster &iData,
         }
       }
     }  // End of loop over rechits of a single layercluster
-  }    // End loop over the layerclusters of the trackster
+  }  // End loop over the layerclusters of the trackster
 
   hex_boxset->RefitPlex();
   boxset->RefitPlex();

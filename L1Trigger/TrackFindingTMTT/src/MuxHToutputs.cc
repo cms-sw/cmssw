@@ -45,8 +45,7 @@ namespace tmtt {
     text << "=== The R-PHI HT output is multiplexed onto " << this->numLinksPerNonant()
          << " pairs of opto-links per nonant.";
     static std::once_flag printOnce;
-    std::call_once(
-        printOnce, [](string t) { PrintL1trk() << t; }, text.str());
+    std::call_once(printOnce, [](string t) { PrintL1trk() << t; }, text.str());
   }
 
   //=== Determine which tracks are transmitted on each HT output optical link, taking into account the multiplexing

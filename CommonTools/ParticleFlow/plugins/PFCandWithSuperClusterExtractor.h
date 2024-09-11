@@ -19,7 +19,7 @@
 
 class PFCandWithSuperClusterExtractor : public reco::isodeposit::IsoDepositExtractor {
 public:
-  PFCandWithSuperClusterExtractor(){};
+  PFCandWithSuperClusterExtractor() {}
   PFCandWithSuperClusterExtractor(const edm::ParameterSet &par, edm::ConsumesCollector &&iC);
 
   ~PFCandWithSuperClusterExtractor() override {}

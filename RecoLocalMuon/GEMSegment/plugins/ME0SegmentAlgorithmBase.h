@@ -36,9 +36,9 @@ public:
   typedef std::vector<const HitAndPosition*> HitAndPositionPtrContainer;
 
   /// Constructor
-  explicit ME0SegmentAlgorithmBase(const edm::ParameterSet&){};
+  explicit ME0SegmentAlgorithmBase(const edm::ParameterSet&) {}
   /// Destructor
-  virtual ~ME0SegmentAlgorithmBase(){};
+  virtual ~ME0SegmentAlgorithmBase() {}
 
   /** Run the algorithm = build the segments in this chamber
     */

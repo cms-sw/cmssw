@@ -13,7 +13,7 @@
 class DeDxEstimatorRekeyer : public edm::global::EDProducer<> {
 public:
   explicit DeDxEstimatorRekeyer(const edm::ParameterSet&);
-  ~DeDxEstimatorRekeyer() override{};
+  ~DeDxEstimatorRekeyer() override {}
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:

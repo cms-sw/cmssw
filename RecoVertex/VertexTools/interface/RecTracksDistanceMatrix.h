@@ -18,7 +18,7 @@ class RecTracksDistanceMatrix {  // : public ReferenceCounted {
 
 public:
   virtual const std::vector<reco::TransientTrack>* tracks() const = 0;
-  virtual ~RecTracksDistanceMatrix(){};
+  virtual ~RecTracksDistanceMatrix() {}
 
   virtual double distance(const reco::TransientTrack, const reco::TransientTrack) const = 0;
   virtual double weightedDistance(const reco::TransientTrack, const reco::TransientTrack) const = 0;

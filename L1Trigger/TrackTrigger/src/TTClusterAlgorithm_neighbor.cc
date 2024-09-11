@@ -67,5 +67,5 @@ void TTClusterAlgorithm_neighbor<Ref_Phase2TrackerDigi_>::addNeighbors(std::vect
         used[i] = true;
       }
     }  /// End of loop over candidate neighbours
-  }    /// End of loop over hits
+  }  /// End of loop over hits
 }

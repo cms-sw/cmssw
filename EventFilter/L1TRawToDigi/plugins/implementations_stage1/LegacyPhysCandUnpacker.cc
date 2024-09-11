@@ -101,7 +101,7 @@ namespace l1t {
         return process(block, res, [](const l1t::Tau& t) { return t; });
       }
     }  // namespace legacy
-  }    // namespace stage1
+  }  // namespace stage1
 }  // namespace l1t
 
 DEFINE_L1T_UNPACKER(l1t::stage1::legacy::IsoEGammaUnpacker);

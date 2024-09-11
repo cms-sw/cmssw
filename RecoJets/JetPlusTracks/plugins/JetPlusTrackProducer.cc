@@ -144,7 +144,7 @@ void JetPlusTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
           tracksincalo.push_back(ixtrp.track());
         }
       }  // Track extrapolations
-    }    // tracks
+    }  // tracks
 
     const reco::TrackJet& corrected = jet;
     math::XYZTLorentzVector p4;

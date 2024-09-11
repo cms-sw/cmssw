@@ -29,7 +29,7 @@ public:
   bool isInIsolationCone(const reco::CandidatePtr& physob, const reco::CandidatePtr& other) const final;
 
   //! Destructor
-  ~MuonPFIsolationWithConeVeto() override{};
+  ~MuonPFIsolationWithConeVeto() override {}
 
 private:
   const double _vetoThreshold, _vetoConeSize2;

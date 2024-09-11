@@ -15,7 +15,7 @@ class RBCLinkBoardSignal : public RPCInputSignal {
 public:
   RBCLinkBoardSignal(RBCInput*);
 
-  void clear() override{};
+  void clear() override {}
 
   RBCInput m_linkboardin;
 

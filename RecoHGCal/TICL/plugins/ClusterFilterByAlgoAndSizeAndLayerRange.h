@@ -21,7 +21,7 @@ namespace ticl {
           max_cluster_size_(ps.getParameter<int>("max_cluster_size")),
           min_layerId_(ps.getParameter<int>("min_layerId")),
           max_layerId_(ps.getParameter<int>("max_layerId")) {}
-    ~ClusterFilterByAlgoAndSizeAndLayerRange() override{};
+    ~ClusterFilterByAlgoAndSizeAndLayerRange() override {}
 
     void filter(const std::vector<reco::CaloCluster>& layerClusters,
                 std::vector<float>& layerClustersMask,

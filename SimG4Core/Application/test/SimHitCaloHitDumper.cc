@@ -21,11 +21,11 @@
 class SimHitCaloHitDumper : public edm::one::EDAnalyzer<> {
 public:
   SimHitCaloHitDumper(const edm::ParameterSet&);
-  ~SimHitCaloHitDumper() override{};
+  ~SimHitCaloHitDumper() override {}
 
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void beginJob() override{};
-  void endJob() override{};
+  void beginJob() override {}
+  void endJob() override {}
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 

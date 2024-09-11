@@ -284,7 +284,7 @@ double HGCalImagingAlgo::calculateLocalDensity(std::vector<KDNode> &nd, KDTree &
         maxdensity = std::max(maxdensity, nd[i].data.rho);
       }
     }  // end loop found
-  }    // end loop nodes
+  }  // end loop nodes
   return maxdensity;
 }
 

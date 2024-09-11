@@ -182,14 +182,14 @@ void Phase2OTValidateTrackingRecHit::fillOTHistos(const edm::Event& iEvent,
             }
           }
         }  //end loop over PSimhitcontainers
-      }    //end loop over simHits
+      }  //end loop over simHits
       if (!simhitClosest)
         continue;
       fillOTRecHitHistos(
           simhitClosest, rechit, selectedSimTrackMap, nrechitLayerMapP_primary, nrechitLayerMapS_primary);
 
     }  //end loop over rechits of a track
-  }    //End loop over tracks
+  }  //End loop over tracks
 
   //fill nRecHits per event
   //fill nRecHit counter per layer

@@ -40,11 +40,11 @@ namespace popcon {
     SiStripPopConHandlerUnitTestGain(const edm::ParameterSet& pset)
         : m_name(pset.getUntrackedParameter<std::string>("name", "SiStripPopPopConConfigDbObjHandler")),
           m_since(pset.getUntrackedParameter<uint32_t>("since", 5)),
-          m_debugMode(pset.getUntrackedParameter<bool>("debug", true)){};
+          m_debugMode(pset.getUntrackedParameter<bool>("debug", true)) {}
 
     //---------------------------------------
     //
-    ~SiStripPopConHandlerUnitTestGain() override{};
+    ~SiStripPopConHandlerUnitTestGain() override {}
 
     //---------------------------------------
     //

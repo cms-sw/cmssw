@@ -154,9 +154,9 @@ void LaserBeamsTEC1::GeneratePrimaries(G4Event *myEvent) {
             theParticleGun->GeneratePrimaryVertex(myEvent);
           }
         }  // end loop over both beam directions
-      }    // end loop over particles in beam
-    }      // end loop over beams
-  }        // end loop over rings
+      }  // end loop over particles in beam
+    }  // end loop over beams
+  }  // end loop over rings
 }
 
 void LaserBeamsTEC1::setOptPhotonPolar(G4double Angle) {

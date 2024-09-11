@@ -321,9 +321,9 @@ const bool l1t::CaloCondition::evaluateCondition(const int bxEval) const {
             combinationsInCond().push_back(objectsInComb);
           }
         }  // end loop on k
-      }    // end loop on j
-    }      // end loop on i
-  }        // end if condition has 3 objects
+      }  // end loop on j
+    }  // end loop on i
+  }  // end if condition has 3 objects
   else if (nObjInCond == 4) {
     for (int i = 0; i < numberObjects; i++) {
       bool passCondition0i = checkObjectParameter(0, *(candVec->at(useBx, i)), index[i]);
@@ -403,10 +403,10 @@ const bool l1t::CaloCondition::evaluateCondition(const int bxEval) const {
               combinationsInCond().push_back(objectsInComb);
             }
           }  // end loop on m
-        }    // end loop on k
-      }      // end loop on j
-    }        // end loop on i
-  }          // end if condition has 4 objects
+        }  // end loop on k
+      }  // end loop on j
+    }  // end loop on i
+  }  // end if condition has 4 objects
 
   LogTrace("L1TGlobal") << "\n  CaloCondition: total number of permutations found:          " << totalLoops
                         << "\n  CaloCondition: number of permutations passing requirements: " << passLoops << "\n"

@@ -13,7 +13,7 @@
 #pragma GCC visibility push(hidden)
 class TIDLayerBuilder {
 public:
-  TIDLayerBuilder(){};
+  TIDLayerBuilder() {}
   TIDLayer* build(const GeometricDet* aTIDLayer, const TrackerGeometry* theGeomDetGeometry) __attribute__((cold));
 };
 

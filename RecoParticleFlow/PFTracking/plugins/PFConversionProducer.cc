@@ -156,10 +156,10 @@ void PFConversionProducer::produce(Event& iEvent, const EventSetup& iSetup) {
 
         if (greater_prob)
           break;  //if a duplicate track is found in a collection with greater Chi^2 probability for Vertex fit then break out of comparison loop
-      }           //end loop over collection 2 checking
+      }  //end loop over collection 2 checking
       if (greater_prob)
         break;  //if a duplicate track is found in a collection with greater Chi^2 probability for Vertex fit then one does not need to check the other track the collection will not be stored
-    }           //end loop over tracks in collection 1
+    }  //end loop over tracks in collection 1
     if (!greater_prob)
       conv_coll.push_back(icoll1);
   }  //end loop over collection 1

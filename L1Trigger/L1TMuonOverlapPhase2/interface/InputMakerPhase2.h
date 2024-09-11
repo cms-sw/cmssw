@@ -25,9 +25,9 @@ class DtPhase2DigiToStubsConverter : public DigiToStubsConverterBase {
 public:
   DtPhase2DigiToStubsConverter(edm::EDGetTokenT<L1Phase2MuDTPhContainer> inputTokenDtPh,
                                edm::EDGetTokenT<L1MuDTChambThContainer> inputTokenDtTh)
-      : inputTokenDtPh(inputTokenDtPh), inputTokenDtTh(inputTokenDtTh){};
+      : inputTokenDtPh(inputTokenDtPh), inputTokenDtTh(inputTokenDtTh) {}
 
-  ~DtPhase2DigiToStubsConverter() override{};
+  ~DtPhase2DigiToStubsConverter() override {}
 
   void loadDigis(const edm::Event& event) override;
 
@@ -72,7 +72,7 @@ public:
                                    edm::EDGetTokenT<L1MuDTChambThContainer> inputTokenDtTh)
       : DtPhase2DigiToStubsConverter(inputTokenDtPh, inputTokenDtTh),
         config(*config),
-        angleConverter(*angleConverter){};
+        angleConverter(*angleConverter) {}
 
   ~DtPhase2DigiToStubsConverterOmtf() override = default;
 

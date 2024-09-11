@@ -373,6 +373,6 @@ void ConvBremPFTrackFinder::runConvBremFinder(const Handle<PFRecTrackCollection>
           pfRecTrRef_vec_.push_back(AllPFRecTracks[iPF]);
         }
       }  // end MinDIST
-    }    // end selection kf - brem tangents
-  }      // loop on the kf tracks
+    }  // end selection kf - brem tangents
+  }  // loop on the kf tracks
 }

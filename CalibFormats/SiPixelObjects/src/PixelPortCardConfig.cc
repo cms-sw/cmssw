@@ -1437,11 +1437,11 @@ unsigned int PixelPortCardConfig::getAOHGain(unsigned int AOHNumber) const {
   const unsigned int threeGainsValue = getdeviceValuesForAddress(address);
 
   if (AOHNumber % 3 == 1)
-    return (((threeGainsValue)&0x03) >> 0);  // return bits 0 & 1
+    return (((threeGainsValue) & 0x03) >> 0);  // return bits 0 & 1
   if (AOHNumber % 3 == 2)
-    return (((threeGainsValue)&0x0c) >> 2);  // return bits 2 & 3
+    return (((threeGainsValue) & 0x0c) >> 2);  // return bits 2 & 3
   if (AOHNumber % 3 == 0)
-    return (((threeGainsValue)&0x30) >> 4);  // return bits 4 & 5
+    return (((threeGainsValue) & 0x30) >> 4);  // return bits 4 & 5
 
   assert(0);
 }

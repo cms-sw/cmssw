@@ -16,9 +16,9 @@ namespace calib {
     CalibElectron(const reco::GsfElectron* ele,
                   const EcalRecHitCollection* theHits,
                   const EcalRecHitCollection* theEEHits)
-        : theElectron_(ele), theHits_(theHits), theEEHits_(theEEHits){};
+        : theElectron_(ele), theHits_(theHits), theEEHits_(theEEHits) {}
 
-    ~CalibElectron(){};
+    ~CalibElectron() {}
 
     std::vector<std::pair<int, float> > getCalibModulesWeights(TString calibtype);
     const reco::GsfElectron* getRecoElectron() { return theElectron_; }

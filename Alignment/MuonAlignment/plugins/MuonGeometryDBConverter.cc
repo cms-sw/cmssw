@@ -47,8 +47,8 @@ public:
   ~MuonGeometryDBConverter() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions &);
-  void beginJob() override{};
-  void endJob() override{};
+  void beginJob() override {}
+  void endJob() override {}
 
 private:
   void analyze(const edm::Event &, const edm::EventSetup &) override;

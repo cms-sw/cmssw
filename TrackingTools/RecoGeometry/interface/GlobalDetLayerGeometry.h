@@ -20,12 +20,12 @@ class DetLayer;
 class GlobalDetLayerGeometry : public DetLayerGeometry {
 public:
   GlobalDetLayerGeometry(const GeometricSearchTracker* tracker, const MuonDetLayerGeometry* muon)
-      : tracker_(tracker), muon_(muon), mtd_(nullptr){};
+      : tracker_(tracker), muon_(muon), mtd_(nullptr) {}
 
   GlobalDetLayerGeometry(const GeometricSearchTracker* tracker,
                          const MuonDetLayerGeometry* muon,
                          const MTDDetLayerGeometry* mtd)
-      : tracker_(tracker), muon_(muon), mtd_(mtd){};
+      : tracker_(tracker), muon_(muon), mtd_(mtd) {}
 
   ~GlobalDetLayerGeometry() override {}
 

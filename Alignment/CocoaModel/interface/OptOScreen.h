@@ -18,10 +18,10 @@ class LightRay;
 class OptOScreen : public OpticalObject {
 public:
   //---------- Constructors / Destructor
-  OptOScreen(){};
+  OptOScreen() {}
   OptOScreen(OpticalObject* parent, const ALIstring& type, const ALIstring& name, const ALIbool copy_data)
-      : OpticalObject(parent, type, name, copy_data){};
-  ~OptOScreen() override{};
+      : OpticalObject(parent, type, name, copy_data) {}
+  ~OptOScreen() override {}
 
   //---------- defaultBehaviour: do nothing
   void defaultBehaviour(LightRay& lightray, Measurement& meas) override;

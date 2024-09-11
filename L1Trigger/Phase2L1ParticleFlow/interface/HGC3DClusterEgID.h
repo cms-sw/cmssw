@@ -48,6 +48,6 @@ namespace l1tpf {
     std::unique_ptr<TMVA::Reader> reader_;
     StringObjectFunction<l1t::HGCalMulticluster> wp_;
   };  //class
-};    // namespace l1tpf
+};  // namespace l1tpf
 
 #endif

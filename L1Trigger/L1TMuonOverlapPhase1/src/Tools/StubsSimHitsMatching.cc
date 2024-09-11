@@ -345,7 +345,7 @@ void StubsSimHitsMatcher::match(const edm::Event& iEvent,
 
             break;
           }  //end of CSC case
-        }    //end of switch
+        }  //end of switch
         ostr << "" << std::endl;
       }
     }

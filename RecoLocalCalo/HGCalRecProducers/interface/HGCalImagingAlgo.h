@@ -239,7 +239,7 @@ private:
     const double dx = pt1.x - pt2.x;
     const double dy = pt1.y - pt2.y;
     return (dx * dx + dy * dy);
-  }                                                                   //distance squaredq
+  }  //distance squaredq
   inline double distance(const Hexel &pt1, const Hexel &pt2) const {  //2-d distance on the layer (x-y)
     return std::sqrt(distance2(pt1, pt2));
   }

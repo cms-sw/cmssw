@@ -140,8 +140,8 @@ int HcalDigisClient::HcalDigisEndjob(const std::vector<MonitorElement*>& hcalMEs
         ieta_iphi_occupancy_maps[depth - 1]->setBinError(i, j, enorm);
 
       }  //for loop over NbinsYU
-    }    //for loop over NbinsX
-  }      //for loop over the occupancy maps
+    }  //for loop over NbinsX
+  }  //for loop over the occupancy maps
 
   for (int i = 1; i <= 82; i++) {
     int ieta = i - 42;  // -41 -1, 0 40
@@ -173,7 +173,7 @@ int HcalDigisClient::HcalDigisEndjob(const std::vector<MonitorElement*>& hcalMEs
         sumphie[depth - 1] += econtent * econtent;
 
       }  //for loop over depths
-    }    //for loop over phi
+    }  //for loop over phi
 
     //double deta = double(ieta);
 

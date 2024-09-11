@@ -33,7 +33,7 @@ public:
   std::vector<float> m_times_of_currents;
 
   RunInfo();
-  virtual ~RunInfo(){};
+  virtual ~RunInfo() {}
   static RunInfo* Fake_RunInfo();
 
   void printAllValues() const;

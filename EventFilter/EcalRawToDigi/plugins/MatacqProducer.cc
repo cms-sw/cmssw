@@ -927,7 +927,7 @@ bool MatacqProducer::getMatacqFile(uint32_t runNumber, uint32_t orbitId, bool* f
       }  //next iglob
       globfree(&g);
     }  //next filenames
-  }    //next itry
+  }  //next itry
 
   if (found) {
     LogInfo("Matacq") << "Uses matacq data file: '" << fname << "'\n";

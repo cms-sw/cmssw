@@ -814,8 +814,8 @@ private:
     double v;
     double e;
 
-    Pair(double _v, double _e) : v(_v), e(_e){};
-    Pair(int _v, int _e) : v(_v), e(_e){};
+    Pair(double _v, double _e) : v(_v), e(_e) {}
+    Pair(int _v, int _e) : v(_v), e(_e) {}
   };
 
   struct Event {
@@ -823,7 +823,7 @@ private:
     int lumi;
     int event;
 
-    Event(int _run, int _lumi, int _event) : run(_run), lumi(_lumi), event(_event){};
+    Event(int _run, int _lumi, int _event) : run(_run), lumi(_lumi), event(_event) {}
     bool operator<(const Event& b) const { return std::tie(run, lumi, event) < std::tie(b.run, b.lumi, b.event); }
   };
 

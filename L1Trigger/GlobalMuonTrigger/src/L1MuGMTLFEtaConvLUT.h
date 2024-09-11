@@ -45,7 +45,7 @@ public:
   };
 
   /// destructor
-  ~L1MuGMTLFEtaConvLUT() override{};
+  ~L1MuGMTLFEtaConvLUT() override {}
 
   /// specific lookup function for eta_gmt
   unsigned SpecificLookup_eta_gmt(int idx, unsigned eta_regional) const {

@@ -176,7 +176,7 @@ void PedestalsHistosUsingDb::update(SiStripConfigDb::FedDescriptionsRange feds) 
             }
 
           }  // end loop on strips
-        }    // end loop on apvs
+        }  // end loop on apvs
         updated++;
 
       } else {

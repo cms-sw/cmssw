@@ -135,7 +135,7 @@ namespace edm {
         return true;  // backward compatibility
       return (entries_ == metaTree_->GetEntries() &&
               tree_->GetNbranches() <= metaTree_->GetNbranches() + 1);  // backward compatibility
-    }                                                                   // backward compatibility
+    }  // backward compatibility
     return false;
   }
 

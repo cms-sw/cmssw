@@ -8,8 +8,8 @@
 
 class SiPixelVCal {
 public:
-  SiPixelVCal(){};
-  ~SiPixelVCal(){};
+  SiPixelVCal() {}
+  ~SiPixelVCal() {}
 
   using mapToDetId = std::map<uint32_t, float>;
 

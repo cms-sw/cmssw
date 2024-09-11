@@ -35,7 +35,7 @@ struct EcalClusterEnergyDeposition {
 class ClusterShapeAlgo {
 public:
   ClusterShapeAlgo(const edm::ParameterSet &par);
-  ClusterShapeAlgo(){};
+  ClusterShapeAlgo() {}
   reco::ClusterShape Calculate(const reco::BasicCluster &passedCluster,
                                const EcalRecHitCollection *hits,
                                const CaloSubdetectorGeometry *geometry,

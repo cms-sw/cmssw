@@ -99,7 +99,7 @@ void L1TRPCTFClient::processHistograms(DQMStore::IGetter &igetter) {
              ++channel) {
           m_deadChannels->setBinContent((*channel).getBinX(), (*channel).getBinY(), 100);
         }  // for(badchannels)
-      }    //if (qreport)
+      }  //if (qreport)
 
       qreport = me->getQReport("HotChannels_RPCTF_2D");
       if (qreport) {
@@ -109,9 +109,9 @@ void L1TRPCTFClient::processHistograms(DQMStore::IGetter &igetter) {
           // (*channel).getBinY() == 0 for NoisyChannels QTEST
           m_noisyChannels->setBinContent((*channel).getBinX(), 100);
         }  // for(badchannels)
-      }    //if (qreport)
-           //      else std::cout << "dupa" << std::endl;
-    }      // if (me)
+      }  //if (qreport)
+      //      else std::cout << "dupa" << std::endl;
+    }  // if (me)
   }
 
   if (verbose_) {

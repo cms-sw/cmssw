@@ -285,11 +285,11 @@ namespace {
                     }
                     //	      std::cout << " x " << x << " y " << y << " z " << iz << std::endl;
                   }  // loop over crystals in strip
-                }    // new strip
-              }      // second run
+                }  // new strip
+              }  // second run
             }
           }  // loop over strips
-        }    // payload
+        }  // payload
         else
           return false;
         //	std::cout << " nb of strips " << istat << std::endl;
@@ -328,8 +328,8 @@ namespace {
             }
             //	      std::cout << " x " << x << " y " << y << " z " << iz << std::endl;
           }  // loop over crystals in strip
-        }    // new strip
-      }      // loop over run 1 strips
+        }  // new strip
+      }  // loop over run 1 strips
 
       gStyle->SetPalette(1);
       gStyle->SetOptStat(0);
@@ -385,7 +385,7 @@ namespace {
       canvas.SaveAs(ImageName.c_str());
       return true;
     }  // fill method
-  };   // class EcalTPGStripStatusDiffBase
+  };  // class EcalTPGStripStatusDiffBase
   using EcalTPGStripStatusDiffOneTag = EcalTPGStripStatusDiffBase<cond::payloadInspector::SINGLE_IOV, 1>;
   using EcalTPGStripStatusDiffTwoTags = EcalTPGStripStatusDiffBase<cond::payloadInspector::SINGLE_IOV, 2>;
 

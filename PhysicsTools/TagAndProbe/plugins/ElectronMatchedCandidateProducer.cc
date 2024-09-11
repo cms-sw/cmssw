@@ -68,7 +68,7 @@ void ElectronMatchedCandidateProducer::produce(edm::StreamID, edm::Event &event,
         outColRef->push_back(recoCandColl->refAt(counter));
         outColPtr->push_back(recoCandColl->ptrAt(counter));
       }  // end if loop
-    }    // end electron loop
+    }  // end electron loop
 
   }  // end candidate loop
 

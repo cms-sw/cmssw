@@ -27,7 +27,7 @@ namespace memory {
     constexpr unsigned uint32_hgcuncalibrechits_soa = 3;  //number of uint32_t pointers in the uncalibrated rechits SoA
     constexpr unsigned ntypes_hgcuncalibrechits_soa =
         2;  //number of different pointer types in the uncalibrated rechits SoA
-  }         // namespace npointers
+  }  // namespace npointers
 }  // namespace memory
 
 #endif

@@ -19,7 +19,7 @@ public:
       : FastTrackerRecHit(pos, err, idet, fastTrackerRecHitType::siStripMatched2D),
         stereoHitFirst_(stereoHitFirst),
         componentMono_(rMono),
-        componentStereo_(rStereo){};
+        componentStereo_(rStereo) {}
 
   FastMatchedTrackerRecHit* clone() const override {
     FastMatchedTrackerRecHit* p = new FastMatchedTrackerRecHit(*this);

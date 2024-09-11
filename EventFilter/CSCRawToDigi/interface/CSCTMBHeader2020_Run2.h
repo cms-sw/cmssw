@@ -72,9 +72,9 @@ struct CSCTMBHeader2020_Run2 : public CSCVTMBHeaderFormat {
   void addALCT1(const CSCALCTDigi& digi) override;
   void addCorrelatedLCT0(const CSCCorrelatedLCTDigi& digi) override;
   void addCorrelatedLCT1(const CSCCorrelatedLCTDigi& digi) override;
-  void addShower(const CSCShowerDigi& digi) override{};
-  void addAnodeShower(const CSCShowerDigi& digi) override{};
-  void addCathodeShower(const CSCShowerDigi& digi) override{};
+  void addShower(const CSCShowerDigi& digi) override {}
+  void addAnodeShower(const CSCShowerDigi& digi) override {}
+  void addCathodeShower(const CSCShowerDigi& digi) override {}
 
   void swapCLCTs(CSCCLCTDigi& digi1, CSCCLCTDigi& digi2);
 

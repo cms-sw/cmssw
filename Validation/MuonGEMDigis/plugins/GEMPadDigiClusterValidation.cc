@@ -112,8 +112,8 @@ void GEMPadDigiClusterValidation::bookHistograms(DQMStore::IBooker& booker,
               bookHist1D(booker, key3, "occ_pad", "Pad Cluster Occupancy", num_pads, 0, num_pads, "Pad number");
         }
       }  // end loop over layer ids
-    }    // end loop over station ids
-  }      // end loop over region ids
+    }  // end loop over station ids
+  }  // end loop over region ids
 
   // NOTE Bunch Crossing
   if (detail_plot_) {
@@ -140,9 +140,9 @@ void GEMPadDigiClusterValidation::bookHistograms(DQMStore::IBooker& booker,
           me_detail_bx_[key3] =
               bookHist1D(booker, key3, "bx", "Pad Cluster Bunch Crossing", 5, -2, 3, "Bunch crossing");
         }  // chamber loop
-      }    // station loop
-    }      // region loop
-  }        // detail plot
+      }  // station loop
+    }  // region loop
+  }  // detail plot
 }
 
 GEMPadDigiClusterValidation::~GEMPadDigiClusterValidation() {}

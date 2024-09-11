@@ -877,7 +877,7 @@ void TestOutliers::analyze(const edm::Event &iEvent, const edm::EventSetup &iSet
                 }
                 LogTrace("TestOutliers") << "merged, ioniOnly=" << ioniOnly << " shared=" << shared;
               }
-            }       //if (goodhit)
+            }  //if (goodhit)
             else {  //badhit
               //LogTrace("TestOutliers") << "badhit";
               if (outlier) {

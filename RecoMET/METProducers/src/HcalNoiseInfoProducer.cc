@@ -997,7 +997,7 @@ void HcalNoiseInfoProducer::filldigis(edm::Event& iEvent,
         }
         if (sumChargeHF > calibdigiHFthreshold_)
           ++NcalibHFgtX;
-      }                                                                                         // end of HF check
+      }  // end of HF check
       else if (digi->id().hcalSubdet() == HcalBarrel || digi->id().hcalSubdet() == HcalEndcap)  // now check HBHE
       {
         double sumChargeHBHE = 0;
@@ -1014,7 +1014,7 @@ void HcalNoiseInfoProducer::filldigis(edm::Event& iEvent,
           chargecalibgt15TS45 += sumChargeHBHE;
         }
       }  // end of HBHE check
-    }    // loop on HcalCalibDigiCollection
+    }  // loop on HcalCalibDigiCollection
 
   }  // if (hCalib.isValid()==true)
   if (fillLaserMonitor_ && (hLasermon.isValid() == true)) {
@@ -1068,10 +1068,10 @@ void HcalNoiseInfoProducer::filldigis(edm::Event& iEvent,
 
               comb_charge.push_back(charge);
             }  // if( ok && adc >= 0 )
-          }    // loop over time slices
-        }      // if( cboxch == ch_cboxch && iphi == ch_iphi && ieta == ch_ieta )
-      }        // loop over digi collection
-    }          // loop over channel list
+          }  // loop over time slices
+        }  // if( cboxch == ch_cboxch && iphi == ch_iphi && ieta == ch_ieta )
+      }  // loop over digi collection
+    }  // loop over channel list
 
     // do not continue with the calculation
     // if the vector was not filled

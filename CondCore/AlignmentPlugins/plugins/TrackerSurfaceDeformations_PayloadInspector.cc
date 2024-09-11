@@ -77,7 +77,7 @@ namespace {
           }
 
         }  // payload
-      }    // iovs
+      }  // iovs
       return true;
     }  // fill
   };
@@ -135,7 +135,7 @@ namespace {
           summaries[nPar]->Fill(par);
           nPar++;
         }  // ends loop on the parameters
-      }    // ends loop on the item vector
+      }  // ends loop on the item vector
 
       TLatex t1;
 
@@ -603,8 +603,8 @@ namespace {
               surfDefMap[f_entry.first] = delta;
             }
           }  // if not phase-0
-        }    // loop on the last payload map
-      }      // loop on the first payload map
+        }  // loop on the last payload map
+      }  // loop on the first payload map
 
       //=========================
 
@@ -772,8 +772,8 @@ namespace {
               surfDefMap[f_entry.first] = delta;
             }
           }  // if not phase-0
-        }    // loop on the last payload map
-      }      // loop on the first payload map
+        }  // loop on the last payload map
+      }  // loop on the first payload map
 
       //=========================
 

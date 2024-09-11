@@ -33,8 +33,8 @@ public:
   typedef EcalCondObjectContainer<Values> EcalValueMap;
   typedef std::vector<Times> EcalTimeMap;
 
-  EcalTimeDependentCorrections() : time_map(92){};  // FIXME
-  ~EcalTimeDependentCorrections(){};
+  EcalTimeDependentCorrections() : time_map(92) {}  // FIXME
+  ~EcalTimeDependentCorrections() {}
 
   void setValue(uint32_t rawId, const Values& value) { value_map[rawId] = value; };
   const EcalValueMap& getValueMap() const { return value_map; }

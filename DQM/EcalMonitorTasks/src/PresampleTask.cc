@@ -116,7 +116,7 @@ namespace ecaldqm {
       }
 
     }  // _digis loop
-  }    // runOnDigis
+  }  // runOnDigis
 
   DEFINE_ECALDQM_WORKER(PresampleTask);
 }  // namespace ecaldqm

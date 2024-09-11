@@ -20,11 +20,7 @@
 using namespace std;
 
 DTLowQMatching::DTLowQMatching(L1MuDTChambPhContainer const* inphiDTDigis, L1MuDTChambPhContainer const& inphiRPCDigis)
-    : m_phiDTDigis(inphiDTDigis),
-      m_phiRPCDigis(inphiRPCDigis){
-          // m_phiDTDigis=inphiDTDigis;
-          // m_phiRPCDigis=inphiRPCDigis;
-      };
+    : m_phiDTDigis(inphiDTDigis), m_phiRPCDigis(inphiRPCDigis) {}
 
 void DTLowQMatching::run(const L1TTwinMuxParams& tmParams) {
   m_DphiWindow = tmParams.get_DphiWindowBxShift();
@@ -70,7 +66,7 @@ void DTLowQMatching::Matching(int track_seg) {
                 continue;
               }
             }
-          }                                                //end of rpc bx
+          }  //end of rpc bx
           if (matched == 0 && dtts && dtts->code() < 2) {  //dtts->setCode(7);
             // int bx=dtts->bxNum(); cout<<bx<<endl;
             L1MuDTChambPhDigi dtts2(dtts->bxNum(),
@@ -86,7 +82,7 @@ void DTLowQMatching::Matching(int track_seg) {
             *dtts = dtts2;
           }
         }  //end of dt bx
-      }    //end of station
-    }      //end of sc
-  }        //end of wheel
+      }  //end of station
+    }  //end of sc
+  }  //end of wheel
 }

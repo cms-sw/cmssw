@@ -98,7 +98,7 @@ void HcalTestHistoClass::fillHits(std::vector<CaloHit>& hitcache) {
     int subdet = (unitID >> 20) & 15;
     int zside = (unitID >> 14) & 1;
     int ieta = (unitID >> 7) & 127;
-    int iphi = (unitID)&127;
+    int iphi = (unitID) & 127;
     LogDebug("HcalSim") << "HcalTestHistoClass::fillHits:Hit " << hit << " " << i << " ID 0x" << std::hex << unitID
                         << std::dec << " " << subdet << " " << lay << " " << zside << " " << ieta << " " << iphi
                         << " Time " << jitter << " E " << ehit;

@@ -46,7 +46,7 @@ namespace ticl {
                              edm::ConsumesCollector,
                              cms::Ort::ONNXRuntime const* onnxRuntime = nullptr)
         : algo_verbosity_(conf.getParameter<int>("algo_verbosity")), onnxRuntime_(onnxRuntime) {}
-    virtual ~TracksterLinkingAlgoBase(){};
+    virtual ~TracksterLinkingAlgoBase() {}
 
     struct Inputs {
       const edm::Event& ev;
@@ -74,7 +74,7 @@ namespace ticl {
                             const edm::ESHandle<Propagator> propH) = 0;
 
     // To be called by TracksterLinksProducer at the start of TracksterLinksProducer::produce. Subclasses can use this to store Event and EventSetup
-    virtual void setEvent(edm::Event& iEvent, edm::EventSetup const& iEventSetup){};
+    virtual void setEvent(edm::Event& iEvent, edm::EventSetup const& iEventSetup) {}
 
     static void fillPSetDescription(edm::ParameterSetDescription& desc) { desc.add<int>("algo_verbosity", 0); };
 

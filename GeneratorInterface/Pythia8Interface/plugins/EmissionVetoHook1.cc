@@ -230,9 +230,9 @@ double EmissionVetoHook1::pTcalc(const Pythia8::Event &e, int i, int j, int k, i
               }  // for (rNow)
 
             }  // for (kNow)
-          }    // if (!FSR)
-        }      // if (pTdefMode)
-      }        // for (j)
+          }  // if (!FSR)
+        }  // if (pTdefMode)
+      }  // for (j)
     }
   }  // for (xSR)
 

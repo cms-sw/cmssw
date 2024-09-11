@@ -12,9 +12,9 @@
 
 class PhotonMIPHaloTagger {
 public:
-  PhotonMIPHaloTagger(){};
+  PhotonMIPHaloTagger() {}
 
-  virtual ~PhotonMIPHaloTagger(){};
+  virtual ~PhotonMIPHaloTagger() {}
 
   void setup(const edm::ParameterSet& conf, edm::ConsumesCollector&& iC);
 

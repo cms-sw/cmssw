@@ -31,7 +31,7 @@ public:
 
   MuonStub();
 
-  MuonStub(int phiHw, int phiBHw) : phiHw(phiHw), phiBHw(phiBHw){};
+  MuonStub(int phiHw, int phiBHw) : phiHw(phiHw), phiBHw(phiBHw) {}
 
   virtual ~MuonStub();
 

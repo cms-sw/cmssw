@@ -90,10 +90,10 @@ public:
   /// Constructor
   DTROSWordType(const uint32_t index) { word_ = index; }
 
-  DTROSWordType() : word_(0){};
+  DTROSWordType() : word_(0) {}
 
   /// Destructor
-  virtual ~DTROSWordType(){};
+  virtual ~DTROSWordType() {}
 
   /// List of DT DDU Word Types
   enum wordTypes {

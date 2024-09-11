@@ -59,7 +59,7 @@ std::vector<DetId> CaloSubdetectorTopology::getWindow(const DetId& id,
         fringe.emplace_back(std::pair<Coordinate, DetId>(neighbour, visited_cells[int_index].cell));
 
     }  // loop over all possible directions
-  }    // while some cells are left on the fringe
+  }  // while some cells are left on the fringe
 
   for (auto& visited_cell : visited_cells)
     if (!visited_cell.cell.null())

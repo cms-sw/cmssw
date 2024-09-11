@@ -118,7 +118,7 @@ EcalTBHodoscopeRecInfo EcalTBHodoscopeRecInfoAlgo::reconstruct(const EcalTBHodos
           while (last < myGeometry_.getNFibres() && hodoscopeRawInfo[ipl][last]) {
             last++;
             nh--;
-          }                                                                              //end
+          }  //end
           if (last + 1 < myGeometry_.getNFibres() && hodoscopeRawInfo[ipl][last + 1]) {  //Skip 1 fibre hole
             last += 2;
             nh--;

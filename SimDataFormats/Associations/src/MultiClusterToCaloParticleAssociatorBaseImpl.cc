@@ -3,8 +3,8 @@
 #include "SimDataFormats/Associations/interface/MultiClusterToCaloParticleAssociatorBaseImpl.h"
 
 namespace hgcal {
-  MultiClusterToCaloParticleAssociatorBaseImpl::MultiClusterToCaloParticleAssociatorBaseImpl(){};
-  MultiClusterToCaloParticleAssociatorBaseImpl::~MultiClusterToCaloParticleAssociatorBaseImpl(){};
+  MultiClusterToCaloParticleAssociatorBaseImpl::MultiClusterToCaloParticleAssociatorBaseImpl() {}
+  MultiClusterToCaloParticleAssociatorBaseImpl::~MultiClusterToCaloParticleAssociatorBaseImpl() {}
 
   hgcal::RecoToSimCollectionWithMultiClusters MultiClusterToCaloParticleAssociatorBaseImpl::associateRecoToSim(
       const edm::Handle<reco::HGCalMultiClusterCollection> &cCCH,

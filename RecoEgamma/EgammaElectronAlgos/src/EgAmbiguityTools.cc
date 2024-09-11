@@ -86,7 +86,7 @@ namespace egamma {
           shared++;
         }
       }  //gsfHits2 iterator
-    }    //gsfHits1 iterator
+    }  //gsfHits1 iterator
 
     //std::cout << "[sharedHits] number of shared hits " << shared << std::endl;
     return shared;
@@ -130,7 +130,7 @@ namespace egamma {
         if ((**elHitsIt1).geographicalId() == (**gsfHitsIt2).geographicalId())
           shared++;
       }  //gsfHits2 iterator
-    }    //gsfHits1 iterator
+    }  //gsfHits1 iterator
 
     //std::cout << "[sharedHits] number of shared dets " << shared << std::endl;
     //return shared/min(gsfTrackRef1->numberOfValidHits(),gsfTrackRef2->numberOfValidHits());

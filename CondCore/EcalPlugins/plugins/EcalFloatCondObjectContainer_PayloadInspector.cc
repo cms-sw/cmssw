@@ -76,9 +76,9 @@ namespace {
               else
                 endc_m->Fill(ix, iy, val);
             }  // iy
-          }    // ix
-        }      // side
-      }        // payload
+          }  // ix
+        }  // side
+      }  // payload
       double vt = (double)EBtot;
       EBmean = EBmean / vt;
       EBrms = EBrms / vt - (EBmean * EBmean);
@@ -219,9 +219,9 @@ namespace {
                     endc_m->Fill(ix, iy, diff);
                 }
               }  // iy
-            }    // ix
-          }      // side
-        }        // payload
+            }  // ix
+          }  // side
+        }  // payload
         else
           return false;
       }  // loop over IOVs
@@ -279,7 +279,7 @@ namespace {
       canvas.SaveAs(ImageName.c_str());
       return true;
     }  // fill method
-  };   // class EcalFloatCondObjectContainerDiffBase
+  };  // class EcalFloatCondObjectContainerDiffBase
   using EcalFloatCondObjectContainerDiffOneTag =
       EcalFloatCondObjectContainerDiffBase<cond::payloadInspector::SINGLE_IOV, 1>;
   using EcalFloatCondObjectContainerDiffTwoTags =

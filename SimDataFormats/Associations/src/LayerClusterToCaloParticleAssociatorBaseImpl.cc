@@ -3,8 +3,8 @@
 #include "SimDataFormats/Associations/interface/LayerClusterToCaloParticleAssociatorBaseImpl.h"
 
 namespace ticl {
-  LayerClusterToCaloParticleAssociatorBaseImpl::LayerClusterToCaloParticleAssociatorBaseImpl(){};
-  LayerClusterToCaloParticleAssociatorBaseImpl::~LayerClusterToCaloParticleAssociatorBaseImpl(){};
+  LayerClusterToCaloParticleAssociatorBaseImpl::LayerClusterToCaloParticleAssociatorBaseImpl() {}
+  LayerClusterToCaloParticleAssociatorBaseImpl::~LayerClusterToCaloParticleAssociatorBaseImpl() {}
 
   ticl::RecoToSimCollection LayerClusterToCaloParticleAssociatorBaseImpl::associateRecoToSim(
       const edm::Handle<reco::CaloClusterCollection> &cCCH, const edm::Handle<CaloParticleCollection> &cPCH) const {

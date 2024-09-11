@@ -39,7 +39,7 @@ class Histograms {
 public:
   // Constructor
   // -----------
-  Histograms() : theWeight_(1), histoDir_(nullptr){};
+  Histograms() : theWeight_(1), histoDir_(nullptr) {}
   Histograms(const TString& name) : theWeight_(1), name_(name), histoDir_(nullptr) {}
   Histograms(TFile* outputFile, const TString& name)
       : theWeight_(1), name_(name), outputFile_(outputFile), histoDir_(outputFile->GetDirectory(name)) {
@@ -51,39 +51,39 @@ public:
 
   // Destructor
   // ----------
-  virtual ~Histograms(){};
+  virtual ~Histograms() {}
 
   // Operations
   // ----------
-  //   virtual void Fill( const reco::Particle::LorentzVector & p4 ) {};
-  //   virtual void Fill( const CLHEP::HepLorentzVector & momentum ) {};
-  virtual void Fill(const reco::Particle::LorentzVector& p1, const reco::Particle::LorentzVector& p2){};
+  //   virtual void Fill( const reco::Particle::LorentzVector & p4 ) {}
+  //   virtual void Fill( const CLHEP::HepLorentzVector & momentum ) {}
+  virtual void Fill(const reco::Particle::LorentzVector& p1, const reco::Particle::LorentzVector& p2) {}
   virtual void Fill(const reco::Particle::LorentzVector& p1,
                     const reco::Particle::LorentzVector& p2,
                     const int charge,
-                    const double& weight = 1.){};
-  virtual void Fill(const CLHEP::HepLorentzVector& momentum1, const CLHEP::HepLorentzVector& momentum2){};
+                    const double& weight = 1.) {};
+  virtual void Fill(const CLHEP::HepLorentzVector& momentum1, const CLHEP::HepLorentzVector& momentum2) {}
   virtual void Fill(const CLHEP::HepLorentzVector& momentum1,
                     const CLHEP::HepLorentzVector& momentum2,
                     const int charge,
-                    const double& weight = 1.){};
-  virtual void Fill(const CLHEP::HepLorentzVector& p1, const reco::Particle::LorentzVector& p2){};
-  virtual void Fill(const reco::Particle::LorentzVector& p4, const double& weight = 1.){};
+                    const double& weight = 1.) {};
+  virtual void Fill(const CLHEP::HepLorentzVector& p1, const reco::Particle::LorentzVector& p2) {}
+  virtual void Fill(const reco::Particle::LorentzVector& p4, const double& weight = 1.) {}
 
   //virtual void Fill( const CLHEP::HepLorentzVector & momentum, const double & weight ) {};
   //------
-  virtual void Fill(const reco::Particle::LorentzVector& p4, const int charge, const double& weight = 1.){};
+  virtual void Fill(const reco::Particle::LorentzVector& p4, const int charge, const double& weight = 1.) {}
 
-  virtual void Fill(const CLHEP::HepLorentzVector& momentum, const int charge, const double& weight = 1.){};
+  virtual void Fill(const CLHEP::HepLorentzVector& momentum, const int charge, const double& weight = 1.) {}
   //------
   // virtual void Fill( const reco::Particle::LorentzVector & p4, const double & likeValue ) {};
-  virtual void Fill(const reco::Particle::LorentzVector& p4, const double& resValue, const int charge){};
+  virtual void Fill(const reco::Particle::LorentzVector& p4, const double& resValue, const int charge) {}
   virtual void Fill(const reco::Particle::LorentzVector& p4,
                     const double& genValue,
                     const double recValue,
-                    const int charge){};
-  virtual void Fill(const CLHEP::HepLorentzVector& p, const double& likeValue){};
-  virtual void Fill(const unsigned int number){};
+                    const int charge) {};
+  virtual void Fill(const CLHEP::HepLorentzVector& p, const double& likeValue) {}
+  virtual void Fill(const unsigned int number) {}
   virtual void Fill(const reco::Particle::LorentzVector& recoP1,
                     const int charge1,
                     const reco::Particle::LorentzVector& genP1,
@@ -91,7 +91,7 @@ public:
                     const int charge2,
                     const reco::Particle::LorentzVector& genP2,
                     const double& recoMass,
-                    const double& genMass){};
+                    const double& genMass) {};
   virtual void Fill(const reco::Particle::LorentzVector& recoP1,
                     const int charge1,
                     // const reco::Particle::LorentzVector & genP1,
@@ -99,21 +99,21 @@ public:
                     const int charge2,
                     // const reco::Particle::LorentzVector & genP2,
                     const double& recoMass,
-                    const double& genMass){};
+                    const double& genMass) {};
   virtual void Fill(const reco::Particle::LorentzVector& recoP1,
                     const reco::Particle::LorentzVector& genP1,
                     const reco::Particle::LorentzVector& recoP2,
-                    const reco::Particle::LorentzVector& genP2){};
-  virtual void Fill(const double& x, const double& y){};
-  virtual void Fill(const double& x, const double& y, const double& a, const double& b){};
+                    const reco::Particle::LorentzVector& genP2) {};
+  virtual void Fill(const double& x, const double& y) {}
+  virtual void Fill(const double& x, const double& y, const double& a, const double& b) {}
   virtual void Fill(const reco::Particle::LorentzVector& p41,
                     const reco::Particle::LorentzVector& p42,
                     const reco::Particle::LorentzVector& p4Res,
-                    const double& weight = 1.){};
+                    const double& weight = 1.) {};
   virtual void Fill(const CLHEP::HepLorentzVector& momentum1,
                     const CLHEP::HepLorentzVector& momentum2,
                     const CLHEP::HepLorentzVector& momentumRes,
-                    const double& weight = 1.){};
+                    const double& weight = 1.) {};
 
   virtual double Get(const reco::Particle::LorentzVector& recoP1, const TString& covarianceName) { return 0.; };
 

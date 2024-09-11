@@ -177,7 +177,7 @@ float NjettinessAdder::getTau(unsigned num, const edm::Ptr<reco::Jet>& object) c
           }
         }
       }  // end if basic jet
-    }    // end if daughter pointer is nonnull and available
+    }  // end if daughter pointer is nonnull and available
     else
       edm::LogWarning("MissingJetConstituent") << "Jet constituent required for N-jettiness computation is missing!";
   }

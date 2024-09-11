@@ -89,7 +89,7 @@ namespace l1t {
 
       return res;
     }  // End virtual UnpackerMap getUnpackers
-  }    // End namespace stage2
+  }  // End namespace stage2
 }  // End namespace l1t
 
 DEFINE_L1T_PACKING_SETUP(l1t::stage2::EMTFSetup);

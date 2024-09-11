@@ -819,8 +819,8 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
           }
         }
       }  //endif(Endcap && isUpgrade)
-    }    // endif any digis in this module
-  }      // endfor loop over all modules
+    }  // endif any digis in this module
+  }  // endfor loop over all modules
 
   if (lumiSection % 10 == 0 && ROCMapToReset) {
     for (int i = 0; i < 2; ++i)

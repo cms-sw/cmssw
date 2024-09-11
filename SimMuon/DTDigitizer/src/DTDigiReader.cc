@@ -101,7 +101,7 @@ public:
         DigiTimeBox->Fill((*digiIt).time());
 
       }  // for digis in layer
-    }    // for layers
+    }  // for layers
     cout << "--------------" << endl;
   }
 

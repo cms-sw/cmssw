@@ -91,7 +91,7 @@ public:
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   static std::unique_ptr<NNmodels_GlobalCache> initializeGlobalCache(const edm::ParameterSet&);
-  static void globalEndJob(const NNmodels_GlobalCache*){/*do nothing*/};
+  static void globalEndJob(const NNmodels_GlobalCache*) { /*do nothing*/ }
 
 private:
   //----edm control---

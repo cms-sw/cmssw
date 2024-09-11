@@ -105,7 +105,7 @@ public:
 
   /* setters */
 
-  virtual void setEventId(int32_t eventId){};
+  virtual void setEventId(int32_t eventId) {}
 
   void set2D(bool is2D = true) { is2D_ = is2D; }
 

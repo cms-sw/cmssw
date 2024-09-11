@@ -8,7 +8,7 @@ namespace l1t {
     class JetUnpacker : public Unpacker {
     public:
       JetUnpacker();
-      ~JetUnpacker() override{};
+      ~JetUnpacker() override {}
 
       bool unpack(const Block& block, UnpackerCollections* coll) override;
 

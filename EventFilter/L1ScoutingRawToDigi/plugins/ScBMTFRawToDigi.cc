@@ -17,7 +17,7 @@ ScBMTFRawToDigi::ScBMTFRawToDigi(const edm::ParameterSet& iConfig) {
   rawToken_ = consumes<SDSRawDataCollection>(srcInputTag_);
 }
 
-ScBMTFRawToDigi::~ScBMTFRawToDigi(){};
+ScBMTFRawToDigi::~ScBMTFRawToDigi() {}
 
 void ScBMTFRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;

@@ -14,6 +14,12 @@
   <use name="rocm"/>
 </test>
 
+<test name="testHeterogeneousCoreAlpakaTestCopyOfPtr" command="cmsRun ${LOCALTOP}/src/HeterogeneousCore/AlpakaTest/test/testAlpakaModulesCopyOfPtr_cfg.py">
+  <!-- dependence and flag only to trigger the unit test for each Alpaka backend -->
+  <use name="alpaka"/>
+  <flags ALPAKA_BACKENDS="1"/>
+</test>
+
 <bin name="alpakaTestPrintAnswer" file="alpaka/printAnswer.cpp">
   <use name="HeterogeneousCore/AlpakaInterface"/>
   <use name='HeterogeneousCore/AlpakaTest'/>

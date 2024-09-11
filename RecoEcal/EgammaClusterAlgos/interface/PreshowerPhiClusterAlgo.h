@@ -25,7 +25,7 @@ public:
 
   PreshowerPhiClusterAlgo(float stripEnergyCut) : esStripEnergyCut_(stripEnergyCut) {}
 
-  ~PreshowerPhiClusterAlgo(){};
+  ~PreshowerPhiClusterAlgo() {}
 
   reco::PreshowerCluster makeOneCluster(ESDetId strip,
                                         HitsID *used_strips,

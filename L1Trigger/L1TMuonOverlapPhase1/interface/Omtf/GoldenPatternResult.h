@@ -98,7 +98,7 @@ public:
 
   bool isLayerFired(unsigned int iLayer) const { return firedLayerBits & (1 << iLayer); }
 
-  GoldenPatternResult(){};
+  GoldenPatternResult() {}
 
   //dont use this in the pattern construction, since the myOmtfConfig is null then
   GoldenPatternResult(const OMTFConfiguration* omtfConfig);

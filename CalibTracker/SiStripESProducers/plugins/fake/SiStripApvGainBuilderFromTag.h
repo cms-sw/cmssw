@@ -35,7 +35,7 @@ class SiStripApvGainBuilderFromTag : public edm::one::EDAnalyzer<> {
 public:
   explicit SiStripApvGainBuilderFromTag(const edm::ParameterSet& iConfig);
 
-  ~SiStripApvGainBuilderFromTag() override{};
+  ~SiStripApvGainBuilderFromTag() override {}
 
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 

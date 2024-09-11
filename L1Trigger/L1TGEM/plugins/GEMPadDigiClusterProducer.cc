@@ -247,9 +247,9 @@ GEMPadDigiClusterCollection GEMPadDigiClusterProducer::selectClusters(const GEMP
             }  // end of loop on clusters in eta
           }
         }  // end of eta partition loop
-      }    // end of clusterizer partition loop
-    }      // end of OH loop
-  }        // end of chamber loop
+      }  // end of clusterizer partition loop
+    }  // end of OH loop
+  }  // end of chamber loop
   return out_clusters;
 }
 

@@ -491,7 +491,7 @@ reco::SuperClusterCollection HybridClusterAlgo::makeSuperClusters(const reco::Ca
           posZ += cluster_p.energy() * cluster_p.position().Z();
         }
       }  //End loop over finding references.
-    }    //End loop over clusters.
+    }  //End loop over clusters.
 
     posX /= ClusterE;
     posY /= ClusterE;
