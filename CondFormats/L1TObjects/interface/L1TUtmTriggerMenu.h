@@ -39,7 +39,7 @@ public:
         uuid_firmware_(),
         scale_set_name_(),
         n_modules_(),
-        version(0){};
+        version(0) {}
   L1TUtmTriggerMenu(std::map<std::string, L1TUtmAlgorithm> algorithm_map,
                     std::map<std::string, L1TUtmCondition> condition_map,
                     std::map<std::string, L1TUtmScale> scale_map,
@@ -63,7 +63,7 @@ public:
         uuid_firmware_(uuid_firmware),
         scale_set_name_(scale_set_name),
         n_modules_(n_modules),
-        version(ver_i){};
+        version(ver_i) {}
 
   L1TUtmTriggerMenu(const tmeventsetup::esTriggerMenu& esMenu)
       : external_map_(),        //These are null to my best knowledge

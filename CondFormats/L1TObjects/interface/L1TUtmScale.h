@@ -24,7 +24,7 @@
  */
 class L1TUtmScale {
 public:
-  L1TUtmScale() : name_(), object_(), type_(), minimum_(), maximum_(), step_(), n_bits_(), bins_(), version(0){};
+  L1TUtmScale() : name_(), object_(), type_(), minimum_(), maximum_(), step_(), n_bits_(), bins_(), version(0) {}
 
   L1TUtmScale(std::string name,
               int object,
@@ -43,7 +43,7 @@ public:
         step_(step),
         n_bits_(n_bits),
         bins_(bins),
-        version(vers){};
+        version(vers) {}
 
   L1TUtmScale(const tmeventsetup::esScale& esSc)
       : name_(esSc.getName()),

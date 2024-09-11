@@ -22,7 +22,7 @@
  */
 class L1TUtmCut {
 public:
-  L1TUtmCut() : name_(), object_type_(), cut_type_(), minimum_(), maximum_(), data_(), key_(), version(0){};
+  L1TUtmCut() : name_(), object_type_(), cut_type_(), minimum_(), maximum_(), data_(), key_(), version(0) {}
   L1TUtmCut(std::string name,
             int object_type,
             int cut_type,
@@ -38,7 +38,7 @@ public:
         maximum_(maximum),
         data_(data),
         key_(key),
-        version(vers){};
+        version(vers) {}
 
   L1TUtmCut(const tmeventsetup::esCut& esC)
       : L1TUtmCut(esC.getName(),
@@ -48,7 +48,7 @@ public:
                   L1TUtmCutValue(esC.getMaximum()),
                   esC.getData(),
                   esC.getKey(),
-                  0){};
+                  0) {};
 
   virtual ~L1TUtmCut() = default;
 

@@ -33,7 +33,7 @@ public:
         ext_signal_name_(),
         ext_channel_id_(std::numeric_limits<unsigned int>::max()),
         cuts_(),
-        version(0){};
+        version(0) {}
   L1TUtmObject(std::string name,
                int type,
                int comparison_operator,
@@ -51,7 +51,7 @@ public:
         ext_signal_name_(ext_signal_name),
         ext_channel_id_(ext_channel_id),
         cuts_(cuts),
-        version(vers){};
+        version(vers) {}
 
   L1TUtmObject(const tmeventsetup::esObject& esObj)
       : name_(esObj.getName()),
