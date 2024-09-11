@@ -32,3 +32,9 @@ simOmtfDigis = cms.EDProducer("L1TMuonOverlapPhase1TrackProducer",
 
   extrapolFactorsFilename = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/ExtrapolationFactors_simple.xml"),
 )
+
+### Era: Run3_2024
+from Configuration.Eras.Modifier_stage2L1Trigger_2024_cff import stage2L1Trigger_2024 
+stage2L1Trigger_2024.toModify(simOmtfDigis, 
+                              configXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/hwToLogicLayer_0x0009.xml"),
+                              patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/Patterns_ExtraplMB1nadMB2SimplifiedFP_t17_classProb17_recalib2_minDP0_v3.xml") )
