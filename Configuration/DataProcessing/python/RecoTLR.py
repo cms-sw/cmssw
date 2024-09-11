@@ -126,6 +126,18 @@ def customisePostEra_Run3_pp_on_PbPb_approxSiStripClusters_2023(process):
     customisePostEra_Run3_pp_on_PbPb_2023(process)
     return process
 
+def customisePostEra_Run3_pp_on_PbPb_2024(process):
+    customisePostEra_Run3_2024(process)
+    return process
+
+def customisePostEra_Run3_pp_on_PbPb_approxSiStripClusters_2024(process):
+    customisePostEra_Run3_pp_on_PbPb_2024(process)
+    return process
+
+def customisePostEra_Run3_2024_UPC(process):
+    customisePostEra_Run3_2024(process)
+    return process
+
 ##############################################################################
 def customisePPData(process):
     #deprecated process= customiseCommon(process)
