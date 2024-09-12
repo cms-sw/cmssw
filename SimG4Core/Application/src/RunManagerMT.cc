@@ -90,7 +90,6 @@ RunManagerMT::RunManagerMT(edm::ParameterSet const& p)
   G4UImanager::GetUIpointer()->SetMasterUIManager(true);
   G4PhysListUtil::InitialiseParameters();
   G4LossTableManager::Instance();
-  G4PhysicsListHelper::GetPhysicsListHelper();
 }
 
 RunManagerMT::~RunManagerMT() { delete m_UIsession; }
@@ -156,6 +155,7 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
   G4HadronicParameters::Instance()->SetVerboseLevel(verb);
   G4EmParameters::Instance()->SetVerbose(verb);
   G4EmParameters::Instance()->SetWorkerVerbose(std::max(verb - 1, 0));
+  G4PhysicsListHelper::GetPhysicsListHelper();
 
   // exotic particle physics
   double monopoleMass = m_pPhysics.getUntrackedParameter<double>("MonopoleMass", 0);

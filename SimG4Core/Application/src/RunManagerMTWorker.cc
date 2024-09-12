@@ -192,7 +192,6 @@ RunManagerMTWorker::RunManagerMTWorker(const edm::ParameterSet& p, edm::Consumes
   G4UImanager::GetUIpointer()->SetCoutDestination(m_UIsession);
   G4PhysListUtil::InitialiseParameters();
   G4LossTableManager::Instance();
-  G4PhysicsListHelper::GetPhysicsListHelper();
 
   // sensitive detectors
   std::vector<std::string> onlySDs = p.getParameter<std::vector<std::string>>("OnlySDs");
@@ -373,6 +372,7 @@ void RunManagerMTWorker::initializeG4(RunManagerMT* runManagerMaster, const edm:
 
   edm::LogVerbatim("SimG4CoreApplication")
       << "RunManagerMTWorker::InitializeG4: start initialisation of PhysicsList for the thread " << thisID;
+  G4PhysicsListHelper::GetPhysicsListHelper();
 
   // Geant4 UI commands in PreInit state
   if (!runManagerMaster->G4Commands().empty()) {
