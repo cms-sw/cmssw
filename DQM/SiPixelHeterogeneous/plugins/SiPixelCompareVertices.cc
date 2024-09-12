@@ -9,20 +9,18 @@
 //
 // Author: Suvankar Roy Chowdhury
 //
-#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/VertexSoA/interface/ZVertexHost.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "DataFormats/Common/interface/Handle.h"
-// DQM Histograming
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DataFormats/VertexSoA/interface/ZVertexHost.h"
-#include "CUDADataFormats/Vertex/interface/ZVertexSoAHeterogeneousHost.h"
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 // TODO: change class name to SiPixelCompareVerticesSoA when CUDA code is removed
 class SiPixelCompareVertices : public DQMEDAnalyzer {

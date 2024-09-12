@@ -7,11 +7,9 @@
 #include <cstdint>
 #include <iterator>
 
-#include "DataFormats/SiPixelClusterSoA/interface/ClusteringConstants.h"
-#include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
-#include "DataFormats/TrackingRecHitSoA/interface/SiPixelHitStatus.h"
-#include "DataFormats/SiPixelClusterSoA/interface/ClusteringConstants.h"
 #include "DataFormats/GeometrySurface/interface/SOARotation.h"
+#include "DataFormats/SiPixelClusterSoA/interface/ClusteringConstants.h"
+#include "DataFormats/TrackingRecHitSoA/interface/SiPixelHitStatus.h"
 #include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
 
 namespace pixelCPEforDevice {

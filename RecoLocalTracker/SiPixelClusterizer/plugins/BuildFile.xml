@@ -1,33 +1,34 @@
-<use name="boost_serialization"/>
-<use name="CalibTracker/SiPixelESProducers"/>
 <use name="CondFormats/SiPixelObjects"/>
 <use name="DataFormats/Common"/>
-<use name="DataFormats/SiPixelCluster"/>
+<use name="DataFormats/DetId"/>
 <use name="DataFormats/SiPixelClusterSoA"/>
+<use name="DataFormats/SiPixelDigi"/>
 <use name="DataFormats/SiPixelDigiSoA"/>
-<use name="EventFilter/SiPixelRawToDigi"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/MessageLogger"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/Utilities"/>
-<use name="RecoTracker/Record"/>
+<use name="Geometry/CommonTopologies"/>
+<use name="Geometry/Records"/>
+<use name="Geometry/TrackerGeometryBuilder"/>
 
-<iftool name="cuda-gcc-support">
-  <use name="cuda"/>
-  <use name="HeterogeneousCore/CUDACore"/>
-  <use name="CUDADataFormats/SiPixelCluster"/>
-  <use name="CUDADataFormats/SiPixelDigi"/>
-  <set name="cuda_src" value="*.cu"/>
-<else/>
-  <set name="cuda_src" value=""/>
-</iftool>
-<library file="*.cc ${cuda_src}" name="RecoLocalTrackerSiPixelClusterizerPlugins">
+<library file="*.cc" name="RecoLocalTrackerSiPixelClusterizerPlugins">
+  <use name="CalibTracker/SiPixelESProducers"/>
+  <use name="DataFormats/SiPixelCluster"/>
+  <use name="DataFormats/TrackerCommon"/>
+  <use name="FWCore/PluginManager"/>
+  <use name="Geometry/CommonDetUnit"/>
   <flags EDM_PLUGIN="1"/>
 </library>
 
 <library file="alpaka/*.cc" name="RecoLocalTrackerSiPixelClusterizerPluginsPortable">
   <use name="alpaka"/>
   <use name="CalibTracker/Records"/>
-  <use name="DataFormats/Portable"/>
-  <use name="FWCore/Framework"/>
+  <use name="CondFormats/DataRecord"/>
+  <use name="DataFormats/FEDRawData"/>
+  <use name="DataFormats/SiPixelDetId"/>
+  <use name="DataFormats/SiPixelRawData"/>
+  <use name="EventFilter/SiPixelRawToDigi"/>
   <use name="HeterogeneousCore/AlpakaCore"/>
   <use name="HeterogeneousCore/AlpakaInterface"/>
   <flags ALPAKA_BACKENDS="1"/>
