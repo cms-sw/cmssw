@@ -138,6 +138,10 @@ def customisePostEra_Run3_2024_UPC(process):
     customisePostEra_Run3_2024(process)
     return process
 
+def customisePostEra_Run3_2024_ppRef(process):
+    customisePostEra_Run3_2024(process)
+    return process
+
 ##############################################################################
 def customisePPData(process):
     #deprecated process= customiseCommon(process)
