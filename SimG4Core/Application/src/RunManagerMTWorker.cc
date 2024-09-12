@@ -190,8 +190,8 @@ RunManagerMTWorker::RunManagerMTWorker(const edm::ParameterSet& p, edm::Consumes
         << "', valid are MessageLogger, MessageLoggerThreadPrefix, FilePerThread";
   }
   G4UImanager::GetUIpointer()->SetCoutDestination(m_UIsession);
-  G4PhysListUtil::InitialiseParameters();
-  G4LossTableManager::Instance();
+  //G4PhysListUtil::InitialiseParameters();
+  //G4LossTableManager::Instance();
 
   // sensitive detectors
   std::vector<std::string> onlySDs = p.getParameter<std::vector<std::string>>("OnlySDs");
@@ -340,6 +340,7 @@ void RunManagerMTWorker::initializeG4(RunManagerMT* runManagerMaster, const edm:
   edm::LogVerbatim("SimG4CoreApplication")
       << "RunManagerMTWorker::InitializeG4: Sensitive Detectors are built in thread " << thisID << " found "
       << m_tls->sensTkDets.size() << " Tk type SD, and " << m_tls->sensCaloDets.size() << " Calo type SD";
+  edm::LogWarning("SimG4CoreApplication") << "RunManagerMTWorker::initializeG4 in thread " << thisID << " ==2==";
 
   // geometry dump
   G4String writeFile = (G4String)m_p.getUntrackedParameter<std::string>("FileNameGDML");
@@ -372,7 +373,6 @@ void RunManagerMTWorker::initializeG4(RunManagerMT* runManagerMaster, const edm:
 
   edm::LogVerbatim("SimG4CoreApplication")
       << "RunManagerMTWorker::InitializeG4: start initialisation of PhysicsList for the thread " << thisID;
-  G4PhysicsListHelper::GetPhysicsListHelper();
 
   // Geant4 UI commands in PreInit state
   if (!runManagerMaster->G4Commands().empty()) {
