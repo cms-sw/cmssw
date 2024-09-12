@@ -5,9 +5,8 @@
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 
-class HcalPulseShapeLookupRcd
-    : public edm::eventsetup::
-          DependentRecordImplementation<HcalPulseShapeLookupRcd, edm::mpl::Vector<HcalRecNumberingRecord, CaloGeometryRecord> > {
-};
+class HcalPulseShapeLookupRcd : public edm::eventsetup::DependentRecordImplementation<
+                                    HcalPulseShapeLookupRcd,
+                                    edm::mpl::Vector<HcalRecNumberingRecord, CaloGeometryRecord> > {};
 
-#endif // RecoLocalCalo_HcalRecAlgos_HcalPulseShapeLookupRcd_h
+#endif  // RecoLocalCalo_HcalRecAlgos_HcalPulseShapeLookupRcd_h

@@ -14,30 +14,30 @@
 // lookup scheme and can accommodate more pulse shapes.
 class HcalPulseShapeLookup {
 public:
-    typedef HcalPulseShape Shape;
-    typedef std::pair<std::string,Shape> LabeledShape;
+  typedef HcalPulseShape Shape;
+  typedef std::pair<std::string, Shape> LabeledShape;
 
-    HcalPulseShapeLookup(const std::vector<LabeledShape>& shapes,
-                         const std::vector<int>& channelToTypeLookup,
-                         const HcalTopology* htopo);
+  HcalPulseShapeLookup(const std::vector<LabeledShape>& shapes,
+                       const std::vector<int>& channelToTypeLookup,
+                       const HcalTopology* htopo);
 
-    inline unsigned nShapeTypes() const {return theShapes_.size();}
-    const Shape& getShape(int shapeType) const;
-    const std::string& getLabel(int shapeType) const;
+  inline unsigned nShapeTypes() const { return theShapes_.size(); }
+  const Shape& getShape(int shapeType) const;
+  const std::string& getLabel(int shapeType) const;
 
-    int getShapeType(unsigned linearizedChannelNumber) const;
-    const Shape& getChannelShape(unsigned linearizedChannelNumber) const;
-    const std::string& getChannelLabel(unsigned linearizedChannelNumber) const;
+  int getShapeType(unsigned linearizedChannelNumber) const;
+  const Shape& getChannelShape(unsigned linearizedChannelNumber) const;
+  const std::string& getChannelLabel(unsigned linearizedChannelNumber) const;
 
-    int getShapeType(const DetId &id) const;
-    const Shape& getChannelShape(const DetId &id) const;
-    const std::string& getChannelLabel(const DetId &id) const;
+  int getShapeType(const DetId& id) const;
+  const Shape& getChannelShape(const DetId& id) const;
+  const std::string& getChannelLabel(const DetId& id) const;
 
 private:
-    std::vector<LabeledShape> theShapes_;
-    std::vector<int> shapeTypes_;
-    // We do not own the pointer
-    const HcalTopology* htopo_;
+  std::vector<LabeledShape> theShapes_;
+  std::vector<int> shapeTypes_;
+  // We do not own the pointer
+  const HcalTopology* htopo_;
 };
 
-#endif // CalibCalorimetry_HcalAlgos_HcalPulseShapeLookup_h
+#endif  // CalibCalorimetry_HcalAlgos_HcalPulseShapeLookup_h
