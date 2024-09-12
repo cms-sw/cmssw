@@ -43,6 +43,7 @@
 #include "G4ParticleTable.hh"
 #include "G4CascadeInterface.hh"
 #include "G4EmParameters.hh"
+#include "G4LossTableManager.hh"
 #include "G4HadronicParameters.hh"
 #include "G4NuclearLevelData.hh"
 #include <CLHEP/Units/SystemOfUnits.h>
@@ -51,6 +52,8 @@
 #include "G4PhysicalVolumeStore.hh"
 #include "G4Region.hh"
 #include "G4RegionStore.hh"
+#include "G4PhysListUtil.hh"
+#include "G4PhysicsListHelper.hh"
 
 #include <iostream>
 #include <sstream>
@@ -85,6 +88,9 @@ RunManagerMT::RunManagerMT(edm::ParameterSet const& p)
   m_UIsession = new CustomUIsession();
   G4UImanager::GetUIpointer()->SetCoutDestination(m_UIsession);
   G4UImanager::GetUIpointer()->SetMasterUIManager(true);
+  G4PhysListUtil::InitialiseParameters();
+  G4LossTableManager::Instance();
+  G4PhysicsListHelper::GetPhysicsListHelper();
 }
 
 RunManagerMT::~RunManagerMT() { delete m_UIsession; }
