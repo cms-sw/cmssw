@@ -2415,6 +2415,52 @@ upgradeWFs['Aging3000'].suffix = 'Aging3000'
 upgradeWFs['Aging3000'].offset = 0.103
 upgradeWFs['Aging3000'].lumi = '3000'
 
+class UpgradeWorkflow_PixelClusterSplitting(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        stepDict[stepName][k] = merge([{'--procModifiers': 'splitClustersInPhase2Pixel'}, stepDict[step][k]])
+    def condition(self, fragment, stepList, key, hasHarvest):
+        return '2026' in key
+
+upgradeWFs['PixelClusterSplitting'] = UpgradeWorkflow_PixelClusterSplitting(
+    steps = [
+        'RecoLocal',
+        'Reco',
+        'RecoFakeHLT',
+        'RecoGlobal',
+    ],
+    PU = [
+        'RecoLocal',
+        'Reco',
+        'RecoFakeHLT',
+        'RecoGlobal',
+    ],
+    suffix = '_ClusterSplittingInPixel',
+    offset = 0.19001,
+)
+
+class UpgradeWorkflow_JetCore(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        stepDict[stepName][k] = merge([{'--procModifiers': 'splitClustersInPhase2Pixel,jetCoreInPhase2'}, stepDict[step][k]])
+    def condition(self, fragment, stepList, key, hasHarvest):
+        return '2026' in key
+
+upgradeWFs['JetCore'] = UpgradeWorkflow_JetCore(
+    steps = [
+        'RecoLocal',
+        'Reco',
+        'RecoFakeHLT',
+        'RecoGlobal',
+    ],
+    PU = [
+        'RecoLocal',
+        'Reco',
+        'RecoFakeHLT',
+        'RecoGlobal',
+    ],
+    suffix = '_JetCore',
+    offset = 0.19002,
+)
+
 #
 # Simulates Bias Rail in Phase-2 OT PS modules and X% random bad Strips
 # in PS-s and SS sensors
