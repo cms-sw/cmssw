@@ -57,7 +57,6 @@
 #include "G4TransportationManager.hh"
 #include "G4LossTableManager.hh"
 #include "G4PhysListUtil.hh"
-#include "G4PhysicsListHelper.hh"
 #include "G4Field.hh"
 #include "G4FieldManager.hh"
 #include "G4ScoringManager.hh"
