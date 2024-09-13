@@ -26,6 +26,8 @@
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 #include "CondFormats/DataRecord/interface/HcalPFCutsRcd.h"
 #include "CondTools/Hcal/interface/HcalPFCutsHandler.h"
+#include "CondFormats/EcalObjects/interface/EcalPFRecHitThresholds.h"
+#include "CondFormats/DataRecord/interface/EcalPFRecHitThresholdsRcd.h"
 
 class CaloTowersCreator : public edm::stream::EDProducer<> {
 public:
@@ -90,6 +92,11 @@ private:
   edm::ESGetToken<HcalPFCuts, HcalPFCutsRcd> hcalCutsToken_;
   bool cutsFromDB;
   HcalPFCuts const* paramPF = nullptr;
+
+  // Ecal noise thresholds
+  edm::ESGetToken<EcalPFRecHitThresholds, EcalPFRecHitThresholdsRcd> ecalPFRechitThresholdsToken_;
+  bool ecalRecHitThresh_;
+  EcalPFRecHitThresholds const* ecalThresholds = nullptr;
 };
 
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -172,9 +179,8 @@ CaloTowersCreator::CaloTowersCreator(const edm::ParameterSet& conf)
 
       useRejectedRecoveredHcalHits_(conf.getParameter<bool>("UseRejectedRecoveredHcalHits")),
       useRejectedRecoveredEcalHits_(conf.getParameter<bool>("UseRejectedRecoveredEcalHits")),
-      cutsFromDB(conf.getParameter<bool>("usePFThresholdsFromDB"))
-
-{
+      cutsFromDB(conf.getParameter<bool>("usePFThresholdsFromDB")),
+      ecalRecHitThresh_(conf.getParameter<bool>("EcalRecHitThresh")) {
   algo_.setMissingHcalRescaleFactorForEcal(conf.getParameter<double>("missingHcalRescaleFactorForEcal"));
 
   // register for data access
@@ -193,6 +199,12 @@ CaloTowersCreator::CaloTowersCreator(const edm::ParameterSet& conf)
   if (cutsFromDB) {
     hcalCutsToken_ = esConsumes<HcalPFCuts, HcalPFCutsRcd, edm::Transition::BeginRun>(edm::ESInputTag("", "withTopo"));
   }
+
+  if (ecalRecHitThresh_) {
+    ecalPFRechitThresholdsToken_ =
+        esConsumes<EcalPFRecHitThresholds, EcalPFRecHitThresholdsRcd, edm::Transition::BeginRun>();
+  }
+
   const unsigned nLabels = ecalLabels_.size();
   for (unsigned i = 0; i != nLabels; i++)
     toks_ecal_.push_back(consumes<EcalRecHitCollection>(ecalLabels_[i]));
@@ -231,7 +243,12 @@ void CaloTowersCreator::beginRun(const edm::Run& run, const edm::EventSetup& es)
   if (cutsFromDB) {
     paramPF = &es.getData(hcalCutsToken_);
   }
-  algo_.setThresFromDB(paramPF);
+
+  if (ecalRecHitThresh_) {
+    ecalThresholds = &es.getData(ecalPFRechitThresholdsToken_);
+  }
+
+  algo_.setThresFromDB(ecalThresholds, paramPF);
 }
 
 void CaloTowersCreator::produce(edm::Event& e, const edm::EventSetup& c) {
@@ -470,6 +487,6 @@ void CaloTowersCreator::fillDescriptions(edm::ConfigurationDescriptions& descrip
   desc.add<std::vector<std::string> >("EcalSeveritiesToBeUsedInBadTowers", {});
   desc.add<int>("HcalPhase", 0);
   desc.add<bool>("usePFThresholdsFromDB", true);
-
+  desc.add<bool>("EcalRecHitThresh", false);
   descriptions.addDefault(desc);
 }
