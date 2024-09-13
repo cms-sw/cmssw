@@ -101,7 +101,7 @@ unsigned L1MuGMTLFSortRankEtaQLUT::TheLookupFunction(int idx, unsigned eta, unsi
 
   unsigned vlq = 0;
 
-  int vCSC2 = (m_version)&0xf;
+  int vCSC2 = (m_version) & 0xf;
   int vCSC1 = (m_version >> 4) & 0xf;
   int vRPC = (m_version >> 8) & 0xf;
 

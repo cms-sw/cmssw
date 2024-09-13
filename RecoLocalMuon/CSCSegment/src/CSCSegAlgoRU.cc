@@ -231,18 +231,18 @@ std::vector<CSCSegment> CSCSegAlgoRU::buildSegments(const CSCChamber* aChamber,
                               merge_nr = k;
                             }
                           }  //if(common_used[k][iu-ib] == true)
-                        }    //for k
-                      }      //if
-                    }        //for proto_seg
-                  }          //for rec_hits
-                }            //else
-              }              //proto seg not empty
+                        }  //for k
+                      }  //if
+                    }  //for proto_seg
+                  }  //for rec_hits
+                }  //else
+              }  //proto seg not empty
             }
           }  // h1 & h2 close
           if (segok)
             break;
         }  // i2
-      }    // i1
+      }  // i1
 
       //add the reconstructed segments
       for (int j = 0; j < common_it + 1; j++) {
@@ -336,7 +336,7 @@ std::vector<CSCSegment> CSCSegAlgoRU::buildSegments(const CSCChamber* aChamber,
         }
         if (found_common)
           break;  //current seg has already been erased
-      }           //camber hits
+      }  //camber hits
       if (!found_common)
         ++it;
     }  //its a 3p seg
@@ -383,7 +383,7 @@ void CSCSegAlgoRU::tryAddingHitsToSegment(AlgoState& aState,
         increaseProtoSegment(aState, h, layer, aState.chi2D_iadd);
       }
     }  // h & seg close
-  }    // i
+  }  // i
 }
 
 bool CSCSegAlgoRU::areHitsCloseInR(const AlgoState& aState, const CSCRecHit2D* h1, const CSCRecHit2D* h2) const {
@@ -722,8 +722,8 @@ void CSCSegAlgoRU::baseline(AlgoState& aState, int n_seg_min) const {
             rh_to_be_deleted_1 = ir;
           }
         }  //ir
-      }    //i2
-    }      //i1
+      }  //i2
+    }  //i1
     fitX(aState, sp, se, bad_layer, -1, chi2_str);
   }  //if chi2prob<1.0e-4
 
@@ -784,9 +784,9 @@ void CSCSegAlgoRU::baseline(AlgoState& aState, int n_seg_min) const {
               rh_to_be_deleted_2 = ir2;
             }
           }  //ir2
-        }    //ir
-      }      //i2
-    }        //i1
+        }  //ir
+      }  //i2
+    }  //i1
     fitX(aState, sp, se, bad_layer, bad_layer2, chi2_str);
   }  //if prob(n-1)<e-4
 

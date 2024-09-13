@@ -360,9 +360,9 @@ void MuGEMMuonExtTableProducer::fillTable(edm::Event& ev) {
               propagated_isinsideout.push_back(is_insideout);
               propagated_isincoming.push_back(is_incoming);
 
-            }   //propagation is inside boundaries
-          }     //loop on EtaPartitions
-        }       //is_csc therefore perform propagation
+            }  //propagation is inside boundaries
+          }  //loop on EtaPartitions
+        }  //is_csc therefore perform propagation
       } else {  //!muon.outerTrack().isNull()
         innermost_x.push_back(DEFAULT_DOUBLE_VAL);
         innermost_y.push_back(DEFAULT_DOUBLE_VAL);

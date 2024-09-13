@@ -38,7 +38,7 @@ public:
   int LeftRightNeighbour(const RPCRoll& roll, const LocalPoint& hit_pos, int strip);
 
 protected:
-  void init() override{};
+  void init() override {}
 
   double aveEff;
   double aveCls;

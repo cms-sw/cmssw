@@ -14,13 +14,13 @@ from ..modules.hltElePixelSeedsTripletsL1Seeded_cfi import *
 from ..modules.hltEleSeedsTrackingRegionsL1Seeded_cfi import *
 from ..modules.hltPixelLayerPairsL1Seeded_cfi import *
 from ..modules.hltPixelLayerTriplets_cfi import *
-from ..modules.MeasurementTrackerEvent_cfi import *
+from ..modules.hltMeasurementTrackerEvent_cfi import *
 from ..sequences.HLTDoLocalPixelSequence_cfi import *
 from ..sequences.HLTDoLocalStripSequence_cfi import *
 
 HLTElePixelMatchL1SeededSequence = cms.Sequence(HLTDoLocalPixelSequence
     +HLTDoLocalStripSequence
-    +(MeasurementTrackerEvent
+    +(hltMeasurementTrackerEvent
     +hltPixelLayerTriplets
     +hltEgammaHoverEL1Seeded
     +hltEgammaSuperClustersToPixelMatchL1Seeded

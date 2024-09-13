@@ -203,10 +203,10 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
               LogTrace("L1CSCTrigger") << "CSCTriggerPrimitivesBuilder got results in " << detid;
             }
           }  // end loop on cham
-        }    // end loop on subs
-      }      // end loop on sect
-    }        // end loop on stat
-  }          // end loop on endc
+        }  // end loop on subs
+      }  // end loop on sect
+    }  // end loop on stat
+  }  // end loop on endc
 
   // run MPC simulation
   // there are 2 x 4 x 6 MPC VME cards

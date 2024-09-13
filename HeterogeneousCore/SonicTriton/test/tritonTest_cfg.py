@@ -15,6 +15,7 @@ models = {
 allowed_modes = ["Async","PseudoAsync","Sync"]
 allowed_compression = ["none","deflate","gzip"]
 allowed_devices = ["auto","cpu","gpu"]
+allowed_containers = ["apptainer","docker","podman","podman-hpc"]
 
 parser = ArgumentParser(formatter_class=ArgumentDefaultsHelpFormatter)
 parser.add_argument("--maxEvents", default=-1, type=int, help="Number of events to process (-1 for all)")
@@ -33,6 +34,7 @@ parser.add_argument("--verbose", default=False, action="store_true", help="enabl
 parser.add_argument("--verboseClient", default=False, action="store_true", help="enable verbose output for clients")
 parser.add_argument("--verboseServer", default=False, action="store_true", help="enable verbose output for server")
 parser.add_argument("--verboseService", default=False, action="store_true", help="enable verbose output for TritonService")
+parser.add_argument("--verboseDiscovery", default=False, action="store_true", help="enable verbose output just for server discovery in TritonService")
 parser.add_argument("--brief", default=False, action="store_true", help="briefer output for graph modules")
 parser.add_argument("--fallbackName", default="", type=str, help="name for fallback server")
 parser.add_argument("--unittest", default=False, action="store_true", help="unit test mode: reduce input sizes")
@@ -41,7 +43,7 @@ parser.add_argument("--noShm", default=False, action="store_true", help="disable
 parser.add_argument("--compression", default="", type=str, choices=allowed_compression, help="enable I/O compression")
 parser.add_argument("--ssl", default=False, action="store_true", help="enable SSL authentication for server communication")
 parser.add_argument("--device", default="auto", type=str.lower, choices=allowed_devices, help="specify device for fallback server")
-parser.add_argument("--docker", default=False, action="store_true", help="use Docker for fallback server")
+parser.add_argument("--container", default="apptainer", type=str.lower, choices=allowed_containers, help="specify container for fallback server")
 parser.add_argument("--tries", default=0, type=int, help="number of retries for failed request")
 options = parser.parse_args()
 
@@ -71,13 +73,12 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxE
 
 process.source = cms.Source("EmptySource")
 
-process.TritonService.verbose = options.verbose or options.verboseService
+process.TritonService.verbose = options.verbose or options.verboseService or options.verboseDiscovery
 process.TritonService.fallback.verbose = options.verbose or options.verboseServer
-process.TritonService.fallback.useDocker = options.docker
+process.TritonService.fallback.container = options.container
+process.TritonService.fallback.device = options.device
 if len(options.fallbackName)>0:
     process.TritonService.fallback.instanceBaseName = options.fallbackName
-if options.device != "auto":
-    process.TritonService.fallback.useGPU = options.device=="gpu"
 if len(options.address)>0:
     process.TritonService.servers.append(
         cms.PSet(
@@ -100,7 +101,13 @@ modules = {
     "Analyzer": cms.EDAnalyzer,
 }
 
-keepMsgs = ['TritonClient','TritonService']
+keepMsgs = []
+if options.verbose or options.verboseDiscovery:
+    keepMsgs.append('TritonDiscovery')
+if options.verbose or options.verboseClient:
+    keepMsgs.append('TritonClient')
+if options.verbose or options.verboseService:
+    keepMsgs.append('TritonService')
 
 for im,module in enumerate(options.modules):
     model = options.models[im]
@@ -141,7 +148,8 @@ for im,module in enumerate(options.modules):
             processModule.edgeMax = cms.uint32(15000)
         processModule.brief = cms.bool(options.brief)
     process.p += processModule
-    keepMsgs.extend([module,module+':TritonClient'])
+    if options.verbose or options.verboseClient:
+        keepMsgs.extend([module,module+':TritonClient'])
     if options.testother:
         # clone modules to test both gRPC and shared memory
         _module2 = module+"GRPC" if processModule.Client.useSharedMemory else "SHM"
@@ -152,7 +160,8 @@ for im,module in enumerate(options.modules):
         )
         processModule2 = getattr(process, _module2)
         process.p += processModule2
-        keepMsgs.extend([_module2,_module2+':TritonClient'])
+        if options.verbose or options.verboseClient:
+            keepMsgs.extend([_module2,_module2+':TritonClient'])
 
 process.load('FWCore/MessageService/MessageLogger_cfi')
 process.MessageLogger.cerr.FwkReport.reportEvery = 500

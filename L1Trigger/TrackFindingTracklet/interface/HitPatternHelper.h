@@ -83,7 +83,7 @@ namespace hph {
     std::map<int, std::map<int, std::vector<int>>> layermap_;  // Hard-coded layermap in Old KF
     int nEtaRegions_;                                          // # of eta regions
     int nKalmanLayers_;                                        // # of maximum KF layers allowed
-  };                                                           // Only needed by Old KF
+  };  // Only needed by Old KF
 
   //Class that returns decoded information from hitpattern
   class HitPatternHelper {
@@ -96,8 +96,8 @@ namespace hph {
     int numMissingPS() {
       return numMissingPS_;
     }  //The number of PS layers that are missing. It includes layers that are missing:
-       //1)before the innermost stub on the track,
-       //2)after the outermost stub on the track.
+    //1)before the innermost stub on the track,
+    //2)after the outermost stub on the track.
     int numMissing2S() {
       return numMissing2S_;
     }  //The number of 2S layers that are missing. It includes the two types of layers mentioned above.

@@ -89,7 +89,7 @@ namespace reco {
     /** backward compatible, vertex=(0,0,0) */
     PFJet(const LorentzVector& fP4, const Specific& fSpecific, const Jet::Constituents& fConstituents);
 
-    ~PFJet() override{};
+    ~PFJet() override {}
 
     /// chargedHadronEnergy
     float chargedHadronEnergy() const { return m_specific.mChargedHadronEnergy; }

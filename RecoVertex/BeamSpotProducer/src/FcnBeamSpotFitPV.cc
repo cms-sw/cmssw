@@ -51,7 +51,11 @@ unsigned int FcnBeamSpotFitPV::nrOfVerticesUsed() const {
   return nVtx;
 }
 
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6, 33, 1)
+double FcnBeamSpotFitPV::operator()(std::span<const double> pars) const {
+#else
 double FcnBeamSpotFitPV::operator()(const std::vector<double>& pars) const {
+#endif
   //
   // fit parameters
   //

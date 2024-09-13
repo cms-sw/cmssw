@@ -27,7 +27,7 @@ public:
    * gap = space std::vector representing the hit entry and exit
    */
   CSCCrossGap(double mass, float mom, LocalVector gap);
-  ~CSCCrossGap(){};
+  ~CSCCrossGap() {}
 
   std::vector<LocalPoint> ionClusters() const { return clusters; }
   int noOfClusters() const { return clusters.size(); }

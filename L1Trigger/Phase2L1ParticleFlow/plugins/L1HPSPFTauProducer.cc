@@ -20,7 +20,7 @@
 class L1HPSPFTauProducer : public edm::global::EDProducer<> {
 public:
   explicit L1HPSPFTauProducer(const edm::ParameterSet&);
-  ~L1HPSPFTauProducer() override{};
+  ~L1HPSPFTauProducer() override {}
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:

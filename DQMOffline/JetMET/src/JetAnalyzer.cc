@@ -3716,7 +3716,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
         if (mMuonMultiplicity_profile && mMuonMultiplicity_profile->getRootObject())
           mMuonMultiplicity_profile->Fill(numPV, (*pfJets)[ijet].muonMultiplicity());
       }  //cleaned PFJets
-    }    //PFJet specific loop
+    }  //PFJet specific loop
     //IDs have been defined by now
     //check here already for ordering of jets -> if we choose later to soften pt-thresholds for physics selections
     //compared to the default jet histograms
@@ -3956,7 +3956,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
               }
             }
           }  //substructure filling for boosted
-        }    //substructure filling
+        }  //substructure filling
       }
       // --- Event passed the low pt jet trigger
       if (jetLoPass_ == 1) {
@@ -4067,7 +4067,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
         //}
       }
     }  // pass ID for corrected jets --> inclusive selection
-  }    //loop over uncorrected jets
+  }  //loop over uncorrected jets
 
   mNJets = map_of_MEs[DirName + "/" + "NJets"];
   if (mNJets && mNJets->getRootObject())
@@ -4632,8 +4632,8 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
                 mqgLikelihood_highPt_Forward->Fill(QGLikelihood);
             }
           }  //deal with second jet
-        }    //fill quark gluon tagged variables
-      }      //pfjet
+        }  //fill quark gluon tagged variables
+      }  //pfjet
       if (isMiniAODJet_) {
         mJetEnergyCorr = map_of_MEs[DirName + "/" + "JetEnergyCorr"];
         if (mJetEnergyCorr && mJetEnergyCorr->getRootObject())
@@ -4910,9 +4910,9 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
           }  // end restriction on third jet pt ratio in balance calculation
 
         }  // dPhi > 2.7 for dijetbalance and asymmetrie
-      }    //leading jet in barrel
-    }      //DPhi cut of 2.1
-  }        //dijet selection, check if both leading jets are IDed
+      }  //leading jet in barrel
+    }  //DPhi cut of 2.1
+  }  //dijet selection, check if both leading jets are IDed
   //now do the ZJets selection -> pass_Z_selection cuts already on the Z-pt>30 GeV
   if (pass_Z_selection && ind1_mu_vetoed >= 0 && pt1_mu_vetoed > 12 && cleaned_first_jet_mu_vetoed && isPFJet_) {
     bool pass_second_jet_mu_vetoed = false;
@@ -5382,7 +5382,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
             }
           }
         }  //fill quark gluon tagged variables
-      }    //jet back to back to Z
-    }      //2nd jet veto
-  }        //Z selection + hard leading jet
+      }  //jet back to back to Z
+    }  //2nd jet veto
+  }  //Z selection + hard leading jet
 }

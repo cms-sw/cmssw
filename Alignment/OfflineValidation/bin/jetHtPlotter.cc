@@ -709,13 +709,13 @@ void jetHtPlotter(std::string configurationFileName) {
       for (int iProfileType = 0; iProfileType < knProfileTypes; iProfileType++) {
         jetHtProfiles[iFile][iProfileType][iIov] = nullptr;
       }  // profile type loop
-    }    // iov loop for reading histograms from file
+    }  // iov loop for reading histograms from file
     for (int iTrend = 0; iTrend < knTrendTypes; iTrend++) {
       for (int iWidePt = 0; iWidePt < nWidePtBins; iWidePt++) {
         gBigTrend[iFile][iTrend][iWidePt] = nullptr;
       }  // Trend loop
-    }    // Wide pT bin loop
-  }      // file loop
+    }  // Wide pT bin loop
+  }  // file loop
 
   // Read the histograms from the file
   for (int iFile = 0; iFile < compareFiles; iFile++) {
@@ -739,7 +739,7 @@ void jetHtPlotter(std::string configurationFileName) {
                 ptHatList[iFile],
                 Form("jetHTAnalyzer/%s_%s", iovNames.at(iIov).Data(), histogramName[iHistogramType].Data()));
           }  // if for drawing histogram
-        }    // histogram type loop
+        }  // histogram type loop
         for (int iProfileType = 0; iProfileType < knProfileTypes; iProfileType++) {
           if (drawProfile[iProfileType] || (drawTrend[kDzErrorTrend] && iProfileType == kDzErrorVsPtWide) ||
               (drawTrend[kDxyErrorTrend] && iProfileType == kDxyErrorVsPtWide)) {
@@ -748,8 +748,8 @@ void jetHtPlotter(std::string configurationFileName) {
                 ptHatList[iFile],
                 Form("jetHTAnalyzer/%s_%s", iovNames.at(iIov).Data(), profileName[iProfileType].Data()));
           }  // if for drawing profile
-        }    // profile type loop
-      }      // iov loop for reading histograms from file
+        }  // profile type loop
+      }  // iov loop for reading histograms from file
 
     } else {
       // Regular histogram loading
@@ -765,17 +765,17 @@ void jetHtPlotter(std::string configurationFileName) {
             jetHtHistograms[iFile][iHistogramType][iIov] = (TH1D *)inputFile[iFile]->Get(
                 Form("jetHTAnalyzer/%s_%s", iovNames.at(iIov).Data(), histogramName[iHistogramType].Data()));
           }  // if for drawing histogram
-        }    // histogram type loop
+        }  // histogram type loop
         for (int iProfileType = 0; iProfileType < knProfileTypes; iProfileType++) {
           if (drawProfile[iProfileType] || (drawTrend[kDzErrorTrend] && iProfileType == kDzErrorVsPtWide) ||
               (drawTrend[kDxyErrorTrend] && iProfileType == kDxyErrorVsPtWide)) {
             jetHtProfiles[iFile][iProfileType][iIov] = (TProfile *)inputFile[iFile]->Get(
                 Form("jetHTAnalyzer/%s_%s", iovNames.at(iIov).Data(), profileName[iProfileType].Data()));
           }  // if for drawing profile
-        }    // profile type loop
-      }      // iov loop for reading histograms from file
-    }        // Regular histogram loading
-  }          // Loop over files
+        }  // profile type loop
+      }  // iov loop for reading histograms from file
+    }  // Regular histogram loading
+  }  // Loop over files
 
   // Collect the information for the trend graphs
   const int nRuns = iovVector.size() - 1;
@@ -819,8 +819,8 @@ void jetHtPlotter(std::string configurationFileName) {
         }
 
       }  // Wide pT bin loop
-    }    // File loop
-  }      // If for drawing trends
+    }  // File loop
+  }  // If for drawing trends
 
   // ===============================================
   //                  Draw the plots
@@ -924,7 +924,7 @@ void jetHtPlotter(std::string configurationFileName) {
                     << Form("%s_%s", iovNames.at(iIov).Data(), histogramName[iHistogramType].Data()) << std::endl;
         }
       }  // if for drawing histogram
-    }    // histogram type loop
+    }  // histogram type loop
   }
 
   // Draw dz and dxy profiles
@@ -1142,7 +1142,7 @@ void jetHtPlotter(std::string configurationFileName) {
           }
 
         }  // iov loop for drawing
-      }    // if for drawing profiles for each IOV
+      }  // if for drawing profiles for each IOV
 
       // First, setup the legends for the all runs plots
       doNotDrawEta = (!drawCentralEtaSummaryProfile || iProfileType == kDxyErrorVsEta || iProfileType == kDzErrorVsEta);
@@ -1242,7 +1242,7 @@ void jetHtPlotter(std::string configurationFileName) {
         gPad->GetCanvas()->SaveAs(Form("output/%s%s_allIovs.pdf", profileName[iProfileType].Data(), saveComment));
       }
     }  // if for drawing profile
-  }    // profile type loop
+  }  // profile type loop
 
   // Close the output file
   if (makeIovListForSlides)
@@ -1345,7 +1345,7 @@ void jetHtPlotter(std::string configurationFileName) {
       }
 
     }  // Wide pT loop
-  }    // Trend type loop
+  }  // Trend type loop
 }
 
 /*

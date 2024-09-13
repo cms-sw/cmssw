@@ -215,7 +215,7 @@ namespace Rivet {
     };
 
     // Do nothing here
-    void finalize() override{};
+    void finalize() override {}
 
     std::string status() const override { return "VALIDATED"; }
   };

@@ -78,7 +78,7 @@ private:
   edm::ESGetToken<RPCEMap, RPCEMapRcd> m_nmapToken;
 
   struct TBLoc {
-    TBLoc(int tb, int sec) : tbNum(tb), sector(sec){};
+    TBLoc(int tb, int sec) : tbNum(tb), sector(sec) {}
     int tbNum;
     int sector;
     bool operator<(const TBLoc& c2) const {
@@ -96,7 +96,7 @@ private:
   TBInputs3to4Map m_tbInputs3to4;
 
   struct TDetStrip {
-    TDetStrip(int d, int s) : detId(d), strip(s){};
+    TDetStrip(int d, int s) : detId(d), strip(s) {}
     int detId;
     int strip;
     bool operator<(const TDetStrip& c2) const {
@@ -108,8 +108,8 @@ private:
   };
 
   struct TStripConnection {
-    TStripConnection(int t, int l, int p) : tbInput(t), lbInTBInput(l), packedStrip(p){};
-    TStripConnection() : tbInput(-1), lbInTBInput(-1), packedStrip(-1){};
+    TStripConnection(int t, int l, int p) : tbInput(t), lbInTBInput(l), packedStrip(p) {}
+    TStripConnection() : tbInput(-1), lbInTBInput(-1), packedStrip(-1) {}
     int tbInput;
     int lbInTBInput;
     int packedStrip;
@@ -320,8 +320,8 @@ std::string WriteVHDL::writeCNT(const edm::EventSetup& iSetup, int tower, int se
           refGrps = it->getRefGroup();
 
       }  // patsIter
-    }    // segment iter
-  }      // if type E
+    }  // segment iter
+  }  // if type E
 
   ret << "constant TT_REF_GROUP_NUMBERS   :natural := " << refGrps + 1 << ";" << std::endl;
 
@@ -557,9 +557,9 @@ void WriteVHDL::prepareEncdap4thPlaneConnections(edm::ESHandle<RPCGeometry> rpcG
                 << std::endl;*/
           }
         }  // tb iter
-      }    // TC iter
-    }      // strip iter
-  }        // roll iter
+      }  // TC iter
+    }  // strip iter
+  }  // roll iter
 
   /*
   for(auto const& t : m_tbInputs )
@@ -711,9 +711,9 @@ void WriteVHDL::prepareEncdap4thPlaneConnections(edm::ESHandle<RPCGeometry> rpcG
            }*/
 
           }  // TC iter
-        }    // connection vec iter
-      }      // strip iter
-    }        // roll iter
+        }  // connection vec iter
+      }  // strip iter
+    }  // roll iter
 
     if (chamberMatches != 1)
       std::cout << d << "  -> no  of matches is  " << chamberMatches << std::endl;

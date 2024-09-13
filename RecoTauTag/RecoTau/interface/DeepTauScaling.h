@@ -1062,6 +1062,6 @@ namespace deep_tau {
     };  // end scalingParamsMap_PhaseIIv2p5
 
   };  // namespace Scaling
-};    // namespace deep_tau
+};  // namespace deep_tau
 
 #endif

@@ -206,14 +206,14 @@ void AlignmentMuonHIPTrajectorySelector::produce(edm::Event& iEvent, const edm::
               m_resid_after->Fill(residual);
             }
           }  // end if residuals pass cut
-        }    // end second loop over hits
-      }      // end if filling histograms
+        }  // end second loop over hits
+      }  // end if filling histograms
 
       if (tracker_forwardredchi2 < m_maxTrackerForwardRedChi2 && tracker_dof >= m_minTrackerDOF && !has_bad_residual) {
         newTrajTrackMap->insert((*iPair).key, (*iPair).val);
       }  // end if passes tracker cuts
-    }    // end if passes pT cut
-  }      // end loop over original trajTrackMap
+    }  // end if passes pT cut
+  }  // end loop over original trajTrackMap
 
   // put it in the Event
   iEvent.put(std::move(newTrajTrackMap));

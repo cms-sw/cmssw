@@ -2,6 +2,7 @@
 #include <sstream>
 #include "CondCore/Utilities/interface/PayloadInspector.h"
 #include "CondCore/L1TPlugins/plugins/L1TUtmTriggerMenu_PayloadInspector.cc"
+#include "CondCore/L1TPlugins/plugins/L1TMuonGlobalParams_PayloadInspector.cc"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
@@ -59,7 +60,12 @@ int main(int argc, char** argv) {
   test5.process(connectionString, PI::mk_input(tag, start, end, tag2, start, end));
   edm::LogPrint("testL1TObjectsPayloadInspector") << test5.data() << std::endl;
 
-  edm::LogPrint("testL1TObjectsPayloadInspector") << "## Exercising  L1TGlobalPrescalesVetos tests" << std::endl;
+  edm::LogPrint("testL1TObjectsPayloadInspector") << "## Exercising L1TMuonGlobalParams_ tests" << std::endl;
+
+  L1TMuonGlobalParamsInputBits test6;
+  tag = "L1TMuonGlobalParams_Stage2v0_2024_mc_v1";
+  test6.process(connectionString, PI::mk_input(tag, start, end));
+  edm::LogPrint("testL1TObjectsPayloadInspector") << test6.data() << std::endl;
 
   Py_Finalize();
 }

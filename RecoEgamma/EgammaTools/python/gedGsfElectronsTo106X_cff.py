@@ -16,7 +16,6 @@
 
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
 from RecoEgamma.EgammaTools.egammaObjectModificationsInMiniAOD_cff import (
     egamma8XObjectUpdateModifier,
     egamma9X105XUpdateModifier,

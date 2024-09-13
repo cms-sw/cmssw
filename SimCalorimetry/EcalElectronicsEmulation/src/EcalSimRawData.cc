@@ -237,12 +237,12 @@ void EcalSimRawData::genFeData(std::string &basename,
                 //		data |= parity(data);
                 fwrite(f, data, iWord);
               }  // next time sample
-            }    // next crystal in strip
-          }      // next strip in TT
-        }        // next TT along phi
-      }          // next TT along eta
-    }            // next DCC
-  }              // next half-barrel
+            }  // next crystal in strip
+          }  // next strip in TT
+        }  // next TT along phi
+      }  // next TT along eta
+    }  // next DCC
+  }  // next half-barrel
 }
 
 void EcalSimRawData::genSrData(std::string &basename, int iEvent, int srf[nEbTtEta][nTtPhi]) const {
@@ -303,9 +303,9 @@ void EcalSimRawData::genSrData(std::string &basename, int iEvent, int srf[nEbTtE
           }
           ++iFlag;
         }  // next TT along phi
-      }    // next TT along eta
-    }      // next DCC
-  }        // next half-barrel
+      }  // next TT along eta
+    }  // next DCC
+  }  // next half-barrel
 }
 
 void EcalSimRawData::genTccIn(std::string &basename, int iEvent, const int tcp[nTtEta][nTtPhi]) const {
@@ -352,11 +352,11 @@ void EcalSimRawData::genTccIn(std::string &basename, int iEvent, const int tcp[n
                  << "0" << std::dec << std::setfill(' ') << "\n";
           ++iCh1;
         }  // next TT along phi
-      }    // next TT along eta
+      }  // next TT along eta
       fe2tcc << std::flush;
       fe2tcc.close();
     }  // next TCC
-  }    // next half-barrel
+  }  // next half-barrel
 }
 
 void EcalSimRawData::genTccOut(std::string &basename, int iEvent, const int tps[nTtEta][nTtPhi]) const {
@@ -415,9 +415,9 @@ void EcalSimRawData::genTccOut(std::string &basename, int iEvent, const int tps[
           fwrite(dccF, tps[iTtEta0][iTtPhi0], iDccWord, false);
           ++iCh1;
         }  // next TT along phi
-      }    // next TT along eta
-    }      // next TCC
-  }        // next half-barrel
+      }  // next TT along eta
+    }  // next TCC
+  }  // next half-barrel
 }
 
 void EcalSimRawData::setHParity(uint16_t &a) const {

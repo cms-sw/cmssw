@@ -21,7 +21,7 @@ public:
            const double& ptMin_,
            const double& ptMax_);
 
-  ~EtaPtBin(){};
+  ~EtaPtBin() {}
 
   /// String describes rapidity/pt range.
   std::string getDescriptionString() const { return descriptionString; }

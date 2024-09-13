@@ -156,7 +156,7 @@ namespace fwlite {
             return true;
           }
         }  // end ignore "first" file that we tried
-      }    // end loop over files
+      }  // end loop over files
 
       // did not find the event with id "id".
       return false;

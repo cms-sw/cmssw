@@ -9,7 +9,7 @@ class CSCDMBHeader;
 
 class CSCVDMBTrailerFormat {
 public:
-  virtual ~CSCVDMBTrailerFormat(){};
+  virtual ~CSCVDMBTrailerFormat() {}
   /*
   void init() {
     bzero(this, sizeInWords()*2);

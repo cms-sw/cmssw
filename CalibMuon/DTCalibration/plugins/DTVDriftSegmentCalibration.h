@@ -32,7 +32,7 @@ public:
   void beginJob() override;
   void beginRun(const edm::Run& run, const edm::EventSetup& setup) override;
   void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) override;
-  void endRun(const edm::Run& run, const edm::EventSetup& setup) override{};
+  void endRun(const edm::Run& run, const edm::EventSetup& setup) override {}
   void endJob() override;
 
 private:

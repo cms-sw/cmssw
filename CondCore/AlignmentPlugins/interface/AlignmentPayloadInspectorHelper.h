@@ -1100,8 +1100,8 @@ namespace AlignmentPI {
             edm::LogError("TrackerAlignment_PayloadInspector") << "Unrecognized coordinate " << coord << std::endl;
             break;
         }  // switch on the coordinate
-      }    // check on the same detID
-    }      // loop on the components
+      }  // check on the same detID
+    }  // loop on the components
   }
 
   /*--------------------------------------------------------------------*/
@@ -1181,7 +1181,7 @@ namespace AlignmentPI {
         }
 
       }  // if it's the same detid
-    }    // loop on detids
+    }  // loop on detids
   }
 
   /*--------------------------------------------------------------------*/

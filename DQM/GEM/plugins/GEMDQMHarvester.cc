@@ -22,7 +22,7 @@ using namespace edm;
 class GEMDQMHarvester : public DQMEDHarvester {
 public:
   GEMDQMHarvester(const edm::ParameterSet &);
-  ~GEMDQMHarvester() override{};
+  ~GEMDQMHarvester() override {}
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
   typedef std::tuple<int, int> IdChamber;
@@ -69,7 +69,7 @@ protected:
                              DQMStore::IGetter &,
                              edm::LuminosityBlock const &iLumi,
                              edm::EventSetup const &) override;
-  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override{};  // Cannot use; it is called after dqmSaver
+  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override {}  // Cannot use; it is called after dqmSaver
 
   void drawSummaryHistogram(edm::Service<DQMStore> &store, Int_t nLumiCurr);
   void createTableWatchingSummary();
@@ -349,12 +349,13 @@ void GEMDQMHarvester::getGeometryInfo(edm::Service<DQMStore> &store, MonitorElem
   if (h2Src != nullptr) {  // For online and offline
     Int_t nBinY = h2Src->getNbinsY();
     listLayer_.push_back("");
+    Int_t nNumMerge = std::max((Int_t)(h2Src->getBinContent(0, 0) + 0.5), 1);
 
     for (Int_t i = 1; i <= nBinY; i++) {
       std::string strLabelFull = h2Src->getTH2F()->GetYaxis()->GetBinLabel(i);
       auto nPos = strLabelFull.find(';');
       auto strLayer = strLabelFull.substr(nPos + 1);
-      Int_t nBinXActual = (Int_t)(h2Src->getBinContent(0, i) + 0.5);
+      Int_t nBinXActual = ((Int_t)(h2Src->getBinContent(0, i) + 0.5)) / nNumMerge;
       if (nBinXActual > 108) {  // When the number seems wrong
         if (strLayer.find("GE11") != std::string::npos) {
           nBinXActual = 36;

@@ -36,4 +36,6 @@ pACentrality = cms.EDProducer("CentralityProducer",
 
                             )
 
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
+run3_common.toModify(pACentrality, srcZDChits = "zdcrecoRun3",lowGainZDC =False)
 

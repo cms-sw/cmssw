@@ -37,7 +37,7 @@ namespace edm {
         InputFileWatcher(edm::ParameterSet const& iPSet) : OutputModuleBase(iPSet) {}
         InputFileWatcher(InputFileWatcher const&) = delete;
         InputFileWatcher& operator=(InputFileWatcher const&) = delete;
-        ~InputFileWatcher() noexcept(false) override{};
+        ~InputFileWatcher() noexcept(false) override {}
 
       private:
         void doRespondToOpenInputFile_(FileBlock const&) final;
@@ -53,7 +53,7 @@ namespace edm {
         RunCacheHolder(edm::ParameterSet const& iPSet) : OutputModuleBase(iPSet) {}
         RunCacheHolder(RunCacheHolder<T, C> const&) = delete;
         RunCacheHolder<T, C>& operator=(RunCacheHolder<T, C> const&) = delete;
-        ~RunCacheHolder() noexcept(false) override{};
+        ~RunCacheHolder() noexcept(false) override {}
 
       protected:
         C const* runCache(edm::RunIndex iID) const { return cache_.get(); }
@@ -77,7 +77,7 @@ namespace edm {
         LuminosityBlockCacheHolder(edm::ParameterSet const& iPSet) : OutputModuleBase(iPSet) {}
         LuminosityBlockCacheHolder(LuminosityBlockCacheHolder<T, C> const&) = delete;
         LuminosityBlockCacheHolder<T, C>& operator=(LuminosityBlockCacheHolder<T, C> const&) = delete;
-        ~LuminosityBlockCacheHolder() noexcept(false) override{};
+        ~LuminosityBlockCacheHolder() noexcept(false) override {}
 
       protected:
         C const* luminosityBlockCache(edm::LuminosityBlockIndex iID) const { return caches_[iID].get(); }
@@ -117,7 +117,7 @@ namespace edm {
       };
 
     }  // namespace outputmodule
-  }    // namespace limited
+  }  // namespace limited
 }  // namespace edm
 
 #endif

@@ -17,8 +17,8 @@ public:
   typedef typename std::vector<Item>::const_iterator const_iterator;
   typedef typename std::vector<Item>::iterator iterator;
 
-  ESCondObjectContainer(){};
-  ~ESCondObjectContainer(){};
+  ESCondObjectContainer() {}
+  ~ESCondObjectContainer() {}
 
   inline const Items &preshowerItems() const { return es_.items(); };
 

@@ -77,7 +77,7 @@ public:
   /// Init and Destruct
 
   /// default constructor w/o init
-  L1MuGMTLUT() : m_initialized(false), m_NLUTS(0), m_UseLookupFunction(true), m_saveFlag(false){};
+  L1MuGMTLUT() : m_initialized(false), m_NLUTS(0), m_UseLookupFunction(true), m_saveFlag(false) {}
 
   /// constructor with init
   L1MuGMTLUT(const char* name,
@@ -173,7 +173,7 @@ protected:
     typedef std::vector<port> base;
 
   public:
-    PortDecoder(const std::vector<port>& pt) : base(pt){};
+    PortDecoder(const std::vector<port>& pt) : base(pt) {}
 
     PortDecoder(const std::string& input) {
       // decode std::string of style "phi(2) eta(4)"

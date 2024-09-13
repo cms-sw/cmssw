@@ -26,7 +26,7 @@ public:
 
   DQMGenericTnPClient(const edm::ParameterSet& pset);
   ~DQMGenericTnPClient() override;
-  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) override{};
+  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) override {}
   void beginRun(edm::Run const&, edm::EventSetup const&) override {}
   void endRun(const edm::Run& run, const edm::EventSetup& setup) override;
   void calculateEfficiency(const std::string& dirName, const ParameterSet& pset);

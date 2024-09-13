@@ -274,7 +274,7 @@ void JetHTAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       }
 
     }  // loop on tracks in vertex
-  }    // loop on vertices
+  }  // loop on vertices
 
   mon.fillHisto("nvtx", "all", counter, 1.);
 }

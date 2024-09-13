@@ -46,12 +46,12 @@ public:
 
   /**Destructor
    */
-  ~EcalSimpleProducer() override{};
+  ~EcalSimpleProducer() override {}
 
   /** Called at start of job.
    * @param es the event setup
    */
-  void beginJob() override{};
+  void beginJob() override {}
 
   /** The main method. It produces the event.
    * @param evt [out] produced event.

@@ -1,7 +1,7 @@
 #ifndef SimTracker_TrackTriggerAssociation_StubAssociation_h
 #define SimTracker_TrackTriggerAssociation_StubAssociation_h
 
-#include "SimTracker/TrackTriggerAssociation/interface/TTTypes.h"
+#include "SimDataFormats/Associations/interface/TTTypes.h"
 #include "L1Trigger/TrackTrigger/interface/Setup.h"
 
 #include <vector>

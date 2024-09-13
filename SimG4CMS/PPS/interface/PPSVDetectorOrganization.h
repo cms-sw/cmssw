@@ -9,8 +9,8 @@
 
 class PPSVDetectorOrganization {
 public:
-  PPSVDetectorOrganization(){};
-  virtual ~PPSVDetectorOrganization(){};
+  PPSVDetectorOrganization() {}
+  virtual ~PPSVDetectorOrganization() {}
   virtual uint32_t unitID(const G4Step* aStep) = 0;
 };
 

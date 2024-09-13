@@ -53,7 +53,7 @@ public:
   };
 
   /// destructor
-  virtual ~L1MuTriggerPtScale(){};
+  virtual ~L1MuTriggerPtScale() {}
 
   /// get the Pt scale
   const L1MuScale* getPtScale() const { return &m_PtScale; };

@@ -11,7 +11,7 @@
  */
 class RPCInputSignal {
 public:
-  virtual ~RPCInputSignal(){};  ///< Destructor
+  virtual ~RPCInputSignal() {}  ///< Destructor
 
   virtual void clear() = 0;
 

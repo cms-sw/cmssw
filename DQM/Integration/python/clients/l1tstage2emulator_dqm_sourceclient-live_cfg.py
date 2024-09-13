@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 import sys
-from Configuration.Eras.Era_Run3_cff import Run3
-process = cms.Process("L1TStage2EmulatorDQM", Run3)
+from Configuration.Eras.Era_Run3_2024_cff import Run3_2024
+process = cms.Process("L1TStage2EmulatorDQM", Run3_2024)
 
 unitTest = False
 if 'unitTest=True' in sys.argv:
@@ -164,6 +164,7 @@ if process.runType.getRunType() == process.runType.hi_run:
     process.selfFatEventFilter.rawInput = rawDataRepackerLabel
     process.rpcTwinMuxRawToDigi.inputTag = rawDataRepackerLabel
     process.rpcCPPFRawToDigi.inputTag = rawDataRepackerLabel
+    process.rpcunpacker.InputLabel = rawDataRepackerLabel
 
 #--------------------------------------------------
 # L1T Emulator Online DQM Schedule

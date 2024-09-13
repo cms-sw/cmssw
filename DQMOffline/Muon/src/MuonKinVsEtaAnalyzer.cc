@@ -372,5 +372,5 @@ void MuonKinVsEtaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
         }
       }
     }  //end iEtaRegions
-  }    //end recoMu iteration
+  }  //end recoMu iteration
 }

@@ -123,15 +123,23 @@ namespace ecaldqm {
       }
     }
 
-    // Quality check: set an entire FED to BAD if "any" DCC-SRP or DCC-TCC mismatch errors are detected
+    // Quality check: set an entire FED to BAD if "any" DCC-SRP or DCC-TCC mismatch errors are detected AND the number of events affected by the DCC-SRP or DCC-TCC mismatch errors is more than 1% of the events analyzed in the run
     // Fill mismatch statistics
     MESet const& sBXSRP(sources_.at("BXSRP"));
     MESet const& sBXTCC(sources_.at("BXTCC"));
     std::vector<bool> hasMismatchDCC(nDCC, false);
     for (unsigned iDCC(0); iDCC < nDCC; ++iDCC) {
-      if (sBXSRP.getBinContent(getEcalDQMSetupObjects(), iDCC + 1) > 50. ||
-          sBXTCC.getBinContent(getEcalDQMSetupObjects(), iDCC + 1) > 50.)  // "any" => 50
-        hasMismatchDCC[iDCC] = true;
+      int nBXSRPdesync = sBXSRP.getBinContent(getEcalDQMSetupObjects(), iDCC + 1);
+      int nBXTCCdesync = sBXTCC.getBinContent(getEcalDQMSetupObjects(), iDCC + 1);
+
+      if (nBXSRPdesync > 50. || nBXTCCdesync > 50.) {  // "any" => 50
+        if (nBXSRPdesync > int(0.01 * processedEvents) ||
+            nBXTCCdesync >
+                int(0.01 *
+                    processedEvents)) {  // check if the events with DCC-SRP or DCC-TCC desyncs for the given DCC is more than 1% of the events analyzed
+          hasMismatchDCC[iDCC] = true;
+        }
+      }
     }
     // Analyze mismatch statistics
     for (MESet::iterator qsItr(meQualitySummary.beginChannel(GetElectronicsMap()));

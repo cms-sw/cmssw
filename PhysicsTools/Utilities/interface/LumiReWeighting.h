@@ -30,7 +30,7 @@ namespace reweight {
 
   class PoissonMeanShifter {
   public:
-    PoissonMeanShifter(){};
+    PoissonMeanShifter() {}
 
     PoissonMeanShifter(float Shift) {
       // these are the polynomial or exponential coefficients for each bin of a 25-bin sequence that
@@ -114,7 +114,7 @@ namespace edm {
                     const std::vector<float>& Lumi_distr,
                     const edm::InputTag& PileupSumInfoInputTag = edm::InputTag("addPileupInfo"));
 
-    LumiReWeighting(){};
+    LumiReWeighting() {}
 
     double weight(int npv);
 

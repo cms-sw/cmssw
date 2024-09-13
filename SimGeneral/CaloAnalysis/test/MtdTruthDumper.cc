@@ -18,11 +18,11 @@
 class MtdTruthDumper : public edm::one::EDAnalyzer<> {
 public:
   explicit MtdTruthDumper(const edm::ParameterSet&);
-  ~MtdTruthDumper() override{};
+  ~MtdTruthDumper() override {}
 
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void beginJob() override{};
-  void endJob() override{};
+  void beginJob() override {}
+  void endJob() override {}
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 

@@ -2,16 +2,16 @@ import FWCore.ParameterSet.Config as cms
 
 from ..sequences.HLTBeginSequence_cfi import *
 from ..sequences.HLTEndSequence_cfi import *
-from ..sequences.RawToDigiSequence_cfi import *
-from ..sequences.itLocalRecoSequence_cfi import *
-from ..sequences.otLocalRecoSequence_cfi import *
-from ..sequences.hgcalLocalRecoSequence_cfi import *
+from ..sequences.HLTRawToDigiSequence_cfi import *
+from ..sequences.HLTItLocalRecoSequence_cfi import *
+from ..sequences.HLTOtLocalRecoSequence_cfi import *
+from ..sequences.HLTHgcalLocalRecoSequence_cfi import *
 from ..sequences.HLTDoLocalHcalSequence_cfi import *
 from ..sequences.HLTDoFullUnpackingEgammaEcalSequence_cfi import *
 from ..sequences.HLTFastJetForEgammaSequence_cfi import *
 from ..sequences.HLTIter0Phase2L3FromL1TkSequence_cfi import *
 from ..sequences.HLTIter2Phase2L3FromL1TkSequence_cfi import *
-from ..sequences.pfClusteringHBHEHFSequence_cfi import *
+from ..sequences.HLTPfClusteringHBHEHFSequence_cfi import *
 from ..sequences.HLTPhase2L3FromL1TkSequence_cfi import *
 from ..sequences.HLTPhase2L3OISequence_cfi import *
 from ..sequences.HLTPhase2L3MuonsSequence_cfi import *
@@ -28,9 +28,9 @@ from ..modules.hltTripleMuon3DZ1p0_cfi import *
 HLT_TriMu_10_5_5_DZ_FromL1TkMuon = cms.Path(HLTBeginSequence
     +hltTripleMuon3DZ1p0
     +hltTripleMuon3DR0
-    +RawToDigiSequence
-    +itLocalRecoSequence
-    +otLocalRecoSequence
+    +HLTRawToDigiSequence
+    +HLTItLocalRecoSequence
+    +HLTOtLocalRecoSequence
     +HLTL2MuonsFromL1TkSequence
     +HLTPhase2L3MuonsSequence
     +hltL3fL1TkTripleMu533PreFiltered555

@@ -14,10 +14,16 @@
 -->
 
 <!-- In CMSSW_13_0_18 the auto:phase1_2023_realistic (pre BPix) is 130X_mcRun3_2023_realistic_postBPix_v1 -->
-<test name="test_MC_23_setup" command="test_mc_setup/test_MC_setup.sh auto:phase1_2023_realistic Run3_2023 2023v12 CMSSW_13_0_18 130X_mcRun3_2023_realistic_v13 Realistic25ns13p6TeVEarly2023Collision" />
+<ifarchitecture name="el8_amd64">
+  <!-- Run this test for production arch of CMSSW_13_0_19_HLT release only -->
+  <test name="test_MC_23_setup" command="CMSSW_MC_SETUP_TEST_CATCH_HLT=0 ${CMSSW_BASE}/src/Configuration/PyReleaseValidation/test/test_mc_setup/test_MC_setup.sh auto:phase1_2023_realistic Run3_2023 2023v12 CMSSW_13_0_19_HLT 130X_mcRun3_2023_realistic_v13 Realistic25ns13p6TeVEarly2023Collision" />
+</ifarchitecture>
 
 <!-- In CMSSW_12_4_20 the auto:phase1_2022_realistic (pre EE) is 124X_mcRun3_2022_realistic_v12 -->
-<test name="test_MC_22_setup" command="test_mc_setup/test_MC_setup.sh auto:phase1_2022_realistic Run3 2022v14 CMSSW_12_4_20 124X_mcRun3_2022_realistic_v12 Realistic25ns13p6TeVEarly2022Collision" />
+<ifarchitecture name="el8_amd64">
+  <!-- Run this test for production arch of CMSSW_12_4_21_HLT release only -->
+  <test name="test_MC_22_setup" command="test_mc_setup/test_MC_setup.sh auto:phase1_2022_realistic Run3 2022v14 CMSSW_12_4_21_HLT 124X_mcRun3_2022_realistic_v12 Realistic25ns13p6TeVEarly2022Collision" />
+</ifarchitecture>
 
 <!-- 
     The setups below are "standard", with everything run 

@@ -169,7 +169,7 @@ std::unique_ptr<SiPixelLorentzAngle> SiPixelFakeLorentzAngleESSource::produce(co
               edm::LogError("SiPixelFakeLorentzAngleESSource")
                   << "ERROR!: detid " << rawId << " already exists" << std::endl;
           }  // if
-        }    // for
+        }  // for
 
         //modules already put are automatically skipped
         for (const auto& it : FPixParameters_) {
@@ -203,9 +203,9 @@ std::unique_ptr<SiPixelLorentzAngle> SiPixelFakeLorentzAngleESSource::produce(co
             edm::LogError("SiPixelFakeLorentzAngleESSource")
                 << "ERROR!: detid" << rawId << "already exists" << std::endl;
         }  // for
-      }    // if
-    }      // bpix/fpix
-  }        // iterate on detids
+      }  // if
+    }  // bpix/fpix
+  }  // iterate on detids
 
   edm::LogInfo("SiPixelFakeLorentzAngleESSource") << "Modules = " << nmodules << std::endl;
 

@@ -37,7 +37,7 @@ public:
                     const bool& quality,
                     DQMStore::IBooker& ibook);
 
-  ~TrackIPHistograms() override{};
+  ~TrackIPHistograms() override {}
 
   void fill(const int& flavour,
             const reco::TrackBase::TrackQuality& quality,

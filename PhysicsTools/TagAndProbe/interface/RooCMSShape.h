@@ -31,7 +31,7 @@
 
 class RooCMSShape : public RooAbsPdf {
 public:
-  RooCMSShape(){};
+  RooCMSShape() {}
   RooCMSShape(const char* name,
               const char* title,
               RooAbsReal& _x,

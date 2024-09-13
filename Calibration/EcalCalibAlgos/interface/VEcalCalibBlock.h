@@ -13,9 +13,9 @@
 class VEcalCalibBlock {
 public:
   //! ctor
-  VEcalCalibBlock(int numberOfElements) : m_numberOfElements(numberOfElements){};
+  VEcalCalibBlock(int numberOfElements) : m_numberOfElements(numberOfElements) {}
   //! dtor
-  virtual ~VEcalCalibBlock(){};
+  virtual ~VEcalCalibBlock() {}
 
   //! insert an entry
   virtual void Fill(std::map<int, double>::const_iterator,

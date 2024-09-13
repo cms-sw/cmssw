@@ -150,7 +150,7 @@ public:
   DDHtmlDetails(const std::string &cat, const std::string &txt);
   virtual bool details(std::ostream &os, const DDName &) = 0;
   virtual ns_type &names() = 0;
-  virtual ~DDHtmlDetails(){};
+  virtual ~DDHtmlDetails() {}
   const std::string &category() { return cat_; }
   const std::string &text() { return txt_; }
 

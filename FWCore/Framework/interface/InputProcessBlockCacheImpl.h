@@ -81,13 +81,12 @@ namespace edm {
       InputProcessBlockCacheImpl& operator=(InputProcessBlockCacheImpl const&) = delete;
 
       template <std::size_t I>
-      typename std::enable_if<I == sizeof...(CacheTypes), void>::type fillTuple(std::tuple<CacheHandle<CacheTypes>...>&,
-                                                                                Event const&) const {}
+        requires requires { requires I == sizeof...(CacheTypes); }
+      void fillTuple(std::tuple<CacheHandle<CacheTypes>...>&, Event const&) const {}
 
       template <std::size_t I>
-          typename std::enable_if <
-          I<sizeof...(CacheTypes), void>::type fillTuple(std::tuple<CacheHandle<CacheTypes>...>& cacheHandles,
-                                                         Event const& event) const {
+        requires requires { requires I < sizeof...(CacheTypes); }
+      void fillTuple(std::tuple<CacheHandle<CacheTypes>...>& cacheHandles, Event const& event) const {
         unsigned int index = eventProcessBlockIndex(event, processNames_[I]);
 
         // If the branch associated with the token was passed to registerProcessBlockCacheFiller

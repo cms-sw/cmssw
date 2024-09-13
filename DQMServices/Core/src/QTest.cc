@@ -358,7 +358,7 @@ float NoisyChannel::runTest(const MonitorElement* me) {
           badChannels_.push_back(chan);
         }
       }  //end x loop
-    }    //end y loop
+    }  //end y loop
     // return fraction of bins that passed test
     return 1. * ((nbinsX * nbinsY) - fail) / (nbinsX * nbinsY);
   }  //end nullptr conditional

@@ -30,6 +30,8 @@
 
 #include "DataFormats/L1Trigger/interface/EtSum.h"
 
+#include "L1Trigger/L1TTrackMatch/interface/L1TkHTMissEmulatorProducer.h"
+
 #include <vector>
 #include <array>
 #include <string>
@@ -47,6 +49,9 @@ namespace l1t {
   private:
     void produceGTTPromptJets(edm::Event &event) const;
     void produceGTTDisplacedJets(edm::Event &event) const;
+    void produceGTTPromptHtSum(edm::Event &event) const;
+    void produceGTTDisplacedHtSum(edm::Event &event) const;
+    void produceGTTEtSum(edm::Event &event) const;
     void produceGTTPrimaryVert(edm::Event &event) const;
 
     void produceGMTSaPromptMuons(edm::Event &event) const;
@@ -67,6 +72,9 @@ namespace l1t {
 
     const edm::EDGetTokenT<TkJetWordCollection> gttPromptJetToken_;
     const edm::EDGetTokenT<TkJetWordCollection> gttDisplacedJetToken_;
+    const edm::EDGetTokenT<std::vector<l1t::EtSum>> gttPromptHtSumToken_;
+    const edm::EDGetTokenT<std::vector<l1t::EtSum>> gttDisplacedHtSumToken_;
+    const edm::EDGetTokenT<std::vector<l1t::EtSum>> gttEtSumToken_;
     const edm::EDGetTokenT<VertexWordCollection> gttPrimaryVertexToken_;
 
     const edm::EDGetTokenT<SAMuonCollection> gmtSaPromptMuonToken_;
@@ -86,6 +94,10 @@ namespace l1t {
       : scales_(config.getParameter<edm::ParameterSet>("scales")),
         gttPromptJetToken_(consumes<TkJetWordCollection>(config.getParameter<edm::InputTag>("GTTPromptJets"))),
         gttDisplacedJetToken_(consumes<TkJetWordCollection>(config.getParameter<edm::InputTag>("GTTDisplacedJets"))),
+        gttPromptHtSumToken_(consumes<std::vector<l1t::EtSum>>(config.getParameter<edm::InputTag>("GTTPromptHtSum"))),
+        gttDisplacedHtSumToken_(
+            consumes<std::vector<l1t::EtSum>>(config.getParameter<edm::InputTag>("GTTDisplacedHtSum"))),
+        gttEtSumToken_(consumes<std::vector<l1t::EtSum>>(config.getParameter<edm::InputTag>("GTTEtSum"))),
         gttPrimaryVertexToken_(consumes<VertexWordCollection>(config.getParameter<edm::InputTag>("GTTPrimaryVert"))),
         gmtSaPromptMuonToken_(consumes<SAMuonCollection>(config.getParameter<edm::InputTag>("GMTSaPromptMuons"))),
         gmtSaDisplacedMuonToken_(consumes<SAMuonCollection>(config.getParameter<edm::InputTag>("GMTSaDisplacedMuons"))),
@@ -99,6 +111,9 @@ namespace l1t {
         cl2HtSumToken_(consumes<std::vector<l1t::EtSum>>(config.getParameter<edm::InputTag>("CL2HtSum"))) {
     produces<P2GTCandidateCollection>("GTTPromptJets");
     produces<P2GTCandidateCollection>("GTTDisplacedJets");
+    produces<P2GTCandidateCollection>("GTTPromptHtSum");
+    produces<P2GTCandidateCollection>("GTTDisplacedHtSum");
+    produces<P2GTCandidateCollection>("GTTEtSum");
     produces<P2GTCandidateCollection>("GTTPrimaryVert");
 
     produces<P2GTCandidateCollection>("GMTSaPromptMuons");
@@ -123,6 +138,9 @@ namespace l1t {
 
     desc.add<edm::InputTag>("GTTPromptJets");
     desc.add<edm::InputTag>("GTTDisplacedJets");
+    desc.add<edm::InputTag>("GTTPromptHtSum");
+    desc.add<edm::InputTag>("GTTDisplacedHtSum");
+    desc.add<edm::InputTag>("GTTEtSum");
     desc.add<edm::InputTag>("GTTPrimaryVert");
 
     desc.add<edm::InputTag>("GMTSaPromptMuons");
@@ -208,6 +226,67 @@ namespace l1t {
     event.put(std::move(outputCollection), "GTTDisplacedJets");
   }
 
+  void L1GTProducer::produceGTTPromptHtSum(edm::Event &event) const {
+    std::unique_ptr<P2GTCandidateCollection> outputCollection = std::make_unique<P2GTCandidateCollection>();
+    const std::vector<l1t::EtSum> &collection = event.get(gttPromptHtSumToken_);
+    if (collection.size() > 0) {
+      const l1t::EtSum &obj = collection[0];
+      l1tmhtemu::EtMiss htMiss;
+      htMiss.Et = obj.p4().energy();
+      P2GTCandidate gtObj(0,
+                          reco::ParticleState::PolarLorentzVector(
+                              scales_.to_pT(htMiss.Et.V.to_int()), 0, scales_.to_phi(obj.hwPhi()), 0));
+
+      gtObj.hwPT_ = htMiss.Et.V.to_int();
+      gtObj.hwPhi_ = obj.hwPhi();
+      gtObj.hwScalarSumPT_ = obj.hwPt();
+      gtObj.objectType_ = P2GTCandidate::GTTPromptHtSum;
+
+      outputCollection->push_back(gtObj);
+    }
+
+    event.put(std::move(outputCollection), "GTTPromptHtSum");
+  }
+
+  void L1GTProducer::produceGTTDisplacedHtSum(edm::Event &event) const {
+    std::unique_ptr<P2GTCandidateCollection> outputCollection = std::make_unique<P2GTCandidateCollection>();
+    const std::vector<l1t::EtSum> &collection = event.get(gttDisplacedHtSumToken_);
+    if (collection.size() > 0) {
+      const l1t::EtSum &obj = collection[0];
+      l1tmhtemu::EtMiss htMiss;
+      htMiss.Et = obj.p4().energy();
+      P2GTCandidate gtObj(0,
+                          reco::ParticleState::PolarLorentzVector(
+                              scales_.to_pT(htMiss.Et.V.to_int()), 0, scales_.to_phi(obj.hwPhi()), 0));
+
+      gtObj.hwPT_ = htMiss.Et.V.to_int();
+      gtObj.hwPhi_ = obj.hwPhi();
+      gtObj.hwScalarSumPT_ = obj.hwPt();
+      gtObj.objectType_ = P2GTCandidate::GTTDisplacedHtSum;
+
+      outputCollection->push_back(gtObj);
+    }
+
+    event.put(std::move(outputCollection), "GTTDisplacedHtSum");
+  }
+
+  void L1GTProducer::produceGTTEtSum(edm::Event &event) const {
+    std::unique_ptr<P2GTCandidateCollection> outputCollection = std::make_unique<P2GTCandidateCollection>();
+    const std::vector<l1t::EtSum> &collection = event.get(gttEtSumToken_);
+    if (collection.size() > 0) {
+      const l1t::EtSum &obj = collection[0];
+      P2GTCandidate gtObj(
+          0, reco::ParticleState::PolarLorentzVector(scales_.to_pT(obj.hwPt()), 0, scales_.to_phi(obj.hwPhi()), 0));
+      gtObj.hwPT_ = obj.hwPt();
+      gtObj.hwPhi_ = obj.hwPhi();
+      gtObj.objectType_ = P2GTCandidate::GTTEtSum;
+
+      outputCollection->push_back(gtObj);
+    }
+
+    event.put(std::move(outputCollection), "GTTEtSum");
+  }
+
   void L1GTProducer::produceGMTSaPromptMuons(edm::Event &event) const {
     std::unique_ptr<P2GTCandidateCollection> outputCollection = std::make_unique<P2GTCandidateCollection>();
     const SAMuonCollection &collection = event.get(gmtSaPromptMuonToken_);
@@ -224,7 +303,7 @@ namespace l1t {
       gtObj.hwPhi_ = obj.apPhi().to_int();
       gtObj.hwEta_ = obj.apEta().to_int();
       gtObj.hwZ0_ = hwZ0;
-      gtObj.hwQualityScore_ = obj.apQualFlags().to_int();
+      gtObj.hwQualityFlags_ = obj.apQualFlags().to_int();
       gtObj.hwCharge_ = obj.apCharge().to_int();
       gtObj.hwD0_ = obj.apD0().to_int();
       gtObj.objectType_ = P2GTCandidate::GMTSaPromptMuons;
@@ -250,7 +329,7 @@ namespace l1t {
       gtObj.hwPhi_ = obj.apPhi().to_int();
       gtObj.hwEta_ = obj.apEta().to_int();
       gtObj.hwZ0_ = hwZ0;
-      gtObj.hwQualityScore_ = obj.apQualFlags().to_int();
+      gtObj.hwQualityFlags_ = obj.apQualFlags().to_int();
       gtObj.hwCharge_ = obj.apCharge().to_int();
       gtObj.hwD0_ = obj.apD0().to_int();
       gtObj.objectType_ = P2GTCandidate::GMTSaDisplacedMuons;
@@ -276,7 +355,7 @@ namespace l1t {
       gtObj.hwPhi_ = obj.apPhi().to_int();
       gtObj.hwEta_ = obj.apEta().to_int();
       gtObj.hwZ0_ = hwZ0;
-      gtObj.hwQualityScore_ = obj.apQualFlags().to_int();
+      gtObj.hwQualityFlags_ = obj.apQualFlags().to_int();
       gtObj.hwIsolationPT_ = obj.apIso().to_int();
       gtObj.hwCharge_ = obj.apCharge().to_int();
       gtObj.hwD0_ = obj.apD0().to_int();
@@ -446,6 +525,9 @@ namespace l1t {
   void L1GTProducer::produce(edm::StreamID, edm::Event &event, const edm::EventSetup &setup) const {
     produceGTTPromptJets(event);
     produceGTTDisplacedJets(event);
+    produceGTTPromptHtSum(event);
+    produceGTTDisplacedHtSum(event);
+    produceGTTEtSum(event);
     produceGTTPrimaryVert(event);
 
     produceGMTSaPromptMuons(event);

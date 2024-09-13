@@ -112,7 +112,7 @@ public:
    */
   //   virtual ImpactPointMeasurement impactPointMeasurement() const = 0;
 
-  virtual bool operator==(LinearizedTrackState<N>& other) const = 0;
+  virtual bool operator==(const LinearizedTrackState<N>& other) const = 0;
 
   /** Creates the correct refitted state according to the results of the
    *  track refit.

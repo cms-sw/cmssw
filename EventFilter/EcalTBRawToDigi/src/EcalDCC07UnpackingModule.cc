@@ -270,7 +270,7 @@ void EcalDCCTB07UnpackingModule::produce(edm::Event& e, const edm::EventSetup& c
         else if (id == MATACQ_FED_ID)
           matacqFormatter_->interpretRawData(data, *productMatacq);
       }  // endif
-    }    //endfor
+    }  //endfor
 
     // commit to the event
     e.put(std::move(productPN));

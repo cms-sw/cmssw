@@ -313,9 +313,9 @@ void SiStripPopConFEDErrorsHandlerFromDQM::readHistogram(MonitorElement* aMe,
             addBadAPV(lConnection, 0, lFlag, aCounter);
           }
         }  //if not FE hist
-      }    //if not FED hist
-    }      //if entries in histo
-  }        //loop on bins
+      }  //if not FED hist
+    }  //if entries in histo
+  }  //loop on bins
 }  //method readHistogram
 
 void SiStripPopConFEDErrorsHandlerFromDQM::addBadAPV(const FedChannelConnection& aConnection,

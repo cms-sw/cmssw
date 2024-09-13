@@ -6,8 +6,8 @@ hltIter2Phase2L3FromL1TkMuonClustersRefRemoval = cms.EDProducer("TrackClusterRem
     minNumberOfLayersWithMeasBeforeFiltering = cms.int32(0),
     oldClusterRemovalInfo = cms.InputTag(""),
     overrideTrkQuals = cms.InputTag(""),
-    phase2OTClusters = cms.InputTag("siPhase2Clusters"),
-    phase2pixelClusters = cms.InputTag("siPixelClusters"),
+    phase2OTClusters = cms.InputTag("hltSiPhase2Clusters"),
+    phase2pixelClusters = cms.InputTag("hltSiPixelClusters"),
     trackClassifier = cms.InputTag("","QualityMasks"),
     trajectories = cms.InputTag("hltIter0Phase2L3FromL1TkMuonTrackSelectionHighPurity")
 )

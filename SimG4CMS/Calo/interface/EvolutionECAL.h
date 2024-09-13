@@ -22,7 +22,7 @@
 
 class EvolutionECAL {
 public:
-  EvolutionECAL(){};
+  EvolutionECAL() {}
   ~EvolutionECAL() = default;
 
   double LightCollectionEfficiency(double z, double mu);

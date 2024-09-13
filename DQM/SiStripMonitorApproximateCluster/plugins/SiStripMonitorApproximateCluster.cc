@@ -301,7 +301,7 @@ void SiStripMonitorApproximateCluster::analyze(const edm::Event& iEvent, const e
       }  // if we're doing the comparison cluster by cluster
 
     }  // loop on clusters in a detset
-  }    // loop on the detset vector
+  }  // loop on the detset vector
 
   h_nclusters_->Fill(nApproxClusters);
   h_numberFEDErrors_->Fill((*sistripFEDErrorsVector).size());

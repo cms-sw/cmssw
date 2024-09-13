@@ -138,8 +138,8 @@ bool HLTHcalLaserFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::Ev
               return false;
             }
           }  //if (sumCharge > thresholdsfC_[thresh])
-        }    //for (unsigned int thresh=0;thresh<thresholdsfC_.size();++thresh)
-      }      // if HB or HE Calib
+        }  //for (unsigned int thresh=0;thresh<thresholdsfC_.size();++thresh)
+      }  // if HB or HE Calib
       else if (myid.hcalSubdet() == HcalForward && maxAllowedHFcalib_ >= 0) {
         ++numHFcalib;
         //std::cout <<"numHFcalib = "<<numHFcalib<<"  Max allowed = "<<maxAllowedHFcalib_<<std::endl;

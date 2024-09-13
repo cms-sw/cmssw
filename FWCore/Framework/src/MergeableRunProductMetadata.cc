@@ -113,7 +113,7 @@ namespace edm {
       }
       ++processIndex;
     }  // end of loop over processes
-  }    // end of readRun function
+  }  // end of readRun function
 
   void MergeableRunProductMetadata::writeLumi(LuminosityBlockNumber_t lumi) {
     if (metadataForProcesses_.empty()) {

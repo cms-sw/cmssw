@@ -42,6 +42,6 @@ namespace reco {
       }
 
     }  // namespace VirtualJetProducerHelper
-  }    // namespace helper
+  }  // namespace helper
 }  // namespace reco
 #endif

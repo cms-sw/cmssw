@@ -35,7 +35,7 @@ namespace edm {
                       const std::vector<float>& Lumi_distr,
                       std::string WeightOutputFile);
 
-    Lumi3DReWeighting(){};
+    Lumi3DReWeighting() {}
 
     double weight3D(const edm::EventBase& e);
 

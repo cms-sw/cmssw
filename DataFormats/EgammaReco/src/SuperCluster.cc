@@ -38,7 +38,7 @@ SuperCluster::SuperCluster(double energy,
     for (std::vector<std::pair<DetId, float> >::const_iterator diIt = v1.begin(); diIt != v1.end(); ++diIt) {
       hitsAndFractions_.push_back((*diIt));
     }  // loop over rechits
-  }    // loop over basic clusters
+  }  // loop over basic clusters
 
   computeRawEnergy();
 }
@@ -70,7 +70,7 @@ SuperCluster::SuperCluster(double energy,
     for (std::vector<std::pair<DetId, float> >::const_iterator diIt = v1.begin(); diIt != v1.end(); ++diIt) {
       hitsAndFractions_.push_back((*diIt));
     }  // loop over rechits
-  }    // loop over basic clusters
+  }  // loop over basic clusters
 
   // set references to preshower clusters
   for (CaloClusterPtrVector::const_iterator pcit = preshowerClusters.begin(); pcit != preshowerClusters.end(); ++pcit) {

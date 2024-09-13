@@ -16,7 +16,7 @@ public:
 
   MuonTransientTrackingRecHitBuilder(edm::ESHandle<GlobalTrackingGeometry> trackingGeometry = nullptr);
 
-  ~MuonTransientTrackingRecHitBuilder() override{};
+  ~MuonTransientTrackingRecHitBuilder() override {}
 
   using TransientTrackingRecHitBuilder::build;
   /// Call the MuonTransientTrackingRecHit::specificBuild

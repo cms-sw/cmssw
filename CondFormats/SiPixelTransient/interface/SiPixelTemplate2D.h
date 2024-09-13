@@ -253,7 +253,7 @@ public:
     } else {
       return 0.f;
     }
-  }                                           //!< Return lower bound of Qbin definition
+  }  //!< Return lower bound of Qbin definition
   float sizex() { return clslenx_; }          //!< return x size of template cluster
   float sizey() { return clsleny_; }          //!< return y size of template cluster
   float chi2ppix() { return chi2ppix_; }      //!< average chi^2 per struck pixel

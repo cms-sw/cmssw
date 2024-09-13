@@ -191,8 +191,8 @@ void DTT0Calibration::analyze(const edm::Event& event, const edm::EventSetup& ev
           mK[wireId] = mK[wireId] + (t0 - mK[wireId]) / nDigiPerWire[wireId];
         }
       }  //end if(nevents>1000)
-    }    //end loop on digi
-  }      //end loop on layer
+    }  //end loop on digi
+  }  //end loop on layer
 
   //Use the t0 per layer histos to have an indication about the t0 position
   if (nevents == eventsForLayerT0) {

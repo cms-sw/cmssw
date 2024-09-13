@@ -9,7 +9,7 @@ options.register('type',
                  "V18",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "type of operations: V16, V17, V17Shift")
+                  "type of operations: V16, V17, V17Shift, V18")
 
 ### get and parse the command line arguments
 options.parseArguments()
@@ -22,11 +22,13 @@ process = cms.Process("HGCalMouseBiteTest",Phase2C17I13M9)
 ####################################################################
 # Use the options
 if (options.type == "V18"):
-    geomFile = "Geometry.HGCalCommonData.testHGCalV18Reco_cff"
+    geomFile = "Configuration.Geometry.GeometryExtended2026D104_cff"
+elif (options.type == "V17Shift"):
+    geomFile = "Geometry.HGCalCommonData.testHGCal" + options.type + "Reco_cff"
 elif (options.type == "V16"):
-    geomFile = "Configuration.Geometry.GeometryExtended2026D88_cff"
+    geomFile = "Configuration.Geometry.GeometryExtended2026D100_cff"
 else:
-    geomFile = "Configuration.Geometry.GeometryExtended2026D92_cff"
+    geomFile = "Configuration.Geometry.GeometryExtended2026D110_cff"
 
 print("Geometry file: ", geomFile)
 

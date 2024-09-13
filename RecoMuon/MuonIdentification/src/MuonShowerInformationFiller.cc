@@ -972,8 +972,8 @@ void MuonShowerInformationFiller::fillHitsByStation(const reco::Muon& muon) {
             muonRecHitsThetaBest = muonRecHitsThetaTemp;
           }
         }  //at least two hits
-      }    //loop over seeds
-    }      //not empty container2
+      }  //loop over seeds
+    }  //not empty container2
 
     //fill deltaRs
     if (muonRecHitsThetaBest.size() > 1 && muonRecHitsPhiBest.size() > 1)

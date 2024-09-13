@@ -10,9 +10,11 @@
   <use name="PhysicsTools/UtilAlgos"/>
   <use name="SimTracker/TrackerHitAssociation"/>
   <use name="RecoLocalTracker/SiPixelRecHits"/>
+  <use name="SimDataFormats/Associations"/>
   <use name="SimDataFormats/Vertex"/>
   <use name="SimDataFormats/TrackingHit"/>
   <use name="SimDataFormats/CrossingFrame"/>
+  <use name="SimTracker/TrackTriggerAssociation"/>
   <use name="TrackingTools/TrackAssociator"/>
   <use name="TrackingTools/TrajectoryState"/>
   <use name="L1Trigger/TrackFindingTracklet"/>

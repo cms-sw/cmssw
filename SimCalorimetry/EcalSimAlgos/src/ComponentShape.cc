@@ -27,7 +27,5 @@ void ComponentShape::fillShape(float& time_interval,
   }
 }
 
-double ComponentShape::timeToRise() const {
-  return kTimeToRise;
-}  // hardcoded rather than computed because
-   // components need relative time shifts
+double ComponentShape::timeToRise() const { return kTimeToRise; }  // hardcoded rather than computed because
+// components need relative time shifts

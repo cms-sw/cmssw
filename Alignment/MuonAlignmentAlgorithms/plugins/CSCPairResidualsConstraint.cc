@@ -558,7 +558,7 @@ bool CSCPairResidualsConstraint::dphidzFromTrack(const std::vector<TrajectoryMea
       }
 
     }  // end if refit successful
-  }    // end if enough hits
+  }  // end if enough hits
   return false;
 }
 

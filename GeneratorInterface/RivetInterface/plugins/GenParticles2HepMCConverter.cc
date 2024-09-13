@@ -31,7 +31,7 @@ using namespace std;
 class GenParticles2HepMCConverter : public edm::stream::EDProducer<> {
 public:
   explicit GenParticles2HepMCConverter(const edm::ParameterSet& pset);
-  ~GenParticles2HepMCConverter() override{};
+  ~GenParticles2HepMCConverter() override {}
 
   void beginRun(edm::Run const& iRun, edm::EventSetup const&) override;
   void produce(edm::Event& event, const edm::EventSetup& eventSetup) override;

@@ -30,7 +30,7 @@
 //
 //  Other parameters for CalibSplit:
 //  <InputFile> <HistogramFile> <Flag> <DirectoryName> <Prefix> <PUcorr>
-//  <Truncate> <Nmax> <pmin> <pmax> <debug>
+//  <Truncate> <Nmax> <pmin> <pmax> <runMin> <runMax> <debug>
 //
 //
 ////////////////////////////////////////////////////////////////////////////////
@@ -371,8 +371,10 @@ int main(Int_t argc, Char_t* argv[]) {
     // CalibSplit
     double pmin = (argc > 10) ? std::atof(argv[10]) : 40.0;
     double pmax = (argc > 11) ? std::atof(argv[11]) : 60.0;
-    bool debug = (argc > 12) ? (std::atoi(argv[12]) > 0) : false;
-    CalibSplit c1(infile, dirname, histfile, pmin, pmax, debug);
+    int runMin = (argc > 12) ? std::atoi(argv[12]) : -1;
+    int runMax = (argc > 13) ? std::atoi(argv[13]) : -1;
+    bool debug = (argc > 14) ? (std::atoi(argv[14]) > 0) : false;
+    CalibSplit c1(infile, dirname, histfile, pmin, pmax, runMin, runMax, debug);
     c1.Loop(nmax);
   }
   return 0;

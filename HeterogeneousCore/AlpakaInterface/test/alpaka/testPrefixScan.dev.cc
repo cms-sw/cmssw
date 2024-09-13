@@ -215,7 +215,7 @@ int main() {
       alpaka::enqueue(queue, alpaka::createTaskKernel<Acc1D>(workDivMultiBlock, verify(), output1_d.data(), num_items));
 
       alpaka::wait(queue);  // input_d and output1_d end of scope
-    }                       // ksize
+    }  // ksize
   }
 
   return 0;

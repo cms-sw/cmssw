@@ -237,7 +237,7 @@ GlobalPoint HGCalGeometry::getPosition(const DetId& detid, bool cog, bool debug)
                                         << id.iCell2;
       }
       xy = m_topology.dddConstants().locateCell(
-          id.zSide, id.iLay, id.iSec1, id.iSec2, id.iCell1, id.iCell2, true, true, true, cog, debug);
+          id.zSide, id.iLay, id.iSec1, id.iSec2, id.iCell1, id.iCell2, true, true, false, cog, debug);
       double xx = id.zSide * xy.first;
       double zz = id.zSide * m_topology.dddConstants().waferZ(id.iLay, true);
       glob = GlobalPoint(xx, xy.second, zz);

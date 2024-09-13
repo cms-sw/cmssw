@@ -9,7 +9,7 @@
 
 class EcalTBTDCRecInfoAlgo {
 public:
-  EcalTBTDCRecInfoAlgo() : tdcRangeErrorMessageAlreadyDisplayed_(false){};
+  EcalTBTDCRecInfoAlgo() : tdcRangeErrorMessageAlreadyDisplayed_(false) {}
 
   struct EcalTBTDCRanges {
     std::pair<int, int> runRanges;
@@ -19,7 +19,7 @@ public:
 
   explicit EcalTBTDCRecInfoAlgo(const std::vector<EcalTBTDCRanges>& tdcRanges);
 
-  ~EcalTBTDCRecInfoAlgo(){};
+  ~EcalTBTDCRecInfoAlgo() {}
 
   EcalTBTDCRecInfo reconstruct(const EcalTBTDCRawInfo& TDCRawInfo,
                                const EcalTBEventHeader& eventHeader,

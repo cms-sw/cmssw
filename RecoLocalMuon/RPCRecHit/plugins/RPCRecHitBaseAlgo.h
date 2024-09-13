@@ -32,7 +32,7 @@ public:
   RPCRecHitBaseAlgo(const edm::ParameterSet& config);
 
   /// Destructor
-  virtual ~RPCRecHitBaseAlgo(){};
+  virtual ~RPCRecHitBaseAlgo() {}
 
   /// Pass the Event Setup to the algo at each event
   virtual void setES(const edm::EventSetup& setup) = 0;

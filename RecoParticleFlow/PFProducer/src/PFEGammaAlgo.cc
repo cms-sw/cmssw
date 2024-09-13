@@ -768,7 +768,7 @@ void PFEGammaAlgo::initializeProtoCands(std::list<PFEGammaAlgo::ProtoEGObject>& 
             << "was not found in the block!" << std::endl
             << gsf_err.str() << std::endl;
       }  // supercluster in block
-    }    // is ECAL driven seed?
+    }  // is ECAL driven seed?
 
     egobjs.insert(egobjs.end(), fromGSF);
   }  // end loop on GSF elements of block
@@ -1067,7 +1067,7 @@ void PFEGammaAlgo::removeOrLinkECALClustersToKFTracks() {
               break;
             }
           }  // loop over tracks in primary vertex
-             // if associated to good non-GSF matched track remove this cluster
+          // if associated to good non-GSF matched track remove this cluster
           if ((PFTrackAlgoTools::isGoodForEGMPrimary(trackref->algo()) ||
                PFTrackAlgoTools::isGoodForEGMPrimary(trackref->originalAlgo())) &&
               nexhits == 0 && fromprimaryvertex) {
@@ -1075,8 +1075,8 @@ void PFEGammaAlgo::removeOrLinkECALClustersToKFTracks() {
           }
         }
       }  // found a good closest ECAL match
-    }    // no GSF track matched to KF
-  }      // loop over KF elements
+    }  // no GSF track matched to KF
+  }  // loop over KF elements
 }
 
 void PFEGammaAlgo::mergeROsByAnyLink(std::list<PFEGammaAlgo::ProtoEGObject>& ROs) {
@@ -1188,7 +1188,7 @@ void PFEGammaAlgo::linkRefinableObjectGSFTracksToKFs(ProtoEGObject& RO) {
         RO.localMap.insert(seedtk, elemaskf);
       }
     }  // loop on closest KFs not closer to other GSFs
-  }    // loop on GSF primaries on RO
+  }  // loop on GSF primaries on RO
 }
 
 void PFEGammaAlgo::linkRefinableObjectPrimaryKFsToSecondaryKFs(ProtoEGObject& RO) {
@@ -1218,7 +1218,7 @@ void PFEGammaAlgo::linkRefinableObjectPrimaryKFsToSecondaryKFs(ProtoEGObject& RO
         RO.localMap.insert(primkf, elemaskf);
       }
     }  // loop on closest KFs not closer to other KFs
-  }    // loop on KF primaries on RO
+  }  // loop on KF primaries on RO
 }
 
 // try to associate the tracks to cluster elements which are not used

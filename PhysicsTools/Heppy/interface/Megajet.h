@@ -32,7 +32,7 @@ namespace heppy {
     //   3: minimum m1^2/E1 + m2^2/E2
     //   4: Georgi distance: maximum (E1-Beta*m1^2/E1 + E2-Beta*m1^2/E2)
 
-    Megajet(){};
+    Megajet() {}
 
     Megajet(std::vector<float> Px_vector,
             std::vector<float> Py_vector,
@@ -46,7 +46,7 @@ namespace heppy {
             std::vector<float> E_vector);
 
     /// Destructor
-    ~Megajet(){};
+    ~Megajet() {}
 
     // return Nx, Ny, Nz, P, E of the axis of group 1
     std::vector<float> getAxis1();

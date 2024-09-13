@@ -16,7 +16,7 @@ public:
   typedef std::pair<GlobalPoint, float> PointAndDistance;
   virtual GlobalPoint operator()(const std::vector<PointAndDistance>&) const = 0;
 
-  virtual ~ModeFinder3d(){};
+  virtual ~ModeFinder3d() {}
   virtual ModeFinder3d* clone() const = 0;
 };
 

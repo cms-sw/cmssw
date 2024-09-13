@@ -20,7 +20,7 @@
 //                           of the outputs
 //
 //  HGCalConvert 3 infile outfile1 outfile2 laymin cassette debug
-//               4 infile outfile1 outfile2 laymin nlayers cassette debug
+//               4 infile outfile1 outfile2 laymin cassette nlayers debug
 //  infile   (const char*)   Input file from Katya (modified by Chris)
 //                           containing layer #. ring #, start and end
 //                           of ring radius, SiPM size, 4 hexadecimal
@@ -33,9 +33,9 @@
 //                           the ddAlgorithm part
 //  laymin   (int)           First layer number of the HE part
 //                           (28 for versions: V14, V15; 26 for V16, V17)
-//  nlayers  (int)           Number of scintillator layers (14 for v19)
 //  cassette (int)           Cassettes are used in geometry definition
 //                           (0 if none, 1 if 12 cassettes are used)
+//  nlayers  (int)           Number of scintillator layers (14 for v19)
 //  debug    (int)           Two digit integer to set debug for each
 //                           of the outputs
 //
@@ -83,13 +83,13 @@
 
 struct wafer {
   int thick, partial, orient, cassette;
-  wafer(int t = 0, int p = 0, int o = 0, int c = 0) : thick(t), partial(p), orient(o), cassette(c){};
+  wafer(int t = 0, int p = 0, int o = 0, int c = 0) : thick(t), partial(p), orient(o), cassette(c) {}
 };
 
 struct layerInfo {
   int layer, type;
   std::vector<double> deltaR;
-  layerInfo(int ly, int ty, std::vector<double> dR) : layer(ly), type(ty), deltaR(dR){};
+  layerInfo(int ly, int ty, std::vector<double> dR) : layer(ly), type(ty), deltaR(dR) {}
 };
 
 struct tile {
@@ -108,7 +108,7 @@ struct tile {
 
 struct tileZone {
   tileZone(int l0 = 0, int r0 = 0, int r1 = 0, int f0 = 0, int f1 = 0, int c0 = 0)
-      : layer(l0), rmin(r0), rmax(r1), phimin(f0), phimax(f1), cassette(c0){};
+      : layer(l0), rmin(r0), rmax(r1), phimin(f0), phimax(f1), cassette(c0) {}
   int layer, rmin, rmax, phimin, phimax, cassette;
 };
 
@@ -1151,7 +1151,7 @@ void ConvertScintillator::makeTitle(const char* outfile,
                                     int lmax,
                                     bool debug) {
   const int zside = 1;
-  const int phiCassette = 24;
+  const int phiCassette = HGCalProperty::kHGCalTilePhisWord;
   std::vector<tileZone> zones;
   for (int layer = lmin; layer <= lmax; ++layer) {
     tileZone tile0;
@@ -1384,8 +1384,8 @@ void ConvertScintillatorV1::convert(const char* infile, const char* outfile1, co
                       << hex3 << " " << hex4 << " " << hex5 << " " << hex6 << std::dec << std::endl;
           if (layer > layMin_) {
             tile tl(sipm, type, nphi, hex1, hex2, hex3, hex4, hex5, hex6);
-            int index = HGCalTileIndex::tileIndex(layer - layMin_, ring + 1, 0);
             if (nPhiS[layer] == 4) {
+              int index = HGCalTileIndex::tileIndex(layer - layMin_, ring + 1, 0);
               lmin = std::min((layer - layMin_), lmin);
               lmax = std::max((layer - layMin_), lmax);
               module[index] = tl;
@@ -1393,20 +1393,19 @@ void ConvertScintillatorV1::convert(const char* infile, const char* outfile1, co
               if (layerRing.find(layer) == layerRing.end()) {
                 layerRing[layer] = std::pair<int, int>(ring, ring);
               } else {
-                lmin = std::min((layer - layMin_), lmin);
-                lmax = std::max((layer - layMin_), lmax);
                 int rmin = std::min(ring, layerRing[layer].first);
                 int rmax = std::max(ring, layerRing[layer].second);
                 layerRing[layer] = std::pair<int, int>(rmin, rmax);
               }
             } else {
+              int index = HGCalTileIndex::tileIndex(layer - layMin_, ring + 1, 1);
+              lmin6 = std::min((layer - layMin_), lmin6);
+              lmax6 = std::max((layer - layMin_), lmax6);
               module6[index] = tl;
               ringR6[ring] = std::pair<double, double>(rstart, rend);
               if (layerRing6.find(layer) == layerRing6.end()) {
                 layerRing6[layer] = std::pair<int, int>(ring, ring);
               } else {
-                lmin6 = std::min((layer - layMin_), lmin6);
-                lmax6 = std::max((layer - layMin_), lmax6);
                 int rmin = std::min(ring, layerRing6[layer].first);
                 int rmax = std::max(ring, layerRing6[layer].second);
                 layerRing6[layer] = std::pair<int, int>(rmin, rmax);
@@ -1558,10 +1557,10 @@ void ConvertScintillatorV1::convert(const char* infile, const char* outfile1, co
       ++k1;
       if ((debug % 10) > 0)
         std::cout << "Tile " << HGCalTileIndex::tileLayer(itr->first) << ":" << HGCalTileIndex::tileRing(itr->first)
-                  << " Type " << (itr->second).type << " Area " << (itr->second).sipm << std::hex << " HEX "
-                  << (itr->second).hex[0] << " " << (itr->second).hex[1] << " " << (itr->second).hex[2] << " "
-                  << (itr->second).hex[3] << " " << (itr->second).hex[4] << " " << (itr->second).hex[5] << std::dec
-                  << "\n";
+                  << ":" << HGCalTileIndex::tilePhi(itr->first) << ":" << std::hex << itr->first << std::dec << " Type "
+                  << (itr->second).type << " Area " << (itr->second).sipm << std::hex << " HEX " << (itr->second).hex[0]
+                  << " " << (itr->second).hex[1] << " " << (itr->second).hex[2] << " " << (itr->second).hex[3] << " "
+                  << (itr->second).hex[4] << " " << (itr->second).hex[5] << std::dec << "\n";
     }
     for (itr = module.begin(); itr != module.end(); ++itr) {
       std::string last = ((k1 + 1) == (module6.size() + module.size())) ? " " : ",";
@@ -1572,9 +1571,10 @@ void ConvertScintillatorV1::convert(const char* infile, const char* outfile1, co
       ++k1;
       if ((debug % 10) > 0)
         std::cout << "Tile " << HGCalTileIndex::tileLayer(itr->first) << ":" << HGCalTileIndex::tileRing(itr->first)
-                  << " Type " << (itr->second).type << " Area " << (itr->second).sipm << std::hex << " HEX "
-                  << (itr->second).hex[0] << " " << (itr->second).hex[1] << " " << (itr->second).hex[2] << " "
-                  << (itr->second).hex[3] << std::dec << "\n";
+                  << ":" << HGCalTileIndex::tilePhi(itr->first) << ":" << std::hex << itr->first << std::dec << " Type "
+                  << (itr->second).type << " Area " << (itr->second).sipm << std::hex << " HEX " << (itr->second).hex[0]
+                  << " " << (itr->second).hex[1] << " " << (itr->second).hex[2] << " " << (itr->second).hex[3]
+                  << std::dec << "\n";
     }
     fOut << "\n  </Vector>\n";
     fOut << "  <Vector name=" << apost << "TileProperty" << apost << " type=" << apost << "numeric" << apost
@@ -1701,6 +1701,32 @@ void ConvertScintillatorV1::convert(const char* infile, const char* outfile1, co
 
     //Now write for the second file
     std::ofstream fout(outfile2);
+    // Write the ring specification first
+    l1 = 0;
+    fout << "  <Vector name=" << apost << "NPhiLayer" << apost << " type=" << apost << "numeric" << apost
+         << " nEntries=" << apost << layPhiS.size() << apost << ">";
+    for (it0 = layPhiS.begin(); it0 != layPhiS.end(); ++it0) {
+      std::string last = ((l1 + 1) == layPhiS.size()) ? " " : ",";
+      if (l1 % 10 == 0)
+        fout << "\n    " << std::setw(6) << std::setprecision(4) << (it0->second).first << last;
+      else
+        fout << std::setw(6) << std::setprecision(4) << (it0->second).first << last;
+      ++l1;
+    }
+    fout << "\n  </Vector>\n";
+    l2 = 0;
+    fout << "  <Vector name=" << apost << "ScintRetract" << apost << " type=" << apost << "numeric" << apost
+         << " nEntries=" << apost << layPhiS.size() << apost << ">";
+    for (it0 = layPhiS.begin(); it0 != layPhiS.end(); ++it0) {
+      std::string last = ((l2 + 1) == layPhiS.size()) ? " " : ",";
+      if (l2 % 6 == 0)
+        fout << "\n    " << std::setw(8) << std::setprecision(6) << (it0->second).second << "*mm" << last;
+      else
+        fout << std::setw(8) << std::setprecision(6) << (it0->second).second << "*mm" << last;
+      ++l2;
+    }
+    fout << "\n  </Vector>\n";
+    // Now write the remaining parts
     makeTitle(
         fout, "Tile6", module6, ringR6, lmin6, lmax6, HGCalProperty::kHGCalFineTilePhis, 1, (((debug / 10) % 10) > 0));
     makeTitle(fout, "Tile", module, ringR, lmin, lmax, HGCalProperty::kHGCalTilePhis, 0, (((debug / 10) % 10) > 0));
@@ -1718,10 +1744,11 @@ void ConvertScintillatorV1::makeTitle(std::ofstream& fout,
                                       int mode,
                                       bool debug) {
   const int zside = 1;
+  int tilePhisWord = (mode > 0) ? HGCalProperty::kHGCalFineTilePhisWord : HGCalProperty::kHGCalTilePhisWord;
   std::vector<tileZone> zones;
   if ((debug % 10) > 0)
     std::cout << "makeTile called with Layer:" << lmin << ":" << lmax << " nphi " << nphis << " mode " << mode
-              << " nmodules " << module.size() << std::endl;
+              << " nmodules " << module.size() << " tilePhisWord " << tilePhisWord << std::endl;
   for (int layer = lmin; layer <= lmax; ++layer) {
     tileZone tile0;
     int kk, irmin, irmax;
@@ -1757,19 +1784,19 @@ void ConvertScintillatorV1::makeTitle(std::ofstream& fout,
         tile0.cassette = (cassette_ == 0) ? 0 : 1;
       } else if ((tile0.rmin != irmin) || (tile0.rmax != irmax)) {
         if (cassette_ != 0) {
-          if (tile0.cassette * HGCalProperty::kHGCalTilePhisWord < tile0.phimax) {
+          if (tile0.cassette * tilePhisWord < tile0.phimax) {
             do {
               int phimax = tile0.phimax;
-              tile0.phimax = tile0.cassette * HGCalProperty::kHGCalTilePhisWord;
+              tile0.phimax = tile0.cassette * tilePhisWord;
               zones.push_back(tile0);
               tile0.phimin = tile0.phimax + 1;
               tile0.phimax = phimax;
               ++tile0.cassette;
-            } while (tile0.cassette * HGCalProperty::kHGCalTilePhisWord < tile0.phimax);
+            } while (tile0.cassette * tilePhisWord < tile0.phimax);
           }
         }
         zones.push_back(tile0);
-        int cassette = (cassette_ == 0) ? 0 : (1 + ((phi - 1) / HGCalProperty::kHGCalTilePhisWord));
+        int cassette = (cassette_ == 0) ? 0 : (1 + ((phi - 1) / tilePhisWord));
         tile0.layer = layer;
         tile0.rmin = irmin;
         tile0.rmax = irmax;

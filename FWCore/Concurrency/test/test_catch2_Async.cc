@@ -48,15 +48,13 @@ TEST_CASE("Test Async", "[edm::Async") {
       using namespace edm::waiting_task::chain;
       auto h1 = first([&service, &count](edm::WaitingTaskHolder h) {
                   edm::WaitingTaskWithArenaHolder h2(std::move(h));
-                  service.runAsync(
-                      h2, [&count]() { ++count; }, errorContext);
+                  service.runAsync(h2, [&count]() { ++count; }, errorContext);
                 }) |
                 lastTask(edm::WaitingTaskHolder(group, &waitTask));
 
       auto h2 = first([&service, &count](edm::WaitingTaskHolder h) {
                   edm::WaitingTaskWithArenaHolder h2(std::move(h));
-                  service.runAsync(
-                      h2, [&count]() { ++count; }, errorContext);
+                  service.runAsync(h2, [&count]() { ++count; }, errorContext);
                 }) |
                 lastTask(edm::WaitingTaskHolder(group, &waitTask));
       h2.doneWaiting(std::exception_ptr());
@@ -79,14 +77,12 @@ TEST_CASE("Test Async", "[edm::Async") {
       using namespace edm::waiting_task::chain;
       auto h = first([&service, &count](edm::WaitingTaskHolder h) {
                  edm::WaitingTaskWithArenaHolder h2(std::move(h));
-                 service.runAsync(
-                     h2, [&count]() { ++count; }, errorContext);
+                 service.runAsync(h2, [&count]() { ++count; }, errorContext);
                  service.setAllowed(false);
                }) |
                then([&service, &count](edm::WaitingTaskHolder h) {
                  edm::WaitingTaskWithArenaHolder h2(std::move(h));
-                 service.runAsync(
-                     h2, [&count]() { ++count; }, errorContext);
+                 service.runAsync(h2, [&count]() { ++count; }, errorContext);
                }) |
                lastTask(edm::WaitingTaskHolder(group, &waitTask));
       h.doneWaiting(std::exception_ptr());

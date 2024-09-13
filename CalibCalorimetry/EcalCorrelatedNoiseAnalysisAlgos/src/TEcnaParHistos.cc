@@ -2451,8 +2451,8 @@ TString TEcnaParHistos::GetHistoType(const TString& HistoCode) {
       HistoCode == "D_SCs_ChNb") {
     HistoType = "Global";
   }  // X coordinate = Xtals for SM or Dee
-     //                Tower for EB
-     //                SC    for EE
+  //                Tower for EB
+  //                SC    for EE
   //.(1b)............................ Proj
   if (HistoCode == "D_NOE_ChDs" || HistoCode == "D_Ped_ChDs" || HistoCode == "D_TNo_ChDs" ||
       HistoCode == "D_LFN_ChDs" || HistoCode == "D_HFN_ChDs" || HistoCode == "D_MCs_ChDs" ||

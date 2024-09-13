@@ -5,7 +5,6 @@ from PhysicsTools.NanoAOD.simplePATJetFlatTableProducer_cfi import simplePATJetF
 
 from RecoJets.JetProducers.hfJetShowerShape_cfi import hfJetShowerShape
 from RecoJets.JetProducers.PileupJetID_cfi import pileupJetIdCalculator, pileupJetId
-from RecoJets.JetProducers.PileupJetID_cfi import _chsalgos_81x, _chsalgos_94x, _chsalgos_102x
 
 from PhysicsTools.NanoAOD.common_cff import Var, P4Vars
 from PhysicsTools.NanoAOD.jetsAK4_CHS_cff import jetTable, jetCorrFactorsNano, updatedJets, finalJets, qgtagger
@@ -203,7 +202,10 @@ UNIFIEDPARTAK4VARS = cms.PSet(
   btagUParTAK4B = Var("?pt>15 && bDiscriminator('pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:BvsAll')>0?bDiscriminator('pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:BvsAll'):-1",float,precision=10,doc="UnifiedParTAK4 b vs. udscg"),
   btagUParTAK4CvL = Var("?pt>15 && bDiscriminator('pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:CvsL')>0?bDiscriminator('pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:CvsL'):-1",float,precision=10,doc="UnifiedParTAK4 c vs. udsg"),
   btagUParTAK4CvB = Var("?pt>15 && bDiscriminator('pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:CvsB')>0?bDiscriminator('pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:CvsB'):-1",float,precision=10,doc="UnifiedParTAK4 c vs. b"),
-  btagUParTAK4QvG = Var("?pt>15 && bDiscriminator('pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:QvsG')>0?bDiscriminator('pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:QvsG'):-1",float,precision=10,doc="UnifiedParTAK4 q (udsbc) vs. g"),
+  btagUParTAK4SvCB  = Var("?pt>15 && bDiscriminator('pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:SvsBC')>0?bDiscriminator('pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:SvsBC'):-1",float,precision=10,doc="UnifiedParTAK4 s vs. bc"),
+  btagUParTAK4SvUDG = Var("?pt>15 && bDiscriminator('pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:SvsUDG')>0?bDiscriminator('pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:SvsUDG'):-1",float,precision=10,doc="UnifiedParTAK4 s vs. udg"),
+  btagUParTAK4UDG = Var("?pt>15? bDiscriminator('pfUnifiedParticleTransformerAK4JetTags:probu')+bDiscriminator('pfUnifiedParticleTransformerAK4JetTags:probd')+bDiscriminator('pfUnifiedParticleTransformerAK4JetTags:probg'):-1",float,precision=10,doc="UnifiedParTAK4 u+d+g raw score"),
+  btagUParTAK4QvG = Var("?pt>15 && bDiscriminator('pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:QvsG')>0?bDiscriminator('pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:QvsG'):-1",float,precision=10,doc="UnifiedParTAK4 q (uds) vs. g"),
   btagUParTAK4TauVJet = Var("?pt>15 && bDiscriminator('pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:TauVsJet')>0?bDiscriminator('pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:TauVsJet'):-1",float,precision=10,doc="UnifiedParTAK4 tau vs. jet"),
   UParTAK4RegPtRawCorr = Var("?pt>15 && bDiscriminator('pfUnifiedParticleTransformerAK4JetTags:ptcorr')>0?bDiscriminator('pfUnifiedParticleTransformerAK4JetTags:ptcorr'):-1",float,precision=10,doc="UnifiedParTAK4 universal flavor-aware visible pT regression (no neutrinos), correction relative to raw jet pT"),
   UParTAK4RegPtRawCorrNeutrino = Var("?pt>15 && bDiscriminator('pfUnifiedParticleTransformerAK4JetTags:ptnu')>0?bDiscriminator('pfUnifiedParticleTransformerAK4JetTags:ptnu'):-1",float,precision=10,doc="UnifiedParTAK4 universal flavor-aware pT regression neutrino correction, relative to visible. To apply full regression, multiply raw jet pT by both UParTAK4RegPtRawCorr and UParTAK4RegPtRawCorrNeutrino."),
@@ -455,6 +457,10 @@ def AddUnifiedParTAK4Scores(proc, jetTableName=""):
   getattr(proc, jetTableName).variables.btagUParTAK4B = UNIFIEDPARTAK4VARS.btagUParTAK4B
   getattr(proc, jetTableName).variables.btagUParTAK4CvL = UNIFIEDPARTAK4VARS.btagUParTAK4CvL
   getattr(proc, jetTableName).variables.btagUParTAK4CvB = UNIFIEDPARTAK4VARS.btagUParTAK4CvB
+  getattr(proc, jetTableName).variables.btagUParTAK4SvCB = UNIFIEDPARTAK4VARS.btagUParTAK4SvCB
+  getattr(proc, jetTableName).variables.btagUParTAK4SvUDG = UNIFIEDPARTAK4VARS.btagUParTAK4SvUDG
+  getattr(proc, jetTableName).variables.btagUParTAK4UDG = UNIFIEDPARTAK4VARS.btagUParTAK4UDG
+  getattr(proc, jetTableName).variables.btagUParTAK4QvG = UNIFIEDPARTAK4VARS.btagUParTAK4QvG
   getattr(proc, jetTableName).variables.btagUParTAK4TauVJet = UNIFIEDPARTAK4VARS.btagUParTAK4TauVJet
   getattr(proc, jetTableName).variables.UParTAK4RegPtRawCorr = UNIFIEDPARTAK4VARS.UParTAK4RegPtRawCorr
   getattr(proc, jetTableName).variables.UParTAK4RegPtRawCorrNeutrino = UNIFIEDPARTAK4VARS.UParTAK4RegPtRawCorrNeutrino
@@ -779,6 +785,10 @@ def ReclusterAK4PuppiJets(proc, recoJA, runOnMC):
   proc.jetPuppiTable.variables.btagUParTAK4B = UNIFIEDPARTAK4VARS.btagUParTAK4B
   proc.jetPuppiTable.variables.btagUParTAK4CvL = UNIFIEDPARTAK4VARS.btagUParTAK4CvL
   proc.jetPuppiTable.variables.btagUParTAK4CvB = UNIFIEDPARTAK4VARS.btagUParTAK4CvB
+  proc.jetPuppiTable.variables.btagUParTAK4SvCB = UNIFIEDPARTAK4VARS.btagUParTAK4SvCB
+  proc.jetPuppiTable.variables.btagUParTAK4SvUDG = UNIFIEDPARTAK4VARS.btagUParTAK4SvUDG
+  proc.jetPuppiTable.variables.btagUParTAK4UDG = UNIFIEDPARTAK4VARS.btagUParTAK4UDG
+  proc.jetPuppiTable.variables.btagUParTAK4QvG = UNIFIEDPARTAK4VARS.btagUParTAK4QvG
   proc.jetPuppiTable.variables.btagUParTAK4TauVJet = UNIFIEDPARTAK4VARS.btagUParTAK4TauVJet
   proc.jetPuppiTable.variables.UParTAK4RegPtRawCorr = UNIFIEDPARTAK4VARS.UParTAK4RegPtRawCorr
   proc.jetPuppiTable.variables.UParTAK4RegPtRawCorrNeutrino = UNIFIEDPARTAK4VARS.UParTAK4RegPtRawCorrNeutrino

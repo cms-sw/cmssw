@@ -3,7 +3,7 @@
 
 class FWJobMetadataUpdateRequest {
 public:
-  virtual ~FWJobMetadataUpdateRequest(){};
+  virtual ~FWJobMetadataUpdateRequest() {}
 };
 
 #endif

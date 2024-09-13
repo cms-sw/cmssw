@@ -46,7 +46,7 @@ public:
   };
 
   /// destructor
-  ~L1MuGMTLFSortRankEtaQLUT() override{};
+  ~L1MuGMTLFSortRankEtaQLUT() override {}
 
   /// specific lookup function for vlq
   unsigned SpecificLookup_vlq(int idx, unsigned eta, unsigned q) const {

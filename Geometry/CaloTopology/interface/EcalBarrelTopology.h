@@ -13,7 +13,7 @@
 class EcalBarrelTopology final : public CaloSubdetectorTopology {
 public:
   /// create a new Topology
-  EcalBarrelTopology() : theGeom_(nullptr){};
+  EcalBarrelTopology() : theGeom_(nullptr) {}
 
   /// virtual destructor
   ~EcalBarrelTopology() override {}

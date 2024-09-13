@@ -3,7 +3,9 @@ import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
 import copy, sys, os
 
-process = cms.Process("Misaligner")
+import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
+GLOBAL_TAG, ERA = _settings.get_era_and_conditions("2026D107")  # this should really be _settings.DEFAULT_VERSION :(
+process = cms.Process("Misaligner", ERA)
 
 ###################################################################
 # Setup 'standard' options
@@ -46,7 +48,7 @@ process.MessageLogger.cout = cms.untracked.PSet(
 ###################################################################
 # Ideal geometry producer and standard includes
 ###################################################################
-process.load('Configuration.Geometry.GeometryExtended2026D88Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D107Reco_cff')
 process.trackerGeometry.applyAlignment = True
 
 ###################################################################
@@ -54,7 +56,8 @@ process.trackerGeometry.applyAlignment = True
 ###################################################################
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T21', '') # using realistic Phase 2 geom
+#process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T25', '') # using realistic Phase 2 geom
+process.GlobalTag = GlobalTag(process.GlobalTag, GLOBAL_TAG, '') # using realistic Phase 2 geom
 print("Using global tag:", process.GlobalTag.globaltag.value())
 
 ###################################################################

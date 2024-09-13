@@ -7,7 +7,7 @@
 
 class MiscalibReaderFromXMLEcalBarrel : public MiscalibReaderFromXML {
 public:
-  MiscalibReaderFromXMLEcalBarrel(CaloMiscalibMapEcal &map) : MiscalibReaderFromXML(map){};
+  MiscalibReaderFromXMLEcalBarrel(CaloMiscalibMapEcal &map) : MiscalibReaderFromXML(map) {}
 
   DetId parseCellEntry(XERCES_CPP_NAMESPACE::DOMNamedNodeMap *attribute) override;
 

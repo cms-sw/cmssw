@@ -39,7 +39,7 @@ public:
                         edm::ParameterSet const &fPSet,
                         const TrackerTopology *tTopo);
 
-  virtual ~SiStripBaseCondObjDQM(){};
+  virtual ~SiStripBaseCondObjDQM() {}
 
   virtual void getActiveDetIds(const edm::EventSetup &eSetup) = 0;
 

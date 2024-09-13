@@ -82,6 +82,8 @@ void PFDisplacedVertexCandidateProducer::fillDescriptions(edm::ConfigurationDesc
     // PFDisplacedVertex timing
     pset.add<double>("pt_min_prim", 0.8);
     pset.add<double>("dxy", 0.2);
+    pset.add<double>("qoverpError_max", 1.0e+7);
+
     desc.add<edm::ParameterSetDescription>("tracksSelectorParameters", pset);
   }
   descriptions.add("particleFlowDisplacedVertexCandidate", desc);

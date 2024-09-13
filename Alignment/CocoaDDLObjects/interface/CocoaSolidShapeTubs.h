@@ -20,7 +20,7 @@ public:
                       ALIfloat pDz,
                       ALIfloat pSPhi = 0. * CLHEP::deg,
                       ALIfloat pDPhi = 360. * CLHEP::deg);
-  ~CocoaSolidShapeTubs() override{};
+  ~CocoaSolidShapeTubs() override {}
   ALIfloat getInnerRadius() const { return theInnerRadius; }
   ALIfloat getOuterRadius() const { return theOuterRadius; }
   ALIfloat getZHalfLength() const { return theZHalfLength; }

@@ -61,7 +61,7 @@ public:
           m_logplane(99),
           m_validForStripFirst(0),
           m_validForStripLast(0),
-          m_offset(-1000){};
+          m_offset(-1000) {}
 
     int getLogStrip(int strip, const L1RPCConeDefinition::TLPSizeVec& LPSizeVec) const {
       int ret = -1;

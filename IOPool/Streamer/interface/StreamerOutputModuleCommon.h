@@ -59,7 +59,7 @@ namespace edm {
 
       uint32_t eventMetaDataChecksum_ = 0;
     };  //end-of-class-def
-  }     // namespace streamer
+  }  // namespace streamer
 }  // namespace edm
 
 #endif

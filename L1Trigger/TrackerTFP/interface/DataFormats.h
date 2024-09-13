@@ -996,7 +996,7 @@ namespace trackerTFP {
           track_(track),
           trackID_(trackID),
           linkID_(linkID),
-          valid_(valid){};
+          valid_(valid) {}
 
     ~TrackKFOut() {}
 

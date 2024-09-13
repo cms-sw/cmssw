@@ -26,6 +26,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     void fillMulti2(Queue& queue, portabletest::TestDeviceMultiCollection2& collection, double xvalue = 0.) const;
     void fillMulti3(Queue& queue, portabletest::TestDeviceMultiCollection3& collection, double xvalue = 0.) const;
+
+    void checkZero(Queue& queue, portabletest::TestDeviceCollection const& collection) const;
+    void checkZero(Queue& queue, portabletest::TestDeviceMultiCollection2 const& collection) const;
+    void checkZero(Queue& queue, portabletest::TestDeviceMultiCollection3 const& collection) const;
+    void checkZero(Queue& queue, portabletest::TestDeviceObject const& object) const;
   };
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE

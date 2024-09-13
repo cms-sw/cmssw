@@ -87,8 +87,8 @@ namespace {
             // to be used to fill the histogram
             fillWithValue(sqrt(errMatrix[indices.first][indices.second]) * AlignmentPI::cmToUm);
           }  // loop on the vector of modules
-        }    // payload
-      }      // iovs
+        }  // payload
+      }  // iovs
       return true;
     }  // fill
   };
@@ -430,7 +430,7 @@ namespace {
           APE_spectraByRegion[hash]->Fill(sqrt(errMatrix[indices.first][indices.second]) * AlignmentPI::cmToUm);
 
         }  // loop on the coordinate indices
-      }    // loop over detIds
+      }  // loop over detIds
 
       // plotting section
 

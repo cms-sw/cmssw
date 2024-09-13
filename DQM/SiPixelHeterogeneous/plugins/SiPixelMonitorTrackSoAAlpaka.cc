@@ -52,6 +52,7 @@ private:
   MonitorElement* hChi2VsPhi;
   MonitorElement* hChi2VsEta;
   MonitorElement* hpt;
+  MonitorElement* hCurvature;
   MonitorElement* heta;
   MonitorElement* hphi;
   MonitorElement* hz;
@@ -112,6 +113,7 @@ void SiPixelMonitorTrackSoAAlpaka<T>::analyze(const edm::Event& iEvent, const ed
     float zip = tsoa.view()[it].state()(4);
     float eta = tsoa.view()[it].eta();
     float tip = tsoa.view()[it].state()(1);
+    auto charge = reco::charge(tsoa.view(), it);
 
     hchi2->Fill(chi2);
     hChi2VsPhi->Fill(phi, chi2);
@@ -123,6 +125,7 @@ void SiPixelMonitorTrackSoAAlpaka<T>::analyze(const edm::Event& iEvent, const ed
     hnLayersVsPhi->Fill(phi, nLayers);
     hnLayersVsEta->Fill(eta, nLayers);
     hpt->Fill(pt);
+    hCurvature->Fill(charge / pt);
     heta->Fill(eta);
     hphi->Fill(phi);
     hz->Fill(zip);
@@ -145,8 +148,8 @@ void SiPixelMonitorTrackSoAAlpaka<T>::bookHistograms(DQMStore::IBooker& iBook,
 
   // clang-format off
 std::string toRep = "Number of tracks";
-hnTracks = iBook.book1D("nTracks", fmt::format(";{} per event;#events",toRep), 1001, -0.5, 1000.5);
-hnLooseAndAboveTracks = iBook.book1D("nLooseAndAboveTracks", fmt::format(";{} (quality #geq loose) per event;#events",toRep), 1001, -0.5, 1000.5);
+hnTracks = iBook.book1D("nTracks", fmt::format(";{} per event;#events",toRep), 1001, -0.5, 2001.5);
+hnLooseAndAboveTracks = iBook.book1D("nLooseAndAboveTracks", fmt::format(";{} (quality #geq loose) per event;#events",toRep), 1001, -0.5, 2001.5);
 
 toRep = "Number of all RecHits per track (quality #geq loose)";
 hnHits = iBook.book1D("nRecHits", fmt::format(";{};#tracks",toRep), 15, -0.5, 14.5);
@@ -165,6 +168,7 @@ hChi2VsEta = iBook.bookProfile("nChi2ndofVsEta", fmt::format("{} vs track #eta;T
   // clang-format on
 
   hpt = iBook.book1D("pt", ";Track (quality #geq loose) p_{T} [GeV];#tracks", 200, 0., 200.);
+  hCurvature = iBook.book1D("curvature", ";Track (quality #geq loose) q/p_{T} [GeV^{-1}];#tracks", 100, -3., 3.);
   heta = iBook.book1D("eta", ";Track (quality #geq loose) #eta;#tracks", 30, -3., 3.);
   hphi = iBook.book1D("phi", ";Track (quality #geq loose) #phi;#tracks", 30, -M_PI, M_PI);
   hz = iBook.book1D("z", ";Track (quality #geq loose) z [cm];#tracks", 30, -30., 30.);

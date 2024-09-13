@@ -20,7 +20,7 @@ class DigiCollectionProfiler {
 public:
   DigiCollectionProfiler();
   DigiCollectionProfiler(const edm::ParameterSet& iConfig);
-  ~DigiCollectionProfiler(){};
+  ~DigiCollectionProfiler() {}
 
   void fill(edm::Handle<T> digis,
             const std::vector<TH1F*>&,

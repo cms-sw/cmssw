@@ -14,8 +14,7 @@
 using namespace std;
 using namespace reco;
 
-#define INIT_ENTRY(name) \
-  { #name, name }
+#define INIT_ENTRY(name) {#name, name}
 
 namespace {
   class QuickUnion {
@@ -118,7 +117,7 @@ void PFBlockAlgo::setLinkers(const std::vector<edm::ParameterSet>& confs) {
       kdtrees_.back()->setTargetType(std::min(type1, type2));
       kdtrees_.back()->setFieldType(std::max(type1, type2));
     }  // useKDTree
-  }    // loop over confs
+  }  // loop over confs
 }
 
 void PFBlockAlgo::setImporters(const std::vector<edm::ParameterSet>& confs, edm::ConsumesCollector& cc) {

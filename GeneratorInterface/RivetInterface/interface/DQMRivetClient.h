@@ -18,9 +18,9 @@ public:
   };
 
   DQMRivetClient(const edm::ParameterSet& pset);
-  ~DQMRivetClient() override{};
+  ~DQMRivetClient() override {}
 
-  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) override{};
+  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) override {}
 
   void endJob() override;
 

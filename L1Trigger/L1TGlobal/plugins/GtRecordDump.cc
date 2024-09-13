@@ -64,7 +64,7 @@ namespace l1t {
   class GtRecordDump : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
   public:
     explicit GtRecordDump(const edm::ParameterSet&);
-    ~GtRecordDump() override{};
+    ~GtRecordDump() override {}
     void beginRun(edm::Run const&, edm::EventSetup const&) override {}
     void analyze(const edm::Event&, const edm::EventSetup&) override;
     void endRun(edm::Run const&, edm::EventSetup const&) override;
@@ -335,9 +335,9 @@ namespace l1t {
               std::cout << std::endl;
             }
           }  //end if alg fired
-        }    //end loop over maps
-      }      //end if valid record
-    }        //end if dump maps
+        }  //end loop over maps
+      }  //end if valid record
+    }  //end if dump maps
 
     if (m_dumpGTRecord) {
       cout << " -----------------------------------------------------  " << endl;
@@ -676,7 +676,7 @@ namespace l1t {
           nDumped++;
         }
         ++muNumber;  //keeps track of how many muons have been processed
-      }              // end loop over Muons in this bx
+      }  // end loop over Muons in this bx
 
       // Muon Shower information can exist, even if a muon object does not exist.  Hence,
       // now loop over non-existant muons from muNumber up to max of 7 and add the muon shower info
@@ -704,7 +704,7 @@ namespace l1t {
           nDumped++;
         }
         ++muNumber;  // keep track of the number of muons processed
-      }              // end loop over non-existant muons
+      }  // end loop over non-existant muons
     }
     for (int i = nDumped; i < 8; i++) {
       myOutFile << " " << std::hex << std::setw(16) << std::setfill('0') << empty;
@@ -845,7 +845,7 @@ namespace l1t {
           default:
             break;
         }  //end switch statement
-      }    //end loop over etsums
+      }  //end loop over etsums
     }
 
     // Put HMB bits in upper part of other SumEt Words
@@ -903,7 +903,7 @@ namespace l1t {
             digit = 0;
           }
         }  //end loop over external bits
-      }    //loop over objects
+      }  //loop over objects
     } else {
       myOutFile << std::hex << std::setw(64) << std::setfill('0') << empty;
     }

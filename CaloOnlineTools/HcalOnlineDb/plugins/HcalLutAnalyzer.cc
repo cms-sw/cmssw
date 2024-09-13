@@ -49,7 +49,7 @@
 class HcalLutAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit HcalLutAnalyzer(const edm::ParameterSet&);
-  ~HcalLutAnalyzer() override{};
+  ~HcalLutAnalyzer() override {}
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:

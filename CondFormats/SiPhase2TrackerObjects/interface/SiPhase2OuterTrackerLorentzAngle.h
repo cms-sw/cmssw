@@ -25,8 +25,8 @@
 
 class SiPhase2OuterTrackerLorentzAngle {
 public:
-  SiPhase2OuterTrackerLorentzAngle(){};
-  ~SiPhase2OuterTrackerLorentzAngle(){};
+  SiPhase2OuterTrackerLorentzAngle() {}
+  ~SiPhase2OuterTrackerLorentzAngle() {}
 
   inline void putLorentzAngles(std::unordered_map<unsigned int, float>& LA) { m_LA = LA; }
   inline const std::unordered_map<unsigned int, float>& getLorentzAngles() const { return m_LA; }

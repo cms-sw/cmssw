@@ -30,7 +30,7 @@ using namespace l1t;
 class L1TGlobalSummary : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
   explicit L1TGlobalSummary(const edm::ParameterSet&);
-  ~L1TGlobalSummary() override{};
+  ~L1TGlobalSummary() override {}
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void beginRun(Run const&, EventSetup const&) override;
   void endRun(Run const&, EventSetup const&) override;

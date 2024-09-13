@@ -26,7 +26,7 @@
 class RPCRecHitValid : public DQMEDAnalyzer {
 public:
   RPCRecHitValid(const edm::ParameterSet &pset);
-  ~RPCRecHitValid() override{};
+  ~RPCRecHitValid() override {}
 
   void analyze(const edm::Event &event, const edm::EventSetup &eventSetup) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
@@ -62,17 +62,12 @@ private:
   MEP h_recoMuonBarrel_phi, h_recoMuonOverlap_phi, h_recoMuonEndcap_phi, h_recoMuonNoRPC_phi;
   MEP h_simParticleType, h_simParticleTypeBarrel, h_simParticleTypeEndcap;
 
-  MEP h_refPunchOccupancyBarrel_wheel, h_refPunchOccupancyEndcap_disk, h_refPunchOccupancyBarrel_station;
-  MEP h_refPunchOccupancyBarrel_wheel_station, h_refPunchOccupancyEndcap_disk_ring;
-  MEP h_recPunchOccupancyBarrel_wheel, h_recPunchOccupancyEndcap_disk, h_recPunchOccupancyBarrel_station;
-  MEP h_recPunchOccupancyBarrel_wheel_station, h_recPunchOccupancyEndcap_disk_ring;
-
   MEP h_matchOccupancyBarrel_detId;
   MEP h_matchOccupancyEndcap_detId;
   MEP h_refOccupancyBarrel_detId;
   MEP h_refOccupancyEndcap_detId;
-  MEP h_noiseOccupancyBarrel_detId;
-  MEP h_noiseOccupancyEndcap_detId;
+  MEP h_allOccupancyBarrel_detId;
+  MEP h_allOccupancyEndcap_detId;
   MEP h_rollAreaBarrel_detId;
   MEP h_rollAreaEndcap_detId;
 

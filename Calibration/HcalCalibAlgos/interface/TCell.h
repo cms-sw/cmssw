@@ -22,7 +22,7 @@ public:
     _id = 0;
     _e = 0.0;
   }
-  ~TCell() override{};
+  ~TCell() override {}
   TCell(UInt_t i, Float_t e) {
     _id = i;
     _e = e;

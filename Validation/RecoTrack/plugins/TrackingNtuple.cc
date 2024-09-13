@@ -708,7 +708,7 @@ private:
 #define BOOK(name) tree->Branch((prefix + "_" + #name).c_str(), &name);
   class DetIdCommon {
   public:
-    DetIdCommon(){};
+    DetIdCommon() {}
 
     unsigned int operator[](size_t i) const { return detId[i]; }
 

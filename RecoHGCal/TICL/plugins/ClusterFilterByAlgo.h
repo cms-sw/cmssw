@@ -16,7 +16,7 @@ namespace ticl {
   public:
     ClusterFilterByAlgo(const edm::ParameterSet& ps)
         : ClusterFilterBase(ps), algo_number_(ps.getParameter<std::vector<int>>("algo_number")) {}
-    ~ClusterFilterByAlgo() override{};
+    ~ClusterFilterByAlgo() override {}
 
     void filter(const std::vector<reco::CaloCluster>& layerClusters,
                 std::vector<float>& layerClustersMask,

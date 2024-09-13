@@ -358,7 +358,7 @@ std::vector<float> EcalClusterLazyToolsBase::getESHits(double X,
         }
       }
     }  // End of Rear Plane
-  }    // Fill ES RecHits
+  }  // Fill ES RecHits
 
   return esHits;
 }

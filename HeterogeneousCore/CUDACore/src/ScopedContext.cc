@@ -68,7 +68,7 @@ namespace cms::cuda {
 
   ////////////////////
 
-  ScopedContextAcquire::~ScopedContextAcquire() {
+  ScopedContextAcquire::~ScopedContextAcquire() noexcept(false) {
     holderHelper_.enqueueCallback(device(), stream());
     if (contextState_) {
       contextState_->set(device(), streamPtr());

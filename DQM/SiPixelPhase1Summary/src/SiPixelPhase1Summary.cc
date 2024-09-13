@@ -455,18 +455,32 @@ void SiPixelPhase1Summary::fillTrendPlots(DQMStore::IBooker& iBooker, DQMStore::
   if (!runOnEndLumi_)
     return;  // The following only occurs in the online
   //Reset some MEs every 10LS here
-  for (auto it : {1, 2, 3, 4}) {  //PXBarrel
+  for (auto it : {1, 2, 3, 4}) {  //PXBarrel (Cluster position and Dead channels)
     histName = "PixelPhase1/Phase1_MechanicalView/PXBarrel/clusterposition_zphi_PXLayer_" + std::to_string(it);
     MonitorElement* toReset = iGetter.get(histName);
     if (toReset != nullptr) {
       toReset->Reset();
     }
+    histName = "PixelPhase1/FED/Dead Channels per ROC_per_SignedModuleCoord_per_SignedLadderCoord_PXLayer_" +
+               std::to_string(it);
+    MonitorElement* twoReset = iGetter.get(histName);
+    if (twoReset != nullptr) {
+      twoReset->Reset();
+    }
   }
-  for (auto it : {"-3", "-2", "-1", "+1", "+2", "+3"}) {  //PXForward
+  for (auto it : {"-3", "-2", "-1", "+1", "+2", "+3"}) {  //PXForward (Cluster position)
     histName = "PixelPhase1/Phase1_MechanicalView/PXForward/clusterposition_xy_PXDisk_" + std::string(it);
     MonitorElement* toReset = iGetter.get(histName);
     if (toReset != nullptr) {
       toReset->Reset();
+    }
+  }
+  for (auto it : {1, 2}) {  //PXForward (Dead channels)
+    histName = "PixelPhase1/FED/Dead Channels per ROC_per_SignedDiskCoord_per_SignedBladePanelCoord_PXRing_" +
+               std::to_string(it);
+    MonitorElement* twoReset = iGetter.get(histName);
+    if (twoReset != nullptr) {
+      twoReset->Reset();
     }
   }
 }

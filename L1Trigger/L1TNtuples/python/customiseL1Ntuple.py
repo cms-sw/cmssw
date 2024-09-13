@@ -82,6 +82,36 @@ def L1NtupleRAW(process):
 
     return process
 
+def L1NtupleNanoDST(process):
+
+    L1NtupleTFileOut(process)
+
+    process.load('L1Trigger.L1TNtuples.L1NtupleNanoDST_cff')
+    process.l1ntuplenano = cms.Path(
+        process.L1NtupleNANO
+    )
+
+    process.schedule.append(process.l1ntuplenano)
+
+    # unpack uGT/test crate from the dedicated FED selectors post this update: https://its.cern.ch/jira/browse/CMSHLT-3172
+    process.gtStage2Digis.InputLabel = cms.InputTag("hltFEDSelectorL1")
+    process.gtTestcrateStage2Digis.InputLabel = cms.InputTag("hltFEDSelectorL1uGTTest")
+
+    return process
+
+def L1NtupleMINI(process):
+
+    L1NtupleTFileOut(process)
+
+    process.load('L1Trigger.L1TNtuples.L1NtupleMINI_cff')
+    process.l1ntuplenano = cms.Path(
+        process.L1NtupleMINI
+    )
+    process.schedule.append(process.l1ntuplenano)
+
+    return process
+
+
 def L1NtupleNANO(process):
 
     L1NtupleTFileOut(process)

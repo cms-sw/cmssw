@@ -5,8 +5,8 @@
 
 class FSimTrackEqual {
 public:
-  FSimTrackEqual(int index) : trackIndex_(index){};
-  FSimTrackEqual(const FSimTrack& myTrack) : trackIndex_(myTrack.trackId()){};
+  FSimTrackEqual(int index) : trackIndex_(index) {}
+  FSimTrackEqual(const FSimTrack& myTrack) : trackIndex_(myTrack.trackId()) {}
   ~FSimTrackEqual() { ; };
 
   inline bool operator()(const FSimTrack& track) const { return (track.id() == trackIndex_); }

@@ -106,6 +106,8 @@ from Configuration.Eras.Modifier_phase2_hgcalV16_cff import phase2_hgcalV16
 phase2_hgcalV16.toModify(hgcalValidator, totallayers_to_monitor = cms.int32(47))
 
 from Configuration.ProcessModifiers.ticl_v5_cff import ticl_v5
+from Configuration.ProcessModifiers.ticl_superclustering_dnn_cff import ticl_superclustering_dnn
+from Configuration.ProcessModifiers.ticl_superclustering_mustache_ticl_cff import ticl_superclustering_mustache_ticl
 # labelTst_v5 = ["ticlTrackstersCLUE3DEM", "ticlTrackstersCLUE3DHAD", "ticlTracksterLinks"] # for separate CLUE3D iterations
 labelTst_v5 = ["ticlTrackstersCLUE3DHigh", "ticlTracksterLinks"]
 labelTst_v5.extend([cms.InputTag("ticlSimTracksters", "fromCPs"), cms.InputTag("ticlSimTracksters")])
@@ -118,4 +120,10 @@ ticl_v5.toModify(hgcalValidator,
     LayerClustersInputMask = cms.VInputTag(lcInputMask_v5),
     ticlTrackstersMerge = cms.InputTag("ticlCandidate"),
     isticlv5 = cms.untracked.bool(True)
+)
+(ticl_v5 & ticl_superclustering_mustache_ticl).toModify(
+    hgcalValidator, label_tst = cms.VInputTag(labelTst_v5 + ["ticlTracksterLinksSuperclusteringMustache"])
+)
+(ticl_v5 & ticl_superclustering_dnn).toModify(
+    hgcalValidator, label_tst = cms.VInputTag(labelTst_v5 + ["ticlTracksterLinksSuperclusteringDNN"])
 )

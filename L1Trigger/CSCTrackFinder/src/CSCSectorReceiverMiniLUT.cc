@@ -68,7 +68,7 @@ global_eta_data CSCSectorReceiverMiniLUT::calcGlobalEtaMEMini(unsigned short end
   unsigned short int tcscid = ((theadd >> 15) & 0xf);
   unsigned short int lclPhi = ((theadd >> 6) & 0x3);
   unsigned short int WG = ((theadd >> 8) & 0x7f);
-  unsigned short int bend = ((theadd)&0x3f);
+  unsigned short int bend = ((theadd) & 0x3f);
 
   int eta_temp = 999, eta_min = 999, eta_max = 999;
 

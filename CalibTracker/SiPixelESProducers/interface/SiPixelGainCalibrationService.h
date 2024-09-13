@@ -23,7 +23,7 @@ class SiPixelGainCalibrationService
 public:
   explicit SiPixelGainCalibrationService(const edm::ParameterSet& conf, edm::ConsumesCollector iC)
       : SiPixelGainCalibrationServicePayloadGetter<SiPixelGainCalibration, SiPixelGainCalibrationRcd>(conf,
-                                                                                                      std::move(iC)){};
+                                                                                                      std::move(iC)) {}
 
   // pixel granularity
   float getPedestal(const uint32_t& detID, const int& col, const int& row) override;

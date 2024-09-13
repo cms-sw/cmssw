@@ -252,10 +252,10 @@ void L1TRPCTF::analyze(const Event& e, const EventSetup& c) {
           all_bxdelays.push_back(bx_del);
 
         }  // if !empty
-      }    // end candidates iteration
+      }  // end candidates iteration
       ++beIndex;
     }  // end brl/endcap iteration
-  }    // end GMT records iteration
+  }  // end GMT records iteration
 
   for (int bxI = 0; bxI < 3; ++bxI) {
     rpctfntrack_b[bxI]->Fill(nrpctftrack_b[bxI]);

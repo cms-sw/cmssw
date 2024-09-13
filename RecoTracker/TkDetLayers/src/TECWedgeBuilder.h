@@ -13,7 +13,7 @@
 #pragma GCC visibility push(hidden)
 class TECWedgeBuilder {
 public:
-  TECWedgeBuilder(){};
+  TECWedgeBuilder() {}
   TECWedge* build(const GeometricDet* aTECWedge, const TrackerGeometry* theGeomDetGeometry) __attribute__((cold));
 };
 

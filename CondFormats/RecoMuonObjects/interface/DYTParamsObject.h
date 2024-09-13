@@ -7,7 +7,7 @@
 
 class DYTParamsObject {
 public:
-  DYTParamsObject(){};
+  DYTParamsObject() {}
   ~DYTParamsObject() { m_paramObjs.clear(); };
 
   // Add a parameter to the vector of parameters

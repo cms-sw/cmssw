@@ -21,8 +21,8 @@
 
 class L1GctProcessor {
 public:
-  L1GctProcessor() : m_verbose(false), m_bx(0), m_bxStart(0), m_numOfBx(1){};
-  virtual ~L1GctProcessor(){};
+  L1GctProcessor() : m_verbose(false), m_bx(0), m_bxStart(0), m_numOfBx(1) {}
+  virtual ~L1GctProcessor() {}
 
   /// complete reset of processor
   inline void reset() {

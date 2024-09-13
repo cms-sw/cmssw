@@ -34,7 +34,7 @@ protected:
   SiStripAPVRestorer(const edm::ParameterSet& conf, edm::ConsumesCollector);
 
 public:
-  virtual ~SiStripAPVRestorer(){};
+  virtual ~SiStripAPVRestorer() {}
 
   using digi_t = int16_t;
   using digivector_t = std::vector<digi_t>;

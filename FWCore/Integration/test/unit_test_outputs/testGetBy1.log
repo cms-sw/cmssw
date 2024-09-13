@@ -64,8 +64,9 @@ Module type=TestFindProduct, Module label=a1, Parameter Set ID=a7caa43fcf5ef35de
 ++++ finished: begin job for module with label 'TriggerResults' id = 1
 ++++ starting: begin job for module with label 'p' id = 2
 ++++ finished: begin job for module with label 'p' id = 2
-++ starting: begin job
 ++ finished: begin job
+++ starting: begin job
+++ starting: begin stream 0
 ++++ starting: begin stream for module: stream = 0 label = 'intProducer' id = 3
 ++++ finished: begin stream for module: stream = 0 label = 'intProducer' id = 3
 ++++ starting: begin stream for module: stream = 0 label = 'a1' id = 4
@@ -132,6 +133,9 @@ ModuleCallingContext state = Running
 ++++ finished: begin stream for module: stream = 0 label = 'intProducerU' id = 12
 ++++ starting: begin stream for module: stream = 0 label = 'intVectorProducer' id = 13
 ++++ finished: begin stream for module: stream = 0 label = 'intVectorProducer' id = 13
+++ finished: begin stream 0
+++ starting: begin stream 0
+++ finished: begin stream 0
 ++++ starting: begin process block
 GlobalContext: transition = BeginProcessBlock
     run: 0 luminosityBlock: 0
@@ -1661,6 +1665,7 @@ GlobalContext: transition = WriteProcessBlock
     ProcessContext: COPY 6f4335e86de793448be83fe14f12dcb7
     parent ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
+++ starting: end stream 0
 ++++ starting: end stream for module: stream = 0 label = 'intProducer' id = 3
 ++++ finished: end stream for module: stream = 0 label = 'intProducer' id = 3
 ++++ starting: end stream for module: stream = 0 label = 'a1' id = 4
@@ -1727,6 +1732,10 @@ ModuleCallingContext state = Running
 ++++ finished: end stream for module: stream = 0 label = 'intProducerU' id = 12
 ++++ starting: end stream for module: stream = 0 label = 'intVectorProducer' id = 13
 ++++ finished: end stream for module: stream = 0 label = 'intVectorProducer' id = 13
+++ finished: end stream 0
+++ starting: end stream 0
+++ finished: end stream 0
+++ starting: end job
 ++++ starting: end job for module with label 'intProducerA' id = 8
 Module type=IntProducer, Module label=intProducerA, Parameter Set ID=56ea7c8bbb02df4e1c3b945954838318
 ++++ finished: end job for module with label 'intProducerA' id = 8

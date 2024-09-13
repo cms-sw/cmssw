@@ -51,7 +51,7 @@ public:
   };
 
   /// destructor
-  ~L1MuGMTMIAUEtaProLUT() override{};
+  ~L1MuGMTMIAUEtaProLUT() override {}
 
   /// specific lookup function for eta_sel
   unsigned SpecificLookup_eta_sel(int idx, unsigned eta, unsigned pt, unsigned charge) const {

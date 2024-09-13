@@ -23,7 +23,7 @@ namespace l1t {
             tbin(-99),
             vp(-99),
             format_errors(0),
-            dataword(-99){};
+            dataword(-99) {}
 
       virtual ~GEM() = default;
 

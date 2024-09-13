@@ -454,7 +454,7 @@ bool CommandLineParser::_setVariablesFromFile(const string &filename) {
            << "in options file '" << filename << "'.  Aborting." << endl;
       exit(0);
     }  // if setting variable failed
-  }    // while getline
+  }  // while getline
   return true;
 }
 

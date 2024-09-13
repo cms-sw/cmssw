@@ -12,7 +12,7 @@
 
 #include "tensorflow/compiler/tf2xla/xla_compiled_cpu_function.h"
 #include "tensorflow/core/platform/types.h"
-#include "third_party/eigen3/unsupported/Eigen/CXX11/Tensor"
+#include "eigen3/unsupported/Eigen/CXX11/Tensor"
 
 #include "FWCore/Utilities/interface/Exception.h"
 

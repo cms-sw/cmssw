@@ -64,7 +64,7 @@ namespace edm {
         char const* m_name{""};
       };
     }  // namespace heterocontainer
-  }    // namespace eventsetup
+  }  // namespace eventsetup
 }  // namespace edm
 #define HCTYPETAG_HELPER_METHODS(_dataclass_) TYPELOOKUP_METHODS(_dataclass_)
 

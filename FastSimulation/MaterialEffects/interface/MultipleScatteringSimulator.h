@@ -29,7 +29,7 @@ public:
   MultipleScatteringSimulator(double A, double Z, double density, double radLen);
 
   /// Default Destructor
-  ~MultipleScatteringSimulator() override{};
+  ~MultipleScatteringSimulator() override {}
 
 private:
   /// The real dE/dx generation and particle update

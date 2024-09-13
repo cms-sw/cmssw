@@ -34,7 +34,7 @@ namespace cond {
       CoralMsgReporter();
 
       /// Destructor
-      ~CoralMsgReporter() override{};
+      ~CoralMsgReporter() override {}
 
       /// Release reference to reporter
       void release() override { delete this; }

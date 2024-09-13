@@ -141,11 +141,11 @@ void TrackProducerAlgorithm<T>::runWithTrack(const TrackingGeometry* theG,
                   //the local position and error is dummy but the fitter does not need that anyways
                   i++;
                   continue;  //go to next.
-                }            //consecutive hits are on parterns module.
+                }  //consecutive hits are on parterns module.
               }
             }  //is a strip module
-          }    //next is not the end of hits
-        }      //if rematching option is on.
+          }  //next is not the end of hits
+        }  //if rematching option is on.
 
         if ((**i).geographicalId() != 0U)
           hits.push_back((**i).cloneForFit(*builder->geometry()->idToDet((**i).geographicalId())));

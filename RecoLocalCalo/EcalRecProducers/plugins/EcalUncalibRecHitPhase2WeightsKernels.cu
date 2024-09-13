@@ -60,6 +60,6 @@ namespace ecal {
           flags[tx] = 0x1 << EcalUncalibratedRecHit::kHasSwitchToGain1;
         }
       }  //if within nchannels
-    }    //kernel
-  }      //namespace weights
+    }  //kernel
+  }  //namespace weights
 }  //namespace ecal

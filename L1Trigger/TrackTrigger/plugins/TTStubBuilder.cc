@@ -81,7 +81,7 @@ void TTStubBuilder<Ref_Phase2TrackerDigi_>::updateStubs(
       outputFiller.push_back(tempTTStub);
 
     }  /// End of loop over stubs of this module
-  }    /// End of loop over stub DetSetVector
+  }  /// End of loop over stub DetSetVector
 }
 
 /// Implement the producer
@@ -206,7 +206,7 @@ void TTStubBuilder<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, const ed
           tempTTStub.setBendBE(thisHardBend);
           tempOutput.push_back(tempTTStub);
         }  /// Stub accepted
-      }    /// End of loop over upper clusters
+      }  /// End of loop over upper clusters
 
       /// Here tempOutput stores all the stubs from this lower cluster
       /// Check if there is need to store only one or two (2S/PS modules cases) (if only one already, skip this step)
@@ -336,8 +336,8 @@ void TTStubBuilder<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, const ed
             }
           }
         }  /// End of check on max number of stubs per module
-      }    /// End of nested loop
-    }      /// End of loop over pairs of Clusters
+      }  /// End of nested loop
+    }  /// End of loop over pairs of Clusters
 
     /// Fill output collections
     if (not tempClusLowerAcc.empty())

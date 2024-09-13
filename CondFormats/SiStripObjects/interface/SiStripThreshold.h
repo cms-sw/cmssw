@@ -108,12 +108,12 @@ public:
   typedef Registry::const_iterator RegistryIterator;
   typedef Container InputVector;
 
-  SiStripThreshold(){};
+  SiStripThreshold() {}
   SiStripThreshold(const SiStripThreshold& orig) {
     v_threshold = orig.v_threshold;
     indexes = orig.indexes;
   }
-  virtual ~SiStripThreshold(){};
+  virtual ~SiStripThreshold() {}
 
   bool put(const uint32_t& detID, const InputVector& vect);
   const Range getRange(const uint32_t& detID) const;

@@ -608,7 +608,8 @@ void GEMGeometryBuilder::buildRegions(GEMGeometry& theGeometry,
         if (foundSuperChamber) {
           station->add(ring);
           theGeometry.add(ring);
-        }
+        } else
+          delete ring;
       }
       if (!foundSuperChamber) {
 #ifdef EDM_ML_DEBUG

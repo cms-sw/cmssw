@@ -132,7 +132,7 @@ void pat::PATSecondaryVertexSlimmer::produce(edm::StreamID, edm::Event& iEvent, 
       }
 
     }  // if reco::Vertex
-  }    // if Candidate
+  }  // if Candidate
 
   iEvent.put(std::move(outPtr));
 }

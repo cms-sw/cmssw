@@ -8,4 +8,12 @@
   <class name="std::vector<Measurement1DFloat>" />
   <class name="edm::ValueMap<Measurement1DFloat>" />
   <class name="edm::Wrapper<edm::ValueMap<Measurement1DFloat> >" />
+
+  <!-- used in TrackingTools/PatternTools as VertexConstraint -->
+  <class name="GlobalErrorBase<double,ErrorMatrixTag>"/>
+  <class name="std::pair<Point3DBase<float,GlobalTag>, GlobalErrorBase<double,ErrorMatrixTag> >"/>
+  <class name="std::vector<std::pair<Point3DBase<float,GlobalTag>, GlobalErrorBase<double,ErrorMatrixTag> > >"/>
+  <class name="edm::Wrapper<std::vector<std::pair<Point3DBase<float,GlobalTag>, GlobalErrorBase<double,ErrorMatrixTag> > > >" persistent="false"/>
+  <class name="edm::RefProd<std::vector<std::pair<Point3DBase<float,GlobalTag>, GlobalErrorBase<double,ErrorMatrixTag> > > >"/>
+
 </lcgdict>

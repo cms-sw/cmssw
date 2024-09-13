@@ -55,7 +55,7 @@ public:
           tspar2_siPM(tspar2_siPMCon) {}
   };
 
-  HcalTimeSlew(){};
+  HcalTimeSlew() {}
   ~HcalTimeSlew() {}
 
   void addM2ParameterSet(float tzero, float slope, float tmax);

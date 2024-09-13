@@ -3,6 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from RecoHGCal.TICL.iterativeTICL_cff import ticlIterLabelsMerge
 
 trackstersIters = ['keep *_ticlTracksters'+iteration+'_*_*' for iteration in ticlIterLabelsMerge]
+trackstersHLTIters = ['keep *_hltTiclTracksters'+iteration+'_*_*' for iteration in ticlIterLabelsMerge]
 
 #AOD content
 TICL_AOD = cms.PSet(
@@ -33,9 +34,9 @@ TICLv5_RECO = cms.PSet(
     outputCommands = cms.untracked.vstring(
         [
             'drop *_ticlTracksters*_*_*',
-            'keep *_ticlTrackstersCLUE3DEM_*_*',
-            'keep *_ticlTrackstersCLUE3DHAD_*_*',
+            'keep *_ticlTrackstersCLUE3DHigh_*_*',
             'keep *_ticlTracksterLinks_*_*',
+            'keep *_ticlTracksterLinksSuperclustering*_*_*',
             'keep *_ticlCandidate_*_*',
         ]
     )
@@ -60,14 +61,35 @@ TICLv5_FEVT = cms.PSet(
       'keep *_ticlSimTracksters_*_*',
       'keep *_ticlSimTICLCandidates_*_*',
       'keep *_ticlSimTrackstersFromCP_*_*',
+      'keep *_tracksterSimTracksterAssociationLinkingSuperclustering_*_*',
+      'keep *_tracksterSimTracksterAssociationPRSuperclustering_*_*', 
       )
     )
 
 TICLv5_FEVT.outputCommands.extend(TICLv5_RECO.outputCommands)
 
+TICL_FEVTHLT = cms.PSet(
+    outputCommands = cms.untracked.vstring(
+            trackstersHLTIters +
+            ['keep *_hltPfTICL_*_*']
+    )
+)
 
+TICL_FEVTHLT.outputCommands.extend(TICL_FEVT.outputCommands)
 
+TICLv5_FEVTHLT = cms.PSet(
+    outputCommands = cms.untracked.vstring(
+        [
+            'drop *_hltTiclTracksters*_*_*',
+            'keep *_hltTiclTrackstersCLUE3D*_*_*',
+            'keep *_hltTiclTracksterLinks_*_*',
+            'keep *_hltTiclCandidate_*_*',
+            'keep *_hltPfTICL_*_*',
+        ]
+    )
+)
 
+TICLv5_FEVTHLT.outputCommands.extend(TICLv5_FEVT.outputCommands)
 
 def customiseHGCalOnlyEventContent(process):
     def cleanOutputAndSet(outputModule, ticl_outputCommads):
@@ -96,7 +118,7 @@ def customiseHGCalOnlyEventContent(process):
     if hasattr(process, 'FEVTDEBUGEventContent'):
         cleanOutputAndSet(process.FEVTDEBUGEventContent, TICL_FEVT.outputCommands)
     if hasattr(process, 'FEVTDEBUGHLToutput'):
-        cleanOutputAndSet(process.FEVTDEBUGHLToutput, TICL_FEVT.outputCommands)
+        cleanOutputAndSet(process.FEVTDEBUGHLToutput, TICL_FEVTHLT.outputCommands)
 
     return process
 
@@ -109,7 +131,7 @@ def customiseForTICLv5EventContent(process):
     if hasattr(process, 'FEVTDEBUGEventContent'):
         cleanOutputAndSet(process.FEVTDEBUGEventContent, TICLv5_FEVT.outputCommands)
     if hasattr(process, 'FEVTDEBUGHLToutput'):
-        cleanOutputAndSet(process.FEVTDEBUGHLToutput, TICLv5_FEVT.outputCommands)
+        cleanOutputAndSet(process.FEVTDEBUGHLToutput, TICLv5_FEVTHLT.outputCommands)
     if hasattr(process, 'FEVTEventContent'):
         cleanOutputAndSet(process.FEVTEventContent, TICLv5_FEVT.outputCommands)
 

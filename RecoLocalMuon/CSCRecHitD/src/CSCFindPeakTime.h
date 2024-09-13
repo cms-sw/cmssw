@@ -13,7 +13,7 @@ class CSCFindPeakTime {
 public:
   explicit CSCFindPeakTime(const edm::ParameterSet& ps);
 
-  ~CSCFindPeakTime(){};
+  ~CSCFindPeakTime() {}
 
   /// Basic result of this class
   float peakTime(int tmax, const float* adc, float t_peak);

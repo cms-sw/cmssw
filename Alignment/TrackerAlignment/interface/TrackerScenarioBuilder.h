@@ -27,7 +27,7 @@ public:
   explicit TrackerScenarioBuilder(AlignableTracker* alignable);
 
   /// Destructor
-  ~TrackerScenarioBuilder() override{};
+  ~TrackerScenarioBuilder() override {}
 
   /// Apply misalignment scenario to the tracker
   void applyScenario(const edm::ParameterSet& scenario) override;

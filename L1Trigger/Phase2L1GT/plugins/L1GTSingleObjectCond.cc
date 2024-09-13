@@ -77,6 +77,8 @@ bool L1GTSingleObjectCond::filter(edm::StreamID, edm::Event& event, const edm::E
     }
   }
 
+  condition_result &= collection.checkCollection(*col);
+
   if (condition_result) {
     event.put(std::move(triggerCol), collection.tag().instance());
   }

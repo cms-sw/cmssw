@@ -34,7 +34,7 @@ namespace l1t {
                     word |= (0x1 << bt);
 
                 }  //end loop over bits
-              }    //endif wrd < 2
+              }  //endif wrd < 2
 
               load.push_back(word);
             }  //loop over words

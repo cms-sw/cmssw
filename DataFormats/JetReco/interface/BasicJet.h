@@ -25,7 +25,7 @@ namespace reco {
     BasicJet(const LorentzVector& fP4, const Point& fVertex);
     BasicJet(const LorentzVector& fP4, const Point& fVertex, const Jet::Constituents& fConstituents);
 
-    ~BasicJet() override{};
+    ~BasicJet() override {}
 
     /// Polymorphic clone
     BasicJet* clone() const override;

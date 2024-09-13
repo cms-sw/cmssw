@@ -30,7 +30,7 @@
 
 class Lut {
 public:
-  Lut(){};
+  Lut() {}
   Lut(const DTConfigLUTs *conf, int ntc, float SL_shift);
   ~Lut();
 

@@ -97,9 +97,9 @@ void EMTFSubsystemCollector::extractPrimitives(emtf::DTTag tag,
           }
 
         }  // end loop over station
-      }    // end loop over sector
-    }      // end loop over wheel
-  }        // end loop over bx
+      }  // end loop over sector
+    }  // end loop over wheel
+  }  // end loop over bx
 
   // Remove duplicates using erase-remove idiom,
   // assuming the vector is already sorted
@@ -513,5 +513,5 @@ void EMTFSubsystemCollector::make_copad_gem(const TriggerPrimitiveCollection& mu
         copad_muon_primitives.push_back(*p);
       }
     }  // end loop over pads
-  }    // end loop over in_pads_layer1
+  }  // end loop over in_pads_layer1
 }

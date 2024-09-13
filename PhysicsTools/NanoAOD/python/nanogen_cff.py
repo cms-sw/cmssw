@@ -15,6 +15,8 @@ nanoMetadata = cms.EDProducer("UniqueStringProducer",
     )
 )
 
+
+
 nanogenSequence = cms.Sequence(
     nanoMetadata+
     cms.Sequence(particleLevelTask)+
@@ -22,6 +24,7 @@ nanogenSequence = cms.Sequence(
     patJetPartonsNano+
     genJetFlavourAssociation+
     genJetFlavourTable+
+    genSubJetAK8Table+
     genJetAK8Table+
     genJetAK8FlavourAssociation+
     genJetAK8FlavourTable+
@@ -57,6 +60,10 @@ def nanoGenCommonCustomize(process):
     setGenPhiPrecision(process, CandVars.phi.precision)
     setGenMassPrecision(process, CandVars.mass.precision)
 
+    for output in ("NANOEDMAODSIMoutput", "NANOAODSIMoutput"):
+        if hasattr(process, output):
+            getattr(process, output).outputCommands.append("drop edmTriggerResults_*_*_*")
+
 def customizeNanoGENFromMini(process):
     process.nanogenSequence.insert(0, process.genParticles2HepMCHiggsVtx)
     process.nanogenSequence.insert(0, process.genParticles2HepMC)
@@ -71,6 +78,7 @@ def customizeNanoGENFromMini(process):
     process.genParticleTable.src = "prunedGenParticles"
     process.patJetPartonsNano.particles = "prunedGenParticles"
     process.particleLevel.src = "genParticles2HepMC:unsmeared"
+    process.genIso.genPart = "prunedGenParticles"
 
     process.genJetTable.src = "slimmedGenJets"
     process.genJetAK8Table.src = "slimmedGenJetsAK8"
@@ -103,7 +111,12 @@ def customizeNanoGEN(process):
     process.genJetAK8Table.src = "ak8GenJetsNoNu"
     process.tauGenJetsForNano.GenParticles = "genParticles"
     process.genVisTaus.srcGenParticles = "genParticles"
-
+    process.load("RecoJets.JetProducers.ak8GenJets_cfi")
+    process.ak8GenJetsNoNuConstituents =  process.ak8GenJetsConstituents.clone(src='ak8GenJetsNoNu')
+    process.ak8GenJetsNoNuSoftDrop = process.ak8GenJetsSoftDrop.clone(src=cms.InputTag('ak8GenJetsNoNuConstituents', 'constituents'))
+    process.genSubJetAK8Table.src = "ak8GenJetsNoNuSoftDrop"
+    process.nanogenSequence.insert(0, process.ak8GenJetsNoNuSoftDrop)
+    process.nanogenSequence.insert(0, process.ak8GenJetsNoNuConstituents)
     # In case customizeNanoGENFromMini has already been called
     process.nanogenSequence.remove(process.mergedGenParticles)
     process.nanogenSequence.remove(process.genIso)

@@ -38,7 +38,9 @@
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 #include "FWCore/Concurrency/interface/WaitingTask.h"
 #include "FWCore/Concurrency/interface/chain_first.h"
+#include "FWCore/Utilities/interface/ConvertException.h"
 #include "FWCore/Utilities/interface/ExceptionCollector.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 #include "boost/range/adaptor/reversed.hpp"
 
@@ -292,9 +294,9 @@ namespace edm {
     return consumedByChildren;
   }
 
-  void SubProcess::doBeginJob() { this->beginJob(); }
+  void SubProcess::doBeginJob() { beginJob(); }
 
-  void SubProcess::doEndJob() { endJob(); }
+  void SubProcess::doEndJob(ExceptionCollector& collector) { endJob(collector); }
 
   void SubProcess::beginJob() {
     // If event selection is being used, the SubProcess class reads TriggerResults
@@ -307,21 +309,35 @@ namespace edm {
       fixBranchIDListsForEDAliases(droppedBranchIDToKeptBranchID());
     }
     ServiceRegistry::Operate operate(serviceToken_);
-    actReg_->preBeginJobSignal_(pathsAndConsumesOfModules_, processContext_);
-    schedule_->beginJob(*preg_, esp_->recordsToResolverIndices(), *processBlockHelper_);
-    for_all(subProcesses_, [](auto& subProcess) { subProcess.doBeginJob(); });
+
+    std::exception_ptr firstException;
+    CMS_SA_ALLOW try {
+      schedule_->beginJob(
+          *preg_, esp_->recordsToResolverIndices(), *processBlockHelper_, pathsAndConsumesOfModules_, processContext_);
+    } catch (...) {
+      firstException = std::current_exception();
+    }
+    for (auto& subProcess : subProcesses_) {
+      CMS_SA_ALLOW try { subProcess.doBeginJob(); } catch (...) {
+        if (!firstException) {
+          firstException = std::current_exception();
+        }
+      }
+    }
+    if (firstException) {
+      std::rethrow_exception(firstException);
+    }
   }
 
-  void SubProcess::endJob() {
+  void SubProcess::endJob(ExceptionCollector& collector) {
     ServiceRegistry::Operate operate(serviceToken_);
-    ExceptionCollector c(
-        "Multiple exceptions were thrown while executing endJob. An exception message follows for each.");
-    schedule_->endJob(c);
-    for (auto& subProcess : subProcesses_) {
-      c.call([&subProcess]() { subProcess.doEndJob(); });
+    try {
+      convertException::wrap([this, &collector]() { schedule_->endJob(collector); });
+    } catch (cms::Exception const& ex) {
+      collector.addException(ex);
     }
-    if (c.hasThrown()) {
-      c.rethrow();
+    for (auto& subProcess : subProcesses_) {
+      subProcess.doEndJob(collector);
     }
   }
 
@@ -689,16 +705,33 @@ namespace edm {
     lb->clearPrincipal();
   }
 
-  void SubProcess::doBeginStream(unsigned int iID) {
+  void SubProcess::doBeginStream(unsigned int streamID) {
     ServiceRegistry::Operate operate(serviceToken_);
-    schedule_->beginStream(iID);
-    for_all(subProcesses_, [iID](auto& subProcess) { subProcess.doBeginStream(iID); });
+    std::exception_ptr exceptionPtr;
+    CMS_SA_ALLOW try { schedule_->beginStream(streamID); } catch (...) {
+      exceptionPtr = std::current_exception();
+    }
+
+    for (auto& subProcess : subProcesses_) {
+      CMS_SA_ALLOW try { subProcess.doBeginStream(streamID); } catch (...) {
+        if (!exceptionPtr) {
+          exceptionPtr = std::current_exception();
+        }
+      }
+    }
+    if (exceptionPtr) {
+      std::rethrow_exception(exceptionPtr);
+    }
   }
 
-  void SubProcess::doEndStream(unsigned int iID) {
+  void SubProcess::doEndStream(unsigned int streamID,
+                               ExceptionCollector& collector,
+                               std::mutex& collectorMutex) noexcept {
     ServiceRegistry::Operate operate(serviceToken_);
-    schedule_->endStream(iID);
-    for_all(subProcesses_, [iID](auto& subProcess) { subProcess.doEndStream(iID); });
+    schedule_->endStream(streamID, collector, collectorMutex);
+    for (auto& subProcess : subProcesses_) {
+      subProcess.doEndStream(streamID, collector, collectorMutex);
+    }
   }
 
   void SubProcess::doStreamBeginRunAsync(WaitingTaskHolder iHolder,

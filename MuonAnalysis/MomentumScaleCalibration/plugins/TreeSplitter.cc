@@ -28,7 +28,7 @@ public:
   ~TreeSplitter() override;
 
 private:
-  void analyze(const edm::Event&, const edm::EventSetup&) override{};
+  void analyze(const edm::Event&, const edm::EventSetup&) override {}
   void endJob() override;
 
   TString treeFileName_;

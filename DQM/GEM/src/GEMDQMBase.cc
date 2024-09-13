@@ -189,6 +189,8 @@ dqm::impl::MonitorElement* GEMDQMBase::CreateSummaryHist(DQMStore::IBooker& iboo
     h2Res->setBinContent(0, i, nNumCh);
   }
 
+  h2Res->setBinContent(0, 0, 1.0);
+
   return h2Res;
 }
 

@@ -55,7 +55,7 @@ private:
   template <class Archive>
   inline void serialize(Archive& ar, unsigned /* version */) {
     boost::serialization::base_object<AbsOOTPileupCorrection>(*this);
-    ar& descr_& scale_;
+    ar & descr_ & scale_;
   }
 };
 

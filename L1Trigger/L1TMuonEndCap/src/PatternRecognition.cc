@@ -295,7 +295,7 @@ bool PatternRecognition::is_zone_empty(int zone,
         num_conv_hits += 1;
       }
     }  // end loop over conv_hits
-  }    // end loop over extended_conv_hits
+  }  // end loop over extended_conv_hits
 
   std::map<pattern_ref_t, int>::const_iterator patt_lifetime_map_it = patt_lifetime_map.begin();
   std::map<pattern_ref_t, int>::const_iterator patt_lifetime_map_end = patt_lifetime_map.end();
@@ -334,7 +334,7 @@ void PatternRecognition::make_zone_image(int zone,
         image.set_bit(layer, bit);
       }
     }  // end loop over conv_hits
-  }    // end loop over extended_conv_hits
+  }  // end loop over extended_conv_hits
 }
 
 void PatternRecognition::process_single_zone(int zone,

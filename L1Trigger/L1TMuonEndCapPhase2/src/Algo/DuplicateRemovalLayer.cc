@@ -64,8 +64,8 @@ void DuplicateRemovalLayer::apply(std::vector<track_t>& tracks) const {
 
         break;
       }  // End loop reduced site track sites
-    }    // End loop reduced model sites
-  }      // End loop tracks
+    }  // End loop reduced model sites
+  }  // End loop tracks
 
   // ===========================================================================
   // Find and invalidate duplicate tracks
@@ -105,7 +105,7 @@ void DuplicateRemovalLayer::apply(std::vector<track_t>& tracks) const {
           // If there's even one collision, invalidate the track
           rtrk_j.valid = 0;
         }  // End loop reduced sites k
-      }    // End loop reduced tracks j
+      }  // End loop reduced tracks j
     }
 
     // Propagate invalidation

@@ -59,8 +59,19 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     const uint32_t detId = rh.detId();
     const uint32_t depth = HCAL::getDepth(detId);
     const uint32_t subdet = getSubdet(detId);
+
+    // skip bad channels
+    if (rh.chi2() < 0)
+      return false;
+
     if (topology.cutsFromDB()) {
-      threshold = topology.noiseThreshold()[HCAL::detId2denseId(detId)];
+      const auto& denseId = HCAL::detId2denseId(detId);
+      if (denseId != HCAL::kInvalidDenseId) {
+        threshold = topology.noiseThreshold()[denseId];
+      } else {
+        printf("Encountered invalid denseId for detId %u (subdetector %u)!", detId, subdet);
+        return false;
+      }
     } else {
       if (subdet == HcalBarrel) {
         threshold = params.energyThresholds()[depth - 1];

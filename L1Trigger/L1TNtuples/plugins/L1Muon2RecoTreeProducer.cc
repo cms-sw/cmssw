@@ -350,8 +350,8 @@ double L1Muon2RecoTreeProducer::match_trigger(std::vector<int> &trigIndices,
         }
 
       }  // loop over different trigger objects
-    }    // if trigger is in event (should apply hltFilter with used trigger...)
-  }      // loop over muon candidates
+    }  // if trigger is in event (should apply hltFilter with used trigger...)
+  }  // loop over muon candidates
 
   return matchDeltaR;
 }
@@ -406,7 +406,7 @@ void L1Muon2RecoTreeProducer::beginRun(const edm::Run &run, const edm::EventSetu
         //assert(false);
       }
     }  // end for isoTriggerNames
-  }    // end if (triggerMatching_)
+  }  // end if (triggerMatching_)
 }
 
 //define this as a plug-in

@@ -53,7 +53,7 @@ private:
   template <class Archive>
   inline void serialize(Archive& ar, unsigned /* version */) {
     boost::serialization::base_object<AbsHcalFunctor>(*this);
-    ar& abscissae_& values_& derivatives_;
+    ar & abscissae_ & values_ & derivatives_;
   }
 };
 

@@ -15,6 +15,7 @@ ________________________________________________________________**/
 #include "CondFormats/DataRecord/interface/BeamSpotTransientObjectsRcd.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerEvmReadoutRecord.h"
 #include "DataFormats/Scalers/interface/BeamSpotOnline.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -105,7 +106,7 @@ void BeamSpotOnlineProducer::produce(Event& iEvent, const EventSetup& iSetup) {
     auto const& spotDB = iSetup.getData(beamTransientToken_);
     if (spotDB.beamType() != 2) {
       if (shoutMODE && beamTransientRcdESWatcher_.check(iSetup)) {
-        edm::LogWarning("BeamSpotFromDB")
+        edm::LogWarning("BeamSpotOnlineProducer")
             << "Online Beam Spot producer falls back to DB value because the ESProducer returned a fake beamspot ";
       }
       fallBackToDB = true;
@@ -119,8 +120,8 @@ void BeamSpotOnlineProducer::produce(Event& iEvent, const EventSetup& iSetup) {
       reco::BeamSpot::Point apoint(f * spotDB.x(), f * spotDB.y(), f * spotDB.z());
 
       reco::BeamSpot::CovarianceMatrix matrix;
-      for (int i = 0; i < 7; ++i) {
-        for (int j = 0; j < 7; ++j) {
+      for (int i = 0; i < reco::BeamSpot::dimension; ++i) {
+        for (int j = 0; j < reco::BeamSpot::dimension; ++j) {
           matrix(i, j) = spotDB.covariance(i, j);
         }
       }
@@ -181,7 +182,7 @@ void BeamSpotOnlineProducer::produce(Event& iEvent, const EventSetup& iSetup) {
       if (spotOnline.x() == 0 && spotOnline.y() == 0 && spotOnline.z() == 0 && spotOnline.width_x() == 0 &&
           spotOnline.width_y() == 0) {
         if (shoutMODE) {
-          edm::LogWarning("BeamSpotFromDB")
+          edm::LogWarning("BeamSpotOnlineProducer")
               << "Online Beam Spot producer falls back to DB value because the scaler values are zero ";
         }
         fallBackToDB = true;
@@ -189,7 +190,7 @@ void BeamSpotOnlineProducer::produce(Event& iEvent, const EventSetup& iSetup) {
       double r2 = spotOnline.x() * spotOnline.x() + spotOnline.y() * spotOnline.y();
       if (std::abs(spotOnline.z()) >= theMaxZ || r2 >= theMaxR2) {
         if (shoutMODE) {
-          edm::LogError("BeamSpotFromDB")
+          edm::LogError("BeamSpotOnlineProducer")
               << "Online Beam Spot producer falls back to DB value because the scaler values are too big to be true :"
               << spotOnline.x() << " " << spotOnline.y() << " " << spotOnline.z();
         }
@@ -209,8 +210,8 @@ void BeamSpotOnlineProducer::produce(Event& iEvent, const EventSetup& iSetup) {
     reco::BeamSpot::Point apoint(spotDB->x(), spotDB->y(), spotDB->z());
 
     reco::BeamSpot::CovarianceMatrix matrix;
-    for (int i = 0; i < 7; ++i) {
-      for (int j = 0; j < 7; ++j) {
+    for (int i = 0; i < reco::BeamSpot::dimension; ++i) {
+      for (int j = 0; j < reco::BeamSpot::dimension; ++j) {
         matrix(i, j) = spotDB->covariance(i, j);
       }
     }
@@ -222,6 +223,11 @@ void BeamSpotOnlineProducer::produce(Event& iEvent, const EventSetup& iSetup) {
     aSpot.setEmittanceY(spotDB->emittanceY());
     aSpot.setbetaStar(spotDB->betaStar());
     aSpot.setType(reco::BeamSpot::Tracker);
+
+    GlobalError bse(aSpot.rotatedCovariance3D());
+    if ((bse.cxx() <= 0.) || (bse.cyy() <= 0.) || (bse.czz() <= 0.)) {
+      edm::LogError("UnusableBeamSpot") << "Beamspot from fallback to DB with invalid errors: " << aSpot.covariance();
+    }
   }
 
   *result = aSpot;

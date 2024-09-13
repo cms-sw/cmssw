@@ -7,8 +7,8 @@
 
 class L1TMuonBarrelParamsAllPublic : public L1TMuonBarrelParams {
 public:
-  L1TMuonBarrelParamsAllPublic(){};
-  ~L1TMuonBarrelParamsAllPublic(){};
+  L1TMuonBarrelParamsAllPublic() {}
+  ~L1TMuonBarrelParamsAllPublic() {}
 
   L1TMuonBarrelParamsAllPublic(const L1TMuonBarrelParams& a) {
     assert(sizeof(L1TMuonBarrelParamsAllPublic) == sizeof(L1TMuonBarrelParams));

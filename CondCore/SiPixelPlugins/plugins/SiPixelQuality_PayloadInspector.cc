@@ -70,7 +70,7 @@ namespace {
             COUT << "detId:" << mod.DetID << " error type:" << mod.errorType << " BadRocs:" << BadRocCount << std::endl;
           }
         }  // payload
-      }    // iovs
+      }  // iovs
       return true;
     }  // fill
   };
@@ -113,7 +113,7 @@ namespace {
             }
           }
         }  // payload
-      }    // iovs
+      }  // iovs
       return true;
     }  // fill
   };

@@ -7,7 +7,7 @@ namespace l1thgcfirmware {
   public:
     HGCalSeed(float x, float y, float z, float energy) : x_(x), y_(y), z_(z), energy_(energy) {}
 
-    ~HGCalSeed(){};
+    ~HGCalSeed() {}
 
     float x() const { return x_; }
     float y() const { return y_; }

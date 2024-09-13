@@ -159,7 +159,7 @@ public:
   ComputedVariable(
       const std::string& M, std::string& N, edm::ParameterSet& P, const VariableComputer* c, edm::ConsumesCollector& iC)
       : CachingVariable(M, N, P, iC), myComputer(c) {}
-  ~ComputedVariable() override{};
+  ~ComputedVariable() override {}
 
   evalType eval(const edm::Event& iEvent) const override {
     if (myComputer->notSeenThisEventAlready(iEvent))
@@ -174,7 +174,7 @@ private:
 class VariableComputerTest : public VariableComputer {
 public:
   VariableComputerTest(const CachingVariable::CachingVariableFactoryArg& arg, edm::ConsumesCollector& iC);
-  ~VariableComputerTest() override{};
+  ~VariableComputerTest() override {}
 
   void compute(const edm::Event& iEvent) const override;
 };

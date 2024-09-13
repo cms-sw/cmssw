@@ -34,7 +34,7 @@
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
 //mc
-#include "SimTracker/TrackTriggerAssociation/interface/TTTrackAssociationMap.h"
+#include "SimDataFormats/Associations/interface/TTTrackAssociationMap.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 
 #include <fastjet/JetDefinition.hh>
@@ -215,7 +215,7 @@ void L1FastTrackingJetProducer::produce(edm::Event& iEvent, const edm::EventSetu
                                  iterL1Track->momentum().mag());
     JetInputs.push_back(psuedoJet);                     // input tracks for clustering
     JetInputs.back().set_user_index(this_l1track - 1);  // save track index in the collection
-  }                                                     // end loop over tracks
+  }  // end loop over tracks
 
   fastjet::ClusterSequence cs(JetInputs, jet_def);  // define the output jet collection
   std::vector<fastjet::PseudoJet> JetOutputs =

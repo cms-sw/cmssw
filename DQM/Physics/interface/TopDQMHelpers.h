@@ -73,7 +73,7 @@ public:
   /// default constructor
   Calculate_miniAOD(int maxNJets, double wMass);
   /// default destructor
-  ~Calculate_miniAOD(){};
+  ~Calculate_miniAOD() {}
 
   /// calculate W boson mass estimate
   double massWBoson(const std::vector<pat::Jet>& jets);
@@ -130,7 +130,7 @@ public:
   /// default constructor
   Calculate(int maxNJets, double wMass);
   /// default destructor
-  ~Calculate(){};
+  ~Calculate() {}
 
   /// calculate W boson mass estimate
   double massWBoson(const std::vector<reco::Jet>& jets);
@@ -242,7 +242,7 @@ public:
   /// default constructor
   SelectionStep(const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC);
   /// default destructor
-  ~SelectionStep(){};
+  ~SelectionStep() {}
 
   /// apply selection
   bool select(const edm::Event& event);

@@ -26,8 +26,8 @@ namespace l1t {
 
   class PackingSetup {
   public:
-    PackingSetup(){};
-    virtual ~PackingSetup(){};
+    PackingSetup() {}
+    virtual ~PackingSetup() {}
     virtual std::unique_ptr<PackerTokens> registerConsumes(const edm::ParameterSet&, edm::ConsumesCollector&) = 0;
     virtual void registerProducts(edm::ProducesCollector) = 0;
 

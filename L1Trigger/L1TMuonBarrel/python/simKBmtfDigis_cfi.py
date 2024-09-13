@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-from Configuration.Eras.Modifier_run3_2024_L1T_cff import run3_2024_L1T
+from Configuration.Eras.Modifier_stage2L1Trigger_2024_cff import stage2L1Trigger_2024
 
 bmtfKalmanTrackingSettings = cms.PSet(
     verbose = cms.bool(False),  # 
@@ -51,11 +51,11 @@ bmtfKalmanTrackingSettings = cms.PSet(
 
     useNewQualityCalculation = cms.bool(False),
 )
-run3_2024_L1T.toModify(
-    bmtfKalmanTrackingSettings,
-    useNewQualityCalculation = cms.bool(True),
-)
 
+stage2L1Trigger_2024.toModify(
+    bmtfKalmanTrackingSettings,
+    useNewQualityCalculation = True,
+)
 
 simKBmtfDigis = cms.EDProducer("L1TMuonBarrelKalmanTrackProducer",
     src = cms.InputTag("simKBmtfStubs"),

@@ -50,8 +50,8 @@ TauSpinnerCMS::TauSpinnerCMS(const ParameterSet &pset)
   }
 }
 
-void TauSpinnerCMS::beginJob(){};
-void TauSpinnerCMS::endJob(){};
+void TauSpinnerCMS::beginJob() {}
+void TauSpinnerCMS::endJob() {}
 
 void TauSpinnerCMS::initialize() {
   // Now for Tauola and TauSpinner
