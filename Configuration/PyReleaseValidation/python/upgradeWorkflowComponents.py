@@ -2424,17 +2424,38 @@ class UpgradeWorkflowPremix(UpgradeWorkflow):
         if "GenSim" in stepName:
             stepNamePmx = stepName.replace('GenSim','Premix')
             if not stepNamePmx in stepDict: stepDict[stepNamePmx] = {}
-            stepDict[stepNamePmx][k] = merge([
-                {
-                    '-s': 'GEN,SIM,DIGI:pdigi_valid',
-                    '--datatier': 'PREMIX',
-                    '--eventcontent': 'PREMIX',
-                    '--procModifiers': 'premix_stage1'
-                },
-                stepDict[stepName][k]
-            ])
-            if "ProdLike" in self.suffix:
-                stepDict[stepNamePmx][k] = merge([{'-s': 'GEN,SIM,DIGI'},stepDict[stepNamePmx][k]])
+            # avoid overwriting fastsim alternative
+            if not k in stepDict[stepNamePmx]:
+                stepDict[stepNamePmx][k] = merge([
+                    {
+                        '-s': 'GEN,SIM,DIGI:pdigi_valid',
+                        '--datatier': 'PREMIX',
+                        '--eventcontent': 'PREMIX',
+                        '--procModifiers': 'premix_stage1'
+                    },
+                    stepDict[stepName][k]
+                ])
+                if "ProdLike" in self.suffix:
+                    stepDict[stepNamePmx][k] = merge([{'-s': 'GEN,SIM,DIGI'},stepDict[stepNamePmx][k]])
+        # setup for stage 1 fastsim
+        elif "Gen" in stepName:
+            stepNamePmx = stepName.replace('Gen','Premix')
+            if not stepNamePmx in stepDict: stepDict[stepNamePmx] = {}
+            # avoid overwriting fullsim alternative
+            if not k in stepDict[stepNamePmx]:
+                stepDict[stepNamePmx][k] = merge([
+                    {
+                        '-s': 'GEN,SIM,RECOBEFMIX,DIGI:pdigi_valid',
+                        '--fast':'',
+                        '--datatier': 'PREMIX',
+                        '--eventcontent': 'PREMIX',
+                        '--procModifiers': 'premix_stage1'
+                    },
+                    stepDict[stepName][k]
+                ])
+                if "ProdLike" in self.suffix:
+                    # todo
+                    pass
         # setup for stage 2
         elif "Digi" in step or "Reco" in step:
             # go back to non-PU step version
@@ -2460,13 +2481,35 @@ class UpgradeWorkflowPremix(UpgradeWorkflow):
                 else:
                     d["--procModifiers"] = "premix_stage2"
             stepDict[stepName][k] = d
-        # Increase the input file step number by one for Nano in combined stage1+stage2
+        # setup for stage 2 fastsim
+        elif "FastSimRun3" in step:
+            # go back to non-PU step version
+            d = merge([stepDict[self.getStepName(step)][k]])
+            if d is None: return
+            tmpsteps = []
+            for s in d["-s"].split(","):
+                if s == "DIGI" or "DIGI:" in s:
+                    tmpsteps.extend([s, "DATAMIX"])
+                else:
+                    tmpsteps.append(s)
+            d = merge([{"-s"             : ",".join(tmpsteps),
+                        "--datamix"      : "PreMix"},
+                       d])
+            if "--procModifiers" in d:
+                d["--procModifiers"] += ",premix_stage2"
+            else:
+                d["--procModifiers"] = "premix_stage2"
+            # for combined stage1+stage2
+            if "_PMXS1S2" in self.suffix:
+                d = merge([digiPremixLocalPileup, d])
+            stepDict[stepName][k] = d
+        # separate nano step now only used in ProdLike workflows for Run3/Phase2
         elif "Nano"==step:
             # go back to non-PU step version
             d = merge([stepDict[self.getStepName(step)][k]])
-            if "--filein" in d:
+            if "_PMXS1S2" in self.suffix and "--filein" in d:
                 filein = d["--filein"]
-                m = re.search("step(?P<ind>\d+)_", filein)
+                m = re.search("step(?P<ind>\\d+)_", filein)
                 if m:
                     d["--filein"] = filein.replace(m.group(), "step%d_"%(int(m.group("ind"))+1))
             stepDict[stepName][k] = d
@@ -2490,6 +2533,7 @@ upgradeWFs['PMXS1'] = UpgradeWorkflowPremix(
     steps = [
     ],
     PU = [
+        'Gen',
         'GenSim',
         'GenSimHLBeamSpot',
         'GenSimHLBeamSpot14',
@@ -2510,6 +2554,7 @@ upgradeWFs['PMXS2'] = UpgradeWorkflowPremix(
         'RecoNano',
         'RecoNanoFakeHLT',
         'Nano',
+        'FastSimRun3',
     ],
     suffix = '_PMXS2',
     offset = 0.98,
@@ -2518,6 +2563,7 @@ upgradeWFs['PMXS2'] = UpgradeWorkflowPremix(
 upgradeWFs['PMXS1S2'] = UpgradeWorkflowPremix(
     steps = [],
     PU = [
+        'Gen',
         'GenSim',
         'GenSimHLBeamSpot',
         'GenSimHLBeamSpot14',
@@ -2530,6 +2576,7 @@ upgradeWFs['PMXS1S2'] = UpgradeWorkflowPremix(
         'RecoNano',
         'RecoNanoFakeHLT',
         'Nano',
+        'FastSimRun3',
     ],
     suffix = '_PMXS1S2',
     offset = 0.99,
