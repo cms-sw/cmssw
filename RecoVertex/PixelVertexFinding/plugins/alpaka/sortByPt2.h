@@ -20,10 +20,10 @@
 namespace ALPAKA_ACCELERATOR_NAMESPACE::vertexFinder {
 
   using VtxSoAView = ::reco::ZVertexSoAView;
+  using TrkSoAView = ::reco::ZVertexTracksSoAView;
   using WsSoAView = ::vertexFinder::PixelVertexWorkSpaceSoAView;
 
-  template <typename TAcc>
-  ALPAKA_FN_ACC ALPAKA_FN_INLINE void sortByPt2(const TAcc& acc, VtxSoAView& data, WsSoAView& ws) {
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE void sortByPt2(Acc1D const& acc, VtxSoAView& data, TrkSoAView& trkdata, WsSoAView& ws) {
     auto nt = ws.ntrks();
     float const* __restrict__ ptt2 = ws.ptt2();
     uint32_t const& nvFinal = data.nvFinal();
@@ -37,7 +37,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::vertexFinder {
 
     // fill indexing
     for (auto i : cms::alpakatools::uniform_elements(acc, nt)) {
-      data.idv()[ws.itrk()[i]] = iv[i];
+      trkdata.idv()[ws.itrk()[i]] = iv[i];
     };
 
     // can be done asynchronously at the end of previous event
@@ -60,7 +60,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::vertexFinder {
       return;
     }
 
-    if constexpr (not cms::alpakatools::requires_single_thread_per_block_v<TAcc>) {
+    if constexpr (not cms::alpakatools::requires_single_thread_per_block_v<Acc1D>) {
       auto& sws = alpaka::declareSharedVar<uint16_t[1024], __COUNTER__>(acc);
       // sort using only 16 bits
       cms::alpakatools::radixSort<Acc1D, float, 2>(acc, ptv2, sortInd, sws, nvFinal);
@@ -73,9 +73,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::vertexFinder {
 
   class SortByPt2Kernel {
   public:
-    template <typename TAcc>
-    ALPAKA_FN_ACC void operator()(const TAcc& acc, VtxSoAView pdata, WsSoAView pws) const {
-      sortByPt2(acc, pdata, pws);
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc, VtxSoAView pdata, TrkSoAView ptrkdata, WsSoAView pws) const {
+      sortByPt2(acc, pdata, ptrkdata, pws);
     }
   };
 

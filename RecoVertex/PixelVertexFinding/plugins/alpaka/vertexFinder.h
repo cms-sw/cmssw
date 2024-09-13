@@ -19,14 +19,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::vertexFinder {
 
   using namespace cms::alpakatools;
   using VtxSoAView = ::reco::ZVertexSoAView;
+  using TrkSoAView = ::reco::ZVertexTracksSoAView;
   using WsSoAView = ::vertexFinder::PixelVertexWorkSpaceSoAView;
 
   class Init {
   public:
-    template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-    ALPAKA_FN_ACC void operator()(const TAcc &acc, VtxSoAView pdata, WsSoAView pws) const {
-      pdata.nvFinal() = 0;  // initialization
-      ::vertexFinder::init(pws);
+    ALPAKA_FN_ACC void operator()(Acc1D const &acc, VtxSoAView data, WsSoAView ws) const {
+      data.nvFinal() = 0;  // initialization
+      ::vertexFinder::init(ws);
     }
   };
 
@@ -57,7 +57,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::vertexFinder {
 
     ~Producer() = default;
 
-    ZVertexSoACollection makeAsync(Queue &queue, const TkSoAConstView &tracks_view, float ptMin, float ptMax) const;
+    ZVertexSoACollection makeAsync(
+        Queue &queue, TkSoAConstView const &tracks_view, int maxVertices, float ptMin, float ptMax) const;
 
   private:
     const bool oneKernel_;     // run everything (cluster,fit,split,sort) in one kernel. Uses only density clusterizer

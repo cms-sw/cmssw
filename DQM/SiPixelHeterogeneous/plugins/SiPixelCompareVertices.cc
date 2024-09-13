@@ -9,20 +9,19 @@
 //
 // Author: Suvankar Roy Chowdhury
 //
-#include "FWCore/Framework/interface/Frameworkfwd.h"
+
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/VertexSoA/interface/ZVertexHost.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "DataFormats/Common/interface/Handle.h"
-// DQM Histograming
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DataFormats/VertexSoA/interface/ZVertexHost.h"
-#include "CUDADataFormats/Vertex/interface/ZVertexSoAHeterogeneousHost.h"
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 // TODO: change class name to SiPixelCompareVerticesSoA when CUDA code is removed
 class SiPixelCompareVertices : public DQMEDAnalyzer {
@@ -81,7 +80,7 @@ void SiPixelCompareVertices::analyzeSeparate(U tokenRef, V tokenTar, const edm::
       out << "reference vertices not found; ";
     }
     if (not vsoaHandleTar) {
-      out << "Refget vertices not found; ";
+      out << "target vertices not found; ";
     }
     out << "the comparison will not run.";
     return;
@@ -94,8 +93,8 @@ void SiPixelCompareVertices::analyzeSeparate(U tokenRef, V tokenTar, const edm::
 
   auto bsHandle = iEvent.getHandle(tokenBeamSpot_);
   float x0 = 0., y0 = 0., z0 = 0., dxdz = 0., dydz = 0.;
-  if (!bsHandle.isValid()) {
-    edm::LogWarning("SiPixelCompareVertices") << "No beamspot found. returning vertexes with (0,0,Z) ";
+  if (not bsHandle.isValid()) {
+    edm::LogWarning("SiPixelCompareVertices") << "No beamspot found, returning vertexes with (0,0,Z).";
   } else {
     const reco::BeamSpot& bs = *bsHandle;
     x0 = bs.x0();
@@ -112,7 +111,7 @@ void SiPixelCompareVertices::analyzeSeparate(U tokenRef, V tokenTar, const edm::
     auto yc = y0 + dydz * zc;
     zc += z0;
 
-    auto ndofRef = vsoaRef.view()[sic].ndof();
+    auto ndofRef = vsoaRef.template view<reco::ZVertexTracksSoA>()[sic].ndof();
     auto chi2Ref = vsoaRef.view()[sic].chi2();
 
     const int32_t notFound = -1;
@@ -138,7 +137,7 @@ void SiPixelCompareVertices::analyzeSeparate(U tokenRef, V tokenTar, const edm::
     auto xg = x0 + dxdz * zg;
     auto yg = y0 + dydz * zg;
     zg += z0;
-    auto ndofTar = vsoaTar.view()[closestVtxidx].ndof();
+    auto ndofTar = vsoaTar.template view<reco::ZVertexTracksSoA>()[closestVtxidx].ndof();
     auto chi2Tar = vsoaTar.view()[closestVtxidx].chi2();
 
     hx_->Fill(xc - x0, xg - x0);
