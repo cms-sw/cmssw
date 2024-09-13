@@ -531,7 +531,7 @@ upgradeWFs['vectorHits'] = UpgradeWorkflow_vectorHits(
 
 # WeightedMeanFitter vertexing workflows
 class UpgradeWorkflow_weightedVertex(UpgradeWorkflow):
-    def __init__(self, reco = {}, harvest = {}, **kwargs):
+    def __init__(self, **kwargs):
         # adapt the parameters for the UpgradeWorkflow init method
         super(UpgradeWorkflow_weightedVertex, self).__init__(
             steps = [
@@ -559,8 +559,6 @@ class UpgradeWorkflow_weightedVertex(UpgradeWorkflow):
                 'HARVESTNanoFakeHLT',
             ],
             **kwargs)
-        self.__reco = reco
-        self.__harvest = harvest
 
     def setup_(self, step, stepName, stepDict, k, properties):
         # temporarily remove trigger & downstream steps
