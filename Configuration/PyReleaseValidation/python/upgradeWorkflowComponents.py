@@ -164,7 +164,9 @@ class UpgradeWorkflow(object):
     def workflow_(self, workflows, num, fragment, stepList, key):
         fragmentTmp = [fragment, key]
         if len(self.suffix)>0: fragmentTmp.append(self.suffix)
-        workflows[num+self.offset] = [ fragmentTmp, stepList ]
+        # avoid spurious workflows (no steps modified)
+        if self.offset==0 or workflows[num][1]!=stepList:
+            workflows[num+self.offset] = [ fragmentTmp, stepList ]
     def condition(self, fragment, stepList, key, hasHarvest):
         return False
     def preventReuse(self, stepName, stepDict, k):
