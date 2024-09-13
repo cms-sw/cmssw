@@ -304,7 +304,7 @@ bool TracksterLinkingbySkeletons::areCompatible(const ticl::Trackster &myTrackst
           LogDebug("TracksterLinkingbySkeletons") << "Distance between closest point " << d << " Distance in z "
                                                   << max_z_distance_closest_points_[isEE] << std::endl;
           bool isInCyl = isInCylinder(mySkeleton, otherSkeleton, cylinder_radius_sqr_[isEE]);
-          LogDebug("TracksterLinkingbySkeletons") << "Two Points are in Cylinder  " << isInCylinder << std::endl;
+          LogDebug("TracksterLinkingbySkeletons") << "Two Points are in Cylinder  " << isInCyl << std::endl;
           if (isInCyl) {
             LogDebug("TracksterLinkingbySkeletons") << "\t\t\t Linked! " << d << std::endl;
           }
