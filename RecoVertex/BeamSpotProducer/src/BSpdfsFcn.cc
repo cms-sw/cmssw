@@ -15,9 +15,16 @@ ________________________________________________________________**/
 
 #include <cmath>
 #include <vector>
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6, 33, 1)
+#include <span>
+#endif
 
 //______________________________________________________________________
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6, 32, 4)
+double BSpdfsFcn::PDFGauss_d(double z, double d, double sigmad, double phi, std::span<const double> parms) const {
+#else
 double BSpdfsFcn::PDFGauss_d(double z, double d, double sigmad, double phi, const std::vector<double>& parms) const {
+#endif
   //---------------------------------------------------------------------------
   //  PDF for d0 distribution. This PDF is a simple gaussian in the
   //  beam reference frame.
@@ -35,8 +42,12 @@ double BSpdfsFcn::PDFGauss_d(double z, double d, double sigmad, double phi, cons
 }
 
 //______________________________________________________________________
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6, 32, 4)
+double BSpdfsFcn::PDFGauss_d_resolution(double z, double d, double phi, double pt, std::span<const double> parms) const {
+#else
 double BSpdfsFcn::PDFGauss_d_resolution(
     double z, double d, double phi, double pt, const std::vector<double>& parms) const {
+#endif
   //---------------------------------------------------------------------------
   //  PDF for d0 distribution. This PDF is a simple gaussian in the
   //  beam reference frame. The IP resolution is parametrize by a linear
@@ -57,7 +68,12 @@ double BSpdfsFcn::PDFGauss_d_resolution(
 }
 
 //______________________________________________________________________
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6, 32, 4)
+double BSpdfsFcn::PDFGauss_z(double z, double sigmaz, std::span<const double> parms) const {
+#else
 double BSpdfsFcn::PDFGauss_z(double z, double sigmaz, const std::vector<double>& parms) const {
+#endif
+
   //---------------------------------------------------------------------------
   //  PDF for z-vertex distribution. This distribution
   // is parametrized by a simple normalized gaussian distribution.
@@ -73,7 +89,11 @@ double BSpdfsFcn::PDFGauss_z(double z, double sigmaz, const std::vector<double>&
 }
 
 //______________________________________________________________________
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6, 32, 4)
+double BSpdfsFcn::operator()(const std::span<const double> params) const {
+#else
 double BSpdfsFcn::operator()(const std::vector<double>& params) const {
+#endif
   double f = 0.0;
 
   //std::cout << "fusepdfs=" << fusepdfs << " params.size="<<params.size() << std::endl;
