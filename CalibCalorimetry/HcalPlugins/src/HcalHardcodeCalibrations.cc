@@ -25,7 +25,7 @@
 
 #include "HcalHardcodeCalibrations.h"
 
-//#define DebugLog
+//#define EDM_ML_DEBUG
 
 // class decleration
 //
@@ -40,8 +40,8 @@ namespace {
     static std::vector<HcalGenericDetId> result;
     int maxDepth = hcaltopology.maxDepth();
 
-#ifdef DebugLog
-    std::cout << std::endl << "HcalHardcodeCalibrations:   maxDepth = " << maxDepth << std::endl;
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("HcalCalib") << std::endl << "HcalHardcodeCalibrations:   maxDepth = " << maxDepth;
 #endif
 
     if (result.empty()) {
@@ -54,9 +54,8 @@ namespace {
                 continue;
               if (hcaltopology.valid(cell)) {
                 result.push_back(cell);
-#ifdef DebugLog
-                std::cout << " HcalHardcodedCalibrations: det|eta|phi|depth = " << det << "|" << eta << "|" << phi
-                          << "|" << depth << std::endl;
+#ifdef EDM_ML_DEBUG
+                edm::LogVerbatim("HcalCalib") << " HcalHardcodedCalibrations: det|eta|phi|depth = " << det << "|" << eta << "|" << phi << "|" << depth;
 #endif
               }
             }
@@ -67,40 +66,73 @@ namespace {
       HcalZDCDetId::Section section = HcalZDCDetId::EM;
       for (int depth = 1; depth < 6; depth++) {
         zcell = HcalZDCDetId(section, true, depth);
-        if (zdctopology.valid(zcell))
+        if (zdctopology.valid(zcell)) {
           result.push_back(zcell);
+#ifdef EDM_ML_DEBUG
+          edm::LogVerbatim("HcalCalib") << " ZDC cell : " << zcell;
+#endif
+	}
         zcell = HcalZDCDetId(section, false, depth);
-        if (zdctopology.valid(zcell))
+        if (zdctopology.valid(zcell)) {
           result.push_back(zcell);
+#ifdef EDM_ML_DEBUG
+	  edm::LogVerbatim("HcalCalib") << " ZDC cell : " << zcell;
+#endif
+	}
       }
       section = HcalZDCDetId::HAD;
       for (int depth = 1; depth < 5; depth++) {
         zcell = HcalZDCDetId(section, true, depth);
-        if (zdctopology.valid(zcell))
+        if (zdctopology.valid(zcell)) {
           result.push_back(zcell);
+#ifdef EDM_ML_DEBUG
+	  edm::LogVerbatim("HcalCalib") << " ZDC cell : " << zcell;
+#endif
+	}
         zcell = HcalZDCDetId(section, false, depth);
-        if (zdctopology.valid(zcell))
+        if (zdctopology.valid(zcell)) {
           result.push_back(zcell);
+#ifdef EDM_ML_DEBUG
+	  edm::LogVerbatim("HcalCalib") << " ZDC cell : " << zcell;
+#endif
+	}
       }
       section = HcalZDCDetId::LUM;
       for (int depth = 1; depth < 3; depth++) {
         zcell = HcalZDCDetId(section, true, depth);
-        if (zdctopology.valid(zcell))
+        if (zdctopology.valid(zcell)) {
           result.push_back(zcell);
+#ifdef EDM_ML_DEBUG
+	  edm::LogVerbatim("HcalCalib") << " ZDC cell : " << zcell;
+#endif	  
+	}
         zcell = HcalZDCDetId(section, false, depth);
-        if (zdctopology.valid(zcell))
+        if (zdctopology.valid(zcell)) {
           result.push_back(zcell);
+#ifdef EDM_ML_DEBUG
+	  edm::LogVerbatim("HcalCalib") << " ZDC cell : " << zcell;
+#endif
+	}
       }
       section = HcalZDCDetId::RPD;
       for (int depth = 1; depth < 17; depth++) {
         zcell = HcalZDCDetId(section, true, depth);
-        if (zdctopology.valid(zcell))
+        if (zdctopology.valid(zcell)) {
           result.push_back(zcell);
+#ifdef EDM_ML_DEBUG
+	  edm::LogVerbatim("HcalCalib") << " ZDC cell : " << zcell;
+#endif
+	}
         zcell = HcalZDCDetId(section, false, depth);
-        if (zdctopology.valid(zcell))
+        if (zdctopology.valid(zcell)) {
           result.push_back(zcell);
+#ifdef EDM_ML_DEBUG
+	  edm::LogVerbatim("HcalCalib") << " ZDC cell : " << zcell;
+#endif
+	}
       }
 
+      
       // HcalGenTriggerTower (HcalGenericSubdetector = 5)
       // NASTY HACK !!!
       // - As no valid(cell) check found for HcalTrigTowerDetId
@@ -113,9 +145,8 @@ namespace {
               HcalTrigTowerDetId cell(eta, phi, depth, vers);
               if (hcaltopology.validHT(cell)) {
                 result.push_back(cell);
-#ifdef DebugLog
-                std::cout << " HcalHardcodedCalibrations: eta|phi|depth|vers = " << eta << "|" << phi << "|" << depth
-                          << "|" << vers << std::endl;
+#ifdef EDM_ML_DEBUG
+                edm::LogVerbatim("HcalCalib") << " HcalHardcodedCalibrations: eta|phi|depth|vers = " << eta << "|" << phi << "|" << depth << "|" << vers;
 #endif
               }
             }
@@ -134,7 +165,9 @@ HcalHardcodeCalibrations::HcalHardcodeCalibrations(const edm::ParameterSet& iCon
       hf_recalibration(nullptr),
       setHEdsegm(false),
       setHBdsegm(false) {
-  edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::HcalHardcodeCalibrations->...";
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HCAL") << "HcalHardcodeCalibrations::HcalHardcodeCalibrations->...";
+#endif
 
   if (iConfig.exists("GainWidthsForTrigPrims"))
     switchGainWidthsForTrigPrims = iConfig.getParameter<bool>("GainWidthsForTrigPrims");
@@ -184,16 +217,16 @@ HcalHardcodeCalibrations::HcalHardcodeCalibrations(const edm::ParameterSet& iCon
       hf_recalibration =
           std::make_unique<HFRecalibration>(iConfig.getParameter<edm::ParameterSet>("HFRecalParameterBlock"));
 
-#ifdef DebugLog
-    std::cout << " HcalHardcodeCalibrations:  iLumi = " << iLumi << std::endl;
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("HcalCalib") << " HcalHardcodeCalibrations:  iLumi = " << iLumi;
 #endif
   }
 
   std::vector<std::string> toGet = iConfig.getUntrackedParameter<std::vector<std::string>>("toGet");
   for (auto& objectName : toGet) {
     bool all = objectName == "all";
-#ifdef DebugLog
-    std::cout << "Load parameters for " << objectName << std::endl;
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("HcalCalib") << "Load parameters for " << objectName;
 #endif
     if ((objectName == "Pedestals") || all) {
       auto c = setWhatProduced(this, &HcalHardcodeCalibrations::producePedestals);
@@ -392,8 +425,9 @@ void HcalHardcodeCalibrations::setIntervalFor(const edm::eventsetup::EventSetupR
                                               const edm::IOVSyncValue& iTime,
                                               edm::ValidityInterval& oInterval) {
   std::string record = iKey.name();
-  edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::setIntervalFor-> key: " << record << " time: " << iTime.eventID()
-                       << '/' << iTime.time().value();
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HCAL") << "HcalHardcodeCalibrations::setIntervalFor-> key: " << record << " time: " << iTime.eventID() << '/' << iTime.time().value();
+#endif
   oInterval = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(), edm::IOVSyncValue::endOfTime());  //infinite
 }
 
@@ -403,8 +437,9 @@ std::unique_ptr<HcalPedestals> HcalHardcodeCalibrations::producePedestals_(
     const edm::ESGetToken<ZdcTopology, HcalRecNumberingRecord>& zdctoken,
     bool eff) {
   std::string seff = eff ? "Effective" : "";
-  edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produce" << seff << "Pedestals-> ...";
-
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HCAL") << "HcalHardcodeCalibrations::produce" << seff << "Pedestals-> ...";
+#endif
   auto const& topo = rec.get(token);
   auto const& zdcTopo = rec.get(zdctoken);
   auto result = std::make_unique<HcalPedestals>(&topo, false);
@@ -422,7 +457,9 @@ std::unique_ptr<HcalPedestalWidths> HcalHardcodeCalibrations::producePedestalWid
     const edm::ESGetToken<ZdcTopology, HcalRecNumberingRecord>& zdctoken,
     bool eff) {
   std::string seff = eff ? "Effective" : "";
-  edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produce" << seff << "PedestalWidths-> ...";
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HCAL") << "HcalHardcodeCalibrations::produce" << seff << "PedestalWidths-> ...";
+#endif
   auto const& topo = rec.get(token);
   auto const& zdcTopo = rec.get(zdctoken);
   auto result = std::make_unique<HcalPedestalWidths>(&topo, false);
@@ -453,8 +490,9 @@ std::unique_ptr<HcalPedestalWidths> HcalHardcodeCalibrations::produceEffectivePe
 }
 
 std::unique_ptr<HcalGains> HcalHardcodeCalibrations::produceGains(const HcalGainsRcd& rec) {
-  edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceGains-> ...";
-
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HCAL") << "HcalHardcodeCalibrations::produceGains-> ...";
+#endif
   auto const& topo = rec.get(topoTokens_[kGains]);
   auto const& zdcTopo = rec.get(zdcTopoTokens_[kGains]);
   auto result = std::make_unique<HcalGains>(&topo);
@@ -467,8 +505,9 @@ std::unique_ptr<HcalGains> HcalHardcodeCalibrations::produceGains(const HcalGain
 }
 
 std::unique_ptr<HcalGainWidths> HcalHardcodeCalibrations::produceGainWidths(const HcalGainWidthsRcd& rec) {
-  edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceGainWidths-> ...";
-
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HCAL") << "HcalHardcodeCalibrations::produceGainWidths-> ...";
+#endif
   auto const& topo = rec.get(topoTokens_[kGainWidths]);
   auto const& zdcTopo = rec.get(zdcTopoTokens_[kGainWidths]);
   auto result = std::make_unique<HcalGainWidths>(&topo);
@@ -476,9 +515,15 @@ std::unique_ptr<HcalGainWidths> HcalHardcodeCalibrations::produceGainWidths(cons
   for (auto cell : cells) {
     // for Upgrade - include TrigPrims, for regular case - only HcalDetId
     if (switchGainWidthsForTrigPrims) {
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("HcalCalib") << " HcalGainWidths cell (with TPs) : " << std::hex << cell.rawId() << std::dec << "  " << cell;
+#endif
       HcalGainWidth item = dbHardcode.makeGainWidth(cell);
       result->addValues(item);
     } else if (!cell.isHcalTrigTowerDetId()) {
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("HcalCalib") << " HcalGainWidths cell (without TPs) : " << std::hex << cell.rawId() << std::dec <<  "  "  << cell;
+#endif
       HcalGainWidth item = dbHardcode.makeGainWidth(cell);
       result->addValues(item);
     }
@@ -487,8 +532,9 @@ std::unique_ptr<HcalGainWidths> HcalHardcodeCalibrations::produceGainWidths(cons
 }
 
 std::unique_ptr<HcalPFCuts> HcalHardcodeCalibrations::producePFCuts(const HcalPFCutsRcd& rec) {
-  edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::producePFCuts-> ...";
-
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HCAL") << "HcalHardcodeCalibrations::producePFCuts-> ...";
+#endif
   auto const& topo = rec.get(topoTokens_[kPFCuts]);
   auto const& zdcTopo = rec.get(zdcTopoTokens_[kPFCuts]);
   auto result = std::make_unique<HcalPFCuts>(&topo);
@@ -504,11 +550,11 @@ std::unique_ptr<HcalPFCuts> HcalHardcodeCalibrations::producePFCuts(const HcalPF
 }
 
 std::unique_ptr<HcalQIEData> HcalHardcodeCalibrations::produceQIEData(const HcalQIEDataRcd& rcd) {
-  edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceQIEData-> ...";
-
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HCAL") << "HcalHardcodeCalibrations::produceQIEData-> ...";
+#endif
   /*
-  std::cout << std::endl << ">>>  HcalHardcodeCalibrations::produceQIEData"
-	    << std::endl;  
+  edm::LogVerbatim("HcalCalib")  << ">>>  HcalHardcodeCalibrations::produceQIEData";
   */
 
   auto const& topo = rcd.get(topoTokens_[kQIEData]);
@@ -523,7 +569,9 @@ std::unique_ptr<HcalQIEData> HcalHardcodeCalibrations::produceQIEData(const Hcal
 }
 
 std::unique_ptr<HcalQIETypes> HcalHardcodeCalibrations::produceQIETypes(const HcalQIETypesRcd& rcd) {
-  edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceQIETypes-> ...";
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HCAL") << "HcalHardcodeCalibrations::produceQIETypes-> ...";
+#endif
   auto const& topo = rcd.get(topoTokens_[kQIETypes]);
   auto const& zdcTopo = rcd.get(zdcTopoTokens_[kQIETypes]);
 
@@ -537,7 +585,9 @@ std::unique_ptr<HcalQIETypes> HcalHardcodeCalibrations::produceQIETypes(const Hc
 }
 
 std::unique_ptr<HcalChannelQuality> HcalHardcodeCalibrations::produceChannelQuality(const HcalChannelQualityRcd& rcd) {
-  edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceChannelQuality-> ...";
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HCAL") << "HcalHardcodeCalibrations::produceChannelQuality-> ...";
+#endif
   auto const& topo = rcd.get(topoTokens_[kChannelQuality]);
   auto const& zdcTopo = rcd.get(zdcTopoTokens_[kChannelQuality]);
 
@@ -577,7 +627,9 @@ std::unique_ptr<HcalChannelQuality> HcalHardcodeCalibrations::produceChannelQual
 }
 
 std::unique_ptr<HcalRespCorrs> HcalHardcodeCalibrations::produceRespCorrs(const HcalRespCorrsRcd& rcd) {
-  edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceRespCorrs-> ...";
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HCAL") << "HcalHardcodeCalibrations::produceRespCorrs-> ...";
+#endif
   auto const& topo = rcd.get(topoTokens_[kRespCorrs]);
   auto const& zdcTopo = rcd.get(zdcTopoTokens_[kRespCorrs]);
 
@@ -622,22 +674,22 @@ std::unique_ptr<HcalRespCorrs> HcalHardcodeCalibrations::produceRespCorrs(const 
       int depth_ = HcalDetId(cell).depth();
       int ieta_ = HcalDetId(cell).ieta();
       corr *= hb_recalibration->getCorr(ieta_, depth_);
-#ifdef DebugLog
-      std::cout << "HB ieta, depth = " << ieta_ << ",  " << depth_ << "   corr = " << corr << std::endl;
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("HcalCalib") << "HB ieta, depth = " << ieta_ << ",  " << depth_ << "   corr = " << corr;
 #endif
     } else if ((he_recalibration != nullptr) && (cell.genericSubdet() == HcalGenericDetId::HcalGenEndcap)) {
       int depth_ = HcalDetId(cell).depth();
       int ieta_ = HcalDetId(cell).ieta();
       corr *= he_recalibration->getCorr(ieta_, depth_);
-#ifdef DebugLog
-      std::cout << "HE ieta, depth = " << ieta_ << ",  " << depth_ << "   corr = " << corr << std::endl;
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("HcalCalib") << "HE ieta, depth = " << ieta_ << ",  " << depth_ << "   corr = " << corr;
 #endif
     } else if ((hf_recalibration != nullptr) && (cell.genericSubdet() == HcalGenericDetId::HcalGenForward)) {
       int depth_ = HcalDetId(cell).depth();
       int ieta_ = HcalDetId(cell).ieta();
       corr = hf_recalibration->getCorr(ieta_, depth_, iLumi);
-#ifdef DebugLog
-      std::cout << "HF ieta, depth = " << ieta_ << ",  " << depth_ << "   corr = " << corr << std::endl;
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("HcalCalib") << "HF ieta, depth = " << ieta_ << ",  " << depth_ << "   corr = " << corr;
 #endif
     }
 
@@ -648,7 +700,9 @@ std::unique_ptr<HcalRespCorrs> HcalHardcodeCalibrations::produceRespCorrs(const 
 }
 
 std::unique_ptr<HcalLUTCorrs> HcalHardcodeCalibrations::produceLUTCorrs(const HcalLUTCorrsRcd& rcd) {
-  edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceLUTCorrs-> ...";
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HCAL") << "HcalHardcodeCalibrations::produceLUTCorrs-> ...";
+#endif
   auto const& topo = rcd.get(topoTokens_[kLUTCorrs]);
   auto const& zdcTopo = rcd.get(zdcTopoTokens_[kLUTCorrs]);
 
@@ -662,7 +716,9 @@ std::unique_ptr<HcalLUTCorrs> HcalHardcodeCalibrations::produceLUTCorrs(const Hc
 }
 
 std::unique_ptr<HcalPFCorrs> HcalHardcodeCalibrations::producePFCorrs(const HcalPFCorrsRcd& rcd) {
-  edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::producePFCorrs-> ...";
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HCAL") << "HcalHardcodeCalibrations::producePFCorrs-> ...";
+#endif
   auto const& topo = rcd.get(topoTokens_[kPFCorrs]);
   auto const& zdcTopo = rcd.get(zdcTopoTokens_[kPFCorrs]);
 
@@ -676,7 +732,9 @@ std::unique_ptr<HcalPFCorrs> HcalHardcodeCalibrations::producePFCorrs(const Hcal
 }
 
 std::unique_ptr<HcalTimeCorrs> HcalHardcodeCalibrations::produceTimeCorrs(const HcalTimeCorrsRcd& rcd) {
-  edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceTimeCorrs-> ...";
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HCAL") << "HcalHardcodeCalibrations::produceTimeCorrs-> ...";
+#endif
   auto const& topo = rcd.get(topoTokens_[kTimeCorrs]);
   auto const& zdcTopo = rcd.get(zdcTopoTokens_[kTimeCorrs]);
 
@@ -690,7 +748,9 @@ std::unique_ptr<HcalTimeCorrs> HcalHardcodeCalibrations::produceTimeCorrs(const 
 }
 
 std::unique_ptr<HcalZSThresholds> HcalHardcodeCalibrations::produceZSThresholds(const HcalZSThresholdsRcd& rcd) {
-  edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceZSThresholds-> ...";
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HCAL") << "HcalHardcodeCalibrations::produceZSThresholds-> ...";
+#endif
   auto const& topo = rcd.get(topoTokens_[kZSThresholds]);
   auto const& zdcTopo = rcd.get(zdcTopoTokens_[kZSThresholds]);
 
@@ -705,7 +765,9 @@ std::unique_ptr<HcalZSThresholds> HcalHardcodeCalibrations::produceZSThresholds(
 
 std::unique_ptr<HcalL1TriggerObjects> HcalHardcodeCalibrations::produceL1TriggerObjects(
     const HcalL1TriggerObjectsRcd& rcd) {
-  edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceL1TriggerObjects-> ...";
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HCAL") << "HcalHardcodeCalibrations::produceL1TriggerObjects-> ...";
+#endif
   auto const& topo = rcd.get(topoTokens_[kL1TriggerObjects]);
   auto const& zdcTopo = rcd.get(zdcTopoTokens_[kL1TriggerObjects]);
 
@@ -722,7 +784,9 @@ std::unique_ptr<HcalL1TriggerObjects> HcalHardcodeCalibrations::produceL1Trigger
 }
 
 std::unique_ptr<HcalElectronicsMap> HcalHardcodeCalibrations::produceElectronicsMap(const HcalElectronicsMapRcd& rcd) {
-  edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceElectronicsMap-> ...";
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HCAL") << "HcalHardcodeCalibrations::produceElectronicsMap-> ...";
+#endif
   auto const& topo = rcd.get(topoTokens_[kElectronicsMap]);
   auto const& zdcTopo = rcd.get(zdcTopoTokens_[kElectronicsMap]);
 
@@ -732,7 +796,9 @@ std::unique_ptr<HcalElectronicsMap> HcalHardcodeCalibrations::produceElectronics
 
 std::unique_ptr<HcalValidationCorrs> HcalHardcodeCalibrations::produceValidationCorrs(
     const HcalValidationCorrsRcd& rcd) {
-  edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceValidationCorrs-> ...";
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HCAL") << "HcalHardcodeCalibrations::produceValidationCorrs-> ...";
+#endif
   auto const& topo = rcd.get(topoTokens_[kValidationCorrs]);
   auto const& zdcTopo = rcd.get(zdcTopoTokens_[kValidationCorrs]);
 
@@ -746,7 +812,9 @@ std::unique_ptr<HcalValidationCorrs> HcalHardcodeCalibrations::produceValidation
 }
 
 std::unique_ptr<HcalLutMetadata> HcalHardcodeCalibrations::produceLutMetadata(const HcalLutMetadataRcd& rcd) {
-  edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceLutMetadata-> ...";
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HCAL") << "HcalHardcodeCalibrations::produceLutMetadata-> ...";
+#endif
   auto const& topo = rcd.get(topoTokens_[kLutMetadata]);
   auto const& zdcTopo = rcd.get(zdcTopoTokens_[kLutMetadata]);
 
@@ -773,19 +841,24 @@ std::unique_ptr<HcalLutMetadata> HcalHardcodeCalibrations::produceLutMetadata(co
 }
 
 std::unique_ptr<HcalDcsValues> HcalHardcodeCalibrations::produceDcsValues(const HcalDcsRcd& rcd) {
-  edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceDcsValues-> ...";
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HCAL") << "HcalHardcodeCalibrations::produceDcsValues-> ...";
+#endif
   auto result = std::make_unique<HcalDcsValues>();
   return result;
 }
 
 std::unique_ptr<HcalDcsMap> HcalHardcodeCalibrations::produceDcsMap(const HcalDcsMapRcd& rcd) {
-  edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceDcsMap-> ...";
-
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HCAL") << "HcalHardcodeCalibrations::produceDcsMap-> ...";
+#endif
   return dbHardcode.makeHardcodeDcsMap();
 }
 
 std::unique_ptr<HcalRecoParams> HcalHardcodeCalibrations::produceRecoParams(const HcalRecoParamsRcd& rec) {
-  edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceRecoParams-> ...";
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HCAL") << "HcalHardcodeCalibrations::produceRecoParams-> ...";
+#endif
   auto const& topo = rec.get(topoTokens_[kRecoParams]);
   auto const& zdcTopo = rec.get(zdcTopoTokens_[kRecoParams]);
 
@@ -799,7 +872,9 @@ std::unique_ptr<HcalRecoParams> HcalHardcodeCalibrations::produceRecoParams(cons
 }
 
 std::unique_ptr<HcalTimingParams> HcalHardcodeCalibrations::produceTimingParams(const HcalTimingParamsRcd& rec) {
-  edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceTimingParams-> ...";
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HCAL") << "HcalHardcodeCalibrations::produceTimingParams-> ...";
+#endif
   auto const& topo = rec.get(topoTokens_[kTimingParams]);
   auto const& zdcTopo = rec.get(zdcTopoTokens_[kTimingParams]);
 
@@ -813,7 +888,9 @@ std::unique_ptr<HcalTimingParams> HcalHardcodeCalibrations::produceTimingParams(
 }
 
 std::unique_ptr<HcalLongRecoParams> HcalHardcodeCalibrations::produceLongRecoParams(const HcalLongRecoParamsRcd& rec) {
-  edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceLongRecoParams-> ...";
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HCAL") << "HcalHardcodeCalibrations::produceLongRecoParams-> ...";
+#endif
   auto const& topo = rec.get(topoTokens_[kLongRecoParams]);
   auto const& zdcTopo = rec.get(zdcTopoTokens_[kLongRecoParams]);
 
@@ -838,7 +915,9 @@ std::unique_ptr<HcalLongRecoParams> HcalHardcodeCalibrations::produceLongRecoPar
 
 std::unique_ptr<HcalZDCLowGainFractions> HcalHardcodeCalibrations::produceZDCLowGainFractions(
     const HcalZDCLowGainFractionsRcd& rec) {
-  edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceZDCLowGainFractions-> ...";
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HCAL") << "HcalHardcodeCalibrations::produceZDCLowGainFractions-> ...";
+#endif
   auto const& topo = rec.get(topoTokens_[kZDCLowGainFractions]);
   auto const& zdcTopo = rec.get(zdcTopoTokens_[kZDCLowGainFractions]);
 
@@ -852,9 +931,9 @@ std::unique_ptr<HcalZDCLowGainFractions> HcalHardcodeCalibrations::produceZDCLow
 }
 
 std::unique_ptr<HcalMCParams> HcalHardcodeCalibrations::produceMCParams(const HcalMCParamsRcd& rec) {
-  //  std::cout << std::endl << " .... HcalHardcodeCalibrations::produceMCParams ->"<< std::endl;
-
-  edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceMCParams-> ...";
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HCAL") << "HcalHardcodeCalibrations::produceMCParams-> ...";
+#endif
   auto const& topo = rec.get(topoTokens_[kMCParams]);
   auto const& zdcTopo = rec.get(zdcTopoTokens_[kMCParams]);
   auto result = std::make_unique<HcalMCParams>(&topo);
@@ -868,7 +947,9 @@ std::unique_ptr<HcalMCParams> HcalHardcodeCalibrations::produceMCParams(const Hc
 
 std::unique_ptr<HcalFlagHFDigiTimeParams> HcalHardcodeCalibrations::produceFlagHFDigiTimeParams(
     const HcalFlagHFDigiTimeParamsRcd& rec) {
-  edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceFlagHFDigiTimeParams-> ...";
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HCAL") << "HcalHardcodeCalibrations::produceFlagHFDigiTimeParams-> ...";
+#endif
   auto const& topo = rec.get(topoTokens_[kFlagHFDigiTimeParams]);
   auto const& zdcTopo = rec.get(zdcTopoTokens_[kFlagHFDigiTimeParams]);
 
@@ -894,7 +975,9 @@ std::unique_ptr<HcalFlagHFDigiTimeParams> HcalHardcodeCalibrations::produceFlagH
 }
 
 std::unique_ptr<HcalFrontEndMap> HcalHardcodeCalibrations::produceFrontEndMap(const HcalFrontEndMapRcd& rec) {
-  edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceFrontEndMap-> ...";
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HCAL") << "HcalHardcodeCalibrations::produceFrontEndMap-> ...";
+#endif
   auto const& topo = rec.get(topoTokens_[kFrontEndMap]);
   auto const& zdcTopo = rec.get(zdcTopoTokens_[kFrontEndMap]);
 
@@ -904,7 +987,9 @@ std::unique_ptr<HcalFrontEndMap> HcalHardcodeCalibrations::produceFrontEndMap(co
 }
 
 std::unique_ptr<HcalSiPMParameters> HcalHardcodeCalibrations::produceSiPMParameters(const HcalSiPMParametersRcd& rec) {
-  edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceSiPMParameters-> ...";
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HCAL") << "HcalHardcodeCalibrations::produceSiPMParameters-> ...";
+#endif
   auto const& topo = rec.get(topoTokens_[kSiPMParameters]);
   auto const& zdcTopo = rec.get(zdcTopoTokens_[kSiPMParameters]);
 
@@ -919,14 +1004,17 @@ std::unique_ptr<HcalSiPMParameters> HcalHardcodeCalibrations::produceSiPMParamet
 
 std::unique_ptr<HcalSiPMCharacteristics> HcalHardcodeCalibrations::produceSiPMCharacteristics(
     const HcalSiPMCharacteristicsRcd& rcd) {
-  edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceSiPMCharacteristics-> ...";
-
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HCAL") << "HcalHardcodeCalibrations::produceSiPMCharacteristics-> ...";
+#endif
   return dbHardcode.makeHardcodeSiPMCharacteristics();
 }
 
 std::unique_ptr<HcalTPChannelParameters> HcalHardcodeCalibrations::produceTPChannelParameters(
     const HcalTPChannelParametersRcd& rec) {
-  edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceTPChannelParameters-> ...";
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HCAL") << "HcalHardcodeCalibrations::produceTPChannelParameters-> ...";
+#endif
   auto const& topo = rec.get(topoTokens_[kTPChannelParameters]);
   auto const& zdcTopo = rec.get(zdcTopoTokens_[kTPChannelParameters]);
 
@@ -944,8 +1032,9 @@ std::unique_ptr<HcalTPChannelParameters> HcalHardcodeCalibrations::produceTPChan
 }
 
 std::unique_ptr<HcalTPParameters> HcalHardcodeCalibrations::produceTPParameters(const HcalTPParametersRcd& rcd) {
-  edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceTPParameters-> ...";
-
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HCAL") << "HcalHardcodeCalibrations::produceTPParameters-> ...";
+#endif
   auto result = std::make_unique<HcalTPParameters>();
   dbHardcode.makeHardcodeTPParameters(*result);
   return result;

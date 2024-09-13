@@ -22,6 +22,8 @@ ZdcTopology::ZdcTopology(const HcalDDDRecConstants* hcons)
       firstRPDModule_(1),
       lastRPDModule_(HcalZDCDetId::kDepRPD) {
   mode_ = (HcalTopologyMode::Mode)(hcons_->getTopoMode());
+  excludeRPD_ = (mode_ < HcalTopologyMode::Mode::Run3);
+  edm::LogVerbatim("ForwardGeom") << "ZdcTopology : Mode " << mode_ << ":" << HcalTopologyMode::Mode::Run3 << " ExcludeRPD " << excludeRPD_;
 }
 
 bool ZdcTopology::valid(const HcalZDCDetId& id) const {
