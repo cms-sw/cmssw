@@ -96,12 +96,14 @@ void SiStripTkMaps::drawMap(TCanvas& canvas, std::string option) {
   }
 
   // Adjust the color palette
-  double minValue = *std::min_element(m_values.begin(), m_values.end());
-  double maxValue = *std::max_element(m_values.begin(), m_values.end());
+  if (!m_values.empty()) {
+    double minValue = *std::min_element(m_values.begin(), m_values.end());
+    double maxValue = *std::max_element(m_values.begin(), m_values.end());
 
-  // Setting a palette that skips the color for the emptyBinValue
-  m_trackerMap->SetMinimum(minValue);  // Set min to the smallest valid value
-  m_trackerMap->SetMaximum(maxValue);  // Set max to the largest valid value
+    // Setting a palette that skips the color for the emptyBinValue
+    m_trackerMap->SetMinimum(minValue);  // Set min to the smallest valid value
+    m_trackerMap->SetMaximum(maxValue);  // Set max to the largest valid value
+  }
 
   canvas.cd();
   adjustCanvasMargins(canvas.cd(), tmargin_, bmargin_, lmargin_, rmargin_);
@@ -307,8 +309,8 @@ void SiStripTkMaps::readVertices(double& minx, double& maxx, double& miny, doubl
           }
           ++iy;
         }  // else
-      }    // else
-    }      // loop on entries
+      }  // else
+    }  // loop on entries
 
     if (isPixel) {
       continue;
