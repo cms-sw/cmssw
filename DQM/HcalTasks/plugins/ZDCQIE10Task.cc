@@ -234,8 +234,6 @@ ZDCQIE10Task::ZDCQIE10Task(edm::ParameterSet const& ps)
     // EM Minus
     HcalZDCDetId didm(HcalZDCDetId::EM, false, channel);
 
-    //cout << " ZDC EM M eid " <<didm()<< " ch "<<channel<<endl;
-
     histoname = "EM_M_" + std::to_string(channel);
     ib.setCurrentFolder("Hcal/ZDCQIE10Task/ADC_perChannel");
     _cADC_EChannel[didm()] = ib.book1DD(histoname.c_str(), histoname.c_str(), 256, 0, 256);
@@ -266,8 +264,6 @@ ZDCQIE10Task::ZDCQIE10Task(edm::ParameterSet const& ps)
     // HAD Pos
     HcalZDCDetId didp(HcalZDCDetId::HAD, true, channel);
 
-    //cout << " ZDC HAD P eid " <<didp()<< " ch "<<channel<< endl;
-
     histoname = "HAD_P_" + std::to_string(channel);
     ib.setCurrentFolder("Hcal/ZDCQIE10Task/ADC_perChannel");
     _cADC_EChannel[didp()] = ib.book1DD(histoname.c_str(), histoname.c_str(), 256, 0, 256);
@@ -295,8 +291,6 @@ ZDCQIE10Task::ZDCQIE10Task(edm::ParameterSet const& ps)
 
     // HAD Minus
     HcalZDCDetId didm(HcalZDCDetId::HAD, false, channel);
-
-    //cout << " ZDC HAD M eid " <<didm()<< " ch "<<channel<<endl;
 
     histoname = "HAD_M_" + std::to_string(channel);
     ib.setCurrentFolder("Hcal/ZDCQIE10Task/ADC_perChannel");
@@ -328,8 +322,6 @@ ZDCQIE10Task::ZDCQIE10Task(edm::ParameterSet const& ps)
     // RPD Pos
     HcalZDCDetId didp(HcalZDCDetId::RPD, true, channel);
 
-    //cout << " ZDC RPD Pos eid " <<didp()<< " ch "<<channel<<endl;
-
     histoname = "RPD_P_" + std::to_string(channel);
     ib.setCurrentFolder("Hcal/ZDCQIE10Task/ADC_perChannel");
     _cADC_EChannel[didp()] = ib.book1DD(histoname.c_str(), histoname.c_str(), 256, 0, 256);
@@ -358,8 +350,6 @@ ZDCQIE10Task::ZDCQIE10Task(edm::ParameterSet const& ps)
     // RPD Minus
     HcalZDCDetId didm(HcalZDCDetId::RPD, false, channel);
     histoname = "RPD_M_" + std::to_string(channel);
-
-    //cout << " ZDC RPD M eid " <<didm()<< " ch "<<channel<<endl;
 
     ib.setCurrentFolder("Hcal/ZDCQIE10Task/ADC_perChannel");
     _cADC_EChannel[didm()] = ib.book1DD(histoname.c_str(), histoname.c_str(), 256, 0, 256);
@@ -401,16 +391,16 @@ void ZDCQIE10Task::_process(edm::Event const& e, edm::EventSetup const& es) {
   edm::Handle<BXVector<l1t::EtSum> > sums;
   e.getByToken(sumToken_, sums);
 
-  //int startBX = sums->getFirstBX();
+  int startBX = sums->getFirstBX();
 
-  //for (int ibx = startBX; ibx <= sums->getLastBX(); ++ibx){
-  //	for (auto itr = sums->begin(ibx); itr != sums->end(ibx); ++itr){
-  //		if (itr->getType() == l1t::EtSum::EtSumType::kZDCP)
-  //			cout << "Plus side!" << endl;
-  //		if (itr->getType() == l1t::EtSum::EtSumType::kZDCM)
-  //			cout << "Minus side!" << endl;
-  //	}
-  //}
+  for (int ibx = startBX; ibx <= sums->getLastBX(); ++ibx){
+  	for (auto itr = sums->begin(ibx); itr != sums->end(ibx); ++itr){
+  		if (itr->getType() == l1t::EtSum::EtSumType::kZDCP)
+        etSumZdcP_[ibx - startBX] = itr->hwPt();
+  		if (itr->getType() == l1t::EtSum::EtSumType::kZDCM)
+  			etSumZdcM_[ibx - startBX] = itr->hwPt();
+  	}
+  }
 
   edm::Handle<QIE10DigiCollection> digis;
   if (!e.getByToken(_tokQIE10, digis))
@@ -426,32 +416,14 @@ void ZDCQIE10Task::_process(edm::Event const& e, edm::EventSetup const& es) {
     HcalZDCDetId const& did = digi.detid();
 
     HcalZDCDetId cell = it->id();
-    DetId detcell = (DetId)cell;
 
-    const HcalLongRecoParam* myParams = longRecoParams_->getValues(detcell);
-    mySignalTS.clear();
-    myNoiseTS.clear();
-    mySignalTS = myParams->signalTS();
-    myNoiseTS = myParams->noiseTS();
-
-    for (unsigned int k : mySignalTS) {
-      std::cout << k << ' ';
-    }
-
-    //cout << " ZDC did" <<did()<<endl;
     uint32_t rawid = _ehashmap.lookup(did);
 
     if (rawid == 0) {
-      //cout << " rawid = 0 " <<endl;
       continue;
     } else {
-      //cout << " subdet" << did.subdetId() <<endl;
     }
     HcalElectronicsId const& eid(rawid);
-    if (eid.isUTCAid()) {
-      //	if (eid.isTriggerChainId())
-      //cout << eid.crateId() << ',' << eid.slot() << ',' << eid.fiberIndex() << ',' << eid.fiberChanId()<<endl;
-    }
 
     _cDigiSize_Crate[0]->Fill(digi.samples());
 
@@ -564,16 +536,5 @@ void ZDCQIE10Task::_process(edm::Event const& e, edm::EventSetup const& es) {
   _cZDC_BXSUMS[0]->Fill(bx, ((EMM_sum * 0.1) + HADM_sum) * 0.5031);
   _cZDC_BXSUMS[1]->Fill(bx, ((EMP_sum * 0.12) + HADP_sum) * 0.9397);
 }
-//std::shared_ptr<hcaldqm::Cache> ZDCQIE10Task::globalBeginLuminosityBlock(edm::LuminosityBlock const& lb,
-//									 edm::EventSetup const& es) const {
-//  return DQTask::globalBeginLuminosityBlock(lb, es);
-//}
-
-/* virtual */
-//void ZDCQIE10Task::globalEndLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& es) {
-//  auto lumiCache = luminosityBlockCache(lb.index());
-
-//  DQTask::globalEndLuminosityBlock(lb, es);
-//}
 
 DEFINE_FWK_MODULE(ZDCQIE10Task);
