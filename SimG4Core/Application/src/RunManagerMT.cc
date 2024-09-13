@@ -170,7 +170,6 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
   // adding GFlash, Russian Roulette for eletrons and gamma,
   // step limiters on top of any Physics Lists
   phys->RegisterPhysics(new ParametrisedEMPhysics("EMoptions", m_pPhysics));
-  edm::LogWarning("SimG4CoreApplication") << "RunManagerMT: ==4==";
 
   if (m_RestorePhysicsTables) {
     m_physicsList->SetPhysicsTableRetrieved(m_PhysicsTablesDir);

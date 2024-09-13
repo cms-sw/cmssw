@@ -339,7 +339,6 @@ void RunManagerMTWorker::initializeG4(RunManagerMT* runManagerMaster, const edm:
   edm::LogVerbatim("SimG4CoreApplication")
       << "RunManagerMTWorker::InitializeG4: Sensitive Detectors are built in thread " << thisID << " found "
       << m_tls->sensTkDets.size() << " Tk type SD, and " << m_tls->sensCaloDets.size() << " Calo type SD";
-  edm::LogWarning("SimG4CoreApplication") << "RunManagerMTWorker::initializeG4 in thread " << thisID << " ==2==";
 
   // geometry dump
   G4String writeFile = (G4String)m_p.getUntrackedParameter<std::string>("FileNameGDML");
