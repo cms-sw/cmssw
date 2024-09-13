@@ -55,7 +55,8 @@ namespace {
               if (hcaltopology.valid(cell)) {
                 result.push_back(cell);
 #ifdef EDM_ML_DEBUG
-                edm::LogVerbatim("HcalCalib") << " HcalHardcodedCalibrations: det|eta|phi|depth = " << det << "|" << eta << "|" << phi << "|" << depth;
+                edm::LogVerbatim("HcalCalib") << " HcalHardcodedCalibrations: det|eta|phi|depth = " << det << "|" << eta
+                                              << "|" << phi << "|" << depth;
 #endif
               }
             }
@@ -71,14 +72,14 @@ namespace {
 #ifdef EDM_ML_DEBUG
           edm::LogVerbatim("HcalCalib") << " ZDC cell : " << zcell;
 #endif
-	}
+        }
         zcell = HcalZDCDetId(section, false, depth);
         if (zdctopology.valid(zcell)) {
           result.push_back(zcell);
 #ifdef EDM_ML_DEBUG
-	  edm::LogVerbatim("HcalCalib") << " ZDC cell : " << zcell;
+          edm::LogVerbatim("HcalCalib") << " ZDC cell : " << zcell;
 #endif
-	}
+        }
       }
       section = HcalZDCDetId::HAD;
       for (int depth = 1; depth < 5; depth++) {
@@ -86,16 +87,16 @@ namespace {
         if (zdctopology.valid(zcell)) {
           result.push_back(zcell);
 #ifdef EDM_ML_DEBUG
-	  edm::LogVerbatim("HcalCalib") << " ZDC cell : " << zcell;
+          edm::LogVerbatim("HcalCalib") << " ZDC cell : " << zcell;
 #endif
-	}
+        }
         zcell = HcalZDCDetId(section, false, depth);
         if (zdctopology.valid(zcell)) {
           result.push_back(zcell);
 #ifdef EDM_ML_DEBUG
-	  edm::LogVerbatim("HcalCalib") << " ZDC cell : " << zcell;
+          edm::LogVerbatim("HcalCalib") << " ZDC cell : " << zcell;
 #endif
-	}
+        }
       }
       section = HcalZDCDetId::LUM;
       for (int depth = 1; depth < 3; depth++) {
@@ -103,16 +104,16 @@ namespace {
         if (zdctopology.valid(zcell)) {
           result.push_back(zcell);
 #ifdef EDM_ML_DEBUG
-	  edm::LogVerbatim("HcalCalib") << " ZDC cell : " << zcell;
-#endif	  
-	}
+          edm::LogVerbatim("HcalCalib") << " ZDC cell : " << zcell;
+#endif
+        }
         zcell = HcalZDCDetId(section, false, depth);
         if (zdctopology.valid(zcell)) {
           result.push_back(zcell);
 #ifdef EDM_ML_DEBUG
-	  edm::LogVerbatim("HcalCalib") << " ZDC cell : " << zcell;
+          edm::LogVerbatim("HcalCalib") << " ZDC cell : " << zcell;
 #endif
-	}
+        }
       }
       section = HcalZDCDetId::RPD;
       for (int depth = 1; depth < 17; depth++) {
@@ -120,19 +121,18 @@ namespace {
         if (zdctopology.valid(zcell)) {
           result.push_back(zcell);
 #ifdef EDM_ML_DEBUG
-	  edm::LogVerbatim("HcalCalib") << " ZDC cell : " << zcell;
+          edm::LogVerbatim("HcalCalib") << " ZDC cell : " << zcell;
 #endif
-	}
+        }
         zcell = HcalZDCDetId(section, false, depth);
         if (zdctopology.valid(zcell)) {
           result.push_back(zcell);
 #ifdef EDM_ML_DEBUG
-	  edm::LogVerbatim("HcalCalib") << " ZDC cell : " << zcell;
+          edm::LogVerbatim("HcalCalib") << " ZDC cell : " << zcell;
 #endif
-	}
+        }
       }
 
-      
       // HcalGenTriggerTower (HcalGenericSubdetector = 5)
       // NASTY HACK !!!
       // - As no valid(cell) check found for HcalTrigTowerDetId
@@ -146,7 +146,8 @@ namespace {
               if (hcaltopology.validHT(cell)) {
                 result.push_back(cell);
 #ifdef EDM_ML_DEBUG
-                edm::LogVerbatim("HcalCalib") << " HcalHardcodedCalibrations: eta|phi|depth|vers = " << eta << "|" << phi << "|" << depth << "|" << vers;
+                edm::LogVerbatim("HcalCalib") << " HcalHardcodedCalibrations: eta|phi|depth|vers = " << eta << "|"
+                                              << phi << "|" << depth << "|" << vers;
 #endif
               }
             }
@@ -426,7 +427,8 @@ void HcalHardcodeCalibrations::setIntervalFor(const edm::eventsetup::EventSetupR
                                               edm::ValidityInterval& oInterval) {
   std::string record = iKey.name();
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HCAL") << "HcalHardcodeCalibrations::setIntervalFor-> key: " << record << " time: " << iTime.eventID() << '/' << iTime.time().value();
+  edm::LogVerbatim("HCAL") << "HcalHardcodeCalibrations::setIntervalFor-> key: " << record
+                           << " time: " << iTime.eventID() << '/' << iTime.time().value();
 #endif
   oInterval = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(), edm::IOVSyncValue::endOfTime());  //infinite
 }
@@ -516,13 +518,15 @@ std::unique_ptr<HcalGainWidths> HcalHardcodeCalibrations::produceGainWidths(cons
     // for Upgrade - include TrigPrims, for regular case - only HcalDetId
     if (switchGainWidthsForTrigPrims) {
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HcalCalib") << " HcalGainWidths cell (with TPs) : " << std::hex << cell.rawId() << std::dec << "  " << cell;
+      edm::LogVerbatim("HcalCalib") << " HcalGainWidths cell (with TPs) : " << std::hex << cell.rawId() << std::dec
+                                    << "  " << cell;
 #endif
       HcalGainWidth item = dbHardcode.makeGainWidth(cell);
       result->addValues(item);
     } else if (!cell.isHcalTrigTowerDetId()) {
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HcalCalib") << " HcalGainWidths cell (without TPs) : " << std::hex << cell.rawId() << std::dec <<  "  "  << cell;
+      edm::LogVerbatim("HcalCalib") << " HcalGainWidths cell (without TPs) : " << std::hex << cell.rawId() << std::dec
+                                    << "  " << cell;
 #endif
       HcalGainWidth item = dbHardcode.makeGainWidth(cell);
       result->addValues(item);
