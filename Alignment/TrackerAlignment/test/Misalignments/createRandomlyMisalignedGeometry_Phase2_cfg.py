@@ -4,7 +4,7 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 import copy, sys, os
 
 import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
-GLOBAL_TAG, ERA = _settings.get_era_and_conditions("2026D107")  # this should really be _settings.DEFAULT_VERSION :(
+GLOBAL_TAG, ERA = _settings.get_era_and_conditions(_settings.DEFAULT_VERSION)
 process = cms.Process("Misaligner", ERA)
 
 ###################################################################
@@ -48,7 +48,7 @@ process.MessageLogger.cout = cms.untracked.PSet(
 ###################################################################
 # Ideal geometry producer and standard includes
 ###################################################################
-process.load('Configuration.Geometry.GeometryExtended2026D107Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2026DefaultReco_cff')
 process.trackerGeometry.applyAlignment = True
 
 ###################################################################
