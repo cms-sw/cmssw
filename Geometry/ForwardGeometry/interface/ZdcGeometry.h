@@ -64,7 +64,7 @@ public:
                   CaloSubdetectorGeometry::IVec& dins) const override;
 
 protected:
-  unsigned int indexFor(const DetId& id) const override { return HcalZDCDetId(id).denseIndex(); }
+  unsigned int indexFor(const DetId& id) const override { return theTopology->detId2DenseIndex(id); }
 
   // Modify the RawPtr class
   const CaloCellGeometry* getGeometryRawPtr(uint32_t index) const override;

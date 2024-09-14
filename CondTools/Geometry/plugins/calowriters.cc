@@ -373,7 +373,7 @@ CaloGeometryDBEP<ZdcGeometry, CaloGeometryDBWriter>::produceAligned(const typena
 
     const CCGFloat* myParm(CaloCellGeometry::getParmPtr(dims, ptr->parMgr(), ptr->parVecVec()));
 
-    const DetId id(HcalZDCDetId::detIdFromDenseIndex(dins[i]));
+    const DetId id(zdcTopology.denseId2detId(dins[i]));
 
     const unsigned int iGlob(nullptr == globalPtr ? 0 : ZdcGeometry::alignmentTransformIndexGlobal(id));
 

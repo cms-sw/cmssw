@@ -85,7 +85,7 @@ void ZdcGeometry::newCell(const GlobalPoint& f1,
 #endif
   assert(cgid.isZDC());
 
-  const unsigned int di(cgid.denseIndex());
+  const unsigned int di(theTopology->detId2DenseIndex(detId));
 
   m_cellVec[di] = IdealZDCTrapezoid(f1, cornersMgr(), parm);
   addValidID(detId);

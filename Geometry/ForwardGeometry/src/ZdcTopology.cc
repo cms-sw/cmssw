@@ -367,3 +367,30 @@ uint32_t ZdcTopology::kSizeForDenseIndexing() const {
   return (mode_ >= HcalTopologyMode::Mode::Run3 ? HcalZDCDetId::kSizeForDenseIndexingRun3
                                                 : HcalZDCDetId::kSizeForDenseIndexingRun1);
 }
+
+DetId ZdcTopology::denseId2detId(uint32_t di) const {
+  if (validDenseIndex(di)) {
+    bool lz(false);
+    uint32_t dp(0);
+    HcalZDCDetId::Section se(HcalZDCDetId::Unknown);
+    if (di >= 2 * HcalZDCDetId::kDepRun1) {
+      lz = (di >= (HcalZDCDetId::kDepRun1 + HcalZDCDetId::kDepTot));
+      se = HcalZDCDetId::RPD;
+      dp = 1 + ((di - 2 * HcalZDCDetId::kDepRun1) % HcalZDCDetId::kDepRPD);
+    } else {
+      lz = (di >= HcalZDCDetId::kDepRun1);
+      uint32_t in = (di % HcalZDCDetId::kDepRun1);
+      se = (in < HcalZDCDetId::kDepEM ? HcalZDCDetId::EM : (in < HcalZDCDetId::kDepEM + HcalZDCDetId::kDepHAD ? HcalZDCDetId::HAD : HcalZDCDetId::LUM));
+      dp = (se == HcalZDCDetId::EM ? in + 1 : (se == HcalZDCDetId::HAD ? in - HcalZDCDetId::kDepEM + 1 : in - HcalZDCDetId::kDepEM - HcalZDCDetId::kDepHAD + 1));
+    }
+    return static_cast<DetId>(HcalZDCDetId(se, lz, dp));
+  }
+  return DetId();
+}
+
+uint32_t ZdcTopology::detId2DenseIndex(const DetId& id) const {
+  HcalZDCDetId detId(id);
+  const int32_t se(detId.section());
+  uint32_t di = (detId.channel() - 1 + (se == HcalZDCDetId::RPD ? 2 * HcalZDCDetId::kDepRun1 + (detId.zside() < 0 ? 0 : HcalZDCDetId::kDepRPD) : ((detId.zside() < 0 ? 0 : HcalZDCDetId::kDepRun1) + (se == HcalZDCDetId::HAD ? HcalZDCDetId::kDepEM : (se == HcalZDCDetId::LUM ? HcalZDCDetId::kDepEM + HcalZDCDetId::kDepHAD : 0)))));
+    return di;
+  }
