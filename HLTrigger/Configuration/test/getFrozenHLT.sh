@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ConfDB configurations to use
-TABLES="Fake Fake1 Fake2 2022v12 2022v15"
+TABLES="Fake Fake1 Fake2 2022v15"
 HLT_Fake="/dev/CMSSW_12_4_0/Fake"
 HLT_Fake1="/dev/CMSSW_12_4_0/Fake1"
 HLT_Fake2="/dev/CMSSW_12_4_0/Fake2"
