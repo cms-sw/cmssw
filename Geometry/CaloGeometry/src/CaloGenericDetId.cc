@@ -100,7 +100,7 @@ std::ostream& operator<<(std::ostream& s, const CaloGenericDetId& id) {
   } else if (id.isCaloTower()) {
     edm::LogError("CaloGenericDetIdError") << "No support for CaloTower in CaloGenericDetId";
     throw cms::Exception("No support");
-  } else if (isZDC()) {
+  } else if (id.isZDC()) {
     edm::LogError("CaloGenericDetIdError") << "No support for ZDC in CaloGenericDetId";
     throw cms::Exception("No support for ZDC in CaloGenericDetId");
   }
