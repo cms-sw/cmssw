@@ -7,11 +7,6 @@
 
 typedef CaloCellGeometry::CCGFloat CCGFloat;
 
-/*
-ZdcHardcodeGeometryLoader::ZdcHardcodeGeometryLoader() : theTopology(new ZdcTopology), extTopology(theTopology) {
-  init();
-}
-*/
 ZdcHardcodeGeometryLoader::ZdcHardcodeGeometryLoader(const ZdcTopology& ht) : extTopology(&ht) { init(); }
 
 void ZdcHardcodeGeometryLoader::init() {}

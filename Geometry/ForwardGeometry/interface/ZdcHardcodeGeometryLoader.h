@@ -17,7 +17,6 @@ class ZdcHardcodeGeometryLoader {
 public:
   typedef CaloSubdetectorGeometry* ReturnType;
 
-  //  ZdcHardcodeGeometryLoader();
   explicit ZdcHardcodeGeometryLoader(const ZdcTopology& ht);
   ~ZdcHardcodeGeometryLoader() {}
 

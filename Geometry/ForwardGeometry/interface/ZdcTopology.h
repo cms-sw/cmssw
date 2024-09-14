@@ -56,7 +56,7 @@ public:
   uint32_t kSizeForDenseIndexing() const;
   bool validDenseIndex(uint32_t din) const { return (din < kSizeForDenseIndexing()); }
 
-  DetId denseId2detId(uint32_t di) const; 
+  DetId denseId2detId(uint32_t di) const;
   uint32_t detId2DenseIndex(const DetId& id) const;
 
 private:
