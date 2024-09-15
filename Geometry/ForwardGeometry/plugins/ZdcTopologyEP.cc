@@ -36,7 +36,7 @@ ZdcTopologyEP::ZdcTopologyEP(const edm::ParameterSet& conf)
 void ZdcTopologyEP::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.addUntracked<std::string>("Exclude", "");
-  descriptions.addWithDefaultLabel(desc);
+  descriptions.add("zdcTopologyEP", desc);
 }
 
 // ------------ method called to produce the data  ------------

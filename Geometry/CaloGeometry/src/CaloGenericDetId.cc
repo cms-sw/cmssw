@@ -10,9 +10,6 @@ CaloGenericDetId::CaloGenericDetId(DetId::Detector iDet, int iSub, uint32_t iDin
   } else if (isCaloTower()) {
     edm::LogError("CaloGenericDetIdError") << "No support for CaloTower in CaloGenericDetId";
     throw cms::Exception("No support");
-  } else if (isZDC()) {
-    edm::LogError("CaloGenericDetIdError") << "No support for ZDC in CaloGenericDetId";
-    throw cms::Exception("No support for ZDC in CaloGenericDetId");
   } else {
     id_ =
         (isEB()
@@ -31,9 +28,6 @@ uint32_t CaloGenericDetId::denseIndex() const {
   } else if (isCaloTower()) {
     edm::LogError("CaloGenericDetIdError") << "No support for CaloTower in CaloGenericDetId";
     throw cms::Exception("No support");
-  } else if (isZDC()) {
-    edm::LogError("CaloGenericDetIdError") << "No support for ZDC in CaloGenericDetId";
-    throw cms::Exception("No support for ZDC in CaloGenericDetId");
   }
 
   return (isEB() ? EBDetId(rawId()).denseIndex()
@@ -50,9 +44,6 @@ uint32_t CaloGenericDetId::sizeForDenseIndexing() const {
   } else if (isCaloTower()) {
     edm::LogError("CaloGenericDetIdError") << "No support for CaloTower in CaloGenericDetId";
     throw cms::Exception("No support");
-  } else if (isZDC()) {
-    edm::LogError("CaloGenericDetIdError") << "No support for ZDC in CaloGenericDetId";
-    throw cms::Exception("No support for ZDC in CaloGenericDetId");
   }
 
   return (isEB() ? EBDetId::kSizeForDenseIndexing
@@ -77,9 +68,6 @@ bool CaloGenericDetId::validDetId() const {
     edm::LogError("CaloGenericDetIdError") << "No support for HB/HE/HO/HF in CaloGenericDetId";
     throw cms::Exception("No support");
     returnValue = false;
-  } else if (isZDC()) {
-    const HcalZDCDetId zdid(rawId());
-    returnValue = HcalZDCDetId::validDetId(zdid.section(), zdid.channel());
   } else if (isCastor()) {
     const HcalCastorDetId zdid(rawId());
     returnValue = HcalCastorDetId::validDetId(zdid.section(), zdid.zside() > 0, zdid.sector(), zdid.module());
@@ -100,9 +88,6 @@ std::ostream& operator<<(std::ostream& s, const CaloGenericDetId& id) {
   } else if (id.isCaloTower()) {
     edm::LogError("CaloGenericDetIdError") << "No support for CaloTower in CaloGenericDetId";
     throw cms::Exception("No support");
-  } else if (id.isZDC()) {
-    edm::LogError("CaloGenericDetIdError") << "No support for ZDC in CaloGenericDetId";
-    throw cms::Exception("No support for ZDC in CaloGenericDetId");
   }
 
   return (id.isEB()
