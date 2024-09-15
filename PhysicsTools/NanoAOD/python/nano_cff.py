@@ -278,13 +278,15 @@ def nanoAOD_customizeCommon(process):
     )
     
     nanoAOD_boostedTau_switch = cms.PSet(
-        idsToAdd = cms.vstring()
+        idsToAdd = cms.vstring("boostedDeepTauRunIIv2p0") #FIXME: to be moved to mini
     )
     run2_nanoAOD_106Xv2.toModify(
-        nanoAOD_boostedTau_switch, idsToAdd = ["mvaIso", "mvaIsoNewDM", "mvaIsoDR0p3", "againstEle"]
-    ).toModify(
-        process, lambda p : nanoAOD_addBoostedTauIds(p, nanoAOD_boostedTau_switch.idsToAdd.value())
-    )
+        nanoAOD_boostedTau_switch, idsToAdd = ["mvaIso", "mvaIsoNewDM", "mvaIsoDR0p3", "againstEle", "boostedDeepTauRunIIv2p0"]
+    )#.toModify(
+    #    process, lambda p : nanoAOD_addBoostedTauIds(p, nanoAOD_boostedTau_switch.idsToAdd.value())
+    #)
+    #FIXME: consider to add run3_nanoAOD_124 switch??
+    nanoAOD_addBoostedTauIds(process, nanoAOD_boostedTau_switch.idsToAdd.value())
 
     # Add lepton time-life info
     from PhysicsTools.NanoAOD.leptonTimeLifeInfo_common_cff import addTimeLifeInfoBase
