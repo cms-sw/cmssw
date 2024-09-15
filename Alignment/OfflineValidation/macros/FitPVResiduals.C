@@ -657,12 +657,38 @@ void FitPVResiduals(TString namesandlabels,
     timer.Continue();
   }
 
+  // Lambda function to determine the effective number of entries
+  auto getEffectiveEntries = [](TH1 *hist) -> double {
+    if (!hist) {
+      std::cerr << "Invalid histogram pointer!" << std::endl;
+      return 0.;
+    }
+
+    double entries = hist->GetEntries() / hist->GetNbinsX();
+
+    // Check if the histogram was hadded (entries != 1 indicates potential hadding)
+    if (entries != 1) {
+      // If the sum of weights is not equal to effective entries, it suggests that the histogram was weighted
+      if (hist->GetSumOfWeights() != hist->GetEffectiveEntries()) {
+        entries = 1.;  // Assuming overall sum of weights is 1 (lumi-weighted histograms)
+      }
+    }
+
+    if (isDebugMode) {
+      std::cout << "name:" << hist->GetName() << " bins:" << hist->GetNbinsX() << " sumW:" << hist->GetSumOfWeights()
+                << " effective entries:" << hist->GetEffectiveEntries() << " returned entries:" << entries << std::endl;
+    }
+
+    return entries;
+  };
+
   for (Int_t i = 0; i < nFiles_; i++) {
     fins[i]->cd("PVValidation/EventFeatures/");
 
     if (gDirectory->GetListOfKeys()->Contains("etaMax")) {
       gDirectory->GetObject("etaMax", theEtaHistos[i]);
-      theEtaMax_[i] = theEtaHistos[i]->GetBinContent(1) / theEtaHistos[i]->GetEntries();
+      double entries = getEffectiveEntries(theEtaHistos[i]);
+      theEtaMax_[i] = theEtaHistos[i]->GetBinContent(1) / entries;
       std::cout << "File n. " << i << " has theEtaMax[" << i << "] = " << theEtaMax_[i] << std::endl;
     } else {
       theEtaMax_[i] = 2.5;
@@ -671,7 +697,8 @@ void FitPVResiduals(TString namesandlabels,
 
     if (gDirectory->GetListOfKeys()->Contains("nbins")) {
       gDirectory->GetObject("nbins", thebinsHistos[i]);
-      theNBINS[i] = thebinsHistos[i]->GetBinContent(1) / thebinsHistos[i]->GetEntries();
+      double entries = getEffectiveEntries(thebinsHistos[i]);
+      theNBINS[i] = thebinsHistos[i]->GetBinContent(1) / entries;
       std::cout << "File n. " << i << " has theNBINS[" << i << "] = " << theNBINS[i] << std::endl;
     } else {
       theNBINS[i] = 48.;
@@ -680,7 +707,8 @@ void FitPVResiduals(TString namesandlabels,
 
     if (gDirectory->GetListOfKeys()->Contains("nladders")) {
       gDirectory->GetObject("nladders", theLaddersHistos[i]);
-      theLadders[i] = theLaddersHistos[i]->GetBinContent(1) / theLaddersHistos[i]->GetEntries();
+      double entries = getEffectiveEntries(theLaddersHistos[i]);
+      theLadders[i] = theLaddersHistos[i]->GetBinContent(1) / entries;
       std::cout << "File n. " << i << " has theNLadders[" << i << "] = " << theLadders[i] << std::endl;
     } else {
       theLadders[i] = -1.;
@@ -689,7 +717,8 @@ void FitPVResiduals(TString namesandlabels,
 
     if (gDirectory->GetListOfKeys()->Contains("nModZ")) {
       gDirectory->GetObject("nModZ", theModZHistos[i]);
-      theModZ[i] = theModZHistos[i]->GetBinContent(1) / theModZHistos[i]->GetEntries();
+      double entries = getEffectiveEntries(theModZHistos[i]);
+      theModZ[i] = theModZHistos[i]->GetBinContent(1) / entries;
       std::cout << "File n. " << i << " has theNModZ[" << i << "] = " << theModZ[i] << std::endl;
     } else {
       theModZ[i] = -1.;
@@ -698,10 +727,10 @@ void FitPVResiduals(TString namesandlabels,
 
     if (gDirectory->GetListOfKeys()->Contains("pTinfo")) {
       gDirectory->GetObject("pTinfo", thePtInfoHistos[i]);
-      thePTBINS[i] = thePtInfoHistos[i]->GetBinContent(1) * 3. / thePtInfoHistos[i]->GetEntries();
-      ;
-      thePtMin[i] = thePtInfoHistos[i]->GetBinContent(2) * 3. / thePtInfoHistos[i]->GetEntries();
-      thePtMax[i] = thePtInfoHistos[i]->GetBinContent(3) * 3. / thePtInfoHistos[i]->GetEntries();
+      double entries = getEffectiveEntries(thePtInfoHistos[i]);
+      thePTBINS[i] = thePtInfoHistos[i]->GetBinContent(1) / entries;
+      thePtMin[i] = thePtInfoHistos[i]->GetBinContent(2) / entries;
+      thePtMax[i] = thePtInfoHistos[i]->GetBinContent(3) / entries;
       std::cout << "File n. " << i << " has thePTBINS[" << i << "] = " << thePTBINS[i] << " pT min:  " << thePtMin[i]
                 << " pT max: " << thePtMax[i] << std::endl;
     } else {
@@ -727,7 +756,7 @@ void FitPVResiduals(TString namesandlabels,
     gDirectory->GetObject("h_probeRefitVSigXY", dxySigRefit[i]);
     gDirectory->GetObject("h_probeRefitVSigZ", dzSigRefit[i]);
 
-    for (Int_t j = 0; j < theNBINS[i]; j++) {
+    for (Int_t j = 0; j < Int_t(theNBINS[i]); j++) {
       if (stdres) {
         // DCA absolute residuals
 
@@ -757,7 +786,7 @@ void FitPVResiduals(TString namesandlabels,
         // double differential residuals
 
         if (do2DMaps) {
-          for (Int_t k = 0; k < theNBINS[i]; k++) {
+          for (Int_t k = 0; k < Int_t(theNBINS[i]); k++) {
             // absolute residuals
             fins[i]->cd("PVValidation/Abs_DoubleDiffResiduals/");
             gDirectory->GetObject(Form("histo_dxy_eta_plot%i_phi_plot%i", j, k), dxyMapResiduals[i][j][k]);
@@ -792,7 +821,7 @@ void FitPVResiduals(TString namesandlabels,
 
         // double differential residuals
         if (do2DMaps) {
-          for (Int_t k = 0; k < theNBINS[i]; k++) {
+          for (Int_t k = 0; k < Int_t(theNBINS[i]); k++) {
             // absolute residuals
             fins[i]->cd("PVValidation/Abs_DoubleDiffResiduals");
             gDirectory->GetObject(Form("PVValidation/Abs_DoubleDiffResiduals/histo_dxy_eta_plot%i_phi_plot%i", j, k),
@@ -815,7 +844,7 @@ void FitPVResiduals(TString namesandlabels,
 
     // residuals vs pT
 
-    for (Int_t l = 0; l < thePTBINS[i] - 1; l++) {
+    for (Int_t l = 0; l < Int_t(thePTBINS[i] - 1); l++) {
       dxyPtResiduals[i][l] = (TH1F *)fins[i]->Get(Form("PVValidation/Abs_Transv_pT_Residuals/histo_dxy_pT_plot%i", l));
       dzPtResiduals[i][l] = (TH1F *)fins[i]->Get(Form("PVValidation/Abs_Long_pT_Residuals/histo_dz_pT_plot%i", l));
 
@@ -3054,11 +3083,26 @@ std::pair<params::measurement, params::measurement> fitResiduals(TH1 *hist, bool
     sigma = func.GetParameter(2);
 
     if (!singleTime) {
-      // second fit: three sigma of first fit around mean of first fit
+      // Check if histogram is weighted
+      double sumWeights = hist->GetSumOfWeights();
+      double effectiveEntries = hist->GetEffectiveEntries();
+      bool isWeighted = !(sumWeights == effectiveEntries);
+
+      if (isWeighted && isDebugMode) {
+        std::cout << "A weighted input histogram has been provided, will use least squares fit instead of likelihood!"
+                  << " Sum of weights: " << sumWeights << " effective entries: " << hist->GetEffectiveEntries()
+                  << std::endl;
+      }
+      // If histogram is weighted, exclude the "L" option (Likelihood fit)
+      std::string fitOptions = isWeighted ? "Q0R" : "Q0LR";
+
+      // second fit: two sigma of first fit around mean of first fit
       func.SetRange(std::max(mean - 2 * sigma, minHist), std::min(mean + 2 * sigma, maxHist));
+
+      // Perform fit with the appropriate options
       // I: integral gives more correct results if binning is too wide
       // L: Likelihood can treat empty bins correctly (if hist not weighted...)
-      if (0 == hist->Fit(&func, "Q0LR")) {
+      if (0 == hist->Fit(&func, fitOptions.c_str())) {
         if (hist->GetFunction(func.GetName())) {  // Take care that it is later on drawn:
           hist->GetFunction(func.GetName())->ResetBit(TF1::kNotDraw);
         }
