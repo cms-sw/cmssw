@@ -64,6 +64,7 @@ private:
   const double max_eta_for_taus_;
   const bool include_neutrals_;
   const bool flip_ip_sign_;
+  bool use_puppi_value_map_;
   const double max_sip3dsig_for_flip_;
 
   edm::EDGetTokenT<pat::MuonCollection> muon_token_;
@@ -76,11 +77,13 @@ private:
   edm::EDGetTokenT<reco::VertexCompositePtrCandidateCollection> sv_token_;
   edm::EDGetTokenT<edm::View<reco::Candidate>> pfcand_token_;
   edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> track_builder_token_;
+  edm::EDGetTokenT<edm::ValueMap<float>> puppi_value_map_token_;
 
   edm::Handle<reco::VertexCollection> vtxs_;
   edm::Handle<reco::VertexCompositePtrCandidateCollection> svs_;
   edm::Handle<edm::View<reco::Candidate>> pfcands_;
   edm::Handle<pat::PackedCandidateCollection> losttracks_;
+  edm::Handle<edm::ValueMap<float>> puppi_value_map_;
   edm::ESHandle<TransientTrackBuilder> track_builder_;
 
   const static std::vector<std::string> particle_features_;
@@ -264,6 +267,7 @@ ParticleNetFeatureEvaluator::ParticleNetFeatureEvaluator(const edm::ParameterSet
       max_eta_for_taus_(iConfig.getParameter<double>("max_eta_for_taus")),
       include_neutrals_(iConfig.getParameter<bool>("include_neutrals")),
       flip_ip_sign_(iConfig.getParameter<bool>("flip_ip_sign")),
+      use_puppi_value_map_(false),
       max_sip3dsig_for_flip_(iConfig.getParameter<double>("max_sip3dsig_for_flip")),
       muon_token_(consumes<pat::MuonCollection>(iConfig.getParameter<edm::InputTag>("muons"))),
       electron_token_(consumes<pat::ElectronCollection>(iConfig.getParameter<edm::InputTag>("electrons"))),
@@ -277,6 +281,11 @@ ParticleNetFeatureEvaluator::ParticleNetFeatureEvaluator(const edm::ParameterSet
       pfcand_token_(consumes<edm::View<reco::Candidate>>(iConfig.getParameter<edm::InputTag>("pf_candidates"))),
       track_builder_token_(
           esConsumes<TransientTrackBuilder, TransientTrackRecord>(edm::ESInputTag("", "TransientTrackBuilder"))) {
+  const auto& puppi_value_map_tag = iConfig.getParameter<edm::InputTag>("puppi_value_map");
+  if (!puppi_value_map_tag.label().empty()) {
+    puppi_value_map_token_ = consumes<edm::ValueMap<float>>(puppi_value_map_tag);
+    use_puppi_value_map_ = true;
+  }
   produces<std::vector<reco::DeepBoostedJetTagInfo>>();
 }
 
@@ -301,6 +310,7 @@ void ParticleNetFeatureEvaluator::fillDescriptions(edm::ConfigurationDescription
   desc.add<edm::InputTag>("vertices", edm::InputTag("offlineSlimmedPrimaryVertices"));
   desc.add<edm::InputTag>("secondary_vertices", edm::InputTag("slimmedSecondaryVertices"));
   desc.add<edm::InputTag>("pf_candidates", edm::InputTag("packedPFCandidates"));
+  desc.add<edm::InputTag>("puppi_value_map", edm::InputTag("puppi"));
   desc.add<edm::InputTag>("losttracks", edm::InputTag("lostTracks"));
   desc.add<edm::InputTag>("jets", edm::InputTag("slimmedJetsAK8"));
   desc.add<edm::InputTag>("muons", edm::InputTag("slimmedMuons"));
@@ -325,6 +335,11 @@ void ParticleNetFeatureEvaluator::produce(edm::Event &iEvent, const edm::EventSe
   auto photons = iEvent.getHandle(photon_token_);
   // Input lost tracks
   iEvent.getByToken(losttrack_token_, losttracks_);
+  // Get puuppi value map
+  if (use_puppi_value_map_) {
+    iEvent.getByToken(puppi_value_map_token_, puppi_value_map_);
+  }
+
   // Primary vertexes
   iEvent.getByToken(vtx_token_, vtxs_);
   if (vtxs_->empty()) {
