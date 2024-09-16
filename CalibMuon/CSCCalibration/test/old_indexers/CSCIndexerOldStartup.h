@@ -54,8 +54,8 @@ public:
   typedef uint16_t IndexType;
   typedef uint32_t LongIndexType;
 
-  CSCIndexerOldStartup(){};
-  ~CSCIndexerOldStartup(){};
+  CSCIndexerOldStartup() {}
+  ~CSCIndexerOldStartup() {}
 
   /**
    * Linear index to label each CSC in CSC system.

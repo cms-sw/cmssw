@@ -16,7 +16,7 @@
 #include "L1Trigger/TrackFindingTracklet/interface/ChannelAssignment.h"
 #include "L1Trigger/TrackFindingTracklet/interface/Settings.h"
 #include "L1Trigger/TrackFindingTracklet/interface/DRin.h"
-#include "SimTracker/TrackTriggerAssociation/interface/TTTypes.h"
+#include "SimDataFormats/Associations/interface/TTTypes.h"
 
 #include <string>
 #include <vector>

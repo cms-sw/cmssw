@@ -38,7 +38,7 @@
 
 struct RPCMuonExtraStruct {
   RPCMuonExtraStruct(signed char l, signed char r, signed char h, signed char i, RPCTBMuon& mu)
-      : _level(l), _region(r), _hsHalf(h), _index(i), _mu(mu){};
+      : _level(l), _region(r), _hsHalf(h), _index(i), _mu(mu) {}
   signed char _level;
   signed char _region;  // brl/endcap
   signed char _hsHalf;  // Determines which halfsorter

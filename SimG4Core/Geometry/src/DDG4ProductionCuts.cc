@@ -134,7 +134,7 @@ void DDG4ProductionCuts::dd4hepInitialize() {
       if (foundMatch)
         break;
     }  // Search on all SpecPars
-  }    // Loop on all logical volumes
+  }  // Loop on all logical volumes
 
   // sort all root volumes - to get the same sequence at every run of the application.
   sort(begin(dd4hepVec_), end(dd4hepVec_), &sortByName);

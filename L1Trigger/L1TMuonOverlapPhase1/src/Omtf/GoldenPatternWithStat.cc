@@ -17,7 +17,7 @@ GoldenPatternWithStat::GoldenPatternWithStat(const Key& aKey,
                                              unsigned int nPdfAddrBits)
     : GoldenPatternWithThresh(aKey, nLayers, nRefLayers, nPdfAddrBits),
       //*8 is to have the 1024 bins for the phiDist, which allows to count the largest values for the low pT muons
-      statistics(boost::extents[nLayers][nRefLayers][(1 << nPdfAddrBits) * 8][STAT_BINS]){
+      statistics(boost::extents[nLayers][nRefLayers][(1 << nPdfAddrBits) * 8][STAT_BINS]) {
 
       };
 
@@ -25,7 +25,7 @@ GoldenPatternWithStat::GoldenPatternWithStat(const Key& aKey,
 ////////////////////////////////////////////////////
 GoldenPatternWithStat::GoldenPatternWithStat(const Key& aKey, const OMTFConfiguration* omtfConfig)
     : GoldenPatternWithThresh(aKey, omtfConfig),
-      statistics(boost::extents[omtfConfig->nLayers()][omtfConfig->nRefLayers()][omtfConfig->nPdfBins()][STAT_BINS]){
+      statistics(boost::extents[omtfConfig->nLayers()][omtfConfig->nRefLayers()][omtfConfig->nPdfBins()][STAT_BINS]) {
 
       };
 

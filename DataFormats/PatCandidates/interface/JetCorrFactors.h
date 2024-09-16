@@ -49,7 +49,7 @@ namespace pat {
 
   public:
     // default Constructor
-    JetCorrFactors(){};
+    JetCorrFactors() {}
     // constructor by value
     JetCorrFactors(const std::string& label, const std::vector<CorrectionFactor>& jec);
     // add correction factor

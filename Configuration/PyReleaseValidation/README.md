@@ -33,11 +33,15 @@ The offsets currently in use are:
 * 0.402: Alpaka, pixel only quadruplets, portable
 * 0.403: Alpaka, pixel only quadruplets, portable vs. CPU validation
 * 0.404: Alpaka, pixel only quadruplets, portable profiling
+* 0.406: Alpaka, pixel only triplets, portable
+* 0.407: Alpaka, pixel only triplets, portable vs. CPU validation
+* 0.407: Alpaka, pixel only triplets, portable profiling
 * 0.412: Alpaka, ECAL only, portable
 * 0.422: Alpaka, HCAL only, portable
 * 0.423: Alpaka, HCAL only, portable vs CPU validation
 * 0.424: Alpaka, HCAL only, portable profiling
 * 0.492: Alpaka, full reco with pixel quadruplets
+* 0.496: Alpaka, full reco with pixel triplets
 * 0.5: Pixel tracking only + 0.1
 * 0.501: Patatrack, pixel only quadruplets, on CPU
 * 0.502: Patatrack, pixel only quadruplets, with automatic offload to GPU if available
@@ -64,6 +68,7 @@ The offsets currently in use are:
 * 0.78: Complete L1 workflow
 * 0.8: BPH Parking (Run-2)
 * 0.81: Running also HeavyFlavor DQM
+* 0.85: Phase-2 Heavy Ion
 * 0.9: Vector hits
 * 0.12: Neutron background
 * 0.13: MLPF algorithm
@@ -81,7 +86,7 @@ The offsets currently in use are:
 * 0.633: ECAL phase2 Trigger Primitive
 * 0.634: ECAL phase2 Trigger Primitive + component-method based digis
 * 0.635: ECAL phase2 Trigger Primitive + component-method based finely-sampled waveforms
-* 0.75: Phase-2 HLT
+* 0.75: Phase-2 HLT Timing menu
 * 0.91: Track DNN modifier
 * 0.97: Premixing stage1
 * 0.98: Premixing stage2
@@ -96,6 +101,9 @@ The offsets currently in use are:
 * 0.103: Phase-2 aging, 3000fb-1
 * 0.201: HGCAL special TICL Pattern recognition Workflows: clue3D
 * 0.202: HGCAL special TICL Pattern recognition Workflows: FastJet
+* 0.203: HGCAL TICLv5
+* 0.204: HGCAL superclustering : using Mustache in TICLv5
+* 0.205: HGCAL superclustering : using old PFCluster-based Mustache algorithm with TICLv5
 * 0.302: FastSim Run-3 trackingOnly validation
 * 0.303: FastSim Run-3 MB for mixing
 * 0.9001: Sonic Triton

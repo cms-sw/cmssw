@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from ..modules.trackerClusterCheck_cfi import *
+from ..modules.hltTrackerClusterCheck_cfi import *
 from ..modules.hltPhase2L3MuonPixelTracksTrackingRegions_cfi import *
 from ..modules.hltPhase2L3MuonPixelTracksSeedLayers_cfi import *
 from ..modules.hltPhase2L3MuonPixelTracksHitDoublets_cfi import *
@@ -26,7 +26,7 @@ from ..modules.hltPhase2L3MuonGeneralTracks_cfi import *
 
 
 HLTPhase2L3MuonGeneralTracksSequence = cms.Sequence(
-    trackerClusterCheck
+    hltTrackerClusterCheck
     +hltPhase2L3MuonPixelTracksTrackingRegions
     +hltPhase2L3MuonPixelTracksSeedLayers
     +hltPhase2L3MuonPixelTracksHitDoublets

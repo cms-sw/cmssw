@@ -73,7 +73,7 @@ void popcon::EcalTPGPedfromFile::getNewObjects() {
 
     linC->insert(std::make_pair(id, item));
     peds->insert(std::make_pair(id, itemPed));
-  }                     // end loop over EB channels
+  }  // end loop over EB channels
   getline(fLin, line);  // comment before EE crystals
   std::cout << " comment line " << line << std::endl;
   for (int iChannel = 0; iChannel < kEEChannels; iChannel++) {

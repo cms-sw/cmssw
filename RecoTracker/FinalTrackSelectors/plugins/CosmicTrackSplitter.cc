@@ -377,7 +377,7 @@ namespace reco {
               << "loop: " << i << " has " << usedHitCtr << " active hits and " << hits.size() << " total hits...";
           hits.clear();
         }  // loop twice for top and bottom
-      }    // loop on tracks
+      }  // loop on tracks
       LogDebug("CosmicTrackSplitter") << "totalTracks_ = " << totalTracks_;
       iEvent.put(std::move(output));
     }

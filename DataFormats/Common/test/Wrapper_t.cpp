@@ -14,11 +14,8 @@
 class CopyNoMove {
 public:
   CopyNoMove() {}
-  CopyNoMove(CopyNoMove const&) { /* std::cout << "copied\n"; */
-  }
-  CopyNoMove& operator=(CopyNoMove const&) { /*std::cout << "assigned\n";*/
-    return *this;
-  }
+  CopyNoMove(CopyNoMove const&) { /* std::cout << "copied\n"; */ }
+  CopyNoMove& operator=(CopyNoMove const&) { /*std::cout << "assigned\n";*/ return *this; }
 
 private:
 };
@@ -28,11 +25,8 @@ public:
   MoveNoCopy() {}
   MoveNoCopy(MoveNoCopy const&) = delete;
   MoveNoCopy& operator=(MoveNoCopy const&) = delete;
-  MoveNoCopy(MoveNoCopy&&) { /* std::cout << "moved\n";*/
-  }
-  MoveNoCopy& operator=(MoveNoCopy&&) { /* std::cout << "moved\n";*/
-    return *this;
-  }
+  MoveNoCopy(MoveNoCopy&&) { /* std::cout << "moved\n";*/ }
+  MoveNoCopy& operator=(MoveNoCopy&&) { /* std::cout << "moved\n";*/ return *this; }
 
 private:
 };

@@ -147,7 +147,7 @@ void Phase2ITValidateRecHit::fillITHistos(const edm::Event& iEvent,
             }
           }
         }  //end loop over PSimhitcontainers
-      }    //end loop over simHits
+      }  //end loop over simHits
       if (!simhitClosest)
         continue;
 
@@ -155,7 +155,7 @@ void Phase2ITValidateRecHit::fillITHistos(const edm::Event& iEvent,
       fillRechitHistos(simhitClosest, &rechit, selectedSimTrackMap, nrechitLayerMap_primary);
 
     }  //end loop over rechits of a detId
-  }    //End loop over DetSetVector
+  }  //End loop over DetSetVector
 
   //fill nRecHit counter per layer
   for (const auto& lme : nrechitLayerMap_primary) {

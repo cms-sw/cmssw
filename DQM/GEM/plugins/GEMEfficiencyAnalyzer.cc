@@ -374,7 +374,7 @@ void GEMEfficiencyAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run 
           me_cutflow_matched_[key] = bookNumerator1D(ibooker, me_cutflow_.at(key));
         }
       }  // shadowing
-    }    // GEMChamber
+    }  // GEMChamber
 
     ////////////////////////////////////////////////////////////////////////////
     // Region - Station - iEta
@@ -449,8 +449,8 @@ void GEMEfficiencyAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run 
           me_residual_strip_[key]->setAxisTitle("propagation strip - hit strip", 1);
         }
       }  // shadowing
-    }    // GEMEtaPartition
-  }      // GEMStataion
+    }  // GEMEtaPartition
+  }  // GEMStataion
 }
 
 // In the `cosmics` scenario, TODO doc
@@ -486,8 +486,8 @@ void GEMEfficiencyAnalyzer::buildGEMLayers(const GEMGeometry* gem) {
         }
         chambers_per_layer.at(key).push_back(chamber);
       }  // GEMChamber => iterate over layer ids
-    }    // GEMSuperChamber => iterate over chamber ids
-  }      // GEMStation
+    }  // GEMSuperChamber => iterate over chamber ids
+  }  // GEMStation
 
   gem_layers_.reserve(chambers_per_layer.size());
   for (auto [gem_id, chambers] : chambers_per_layer) {
@@ -586,7 +586,7 @@ GEMEfficiencyAnalyzer::StartingState GEMEfficiencyAnalyzer::buildStartingState(
         found = false;
       }
     }  // isGEM
-  }    // found
+  }  // found
 
   return std::make_tuple(found, state, det_id);
 }
@@ -784,7 +784,7 @@ const CSCSegment* GEMEfficiencyAnalyzer::findCSCSegmentCosmics(const reco::Muon&
         best_csc_segment = segment_match.cscSegmentRef.get();
       }
     }  // MuonSegmentMatch
-  }    // MuonChamberMatch
+  }  // MuonChamberMatch
 
   return best_csc_segment;
 }
@@ -869,7 +869,7 @@ const GEMEtaPartition* GEMEfficiencyAnalyzer::findEtaPartition(const GlobalPoint
         break;
       }
     }  // GEMEtaPartition
-  }    // GEMChamber
+  }  // GEMChamber
 
   return bound;
 }
@@ -1235,7 +1235,7 @@ void GEMEfficiencyAnalyzer::analyze(const edm::Event& event, const edm::EventSet
             fillMEWithinLimits(me_residual_phi_antimuon_, rse_key, residual_phi);
           }
         }  // kModeDev_
-      }    // passed_all_cuts
-    }      // destination
-  }        // Muon
+      }  // passed_all_cuts
+    }  // destination
+  }  // Muon
 }  // analyze

@@ -636,7 +636,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                 electronicNoiseTermsForChannel[sampleWithinWindow] = pedestalWidth;
 
               }  //end sample loop
-            }    // end channel loop
+            }  // end channel loop
             alpaka::syncBlockThreads(acc);
 
             // compute energy using shrMethod0EnergySamplePair
@@ -741,8 +741,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 #endif
 
               }  // loop for sample
-            }    // loop for channels
-          }      // loop for channgel groups
+            }  // loop for channels
+          }  // loop for channgel groups
         }
       };  //Kernel_prep1d_sameNumberOfSamples
 
@@ -903,8 +903,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                 pulseMatrixP[ipulse * nsamples + sample] = value_t0p;
 
               }  // loop over sample
-            }    // loop over pulse
-          }      // loop over channels
+            }  // loop over pulse
+          }  // loop over channels
         }
       };  // Kernel_prep_pulseMatrices_sameNumberOfSamples
 
@@ -1276,7 +1276,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
               outputGPU.energy()[gch] = (gain * resultAmplitudesVector(idx_for_energy)) * respCorrection;
 
             }  // loop over channels
-          }    //loop over group of channels
+          }  //loop over group of channels
         }
       };  // Kernel_minimize
 

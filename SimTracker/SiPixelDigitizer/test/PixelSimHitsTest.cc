@@ -636,7 +636,7 @@ void PixelSimHitsTest::analyze(const edm::Event &iEvent, const edm::EventSetup &
         //if(pid!=11 && moduleDirectionUp) hladder3idUp->Fill(float(ladder));
 
       }  // layers
-    }    // end fpix/bpix
+    }  // end fpix/bpix
   }
 
   hsimHitsPerLay1->Fill(float(totalNumOfSimHits1));

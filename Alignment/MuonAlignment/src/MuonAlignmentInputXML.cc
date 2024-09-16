@@ -360,11 +360,11 @@ AlignableMuon *MuonAlignmentInputXML::newAlignableMuon() const {
 
           aliset[ali] = true;
         }  // end if this node is an element
-      }    // end loop over collection's children
+      }  // end loop over collection's children
 
       alicollections[name] = aliset;
     }  // end if this is a top-level collection
-  }    // end loop over collections
+  }  // end loop over collections
 
   for (unsigned int i = 0; i < operations->getLength(); i++) {
     DOMElement *operation = (DOMElement *)(operations->item(i));
@@ -415,7 +415,7 @@ AlignableMuon *MuonAlignmentInputXML::newAlignableMuon() const {
         }  // anything else? assume it's a position/rotation directive
 
       }  // end if node is node is an element
-    }    // end first loop over operation's children
+    }  // end first loop over operation's children
 
     // from now on, we only want to see position/rotation directives
     for (std::vector<DOMNode *>::const_iterator node = nodesToRemove.begin(); node != nodesToRemove.end(); ++node) {
@@ -464,8 +464,8 @@ AlignableMuon *MuonAlignmentInputXML::newAlignableMuon() const {
         }
 
       }  // end if node is an element
-    }    // end second loop over operation's children
-  }      // end loop over operations
+    }  // end second loop over operation's children
+  }  // end loop over operations
 
   delete parser;
   delete errHandler;
@@ -586,10 +586,10 @@ Alignable *MuonAlignmentInputXML::getDTnode(align::StructureType structureType,
               }
 
             }  // end if we need a layer number
-          }    // end if we need a superlayer number
-        }      // end if we need a sector number
-      }        // end if we need a station number
-    }          // end if we need a wheel number
+          }  // end if we need a superlayer number
+        }  // end if we need a sector number
+      }  // end if we need a station number
+    }  // end if we need a wheel number
 
     DTLayerId layerId(wheel, station, sector, superlayer, layer);
     rawId = layerId.rawId();
@@ -679,9 +679,9 @@ Alignable *MuonAlignmentInputXML::getCSCnode(align::StructureType structureType,
             }
 
           }  // end if we need a layer number
-        }    // end if we need a chamber number
-      }      // end if we need a ring number
-    }        // end if we need a station number
+        }  // end if we need a chamber number
+      }  // end if we need a ring number
+    }  // end if we need a station number
 
     CSCDetId layerId(endcap, station, ring, chamber, layer);
     rawId = layerId.rawId();
@@ -716,8 +716,8 @@ Alignable *MuonAlignmentInputXML::getGEMnode(align::StructureType structureType,
       throw cms::Exception("XMLException") << "Value of \"rawId\" must be an integer" << std::endl;
     }
   } else {
-    int endcap, station, ring, superChamber, chamber;
-    endcap = station = ring = superChamber = chamber = 1;
+    int endcap, station, ring, superChamber;
+    endcap = station = ring = superChamber = 1;
 
     DOMAttr *node_endcap = node->getAttributeNode(str_endcap);
     if (node_endcap == nullptr)
@@ -758,9 +758,9 @@ Alignable *MuonAlignmentInputXML::getGEMnode(align::StructureType structureType,
           } catch (const XMLException &toCatch) {
             throw cms::Exception("XMLException") << "Value of \"superChamber\" must be an integer" << std::endl;
           }
-        }  // end if we need a chamber number
-      }    // end if we need a ring number
-    }      // end if we need a station number
+        }  // end if we need a superchamber number
+      }  // end if we need a ring number
+    }  // end if we need a station number
 
     GEMDetId chamberId(endcap, ring, station, 0, superChamber, 0);
     rawId = chamberId.rawId();

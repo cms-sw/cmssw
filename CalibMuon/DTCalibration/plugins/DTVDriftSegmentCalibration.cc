@@ -116,7 +116,7 @@ void DTVDriftSegmentCalibration::analyze(const Event& event, const EventSetup& e
         }
       }
     }  // DTRecSegment4DCollection::const_iterator segment
-  }    // DTRecSegment4DCollection::id_iterator chamberIdIt
+  }  // DTRecSegment4DCollection::id_iterator chamberIdIt
 }  // DTVDriftSegmentCalibration::analyze
 
 void DTVDriftSegmentCalibration::endJob() {

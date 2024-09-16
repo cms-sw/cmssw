@@ -215,6 +215,13 @@ namespace edm {
     unsigned int processBlockIndex(std::string const& processName) const;
 
   private:
+    template <typename T>
+    static constexpr bool hasMergeProductFunction() {
+      if constexpr (requires(T& a, T const& b) { a.mergeProduct(b); }) {
+        return true;
+      }
+      return false;
+    }
     // Is this an Event, a LuminosityBlock, or a Run.
     BranchType const& branchType() const;
 
@@ -254,51 +261,14 @@ namespace edm {
   // PrincipalGetAdapter::put member template.
   //
 
-  // has_postinsert is a metafunction of one argument, the type T.  As
-  // with many metafunctions, it is implemented as a class with a data
-  // member 'value', which contains the value 'returned' by the
-  // metafunction.
-  //
-  // has_postinsert<T>::value is 'true' if T has the post_insert
-  // member function (with the right signature), and 'false' if T has
-  // no such member function.
-
   namespace detail {
-    using no_tag = std::false_type;  // type indicating FALSE
-    using yes_tag = std::true_type;  // type indicating TRUE
-
-    // Definitions forthe following struct and function templates are
-    // not needed; we only require the declarations.
-    template <typename T, void (T::*)()>
-    struct postinsert_function;
     template <typename T>
-    no_tag has_postinsert_helper(...);
-    template <typename T>
-    yes_tag has_postinsert_helper(postinsert_function<T, &T::post_insert>* p);
-
-    template <typename T>
-    struct has_postinsert {
-      static constexpr bool value = std::is_same<decltype(has_postinsert_helper<T>(nullptr)), yes_tag>::value &&
-                                    !std::is_base_of<DoNotSortUponInsertion, T>::value;
-    };
-
+    void do_post_insert_if_available(T& iProduct) {
+      if constexpr (not std::derived_from<T, DoNotSortUponInsertion> and requires(T& p) { p.post_insert(); }) {
+        iProduct.post_insert();
+      }
+    }
   }  // namespace detail
-
-  //------------------------------------------------------------
-
-  // The following function objects are used by Event::put, under the
-  // control of a metafunction if, to either call the given object's
-  // post_insert function (if it has one), or to do nothing (if it
-  // does not have a post_insert function).
-  template <typename T>
-  struct DoPostInsert {
-    void operator()(T* p) const { p->post_insert(); }
-  };
-
-  template <typename T>
-  struct DoNotPostInsert {
-    void operator()(T*) const {}
-  };
 
   // Implementation of  PrincipalGetAdapter  member templates. See  PrincipalGetAdapter.cc for the
   // implementation of non-template members.
@@ -306,7 +276,7 @@ namespace edm {
 
   template <typename PROD>
   inline bool PrincipalGetAdapter::checkIfComplete() const {
-    return isComplete() || !detail::has_mergeProduct_function<PROD>::value;
+    return isComplete() || !hasMergeProductFunction<PROD>();
   }
 
 }  // namespace edm

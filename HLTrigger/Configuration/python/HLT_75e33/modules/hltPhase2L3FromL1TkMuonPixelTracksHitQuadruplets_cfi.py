@@ -6,7 +6,7 @@ hltPhase2L3FromL1TkMuonPixelTracksHitQuadruplets = cms.EDProducer("CAHitQuadrupl
     CAThetaCut = cms.double(0.005),
     SeedComparitorPSet = cms.PSet(
         ComponentName = cms.string('LowPtClusterShapeSeedComparitor'),
-        clusterShapeCacheSrc = cms.InputTag("siPixelClusterShapeCache"),
+        clusterShapeCacheSrc = cms.InputTag("hltSiPixelClusterShapeCache"),
         clusterShapeHitFilter = cms.string('ClusterShapeHitFilter')
     ),
     doublets = cms.InputTag("hltPhase2L3FromL1TkMuonPixelTracksHitDoublets"),

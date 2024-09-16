@@ -20,7 +20,7 @@ public:
                                                               const reco::TransientTrack& track,
                                                               const TrajectoryStateOnSurface& tsos) const = 0;
 
-  virtual ~AbstractLTSFactory(){};
+  virtual ~AbstractLTSFactory() {}
 
   virtual const AbstractLTSFactory* clone() const = 0;
 };

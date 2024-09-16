@@ -36,7 +36,7 @@ namespace l1t {
         bool unpack(const Block& block, UnpackerCollections* coll) override;
       };
     }  // namespace legacy
-  }    // namespace stage1
+  }  // namespace stage1
 }  // namespace l1t
 
 #endif

@@ -143,9 +143,8 @@ namespace edm {
     std::shared_ptr<T> wrapCustomDeleter(std::unique_ptr<T, Deleter> item) {
       auto deleter = item.get_deleter();
       ++m_outstandingObjects;
-      return std::shared_ptr<T>{item.release(), [this, deleter](T* iItem) {
-                                  this->addBack(std::unique_ptr<T, Deleter>{iItem, deleter});
-                                }};
+      return std::shared_ptr<T>{
+          item.release(), [this, deleter](T* iItem) { this->addBack(std::unique_ptr<T, Deleter>{iItem, deleter}); }};
     }
 
     std::unique_ptr<T> makeUnique(T* ptr) {

@@ -2,6 +2,7 @@
   <use name="DQM/TrackerRemapper"/>
   <use name="CalibTracker/SiPixelESProducers"/>
   <use name="CalibTracker/SiStripCommon"/>
+  <use name="CondFormats/Alignment"/>
   <use name="rootgraphics"/>
   <use name="root"/>
   <use name="catch2"/>

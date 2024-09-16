@@ -13,7 +13,7 @@
 #pragma GCC visibility push(hidden)
 class PixelBarrelLayerBuilder {
 public:
-  PixelBarrelLayerBuilder(){};
+  PixelBarrelLayerBuilder() {}
   PixelBarrelLayer* build(const GeometricDet* aPixelBarrelLayer, const TrackerGeometry* theGeomDetGeometry)
       __attribute__((cold));
 };

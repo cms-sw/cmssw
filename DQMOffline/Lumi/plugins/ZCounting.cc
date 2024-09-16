@@ -665,7 +665,7 @@ void ZCounting::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         }
       }
     }  //End of probe loop over tracks
-  }    //End of tag loop
+  }  //End of tag loop
 }
 
 //

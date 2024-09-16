@@ -53,6 +53,12 @@ public:
 
   class Iterator {
   public:
+    using iterator_category = std::forward_iterator_tag;
+    using difference_type = std::ptrdiff_t;
+    using value_type = T;
+    using pointer = T*;
+    using reference = T&;
+
     Iterator(const MultiVectorManager& manager, size_t index) : manager(manager), currentIndex(index) {}
 
     bool operator!=(const Iterator& other) const { return currentIndex != other.currentIndex; }

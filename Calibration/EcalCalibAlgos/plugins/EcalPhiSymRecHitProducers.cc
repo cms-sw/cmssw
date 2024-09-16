@@ -69,7 +69,7 @@ struct ConfigCache {
 class EcalPhiSymRecHitProducerBase {
 public:
   explicit EcalPhiSymRecHitProducerBase(const edm::ParameterSet& pSet, edm::ConsumesCollector&& cc);
-  ~EcalPhiSymRecHitProducerBase(){};
+  ~EcalPhiSymRecHitProducerBase() {}
 
   //---methods
   // job
@@ -372,7 +372,7 @@ class EcalPhiSymRecHitProducerLumi : public edm::global::EDProducer<edm::StreamC
                                      public EcalPhiSymRecHitProducerBase {
 public:
   explicit EcalPhiSymRecHitProducerLumi(const edm::ParameterSet& pSet);
-  ~EcalPhiSymRecHitProducerLumi() override{};
+  ~EcalPhiSymRecHitProducerLumi() override {}
 
 private:
   //---methods
@@ -381,12 +381,12 @@ private:
   // lumi
   std::shared_ptr<ConfigCache> globalBeginLuminosityBlock(edm::LuminosityBlock const& lumi,
                                                           edm::EventSetup const& setup) const override;
-  void globalEndLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& setup) const override{};
+  void globalEndLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& setup) const override {}
   std::shared_ptr<PhiSymCache> globalBeginLuminosityBlockSummary(edm::LuminosityBlock const& lumi,
                                                                  edm::EventSetup const& setup) const override;
   void globalEndLuminosityBlockSummary(edm::LuminosityBlock const& lumi,
                                        edm::EventSetup const& setup,
-                                       PhiSymCache* cache) const override{};
+                                       PhiSymCache* cache) const override {}
   void globalEndLuminosityBlockProduce(edm::LuminosityBlock& lumi,
                                        edm::EventSetup const& setup,
                                        PhiSymCache const* cache) const override;
@@ -504,7 +504,7 @@ class EcalPhiSymRecHitProducerRun : public edm::global::EDProducer<edm::StreamCa
                                     public EcalPhiSymRecHitProducerBase {
 public:
   explicit EcalPhiSymRecHitProducerRun(const edm::ParameterSet& pSet);
-  ~EcalPhiSymRecHitProducerRun() override{};
+  ~EcalPhiSymRecHitProducerRun() override {}
 
 private:
   //---methods
@@ -513,8 +513,8 @@ private:
   // run
   std::shared_ptr<ConfigCache> globalBeginRun(edm::Run const& run, edm::EventSetup const& setup) const override;
   std::shared_ptr<PhiSymCache> globalBeginRunSummary(edm::Run const& run, edm::EventSetup const& setup) const override;
-  void globalEndRun(edm::Run const& run, edm::EventSetup const& setup) const override{};
-  void globalEndRunSummary(edm::Run const& run, edm::EventSetup const& setup, PhiSymCache* cache) const override{};
+  void globalEndRun(edm::Run const& run, edm::EventSetup const& setup) const override {}
+  void globalEndRunSummary(edm::Run const& run, edm::EventSetup const& setup, PhiSymCache* cache) const override {}
   void globalEndRunProduce(edm::Run& run, edm::EventSetup const& setup, PhiSymCache const* cache) const override;
   // stream
   std::unique_ptr<PhiSymCache> beginStream(edm::StreamID stream) const override;

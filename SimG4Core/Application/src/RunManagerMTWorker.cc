@@ -55,6 +55,8 @@
 #include "G4WorkerRunManagerKernel.hh"
 #include "G4StateManager.hh"
 #include "G4TransportationManager.hh"
+#include "G4LossTableManager.hh"
+#include "G4PhysListUtil.hh"
 #include "G4Field.hh"
 #include "G4FieldManager.hh"
 #include "G4ScoringManager.hh"
@@ -187,6 +189,8 @@ RunManagerMTWorker::RunManagerMTWorker(const edm::ParameterSet& p, edm::Consumes
         << "', valid are MessageLogger, MessageLoggerThreadPrefix, FilePerThread";
   }
   G4UImanager::GetUIpointer()->SetCoutDestination(m_UIsession);
+  //G4PhysListUtil::InitialiseParameters();
+  //G4LossTableManager::Instance();
 
   // sensitive detectors
   std::vector<std::string> onlySDs = p.getParameter<std::vector<std::string>>("OnlySDs");

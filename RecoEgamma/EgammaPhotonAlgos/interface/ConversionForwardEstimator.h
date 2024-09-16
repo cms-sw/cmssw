@@ -19,7 +19,7 @@ class Plane;
 
 class ConversionForwardEstimator : public MeasurementEstimator {
 public:
-  ConversionForwardEstimator(){};
+  ConversionForwardEstimator() {}
   ConversionForwardEstimator(float phiRangeMin, float phiRangeMax, float dr, double nSigma = 3.)
       : thePhiRangeMin(phiRangeMin), thePhiRangeMax(phiRangeMax), dr_(dr), theNSigma(nSigma) {
     //std::cout << " ConversionForwardEstimator CTOR " << std::endl;

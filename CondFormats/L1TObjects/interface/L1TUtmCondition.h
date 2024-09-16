@@ -24,10 +24,10 @@
  */
 class L1TUtmCondition {
 public:
-  L1TUtmCondition() : name_(), type_(-9999), objects_(), cuts_(), version(0){};
+  L1TUtmCondition() : name_(), type_(-9999), objects_(), cuts_(), version(0) {}
   L1TUtmCondition(
       std::string name, int type, std::vector<L1TUtmObject> objects, std::vector<L1TUtmCut> cuts, unsigned int vers)
-      : name_(name), type_(type), objects_(objects), cuts_(cuts), version(vers){};
+      : name_(name), type_(type), objects_(objects), cuts_(cuts), version(vers) {}
 
   L1TUtmCondition(const tmeventsetup::esCondition& esCond)
       : name_(esCond.getName()), type_(esCond.getType()), version(0) {

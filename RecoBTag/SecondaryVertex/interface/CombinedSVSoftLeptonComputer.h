@@ -25,6 +25,7 @@ public:
 
 private:
   bool SoftLeptonFlip;
+  using CombinedSVComputer::operator();
 };
 
 inline double CombinedSVSoftLeptonComputer::flipSoftLeptonValue(double value) const {

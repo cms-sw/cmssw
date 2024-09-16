@@ -32,7 +32,7 @@ class SiStripNoiseNormalizedWithApvGainBuilder : public edm::one::EDAnalyzer<> {
 public:
   explicit SiStripNoiseNormalizedWithApvGainBuilder(const edm::ParameterSet& iConfig);
 
-  ~SiStripNoiseNormalizedWithApvGainBuilder() override{};
+  ~SiStripNoiseNormalizedWithApvGainBuilder() override {}
 
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 

@@ -14,7 +14,7 @@ template <typename C, typename T, typename O>
 class OverlapExclusionSelector {
 public:
   OverlapExclusionSelector(const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC)
-      : OverlapExclusionSelector(cfg, iC){};
+      : OverlapExclusionSelector(cfg, iC) {}
   OverlapExclusionSelector(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC);
   void newEvent(const edm::Event&, const edm::EventSetup&) const;
   bool operator()(const T&) const;

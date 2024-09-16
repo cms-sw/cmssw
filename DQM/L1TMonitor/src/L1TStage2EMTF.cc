@@ -1018,7 +1018,7 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
         gemHitOccupancy->Fill((Hit->Sector() % 6 + 1) * 7 - 4, (endcap > 0) ? 1.5 : 0.5);  // follow CSC convention
       }
     }  // End of if (Hit->Is_GEM() == true)
-  }    // End of for (auto Hit = HitCollection->begin(); Hit != HitCollection->end(); ++Hit)
+  }  // End of for (auto Hit = HitCollection->begin(); Hit != HitCollection->end(); ++Hit)
 
   // Tracks
   edm::Handle<l1t::EMTFTrackCollection> TrackCollection;
@@ -1176,7 +1176,7 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
               rpcHitTimingTot->Fill((Hit->Sector_RPC() - 1) * 7 + get_subsector_rpc_cppf(Hit->Subsector_RPC()),
                                     hist_index + 0.5);
             }  // End loop: for (auto Hit = HitCollection->begin(); Hit != HitCollection->end(); ++Hit)
-          }    // End conditional: if (trackHitBX == 0 && ring == 2)
+          }  // End conditional: if (trackHitBX == 0 && ring == 2)
 
           // Fill GEM timing with matched CSC LCTs
           if (trackHitBX == 0 && station == 1 && ring == 1) {  // GEM only in station 1
@@ -1206,8 +1206,8 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
               }
 
             }  // End loop: for (auto Hit = HitCollection->begin(); Hit != HitCollection->end(); ++Hit)
-          }    // End conditional: if (trackHitBX == 0 && station == 1 && ring == 1)
-        }      // End conditional: if (TrkHit.Is_CSC() == true)
+          }  // End conditional: if (trackHitBX == 0 && station == 1 && ring == 1)
+        }  // End conditional: if (TrkHit.Is_CSC() == true)
 
         if (TrkHit.Is_RPC() == true && neighbor == false) {
           hist_index = histIndexRPC.at({station, ring});
@@ -1236,7 +1236,7 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
             gemHitTimingTot->Fill((sector % 6 + 1) * 7 - 4, (endcap > 0) ? 1.5 : 0.5);
           }
         }  // End condition: if (TrkHit.Is_GEM() == true)
-      }    // End loop: for (int iHit = 0; iHit < numHits; ++iHit)
+      }  // End loop: for (int iHit = 0; iHit < numHits; ++iHit)
     }
     //////////////////////////////////////////////////
     ///  End block for CSC LCT and RPC hit timing  ///

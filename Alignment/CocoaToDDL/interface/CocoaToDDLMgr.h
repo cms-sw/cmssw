@@ -25,8 +25,8 @@ class OpticalObject;
 class CocoaToDDLMgr {
 public:
   //---------- Constructors / Destructor
-  CocoaToDDLMgr(){};
-  ~CocoaToDDLMgr(){};
+  CocoaToDDLMgr() {}
+  ~CocoaToDDLMgr() {}
   static CocoaToDDLMgr* getInstance();
 
   void writeDDDFile(ALIstring filename);

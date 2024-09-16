@@ -9,7 +9,7 @@
 class TrackingLayer {
 public:
   struct hashfct {
-    hashfct(){};
+    hashfct() {}
 
     inline size_t operator()(const TrackingLayer& layerSpec) const {
       return (layerSpec.getSubDetNumber() * 10000 + layerSpec.getLayerNumber() * 100 + layerSpec.getSideNumber() + 1);
@@ -17,7 +17,7 @@ public:
   };
 
   struct eqfct {
-    eqfct(){};
+    eqfct() {}
 
     inline bool operator()(const TrackingLayer& l1, const TrackingLayer& l2) const {
       return (l1.getSubDetNumber() == l2.getSubDetNumber() && l1.getLayerNumber() == l2.getLayerNumber() &&

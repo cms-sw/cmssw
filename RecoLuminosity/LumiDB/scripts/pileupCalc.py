@@ -62,7 +62,7 @@ class EquidistantBinning(object):
     def width(self):
         return (self.xMax-self.xMin)/self.num
     def find(self, x):
-        return np.floor((x-self.xMin)*self.num/(self.xMax-self.xMin)).astype(np.int)
+        return np.floor((x-self.xMin)*self.num/(self.xMax-self.xMin)).astype(int)
 
 Sqrt2 = np.sqrt(2)
 

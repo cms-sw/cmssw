@@ -31,15 +31,15 @@ namespace {
     static constexpr double mmToCm = 0.1;
 
     ConvertParticle()
-        : abortOnUnknownPDGCode_(true), initialized_(false), chargeP_(PDGCacheMax, 0), chargeM_(PDGCacheMax, 0){};
+        : abortOnUnknownPDGCode_(true), initialized_(false), chargeP_(PDGCacheMax, 0), chargeM_(PDGCacheMax, 0) {}
 
     ConvertParticle(bool abortOnUnknownPDGCode)
         : abortOnUnknownPDGCode_(abortOnUnknownPDGCode),
           initialized_(false),
           chargeP_(PDGCacheMax, 0),
-          chargeM_(PDGCacheMax, 0){};
+          chargeM_(PDGCacheMax, 0) {}
 
-    ~ConvertParticle(){};
+    ~ConvertParticle() {}
 
     bool initialized() const { return initialized_; }
 
@@ -138,7 +138,7 @@ public:
 
   void produce(edm::StreamID, edm::Event& e, const edm::EventSetup&) const override;
   std::shared_ptr<ConvertParticle> globalBeginRun(const edm::Run&, const edm::EventSetup&) const override;
-  void globalEndRun(edm::Run const&, edm::EventSetup const&) const override{};
+  void globalEndRun(edm::Run const&, edm::EventSetup const&) const override {}
 
 private:
   edm::EDGetTokenT<CrossingFrame<edm::HepMCProduct> > mixToken_;

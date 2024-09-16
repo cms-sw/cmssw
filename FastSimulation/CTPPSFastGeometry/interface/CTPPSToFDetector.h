@@ -17,7 +17,7 @@ public:
                    int res);
   CTPPSToFDetector(
       int ncellx, int ncelly, double cellw, double cellh, double pitchx, double pitchy, double pos, int res);
-  virtual ~CTPPSToFDetector(){};
+  virtual ~CTPPSToFDetector() {}
 
   double getHeight() { return detH_; };
   double getWidth() { return detW_; };

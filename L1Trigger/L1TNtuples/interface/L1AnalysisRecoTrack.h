@@ -16,7 +16,7 @@ namespace L1Analysis {
   class L1AnalysisRecoTrack {
   public:
     L1AnalysisRecoTrack() { Reset(); };
-    ~L1AnalysisRecoTrack(){};
+    ~L1AnalysisRecoTrack() {}
 
     void SetTracks(const reco::TrackCollection& trackColl, unsigned maxTrack);
     L1Analysis::L1AnalysisRecoTrackDataFormat* getData() { return (&track_); }

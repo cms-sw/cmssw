@@ -240,8 +240,8 @@ namespace sistrip {
         for (; iDigi != endDetSetDigis; ++iDigi) {
           dsvFiller.addItem(*iDigi);
         }  // end of loop over the digis.
-      }    // end of loop over channels.
-    }      // end of loop over FEDs
+      }  // end of loop over channels.
+    }  // end of loop over FEDs
 
     return dsvFiller.createDetSetVector();
   }  // end of SpyDigiConverter::mergeModuleChannels method.

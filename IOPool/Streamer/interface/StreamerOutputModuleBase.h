@@ -48,7 +48,7 @@ namespace edm {
       bool lastCallWasBeginRun_ = false;
 
     };  //end-of-class-def
-  }     // namespace streamer
+  }  // namespace streamer
 }  // namespace edm
 
 #endif

@@ -90,7 +90,6 @@ HLT_ZeroBias_FirstCollisionAfterAbortGap_v*  #       CMSHLT-2860
 HLT_ZeroBias_FirstCollisionInTrain_v*        #       CMSHLT-2860
 HLT_ZeroBias_LastCollisionInTrain_v*         #       CMSHLT-2860
 HLT_ZeroBias_HighRate_v*            #       CMSHLT-2860
-HLT_ZeroBias_Or_AlwaysTrue_v*	    #       CMSHLT-2860
 HLT_ZeroBias_Gated_v*		    #       CMSHLT-2860
 HLT_SpecialHLTPhysics_v*	    #       CMSHLT-2860
 HLT_SpecialZeroBias_v*		    #       CMSHLT-2860
@@ -150,6 +149,10 @@ PhysicsSpecialHLTPhysics12Output
 PhysicsSpecialHLTPhysics13Output
 PhysicsSpecialHLTPhysics14Output
 PhysicsSpecialHLTPhysics15Output
+PhysicsSpecialHLTPhysics16Output
+PhysicsSpecialHLTPhysics17Output
+PhysicsSpecialHLTPhysics18Output
+PhysicsSpecialHLTPhysics19Output
 
 PhysicsSpecialRandom0Output
 PhysicsSpecialRandom1Output

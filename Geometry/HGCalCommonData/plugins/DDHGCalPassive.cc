@@ -21,7 +21,7 @@
 #include <vector>
 #include <sstream>
 
-// #define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 
 using namespace angle_units::operators;
 
@@ -81,6 +81,8 @@ void DDHGCalPassive::initialize(const DDNumericArguments& nArgs,
   tagLayer_ = vsArgs["TagLayer"];
   tagSector_ = vsArgs["TagSector"];
   parts_ = static_cast<int>(nArgs["Parts"]);
+  if (parts_ < 0)
+    parts_ = 1;
   phi0_ = convertDegToRad(nArgs["PhiStart"]);
   dphi_ = (2._pi) / tagSector_.size();
 #ifdef EDM_ML_DEBUG
@@ -148,29 +150,21 @@ void DDHGCalPassive::execute(DDCompactView& cpv) {
     for (unsigned int k = 0; k < tagSector_.size(); ++k) {
       std::string parentName = parent().name().name() + tagLayer_[j] + tagSector_[k];
       double phi1 = phi0_ + k * dphi_;
-      double phi2 = phi1 + dphi_;
-      double phi0 = phi1 + 0.5 * dphi_;
+      double dphi0 = dphi_ / parts_;
       // First the mother
-      std::vector<double> xM, yM;
-      if (parts_ == 1) {
-        xM = {rinB * cos(phi1), routF * cos(phi1), routF * cos(phi2), rinB * cos(phi2)};
-        yM = {rinB * sin(phi1), routF * sin(phi1), routF * sin(phi2), rinB * sin(phi2)};
-      } else {
-        // workaround for https://github.com/cms-sw/cmssw/issues/44931#issuecomment-2134850535
-        std::vector<double> xTmp = {rinB * cos(phi1),
-                                    routF * cos(phi1),
-                                    routF * cos(phi0),
-                                    routF * cos(phi2),
-                                    rinB * cos(phi2),
-                                    rinB * cos(phi0)};
-        std::vector<double> yTmp = {rinB * sin(phi1),
-                                    routF * sin(phi1),
-                                    routF * sin(phi0),
-                                    routF * sin(phi2),
-                                    rinB * sin(phi2),
-                                    rinB * sin(phi0)};
-        xM = std::move(xTmp);
-        yM = std::move(yTmp);
+      int nsec = 2 * parts_ + 2;
+      std::vector<double> xM(nsec, 0), yM(nsec, 0);
+      for (int n = 0; n <= parts_; ++n) {
+        double phi0 = phi1 + n * dphi0;
+        if (n == 0) {
+          xM[0] = rinB * cos(phi0);
+          yM[0] = rinB * sin(phi0);
+        } else {
+          xM[nsec - n] = rinB * cos(phi0);
+          yM[nsec - n] = rinB * sin(phi0);
+        }
+        xM[n + 1] = routF * cos(phi0);
+        yM[n + 1] = routF * sin(phi0);
       }
       std::vector<double> zw = {-0.5 * thick_, 0.5 * thick_};
       std::vector<double> zx(2, 0), zy(2, 0), scale(2, 1.0);
@@ -179,10 +173,12 @@ void DDHGCalPassive::execute(DDCompactView& cpv) {
       DDMaterial matter(matName);
       DDLogicalPart glogM = DDLogicalPart(solid.ddname(), matter, solid);
 #ifdef EDM_ML_DEBUG
+      double phi2 = phi1 + dphi_;
       edm::LogVerbatim("HGCalGeom") << "DDHGCalPassive: " << solid.name() << " extruded polygon made of " << matName
                                     << " z|x|y|s (0) " << zw[0] << ":" << zx[0] << ":" << zy[0] << ":" << scale[0]
                                     << " z|x|y|s (1) " << zw[1] << ":" << zx[1] << ":" << zy[1] << ":" << scale[1]
-                                    << " and " << xM.size() << " edges";
+                                    << " and " << xM.size() << " edges with " << parts_ << " parts between "
+                                    << convertRadToDeg(phi1) << " and " << convertRadToDeg(phi2);
       for (unsigned int kk = 0; kk < xM.size(); ++kk)
         edm::LogVerbatim("HGCalGeom") << "[" << kk << "] " << xM[kk] << ":" << yM[kk];
 #endif

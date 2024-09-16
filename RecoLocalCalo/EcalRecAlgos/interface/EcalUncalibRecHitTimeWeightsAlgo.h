@@ -26,8 +26,8 @@
 template <class C>
 class EcalUncalibRecHitTimeWeightsAlgo {
 public:
-  EcalUncalibRecHitTimeWeightsAlgo(){};
-  virtual ~EcalUncalibRecHitTimeWeightsAlgo(){};
+  EcalUncalibRecHitTimeWeightsAlgo() {}
+  virtual ~EcalUncalibRecHitTimeWeightsAlgo() {}
 
   /// Compute time
   double time(const C &dataFrame,

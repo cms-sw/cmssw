@@ -47,7 +47,7 @@ public:
   explicit IntegratedCalibrationBase(const edm::ParameterSet &cfg);
 
   /// Destructor
-  virtual ~IntegratedCalibrationBase(){};
+  virtual ~IntegratedCalibrationBase() {}
 
   /// How many parameters does this calibration define?
   virtual unsigned int numParameters() const = 0;
@@ -88,21 +88,21 @@ public:
 
   /// Call at beginning of job:
   /// default implementation is dummy, to be overwritten in derived class if useful.
-  virtual void beginOfJob(AlignableTracker *tracker, AlignableMuon *muon, AlignableExtras *extras){};
+  virtual void beginOfJob(AlignableTracker *tracker, AlignableMuon *muon, AlignableExtras *extras) {}
 
   /// Call at beginning of run:
   /// default implementation is dummy, to be overwritten in derived class if useful.
-  virtual void beginRun(const edm::Run &, const edm::EventSetup &){};
+  virtual void beginRun(const edm::Run &, const edm::EventSetup &) {}
 
   /// Called at beginning of a loop of the AlignmentProducer,
   /// to be used for iterative algorithms, default does nothing.
   /// FIXME: move call to algorithm?
-  virtual void startNewLoop(){};
+  virtual void startNewLoop() {}
 
   /// Called at end of a loop of the AlignmentProducer,
   /// to be used for iterative algorithms, default does nothing.
   /// FIXME: move call to algorithm?
-  virtual void endOfLoop(){};
+  virtual void endOfLoop() {}
 
   /// Called at end of a the job of the AlignmentProducer.
   /// Do here the necessary stuff with the results that should have been passed

@@ -28,7 +28,7 @@ namespace reco {
     };
 
     PFRecTrack();
-    ~PFRecTrack(){};
+    ~PFRecTrack() {}
     PFRecTrack(double charge, AlgoType_t algoType, int trackId, const reco::TrackRef& trackref);
 
     PFRecTrack(double charge, AlgoType_t algoType);

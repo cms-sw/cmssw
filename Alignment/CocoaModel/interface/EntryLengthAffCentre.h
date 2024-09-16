@@ -15,7 +15,7 @@
 class EntryLengthAffCentre : public EntryLength {
 public:
   EntryLengthAffCentre(const ALIstring& type);
-  ~EntryLengthAffCentre() override{};
+  ~EntryLengthAffCentre() override {}
 
   virtual void FillName(const ALIstring& name);
   void displace(ALIdouble disp) override;

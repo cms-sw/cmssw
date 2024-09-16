@@ -50,7 +50,7 @@ struct HFChannel {
 class PFCandidateRecalibrator : public edm::stream::EDProducer<> {
 public:
   PFCandidateRecalibrator(const edm::ParameterSet&);
-  ~PFCandidateRecalibrator() override{};
+  ~PFCandidateRecalibrator() override {}
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 

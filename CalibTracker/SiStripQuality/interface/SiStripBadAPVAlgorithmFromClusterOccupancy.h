@@ -77,7 +77,7 @@ private:
                         const SiStripQuality*);
 
   struct pHisto {
-    pHisto() : _NEntries(0), _NBins(0){};
+    pHisto() : _NEntries(0), _NBins(0) {}
     TH1F* _th1f;
     int _NEntries;
     int _NBins;

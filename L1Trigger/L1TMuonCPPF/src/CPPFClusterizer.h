@@ -10,8 +10,8 @@
 
 class CPPFClusterizer {
 public:
-  CPPFClusterizer(){};
-  ~CPPFClusterizer(){};
+  CPPFClusterizer() {}
+  ~CPPFClusterizer() {}
   CPPFClusterContainer doAction(const RPCDigiCollection::Range& digiRange);
 };
 #endif

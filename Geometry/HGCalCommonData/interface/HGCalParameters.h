@@ -16,16 +16,25 @@ class HGCalParameters {
 public:
   struct waferInfo {
     int32_t type, part, orient, cassette;
-    waferInfo(int32_t t = 0, int32_t p = 0, int32_t o = 0, int32_t c = 0) : type(t), part(p), orient(o), cassette(c){};
+    waferInfo(int32_t t = 0, int32_t p = 0, int32_t o = 0, int32_t c = 0) : type(t), part(p), orient(o), cassette(c) {}
   };
   struct tileInfo {
-    int32_t type, sipm, cassette, hex[4];
-    tileInfo(int32_t t = 0, int32_t s = 0, int32_t h1 = 0, int32_t h2 = 0, int32_t h3 = 0, int32_t h4 = 0)
+    int32_t type, sipm, cassette, hex[6];
+    tileInfo(int32_t t = 0,
+             int32_t s = 0,
+             int32_t h1 = 0,
+             int32_t h2 = 0,
+             int32_t h3 = 0,
+             int32_t h4 = 0,
+             int32_t h5 = 0,
+             int32_t h6 = 0)
         : type(t), sipm(s) {
       hex[0] = h1;
       hex[1] = h2;
       hex[2] = h3;
       hex[3] = h4;
+      hex[4] = h5;
+      hex[5] = h6;
     };
   };
   typedef std::vector<std::unordered_map<int32_t, int32_t> > layer_map;
@@ -194,10 +203,14 @@ public:
   tileInfo_map tileInfoMap_;
   std::vector<std::pair<double, double> > tileRingR_;
   std::vector<std::pair<int, int> > tileRingRange_;
+  std::vector<std::pair<double, double> > tileRingFineR_;
+  std::vector<std::pair<int, int> > tileRingFineRange_;
   int cassettes_ = 0;
   int nphiCassette_ = 0;
+  int nphiFineCassette_ = 0;
   int phiOffset_ = 0;
   std::vector<double> cassetteShift_;
+  std::vector<double> cassetteShiftTile_;
   double calibCellRHD_ = 0.;
   std::vector<int> calibCellFullHD_;
   std::vector<int> calibCellPartHD_;

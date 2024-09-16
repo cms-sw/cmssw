@@ -167,7 +167,8 @@ void SiStripQualityHotStripIdentifier::resetHistos() {
 void SiStripQualityHotStripIdentifier::bookHistos() {
   edm::LogInfo("SiStripQualityHotStripIdentifier") << " [SiStripQualityHotStripIdentifier::bookHistos] " << std::endl;
   char hname[1024];
-  for (const auto& it : SiStripDetInfoFileReader::read(fp_.fullPath()).getAllData()) {
+  const SiStripDetInfo& info = SiStripDetInfoFileReader::read(fp_.fullPath());
+  for (const auto& it : info.getAllData()) {
     sprintf(hname, "h_%d", it.first);
     auto ref = ClusterPositionHistoMap.find(it.first);
     if (ref == ClusterPositionHistoMap.end()) {

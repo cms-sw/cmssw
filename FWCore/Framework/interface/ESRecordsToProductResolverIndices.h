@@ -1,11 +1,11 @@
+// -*- C++ -*-
 #ifndef FWCore_Framework_ESRecordsToProductResolverIndices_h
 #define FWCore_Framework_ESRecordsToProductResolverIndices_h
-// -*- C++ -*-
 //
 // Package:     Framework
 // Class  :     ESRecordsToProductResolverIndices
 //
-/**\class ESRecordsToProductResolverIndices ESRecordsToProductResolverIndices.h FWCore/Framework/interface/ESRecordsToProductResolverIndices.h
+/**\class edm::eventsetup::ESRecordsToProductResolverIndices
 
  Description: Key used to identify data within a EventSetupRecord
 
@@ -19,7 +19,6 @@
 //
 
 // system include files
-#include <limits>
 #include <vector>
 
 // user include files
@@ -37,7 +36,7 @@ namespace edm::eventsetup {
     ESRecordsToProductResolverIndices(std::vector<EventSetupRecordKey> iRecords);
 
     // ---------- const member functions ---------------------
-    ///If the index is not found, returns missingResolverIndex()
+    ///If the index is not found, returns ESResolverIndex::noResolverConfigured()
     ESResolverIndex indexInRecord(EventSetupRecordKey const& iRK, DataKey const& iDK) const noexcept;
 
     ComponentDescription const* component(EventSetupRecordKey const& iRK, DataKey const& iDK) const noexcept;
@@ -45,9 +44,6 @@ namespace edm::eventsetup {
     ///Returns ESTagGetter for all products matching the type iTT for record iRK
     ESTagGetter makeTagGetter(EventSetupRecordKey const& iRK, TypeTag const& iTT) const;
 
-    static constexpr ESResolverIndex missingResolverIndex() noexcept {
-      return ESResolverIndex{std::numeric_limits<int>::max()};
-    }
     static constexpr ESRecordIndex missingRecordIndex() noexcept {
       return ESRecordIndex{ESRecordIndex::invalidValue()};
     }

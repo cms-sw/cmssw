@@ -72,8 +72,8 @@ public:
   static const IndexType MAX_CHIP_INDEX = 17064;
   static const IndexType MAX_GAS_GAIN_INDEX = 57240;
 
-  CSCIndexerOldPostls1(){};
-  ~CSCIndexerOldPostls1(){};
+  CSCIndexerOldPostls1() {}
+  ~CSCIndexerOldPostls1() {}
 
   /**
    * Starting index for first chamber in ring 'ir' of station 'is' in endcap

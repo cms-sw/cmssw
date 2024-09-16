@@ -67,8 +67,8 @@ public:
 
   struct SimplePoint {
     float x, y, z;
-    SimplePoint(const GlobalPoint& p) : x(p.x()), y(p.y()), z(p.z()){};
-    SimplePoint() : x(0), y(0), z(0){};
+    SimplePoint(const GlobalPoint& p) : x(p.x()), y(p.y()), z(p.z()) {}
+    SimplePoint() : x(0), y(0), z(0) {}
   };
   static const unsigned int nPixelLayers = 4;
   static const unsigned int nPixelDiscs = 3;
@@ -259,7 +259,7 @@ void PixelBaryCentreAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
     const SiPixelQuality* badPixelInfo = &iSetup.getData(siPixelQualityToken_);
 
     // Tracker global position
-    const AlignTransform& glbCoord = align::DetectorGlobalPosition(iSetup.getData(gprToken_), DetId(DetId::Tracker));
+    const AlignTransform glbCoord = align::DetectorGlobalPosition(iSetup.getData(gprToken_), DetId(DetId::Tracker));
 
     // Convert AlignTransform::Translation to GlobalVector using the appropriate constructor
     GlobalVector globalTkPosition(glbCoord.translation().x(), glbCoord.translation().y(), glbCoord.translation().z());

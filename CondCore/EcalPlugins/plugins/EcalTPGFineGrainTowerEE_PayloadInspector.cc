@@ -64,7 +64,7 @@ namespace {
               minEE = weight;
           }
         }  //tower map
-      }    //payload
+      }  //payload
 
       TCanvas canvas("CC map", "CC map", 800, 800);
       TLatex t1;

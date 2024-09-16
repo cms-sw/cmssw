@@ -35,11 +35,11 @@ public:
                         DCCEventBlock* event,
                         bool unpack = true);
 
-  virtual ~DCCDataBlockPrototype(){};
+  virtual ~DCCDataBlockPrototype() {}
 
   virtual int unpack(const uint64_t** data, unsigned int* dwToEnd) { return BLOCK_UNPACKED; }
 
-  virtual void updateCollectors(){};
+  virtual void updateCollectors() {}
 
   virtual void display(std::ostream& o) {}
 

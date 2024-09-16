@@ -7,5 +7,4 @@
  */
 
 #include "DataFormats/Common/interface/Wrapper.h"
-#include "SimTracker/TrackTriggerAssociation/interface/TTTypes.h"
 #include "SimTracker/TrackTriggerAssociation/interface/StubAssociation.h"

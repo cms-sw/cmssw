@@ -17,9 +17,9 @@
 
 class MeasurementSensor2D : public Measurement {
 public:
-  MeasurementSensor2D(const ALIint measdim, ALIstring& type, ALIstring& name) : Measurement(measdim, type, name){};
-  MeasurementSensor2D(){};
-  ~MeasurementSensor2D() override{};
+  MeasurementSensor2D(const ALIint measdim, ALIstring& type, ALIstring& name) : Measurement(measdim, type, name) {}
+  MeasurementSensor2D() {}
+  ~MeasurementSensor2D() override {}
 
   // Get simulated value (called every time a parameter is displaced)
   void calculateSimulatedValue(ALIbool firstTime) override;

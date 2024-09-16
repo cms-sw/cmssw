@@ -159,20 +159,20 @@ namespace L1TUtmTriggerMenuInspectorHelper {
       const auto& vec_only_in_this = m_info.template onlyInThis<T>(other);
       const auto& vec_only_in_other = m_info.template onlyInOther<T>(other);
 
-      // preparations for plotting
-      // starting table at y=1.0 (top of the canvas)
-      // first column is at 0.03, second column at 0.22 NDC
+      // Calculate the total number of entries
       unsigned int mapsize = vec_only_in_this.size() + vec_only_in_other.size();
-      float pitch = 1. / (mapsize * 1.1);
-      float y, x1, x2;
-      std::vector<float> y_x1, y_x2, y_line;
-      std::vector<std::string> s_x1, s_x2, s_x3;
-      y = 1.0;
-      x1 = 0.02;
-      x2 = x1 + 0.37;
-      y -= pitch;
 
-      // title for plot
+      // Dynamically calculate the pitch based on the number of entries
+      float canvasHeight = std::max(800.0f, mapsize * 30.0f);  // Adjust canvas height based on the number of entries
+      float pitch = 1.0 / (mapsize + 3.0);  // Pitch for spacing between lines (extra space for headers)
+
+      float y = 1.0;
+      float x1 = 0.02, x2 = x1 + 0.37;
+      std::vector<float> y_x1, y_x2, y_line;
+      std::vector<std::string> s_x1, s_x2;
+
+      // Title for plot
+      y -= pitch;
       y_x1.push_back(y);
       s_x1.push_back(getLabel());
       y_x2.push_back(y);
@@ -184,65 +184,61 @@ namespace L1TUtmTriggerMenuInspectorHelper {
       y_x2.push_back(y);
       s_x2.push_back("#scale[1.1]{Refer  tag / IOV: #color[4]{" + theRefTag + "} / " + theRefIOV + "}");
 
-      y -= pitch / 2.;
+      y -= pitch / 2.0;
       y_line.push_back(y);
 
-      // First, check if there are records in reference which are not in target
+      // Records only in reference (not in target)
       for (const auto& ref : vec_only_in_other) {
         y -= pitch;
         y_x1.push_back(y);
         s_x1.push_back("#scale[0.7]{" + ref + "}");
         y_x2.push_back(y);
         s_x2.push_back("#color[4]{#bf{Only in reference, not in target.}}");
-        y_line.push_back(y - (pitch / 2.));
+        y_line.push_back(y - (pitch / 2.0));
       }
 
-      // Second, check if there are records in target which are not in reference
+      // Records only in target (not in reference)
       for (const auto& tar : vec_only_in_this) {
         y -= pitch;
         y_x1.push_back(y);
         s_x1.push_back("#scale[0.7]{" + tar + "}");
         y_x2.push_back(y);
         s_x2.push_back("#color[2]{#bf{Only in target, not in reference.}}");
-        y_line.push_back(y - (pitch / 2.));
+        y_line.push_back(y - (pitch / 2.0));
       }
 
-      // Finally, print text to TCanvas
-      TCanvas canvas("L1TUtmMenuData", "L1TUtmMenuData", 2000, std::max(y_x1.size(), y_x2.size()) * 40);
+      // Adjust canvas size dynamically
+      TCanvas canvas("L1TUtmMenuData", "L1TUtmMenuData", 2000, static_cast<int>(canvasHeight));
       TLatex l;
-      // Draw the columns titles
       l.SetTextAlign(12);
 
-      float newpitch = 1 / (std::max(y_x1.size(), y_x2.size()) * 1.1);
-      float factor = newpitch / pitch;
-      l.SetTextSize(newpitch - 0.002);
+      // Set the text size dynamically based on pitch
+      float textSize = std::clamp(pitch, 0.015f, 0.035f);
+      l.SetTextSize(textSize);
+
       canvas.cd();
       for (unsigned int i = 0; i < y_x1.size(); i++) {
-        l.DrawLatexNDC(x1, 1 - (1 - y_x1[i]) * factor, s_x1[i].c_str());
+        l.DrawLatexNDC(x1, y_x1[i], s_x1[i].c_str());
       }
-
       for (unsigned int i = 0; i < y_x2.size(); i++) {
-        l.DrawLatexNDC(x2, 1 - (1 - y_x2[i]) * factor, s_x2[i].c_str());
+        l.DrawLatexNDC(x2, y_x2[i], s_x2[i].c_str());
       }
-
-      canvas.cd();
-      canvas.Update();
 
       // Draw horizontal lines separating records
       TLine lines[y_line.size()];
-      unsigned int iL = 0;
-      for (const auto& line : y_line) {
-        lines[iL] = TLine(gPad->GetUxmin(), 1 - (1 - line) * factor, gPad->GetUxmax(), 1 - (1 - line) * factor);
-        lines[iL].SetLineWidth(1);
-        lines[iL].SetLineStyle(9);
-        lines[iL].SetLineColor(2);
-        lines[iL].Draw("same");
-        iL++;
+      for (unsigned int i = 0; i < y_line.size(); i++) {
+        lines[i] = TLine(gPad->GetUxmin(), y_line[i], gPad->GetUxmax(), y_line[i]);
+        lines[i].SetLineWidth(1);
+        lines[i].SetLineStyle(9);
+        lines[i].SetLineColor(2);
+        lines[i].Draw("same");
       }
 
-      std::string fileName("L1UtmMenuData_Compare.png");
-      if (!m_imageFileName.empty())
+      // Save the canvas as an image
+      std::string fileName = "L1UtmMenuData_Compare.png";
+      if (!m_imageFileName.empty()) {
         fileName = m_imageFileName;
+      }
       canvas.SaveAs(fileName.c_str());
     }
 

@@ -340,7 +340,7 @@ void L1Scalers::analyze(const edm::Event& e, const edm::EventSetup& iSetup) {
             }
           }
         }  // denomBitGood
-      }    // bx
+      }  // bx
 
       // get earliest single muon trigger system bx's
       if (gmtCollection.isValid()) {

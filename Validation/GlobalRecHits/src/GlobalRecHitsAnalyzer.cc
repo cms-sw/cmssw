@@ -1042,8 +1042,8 @@ void GlobalRecHitsAnalyzer::fillTrk(const edm::Event& iEvent, const edm::EventSe
             }
           }
         }  // end matched emtpy
-      }    // <-----end rechit loop
-    }      // <------ end detunit loop
+      }  // <-----end rechit loop
+    }  // <------ end detunit loop
 
     if (verbosity > 1) {
       eventout += "\n          Number of BrlPixelRecHits collected:...... ";
@@ -1398,7 +1398,7 @@ int GlobalRecHitsAnalyzer::compute(const DTGeometry* dtGeom,
       mehDtMuonRes->Fill(recHitWireDist - simHitWireDist);
 
     }  // find rechits
-  }    // loop over simhits
+  }  // loop over simhits
 
   return nDt;
 }

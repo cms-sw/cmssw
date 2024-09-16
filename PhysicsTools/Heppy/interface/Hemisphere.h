@@ -68,7 +68,7 @@ namespace heppy {
     // RejectISRDRmax() max DeltaR below which objects can be included
     //   (default = 10.)
 
-    Hemisphere(){};
+    Hemisphere() {}
 
     Hemisphere(std::vector<float> Px_vector,
                std::vector<float> Py_vector,
@@ -83,7 +83,7 @@ namespace heppy {
                std::vector<float> E_vector);
 
     // Destructor
-    ~Hemisphere(){};
+    ~Hemisphere() {}
 
     // return Nx, Ny, Nz, P, E of the axis of group 1
     std::vector<float> getAxis1();

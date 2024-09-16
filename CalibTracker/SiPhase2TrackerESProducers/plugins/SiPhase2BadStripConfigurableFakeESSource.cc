@@ -179,9 +179,9 @@ SiPhase2BadStripConfigurableFakeESSource::ReturnType SiPhase2BadStripConfigurabl
           counter++;
 
         }  // if it's a strip module
-      }    // if it's OT
-    }      // if it's Tracker
-  }        // loop on DetIds
+      }  // if it's OT
+    }  // if it's Tracker
+  }  // loop on DetIds
 
   LogDebug("SiPhase2BadStripConfigurableFakeESSource") << "end of the detId loops";
 

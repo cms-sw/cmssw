@@ -785,8 +785,8 @@ void HGCalTBAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
         edm::LogVerbatim("HGCSim") << "HGCRecHitCollection does not exist for " << detectorFH_ << " !!!";
 #endif
       }  // else
-    }    // if (ifFH_)
-  }      // if (doRecHits_)
+    }  // if (ifFH_)
+  }  // if (doRecHits_)
 
 }  // void HGCalTBAnalyzer::analyze
 

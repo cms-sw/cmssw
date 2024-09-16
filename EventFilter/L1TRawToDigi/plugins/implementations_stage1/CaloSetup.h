@@ -14,7 +14,7 @@ namespace l1t {
   namespace stage1 {
     class CaloSetup : public PackingSetup {
     public:
-      ~CaloSetup() override{};
+      ~CaloSetup() override {}
       std::unique_ptr<PackerTokens> registerConsumes(const edm::ParameterSet& cfg, edm::ConsumesCollector& cc) override;
       void fillDescription(edm::ParameterSetDescription& desc) override;
       PackerMap getPackers(int fed, unsigned int fw) override;

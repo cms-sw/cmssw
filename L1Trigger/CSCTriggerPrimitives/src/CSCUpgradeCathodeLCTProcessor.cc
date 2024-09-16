@@ -192,7 +192,7 @@ std::vector<CSCCLCTDigi> CSCUpgradeCathodeLCTProcessor::findLCTs(
       if (hits_in_time) {
         // first, mark half-strip zones around pretriggers
         // that happened at the current first_bx
-        markPreTriggerZone(pretrig_zone);
+        markPreTriggerZone(first_bx, pretrig_zone);
 
         for (int hstrip = stagger[CSCConstants::KEY_CLCT_LAYER - 1]; hstrip < numHalfStrips_; hstrip++) {
           /* The bend-direction bit pid[0] is ignored (left and right bends have equal quality).
@@ -300,7 +300,7 @@ std::vector<CSCCLCTDigi> CSCUpgradeCathodeLCTProcessor::findLCTs(
           lctList.push_back(tempSecondCLCT);
         }
       }  //find CLCT, end of best_halfstrip[0] >= 0
-    }    //pre_trig
+    }  //pre_trig
     // The pattern finder runs continuously, so another pre-trigger
     // could occur already at the next bx.
     start_bx = first_bx + 1;
@@ -309,14 +309,14 @@ std::vector<CSCCLCTDigi> CSCUpgradeCathodeLCTProcessor::findLCTs(
 }  // findLCTs -- Phase2 version.
 
 void CSCUpgradeCathodeLCTProcessor::markPreTriggerZone(
-    bool pretrig_zone[CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER]) const {
+    int bx, bool pretrig_zone[CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER]) const {
   // first reset the pretrigger zone (no pretriggers anywhere in this BX
   for (int hstrip = 0; hstrip < CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER; hstrip++) {
     pretrig_zone[hstrip] = false;
   }
   // then set the pretrigger zone according to the ispretrig_ array
   for (int hstrip = 0; hstrip < CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER; hstrip++) {
-    if (ispretrig_[hstrip]) {
+    if (ispretrig_[hstrip] && !busyMap_[hstrip][bx]) {
       int min_hs = hstrip - pretrig_trig_zone_;
       int max_hs = hstrip + pretrig_trig_zone_;
       // set the minimum strip

@@ -24,9 +24,9 @@ public:
         theConstantTerm(0.),
         theConstantTermSigma(0.),
         thePedestal(0.),
-        thePedestalSigma(0.){};
-  MeasurementTiltmeter(){};
-  ~MeasurementTiltmeter() override{};
+        thePedestalSigma(0.) {}
+  MeasurementTiltmeter() {}
+  ~MeasurementTiltmeter() override {}
 
   // Get simulated value (called every time a parameter is displaced)
   void calculateSimulatedValue(ALIbool firstTime) override;

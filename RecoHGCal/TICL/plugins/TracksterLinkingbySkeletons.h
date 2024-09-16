@@ -23,7 +23,9 @@ namespace ticl {
 
   class TracksterLinkingbySkeletons : public TracksterLinkingAlgoBase {
   public:
-    TracksterLinkingbySkeletons(const edm::ParameterSet& conf, edm::ConsumesCollector iC);
+    TracksterLinkingbySkeletons(const edm::ParameterSet& conf,
+                                edm::ConsumesCollector iC,
+                                cms::Ort::ONNXRuntime const* onnxRuntime = nullptr);
 
     ~TracksterLinkingbySkeletons() override {}
 

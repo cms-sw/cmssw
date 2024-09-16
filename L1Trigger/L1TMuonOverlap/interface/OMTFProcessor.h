@@ -20,7 +20,7 @@ class OMTFProcessor {
 public:
   typedef std::map<Key, OMTFResult> resultsMap;
 
-  OMTFProcessor(){};
+  OMTFProcessor() {}
 
   ~OMTFProcessor();
 

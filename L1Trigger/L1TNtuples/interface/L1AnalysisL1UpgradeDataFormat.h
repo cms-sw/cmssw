@@ -47,7 +47,7 @@ namespace L1Analysis {
 
   struct L1AnalysisL1UpgradeDataFormat {
     L1AnalysisL1UpgradeDataFormat() { Reset(); };
-    ~L1AnalysisL1UpgradeDataFormat(){};
+    ~L1AnalysisL1UpgradeDataFormat() {}
 
     void Reset() {
       nEGs = 0;

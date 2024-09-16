@@ -43,6 +43,17 @@ PhysicsSpecialHLTPhysics6Output
 PhysicsSpecialHLTPhysics7Output
 PhysicsSpecialHLTPhysics8Output
 PhysicsSpecialHLTPhysics9Output
+PhysicsSpecialHLTPhysics10Output
+PhysicsSpecialHLTPhysics11Output
+PhysicsSpecialHLTPhysics12Output
+PhysicsSpecialHLTPhysics13Output
+PhysicsSpecialHLTPhysics14Output
+PhysicsSpecialHLTPhysics15Output
+PhysicsSpecialHLTPhysics16Output
+PhysicsSpecialHLTPhysics17Output
+PhysicsSpecialHLTPhysics18Output
+PhysicsSpecialHLTPhysics19Output
+
 NanoDSTOutput
 
 ######## Paths that are different between online and offline ########

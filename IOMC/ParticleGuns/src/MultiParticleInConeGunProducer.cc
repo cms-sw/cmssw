@@ -165,7 +165,7 @@ void MultiParticleInConeGunProducer::produce(Event& e, const EventSetup& es) {
         Vtx->add_particle_out(PartIc);
         break;
       }  //try many times while not in acceptance
-    }    //loop over the particle Ids in the cone
+    }  //loop over the particle Ids in the cone
   }
 
   fEvt->add_vertex(Vtx);

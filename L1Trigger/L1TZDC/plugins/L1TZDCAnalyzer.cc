@@ -127,7 +127,7 @@ namespace l1t {
   void L1TZDCAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
 
-    desc.add<edm::InputTag>("etSumTag", edm::InputTag("etSumZdcProducer", ""));
+    desc.add<edm::InputTag>("etSumTag", edm::InputTag("l1tZDCEtSums", ""));
     descriptions.add("l1tZDCAnalyzer", desc);
   }
 

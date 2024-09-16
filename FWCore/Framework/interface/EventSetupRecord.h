@@ -1,6 +1,6 @@
+// -*- C++ -*-
 #ifndef FWCore_Framework_EventSetupRecord_h
 #define FWCore_Framework_EventSetupRecord_h
-// -*- C++ -*-
 //
 // Package:     Framework
 // Class  :     EventSetupRecord
@@ -41,6 +41,7 @@
 // user include files
 #include "FWCore/Framework/interface/FunctorESHandleExceptionFactory.h"
 #include "FWCore/Framework/interface/DataKey.h"
+#include "FWCore/Framework/interface/HCTypeTag.h"
 #include "FWCore/Framework/interface/NoProductResolverException.h"
 #include "FWCore/Framework/interface/ValidityInterval.h"
 #include "FWCore/Framework/interface/EventSetupRecordImpl.h"
@@ -163,8 +164,13 @@ namespace edm {
         }
 
         auto resolverIndex = getTokenIndices_[iToken.index().value()];
-        if UNLIKELY (resolverIndex.value() == std::numeric_limits<int>::max()) {
-          return noResolverHandle<H>(iToken);
+
+        if UNLIKELY (resolverIndex == ESResolverIndex::moduleLabelDoesNotMatch()) {
+          return noResolverHandle<H>(iToken, true);
+        }
+
+        if UNLIKELY (resolverIndex == ESResolverIndex::noResolverConfigured()) {
+          return noResolverHandle<H>(iToken, false);
         }
 
         T const* value = nullptr;
@@ -204,11 +210,11 @@ namespace edm {
       }
 
       template <template <typename> typename H, typename T, typename R>
-      H<T> noResolverHandle(ESGetToken<T, R> const& iToken) const {
+      H<T> noResolverHandle(ESGetToken<T, R> const& iToken, bool moduleLabelDoesNotMatch) const {
         auto const key = this->key();
-        auto name = iToken.name();
-        return H<T>{makeESHandleExceptionFactory([key, name] {
-          NoProductResolverException<T> ex(key, DataKey{DataKey::makeTypeTag<T>(), name});
+        auto productLabel = iToken.productLabel();
+        return H<T>{makeESHandleExceptionFactory([key, productLabel, moduleLabelDoesNotMatch] {
+          NoProductResolverException ex(key, heterocontainer::className<T>(), productLabel, moduleLabelDoesNotMatch);
           return std::make_exception_ptr(ex);
         })};
       }

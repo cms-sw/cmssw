@@ -12,7 +12,7 @@ hltEgammaEleGsfTrackIsoUnseeded = cms.EDProducer("EgammaHLTElectronTrackIsolatio
     egTrkIsoZSpan = cms.double(0.15),
     electronProducer = cms.InputTag("hltEgammaGsfElectronsUnseeded"),
     recoEcalCandidateProducer = cms.InputTag("hltEgammaCandidatesUnseeded"),
-    trackProducer = cms.InputTag("generalTracks"),
+    trackProducer = cms.InputTag("hltGeneralTracks"),
     useGsfTrack = cms.bool(True),
     useSCRefs = cms.bool(True)
 )

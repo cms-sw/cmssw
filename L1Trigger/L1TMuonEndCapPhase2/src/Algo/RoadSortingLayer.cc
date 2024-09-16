@@ -97,7 +97,7 @@ void RoadSortingLayer::apply(const unsigned int& first_n,
         roads_kept, 32, 16, [](const road_t& lhs, const road_t& rhs) -> int { return lhs.quality < rhs.quality; });
 
     // Shift everything 16 cols to the left
-    for (unsigned int i = 16; i < keep_n_roads; ++i) {
+    for (unsigned int i = 16; i < (keep_n_roads - 16); ++i) {
       roads_kept[i] = roads_kept[i + 16];
     }
 

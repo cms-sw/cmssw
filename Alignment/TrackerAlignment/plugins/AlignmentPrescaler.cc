@@ -235,7 +235,7 @@ void AlignmentPrescaler::produce(edm::Event& iEvent, const edm::EventSetup& iSet
         }
         ntakenhits++;
       }  //end if take this hit
-    }    //end loop on RecHits
+    }  //end loop on RecHits
     trackflags[ittrk - Tracks->begin()] = ntakenhits;
   }  //end loop on tracks
 

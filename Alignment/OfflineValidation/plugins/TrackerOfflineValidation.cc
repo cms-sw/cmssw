@@ -1394,7 +1394,7 @@ void TrackerOfflineValidation::analyze(const edm::Event& iEvent, const edm::Even
       }
 
     }  // finish loop over hit quantities
-  }    // finish loop over track quantities
+  }  // finish loop over track quantities
 
   if (useOverflowForRMS_)
     TH1::StatOverflows(kFALSE);

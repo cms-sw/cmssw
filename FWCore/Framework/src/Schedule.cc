@@ -786,9 +786,16 @@ namespace edm {
       return;
     }
 
-    if (wantSummary_ == false)
-      return;
+    if (wantSummary_) {
+      try {
+        convertException::wrap([this]() { sendFwkSummaryToMessageLogger(); });
+      } catch (cms::Exception const& ex) {
+        collector.addException(ex);
+      }
+    }
+  }
 
+  void Schedule::sendFwkSummaryToMessageLogger() const {
     //Function to loop over items in a container and periodically
     // flush to the message logger.
     auto logForEach = [](auto const& iContainer, auto iMessage) {
@@ -1180,18 +1187,20 @@ namespace edm {
 
   void Schedule::beginJob(ProductRegistry const& iRegistry,
                           eventsetup::ESRecordsToProductResolverIndices const& iESIndices,
-                          ProcessBlockHelperBase const& processBlockHelperBase) {
-    globalSchedule_->beginJob(iRegistry, iESIndices, processBlockHelperBase);
+                          ProcessBlockHelperBase const& processBlockHelperBase,
+                          PathsAndConsumesOfModulesBase const& pathsAndConsumesOfModules,
+                          ProcessContext const& processContext) {
+    globalSchedule_->beginJob(iRegistry, iESIndices, processBlockHelperBase, pathsAndConsumesOfModules, processContext);
   }
 
-  void Schedule::beginStream(unsigned int iStreamID) {
-    assert(iStreamID < streamSchedules_.size());
-    streamSchedules_[iStreamID]->beginStream();
+  void Schedule::beginStream(unsigned int streamID) {
+    assert(streamID < streamSchedules_.size());
+    streamSchedules_[streamID]->beginStream();
   }
 
-  void Schedule::endStream(unsigned int iStreamID) {
-    assert(iStreamID < streamSchedules_.size());
-    streamSchedules_[iStreamID]->endStream();
+  void Schedule::endStream(unsigned int streamID, ExceptionCollector& collector, std::mutex& collectorMutex) noexcept {
+    assert(streamID < streamSchedules_.size());
+    streamSchedules_[streamID]->endStream(collector, collectorMutex);
   }
 
   void Schedule::processOneEventAsync(WaitingTaskHolder iTask,

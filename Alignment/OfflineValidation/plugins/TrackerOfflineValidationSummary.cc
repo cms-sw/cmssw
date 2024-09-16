@@ -98,7 +98,7 @@ private:
     HarvestingHistos harvestingHistos;
   };
 
-  void beginRun(const edm::Run&, const edm::EventSetup& iSetup) override{};
+  void beginRun(const edm::Run&, const edm::EventSetup& iSetup) override {}
   void analyze(const edm::Event& evt, const edm::EventSetup&) override;
   void endRun(const edm::Run&, const edm::EventSetup& iSetup) override;
   void endJob() override;

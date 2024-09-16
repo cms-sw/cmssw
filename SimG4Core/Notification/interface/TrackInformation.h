@@ -9,7 +9,7 @@
 
 class TrackInformation : public G4VUserTrackInformation {
 public:
-  TrackInformation(){};
+  TrackInformation() {}
   ~TrackInformation() override = default;
   inline void *operator new(std::size_t);
   inline void operator delete(void *TrackInformation);

@@ -33,7 +33,7 @@ namespace XrdAdaptor {
     XrootdException(XrdCl::Status &xrootd_status, edm::Exception::Code code)
         : Exception(code), m_code(xrootd_status.code) {}
 
-    ~XrootdException() noexcept override{};
+    ~XrootdException() noexcept override {}
 
     uint16_t getCode() { return m_code; }
 

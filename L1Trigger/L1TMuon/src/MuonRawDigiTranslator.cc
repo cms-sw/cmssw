@@ -262,9 +262,13 @@ void l1t::MuonRawDigiTranslator::generate64bitDataWord(
   dataword = (((uint64_t)msw) << 32) + lsw;
 }
 
+bool l1t::MuonRawDigiTranslator::isFwVersionWithShowers(int fedId, int fwId) {
+  return ((fedId == kUgmtFedId && fwId >= kUgmtFwVersionFirstWithShowers) ||
+          (fedId == kUgtFedId && fwId >= kUgtFwVersionFirstWithShowers));
+}
+
 bool l1t::MuonRawDigiTranslator::showerFired(uint32_t shower_word, int fedId, int fwId) {
-  if ((fedId == kUgmtFedId && fwId >= kUgmtFwVersionFirstWithShowers) ||
-      (fedId == kUgtFedId && fwId >= kUgtFwVersionFirstWithShowers)) {
+  if (isFwVersionWithShowers(fedId, fwId)) {
     return ((shower_word >> showerShift_) & 1) == 1;
   }
   return false;
@@ -274,8 +278,7 @@ std::array<std::array<uint32_t, 4>, 2> l1t::MuonRawDigiTranslator::getPackedShow
                                                                                             const int fedId,
                                                                                             const int fwId) {
   std::array<std::array<uint32_t, 4>, 2> res{};
-  if ((fedId == kUgmtFedId && fwId >= kUgmtFwVersionFirstWithShowers) ||
-      (fedId == kUgtFedId && fwId >= kUgtFwVersionFirstWithShowers)) {
+  if (isFwVersionWithShowers(fedId, fwId)) {
     res.at(0).at(0) = shower.isOneNominalInTime() ? (1 << showerShift_) : 0;
     res.at(0).at(1) = shower.isOneTightInTime() ? (1 << showerShift_) : 0;
   }

@@ -40,7 +40,7 @@ public:
           PProbXVsVar(nullptr),
           PSigmaXHitVsVar(nullptr),
           PSigmaXTrkVsVar(nullptr),
-          PSigmaXVsVar(nullptr){};
+          PSigmaXVsVar(nullptr) {}
 
     inline void fillCorrHists(const TString,
                               const TrackStruct::HitParameterStruct &hitParameterStruct,

@@ -22,7 +22,7 @@
 //        pLow and pHigh and save the canvases
 //
 // .L CalibPlotProperties.C+g
-//  CalibSplit c1(fname, dirname, outFileName, pmin, pmax, debug);
+//  CalibSplit c1(fname, dirname, outFileName, pmin, pmax, runMin, runMax, debug);
 //  c1.Loop(nentries);
 //
 //        This will split the tree and keep for tacks with momenta between
@@ -36,26 +36,33 @@
 //   dirname (const char*)     = name of the directory where Tree resides
 //                               (use "HcalIsoTrkAnalyzer")
 //   dupFileName (const char*) = name of the file containing list of entries
-//                               of duplicate events
+//                               of duplicate events or depth dependent weights
+//                               or weights coming due to change in gains
+//                               (driven by flag)
 //   prefix (std::string)      = String to be added to the name of histogram
 //                               (usually a 4 character string; default="")
 //   corrFileName (const char*)= name of the text file having the correction
 //                               factors to be used (default="", no corr.)
 //   rcorFileName (const char*)= name of the text file having the correction
 //                               factors as a function of run numbers or depth
-//                               to be used for raddam/depth/pileup/phisym
-//                               dependent correction  (default="", no corr.)
+//                               to be used for raddam/depth/pileup/phisym/
+//                               phisym(s) dependent correction
+//                               (default="", no corr.)
 //   puCorr (int)              = PU correction to be applied or not: 0 no
 //                               correction; < 0 use eDelta; > 0 rho dependent
 //                               correction (-8)
 //   flag (int)                = 7 digit integer (ymlthdo) with control
-//                               information (y=2/1/0 containing list of
-//                               ieta, iphi of channels to be selected (2);
-//                               list containing depth dependent weights for
-//                               each ieta (1); list of duplicate entries
-//                               (0) in dupFileName; m=0/1 for controlling
-//                               creation of depth depedendent histograms;
-//                               l=4/3/2/1/0 for type of rcorFileName (4 for
+//                               information (y=3/2/1/0 containing list of
+//                               run ranges and ieta, depth for gain changes
+//                               (3): list of ieta, iphi of channels to be
+//                               selected (2); list containing depth dependent
+//                               weights for each ieta (1); list of duplicate
+//                               entries (0) in the dupFileName;
+//                               m=0/1 for controlling creation of depth
+//                               depedendent histograms;
+//                               l=5/4/3/2/1/0 for type of rcorFileName ((5
+//                               for run-dependent correctons using results
+//                               from several phi symmetry studies; 4 for
 //                               using results from phi-symmetry; 3 for
 //                               pileup correction using machine learning
 //                               method; 2 for overall response corrections;
@@ -138,6 +145,8 @@
 //   outFileName (std::string)= name of the file containing saved tree
 //   pmin (double)            = minimum track momentum (40.0)
 //   pmax (double)            = maximum track momentum (60.0)
+//   runMin (int)             = minimum run number (-1) | if -1, no check on
+//   runMax (int)             = maximum run number (-1) | run number not done
 //   debug (bool)             = debug flag (false)
 //////////////////////////////////////////////////////////////////////////////
 #include <TROOT.h>
@@ -918,8 +927,13 @@ void CalibPlotProperties::Loop(Long64_t nentries) {
           double cfac = corrFactor_->getCorr(id);
           if ((cFactor_ != 0) && (ifDepth_ != 3) && (ifDepth_ > 0))
             cfac *= cFactor_->getCorr(t_Run, (*t_DetIds)[k]);
-          if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr()))
+          if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr(1)))
             cfac *= cDuplicate_->getWeight((*t_DetIds)[k]);
+          if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr(3))) {
+            int subdet, zside, ieta, iphi, depth;
+            unpackDetId((*t_DetIds)[k], subdet, zside, ieta, iphi, depth);
+            cfac *= cDuplicate_->getCorr(t_Run, ieta, depth);
+          }
           eHcal += (cfac * ((*t_HitEnergies)[k]));
           if (debug) {
             int subdet, zside, ieta, iphi, depth;
@@ -1013,8 +1027,13 @@ void CalibPlotProperties::Loop(Long64_t nentries) {
                 double cfac = corrFactor_->getCorr(id);
                 if ((cFactor_ != 0) && (ifDepth_ != 3) && (ifDepth_ > 0))
                   cfac *= cFactor_->getCorr(t_Run, (*t_DetIds)[k]);
-                if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr()))
+                if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr(1)))
                   cfac *= cDuplicate_->getWeight((*t_DetIds)[k]);
+                if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr(3))) {
+                  int subdet, zside, ieta, iphi, depth;
+                  unpackDetId((*t_DetIds)[k], subdet, zside, ieta, iphi, depth);
+                  cfac *= cDuplicate_->getCorr(t_Run, ieta, depth);
+                }
                 double ener = cfac * (*t_HitEnergies)[k];
                 if (corrPU_)
                   correctEnergy(ener);
@@ -1242,8 +1261,13 @@ void CalibPlotProperties::correctEnergy(double &eHcal) {
           double cfac = corrFactor_->getCorr(id);
           if ((cFactor_ != 0) && (ifDepth_ != 3) && (ifDepth_ > 0))
             cfac *= cFactor_->getCorr(t_Run, (*t_DetIds1)[idet]);
-          if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr()))
+          if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr(1)))
             cfac *= cDuplicate_->getWeight((*t_DetIds1)[idet]);
+          if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr(3))) {
+            int subdet, zside, ieta, iphi, depth;
+            unpackDetId((*t_DetIds1)[idet], subdet, zside, ieta, iphi, depth);
+            cfac *= cDuplicate_->getCorr(t_Run, ieta, depth);
+          }
           double hitEn = cfac * (*t_HitEnergies1)[idet];
           Etot1 += hitEn;
         }
@@ -1256,8 +1280,13 @@ void CalibPlotProperties::correctEnergy(double &eHcal) {
           double cfac = corrFactor_->getCorr(id);
           if ((cFactor_ != 0) && (ifDepth_ != 3) && (ifDepth_ > 0))
             cfac *= cFactor_->getCorr(t_Run, (*t_DetIds3)[idet]);
-          if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr()))
+          if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr(1)))
             cfac *= cDuplicate_->getWeight((*t_DetIds)[idet]);
+          if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr(3))) {
+            int subdet, zside, ieta, iphi, depth;
+            unpackDetId((*t_DetIds3)[idet], subdet, zside, ieta, iphi, depth);
+            cfac *= cDuplicate_->getCorr(t_Run, ieta, depth);
+          }
           double hitEn = cfac * (*t_HitEnergies3)[idet];
           Etot3 += hitEn;
         }
@@ -1812,6 +1841,8 @@ public:
              const std::string &outFileName,
              double pmin = 40.0,
              double pmax = 60.0,
+             int runMin = -1,
+             int runMax = -1,
              bool debug = false);
   virtual ~CalibSplit();
   virtual Int_t Cut(Long64_t entry);
@@ -1827,23 +1858,34 @@ public:
 private:
   const std::string fname_, dirnm_, outFileName_;
   const double pmin_, pmax_;
+  const int runMin_, runMax_;
   const bool debug_;
+  bool checkRun_;
   TFile *outputFile_;
   TDirectoryFile *outputDir_;
   TTree *outputTree_;
 };
 
-CalibSplit::CalibSplit(
-    const char *fname, const std::string &dirnm, const std::string &outFileName, double pmin, double pmax, bool debug)
+CalibSplit::CalibSplit(const char *fname,
+                       const std::string &dirnm,
+                       const std::string &outFileName,
+                       double pmin,
+                       double pmax,
+                       int runMin,
+                       int runMax,
+                       bool debug)
     : fname_(fname),
       dirnm_(dirnm),
       outFileName_(outFileName),
       pmin_(pmin),
       pmax_(pmax),
+      runMin_(runMin),
+      runMax_(runMax),
       debug_(debug),
       outputFile_(nullptr),
       outputDir_(nullptr),
       outputTree_(nullptr) {
+  checkRun_ = ((runMin_ < 0) || (runMax_ < 0)) ? false : true;
   char treeName[400];
   sprintf(treeName, "%s/CalibTree", dirnm.c_str());
   TChain *chain = new TChain(treeName);
@@ -2075,6 +2117,10 @@ void CalibSplit::Loop(Long64_t nentries) {
       std::cout << "Entry " << jentry << " Run " << t_Run << " Event " << t_Event << std::endl;
     ++kount;
     bool select = ((t_p >= pmin_) && (t_p < pmax_));
+    if (select && checkRun_) {
+      if ((t_Run < runMin_) || (t_Run > runMax_))
+        select = false;
+    }
     if (!select) {
       ++reject;
       if (debug_)

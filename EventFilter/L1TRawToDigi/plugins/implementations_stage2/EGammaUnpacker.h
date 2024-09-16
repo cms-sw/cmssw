@@ -8,7 +8,7 @@ namespace l1t {
     class EGammaUnpacker : public Unpacker {
     public:
       EGammaUnpacker();
-      ~EGammaUnpacker() override{};
+      ~EGammaUnpacker() override {}
 
       bool unpack(const Block& block, UnpackerCollections* coll) override;
 

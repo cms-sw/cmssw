@@ -30,11 +30,11 @@ namespace popcon {
     SiStripPopConConfigDbObjHandler(const edm::ParameterSet& pset)
         : m_name(pset.getUntrackedParameter<std::string>("name", "SiStripPopPopConConfigDbObjHandler")),
           m_since(pset.getUntrackedParameter<uint32_t>("since", 5)),
-          m_debugMode(pset.getUntrackedParameter<bool>("debug", false)){};
+          m_debugMode(pset.getUntrackedParameter<bool>("debug", false)) {}
 
     //---------------------------------------
     //
-    ~SiStripPopConConfigDbObjHandler() override{};
+    ~SiStripPopConConfigDbObjHandler() override {}
 
     //---------------------------------------
     //

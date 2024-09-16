@@ -45,7 +45,7 @@ public:
                             const edm::ParameterSet &pSet);
 
   /// destructor
-  virtual ~AlignmentParameterBuilder(){};
+  virtual ~AlignmentParameterBuilder() {}
   /// master initialisation method, PSet must have form as constructor wants it
   void addAllSelections(const edm::ParameterSet &pSet);
 

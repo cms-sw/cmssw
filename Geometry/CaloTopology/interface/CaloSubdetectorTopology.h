@@ -17,7 +17,7 @@ $Revision: 1.7 $
 class CaloSubdetectorTopology {
 public:
   /// standard constructor
-  CaloSubdetectorTopology(){};
+  CaloSubdetectorTopology() {}
   /// virtual destructor
   virtual ~CaloSubdetectorTopology() {}
   /// is this detid present in the Topology?

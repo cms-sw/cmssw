@@ -16,6 +16,7 @@
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
 #include "FWCore/Framework/interface/EventSetupRecordProvider.h"
 #include "FWCore/Framework/interface/EventSetupImpl.h"
+#include "FWCore/Framework/interface/NoProductResolverException.h"
 #include "FWCore/Framework/interface/RecordDependencyRegister.h"
 #include "FWCore/Framework/interface/MakeDataException.h"
 #include "FWCore/Framework/interface/EDConsumerBase.h"
@@ -33,6 +34,7 @@
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ESParentContext.h"
 #include "FWCore/Concurrency/interface/FinalWaitingTask.h"
+#include "FWCore/Utilities/interface/ESIndices.h"
 
 #include <memory>
 #include "oneapi/tbb/task_arena.h"
@@ -60,7 +62,6 @@ namespace eventsetuprecord_t {
 using eventsetuprecord_t::Dummy;
 using eventsetuprecord_t::DummyRecord;
 typedef edm::eventsetup::MakeDataException ExceptionType;
-typedef edm::eventsetup::NoDataException<Dummy> NoDataExceptionType;
 
 class testEventsetupRecord : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(testEventsetupRecord);
@@ -73,7 +74,7 @@ class testEventsetupRecord : public CppUnit::TestFixture {
   CPPUNIT_TEST(introspectionTest);
   CPPUNIT_TEST(transientTest);
 
-  CPPUNIT_TEST_EXCEPTION(getNodataExpTest, NoDataExceptionType);
+  CPPUNIT_TEST_EXCEPTION(getNodataExpTest, NoProductResolverException);
   CPPUNIT_TEST_EXCEPTION(doGetExepTest, ExceptionType);
 
   CPPUNIT_TEST_SUITE_END();
@@ -282,7 +283,7 @@ void testEventsetupRecord::getHandleTest() {
     CPPUNIT_ASSERT(not dummyPtr.isValid());
     CPPUNIT_ASSERT(not dummyPtr);
     CPPUNIT_ASSERT(dummyPtr.failedToGet());
-    CPPUNIT_ASSERT_THROW(*dummyPtr, NoDataExceptionType);
+    CPPUNIT_ASSERT_THROW(*dummyPtr, NoProductResolverException);
     CPPUNIT_ASSERT_THROW(makeESValid(dummyPtr), cms::Exception);
   }
 
@@ -387,7 +388,7 @@ void testEventsetupRecord::getWithTokenTest() {
 
     DummyRecord dummyRecord = sr.makeRecord();
 
-    CPPUNIT_ASSERT_THROW(dummyRecord.get(consumer.m_token), NoDataExceptionType);
+    CPPUNIT_ASSERT_THROW(dummyRecord.get(consumer.m_token), NoProductResolverException);
   }
 
   {
@@ -475,14 +476,12 @@ void testEventsetupRecord::getNodataExpTest() {
   edm::ESConsumesInfo consumesInfo;
   edm::ESConsumesCollectorT<DummyRecord> cc(&consumesInfo, static_cast<unsigned int>(edm::Transition::Event));
   auto token = cc.consumes<Dummy>();
-  std::vector<edm::ESResolverIndex> getTokenIndices{
-      eventsetup::ESRecordsToProductResolverIndices::missingResolverIndex()};
+  std::vector<edm::ESResolverIndex> getTokenIndices{ESResolverIndex::noResolverConfigured()};
 
   EventSetupRecordImpl recImpl(DummyRecord::keyForClass(), &activityRegistry);
   DummyRecord dummyRecord;
   ESParentContext pc;
   dummyRecord.setImpl(&recImpl, 0, getTokenIndices.data(), &eventSetupImpl_, &pc);
-  FailingDummyResolver dummyResolver;
 
   ESHandle<Dummy> dummyPtr = dummyRecord.getHandle(token);
   *dummyPtr;

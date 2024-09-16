@@ -1,3 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.Geometry.defaultPhase2ConditionsEra_cff import DEFAULT_VERSION
 
-from Configuration.Geometry.GeometryExtended2026D98_cff import *
+geometry_import_stmt = f"from Configuration.Geometry.GeometryExtended{DEFAULT_VERSION}_cff import *"
+exec(geometry_import_stmt)

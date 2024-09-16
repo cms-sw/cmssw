@@ -44,8 +44,8 @@ public:
         m_jZ1(1000.),
         m_jZ6(1000.),
         m_cscGeometry(nullptr),
-        m_propagator(nullptr){};
-  ~CSCPairResidualsConstraint() override{};
+        m_propagator(nullptr) {}
+  ~CSCPairResidualsConstraint() override {}
 
   enum { kModePhiy, kModePhiPos, kModePhiz, kModeRadius };
 

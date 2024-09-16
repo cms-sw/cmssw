@@ -14,7 +14,7 @@
 namespace L1Analysis {
   struct L1AnalysisGeneratorDataFormat {
     L1AnalysisGeneratorDataFormat() { Reset(); };
-    ~L1AnalysisGeneratorDataFormat(){};
+    ~L1AnalysisGeneratorDataFormat() {}
 
     void Reset() {
       weight = -999.;

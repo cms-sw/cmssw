@@ -32,7 +32,7 @@ public:
   L1TMuonBarrelParamsHelper() : L1TMuonBarrelParams() {}
   L1TMuonBarrelParamsHelper(const L1TMuonBarrelParams& barrelParams);
 
-  ~L1TMuonBarrelParamsHelper(){};
+  ~L1TMuonBarrelParamsHelper() {}
 
   void configFromPy(std::map<std::string, int>& allInts,
                     std::map<std::string, bool>& allBools,

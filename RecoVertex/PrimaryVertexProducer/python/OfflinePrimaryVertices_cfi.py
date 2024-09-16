@@ -179,3 +179,31 @@ highBetaStar_2018.toModify(offlinePrimaryVertices,
      }
 )
 
+from Configuration.Eras.Modifier_run3_upc_cff import run3_upc
+run3_upc.toModify(offlinePrimaryVertices,
+    TkFilterParameters = dict(
+        algorithm="filterWithThreshold",
+        maxNormalizedChi2 = 80.0,
+        minPixelLayersWithHits = 1,
+        minSiliconLayersWithHits = 3,
+        maxD0Significance = 4.0,
+        maxD0Error = 10.0,
+        maxDzError = 10.0,
+        minPt = 0.0,
+        maxEta = 3.0,
+        trackQuality = "highPurity",
+        numTracksThreshold = cms.int32(3),
+        maxNumTracksThreshold = cms.int32(1000),
+        minPtTight = cms.double(1.0)
+    ),
+    TkClusParameters = cms.PSet(
+        algorithm = cms.string("gap"),
+        TkGapClusParameters = cms.PSet(
+            zSeparation = cms.double(6.0)
+        )
+    ),
+    vertexCollections = {
+        0: dict(chi2cutoff = 4.0, minNdof = -1.1),
+        1: dict(chi2cutoff = 4.0, minNdof = -2.0),
+    }
+)

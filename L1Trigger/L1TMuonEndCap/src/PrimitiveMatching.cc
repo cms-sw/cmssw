@@ -107,7 +107,7 @@ void PrimitiveMatching::process(const std::deque<EMTFHitCollection>& extended_co
       }
 
     }  // end loop over conv_hits
-  }    // end loop over extended_conv_hits
+  }  // end loop over extended_conv_hits
 
   if (verbose_ > 1) {  // debug
     for (int izone = 0; izone < emtf::NUM_ZONES; ++izone) {
@@ -139,7 +139,7 @@ void PrimitiveMatching::process(const std::deque<EMTFHitCollection>& extended_co
           izone + 1, istation + 1, zone_roads.at(izone), zs_conv_hits.at(zs), zs_phi_differences.at(zs));
       emtf_assert(zone_roads.at(izone).size() == zs_phi_differences.at(zs).size());
     }  // end loop over stations
-  }    // end loop over zones
+  }  // end loop over zones
 
   if (verbose_ > 1) {  // debug
     for (int izone = 0; izone < emtf::NUM_ZONES; ++izone) {
@@ -200,7 +200,7 @@ void PrimitiveMatching::process(const std::deque<EMTFHitCollection>& extended_co
       zone_tracks.at(izone).push_back(track);
 
     }  // end loop over roads
-  }    // end loop over zones
+  }  // end loop over zones
 
   if (verbose_ > 0) {  // debug
     for (const auto& tracks : zone_tracks) {

@@ -970,7 +970,7 @@ void PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::Event
                   << " zPCA -myVertex.z() = " << (theTrack.vertex().z() - myVertex.z());
 
             }  // ends if debug_
-          }    // ends if the fitted vertex is Valid
+          }  // ends if the fitted vertex is Valid
 
           //delete theFitter;
 
@@ -992,7 +992,7 @@ void PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::Event
         edm::LogInfo("PrimaryVertexValidation") << "Track " << i << " : pT = " << theTrack.pt();
 
     }  // for loop on tracks
-  }    // for loop on track clusters
+  }  // for loop on track clusters
 
   // Fill the TTree if needed
 
@@ -3300,7 +3300,7 @@ void PrimaryVertexValidation::fillMap(TH2F* trendMap,
           edm::LogWarning("PrimaryVertexValidation:") << " fillMap() " << fitPar_ << " unknown estimator!" << std::endl;
       }
     }  // closes loop on eta bins
-  }    // cloeses loop on phi bins
+  }  // cloeses loop on phi bins
 }
 
 //*************************************************************

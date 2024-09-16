@@ -17,6 +17,7 @@
 #include "FWCore/MessageLogger/interface/ExceptionMessages.h"
 #include "FWCore/ServiceRegistry/interface/GlobalContext.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
+#include "FWCore/ServiceRegistry/interface/ServiceRegistryfwd.h"
 #include "FWCore/ServiceRegistry/interface/ServiceToken.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/BranchType.h"
@@ -38,9 +39,7 @@
 
 namespace edm {
 
-  class ActivityRegistry;
   class ExceptionCollector;
-  class ProcessContext;
   class PreallocationConfiguration;
   class ModuleRegistry;
   class TriggerResultInserter;
@@ -76,7 +75,9 @@ namespace edm {
 
     void beginJob(ProductRegistry const&,
                   eventsetup::ESRecordsToProductResolverIndices const&,
-                  ProcessBlockHelperBase const&);
+                  ProcessBlockHelperBase const&,
+                  PathsAndConsumesOfModulesBase const&,
+                  ProcessContext const&);
     void endJob(ExceptionCollector& collector);
 
     /// Return a vector allowing const access to all the
@@ -118,7 +119,14 @@ namespace edm {
     std::shared_ptr<ActivityRegistry> actReg_;  // We do not use propagate_const because the registry itself is mutable.
     std::vector<edm::propagate_const<WorkerPtr>> extraWorkers_;
     ProcessContext const* processContext_;
+
+    // The next 4 variables use the same naming convention, even though we have no intention
+    // to ever have concurrent ProcessBlocks or Jobs. They are all related to the number of
+    // WorkerManagers needed for global transitions.
     unsigned int numberOfConcurrentLumis_;
+    unsigned int numberOfConcurrentRuns_;
+    static constexpr unsigned int numberOfConcurrentProcessBlocks_ = 1;
+    static constexpr unsigned int numberOfConcurrentJobs_ = 1;
   };
 
   template <typename T>
@@ -155,6 +163,8 @@ namespace edm {
         unsigned int managerIndex = principal.index();
         if constexpr (T::branchType_ == InRun) {
           managerIndex += numberOfConcurrentLumis_;
+        } else if constexpr (T::branchType_ == InProcess) {
+          managerIndex += (numberOfConcurrentLumis_ + numberOfConcurrentRuns_);
         }
         WorkerManager& workerManager = workerManagers_[managerIndex];
         workerManager.resetAll();
@@ -184,10 +194,7 @@ namespace edm {
         ServiceRegistry::Operate op(token);
         convertException::wrap([this, globalContext]() { T::preScheduleSignal(actReg_.get(), globalContext); });
       } catch (cms::Exception& ex) {
-        std::ostringstream ost;
-        ex.addContext("Handling pre signal, likely in a service function");
-        exceptionContext(ost, *globalContext);
-        ex.addContext(ost.str());
+        exceptionContext(ex, *globalContext, "Handling pre signal, likely in a service function");
         throw;
       }
     }
@@ -205,10 +212,7 @@ namespace edm {
         });
       } catch (cms::Exception& ex) {
         if (not excpt) {
-          std::ostringstream ost;
-          ex.addContext("Handling post signal, likely in a service function");
-          exceptionContext(ost, *globalContext);
-          ex.addContext(ost.str());
+          exceptionContext(ex, *globalContext, "Handling post signal, likely in a service function");
           excpt = std::current_exception();
         }
       }

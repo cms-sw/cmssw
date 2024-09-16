@@ -45,7 +45,8 @@ PatternRecognitionbyCLUE3D<TILES>::PatternRecognitionbyCLUE3D(const edm::Paramet
       eidMinClusterEnergy_(conf.getParameter<double>("eid_min_cluster_energy")),
       eidNLayers_(conf.getParameter<int>("eid_n_layers")),
       eidNClusters_(conf.getParameter<int>("eid_n_clusters")),
-      computeLocalTime_(conf.getParameter<bool>("computeLocalTime")){};
+      computeLocalTime_(conf.getParameter<bool>("computeLocalTime")),
+      usePCACleaning_(conf.getParameter<bool>("usePCACleaning")){};
 
 template <typename TILES>
 void PatternRecognitionbyCLUE3D<TILES>::dumpTiles(const TILES &tiles) const {
@@ -347,7 +348,10 @@ void PatternRecognitionbyCLUE3D<TILES>::makeTracksters(
                               input.layerClusters,
                               input.layerClustersTime,
                               rhtools_.getPositionLayer(rhtools_.lastLayerEE(false), false).z(),
-                              computeLocalTime_);
+                              rhtools_,
+                              computeLocalTime_,
+                              true,  // energy weighting
+                              usePCACleaning_);
 
   if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > VerbosityLevel::Advanced) {
     for (auto const &t : result) {
@@ -901,6 +905,7 @@ void PatternRecognitionbyCLUE3D<TILES>::fillPSetDescription(edm::ParameterSetDes
   iDesc.add<int>("eid_n_layers", 50);
   iDesc.add<int>("eid_n_clusters", 10);
   iDesc.add<bool>("computeLocalTime", false);
+  iDesc.add<bool>("usePCACleaning", false)->setComment("Enable PCA cleaning alorithm");
 }
 
 template class ticl::PatternRecognitionbyCLUE3D<TICLLayerTiles>;

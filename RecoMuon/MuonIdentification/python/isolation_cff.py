@@ -5,7 +5,7 @@ from RecoMuon.MuonIsolationProducers.trackExtractorBlocks_cff import *
 from RecoMuon.MuonIsolationProducers.jetExtractorBlock_cff import *
 MIdIsoExtractorPSetBlock = cms.PSet(
     CaloExtractorPSet = cms.PSet(
-        MIsoCaloExtractorByAssociatorHitsBlock
+        MIsoCaloExtractorByAssociatorMixedBlock
     ),
     TrackExtractorPSet = cms.PSet(
         MIsoTrackExtractorBlock

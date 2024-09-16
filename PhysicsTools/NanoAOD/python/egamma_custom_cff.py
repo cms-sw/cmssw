@@ -83,14 +83,19 @@ customPhotonFilterBits = cms.PSet(
 
 def addExtraEGammaVarsCustomize(process):
     #photon
+    process.finalPhotons.cut = cms.string("pt > 1 ")
     process.photonTable.variables.setValue(_phoVarsExtra.parameters_())
     process.triggerObjectTable.selections.Photon = customPhotonFilterBits
-    if process.nanoDQM:
+
+    if hasattr(process,'nanoDQM'):
       process.nanoDQM.vplots.Photon.plots = _Photon_extra_plots
+
     #electron
+    process.finalElectrons.cut = cms.string("pt > 1 ")
     process.electronTable.variables.setValue(_eleVarsExtra.parameters_())
     process.triggerObjectTable.selections.Electron = customElectronFilterBits
-    if process.nanoDQM:
+
+    if hasattr(process,'nanoDQM'):
       process.nanoDQM.vplots.Electron.plots = _Electron_extra_plots
       
     return process

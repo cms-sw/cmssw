@@ -21,9 +21,9 @@ namespace l1t {
             data_length(-99),
             user_id(-99),
             format_errors(0),
-            dataword(-99){};
+            dataword(-99) {}
 
-      virtual ~MTF7Header(){};
+      virtual ~MTF7Header() {}
 
       void set_amc_number(int bits) { amc_number = bits; }
       void set_bx_id(int bits) { bx_id = bits; }
@@ -57,7 +57,7 @@ namespace l1t {
       uint64_t dataword;
 
     };  // End class MTF7Header
-  }     // End namespace emtf
+  }  // End namespace emtf
 }  // End namespace l1t
 
 #endif /* define __l1t_emtf_MTF7Header_h__ */

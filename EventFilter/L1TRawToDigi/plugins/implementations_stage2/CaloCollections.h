@@ -24,7 +24,7 @@ namespace l1t {
             mp_etsums_(new EtSumBxCollection()),
             mp_jets_(new JetBxCollection()),
             mp_egammas_(new EGammaBxCollection()),
-            mp_taus_(new TauBxCollection()){};
+            mp_taus_(new TauBxCollection()) {}
 
       ~CaloCollections() override;
 

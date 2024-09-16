@@ -253,6 +253,11 @@ DST_PFScouting_AXOLoose_v*       # CMSHLT-3173
 DST_PFScouting_AXONominal_v*     # CMSHLT-3049
 DST_PFScouting_AXOTight_v*       # CMSHLT-3049
 DST_PFScouting_AXOVTight_v*      # CMSHLT-3173
+DST_PFScouting_CICADAVLoose_v*	 # CMSHLT-3273
+DST_PFScouting_CICADALoose_v*	 # CMSHLT-3273
+DST_PFScouting_CICADAMedium_v*	 # CMSHLT-3273
+DST_PFScouting_CICADATight_v*	 # CMSHLT-3273
+DST_PFScouting_CICADAVTight_v*	 # CMSHLT-3273
 DST_PFScouting_SingleMuon_v*	 # CMSHLT-3075
 DST_PFScouting_ZeroBias_v*	 # CMSHLT-3175
 DST_PFScouting_SinglePhotonEB_v* # CMSHLT-3213
@@ -803,6 +808,10 @@ ParkingSingleMuon4Output # CMSHLT-3180
 ParkingSingleMuon5Output # CMSHLT-3180
 ParkingSingleMuon6Output # CMSHLT-3180
 ParkingSingleMuon7Output # CMSHLT-3180
+ParkingSingleMuon8Output # CMSHLT-3276
+ParkingSingleMuon9Output # CMSHLT-3276
+ParkingSingleMuon10Output # CMSHLT-3276
+ParkingSingleMuon11Output # CMSHLT-3276
 ParkingDoubleMuonLowMass0Output # CMSHLT-2261
 ParkingDoubleMuonLowMass1Output # CMSHLT-2261
 ParkingDoubleMuonLowMass2Output # CMSHLT-2261

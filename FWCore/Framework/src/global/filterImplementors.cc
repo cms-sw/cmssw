@@ -28,5 +28,5 @@ namespace edm {
       template class EndLuminosityBlockProducer<edm::global::EDFilterBase>;
       template class ExternalWork<edm::global::EDFilterBase>;
     }  // namespace impl
-  }    // namespace global
+  }  // namespace global
 }  // namespace edm

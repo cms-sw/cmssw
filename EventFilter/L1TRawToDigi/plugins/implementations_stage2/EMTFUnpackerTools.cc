@@ -133,5 +133,5 @@ namespace l1t {
       }  // End ImportSP
 
     }  // End namespace emtf
-  }    // End namespace stage2
+  }  // End namespace stage2
 }  // End namespace l1t

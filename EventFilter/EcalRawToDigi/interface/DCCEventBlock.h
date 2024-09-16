@@ -39,7 +39,7 @@ public:
 
   virtual ~DCCEventBlock();
 
-  virtual void unpack(const uint64_t* buffer, size_t bufferSize, unsigned int expFedId){};
+  virtual void unpack(const uint64_t* buffer, size_t bufferSize, unsigned int expFedId) {}
 
   void reset();
 

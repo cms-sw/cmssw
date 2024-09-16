@@ -61,7 +61,7 @@ void PixelTrackCleanerBySharedHits::cleanTracks(TracksWithTTRHs& trackHitPairs) 
         continue;
       kill(iTrack2);
     }  // tk2
-  }    // tk1
+  }  // tk1
 
   // second loop: first and third hits....
   for (auto i = 0U; i < size; ++i) {
@@ -86,7 +86,7 @@ void PixelTrackCleanerBySharedHits::cleanTracks(TracksWithTTRHs& trackHitPairs) 
         continue;
       kill(iTrack2);
     }  // tk2
-  }    // tk1
+  }  // tk1
 
   // final loop: all the rest
   for (auto i = 0U; i < size; ++i) {
@@ -126,7 +126,7 @@ void PixelTrackCleanerBySharedHits::cleanTracks(TracksWithTTRHs& trackHitPairs) 
         kill(iTrack2);
       }
     }  // tk2
-  }    //tk1
+  }  //tk1
 
   trackHitPairs.erase(
       std::remove_if(trackHitPairs.begin(), trackHitPairs.end(), [&](TrackWithTTRHs& v) { return nullptr == v.first; }),

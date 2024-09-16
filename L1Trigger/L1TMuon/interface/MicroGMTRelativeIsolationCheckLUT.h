@@ -7,10 +7,10 @@
 namespace l1t {
   class MicroGMTRelativeIsolationCheckLUT : public MicroGMTLUT {
   public:
-    MicroGMTRelativeIsolationCheckLUT(){};
+    MicroGMTRelativeIsolationCheckLUT() {}
     explicit MicroGMTRelativeIsolationCheckLUT(const std::string& fname);
     explicit MicroGMTRelativeIsolationCheckLUT(l1t::LUT* lut);
-    ~MicroGMTRelativeIsolationCheckLUT() override{};
+    ~MicroGMTRelativeIsolationCheckLUT() override {}
 
     // returns the index corresponding to the calo tower sum
     int lookup(int energySum, int pt) const;

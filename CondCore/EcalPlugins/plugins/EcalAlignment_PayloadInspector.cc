@@ -25,7 +25,7 @@ namespace {
     MIN_IPHI = 1,
     MAX_IETA = 85,
     MAX_IPHI = 360
-  };                                                            // barrel (EB) lower and upper bounds on eta and phi
+  };  // barrel (EB) lower and upper bounds on eta and phi
   enum { IX_MIN = 1, IY_MIN = 1, IX_MAX = 100, IY_MAX = 100 };  // endcaps (EE) lower and upper bounds on x and y
 
   /*****************************************
@@ -257,7 +257,7 @@ namespace {
       canvas.SaveAs(ImageName.c_str());
       return true;
     }  // fill method
-  };   // class EcalAlignmentDiffBase
+  };  // class EcalAlignmentDiffBase
   using EcalAlignmentDiffOneTag = EcalAlignmentDiffBase<cond::payloadInspector::SINGLE_IOV, 1>;
   using EcalAlignmentDiffTwoTags = EcalAlignmentDiffBase<cond::payloadInspector::SINGLE_IOV, 2>;
 

@@ -21,7 +21,7 @@ class SiStripDeDx3DBuilder : public edm::one::EDAnalyzer<> {
 public:
   explicit SiStripDeDx3DBuilder(const edm::ParameterSet& iConfig);
 
-  ~SiStripDeDx3DBuilder(){};
+  ~SiStripDeDx3DBuilder() {}
 
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
 

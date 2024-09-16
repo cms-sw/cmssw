@@ -88,6 +88,10 @@ namespace ecaldqm {
     MESet& meBXSRP(MEs_.at("BXSRP"));
     MESet& meL1ASRP(MEs_.at("L1ASRP"));
     MESet& meTrendNSyncErrors(MEs_.at("L1ATCC"));
+    MESet& meTrendBXTCC(MEs_.at("TrendBXTCC"));
+    MESet& meTrendL1ATCC(MEs_.at("TrendL1ATCC"));
+    MESet& meTrendBXSRP(MEs_.at("TrendBXSRP"));
+    MESet& meTrendL1ASRP(MEs_.at("TrendL1ASRP"));
     MESet& meEventTypePreCalib(MEs_.at("EventTypePreCalib"));
     MESet& meEventTypeCalib(MEs_.at("EventTypeCalib"));
     MESet& meEventTypePostCalib(MEs_.at("EventTypePostCalib"));
@@ -214,29 +218,51 @@ namespace ecaldqm {
       if (tccBx.size() == 4) {  // EB uses tccBx[0]; EE uses all
         if (dccId <= kEEmHigh + 1 || dccId >= kEEpLow + 1) {
           for (int iTCC(0); iTCC < 4; iTCC++) {
-            if (tccBx[iTCC] != dccBX && tccBx[iTCC] != -1 && dccBX != -1)
+            if (tccBx[iTCC] != dccBX && tccBx[iTCC] != -1 && dccBX != -1) {
               meBXTCC.fill(getEcalDQMSetupObjects(), dccId);
+              meTrendBXTCC.fill(getEcalDQMSetupObjects(), EcalEndcap, double(timestamp_.iLumi), 1);
+            }
 
-            if (tccL1[iTCC] != dccL1AShort && tccL1[iTCC] != -1 && dccL1AShort != 0)
+            if (tccL1[iTCC] != dccL1AShort && tccL1[iTCC] != -1 && dccL1AShort != 0) {
               meL1ATCC.fill(getEcalDQMSetupObjects(), dccId);
+              meTrendL1ATCC.fill(getEcalDQMSetupObjects(), EcalEndcap, double(timestamp_.iLumi), 1);
+            }
           }
         } else {
-          if (tccBx[0] != dccBX && tccBx[0] != -1 && dccBX != -1)
+          if (tccBx[0] != dccBX && tccBx[0] != -1 && dccBX != -1) {
             meBXTCC.fill(getEcalDQMSetupObjects(), dccId);
+            meTrendBXTCC.fill(getEcalDQMSetupObjects(), EcalBarrel, double(timestamp_.iLumi), 1);
+          }
 
-          if (tccL1[0] != dccL1AShort && tccL1[0] != -1 && dccL1AShort != 0)
+          if (tccL1[0] != dccL1AShort && tccL1[0] != -1 && dccL1AShort != 0) {
             meL1ATCC.fill(getEcalDQMSetupObjects(), dccId);
+            meTrendL1ATCC.fill(getEcalDQMSetupObjects(), EcalBarrel, double(timestamp_.iLumi), 1);
+          }
         }
       }
 
       short srpBx(dcchItr->getSRPBx());
       short srpL1(dcchItr->getSRPLv1());
 
-      if (srpBx != dccBX && srpBx != -1 && dccBX != -1)
+      if (srpBx != dccBX && srpBx != -1 && dccBX != -1) {
         meBXSRP.fill(getEcalDQMSetupObjects(), dccId);
 
-      if (srpL1 != dccL1AShort && srpL1 != -1 && dccL1AShort != 0)
+        if (dccId <= kEEmHigh + 1 || dccId >= kEEpLow + 1) {  // EE
+          meTrendBXSRP.fill(getEcalDQMSetupObjects(), EcalEndcap, double(timestamp_.iLumi), 1);
+        } else {  // EB
+          meTrendBXSRP.fill(getEcalDQMSetupObjects(), EcalBarrel, double(timestamp_.iLumi), 1);
+        }
+      }
+
+      if (srpL1 != dccL1AShort && srpL1 != -1 && dccL1AShort != 0) {
         meL1ASRP.fill(getEcalDQMSetupObjects(), dccId);
+
+        if (dccId <= kEEmHigh + 1 || dccId >= kEEpLow + 1) {  // EE
+          meTrendL1ASRP.fill(getEcalDQMSetupObjects(), EcalEndcap, double(timestamp_.iLumi), 1);
+        } else {  // EB
+          meTrendL1ASRP.fill(getEcalDQMSetupObjects(), EcalBarrel, double(timestamp_.iLumi), 1);
+        }
+      }
 
       const int calibBX(3490);
 

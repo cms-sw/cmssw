@@ -172,8 +172,8 @@ void DTEfficiencyTest::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
           }
         }
       }  // loop on layers
-    }    // loop on superlayers
-  }      //loop on chambers
+    }  // loop on superlayers
+  }  //loop on chambers
 
   // Efficiency test
   //cout<<"[DTEfficiencyTest]: Efficiency Tests results"<<endl;

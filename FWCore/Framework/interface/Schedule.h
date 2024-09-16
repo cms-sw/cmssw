@@ -74,9 +74,9 @@
 #include "FWCore/MessageLogger/interface/JobReport.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/ServiceRegistry/interface/ServiceRegistryfwd.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/BranchType.h"
-#include "FWCore/Utilities/interface/ConvertException.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "FWCore/Utilities/interface/get_underlying_safe.h"
@@ -85,6 +85,7 @@
 #include <array>
 #include <map>
 #include <memory>
+#include <mutex>
 #include <set>
 #include <string>
 #include <vector>
@@ -100,13 +101,11 @@ namespace edm {
     class ESRecordsToProductResolverIndices;
   }
 
-  class ActivityRegistry;
   class BranchIDListHelper;
   class EventTransitionInfo;
   class ExceptionCollector;
   class MergeableRunProductMetadata;
   class OutputModuleCommunicator;
-  class ProcessContext;
   class ProductRegistry;
   class PreallocationConfiguration;
   class StreamSchedule;
@@ -171,11 +170,14 @@ namespace edm {
 
     void beginJob(ProductRegistry const&,
                   eventsetup::ESRecordsToProductResolverIndices const&,
-                  ProcessBlockHelperBase const&);
+                  ProcessBlockHelperBase const&,
+                  PathsAndConsumesOfModulesBase const&,
+                  ProcessContext const&);
     void endJob(ExceptionCollector& collector);
+    void sendFwkSummaryToMessageLogger() const;
 
-    void beginStream(unsigned int);
-    void endStream(unsigned int);
+    void beginStream(unsigned int streamID);
+    void endStream(unsigned int streamID, ExceptionCollector& collector, std::mutex& collectorMutex) noexcept;
 
     // Write the luminosity block
     void writeLumiAsync(WaitingTaskHolder iTask,

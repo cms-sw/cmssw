@@ -13,6 +13,7 @@
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/ESRecordsToProductResolverIndices.h"
 #include "FWCore/Framework/interface/SharedResourcesRegistry.h"
+#include "FWCore/Utilities/interface/ESIndices.h"
 
 namespace edm {
 
@@ -51,27 +52,28 @@ namespace edm {
             records.emplace_back(eventsetup::ESRecordsToProductResolverIndices::missingRecordIndex());
           }
           chooser->setTagGetter(std::move(tagGetter));
-          items.push_back(eventsetup::ESRecordsToProductResolverIndices::missingResolverIndex());
+          // This value will get overwritten before being used
+          items.push_back(ESResolverIndex::noResolverConfigured());
         } else {
           auto index = iResolverToIndices.indexInRecord(resolverInfo.recordKey_, resolverInfo.productKey_);
-          if (index != eventsetup::ESRecordsToProductResolverIndices::missingResolverIndex()) {
+          if (index != ESResolverIndex::noResolverConfigured()) {
             if (not resolverInfo.moduleLabel_.empty()) {
               auto component = iResolverToIndices.component(resolverInfo.recordKey_, resolverInfo.productKey_);
               if (nullptr == component) {
-                index = eventsetup::ESRecordsToProductResolverIndices::missingResolverIndex();
+                index = ESResolverIndex::moduleLabelDoesNotMatch();
               } else {
                 if (component->label_.empty()) {
                   if (component->type_ != resolverInfo.moduleLabel_) {
-                    index = eventsetup::ESRecordsToProductResolverIndices::missingResolverIndex();
+                    index = ESResolverIndex::moduleLabelDoesNotMatch();
                   }
                 } else if (component->label_ != resolverInfo.moduleLabel_) {
-                  index = eventsetup::ESRecordsToProductResolverIndices::missingResolverIndex();
+                  index = ESResolverIndex::moduleLabelDoesNotMatch();
                 }
               }
             }
           }
           items.push_back(index);
-          if (index != eventsetup::ESRecordsToProductResolverIndices::missingResolverIndex()) {
+          if (index != ESResolverIndex::noResolverConfigured() && index != ESResolverIndex::moduleLabelDoesNotMatch()) {
             records.push_back(iResolverToIndices.recordIndexFor(resolverInfo.recordKey_));
           } else {
             //The record is not actually missing but the resolver is

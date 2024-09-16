@@ -103,14 +103,14 @@ bool ZgammaMassFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::Even
       if (LeptP.Pt() > minLeptonPt) {
         Lepton.push_back(LeptP);
       }  // if pt
-    }    // if lepton
+    }  // if lepton
 
     if (abs((*p)->pdg_id()) == 22 && (*p)->status() == 1) {
       TLorentzVector PhotP((*p)->momentum().px(), (*p)->momentum().py(), (*p)->momentum().pz(), (*p)->momentum().e());
       if (PhotP.Pt() > minPhotonPt) {
         Photon.push_back(PhotP);
       }  // if pt
-    }    // if photon
+    }  // if photon
 
   }  // loop over particles
 

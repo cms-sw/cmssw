@@ -93,30 +93,3 @@ from RecoMET.METFilters.BadPFMuonDzFilter_cfi import *
 
 #HF noise filter 
 from RecoMET.METFilters.hfNoisyHitsFilter_cfi import *
-
-metFilters = cms.Sequence(
-    goodVertices *
-    globalSuperTightHalo2016Filter *
-    HBHENoiseFilterResultProducer  *
-    HBHENoiseFilter *
-    HBHENoiseIsoFilter *
-    EcalDeadCellTriggerPrimitiveFilter *  
-    BadPFMuonFilter *
-    BadPFMuonDzFilter *
-    hfNoisyHitsFilter *
-    eeBadScFilter *
-    ecalBadCalibFilter 
-)
-
-from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
-phase2_hgcal.toReplaceWith(metFilters, metFilters.copyAndExclude([
-    HBHENoiseFilterResultProducer, HBHENoiseFilter, HBHENoiseIsoFilter, # No hcalnoise for hgcal
-    eeBadScFilter                                   # No EE
-]))
-
-
-from Configuration.Eras.Modifier_run2_jme_2016_cff import run2_jme_2016
-run2_jme_2016.toReplaceWith(metFilters, metFilters.copyAndExclude([
-    ecalBadCalibFilter, hfNoisyHitsFilter
-]))
-

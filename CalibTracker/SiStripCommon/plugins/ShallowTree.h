@@ -41,7 +41,7 @@ private:
 
   class BranchConnector {
   public:
-    virtual ~BranchConnector(){};
+    virtual ~BranchConnector() {}
     virtual void connect(const edm::Event&) = 0;
   };
 

@@ -82,7 +82,7 @@ namespace pat {
                      bool decisionAfterMask);
 
     /// Destructor
-    virtual ~TriggerAlgorithm(){};
+    virtual ~TriggerAlgorithm() {}
 
     /// Methods
 

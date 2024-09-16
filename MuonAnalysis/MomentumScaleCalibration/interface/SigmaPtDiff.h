@@ -10,7 +10,7 @@ public:
     setParErr(parameters_, errors_);
   }
 
-  SigmaPt(){};
+  SigmaPt() {}
 
   void setParErr(const std::vector<double>& parameters, const std::vector<double>& errors) {
     b_0 = parameters[0];

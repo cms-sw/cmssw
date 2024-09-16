@@ -49,23 +49,14 @@ namespace edm {
     constexpr ESGetToken<ESProduct, ESRecord>& operator=(ESGetToken<ESProduct, ESRecord> const&) noexcept = default;
 
     template <typename ADAPTER>
+      requires requires(ADAPTER&& a) { a.template consumes<ESProduct, ESRecord>(); }
     constexpr explicit ESGetToken(ADAPTER&& iAdapter) : ESGetToken(iAdapter.template consumes<ESProduct, ESRecord>()) {}
 
     template <typename ADAPTER>
+      requires requires(ADAPTER&& a) { a.template consumes<ESProduct, ESRecord>(); }
     constexpr ESGetToken<ESProduct, ESRecord>& operator=(ADAPTER&& iAdapter) {
       ESGetToken<ESProduct, ESRecord> temp(std::forward<ADAPTER>(iAdapter));
       return (*this = std::move(temp));
-    }
-
-    //protect against templated version being a better match
-    constexpr ESGetToken(ESGetToken<ESProduct, ESRecord>& iOther)
-        : ESGetToken(const_cast<const ESGetToken<ESProduct, ESRecord>&>(iOther)) {}
-    constexpr ESGetToken<ESProduct, ESRecord>& operator=(ESGetToken<ESProduct, ESRecord>& iOther) noexcept {
-      return (*this = const_cast<ESGetToken<ESProduct, ESRecord> const&>(iOther));
-    }
-    constexpr ESGetToken(ESGetToken<ESProduct, ESRecord> const&& iOther) : ESGetToken(iOther) {}
-    constexpr ESGetToken<ESProduct, ESRecord>& operator=(ESGetToken<ESProduct, ESRecord> const&& iOther) noexcept {
-      return (*this = iOther);
     }
 
     constexpr unsigned int transitionID() const noexcept { return m_transitionID; }
@@ -75,11 +66,11 @@ namespace edm {
     static constexpr ESTokenIndex invalidIndex() noexcept { return ESTokenIndex{std::numeric_limits<int>::max()}; }
 
   private:
-    explicit constexpr ESGetToken(unsigned int transitionID, ESTokenIndex index, char const* label) noexcept
-        : m_label{label}, m_transitionID{transitionID}, m_index{index} {}
+    explicit constexpr ESGetToken(unsigned int transitionID, ESTokenIndex index, char const* productLabel) noexcept
+        : m_productLabel{productLabel}, m_transitionID{transitionID}, m_index{index} {}
 
-    constexpr char const* name() const noexcept { return m_label; }
-    char const* m_label{nullptr};
+    constexpr char const* productLabel() const noexcept { return m_productLabel; }
+    char const* m_productLabel{nullptr};
     unsigned int m_transitionID{std::numeric_limits<unsigned int>::max()};
     ESTokenIndex m_index{std::numeric_limits<int>::max()};
   };

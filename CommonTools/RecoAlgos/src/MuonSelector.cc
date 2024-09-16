@@ -170,7 +170,7 @@ namespace helper {
       trk.setExtra(TrackExtraRef(rSATrackExtras_, isadx_++));
 
     }  // SA trkRef.isNonnull()
-  }    // end of track, and function
+  }  // end of track, and function
 
   //-------------------------------------------------------------------------
   //!  Check if all references to silicon strip/pixel clusters are available.

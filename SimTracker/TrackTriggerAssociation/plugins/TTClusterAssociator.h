@@ -23,7 +23,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "L1Trigger/TrackTrigger/interface/classNameFinder.h"
-#include "SimTracker/TrackTriggerAssociation/interface/TTClusterAssociationMap.h"
+#include "SimDataFormats/Associations/interface/TTClusterAssociationMap.h"
+#include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLink.h"
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 

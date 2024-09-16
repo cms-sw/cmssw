@@ -17,11 +17,11 @@ class Entry;
 class FittedEntry {
 public:
   //---------- Constructors / Destructor
-  FittedEntry(){};
+  FittedEntry() {}
   FittedEntry(Entry* entry, ALIint order, ALIdouble sigma);
   FittedEntry(ALIstring name, float value, float sigma);
   FittedEntry(const std::vector<FittedEntry*>& vFEntry);
-  ~FittedEntry(){};
+  ~FittedEntry() {}
 
   void BuildName();
 

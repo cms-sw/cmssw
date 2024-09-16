@@ -79,7 +79,7 @@ void SimTauProducer::buildSimTau(SimTauCPLink& t,
       t.calo_particle_leaves.push_back(CaloParticleRef(calo_particle_h, calo_particle_idx));
       t.leaves.push_back(
           {gen_particle.pdgId(), resonance_idx, (int)t.calo_particle_leaves.size() - 1, gen_particle_key});
-      LogDebug("SimTauProducer").format(" CP {} {}", calo_particle_idx, caloPartVec[calo_particle_idx]);
+      LogDebug("SimTauProducer").format(" CP {} {}", calo_particle_idx, caloPartVec[calo_particle_idx].pdgId());
     } else {
       t.leaves.push_back({gen_particle.pdgId(), resonance_idx, -1, gen_particle_key});
     }

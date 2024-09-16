@@ -49,6 +49,34 @@ statuses = [
 
 ecalRawDataTask = cms.untracked.PSet(
     MEs = cms.untracked.PSet(
+        TrendBXTCC = cms.untracked.PSet(
+            path = cms.untracked.string('Ecal/Trends/RawDataTask number of %(prefix)sRDT bunch crossing TCC errors'),
+            kind = cms.untracked.string('TH1F'),
+            otype = cms.untracked.string('Ecal2P'),
+            btype = cms.untracked.string('Trend'),
+            description = cms.untracked.string('Trend of the number of bunch crossing value mismatches between DCC and TCC.')
+        ),
+        TrendL1ATCC = cms.untracked.PSet(
+            path = cms.untracked.string('Ecal/Trends/RawDataTask number of %(prefix)sRDT L1A TCC errors'),
+            kind = cms.untracked.string('TH1F'),
+            otype = cms.untracked.string('Ecal2P'),
+            btype = cms.untracked.string('Trend'),
+            description = cms.untracked.string('Trend of the number of L1A value mismatches between DCC and TCC.')
+        ),
+        TrendBXSRP = cms.untracked.PSet(
+            path = cms.untracked.string('Ecal/Trends/RawDataTask number of %(prefix)sRDT bunch crossing SRP errors'),
+            kind = cms.untracked.string('TH1F'),
+            otype = cms.untracked.string('Ecal2P'),
+            btype = cms.untracked.string('Trend'),
+            description = cms.untracked.string('Trend of the number of bunch crossing value mismatches between DCC and SRP.')
+        ),
+        TrendL1ASRP = cms.untracked.PSet(
+            path = cms.untracked.string('Ecal/Trends/RawDataTask number of %(prefix)sRDT L1A SRP errors'),
+            kind = cms.untracked.string('TH1F'),
+            otype = cms.untracked.string('Ecal2P'),
+            btype = cms.untracked.string('Trend'),
+            description = cms.untracked.string('Trend of the number of L1A value mismatches between DCC and SRP.')
+        ),
         BXSRP = cms.untracked.PSet(
             path = cms.untracked.string('%(subdet)s/%(prefix)sRawDataTask/%(prefix)sRDT bunch crossing SRP errors'),
             kind = cms.untracked.string('TH1F'),

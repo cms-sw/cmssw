@@ -126,7 +126,7 @@ void DTTTrigOffsetCalibration::analyze(const Event& event, const EventSetup& eve
         }
       }
     }  // DTRecSegment4DCollection::const_iterator segment
-  }    // DTRecSegment4DCollection::id_iterator chamberIdIt
+  }  // DTRecSegment4DCollection::id_iterator chamberIdIt
 }  // DTTTrigOffsetCalibration::analyze
 
 void DTTTrigOffsetCalibration::endJob() {

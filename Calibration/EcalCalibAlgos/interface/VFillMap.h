@@ -22,7 +22,7 @@ public:
            EcalIntercalibConstantMap *);
 
   //!dtor
-  virtual ~VFillMap(){};
+  virtual ~VFillMap() {}
   //! The Map filler
   virtual void fillMap(const std::vector<std::pair<DetId, float> > &,
                        const DetId,

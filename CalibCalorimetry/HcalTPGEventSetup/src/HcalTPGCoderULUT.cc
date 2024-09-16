@@ -160,7 +160,8 @@ HcalTPGCoderULUT::ReturnType HcalTPGCoderULUT::produce(const HcalTPGRecord& iRec
   auto host = holder_.makeOrGet([]() { return new HostType; });
 
   const auto& topo = iRecord.get(topoToken_);
-  const auto& delay = iRecord.getRecord<HcalDbRecord>().get(delayToken_);
+  const auto& delayRcd = iRecord.getRecord<HcalDbRecord>();
+  const auto& delay = delayRcd.get(delayToken_);
   if (read_Ascii_ || read_XML_) {
     buildCoder(&topo, &delay, host.get());
   } else {

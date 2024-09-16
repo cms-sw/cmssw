@@ -215,7 +215,8 @@ namespace edm {
                                              EventSetupImpl const* iEventSetupImpl,
                                              ServiceToken const& iToken,
                                              ESParentContext iParent) const noexcept {
-      if UNLIKELY (iResolverIndex.value() == std::numeric_limits<int>::max()) {
+      if UNLIKELY (iResolverIndex == ESResolverIndex::moduleLabelDoesNotMatch() ||
+                   iResolverIndex == ESResolverIndex::noResolverConfigured()) {
         return;
       }
 

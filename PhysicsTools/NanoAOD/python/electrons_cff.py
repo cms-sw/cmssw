@@ -319,6 +319,7 @@ electronTable = simplePATElectronFlatTableProducer.clone(
         ip3d = Var("abs(dB('PV3D'))",float,doc="3D impact parameter wrt first PV, in cm",precision=10),
         sip3d = Var("abs(dB('PV3D')/edB('PV3D'))",float,doc="3D impact parameter significance wrt first PV, in cm",precision=10),
         deltaEtaSC = Var("superCluster().eta()-eta()",float,doc="delta eta (SC,ele) with sign",precision=10),
+        superclusterEta = Var("superCluster().eta()",float,doc="supercluster eta",precision=10),
         r9 = Var("full5x5_r9()",float,doc="R9 of the supercluster, calculated with full 5x5 region",precision=10),
         sieie = Var("full5x5_sigmaIetaIeta()",float,doc="sigma_IetaIeta of the supercluster, calculated with full 5x5 region",precision=10),
         eInvMinusPInv = Var("(1-eSuperClusterOverP())/ecalEnergy()",float,doc="1/E_SC - 1/p_trk",precision=10),
@@ -341,8 +342,10 @@ electronTable = simplePATElectronFlatTableProducer.clone(
         miniPFRelIso_all = Var("userFloat('miniIsoAll')/pt",float,doc="mini PF relative isolation, total (with scaled rho*EA PU Winter22V1 corrections)"),
         pfRelIso03_chg = Var("userFloat('PFIsoChg')/pt",float,doc="PF relative isolation dR=0.3, charged component"),
         pfRelIso03_all = Var("userFloat('PFIsoAll')/pt",float,doc="PF relative isolation dR=0.3, total (with rho*EA PU Winter22V1 corrections)"),                
-        jetRelIso = Var("?userCand('jetForLepJetVar').isNonnull()?(1./userFloat('ptRatio'))-1.:userFloat('PFIsoAll04')/pt",float,doc="Relative isolation in matched jet (1/ptRatio-1, pfRelIso04_all if no matched jet)",precision=8),        
+        pfRelIso04_all = Var("userFloat('PFIsoAll04')/pt",float,doc="PF relative isolation dR=0.4, total (with rho*EA PU Winter22V1 corrections)", precision=10),
+        jetRelIso = Var("?userCand('jetForLepJetVar').isNonnull()?(1./userFloat('ptRatio'))-1.:-1.",float,doc="Relative isolation in matched jet (1/ptRatio-1), -1 if none",precision=8),
         jetPtRelv2 = Var("?userCand('jetForLepJetVar').isNonnull()?userFloat('ptRel'):0",float,doc="Relative momentum of the lepton with respect to the closest jet after subtracting the lepton",precision=8),
+        jetDF = Var("?userCand('jetForLepJetVar').isNonnull()?max(userCand('jetForLepJetVar').bDiscriminator('pfDeepFlavourJetTags:probbb')+userCand('jetForLepJetVar').bDiscriminator('pfDeepFlavourJetTags:probb')+userCand('jetForLepJetVar').bDiscriminator('pfDeepFlavourJetTags:problepb'),0.0):0.0",float,doc="value of the DEEPJET b tagging algorithm discriminator of the associated jet (0 if none)",precision=8,lazyEval=True),
         dr03TkSumPt = Var("?pt>35?dr03TkSumPt():0",float,doc="Non-PF track isolation within a delta R cone of 0.3 with electron pt > 35 GeV",precision=8),
         dr03TkSumPtHEEP = Var("?pt>35?dr03TkSumPtHEEP():0",float,doc="Non-PF track isolation within a delta R cone of 0.3 with electron pt > 35 GeV used in HEEP ID",precision=8),
         dr03EcalRecHitSumEt = Var("?pt>35?dr03EcalRecHitSumEt():0",float,doc="Non-PF Ecal isolation within a delta R cone of 0.3 with electron pt > 35 GeV",precision=8),
@@ -380,7 +383,6 @@ _eleVarsExtra = cms.PSet(
     closestKFNLayers = Var("closestCtfTrackNLayers",int,doc="KF track number of layers"),
     dr03HcalTowerSumEt = Var("dr03HcalTowerSumEt",float,doc="HCal isolation",precision=10),
     GSFchi2 = Var("gsfTrack.normalizedChi2",float,doc="GSF track Chi2",precision=10),
-    superclusterEta = Var("superCluster.eta",float,doc="supercluster eta",precision=10),
     ecalPFClusIso = Var("ecalPFClusterIso",float,doc="ECAL PF cluster isolation",precision=10),
     hcalPFClusIso = Var("hcalPFClusterIso",float,doc="HCAL PF cluster isolation",precision=10),
     nBrem = Var("numberOfBrems",int,doc="number of brems"),
@@ -453,7 +455,7 @@ _eleVarsExtra = cms.PSet(
         miniPFRelIso_all = Var("userFloat('miniIsoAll_Fall17V2')/pt",float,doc="mini PF relative isolation, total (with scaled rho*EA Fall17V2 PU corrections) in Run2"),
         pfRelIso03_chg = Var("userFloat('PFIsoChg_Fall17V2')/pt",float,doc="PF relative isolation dR=0.3 with 94 EffArea, charged component in Run2"),
         pfRelIso03_all = Var("userFloat('PFIsoAll_Fall17V2')/pt",float,doc="PF relative isolation dR=0.3 with 94 EffArea, total (with rho*EA Fall17V2 PU corrections) in Run2"),
-        jetRelIso = Var("?userCand('jetForLepJetVar').isNonnull()?(1./userFloat('ptRatio'))-1.:userFloat('PFIsoAll04_Fall17V2')/pt",float,doc="Relative isolation in matched jet (1/ptRatio-1, pfRelIso04_all if no matched jet in Run2)",precision=8),
+        pfRelIso04_all = Var("userFloat('PFIsoAll04_Fall17V2')/pt",float,doc="PF relative isolation dR=0.4, total (with rho*EA PU Fall17V2 PU corrections)", precision=10),
 )
 
 #############electron Table END#####################

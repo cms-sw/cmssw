@@ -253,7 +253,7 @@ namespace {
           std::cout << ss.str() << std::endl;
 
         }  // payload
-      }    // iovs
+      }  // iovs
       return true;
     }  // fill
   private:
@@ -452,9 +452,9 @@ namespace {
               //to be used to fill the histogram
               fillWithValue(noise);
             }  // loop over APVs
-          }    // loop over detIds
-        }      // payload
-      }        // iovs
+          }  // loop over detIds
+        }  // payload
+      }  // iovs
       return true;
     }  // fill
   };
@@ -490,8 +490,8 @@ namespace {
             //to be used to fill the histogram
             fillWithValue(noise);
           }  // loop over APVs
-        }    // payload
-      }      // iovs
+        }  // payload
+      }  // iovs
       return true;
     }  // fill
   };
@@ -1590,7 +1590,7 @@ namespace {
           std::get<1>(noisePerStripLength[stripL]) += noise;
           std::get<2>(noisePerStripLength[stripL]) += (noise * noise);
         }  // loop over strips
-      }    // loop over detIds
+      }  // loop over detIds
 
       TCanvas canvas("Noise linearity", "noise linearity", 1200, 1000);
       canvas.cd();
@@ -1710,7 +1710,7 @@ namespace {
           sum += noise;
           sum2 += (noise * noise);
         }  // loop on strips
-      }    // loop on detIds
+      }  // loop on detIds
 
       float mean = sum / nStrips;
       float rms = (sum2 / nStrips - mean * mean) > 0. ? sqrt(sum2 / nStrips - mean * mean) : 0.;
@@ -1755,7 +1755,7 @@ namespace {
           sum += noise;
           sum2 += (noise * noise);
         }  // loop on strips
-      }    // loop on detIds
+      }  // loop on detIds
 
       float mean = sum / nStrips;
       float rms = (sum2 / nStrips - mean * mean) > 0. ? sqrt(sum2 / nStrips - mean * mean) : 0.;
@@ -1800,7 +1800,7 @@ namespace {
           sum += noise;
           sum2 += (noise * noise);
         }  // loop on strips
-      }    // loop on detIds
+      }  // loop on detIds
 
       float mean = sum / nStrips;
       float rms = (sum2 / nStrips - mean * mean) > 0. ? sqrt(sum2 / nStrips - mean * mean) : 0.;
@@ -1874,7 +1874,7 @@ namespace {
                 noises.emplace(layer, std::vector<float>{});
               noises[layer].push_back(noise);
             }  // loop on strips
-          }    // loop on detIds
+          }  // loop on detIds
 
           for (auto& entry : noises) {
             double sum = std::accumulate(entry.second.begin(), entry.second.end(), 0.0);
@@ -1891,7 +1891,7 @@ namespace {
               noises_err.emplace(entry.first, std::vector<float>{});
             noises_err[entry.first].push_back(0);
           }  //get
-        }    //run on iov
+        }  //run on iov
       }
       TCanvas canvas("Partition summary", "partition summary", 2000, 1000);
       canvas.cd();

@@ -20,9 +20,9 @@
 
 class ALIFileOut : public std::ofstream {
 public:
-  ALIFileOut(){};
-  ALIFileOut(const ALIstring& name) : std::ofstream(), theName(name){};
-  ~ALIFileOut() override{};
+  ALIFileOut() {}
+  ALIFileOut(const ALIstring& name) : std::ofstream(), theName(name) {}
+  ~ALIFileOut() override {}
 
   // get the instance of file with name filename
   static ALIFileOut& getInstance(const ALIstring& filename);

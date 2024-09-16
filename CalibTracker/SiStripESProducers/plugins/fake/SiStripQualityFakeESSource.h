@@ -22,7 +22,7 @@
 class SiStripQualityFakeESSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
 public:
   SiStripQualityFakeESSource(const edm::ParameterSet&);
-  ~SiStripQualityFakeESSource() override{};
+  ~SiStripQualityFakeESSource() override {}
   SiStripQualityFakeESSource(const SiStripQualityFakeESSource&) = delete;
   const SiStripQualityFakeESSource& operator=(const SiStripQualityFakeESSource&) = delete;
 

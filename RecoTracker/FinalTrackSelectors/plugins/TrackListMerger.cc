@@ -443,8 +443,8 @@ void TrackListMerger::produce(edm::Event& e, const edm::EventSetup& es) {
         indexG[i] = ngood++;
         //if ( beVerb) std::cout << "inverb " << track->pt() << " " << selected[i] << std::endl;
       }  //end loop over tracks
-    }    //end more than 0 track
-  }      // loop over trackcolls
+    }  //end more than 0 track
+  }  // loop over trackcolls
 
   statCount.pre(ngood);
 
@@ -650,8 +650,8 @@ void TrackListMerger::produce(edm::Event& e, const edm::EventSetup& es) {
           if (selected[i] == 0)
             break;
         }  //end track2 loop
-      }    //end track loop
-    }      //end loop over track list sets
+      }  //end track loop
+    }  //end loop over track list sets
 
   auto vmMVA = std::make_unique<edm::ValueMap<float>>();
   edm::ValueMap<float>::Filler fillerMVA(*vmMVA);
@@ -780,7 +780,7 @@ void TrackListMerger::produce(edm::Event& e, const edm::EventSetup& es) {
             clusterRemovalInfos = edm::InputTag(prov.moduleLabel(), prov.productInstanceName(), prov.processName());
             doRekeyOnThisSeed = e.getByLabel(clusterRemovalInfos, CRIh);
           }  //valid hit
-        }    //nhit!=0
+        }  //nhit!=0
 
         if (doRekeyOnThisSeed && !(clusterRemovalInfos == edm::InputTag(""))) {
           ClusterRemovalRefSetter refSetter(e, clusterRemovalInfos);

@@ -257,7 +257,7 @@ bool HLTMuonL3PreFilter::hltFilter(Event& iEvent,
         }
       }
     }  //RCC loop
-  }    //end of using normal TrajectorySeeds
+  }  //end of using normal TrajectorySeeds
 
   // look at all mucands,  check cuts and add to filter object
   LogDebug("HLTMuonL3PreFilter") << "looking at: " << L2toL3s.size() << " L2->L3s from: " << mucands->size();

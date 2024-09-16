@@ -41,7 +41,7 @@ public:
   CastorHardcodeCalibrations(const edm::ParameterSet&);
   ~CastorHardcodeCalibrations() override;
 
-  void produce(){};
+  void produce() {}
 
 protected:
   void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,

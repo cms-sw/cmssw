@@ -10,6 +10,8 @@
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "oneapi/tbb/task_arena.h"
 
+#include <mutex>
+
 namespace {
   template <typename T, typename U>
   void processOneOccurrence(edm::WorkerManager& manager,
@@ -69,9 +71,10 @@ namespace edm {
   }  // SecondaryEventProvider::SecondaryEventProvider
 
   void SecondaryEventProvider::beginJob(ProductRegistry const& iRegistry,
-                                        eventsetup::ESRecordsToProductResolverIndices const& iIndices) {
+                                        eventsetup::ESRecordsToProductResolverIndices const& iIndices,
+                                        GlobalContext const& globalContext) {
     ProcessBlockHelper dummyProcessBlockHelper;
-    workerManager_.beginJob(iRegistry, iIndices, dummyProcessBlockHelper);
+    workerManager_.beginJob(iRegistry, iIndices, dummyProcessBlockHelper, globalContext);
   }
 
   //NOTE: When the Stream interfaces are propagated to the modules, this code must be updated
@@ -156,11 +159,16 @@ namespace edm {
     }
   }
 
-  void SecondaryEventProvider::beginStream(edm::StreamID iID, StreamContext& sContext) {
+  void SecondaryEventProvider::beginStream(edm::StreamID iID, StreamContext const& sContext) {
     workerManager_.beginStream(iID, sContext);
   }
 
-  void SecondaryEventProvider::endStream(edm::StreamID iID, StreamContext& sContext) {
-    workerManager_.endStream(iID, sContext);
+  void SecondaryEventProvider::endStream(edm::StreamID iID,
+                                         StreamContext const& sContext,
+                                         ExceptionCollector& exceptionCollector) {
+    // In this context the mutex is not needed because these things are not
+    // executing concurrently but in general the WorkerManager needs one.
+    std::mutex exceptionCollectorMutex;
+    workerManager_.endStream(iID, sContext, exceptionCollector, exceptionCollectorMutex);
   }
 }  // namespace edm

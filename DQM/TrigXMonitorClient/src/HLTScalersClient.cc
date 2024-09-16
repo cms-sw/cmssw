@@ -284,8 +284,8 @@ void HLTScalersClient::endLuminosityBlock(const edm::LuminosityBlock &lumiSeg, c
           if (ipath > npaths)
             break;
         }  //
-      }    // loop lines
-    }      // open ok
+      }  // loop lines
+    }  // open ok
   }
 
   // END SETUP
@@ -399,9 +399,9 @@ void HLTScalersClient::endLuminosityBlock(const edm::LuminosityBlock &lumiSeg, c
         if (!edm::isNotFinite(slope_err) && (slope_err >= 0))
           hltRate_->setBinError(nL, slope_err);
       }
-    }                   // found  histo
+    }  // found  histo
     updates_->Fill(0);  // good
-  }                     // check on number of FU's - good data
+  }  // check on number of FU's - good data
   else {
     updates_->Fill(1);  // missing updates
   }

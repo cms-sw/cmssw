@@ -54,7 +54,7 @@ public:
   // Also used to store the required triggers
   void bookHistograms(DQMStore::IBooker& iBooker, edm::Run const& run, edm::EventSetup const&) override;
 
-  ~SiPixelPhase1Base() override{};
+  ~SiPixelPhase1Base() override {}
 
 protected:
   // Returns a value of whether the trigger stored at position "trgidx" is properly fired.
@@ -76,7 +76,7 @@ private:
 class SiPixelPhase1Harvester : public DQMEDHarvester, public HistogramManagerHolder {
 public:
   SiPixelPhase1Harvester(const edm::ParameterSet& iConfig)
-      : DQMEDHarvester(), HistogramManagerHolder(iConfig, consumesCollector(), edm::Transition::EndLuminosityBlock){};
+      : DQMEDHarvester(), HistogramManagerHolder(iConfig, consumesCollector(), edm::Transition::EndLuminosityBlock) {}
 
   void dqmEndLuminosityBlock(DQMStore::IBooker& iBooker,
                              DQMStore::IGetter& iGetter,

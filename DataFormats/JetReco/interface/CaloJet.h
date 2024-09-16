@@ -85,7 +85,7 @@ namespace reco {
     /** backward compatible, vertex=(0,0,0) */
     CaloJet(const LorentzVector& fP4, const Specific& fSpecific, const Jet::Constituents& fConstituents);
 
-    ~CaloJet() override{};
+    ~CaloJet() override {}
 
     /** Returns the maximum energy deposited in ECAL towers*/
     float maxEInEmTowers() const { return m_specific.mMaxEInEmTowers; }

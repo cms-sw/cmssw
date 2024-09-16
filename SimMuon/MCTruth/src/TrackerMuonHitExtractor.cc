@@ -220,7 +220,7 @@ std::vector<const TrackingRecHit *> TrackerMuonHitExtractor::getMuonHits(const r
       }  // else if (subdet == MuonSubdetId::CSC)
 
     }  // loop on vector<MuonSegmentMatch>
-  }    // loop on vector<MuonChamberMatch>
+  }  // loop on vector<MuonChamberMatch>
 
   edm::LogVerbatim("TrackerMuonHitExtractor") << "\n N. matched Segments before arbitration = " << n_segments_noArb;
 

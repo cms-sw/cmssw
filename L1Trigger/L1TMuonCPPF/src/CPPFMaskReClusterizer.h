@@ -11,8 +11,8 @@
 
 class CPPFMaskReClusterizer {
 public:
-  CPPFMaskReClusterizer(){};
-  ~CPPFMaskReClusterizer(){};
+  CPPFMaskReClusterizer() {}
+  ~CPPFMaskReClusterizer() {}
   CPPFClusterContainer doAction(const RPCDetId& id, CPPFClusterContainer& initClusters, const CPPFRollMask& mask) const;
   bool get(const CPPFRollMask& mask, int strip) const;
 };

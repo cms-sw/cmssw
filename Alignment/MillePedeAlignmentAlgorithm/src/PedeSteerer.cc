@@ -528,7 +528,7 @@ void PedeSteerer::hierarchyConstraint(const Alignable *ali,
       }
       aConstr << "\n";
       ++nParPerConstr;  // OK, we used one.
-    }                   // end loop on params
+    }  // end loop on params
 
     //
     if (nParPerConstr && nParPerConstr >= theMinHieraParPerConstr) {  // Enough to make sense?
@@ -585,9 +585,9 @@ unsigned int PedeSteerer::presigmas(const std::vector<edm::ParameterSet> &cffPre
           }
           presigmas[iParam] = presigma;
         }  // end if selected for presigma
-      }    // end loop on params
-    }      // end loop on alignables for given selection and presigma
-  }        // end loop on PSets
+      }  // end loop on params
+    }  // end loop on alignables for given selection and presigma
+  }  // end loop on PSets
 
   if (aliPresiMap.empty())
     return 0;
@@ -640,7 +640,7 @@ unsigned int PedeSteerer::presigmasFile(const std::string &fileName,
 
       ++nPresiParam;
     }  // end loop on parameters for alignables with chosen presigmas
-  }    // end loop on alignables
+  }  // end loop on alignables
 
   delete filePtr;  // close properly file
   return nPresiParam;

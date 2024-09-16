@@ -12,7 +12,7 @@
 
 class OmtfAngleConverter : public AngleConverterBase {
 public:
-  OmtfAngleConverter() : AngleConverterBase(){};
+  OmtfAngleConverter() : AngleConverterBase() {}
 
   ~OmtfAngleConverter() override;
 

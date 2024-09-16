@@ -14,7 +14,7 @@ typedef std::map<ALIstring, ALIdouble, std::less<ALIstring> > msd;
 
 class ParameterMgr {
 private:
-  ParameterMgr(){};
+  ParameterMgr() {}
 
 public:
   static ParameterMgr* getInstance();

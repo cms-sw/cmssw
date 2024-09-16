@@ -33,8 +33,8 @@ public:
   typedef EcalCondObjectContainer<EcalLaserAPDPNpair> EcalLaserAPDPNRatiosMap;
   typedef std::vector<EcalLaserTimeStamp> EcalLaserTimeStampMap;
 
-  EcalLaserAPDPNRatios() : time_map(92){};  // FIXME
-  ~EcalLaserAPDPNRatios(){};
+  EcalLaserAPDPNRatios() : time_map(92) {}  // FIXME
+  ~EcalLaserAPDPNRatios() {}
 
   void setValue(uint32_t rawId, const EcalLaserAPDPNpair& value) { laser_map[rawId] = value; };
   const EcalLaserAPDPNRatiosMap& getLaserMap() const { return laser_map; }

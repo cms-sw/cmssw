@@ -81,7 +81,7 @@
 	<!-- HepMCProduct -->
 
 	<class name="edm::Wrapper&lt;edm::HepMCProduct&gt;"/>
-	<class name="edm::HepMCProduct" ClassVersion="10">
+	<class name="edm::HepMCProduct" ClassVersion="10" rntupleSplit="false">
   <version ClassVersion="10" checksum="3587845075"/>
  </class>
         <class name="std::vector&lt;const edm::HepMCProduct*&gt;"/>

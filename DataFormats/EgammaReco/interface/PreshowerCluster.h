@@ -19,7 +19,7 @@ namespace reco {
     typedef math::XYZPoint Point;
 
     /// default constructor
-    PreshowerCluster() : CaloCluster(0., Point(0., 0., 0.)){};
+    PreshowerCluster() : CaloCluster(0., Point(0., 0., 0.)) {}
 
     ~PreshowerCluster() override;
 

@@ -17,7 +17,7 @@ public:
 public:
   /** Default constructor.
    */
-  EBSrFlag(){};
+  EBSrFlag() {}
 
   /** Constructor
    * @param tt trigger tower det id.

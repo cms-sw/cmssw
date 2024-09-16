@@ -47,7 +47,7 @@ public:
   };
 
   /// destructor
-  ~L1MuGMTLFMatchQualLUT() override{};
+  ~L1MuGMTLFMatchQualLUT() override {}
 
   /// specific lookup function for mq
   unsigned SpecificLookup_mq(int idx, unsigned delta_eta, unsigned delta_phi) const {

@@ -3,7 +3,7 @@ from  PhysicsTools.NanoAOD.common_cff import *
 from PhysicsTools.NanoAOD.simpleCandidateFlatTableProducer_cfi import simpleCandidateFlatTableProducer
 
 ################
-# Scouting photons, electrons, muons, tracks, primary vertices, displaced vertices, rho and MET
+# Scouting photons, electrons, muons, tracks, primary vertices, displaced vertices, jets (clustered at HLT), rho and MET
 
 photonScoutingTable = cms.EDProducer("SimpleRun3ScoutingPhotonFlatTableProducer",
      src = cms.InputTag("hltScoutingEgammaPacker"),
@@ -141,7 +141,7 @@ trackScoutingTable = cms.EDProducer("SimpleRun3ScoutingTrackFlatTableProducer",
          nValidStripHits = Var('tk_nValidStripHits', 'int', doc='number of valid strip hits'),
          nTrackerLayersWithMeasurement = Var('tk_nTrackerLayersWithMeasurement', 'int', doc='number of tracker layers with measurements'),
          qoverp = Var('tk_qoverp', 'float', precision=10, doc='qoverp'),
-         _lambda = Var('tk_lambda', 'float', precision=10, doc='lambda'),
+         lambda_ = Var('tk_lambda', 'float', precision=10, doc='lambda'),
          dxyError = Var('tk_dxy_Error', 'float', precision=10, doc='dxyError'),
          dzError = Var('tk_dz_Error', 'float', precision=10, doc='dzError'),
          qoverpError = Var('tk_qoverp_Error', 'float', precision=10, doc='qoverpError'),
@@ -208,6 +208,35 @@ displacedvertexScoutingTable = cms.EDProducer("SimpleRun3ScoutingVertexFlatTable
      )
 )
 
+jetScoutingTable = cms.EDProducer("SimpleRun3ScoutingPFJetFlatTableProducer",
+    src = cms.InputTag("hltScoutingPFPacker"),
+    cut = cms.string(""),
+    name = cms.string("ScoutingPFJet"),
+    doc  = cms.string("PFJet scouting information"),
+    singleton = cms.bool(False),
+    extension = cms.bool(False),
+    variables = cms.PSet(
+        P3Vars,
+        m = Var('m', 'float', precision=10, doc='mass'),
+        jetArea = Var('jetArea', 'float', precision=10, doc='jet area'),
+        chargedHadronEnergy = Var('chargedHadronEnergy', 'float', precision=10, doc='charged hadron energy'),
+        neutralHadronEnergy = Var('neutralHadronEnergy', 'float', precision=10, doc='neutral hadron energy'),
+        photonEnergy = Var('photonEnergy', 'float', precision=10, doc='photon energy'),
+        electronEnergy = Var('electronEnergy', 'float', precision=10, doc='electron energy'),
+        muonEnergy = Var('muonEnergy', 'float', precision=10, doc='muon energy'),
+        HFHadronEnergy = Var('HFHadronEnergy', 'float', precision=10, doc='hadronic energy in HF'),
+        HFEMEnergy = Var('HFEMEnergy', 'float', precision=10, doc='electromagnetic energy in HF'),
+        chargedHadronMultiplicity = Var('chargedHadronMultiplicity', 'int', doc='number of charged hadrons in the jet'),
+        neutralHadronMultiplicity = Var('neutralHadronMultiplicity', 'int', doc='number of neutral hadrons in the jet'),
+        photonMultiplicity = Var('photonMultiplicity', 'int', doc='number of photons in the jet'),
+        electronMultiplicity = Var('electronMultiplicity', 'int', doc='number of electrons in the jet'),
+        muonMultiplicity = Var('muonMultiplicity', 'int', doc='number of muons in the jet'),
+        HFHadronMultiplicity = Var('HFHadronMultiplicity', 'int', doc='number of HF hadronic particles in the jet'),
+        HFEMMultiplicity = Var('HFEMMultiplicity', 'int', doc='number of HF electromagnetic particles in the jet'),
+        HOEnergy = Var('HOEnergy', 'float', precision=10, doc='hadronic energy in HO'),
+    )
+)
+
 rhoScoutingTable = cms.EDProducer("GlobalVariablesTableProducer",
     name = cms.string(""),
     variables = cms.PSet(
@@ -221,6 +250,32 @@ metScoutingTable = cms.EDProducer("GlobalVariablesTableProducer",
         pt = ExtVar( cms.InputTag("hltScoutingPFPacker", "pfMetPt"), "double", doc = "scouting MET pt"),
         phi = ExtVar( cms.InputTag("hltScoutingPFPacker", "pfMetPhi"), "double", doc = "scouting MET phi"),
     )
+)
+
+# from 2024, there are two scouting muon collections
+
+# muonVtx
+muonVtxScoutingTable = muonScoutingTable.clone(
+    src = cms.InputTag("hltScoutingMuonPackerVtx"),
+    name = cms.string("ScoutingMuonVtx"),
+    doc  = cms.string("Scouting Muon Vtx information"),
+)
+displacedvertexVtxScoutingTable = displacedvertexScoutingTable.clone(
+    src = cms.InputTag("hltScoutingMuonPackerVtx", "displacedVtx"),
+    name = cms.string("ScoutingMuonVtxDisplacedVertex"),
+    doc  = cms.string("Scouting Muon Vtx DisplacedVertex information"),
+)
+
+# muonNoVtx
+muonNoVtxScoutingTable = muonScoutingTable.clone(
+    src = cms.InputTag("hltScoutingMuonPackerNoVtx"),
+    name = cms.string("ScoutingMuonNoVtx"),
+    doc  = cms.string("Scouting Muon NoVtx information"),
+)
+displacedvertexNoVtxScoutingTable = displacedvertexScoutingTable.clone(
+    src = cms.InputTag("hltScoutingMuonPackerNoVtx", "displacedVtx"),
+    name = cms.string("ScoutingMuonNoVtxDisplacedVertex"),
+    doc  = cms.string("Scouting Muon NoVtx DisplacedVertex information"),
 )
 
 ################
@@ -308,9 +363,9 @@ ak4ScoutingJetParticleNetJetTags = cms.EDProducer("BoostedJetONNXJetTagsProducer
 
 ak4ScoutingJetTable = cms.EDProducer("SimplePFJetFlatTableProducer",
       src = cms.InputTag("ak4ScoutingJets"),
-      name = cms.string("ScoutingJet"),
+      name = cms.string("ScoutingPFJetRecluster"),
       cut = cms.string(""),
-      doc = cms.string("ScoutingJet"),
+      doc = cms.string("ak4 jets from re-clustering scouting PF candidates"),
       singleton = cms.bool(False),
       extension = cms.bool(False), # this is the main table
       externalVariables = cms.PSet(
@@ -318,7 +373,7 @@ ak4ScoutingJetTable = cms.EDProducer("SimplePFJetFlatTableProducer",
          particleNet_prob_bb = ExtVar(cms.InputTag('ak4ScoutingJetParticleNetJetTags:probbb'), float, doc="ParticleNet probability of bb", precision=10),
          particleNet_prob_c = ExtVar(cms.InputTag('ak4ScoutingJetParticleNetJetTags:probc'), float, doc="ParticleNet probability of c", precision=10),
          particleNet_prob_cc = ExtVar(cms.InputTag('ak4ScoutingJetParticleNetJetTags:probcc'), float, doc="ParticleNet probability of cc", precision=10),
-         particlenet_prob_uds = ExtVar(cms.InputTag('ak4ScoutingJetParticleNetJetTags:probuds'), float, doc="particlenet probability of uds", precision=10),
+         particleNet_prob_uds = ExtVar(cms.InputTag('ak4ScoutingJetParticleNetJetTags:probuds'), float, doc="particlenet probability of uds", precision=10),
          particleNet_prob_g = ExtVar(cms.InputTag('ak4ScoutingJetParticleNetJetTags:probg'), float, doc="ParticleNet probability of g", precision=10),
          particleNet_prob_undef = ExtVar(cms.InputTag('ak4ScoutingJetParticleNetJetTags:probundef'), float, doc="ParticleNet probability of undef", precision=10),
       ),
@@ -348,7 +403,7 @@ ak4ScoutingJetMatchGen = cms.EDProducer("RecoJetToGenJetDeltaRValueMapProducer",
 
 ak4ScoutingJetExtTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
       src = cms.InputTag("ak4ScoutingJets"),
-      name = cms.string("ScoutingJet"),
+      name = cms.string("ScoutingPFJetRecluster"),
       cut = cms.string(""),
       singleton = cms.bool(False),
       extension = cms.bool(True),
@@ -429,7 +484,7 @@ ak8ScoutingJetParticleNetJetTags = cms.EDProducer("BoostedJetONNXJetTagsProducer
       src = cms.InputTag("ak8ScoutingJetParticleNetJetTagInfos"),
       preprocess_json = cms.string("RecoBTag/Combined/data/Run3Scouting/ParticleNetAK8/General/V00/preprocess.json"),
       model_path = cms.FileInPath("RecoBTag/Combined/data/Run3Scouting/ParticleNetAK8/General/V00/particle-net.onnx"),
-      flav_names = cms.vstring(["probHbb", "probHcc","probHqq", "probQCDall"]),
+      flav_names = cms.vstring([ "probQCDall", "probHbb", "probHcc", "probHqq"]),
       debugMode = cms.untracked.bool(False),
   )
 
@@ -445,9 +500,9 @@ ak8ScoutingJetParticleNetMassRegressionJetTags = cms.EDProducer("BoostedJetONNXJ
 
 ak8ScoutingJetTable = cms.EDProducer("SimplePFJetFlatTableProducer",
       src = cms.InputTag("ak8ScoutingJets"),
-      name = cms.string("ScoutingFatJet"),
+      name = cms.string("ScoutingFatPFJetRecluster"),
       cut = cms.string(""),
-      doc = cms.string("ScoutingFatJet"),
+      doc = cms.string("ak8 jets from re-clustering scouting PF candidates"),
       singleton = cms.bool(False),
       extension = cms.bool(False), # this is the main table
       externalVariables = cms.PSet(
@@ -460,10 +515,10 @@ ak8ScoutingJetTable = cms.EDProducer("SimplePFJetFlatTableProducer",
          tau3 = ExtVar(cms.InputTag('ak8ScoutingJetNjettiness:tau3'), float, doc="Nsubjettiness (3 axis)", precision=10),
          tau4 = ExtVar(cms.InputTag('ak8ScoutingJetNjettiness:tau4'), float, doc="Nsubjettiness (4 axis)", precision=10),
          particleNet_mass = ExtVar(cms.InputTag('ak8ScoutingJetParticleNetMassRegressionJetTags:mass'), float, doc="ParticleNet regressed mass", precision=10),
+         particleNet_prob_QCD = ExtVar(cms.InputTag('ak8ScoutingJetParticleNetJetTags:probQCDall'), float, doc="ParticleNet probability of QCD", precision=10),
          particleNet_prob_Hbb = ExtVar(cms.InputTag('ak8ScoutingJetParticleNetJetTags:probHbb'), float, doc="ParticleNet probability of Hbb", precision=10),
          particleNet_prob_Hcc = ExtVar(cms.InputTag('ak8ScoutingJetParticleNetJetTags:probHcc'), float, doc="ParticleNet probability of Hcc", precision=10),
          particleNet_prob_Hqq = ExtVar(cms.InputTag('ak8ScoutingJetParticleNetJetTags:probHqq'), float, doc="ParticleNet probability of Hqq", precision=10),
-         particleNet_prob_QCD = ExtVar(cms.InputTag('ak8ScoutingJetParticleNetJetTags:probQCDall'), float, doc="ParticleNet probability of QCD", precision=10),
       ),
       variables = cms.PSet(
          P4Vars,
@@ -491,7 +546,7 @@ ak8ScoutingJetMatchGen = cms.EDProducer("RecoJetToGenJetDeltaRValueMapProducer",
 
 ak8ScoutingJetExtTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
       src = cms.InputTag("ak8ScoutingJets"),
-      name = cms.string("ScoutingFatJet"),
+      name = cms.string("ScoutingFatPFJetRecluster"),
       cut = cms.string(""),
       singleton = cms.bool(False),
       extension = cms.bool(True),

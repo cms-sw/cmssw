@@ -71,7 +71,7 @@ void FWSiPixelDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList*
         pointSet->SetNextPoint(globalPoint[0], globalPoint[1], globalPoint[2]);
       }
     }  // end of iteration over digis in range
-  }    // end of iteration over the DetSetVector
+  }  // end of iteration over the DetSetVector
 }
 
 REGISTER_FWPROXYBUILDER(FWSiPixelDigiProxyBuilder,

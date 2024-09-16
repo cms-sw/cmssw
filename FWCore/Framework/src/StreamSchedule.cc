@@ -1,9 +1,11 @@
 #include "FWCore/Framework/interface/StreamSchedule.h"
 
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
+#include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/ProductResolverIndexHelper.h"
+#include "DataFormats/Provenance/interface/Timestamp.h"
 #include "FWCore/Framework/src/OutputModuleDescription.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/Framework/src/TriggerReport.h"
@@ -21,11 +23,12 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
+#include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ServiceRegistry/interface/PathContext.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
-#include "FWCore/Utilities/interface/ConvertException.h"
 #include "FWCore/Utilities/interface/ExceptionCollector.h"
-#include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
+#include "FWCore/Utilities/interface/LuminosityBlockIndex.h"
+#include "FWCore/Utilities/interface/RunIndex.h"
 
 #include "LuminosityBlockProcessingStatus.h"
 #include "processEDAliases.h"
@@ -38,7 +41,6 @@
 #include <limits>
 #include <list>
 #include <map>
-#include <exception>
 #include <fmt/format.h>
 
 namespace edm {
@@ -70,6 +72,26 @@ namespace edm {
         transform_into(from.begin(), from.end(), to.begin(), func);
       }
     }
+
+    class BeginStreamTraits {
+    public:
+      static void preScheduleSignal(ActivityRegistry* activityRegistry, StreamContext const* streamContext) {
+        activityRegistry->preBeginStreamSignal_(*streamContext);
+      }
+      static void postScheduleSignal(ActivityRegistry* activityRegistry, StreamContext const* streamContext) {
+        activityRegistry->postBeginStreamSignal_(*streamContext);
+      }
+    };
+
+    class EndStreamTraits {
+    public:
+      static void preScheduleSignal(ActivityRegistry* activityRegistry, StreamContext const* streamContext) {
+        activityRegistry->preEndStreamSignal_(*streamContext);
+      }
+      static void postScheduleSignal(ActivityRegistry* activityRegistry, StreamContext const* streamContext) {
+        activityRegistry->postEndStreamSignal_(*streamContext);
+      }
+    };
 
     // -----------------------------
 
@@ -982,15 +1004,76 @@ namespace edm {
     }
   }
 
-  void StreamSchedule::beginStream() { workerManagerBeginEnd_.beginStream(streamID_, streamContext_); }
+  void StreamSchedule::beginStream() {
+    streamContext_.setTransition(StreamContext::Transition::kBeginStream);
+    streamContext_.setEventID(EventID(0, 0, 0));
+    streamContext_.setRunIndex(RunIndex::invalidRunIndex());
+    streamContext_.setLuminosityBlockIndex(LuminosityBlockIndex::invalidLuminosityBlockIndex());
+    streamContext_.setTimestamp(Timestamp());
 
-  void StreamSchedule::endStream() { workerManagerBeginEnd_.endStream(streamID_, streamContext_); }
+    std::exception_ptr exceptionInStream;
+    CMS_SA_ALLOW try {
+      preScheduleSignal<BeginStreamTraits>(&streamContext_);
+      workerManagerBeginEnd_.beginStream(streamID_, streamContext_);
+    } catch (...) {
+      exceptionInStream = std::current_exception();
+    }
+
+    postScheduleSignal<BeginStreamTraits>(&streamContext_, exceptionInStream);
+
+    if (exceptionInStream) {
+      bool cleaningUpAfterException = false;
+      handleException(streamContext_, cleaningUpAfterException, exceptionInStream);
+    }
+    streamContext_.setTransition(StreamContext::Transition::kInvalid);
+
+    if (exceptionInStream) {
+      std::rethrow_exception(exceptionInStream);
+    }
+  }
+
+  void StreamSchedule::endStream(ExceptionCollector& collector, std::mutex& collectorMutex) noexcept {
+    streamContext_.setTransition(StreamContext::Transition::kEndStream);
+    streamContext_.setEventID(EventID(0, 0, 0));
+    streamContext_.setRunIndex(RunIndex::invalidRunIndex());
+    streamContext_.setLuminosityBlockIndex(LuminosityBlockIndex::invalidLuminosityBlockIndex());
+    streamContext_.setTimestamp(Timestamp());
+
+    std::exception_ptr exceptionInStream;
+    CMS_SA_ALLOW try {
+      preScheduleSignal<EndStreamTraits>(&streamContext_);
+      workerManagerBeginEnd_.endStream(streamID_, streamContext_, collector, collectorMutex);
+    } catch (...) {
+      exceptionInStream = std::current_exception();
+    }
+
+    postScheduleSignal<EndStreamTraits>(&streamContext_, exceptionInStream);
+
+    if (exceptionInStream) {
+      std::lock_guard<std::mutex> collectorLock(collectorMutex);
+      collector.call([&exceptionInStream]() { std::rethrow_exception(exceptionInStream); });
+    }
+    streamContext_.setTransition(StreamContext::Transition::kInvalid);
+  }
 
   void StreamSchedule::replaceModule(maker::ModuleHolder* iMod, std::string const& iLabel) {
     for (auto const& worker : allWorkersBeginEnd()) {
       if (worker->description()->moduleLabel() == iLabel) {
         iMod->replaceModuleFor(worker);
-        worker->beginStream(streamID_, streamContext_);
+
+        streamContext_.setTransition(StreamContext::Transition::kBeginStream);
+        streamContext_.setEventID(EventID(0, 0, 0));
+        streamContext_.setRunIndex(RunIndex::invalidRunIndex());
+        streamContext_.setLuminosityBlockIndex(LuminosityBlockIndex::invalidLuminosityBlockIndex());
+        streamContext_.setTimestamp(Timestamp());
+        try {
+          worker->beginStream(streamID_, streamContext_);
+        } catch (cms::Exception& ex) {
+          streamContext_.setTransition(StreamContext::Transition::kInvalid);
+          ex.addContext("Executing StreamSchedule::replaceModule");
+          throw;
+        }
+        streamContext_.setTransition(StreamContext::Transition::kInvalid);
         break;
       }
     }
@@ -1435,7 +1518,6 @@ namespace edm {
   }
 
   void StreamSchedule::handleException(StreamContext const& streamContext,
-                                       ServiceWeakToken const& weakToken,
                                        bool cleaningUpAfterException,
                                        std::exception_ptr& excpt) const noexcept {
     //add context information to the exception and print message
@@ -1448,14 +1530,12 @@ namespace edm {
       if (ex.context().empty()) {
         exceptionContext(ost, streamContext);
       }
-      ServiceRegistry::Operate op(weakToken.lock());
       addContextAndPrintException(ost.str().c_str(), ex, cleaningUpAfterException);
       excpt = std::current_exception();
     }
     // We are already handling an earlier exception, so ignore it
     // if this signal results in another exception being thrown.
     CMS_SA_ALLOW try {
-      ServiceRegistry::Operate op(weakToken.lock());
       actReg_->preStreamEarlyTerminationSignal_(streamContext, TerminationOrigin::ExceptionFromThisContext);
     } catch (...) {
     }

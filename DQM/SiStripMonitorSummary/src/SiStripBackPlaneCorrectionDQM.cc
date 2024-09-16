@@ -262,6 +262,6 @@ void SiStripBackPlaneCorrectionDQM::fillMEsForLayer(
         selME_.SummaryOfCumulDistr->Fill(condObj_->getBackPlaneCorrection(sameLayerDetIds_[i]));
       }
     }  // if Fill ...
-  }    // FILLING FOR LAYER LEVEL
+  }  // FILLING FOR LAYER LEVEL
 }
 // -----

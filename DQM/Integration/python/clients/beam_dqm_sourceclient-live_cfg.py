@@ -336,7 +336,7 @@ process.dqmBeamMonitor.PVFitter.errorScale = 1.2
 
 #----------------------------
 # Pixel tracks/vertices reco
-process.load("RecoTracker.Configuration.RecoPixelVertexing_cff")
+process.load("RecoVertex.Configuration.RecoPixelVertexing_cff")
 from RecoVertex.PrimaryVertexProducer.OfflinePixel3DPrimaryVertices_cfi import *
 process.pixelVertices = pixelVertices.clone(
   TkFilterParameters = dict( minPt = process.pixelTracksTrackingRegions.RegionPSet.ptMin)

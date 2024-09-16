@@ -1,13 +1,13 @@
+// -*- C++ -*-
 #ifndef FWCore_Utilities_ESIndices_h
 #define FWCore_Utilities_ESIndices_h
-// -*- C++ -*-
 //
 // Package:     Framework
 // Class  :     ESIndices
 //
-/**\class ESResolverIndex ESIndices.h FWCore/Utilities/interface/ESIndices.h
-   \class ESTokenIndex ESIndices.h FWCore/Utilities/interface/ESIndices.h
-   \class ESRecordIndex ESIndices.h FWCore/Utilities/interface/ESIndices.h
+/**\class edm::ESResolverIndex
+   \class edm::ESTokenIndex
+   \class edm::ESRecordIndex
 
  Description: Classes representing indices used in the EventSetup System
 
@@ -42,6 +42,14 @@ namespace edm {
     constexpr bool operator!=(ESResolverIndex iOther) const noexcept { return iOther.index_ != index_; }
 
     constexpr Value_t value() const noexcept { return index_; }
+
+    static constexpr ESResolverIndex noResolverConfigured() noexcept {
+      return ESResolverIndex{std::numeric_limits<int>::max()};
+    }
+
+    static constexpr ESResolverIndex moduleLabelDoesNotMatch() noexcept {
+      return ESResolverIndex{std::numeric_limits<int>::max() - 1};
+    }
 
   private:
     Value_t index_ = std::numeric_limits<int>::max();

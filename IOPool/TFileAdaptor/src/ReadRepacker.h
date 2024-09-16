@@ -50,7 +50,7 @@ public:
   IOSize extraBytes() const {
     return m_extra_bytes;
   }  // Returns the number of extra bytes to be issued to the I/O system
-     // Note that (buffer_used - extra_bytes) should equal the number of "real" bytes serviced.
+  // Note that (buffer_used - extra_bytes) should equal the number of "real" bytes serviced.
   IOSize realBytesProcessed() const {
     return m_buffer_used - m_extra_bytes;
   }  // Return the number of bytes of the input request that would be processed by the IO vector

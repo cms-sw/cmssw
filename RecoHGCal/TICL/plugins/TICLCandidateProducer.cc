@@ -58,7 +58,7 @@ using namespace ticl;
 class TICLCandidateProducer : public edm::stream::EDProducer<> {
 public:
   explicit TICLCandidateProducer(const edm::ParameterSet &ps);
-  ~TICLCandidateProducer() override{};
+  ~TICLCandidateProducer() override {}
   void produce(edm::Event &, const edm::EventSetup &) override;
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
@@ -118,7 +118,6 @@ TICLCandidateProducer::TICLCandidateProducer(const edm::ParameterSet &ps)
       clustersTime_token_(
           consumes<edm::ValueMap<std::pair<float, float>>>(ps.getParameter<edm::InputTag>("layer_clustersTime"))),
       tracks_token_(consumes<std::vector<reco::Track>>(ps.getParameter<edm::InputTag>("tracks"))),
-      inputTimingToken_(consumes<MtdHostCollection>(ps.getParameter<edm::InputTag>("timingSoA"))),
       muons_token_(consumes<std::vector<reco::Muon>>(ps.getParameter<edm::InputTag>("muons"))),
       useMTDTiming_(ps.getParameter<bool>("useMTDTiming")),
       useTimingAverage_(ps.getParameter<bool>("useTimingAverage")),
@@ -306,8 +305,12 @@ void TICLCandidateProducer::produce(edm::Event &evt, const edm::EventSetup &es) 
 
   generalInterpretationAlgo_->makeCandidates(input, inputTiming_h, *resultTracksters, trackstersInTrackIndices);
 
-  assignPCAtoTracksters(
-      *resultTracksters, layerClusters, layerClustersTimes, rhtools_.getPositionLayer(rhtools_.lastLayerEE()).z(), true);
+  assignPCAtoTracksters(*resultTracksters,
+                        layerClusters,
+                        layerClustersTimes,
+                        rhtools_.getPositionLayer(rhtools_.lastLayerEE()).z(),
+                        rhtools_,
+                        true);
 
   std::vector<bool> maskTracksters(resultTracksters->size(), true);
   edm::OrphanHandle<std::vector<Trackster>> resultTracksters_h = evt.put(std::move(resultTracksters));
@@ -347,45 +350,48 @@ void TICLCandidateProducer::produce(edm::Event &evt, const edm::EventSetup &es) 
     }
   }
 
-  auto getPathLength = [&](const reco::Track &track, float zVal) {
-    const auto &fts_inn = trajectoryStateTransform::innerFreeState(track, bFieldProd);
-    const auto &fts_out = trajectoryStateTransform::outerFreeState(track, bFieldProd);
-    const auto &surf_inn = trajectoryStateTransform::innerStateOnSurface(track, *trackingGeometry_, bFieldProd);
-    const auto &surf_out = trajectoryStateTransform::outerStateOnSurface(track, *trackingGeometry_, bFieldProd);
+  auto getPathLength =
+      [&](const reco::Track &track, float zVal) {
+        const auto &fts_inn = trajectoryStateTransform::innerFreeState(track, bFieldProd);
+        const auto &fts_out = trajectoryStateTransform::outerFreeState(track, bFieldProd);
+        const auto &surf_inn = trajectoryStateTransform::innerStateOnSurface(track, *trackingGeometry_, bFieldProd);
+        const auto &surf_out = trajectoryStateTransform::outerStateOnSurface(track, *trackingGeometry_, bFieldProd);
 
-    Basic3DVector<float> pos(track.referencePoint());
-    Basic3DVector<float> mom(track.momentum());
-    FreeTrajectoryState stateAtBeamspot{GlobalPoint(pos), GlobalVector(mom), track.charge(), bFieldProd};
+        Basic3DVector<float> pos(track.referencePoint());
+        Basic3DVector<float> mom(track.momentum());
+        FreeTrajectoryState stateAtBeamspot{GlobalPoint(pos), GlobalVector(mom), track.charge(), bFieldProd};
 
-    float pathlength = propagator->propagateWithPath(stateAtBeamspot, surf_inn.surface()).second;
+        float pathlength = propagator->propagateWithPath(stateAtBeamspot, surf_inn.surface()).second;
 
-    if (pathlength) {
-      const auto &t_inn_out = propagator->propagateWithPath(fts_inn, surf_out.surface());
+        if (pathlength) {
+          const auto &t_inn_out = propagator->propagateWithPath(fts_inn, surf_out.surface());
 
-      if (t_inn_out.first.isValid()) {
-        pathlength += t_inn_out.second;
+          if (t_inn_out.first.isValid()) {
+            pathlength += t_inn_out.second;
 
-        std::pair<float, float> rMinMax = hgcons_->rangeR(zVal, true);
+            std::pair<float, float> rMinMax = hgcons_->rangeR(zVal, true);
 
-        int iSide = int(track.eta() > 0);
-        float zSide = (iSide == 0) ? (-1. * zVal) : zVal;
-        const auto &disk = std::make_unique<GeomDet>(
-            Disk::build(Disk::PositionType(0, 0, zSide),
-                        Disk::RotationType(),
-                        SimpleDiskBounds(rMinMax.first, rMinMax.second, zSide - 0.5, zSide + 0.5))
-                .get());
-        const auto &tsos = propagator->propagateWithPath(fts_out, disk->surface());
+            int iSide = int(track.eta() > 0);
+            float zSide = (iSide == 0) ? (-1. * zVal) : zVal;
+            const auto &disk = std::make_unique<GeomDet>(
+                Disk::build(Disk::PositionType(0, 0, zSide),
+                            Disk::RotationType(),
+                            SimpleDiskBounds(rMinMax.first, rMinMax.second, zSide - 0.5, zSide + 0.5))
+                    .get());
+            const auto &tsos = propagator->propagateWithPath(fts_out, disk->surface());
 
-        if (tsos.first.isValid()) {
-          pathlength += tsos.second;
-          return pathlength;
+            if (tsos.first.isValid()) {
+              pathlength += tsos.second;
+              return pathlength;
+            }
+          }
         }
-      }
-    }
-    edm::LogWarning("TICLCandidateProducer")
-        << "Not able to use the track to compute the path length. A straight line will be used instead.";
-    return 0.f;
-  };
+#ifdef EDM_ML_DEBUG
+        LogDebug("TICLCandidateProducer")
+            << "Not able to use the track to compute the path length. A straight line will be used instead.";
+#endif
+        return 0.f;
+      };
 
   assignTimeToCandidates(*resultCandidates, tracks_h, inputTimingView, getPathLength);
 

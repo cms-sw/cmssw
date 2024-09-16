@@ -18,7 +18,7 @@ public:
 public:
   /** Default constructor.
    */
-  EESrFlag(){};
+  EESrFlag() {}
 
   /** Constructor
    * @param sc supercrystal det id
