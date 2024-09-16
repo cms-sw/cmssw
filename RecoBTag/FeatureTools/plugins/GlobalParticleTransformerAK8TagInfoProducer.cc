@@ -90,10 +90,10 @@ private:
 };
 
 const std::vector<std::string> GlobalParticleTransformerAK8TagInfoProducer::jet_features_{
-    "jet_pt",
+    "jet_pt_log",
     "jet_eta",
-    "jet_mass",
-    "jet_energy",
+    "jet_mass_log",
+    "jet_energy_log",
 };
 const std::vector<std::string> GlobalParticleTransformerAK8TagInfoProducer::charged_particle_features_{
     "cpfcandlt_puppiw",
@@ -301,6 +301,7 @@ void GlobalParticleTransformerAK8TagInfoProducer::produce(edm::Event &iEvent, co
       fill_vars = false;
 
     if (fill_vars) {
+      fillJetFeatures(features, jet);
       fillParticleFeatures(features, jet);
       fillSVFeatures(features, jet);
 
@@ -321,10 +322,10 @@ void GlobalParticleTransformerAK8TagInfoProducer::fillJetFeatures(DeepBoostedJet
   for (const auto &name : jet_features_) {
     fts.reserve(name, 1);
   }
-  fts.fill("jet_pt", jet.pt());
+  fts.fill("jet_pt_log", std::log(jet.pt()));
   fts.fill("jet_eta", jet.eta());
-  fts.fill("jet_mass", jet.mass());
-  fts.fill("jet_energy", jet.energy());
+  fts.fill("jet_mass_log", std::log(jet.mass()));
+  fts.fill("jet_energy_log", std::log(jet.energy()));
 }
 
 void GlobalParticleTransformerAK8TagInfoProducer::fillParticleFeatures(DeepBoostedJetFeatures &fts,
