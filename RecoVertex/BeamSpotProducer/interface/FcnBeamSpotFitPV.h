@@ -31,7 +31,7 @@ public:
   // deltaFcn for definition of the uncertainty
   double Up() const override { return errorDef_; }
   // -2lnL value based on vector of parameters
-#if ROOT_VERSION_CODE >= ROOT_VERSION(6, 32, 4)
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6, 33, 1)
   double operator()(std::span<const double>) const override;
 #else
   double operator()(const std::vector<double>&) const override;
