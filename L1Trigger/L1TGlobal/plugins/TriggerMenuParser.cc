@@ -1234,7 +1234,13 @@ bool l1t::TriggerMenuParser::parseMuon(L1TUtmCondition condMu, unsigned int chip
 
         case esCutType::Eta: {
           if (etaWindows.size() < 5) {
-            etaWindows.push_back({cut.getMinimum().index, cut.getMaximum().index});
+            if ((cut.getMinimum().index <= cut.getMaximum().index) ^
+                ((cut.getMinimum().index <= 255) ^ (cut.getMaximum().index <= 255))) {
+              etaWindows.push_back({cut.getMinimum().index, cut.getMaximum().index});
+            } else {
+              edm::LogError("TriggerMenuParser")
+                  << "Invalid Eta Window for muon-condition (" << name << ")" << std::endl;
+            }
           } else {
             edm::LogError("TriggerMenuParser")
                 << "Too Many Eta Cuts for muon-condition (" << particle << ")" << std::endl;
@@ -1465,7 +1471,12 @@ bool l1t::TriggerMenuParser::parseMuonCorr(const L1TUtmObject* corrMu, unsigned 
 
       case esCutType::Eta: {
         if (etaWindows.size() < 5) {
-          etaWindows.push_back({cut.getMinimum().index, cut.getMaximum().index});
+          if ((cut.getMinimum().index <= cut.getMaximum().index) ^
+              ((cut.getMinimum().index <= 255) ^ (cut.getMaximum().index <= 255))) {
+            etaWindows.push_back({cut.getMinimum().index, cut.getMaximum().index});
+          } else {
+            edm::LogError("TriggerMenuParser") << "Invalid Eta Window for muon-condition (" << name << ")" << std::endl;
+          }
         } else {
           edm::LogError("TriggerMenuParser")
               << "Too Many Eta Cuts for muon-condition (" << particle << ")" << std::endl;
@@ -1838,7 +1849,13 @@ bool l1t::TriggerMenuParser::parseCalo(L1TUtmCondition condCalo, unsigned int ch
           break;
         case esCutType::Eta: {
           if (etaWindows.size() < 5) {
-            etaWindows.push_back({cut.getMinimum().index, cut.getMaximum().index});
+            if ((cut.getMinimum().index <= cut.getMaximum().index) ^
+                ((cut.getMinimum().index <= 127) ^ (cut.getMaximum().index <= 127))) {
+              etaWindows.push_back({cut.getMinimum().index, cut.getMaximum().index});
+            } else {
+              edm::LogError("TriggerMenuParser")
+                  << "Invalid Eta Window for calo-conditioni (" << name << ")" << std::endl;
+            }
           } else {
             edm::LogError("TriggerMenuParser")
                 << "Too Many Eta Cuts for calo-condition (" << particle << ")" << std::endl;
@@ -2065,7 +2082,12 @@ bool l1t::TriggerMenuParser::parseCaloCorr(const L1TUtmObject* corrCalo, unsigne
         break;
       case esCutType::Eta: {
         if (etaWindows.size() < 5) {
-          etaWindows.push_back({cut.getMinimum().index, cut.getMaximum().index});
+          if ((cut.getMinimum().index <= cut.getMaximum().index) ^
+              ((cut.getMinimum().index <= 127) ^ (cut.getMaximum().index <= 127))) {
+            etaWindows.push_back({cut.getMinimum().index, cut.getMaximum().index});
+          } else {
+            edm::LogError("TriggerMenuParser") << "Invalid Eta Window for calo-condition (" << name << ")" << std::endl;
+          }
         } else {
           edm::LogError("TriggerMenuParser")
               << "Too Many Eta Cuts for calo-condition (" << particle << ")" << std::endl;
