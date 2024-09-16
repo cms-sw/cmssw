@@ -17,6 +17,13 @@ namespace ticl {
   }
 }  // namespace ticl
 
+TICLGraph::TICLGraph(std::vector<ticl::Node>& nodes) {
+  nodes_ = nodes;
+  rootNodes_.reserve(nodes_.size());
+  findRootNodes();
+  rootNodes_.shrink_to_fit();
+}
+
 std::vector<std::vector<unsigned int>> TICLGraph::findSubComponents() {
   std::vector<std::vector<unsigned int>> components;
   for (auto const& node : nodes_) {
@@ -29,32 +36,46 @@ std::vector<std::vector<unsigned int>> TICLGraph::findSubComponents() {
       components.push_back(tmpSubComponents);
     }
   }
+  // Second loop: DFS for non-root nodes that haven't been visited
+  for (auto const& node : nodes_) {
+    auto const id = node.getId();
+    if (!node.alreadyVisited()) {  // Use the alreadyVisited() method
+      // Node not visited yet, so perform DFS
+      std::string tabs = "\t";
+      std::vector<unsigned int> tmpSubComponents;
+      nodes_[id].findSubComponents(nodes_, tmpSubComponents, tabs);
+      components.push_back(tmpSubComponents);
+    }
+  }
   return components;
 }
 
-void TICLGraph::dfsForCC(unsigned int nodeIndex,
-                         std::unordered_set<unsigned int>& visited,
-                         std::vector<unsigned int>& component) const {
-  visited.insert(nodeIndex);
-  component.push_back(nodeIndex);
-
-  for (auto const& neighbourIndex : nodes_[nodeIndex].getOuterNeighbours()) {
-    if (visited.find(neighbourIndex) == visited.end()) {
-      dfsForCC(neighbourIndex, visited, component);
-    }
-  }
-}
-
-std::vector<std::vector<unsigned int>> TICLGraph::getConnectedComponents() const {
-  std::unordered_set<unsigned int> visited;
+std::vector<std::vector<unsigned int>> TICLGraph::findSubComponents(std::vector<ticl::Node>& rootNodes) {
   std::vector<std::vector<unsigned int>> components;
-
-  for (unsigned int i = 0; i < nodes_.size(); ++i) {
-    if (visited.find(i) == visited.end()) {
-      std::vector<unsigned int> component;
-      dfsForCC(i, visited, component);
-      components.push_back(component);
-    }
+  for (auto const& node : rootNodes) {
+    auto const id = node.getId();
+    //LogDebug("TICLGraph") << "DFS Starting From " << id << std::endl;
+    std::string tabs = "\t";
+    std::vector<unsigned int> tmpSubComponents;
+    nodes_[id].findSubComponents(nodes_, tmpSubComponents, tabs);
+    components.push_back(tmpSubComponents);
   }
   return components;
+}
+
+inline void TICLGraph::findRootNodes() {
+  for (auto const& n : nodes_) {
+    if (n.getInnerNeighbours().size() == 0) {
+      rootNodes_.push_back(n);
+    }
+  }
+}
+
+bool TICLGraph::isGraphOk() {
+  for (auto n : nodes_) {
+    if (n.getInnerNeighbours().size() > 1) {
+      return false;
+    }
+  }
+  return true;
 }

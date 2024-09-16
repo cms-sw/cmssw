@@ -65,12 +65,12 @@ def customiseTICLFromReco(process):
     return process
 
 
-def customiseTICLForDumper(process):
+def customiseTICLForDumper(process, histoName="histo.root"):
 
     process.ticlDumper = ticlDumper.clone()
 
     process.TFileService = cms.Service("TFileService",
-                                       fileName=cms.string("histo.root")
+                                       fileName=cms.string(histoName)
                                        )
     process.FEVTDEBUGHLToutput_step = cms.EndPath(
         process.FEVTDEBUGHLToutput + process.ticlDumper)
