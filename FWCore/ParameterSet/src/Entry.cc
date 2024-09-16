@@ -442,7 +442,7 @@ namespace edm {
         break;
       }
     }  // switch(type)
-  }    // Entry::validate()
+  }  // Entry::validate()
 
   // ----------------------------------------------------------------------
   // constructors
