@@ -2171,6 +2171,10 @@ process.VolumeBasedMagneticFieldESProducer = cms.ESProducer( "VolumeBasedMagneti
 process.ZdcGeometryFromDBEP = cms.ESProducer( "ZdcGeometryFromDBEP",
   applyAlignment = cms.bool( False )
 )
+process.ZdcTopologyEP = cms.ESProducer( "ZdcTopologyEP",
+  Exclude = cms.untracked.string( "" ),
+  appendToDataLabel = cms.string( "" )
+)
 process.caloDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
   ComponentName = cms.string( "CaloDetIdAssociator" ),
   etaBinSize = cms.double( 0.087 ),
