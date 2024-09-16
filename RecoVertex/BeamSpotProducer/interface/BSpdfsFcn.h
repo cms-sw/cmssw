@@ -19,7 +19,7 @@ ________________________________________________________________**/
 #include <iostream>
 #include <string>
 #include <RVersion.h>
-#if ROOT_VERSION_CODE >= ROOT_VERSION(6, 32, 4)
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6, 33, 1)
 #include <span>
 #endif
 
