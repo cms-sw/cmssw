@@ -24,11 +24,12 @@ namespace ticl {
       auto findInner = std::find(innerNeighboursId_.begin(), innerNeighboursId_.end(), tid);
       return findInner != innerNeighboursId_.end();
     }
+    inline bool alreadyVisited() const { return alreadyVisited_; }
 
     ~Node() = default;
 
   private:
-    unsigned index_;
+    unsigned int index_;
     bool isTrackster_;
 
     std::vector<unsigned int> outerNeighboursId_;
@@ -44,25 +45,23 @@ public:
   // can i remove default constructor ?? edm::Wrapper problem
   // without default constructor i could initialize connectedComponents when building the Graph
   TICLGraph() = default;
-  TICLGraph(std::vector<ticl::Node>& n, std::vector<int> isRootNode) {
-    nodes_ = n;
-    isRootNode_ = isRootNode;
-  };
+  TICLGraph(std::vector<ticl::Node>& nodes);
   inline const std::vector<ticl::Node>& getNodes() const { return nodes_; }
   inline const ticl::Node& getNode(int i) const { return nodes_[i]; }
+  inline std::vector<ticl::Node> getRootNodes() const { return rootNodes_; }
+  inline void findRootNodes();
 
   std::vector<std::vector<unsigned int>> findSubComponents();
+  std::vector<std::vector<unsigned int>> findSubComponents(std::vector<ticl::Node>& rootNodes);
 
   ~TICLGraph() = default;
 
-  void dfsForCC(unsigned int nodeIndex,
-                std::unordered_set<unsigned int>& visited,
-                std::vector<unsigned int>& component) const;
-
   std::vector<std::vector<unsigned int>> getConnectedComponents() const;
+  bool isGraphOk();
 
 private:
   std::vector<ticl::Node> nodes_;
+  std::vector<ticl::Node> rootNodes_;
   std::vector<int> isRootNode_;
 };
 
