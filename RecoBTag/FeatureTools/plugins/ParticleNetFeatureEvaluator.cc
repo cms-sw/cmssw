@@ -283,7 +283,7 @@ ParticleNetFeatureEvaluator::ParticleNetFeatureEvaluator(const edm::ParameterSet
       pfcand_token_(consumes<edm::View<reco::Candidate>>(iConfig.getParameter<edm::InputTag>("pf_candidates"))),
       track_builder_token_(
           esConsumes<TransientTrackBuilder, TransientTrackRecord>(edm::ESInputTag("", "TransientTrackBuilder"))) {
-  const auto& puppi_value_map_tag = iConfig.getParameter<edm::InputTag>("puppi_value_map");
+  const auto &puppi_value_map_tag = iConfig.getParameter<edm::InputTag>("puppi_value_map");
   if (!puppi_value_map_tag.label().empty()) {
     puppi_value_map_token_ = consumes<edm::ValueMap<float>>(puppi_value_map_tag);
     use_puppi_value_map_ = true;
@@ -451,10 +451,9 @@ void ParticleNetFeatureEvaluator::fillParticleFeatures(DeepBoostedJetFeatures &f
     daughters.push_back(cand);
 
     float puppiw = 1.;
-    if (use_puppi_value_map_){
+    if (use_puppi_value_map_) {
       puppiw = (*puppi_value_map_)[dau];
-    }
-    else if (!fallback_puppi_weight_) {
+    } else if (!fallback_puppi_weight_) {
       throw edm::Exception(edm::errors::InvalidReference, "PUPPI value map missing")
           << "use fallback_puppi_weight option to use " << puppiw << " for cand as default";
     }

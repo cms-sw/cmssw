@@ -171,7 +171,7 @@ void UnifiedParticleTransformerAK4TagInfoProducer::fillDescriptions(edm::Configu
   desc.add<bool>("fallback_puppi_weight", false);
   desc.add<bool>("fallback_vertex_association", false);
   desc.add<bool>("is_weighted_jet", false);
-  desc.add<double>("min_jet_pt",  0.0);
+  desc.add<double>("min_jet_pt", 0.0);
   desc.add<double>("max_jet_eta", 2.5);
   descriptions.add("pfUnifiedParticleTransformerAK4TagInfos", desc);
 }
