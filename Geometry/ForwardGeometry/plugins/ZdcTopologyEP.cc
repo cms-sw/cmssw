@@ -21,9 +21,10 @@
 //#define EDM_ML_DEBUG
 
 ZdcTopologyEP::ZdcTopologyEP(const edm::ParameterSet& conf)
-    : m_hdcToken{setWhatProduced(this, &ZdcTopologyEP::produce).consumes<HcalDDDRecConstants>(edm::ESInputTag{})} {
+    : m_hdcToken{setWhatProduced(this, &ZdcTopologyEP::produce).consumes<HcalDDDRecConstants>(edm::ESInputTag{})},
+      m_restrictions(conf.getUntrackedParameter<std::string>("Exclude")) {
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HCalGeom") << "ZdcTopologyEP::ZdcTopologyEP";
+  edm::LogVerbatim("HCalGeom") << "ZdcTopologyEP::ZdcTopologyEP with Exclude: " << m_restrictions;
 #endif
 }
 
