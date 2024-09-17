@@ -62,7 +62,7 @@ align::PositionType align::motherPosition(const std::vector<const PositionType*>
 
   Scalar inv = 1. / static_cast<Scalar>(nDau);
 
-  return PositionType(posX *= inv, posY *= inv, posZ *= inv);
+  return PositionType(posX * inv, posY * inv, posZ * inv);
 }
 
 align::RotationType align::diffRot(const GlobalVectors& current, const GlobalVectors& nominal) {

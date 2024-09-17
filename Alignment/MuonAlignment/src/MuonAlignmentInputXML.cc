@@ -625,7 +625,7 @@ Alignable *MuonAlignmentInputXML::getCSCnode(align::StructureType structureType,
     }
   } else {
     int endcap, station, ring, chamber, layer;
-    endcap = station = ring = chamber = layer = 1;
+    station = ring = chamber = layer = 1;
 
     DOMAttr *node_endcap = node->getAttributeNode(str_endcap);
     if (node_endcap == nullptr)
@@ -717,7 +717,7 @@ Alignable *MuonAlignmentInputXML::getGEMnode(align::StructureType structureType,
     }
   } else {
     int endcap, station, ring, superChamber;
-    endcap = station = ring = superChamber = 1;
+    station = ring = superChamber = 1;
 
     DOMAttr *node_endcap = node->getAttributeNode(str_endcap);
     if (node_endcap == nullptr)
