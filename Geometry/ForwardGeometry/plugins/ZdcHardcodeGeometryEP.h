@@ -7,8 +7,11 @@
 // user include files
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "Geometry/Records/interface/ZDCGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include "Geometry/ForwardGeometry/interface/ZdcTopology.h"
 #include "Geometry/ForwardGeometry/interface/ZdcHardcodeGeometryLoader.h"
 
 //
@@ -29,9 +32,8 @@ public:
 private:
   // ----------member data ---------------------------
 
+  edm::ESGetToken<ZdcTopology, HcalRecNumberingRecord> m_zdcTopoToken;
   std::unique_ptr<ZdcHardcodeGeometryLoader> m_loader;
-
-  ZdcTopology m_topology;
 
   bool m_applyAlignment;
   bool m_zdcAddRPD;
