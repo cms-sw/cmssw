@@ -16,7 +16,7 @@
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "DataFormats/NanoAOD/interface/FlatTable.h"
 
-template<typename T>
+template <typename T>
 class SimpleJetConstituentTableProducer : public edm::stream::EDProducer<> {
 public:
   explicit SimpleJetConstituentTableProducer(const edm::ParameterSet &);
@@ -42,23 +42,22 @@ private:
 //
 // constructors and destructor
 //
-template< typename T>
-SimpleJetConstituentTableProducer<T>::SimpleJetConstituentTableProducer(const edm::ParameterSet &iConfig): 
-  name_(iConfig.getParameter<std::string>("name")),
-  candIdxName_(iConfig.getParameter<std::string>("candIdxName")),
-  candIdxDoc_(iConfig.getParameter<std::string>("candIdxDoc")),
-  jet_token_(consumes<edm::View<T>>(iConfig.getParameter<edm::InputTag>("jets"))),
-  cand_token_(consumes<reco::CandidateView>(iConfig.getParameter<edm::InputTag>("candidates"))),
-  jetCut_(iConfig.getParameter<std::string>("jetCut"))
-{
+template <typename T>
+SimpleJetConstituentTableProducer<T>::SimpleJetConstituentTableProducer(const edm::ParameterSet &iConfig)
+    : name_(iConfig.getParameter<std::string>("name")),
+      candIdxName_(iConfig.getParameter<std::string>("candIdxName")),
+      candIdxDoc_(iConfig.getParameter<std::string>("candIdxDoc")),
+      jet_token_(consumes<edm::View<T>>(iConfig.getParameter<edm::InputTag>("jets"))),
+      cand_token_(consumes<reco::CandidateView>(iConfig.getParameter<edm::InputTag>("candidates"))),
+      jetCut_(iConfig.getParameter<std::string>("jetCut")) {
   produces<nanoaod::FlatTable>(name_);
   produces<std::vector<reco::CandidatePtr>>();
 }
 
-template< typename T>
+template <typename T>
 SimpleJetConstituentTableProducer<T>::~SimpleJetConstituentTableProducer() {}
 
-template< typename T>
+template <typename T>
 void SimpleJetConstituentTableProducer<T>::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
   // elements in all these collections must have the same order!
   auto outCands = std::make_unique<std::vector<reco::CandidatePtr>>();
@@ -74,7 +73,8 @@ void SimpleJetConstituentTableProducer<T>::produce(edm::Event &iEvent, const edm
   std::vector<T> jetsPassCut;
   for (unsigned jetIdx = 0; jetIdx < jets->size(); ++jetIdx) {
     const auto &jet = jets->at(jetIdx);
-    if (!jetCut_(jet)) continue;
+    if (!jetCut_(jet))
+      continue;
     jetsPassCut.push_back(jets->at(jetIdx));
   }
 
@@ -89,17 +89,17 @@ void SimpleJetConstituentTableProducer<T>::produce(edm::Event &iEvent, const edm
     //
     // Loop over jet constituents
     //
-    std::vector<reco::CandidatePtr> const & daughters = jet.daughterPtrVector();
+    std::vector<reco::CandidatePtr> const &daughters = jet.daughterPtrVector();
     for (const auto &cand : daughters) {
-      auto candInNewList = std::find( candPtrs.begin(), candPtrs.end(), cand );
-      if ( candInNewList == candPtrs.end() ) {
+      auto candInNewList = std::find(candPtrs.begin(), candPtrs.end(), cand);
+      if (candInNewList == candPtrs.end()) {
         continue;
       }
       outCands->push_back(cand);
       parentJetIdx.push_back(jetIdx);
       candIdx.push_back(candInNewList - candPtrs.begin());
     }
-  }// end jet loop
+  }  // end jet loop
 
   auto candTable = std::make_unique<nanoaod::FlatTable>(outCands->size(), name_, false);
   // We fill from here only stuff that cannot be created with the SimpleFlatTableProducer
@@ -107,7 +107,7 @@ void SimpleJetConstituentTableProducer<T>::produce(edm::Event &iEvent, const edm
 
   std::string parentJetIdxName("jetIdx");
   std::string parentJetIdxDoc("Index of the parent jet");
-  if constexpr (std::is_same<T,reco::GenJet>::value){
+  if constexpr (std::is_same<T, reco::GenJet>::value) {
     parentJetIdxName = "genJetIdx";
     parentJetIdxDoc = "Index of the parent gen jet";
   }
@@ -117,7 +117,7 @@ void SimpleJetConstituentTableProducer<T>::produce(edm::Event &iEvent, const edm
   iEvent.put(std::move(outCands));
 }
 
-template< typename T>
+template <typename T>
 void SimpleJetConstituentTableProducer<T>::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<std::string>("name", "FatJetPFCand");

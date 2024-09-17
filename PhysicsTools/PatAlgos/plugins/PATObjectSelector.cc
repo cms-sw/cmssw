@@ -250,10 +250,10 @@ namespace pat {
       PATGenericParticleSelector;
 
   typedef SingleObjectSelector<
-    std::vector<PackedCandidate>,
-    StringCutObjectSelector<PackedCandidate, true>  // true => lazy parsing => get all methods of daughters
-    >
-    PATPackedCandidateSelector;
+      std::vector<PackedCandidate>,
+      StringCutObjectSelector<PackedCandidate, true>  // true => lazy parsing => get all methods of daughters
+      >
+      PATPackedCandidateSelector;
 
   typedef SingleObjectSelector<std::vector<Electron>,
                                StringCutObjectSelector<Electron>,
