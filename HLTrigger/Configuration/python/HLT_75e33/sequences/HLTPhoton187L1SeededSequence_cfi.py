@@ -27,5 +27,6 @@ HLTPhoton187L1SeededSequence = cms.Sequence(HLTL1Sequence
                                             +hltEgammaHGCALIDVarsL1Seeded
                                             +hltPhoton187HgcalHEL1SeededFilter
                                             +HLTEGammaDoLocalHcalSequence
+                                            +hltEgammaHoverEL1Seeded
                                             +HLTFastJetForEgammaSequence
                                             +hltPhoton187HEL1SeededFilter)
