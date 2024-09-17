@@ -343,7 +343,7 @@ pfCandidatesTable = cms.EDProducer("SimplePATCandidateFlatTableProducer",
         mass = Var("mass * puppiWeight()", float, doc="Puppi-weighted mass", precision=10),
         eta = Var("eta", float, precision=12),
         phi = Var("phi", float, precision=12),
-        pdgId  = Var("pdgId", int, doc="Defines PF candidate type (+/-211 = ChgHad, 130 = NeuHad, 22 = Photon, +/-11 = Electron, +/-13 = Muon, 1 = HFHad, 2 = HFEM)")
+        pdgId  = Var("pdgId", int, doc="PF candidate type (+/-211 = ChgHad, 130 = NeuHad, 22 = Photon, +/-11 = Electron, +/-13 = Muon, 1 = HFHad, 2 = HFEM)")
     )
 )
 
