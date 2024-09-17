@@ -45,7 +45,7 @@ private:
   bool isSaturated_ = false;
   bool peakFilter_ = false;
   static constexpr double maxRange_ = 255.;
-  static constexpr double maxBarycenter_ = 765.;
+  static constexpr double maxBarycenter_ = 770.;
   static constexpr double trimMaxADC_ = 30.;
   static constexpr double trimMaxFracTotal_ = .15;
   static constexpr double trimMaxFracNeigh_ = .25;
