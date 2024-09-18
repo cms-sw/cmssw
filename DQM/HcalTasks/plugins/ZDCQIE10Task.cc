@@ -393,13 +393,13 @@ void ZDCQIE10Task::_process(edm::Event const& e, edm::EventSetup const& es) {
 
   int startBX = sums->getFirstBX();
 
-  for (int ibx = startBX; ibx <= sums->getLastBX(); ++ibx){
-  	for (auto itr = sums->begin(ibx); itr != sums->end(ibx); ++itr){
-  		if (itr->getType() == l1t::EtSum::EtSumType::kZDCP)
+  for (int ibx = startBX; ibx <= sums->getLastBX(); ++ibx) {
+    for (auto itr = sums->begin(ibx); itr != sums->end(ibx); ++itr) {
+      if (itr->getType() == l1t::EtSum::EtSumType::kZDCP)
         etSumZdcP_[ibx - startBX] = itr->hwPt();
-  		if (itr->getType() == l1t::EtSum::EtSumType::kZDCM)
-  			etSumZdcM_[ibx - startBX] = itr->hwPt();
-  	}
+      if (itr->getType() == l1t::EtSum::EtSumType::kZDCM)
+        etSumZdcM_[ibx - startBX] = itr->hwPt();
+    }
   }
 
   edm::Handle<QIE10DigiCollection> digis;
