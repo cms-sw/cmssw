@@ -21,13 +21,16 @@ HcalCondObjectContainerBase::HcalCondObjectContainerBase(const HcalTopology* top
 }
 
 void HcalCondObjectContainerBase::setTopo(const HcalTopology* topo) {
-  if ((topo) && (packedIndexVersion_ != 0) && (!topo->denseIdConsistent(packedIndexVersion_)))
-    edm::LogError("HCAL") << std::string("Inconsistent dense packing between current topology (") << topo->topoVersion()
-                          << ") and calibration object (" << packedIndexVersion_ << ")";
-  topo_ = topo;
-  packedIndexVersion_ = topo_->topoVersion();
-  kSizeForDenseIndexing_ =
-      ((packedIndexVersion_ >= 10) ? HcalZDCDetId::kSizeForDenseIndexingRun3 : HcalZDCDetId::kSizeForDenseIndexingRun1);
+  if (topo) {
+    if ((packedIndexVersion_ != 0) && (!topo->denseIdConsistent(packedIndexVersion_)))
+      edm::LogError("HCAL") << std::string("Inconsistent dense packing between current topology (") << topo->topoVersion()
+			    << ") and calibration object (" << packedIndexVersion_ << ")";
+    topo_ = topo;
+    packedIndexVersion_ = topo->topoVersion();
+    kSizeForDenseIndexing_ = ((packedIndexVersion_ >= 10) ? HcalZDCDetId::kSizeForDenseIndexingRun3 : HcalZDCDetId::kSizeForDenseIndexingRun1);
+  } else {
+    edm::LogError("HCAL") << "Illegal call to HcalCondObjectContainerBase with a null pointer";
+  }
 }
 
 unsigned int HcalCondObjectContainerBase::indexFor(DetId fId) const {
@@ -124,7 +127,6 @@ unsigned int HcalCondObjectContainerBase::sizeFor(DetId fId) const {
       retval = HcalCastorDetId::kSizeForDenseIndexing;
     } else if (fId.subdetId() == HcalZDCDetId::SubdetectorId) {
       retval = kSizeForDenseIndexing_;
-      ;
     }
   }
   return retval;

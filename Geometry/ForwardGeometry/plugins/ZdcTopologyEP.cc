@@ -10,11 +10,6 @@
  Implementation:
      <Notes on implementation>
 */
-//
-// Original Author:  Jeremiah Mans
-//         Created:  Mon Oct  3 11:35:27 CDT 2005
-//
-//
 
 #include "Geometry/ForwardGeometry/plugins/ZdcTopologyEP.h"
 #include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
@@ -23,19 +18,17 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 
 ZdcTopologyEP::ZdcTopologyEP(const edm::ParameterSet& conf)
-    : m_hdcToken{setWhatProduced(this, &ZdcTopologyEP::produce).consumes<HcalDDDRecConstants>(edm::ESInputTag{})},
-      m_restrictions(conf.getUntrackedParameter<std::string>("Exclude")) {
+    : m_hdcToken{setWhatProduced(this, &ZdcTopologyEP::produce).consumes<HcalDDDRecConstants>(edm::ESInputTag{})} {
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HCalGeom") << "ZdcTopologyEP::ZdcTopologyEP with Exclude: " << m_restrictions;
+  edm::LogVerbatim("HCalGeom") << "ZdcTopologyEP::ZdcTopologyEP";
 #endif
 }
 
 void ZdcTopologyEP::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.addUntracked<std::string>("Exclude", "");
   descriptions.add("zdcTopologyEP", desc);
 }
 
