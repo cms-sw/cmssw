@@ -117,6 +117,13 @@ public:
   explicit L1TrackObjectNtupleMaker(const edm::ParameterSet& iConfig);
   ~L1TrackObjectNtupleMaker() override;
 
+  template <typename T>
+  bool findHiggsToMuAncestor(T particle);
+  template <typename T>
+  bool findHiggsToBAncestor(T particle);
+  template <typename T>
+  bool isHard(T particle);
+
   // Mandatory methods
   void beginJob() override;
   void endJob() override;
@@ -386,6 +393,9 @@ private:
   std::vector<int>* m_trkExt_combinatoric;
   std::vector<int>* m_trkExt_fake;  //0 fake, 1 track from primary interaction, 2 secondary track
   std::vector<int>* m_trkExt_matchtp_pdgid;
+  std::vector<int>* m_trkExt_matchtp_isHToMu;
+  std::vector<int>* m_trkExt_matchtp_isHToB;
+  std::vector<bool>* m_trkExt_matchtp_isHard;
   std::vector<float>* m_trkExt_matchtp_pt;
   std::vector<float>* m_trkExt_matchtp_eta;
   std::vector<float>* m_trkExt_matchtp_phi;
@@ -424,6 +434,9 @@ private:
   std::vector<float>* m_tp_d0_prod;
   std::vector<float>* m_tp_z0_prod;
   std::vector<int>* m_tp_pdgid;
+  std::vector<bool>* m_tp_isHToMu;
+  std::vector<bool>* m_tp_isHToB;
+  std::vector<bool>* m_tp_isHard;
   std::vector<int>* m_tp_nmatch;
   std::vector<int>* m_tp_nstub;
   std::vector<int>* m_tp_eventid;
@@ -867,6 +880,9 @@ void L1TrackObjectNtupleMaker::endJob() {
   delete m_trkExt_combinatoric;
   delete m_trkExt_fake;
   delete m_trkExt_matchtp_pdgid;
+  delete m_trkExt_matchtp_isHToMu;
+  delete m_trkExt_matchtp_isHToB;
+  delete m_trkExt_matchtp_isHard;
   delete m_trkExt_matchtp_pt;
   delete m_trkExt_matchtp_eta;
   delete m_trkExt_matchtp_phi;
@@ -904,6 +920,9 @@ void L1TrackObjectNtupleMaker::endJob() {
   delete m_tp_d0_prod;
   delete m_tp_z0_prod;
   delete m_tp_pdgid;
+  delete m_tp_isHToMu;
+  delete m_tp_isHToB;
+  delete m_tp_isHard;
   delete m_tp_nmatch;
   delete m_tp_nstub;
   delete m_tp_eventid;
@@ -1078,6 +1097,75 @@ void L1TrackObjectNtupleMaker::endJob() {
   delete m_trkfastjetExt_truetp_sumpt;
 }
 
+template <typename T>
+bool L1TrackObjectNtupleMaker::findHiggsToMuAncestor(T particle) {
+  if ((particle->pdgId() == 13 || particle->pdgId() == -13) && particle->genParticles().size() > 0) {
+    reco::GenParticleRef genPart = particle->genParticles()[0];
+    reco::GenParticleRefVector parentParts = genPart->motherRefVector();
+    if (parentParts.size() > 0) {
+      while (parentParts[0]->pdgId() == 13 || parentParts[0]->pdgId() == -13)
+        parentParts = parentParts[0]->motherRefVector();
+      reco::GenParticleRefVector daughters = parentParts[0]->daughterRefVector();
+      bool hasMuon = false;
+      bool hasAntiMuon = false;
+      for (auto daughter : daughters) {
+        if (daughter->pdgId() == 13)
+          hasMuon = true;
+        if (daughter->pdgId() == -13)
+          hasAntiMuon = true;
+      }
+      if (hasMuon && hasAntiMuon) {
+        bool hAncestor = false;
+        while (parentParts.size() > 0) {
+          if (parentParts[0]->pdgId() == 25)
+            hAncestor = true;
+          parentParts = parentParts[0]->motherRefVector();
+        }
+        if (hAncestor) {
+          return true;
+        }
+      }
+    }
+  }  //mu or anti mu
+  return false;
+}
+
+template <typename T>
+bool L1TrackObjectNtupleMaker::findHiggsToBAncestor(T particle) {
+  TrackingVertexRef parentVert = particle->parentVertex();
+  TrackingParticle currentParticle = *particle;
+  while (currentParticle.genParticles().size() == 0 && parentVert->nSourceTracks() > 0) {
+    TrackingParticleRefVector sourceTPs = parentVert->sourceTracks();
+    currentParticle = *sourceTPs[0];
+    parentVert = currentParticle.parentVertex();
+  }
+  bool bAncestor = false;
+  bool hAncestor = false;
+  reco::GenParticleRefVector genParticles = currentParticle.genParticles();
+  while (genParticles.size() > 0) {
+    if (hAncestor == false && abs(genParticles[0]->pdgId()) == 5)
+      bAncestor = true;
+    if (genParticles[0]->pdgId() == 25)
+      hAncestor = true;
+    genParticles = genParticles[0]->motherRefVector();
+  }
+  if (bAncestor && hAncestor)
+    return true;
+  return false;
+}
+
+template <typename T>
+bool L1TrackObjectNtupleMaker::isHard(T particle) {
+  reco::GenParticleRefVector genParts = particle->genParticles();
+  if(genParts.size()==0){
+    return false;
+  }
+  if(genParts[0]->isHardProcess() || genParts[0]->fromHardProcessFinalState()){
+    return true;
+  }
+  return false;
+}
+
 ////////////
 // BEGIN JOB
 void L1TrackObjectNtupleMaker::beginJob() {
@@ -1167,6 +1255,9 @@ void L1TrackObjectNtupleMaker::beginJob() {
   m_trkExt_combinatoric = new std::vector<int>;
   m_trkExt_fake = new std::vector<int>;
   m_trkExt_matchtp_pdgid = new std::vector<int>;
+  m_trkExt_matchtp_isHToMu = new std::vector<int>;
+  m_trkExt_matchtp_isHToB = new std::vector<int>;
+  m_trkExt_matchtp_isHard = new std::vector<bool>;
   m_trkExt_matchtp_pt = new std::vector<float>;
   m_trkExt_matchtp_eta = new std::vector<float>;
   m_trkExt_matchtp_phi = new std::vector<float>;
@@ -1204,6 +1295,9 @@ void L1TrackObjectNtupleMaker::beginJob() {
   m_tp_d0_prod = new std::vector<float>;
   m_tp_z0_prod = new std::vector<float>;
   m_tp_pdgid = new std::vector<int>;
+  m_tp_isHToMu = new std::vector<bool>;
+  m_tp_isHToB = new std::vector<bool>;
+  m_tp_isHard = new std::vector<bool>;
   m_tp_nmatch = new std::vector<int>;
   m_tp_nstub = new std::vector<int>;
   m_tp_eventid = new std::vector<int>;
@@ -1464,6 +1558,9 @@ void L1TrackObjectNtupleMaker::beginJob() {
     eventTree->Branch("trkExt_combinatoric", &m_trkExt_combinatoric);
     eventTree->Branch("trkExt_fake", &m_trkExt_fake);
     eventTree->Branch("trkExt_matchtp_pdgid", &m_trkExt_matchtp_pdgid);
+    eventTree->Branch("trkExt_matchtp_isHToMu", &m_trkExt_matchtp_isHToMu);
+    eventTree->Branch("trkExt_matchtp_isHToB", &m_trkExt_matchtp_isHToB);
+    eventTree->Branch("trkExt_matchtp_isHard", &m_trkExt_matchtp_isHard);
     eventTree->Branch("trkExt_matchtp_pt", &m_trkExt_matchtp_pt);
     eventTree->Branch("trkExt_matchtp_eta", &m_trkExt_matchtp_eta);
     eventTree->Branch("trkExt_matchtp_phi", &m_trkExt_matchtp_phi);
@@ -1503,6 +1600,9 @@ void L1TrackObjectNtupleMaker::beginJob() {
   eventTree->Branch("tp_d0_prod", &m_tp_d0_prod);
   eventTree->Branch("tp_z0_prod", &m_tp_z0_prod);
   eventTree->Branch("tp_pdgid", &m_tp_pdgid);
+  eventTree->Branch("tp_isHToMu", &m_tp_isHToMu);
+  eventTree->Branch("tp_isHToB", &m_tp_isHToB);
+  eventTree->Branch("tp_isHard", &m_tp_isHard);
   eventTree->Branch("tp_nmatch", &m_tp_nmatch);
   eventTree->Branch("tp_nstub", &m_tp_nstub);
   eventTree->Branch("tp_eventid", &m_tp_eventid);
@@ -1803,6 +1903,9 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
     m_trkExt_combinatoric->clear();
     m_trkExt_fake->clear();
     m_trkExt_matchtp_pdgid->clear();
+    m_trkExt_matchtp_isHToMu->clear();
+    m_trkExt_matchtp_isHToB->clear();
+    m_trkExt_matchtp_isHard->clear();
     m_trkExt_matchtp_pt->clear();
     m_trkExt_matchtp_eta->clear();
     m_trkExt_matchtp_phi->clear();
@@ -1840,6 +1943,9 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
   m_tp_d0_prod->clear();
   m_tp_z0_prod->clear();
   m_tp_pdgid->clear();
+  m_tp_isHToMu->clear();
+  m_tp_isHToB->clear();
+  m_tp_isHard->clear();
   m_tp_nmatch->clear();
   m_tp_nstub->clear();
   m_tp_eventid->clear();
@@ -2718,6 +2824,9 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
 
       int myFake = 0;
       int myTP_pdgid = -999;
+      bool myTP_isHToMu = false;
+      bool myTP_isHToB = false;
+      bool myTP_isHard = false;
       float myTP_pt = -999;
       float myTP_eta = -999;
       float myTP_phi = -999;
@@ -2738,6 +2847,9 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
           myFake = 1;
 
         myTP_pdgid = my_tp->pdgId();
+        myTP_isHToMu = findHiggsToMuAncestor(my_tp);
+        myTP_isHToB = findHiggsToBAncestor(my_tp);
+	myTP_isHard = isHard(my_tp);
         myTP_pt = my_tp->p4().pt();
         myTP_eta = my_tp->p4().eta();
         myTP_phi = my_tp->p4().phi();
@@ -2780,6 +2892,9 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
 
       m_trkExt_fake->push_back(myFake);
       m_trkExt_matchtp_pdgid->push_back(myTP_pdgid);
+      m_trkExt_matchtp_isHToMu->push_back(myTP_isHToMu);
+      m_trkExt_matchtp_isHToB->push_back(myTP_isHToB);
+      m_trkExt_matchtp_isHard->push_back(myTP_isHard);
       m_trkExt_matchtp_pt->push_back(myTP_pt);
       m_trkExt_matchtp_eta->push_back(myTP_eta);
       m_trkExt_matchtp_phi->push_back(myTP_phi);
@@ -2899,6 +3014,10 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
     if (MyProcess == 6 && (dxy > 1.0))
       continue;
 
+    bool tmp_tp_isHToMu = findHiggsToMuAncestor(iterTP);
+    bool tmp_tp_isHToB = findHiggsToBAncestor(iterTP);
+    bool tmp_tp_isHard = isHard(iterTP);
+
     if (DebugMode && (Displaced == "Prompt" || Displaced == "Both"))
       edm::LogVerbatim("Tracklet") << "Tracking particle, pt: " << tmp_tp_pt << " eta: " << tmp_tp_eta
                                    << " phi: " << tmp_tp_phi << " z0: " << tmp_tp_z0 << " d0: " << tmp_tp_d0
@@ -2989,6 +3108,9 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
     m_tp_z0_prod->push_back(tmp_tp_z0_prod);
     m_tp_d0_prod->push_back(tmp_tp_d0_prod);
     m_tp_pdgid->push_back(tmp_tp_pdgid);
+    m_tp_isHToMu->push_back(tmp_tp_isHToMu);
+    m_tp_isHToB->push_back(tmp_tp_isHToB);
+    m_tp_isHard->push_back(tmp_tp_isHard);
     m_tp_nstub->push_back(nStubTP);
     m_tp_eventid->push_back(tmp_eventid);
     m_tp_charge->push_back(tmp_tp_charge);

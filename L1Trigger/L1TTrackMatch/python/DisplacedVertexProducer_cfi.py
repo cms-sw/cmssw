@@ -4,7 +4,7 @@ DisplacedVertexProducer = cms.EDProducer('DisplacedVertexProducer',
   l1TracksInputTag = cms.InputTag("l1tTTTracksFromExtendedTrackletEmulation", "Level1TTTracks"),
   l1TrackVertexCollectionName = cms.string("dispVertices"),
   mcTruthTrackInputTag = cms.InputTag("TTTrackAssociatorFromPixelDigisExtended", "Level1TTTracks"),
-  ONNXmodel = cms.string("/afs/cern.ch/user/r/rmccarth/private/dispVert/l1tOfflinePR/CMSSW_14_0_0_pre3/src/L1Trigger/L1TTrackMatch/test/dispVertSlim_model.onnx"),
+  ONNXmodel = cms.string("/afs/cern.ch/user/r/rmccarth/private/dispVert/l1tOfflinePR/CMSSW_14_0_0_pre3/src/L1Trigger/L1TTrackMatch/test/dispVertMixedTraining.onnx"),
   ONNXInputName = cms.string("feature_input"),
   cutSet = cms.PSet(
       chi2rzMax = cms.double(3.0), # chi2rz value for all tracks must be less than this
@@ -19,8 +19,9 @@ DisplacedVertexProducer = cms.EDProducer('DisplacedVertexProducer',
       overlapNStubsMin = cms.int32(4), # number of stubs for tracks with overlapEtaMin<|eta|<overlapEtaMax must be greater than this
       diskEtaMin = cms.double(0.95), # eta value for tracks to be considered for disk track cuts must be greater than this
       diskD0Min = cms.double(0.08), # abs d0 value for tracks with |eta|>diskEtaMin must be greater than this [cm]
-      barrelD0Min = cms.double(0.06) # abs d0 value for tracks with |eta|<=diskEtaMin must be greater than this [cm]
-      
+      barrelD0Min = cms.double(0.06), # abs d0 value for tracks with |eta|<=diskEtaMin must be greater than this [cm]
+      RTMin = cms.double(0.02152), # R_T value for all vertices must be greater than this
+      RTMax = cms.double(20.0) # R_T value for all vertices must be less than this
   ) 
 )
 
