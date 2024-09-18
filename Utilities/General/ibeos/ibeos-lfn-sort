@@ -16,7 +16,7 @@ if [ -f ${IBEOS_CACHE} ] ; then
     case $LFN in
       /store/* )
         if [ $(grep "^${LFN}$" ${IBEOS_CACHE} | wc -l) -gt 0 ] ; then
-          IBEOS_FILES="$IBEOS_FILES $LFN"
+          IBEOS_FILES="$IBEOS_FILES /store/user/cmsbuild${LFN}"
         else
           NON_IBEOS_FILES="$NON_IBEOS_FILES $LFN"
         fi
