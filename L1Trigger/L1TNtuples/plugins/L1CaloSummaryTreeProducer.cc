@@ -44,7 +44,7 @@ private:
 };
 
 L1CaloSummaryTreeProducer::L1CaloSummaryTreeProducer(const edm::ParameterSet& iConfig)
-  : scoreToken_(consumes<l1t::CICADABxCollection>(iConfig.getUntrackedParameter<edm::InputTag>("scoreToken"))),
+    : scoreToken_(consumes<l1t::CICADABxCollection>(iConfig.getUntrackedParameter<edm::InputTag>("scoreToken"))),
       regionToken_(consumes<L1CaloRegionCollection>(iConfig.getUntrackedParameter<edm::InputTag>("regionToken"))) {
   usesResource(TFileService::kSharedResource);
   tree_ = fs_->make<TTree>("L1CaloSummaryTree", "L1CaloSummaryTree");
