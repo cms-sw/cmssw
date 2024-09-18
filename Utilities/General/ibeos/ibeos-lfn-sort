@@ -1,11 +1,21 @@
 #!/bin/bash
 IBEOS_FILES=""
 NON_IBEOS_FILES=""
-if [ -f ${LOCALRT}/ibeos_cache.txt ] ; then
+# try to download cache
+IBEOS_CACHE=${LOCALRT}/ibeos_cache.txt
+if [ ! -f ${IBEOS_CACHE} ]; then
+  curl -L -s -o ${IBEOS_CACHE} https://raw.githubusercontent.com/cms-sw/cms-sw.github.io/master/das_queries/ibeos.txt
+  CURL_EXIT=$?
+  if [ ${CURL_EXIT} -ne 0 ]; then
+    rm -f ${IBEOS_CACHE}
+    echo "Error: Unable to download ibeos cache information"
+  fi
+fi
+if [ -f ${IBEOS_CACHE} ] ; then
   while read LFN ; do
     case $LFN in
       /store/* )
-        if [ $(grep "^${LFN}$" ${LOCALRT}/ibeos_cache.txt | wc -l) -gt 0 ] ; then
+        if [ $(grep "^${LFN}$" ${IBEOS_CACHE} | wc -l) -gt 0 ] ; then
           IBEOS_FILES="$IBEOS_FILES $LFN"
         else
           NON_IBEOS_FILES="$NON_IBEOS_FILES $LFN"
@@ -13,6 +23,7 @@ if [ -f ${LOCALRT}/ibeos_cache.txt ] ; then
         ;;
     esac
   done
+# in case the cache did not download
 else
   while read LFN ; do
     case $LFN in
