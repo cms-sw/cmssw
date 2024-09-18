@@ -217,7 +217,7 @@ private:
   const double chi2rzMax_, dispMVAMin_, promptMVAMin_, ptMin_, etaMax_, dispD0Min_, promptMVADispTrackMin_,
       overlapEtaMin_, overlapEtaMax_;
   const int overlapNStubsMin_;
-  const double diskEtaMin_, diskD0Min_, barrelD0Min_;
+  const double diskEtaMin_, diskD0Min_, barrelD0Min_, RTMin_, RTMax_;
   std::unique_ptr<cms::Ort::ONNXRuntime> runTime_;
 };
 

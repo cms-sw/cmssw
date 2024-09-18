@@ -124,7 +124,9 @@ DisplacedVertexProducer::DisplacedVertexProducer(const edm::ParameterSet& iConfi
       overlapNStubsMin_(cutSet_.getParameter<int>("overlapNStubsMin")),
       diskEtaMin_(cutSet_.getParameter<double>("diskEtaMin")),
       diskD0Min_(cutSet_.getParameter<double>("diskD0Min")),
-      barrelD0Min_(cutSet_.getParameter<double>("barrelD0Min")) {
+      barrelD0Min_(cutSet_.getParameter<double>("barrelD0Min")),
+      RTMin_(cutSet_.getParameter<double>("RTMin")),
+      RTMax_(cutSet_.getParameter<double>("RTMax")) {
   //--- Define EDM output to be written to file (if required)
   produces<l1t::DisplacedTrackVertexCollection>(outputTrackCollectionName_);
   runTime_ = std::make_unique<cms::Ort::ONNXRuntime>(this->ONNXmodel_);
@@ -233,6 +235,10 @@ void DisplacedVertexProducer::produce(edm::StreamID, edm::Event& iEvent, const e
           calcVertex(selectedTracksWithTruth[i].first, selectedTracksWithTruth[j].first, x_dv_trk, y_dv_trk, z_dv_trk);
       Vertex_Parameters vertex = Vertex_Parameters(
           x_dv_trk, y_dv_trk, z_dv_trk, selectedTracksWithTruth[i].first, selectedTracksWithTruth[j].first);
+
+      if(vertex.R_T>RTMax_) continue;
+      if(vertex.R_T<RTMin_) continue;
+      
       l1t::DisplacedTrackVertex outputVertex = l1t::DisplacedTrackVertex(selectedTracksWithTruth[i].first.index,
                                                                          selectedTracksWithTruth[j].first.index,
                                                                          i,
