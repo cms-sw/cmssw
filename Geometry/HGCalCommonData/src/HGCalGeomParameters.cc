@@ -1979,11 +1979,11 @@ void HGCalGeomParameters::loadSpecParsTrapezoid(HGCalParameters& php,
 #ifdef EDM_ML_DEBUG
   std::ostringstream st1, st2;
   st1 << "Scintillator CassetteShift for " << php.cassetteShiftTile_.size() << " tiles:";
-  for (unsigned int k =  0; k < php.cassetteShiftTile_.size(); ++k)
+  for (unsigned int k = 0; k < php.cassetteShiftTile_.size(); ++k)
     st1 << " " << php.cassetteShiftTile_[k];
   edm::LogVerbatim("HGCalGeom") << st1.str();
   st2 << "NPhi for scntillator " << php.nPhiLayer_.size() << " layers:";
-  for (unsigned int k =  0; k < php.nPhiLayer_.size(); ++k)
+  for (unsigned int k = 0; k < php.nPhiLayer_.size(); ++k)
     st2 << " " << php.nPhiLayer_[k];
   edm::LogVerbatim("HGCalGeom") << st2.str();
 #endif
@@ -2355,7 +2355,9 @@ void HGCalGeomParameters::loadCellTrapezoid(HGCalParameters& php) {
       (php.mode_ == HGCalGeometryMode::TrapezoidCassette) || (php.mode_ == HGCalGeometryMode::TrapezoidFineCell)) {
     //Ring radii for each partition
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "HGCalParameters: Mode " << php.mode_ << ":" << HGCalGeometryMode::TrapezoidFineCell << " Sizes " << php.tileRingFineR_.size() << ":" <<  php.tileRingR_.size();
+    edm::LogVerbatim("HGCalGeom") << "HGCalParameters: Mode " << php.mode_ << ":"
+                                  << HGCalGeometryMode::TrapezoidFineCell << " Sizes " << php.tileRingFineR_.size()
+                                  << ":" << php.tileRingR_.size();
 #endif
     for (unsigned int k = 0; k < 2; ++k) {
       bool fine = ((k == 0) && (php.mode_ == HGCalGeometryMode::TrapezoidFineCell));
@@ -2380,18 +2382,20 @@ void HGCalGeomParameters::loadCellTrapezoid(HGCalParameters& php) {
     }
     // Minimum and maximum radius index for each layer
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "Till Ring Range size " << php.tileRingFineRange_.size() << ":" << php.tileRingRange_.size() << ":" << php.nPhiBinBH_.size() << ":" << php.zLayerHex_.size() << ":" << php.nPhiLayer_.size();
+    edm::LogVerbatim("HGCalGeom") << "Till Ring Range size " << php.tileRingFineRange_.size() << ":"
+                                  << php.tileRingRange_.size() << ":" << php.nPhiBinBH_.size() << ":"
+                                  << php.zLayerHex_.size() << ":" << php.nPhiLayer_.size();
 #endif
     unsigned int k1(0), k2(0);
     for (unsigned int k = 0; k < php.zLayerHex_.size(); ++k) {
       if (php.nPhiLayer_[k] > 288) {
-	php.iradMinBH_.emplace_back(1 + php.tileRingFineRange_[k1].first);
-	php.iradMaxBH_.emplace_back(1 + php.tileRingFineRange_[k1].second);
-	++k1;
-      } else { 
-	php.iradMinBH_.emplace_back(1 + php.tileRingRange_[k2].first);
-	php.iradMaxBH_.emplace_back(1 + php.tileRingRange_[k2].second);
-	++k2;
+        php.iradMinBH_.emplace_back(1 + php.tileRingFineRange_[k1].first);
+        php.iradMaxBH_.emplace_back(1 + php.tileRingFineRange_[k1].second);
+        ++k1;
+      } else {
+        php.iradMinBH_.emplace_back(1 + php.tileRingRange_[k2].first);
+        php.iradMaxBH_.emplace_back(1 + php.tileRingRange_[k2].second);
+        ++k2;
       }
 #ifdef EDM_ML_DEBUG
       int kk = php.scintType(php.firstLayer_ + static_cast<int>(k));
