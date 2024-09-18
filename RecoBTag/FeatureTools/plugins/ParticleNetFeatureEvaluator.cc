@@ -64,6 +64,8 @@ private:
   const double max_eta_for_taus_;
   const bool include_neutrals_;
   const bool flip_ip_sign_;
+  const bool fallback_puppi_weight_;
+  bool use_puppi_value_map_;
   const double max_sip3dsig_for_flip_;
 
   edm::EDGetTokenT<pat::MuonCollection> muon_token_;
@@ -76,11 +78,13 @@ private:
   edm::EDGetTokenT<reco::VertexCompositePtrCandidateCollection> sv_token_;
   edm::EDGetTokenT<edm::View<reco::Candidate>> pfcand_token_;
   edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> track_builder_token_;
+  edm::EDGetTokenT<edm::ValueMap<float>> puppi_value_map_token_;
 
   edm::Handle<reco::VertexCollection> vtxs_;
   edm::Handle<reco::VertexCompositePtrCandidateCollection> svs_;
   edm::Handle<edm::View<reco::Candidate>> pfcands_;
   edm::Handle<pat::PackedCandidateCollection> losttracks_;
+  edm::Handle<edm::ValueMap<float>> puppi_value_map_;
   edm::ESHandle<TransientTrackBuilder> track_builder_;
 
   const static std::vector<std::string> particle_features_;
@@ -264,6 +268,8 @@ ParticleNetFeatureEvaluator::ParticleNetFeatureEvaluator(const edm::ParameterSet
       max_eta_for_taus_(iConfig.getParameter<double>("max_eta_for_taus")),
       include_neutrals_(iConfig.getParameter<bool>("include_neutrals")),
       flip_ip_sign_(iConfig.getParameter<bool>("flip_ip_sign")),
+      fallback_puppi_weight_(iConfig.getParameter<bool>("fallback_puppi_weight")),
+      use_puppi_value_map_(false),
       max_sip3dsig_for_flip_(iConfig.getParameter<double>("max_sip3dsig_for_flip")),
       muon_token_(consumes<pat::MuonCollection>(iConfig.getParameter<edm::InputTag>("muons"))),
       electron_token_(consumes<pat::ElectronCollection>(iConfig.getParameter<edm::InputTag>("electrons"))),
@@ -277,6 +283,11 @@ ParticleNetFeatureEvaluator::ParticleNetFeatureEvaluator(const edm::ParameterSet
       pfcand_token_(consumes<edm::View<reco::Candidate>>(iConfig.getParameter<edm::InputTag>("pf_candidates"))),
       track_builder_token_(
           esConsumes<TransientTrackBuilder, TransientTrackRecord>(edm::ESInputTag("", "TransientTrackBuilder"))) {
+  const auto &puppi_value_map_tag = iConfig.getParameter<edm::InputTag>("puppi_value_map");
+  if (!puppi_value_map_tag.label().empty()) {
+    puppi_value_map_token_ = consumes<edm::ValueMap<float>>(puppi_value_map_tag);
+    use_puppi_value_map_ = true;
+  }
   produces<std::vector<reco::DeepBoostedJetTagInfo>>();
 }
 
@@ -297,10 +308,12 @@ void ParticleNetFeatureEvaluator::fillDescriptions(edm::ConfigurationDescription
   desc.add<double>("max_eta_for_taus", 2.5);
   desc.add<bool>("include_neutrals", true);
   desc.add<bool>("flip_ip_sign", false);
+  desc.add<bool>("fallback_puppi_weight", false);
   desc.add<double>("max_sip3dsig_for_flip", 99999);
   desc.add<edm::InputTag>("vertices", edm::InputTag("offlineSlimmedPrimaryVertices"));
   desc.add<edm::InputTag>("secondary_vertices", edm::InputTag("slimmedSecondaryVertices"));
   desc.add<edm::InputTag>("pf_candidates", edm::InputTag("packedPFCandidates"));
+  desc.add<edm::InputTag>("puppi_value_map", edm::InputTag("puppi"));
   desc.add<edm::InputTag>("losttracks", edm::InputTag("lostTracks"));
   desc.add<edm::InputTag>("jets", edm::InputTag("slimmedJetsAK8"));
   desc.add<edm::InputTag>("muons", edm::InputTag("slimmedMuons"));
@@ -325,6 +338,11 @@ void ParticleNetFeatureEvaluator::produce(edm::Event &iEvent, const edm::EventSe
   auto photons = iEvent.getHandle(photon_token_);
   // Input lost tracks
   iEvent.getByToken(losttrack_token_, losttracks_);
+  // Get puuppi value map
+  if (use_puppi_value_map_) {
+    iEvent.getByToken(puppi_value_map_token_, puppi_value_map_);
+  }
+
   // Primary vertexes
   iEvent.getByToken(vtx_token_, vtxs_);
   if (vtxs_->empty()) {
@@ -413,6 +431,9 @@ void ParticleNetFeatureEvaluator::fillParticleFeatures(DeepBoostedJetFeatures &f
   // track builder
   TrackInfoBuilder trackinfo(track_builder_);
 
+  //Save puppi weight for selected constituents in this map
+  std::map<const pat::PackedCandidate *, float> map_pc2puppiweight;
+
   // make list of pf-candidates to be considered
   std::vector<const pat::PackedCandidate *> daughters;
   for (const auto &dau : jet.daughterPtrVector()) {
@@ -428,6 +449,15 @@ void ParticleNetFeatureEvaluator::fillParticleFeatures(DeepBoostedJetFeatures &f
       continue;
     // filling daughters
     daughters.push_back(cand);
+
+    float puppiw = 1.;
+    if (use_puppi_value_map_) {
+      puppiw = (*puppi_value_map_)[dau];
+    } else if (!fallback_puppi_weight_) {
+      throw edm::Exception(edm::errors::InvalidReference, "PUPPI value map missing")
+          << "use fallback_puppi_weight option to use " << puppiw << " for cand as default";
+    }
+    map_pc2puppiweight[cand] = puppiw;
   }
 
   // sort by original pt (not Puppi-weighted)
@@ -486,7 +516,7 @@ void ParticleNetFeatureEvaluator::fillParticleFeatures(DeepBoostedJetFeatures &f
     fts.fill("jet_pfcand_frompv", cand->fromPV());
     fts.fill("jet_pfcand_dz", ip_sign * (std::isnan(cand->dz(pv_ass_pos)) ? 0 : cand->dz(pv_ass_pos)));
     fts.fill("jet_pfcand_dxy", ip_sign * (std::isnan(cand->dxy(pv_ass_pos)) ? 0 : cand->dxy(pv_ass_pos)));
-    fts.fill("jet_pfcand_puppiw", cand->puppiWeight());
+    fts.fill("jet_pfcand_puppiw", map_pc2puppiweight[cand]);
     fts.fill("jet_pfcand_nlostinnerhits", cand->lostInnerHits());
     fts.fill("jet_pfcand_nhits", cand->numberOfHits());
     fts.fill("jet_pfcand_npixhits", cand->numberOfPixelHits());
