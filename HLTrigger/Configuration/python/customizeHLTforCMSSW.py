@@ -49,12 +49,11 @@ def customiseForOffline(process):
     return process
 
 # Adding zdc Topology producer
-def customizeHLTfor45511(process):
+def customizeHLTfor46033(process):
     """Add topology producer for ZDC"""
 
     if hasattr(process, 'ZdcGeometryFromDBEP'):
         process.ZdcTopologyEP = cms.ESProducer( "ZdcTopologyEP",
-                                                Exclude = cms.untracked.string( "" ),
                                                 appendToDataLabel = cms.string( "" )
         )
 
@@ -125,6 +124,6 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
 
     process = customizeHLTfor44576(process)
     process = customizeHLTfor45063(process)
-    process = customizeHLTfor45511(process)
+    process = customizeHLTfor46033(process)
 
     return process
