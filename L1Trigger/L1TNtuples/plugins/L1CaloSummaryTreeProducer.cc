@@ -21,6 +21,7 @@
 
 #include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
 #include "DataFormats/L1CaloTrigger/interface/L1CaloRegion.h"
+#include "DataFormats/L1CaloTrigger/interface/CICADA.h"
 
 class L1CaloSummaryTreeProducer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
@@ -36,14 +37,14 @@ public:
   L1Analysis::L1AnalysisCaloSummaryDataFormat* caloSummaryData_;
 
 private:
-  const edm::EDGetTokenT<float> scoreToken_;
+  const edm::EDGetTokenT<l1t::CICADABxCollection> scoreToken_;
   const edm::EDGetTokenT<L1CaloRegionCollection> regionToken_;
   edm::Service<TFileService> fs_;
   TTree* tree_;
 };
 
 L1CaloSummaryTreeProducer::L1CaloSummaryTreeProducer(const edm::ParameterSet& iConfig)
-    : scoreToken_(consumes<float>(iConfig.getUntrackedParameter<edm::InputTag>("scoreToken"))),
+    : scoreToken_(consumes<l1t::CICADABxCollection>(iConfig.getUntrackedParameter<edm::InputTag>("scoreToken"))),
       regionToken_(consumes<L1CaloRegionCollection>(iConfig.getUntrackedParameter<edm::InputTag>("regionToken"))) {
   usesResource(TFileService::kSharedResource);
   tree_ = fs_->make<TTree>("L1CaloSummaryTree", "L1CaloSummaryTree");
@@ -67,10 +68,10 @@ void L1CaloSummaryTreeProducer::analyze(const edm::Event& iEvent, const edm::Eve
     edm::LogWarning("L1Ntuple") << "Could not find region regions. CICADA model input will not be filled";
   }
 
-  edm::Handle<float> score;
+  edm::Handle<l1t::CICADABxCollection> score;
   iEvent.getByToken(scoreToken_, score);
   if (score.isValid())
-    caloSummaryData_->CICADAScore = *score;
+    caloSummaryData_->CICADAScore = score->at(0, 0);
   else
     edm::LogWarning("L1Ntuple") << "Could not find a proper CICADA score. CICADA score will not be filled.";
 
