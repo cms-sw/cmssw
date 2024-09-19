@@ -28,7 +28,6 @@ const std::vector<std::string> DeepSCGraphEvaluation::availableWindowInputs = {
 const std::vector<std::string> DeepSCGraphEvaluation::availableHitsInputs = {"ieta", "iphi", "iz", "en_withfrac"};
 
 DeepSCGraphEvaluation::DeepSCGraphEvaluation(const DeepSCConfiguration& cfg) : cfg_(cfg) {
-  tensorflow::setLogging("0");
   // Init TF graph and session objects
   initTensorFlowGraphAndSession();
   // Init scaler configs
