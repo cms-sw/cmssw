@@ -19,16 +19,11 @@ process.load("DQMServices.Components.DQMEnvironment_cfi")
 process.load('DQMOffline.ParticleFlow.runBasic_cfi')
 
 
-#process.maxEvents = cms.untracked.PSet(
-#    input = cms.untracked.int32(100)
-#)
-
 with open('fileList.log') as f:
     lines = f.readlines()
 #Input source
 process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring(lines))
 
-#process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring())
 
 from DQMOffline.ParticleFlow.runBasic_cfi import *
 

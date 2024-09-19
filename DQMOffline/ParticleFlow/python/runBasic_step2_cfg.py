@@ -16,18 +16,9 @@ process.load("DQMServices.Core.DQM_cfg")
 process.load("DQMServices.Components.DQMEnvironment_cfi")
 
 
-process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1)
-)
-
 # Input source
 process.source = cms.Source("DQMRootSource",
                             fileNames = cms.untracked.vstring("file:OUT_step1.root"))
-#process.source = cms.Source("DQMRootSource",
-#                            fileNames = cms.untracked.vstring("file:test.root"))
-
-#process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring())
-
 
 
 # Other statements

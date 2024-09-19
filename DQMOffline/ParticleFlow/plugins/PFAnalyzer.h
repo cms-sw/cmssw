@@ -41,8 +41,6 @@
 
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/Math/interface/deltaR.h"
-//#include "DataFormats/Candidate/interface/Candidate.h"
-//#include "DataFormats/Common/interface/Handle.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
@@ -50,8 +48,6 @@
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 class PFAnalyzer;
 
-//typedef double (PFAnalyzer::*memberFn)(const reco::PFCandidate pfCand);
-using memberFn = double (PFAnalyzer::*)(const reco::PFCandidate pfCand);
 
 class PFAnalyzer : public DQMEDAnalyzer {
 public:
