@@ -74,7 +74,7 @@ void VarBase::calcDebug(int debug_level, long int ival_prev, bool &all_ok) {
   if (std::abs(ftest - fval_) > tolerance) {
     if (debug_level == 3 || (ival_ != ival_prev && (all_ok && (op_ != "inv" || debug_level >= 2)))) {
       edm::LogVerbatim("Tracklet") << "imath: **GROSS** value mismatch!! " << fval_ << " != " << ftest;
-      if (op_ == "inv")
+      if (op_ == "inv" && p1_)
         edm::LogVerbatim("Tracklet") << p1_->dump() << "\n-----------------------------------";
       todump = true;
     }
