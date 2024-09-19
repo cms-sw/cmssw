@@ -48,7 +48,6 @@
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 class PFAnalyzer;
 
-
 class PFAnalyzer : public DQMEDAnalyzer {
 public:
   /// Constructor
