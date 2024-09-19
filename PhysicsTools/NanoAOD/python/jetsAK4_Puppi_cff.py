@@ -117,24 +117,6 @@ run2_nanoAOD_ANY.toModify(
     btagDeepCvB = Var("?bDiscriminator('pfDeepCSVJetTags:probc')>=0?bDiscriminator('pfDeepCSVJetTags:probc')/(bDiscriminator('pfDeepCSVJetTags:probc')+bDiscriminator('pfDeepCSVJetTags:probb')+bDiscriminator('pfDeepCSVJetTags:probbb')):-1",float,doc="DeepCSV c vs b+bb discriminator",precision=10)
 )
 
-(run3_nanoAOD_122 | run3_nanoAOD_124).toModify(
-    jetPuppiTable.variables,
-    # New ParticleNet trainings are not available in MiniAOD until Run3 13X
-    btagPNetB = None,
-    btagPNetCvL = None,
-    btagPNetCvB = None,
-    btagPNetQvG = None,
-    btagPNetTauVJet = None,
-    PNetRegPtRawCorr = None,
-    PNetRegPtRawCorrNeutrino = None,
-    PNetRegPtRawRes = None,
-    # Remove for V11 and earlier Run3 versions
-    chMultiplicity = None,
-    neMultiplicity = None,
-    hfHEF = None,
-    hfEmEF = None
-)
-
 run3_nanoAOD_pre142X.toModify(
     jetPuppiTable.variables,
     puIdDisc = None,
