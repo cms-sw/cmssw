@@ -65,6 +65,9 @@ The offsets currently in use are:
 * 0.7: trackingMkFit modifier
 * 0.701: DisplacedRegionalStep tracking iteration for Run-3
 * 0.702: trackingMkFit modifier for Phase-2 (initialStep only)
+* 0.75: HLT phase-2 timing menu
+* 0.751: HLT phase-2 timing menu Alpaka variant
+* 0.752: HLT phase-2 timing menu ticl_v5 variant
 * 0.78: Complete L1 workflow
 * 0.8: BPH Parking (Run-2)
 * 0.81: Running also HeavyFlavor DQM
