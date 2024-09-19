@@ -301,7 +301,7 @@ namespace {
     // code from TrackState::jacobianCCSToCurvilinear
     MPlex56 jacCCS2Curv(0.0f);
     jacCCS2Curv.aij(0, 3) = mpt::negate_if_ltz(sinT, inChg);
-    jacCCS2Curv.aij(0, 5) = mpt::negate_if_ltz(cosT, inChg);
+    jacCCS2Curv.aij(0, 5) = mpt::negate_if_ltz(cosT * inPar(3, 0), inChg);
     jacCCS2Curv.aij(1, 5) = -1.f;
     jacCCS2Curv.aij(2, 4) = 1.f;
     jacCCS2Curv.aij(3, 0) = -sinPin;
