@@ -262,7 +262,7 @@ def checkHLTfor43774(process):
     return process
 
 # Adding zdc Topology producer
-def customizeHLTfor46011(process):
+def customizeHLTfor46062(process):
     """Add topology producer for ZDC"""
 
     for esprod in esproducers_by_type(process, 'ZdcGeometryFromDBEP'):
@@ -337,6 +337,6 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     process = checkHLTfor43774(process)
     process = customizeHLTfor44576(process)
     process = customizeHLTfor45063(process)
-    process = customizeHLTfor46011(process)
+    process = customizeHLTfor46062(process)
     
     return process
