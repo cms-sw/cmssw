@@ -148,7 +148,7 @@ steps['NANO_data_UL18reMINI'] = merge([{'--era': 'Run2_2018',
 steps['TTbarMINIAOD13.0'] = {'INPUT': InputInfo(
     location='STD', dataSet='/TTtoLNu2Q_TuneCP5_13p6TeV_powheg-pythia8/Run3Summer23MiniAODv4-130X_mcRun3_2023_realistic_v14-v2/MINIAODSIM')}
 
-steps['NANO_mc13.0'] = merge([{'--era': 'Run3', '--conditions': 'auto:phase1_2023_realistic'},
+steps['NANO_mc13.0'] = merge([{'--era': 'Run3,run3_nanoAOD_pre142X', '--conditions': 'auto:phase1_2023_realistic'},
                               _NANO_mc])
 
 
@@ -160,7 +160,7 @@ steps['ScoutingPFRun32022RAW13.0'] = {'INPUT': InputInfo(
     dataSet='/ScoutingPFRun3/Run2022D-v1/RAW', label='2022D', events=100000, location='STD', ls=Run2022D)}
 
 
-steps['NANO_data13.0'] = merge([{'--era': 'Run3', '--conditions': 'auto:run3_data'},
+steps['NANO_data13.0'] = merge([{'--era': 'Run3,run3_nanoAOD_pre142X', '--conditions': 'auto:run3_data'},
                                 _NANO_data])
 
 steps['NANO_data13.0_prompt'] = merge([{'-s': 'NANO:@Prompt,DQM:@nanoAODDQM', '-n': '1000'},
@@ -176,7 +176,7 @@ steps['scoutingNANO_data13.0'] = merge([{'-s': 'NANO:@Scout'},
 steps['TTbarMINIAOD14.0'] = {'INPUT': InputInfo(
     location='STD', dataSet='/RelValTTbar_14TeV/CMSSW_14_0_0-PU_140X_mcRun3_2024_realistic_v3_STD_2024_PU-v2/MINIAODSIM')}
 
-steps['NANO_mc14.0'] = merge([{'--era': 'Run3', '--conditions': 'auto:phase1_2024_realistic'},
+steps['NANO_mc14.0'] = merge([{'--era': 'Run3,run3_nanoAOD_pre142X', '--conditions': 'auto:phase1_2024_realistic'},
                               _NANO_mc])
 
 steps['muPOGNANO_mc14.0'] = merge([{'-s': 'NANO:@MUPOG,DQM:@nanoAODDQM', '-n': '1000'},
@@ -217,7 +217,7 @@ steps['ZeroBias2024RAW14.0'] = {'INPUT': InputInfo(location='STD', ls=lumis_Run2
 steps['TestEnablesEcalHcal2024RAW14.0'] = {'INPUT': InputInfo(location='STD', ls={383173: [[151, 162]]},
                                                               dataSet='/TestEnablesEcalHcal/Run2024F-Express-v1/RAW')}
 
-steps['NANO_data14.0'] = merge([{'--era': 'Run3_2024', '--conditions': 'auto:run3_data_prompt'},
+steps['NANO_data14.0'] = merge([{'--era': 'Run3_2024,run3_nanoAOD_pre142X', '--conditions': 'auto:run3_data_prompt'},
                                 _NANO_data])
 
 steps['NANO_data14.0_prompt'] = merge([{'-s': 'NANO:@Prompt,DQM:@nanoAODDQM', '-n': '1000'},
