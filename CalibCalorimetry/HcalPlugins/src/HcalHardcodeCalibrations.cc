@@ -557,9 +557,6 @@ std::unique_ptr<HcalQIEData> HcalHardcodeCalibrations::produceQIEData(const Hcal
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HCAL") << "HcalHardcodeCalibrations::produceQIEData-> ...";
 #endif
-  /*
-  edm::LogVerbatim("HcalCalib")  << ">>>  HcalHardcodeCalibrations::produceQIEData";
-  */
 
   auto const& topo = rcd.get(topoTokens_[kQIEData]);
   auto const& zdcTopo = rcd.get(zdcTopoTokens_[kQIEData]);

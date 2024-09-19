@@ -265,11 +265,9 @@ def checkHLTfor43774(process):
 def customizeHLTfor46011(process):
     """Add topology producer for ZDC"""
 
-    if hasattr(process, 'ZdcGeometryFromDBEP'):
-        process.ZdcTopologyEP = cms.ESProducer( "ZdcTopologyEP",
-                                                Exclude = cms.untracked.string( "" ),
-                                                appendToDataLabel = cms.string( "" )
-        )
+    for esprod in esproducers_by_type(process, 'ZdcGeometryFromDBEP'):
+        process.load("Geometry.ForwardGeometry.zdcTopologyEP_cfi")
+        break
 
     return process
 

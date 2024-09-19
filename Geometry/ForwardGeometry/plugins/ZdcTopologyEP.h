@@ -27,7 +27,5 @@ public:
 private:
   // ----------member data ---------------------------
   edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> m_hdcToken;
-  std::string m_restrictions;
-  bool m_mergePosition;
 };
 #endif
