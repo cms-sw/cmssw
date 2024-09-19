@@ -29,6 +29,7 @@ protected:
   HcalCondObjectContainerBase& operator=(HcalCondObjectContainerBase const& o) {
     topo_ = o.topo();
     packedIndexVersion_ = o.packedIndexVersion_;
+    kSizeForDenseIndexing_ = o.kSizeForDenseIndexing_;
     return *this;
   }
 #ifndef __GCCXML__
@@ -47,6 +48,7 @@ protected:
 
 private:
   const HcalTopology* topo_ COND_TRANSIENT;
+  uint32_t kSizeForDenseIndexing_ COND_TRANSIENT;
 
   COND_SERIALIZABLE;
 };
