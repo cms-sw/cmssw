@@ -5,11 +5,7 @@
 #include <vector>
 #include "TMath.h"
 
-#if ROOT_VERSION_CODE >= ROOT_VERSION(6, 33, 1)
-double CSCThrTurnOnFcn::operator()(std::span<const double> par) const {
-#else
 double CSCThrTurnOnFcn::operator()(const std::vector<double>& par) const {
-#endif
   double x, y, er, fn;
   double N = norm;
   double chi2 = 0.;

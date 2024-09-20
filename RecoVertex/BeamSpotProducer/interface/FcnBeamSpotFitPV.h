@@ -18,8 +18,6 @@
 #include "Minuit2/FCNBase.h"
 
 #include <vector>
-#include <span>
-#include <RVersion.h>
 
 class FcnBeamSpotFitPV : public ROOT::Minuit2::FCNBase {
 public:
@@ -31,11 +29,7 @@ public:
   // deltaFcn for definition of the uncertainty
   double Up() const override { return errorDef_; }
   // -2lnL value based on vector of parameters
-#if ROOT_VERSION_CODE >= ROOT_VERSION(6, 32, 4)
-  double operator()(std::span<const double>) const override;
-#else
   double operator()(const std::vector<double>&) const override;
-#endif
   // vertex count used for the fit (after selection)
   unsigned int nrOfVerticesUsed() const;
 
