@@ -24,7 +24,7 @@
 class HcalZDCDetId : public DetId {
 public:
   static constexpr uint32_t kZDCChannelMask1 = 0xF;
-  static constexpr uint32_t kZDCChannelMask2 = 0x7F;
+  static constexpr uint32_t kZDCChannelMask2 = 0x3F;
   static constexpr uint32_t kZDCSectionMask = 0x3;
   static constexpr uint32_t kZDCSectionOffset = 4;
   static constexpr uint32_t kZDCZsideMask = 0x40;
