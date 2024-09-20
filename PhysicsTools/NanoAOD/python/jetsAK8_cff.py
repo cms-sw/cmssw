@@ -321,7 +321,7 @@ subJetTable.variables.pt.precision=10
 # AK8 constituents
 ###############################################################
 finalJetsAK8PFConstituents = cms.EDProducer("PatJetConstituentPtrSelector",
-    src = cms.InputTag("finalJetsAK8"),
+    src = fatJetTable.src,
     cut = cms.string("abs(eta) <= 2.5")
 )
 
@@ -353,7 +353,7 @@ finalJetsAK8ConstituentsTable = cms.EDProducer("SimplePatJetConstituentTableProd
     candIdxDoc = cms.string("Index in the PFCand table"),
     jets = fatJetTable.src,
     candidates = pfCandidatesTable.src,
-    jetCut = cms.string("")
+    jetCut = fatJetTable.cut
 )
 
 jetAK8UserDataTask = cms.Task(tightJetIdAK8,tightJetIdLepVetoAK8)
