@@ -130,7 +130,8 @@ bool CSCFitAFEBThr::ThresholdNoise(const std::vector<float>& inputx,
   //                                               <<" "<<ery[i]<<std::endl;
 
   /// Fit  as 1D, <=500 iterations, edm=10**-5 (->0.1)
-  FunctionMinimum fmin = theFitter->Minimize(*theOBJfun, parinit, erparinit, 1, 500, 0.1);
+  FunctionMinimum fmin =
+      theFitter->Minimize(*theOBJfun, MnUserParameterState{parinit, erparinit}, MnStrategy{1}, 500, 0.1);
 
   status = fmin.IsValid();
 
