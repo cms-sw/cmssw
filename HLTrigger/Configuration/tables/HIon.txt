@@ -214,7 +214,7 @@ HLT_HIMinimumBiasHF1ANDZDC2nOR_Beamspot_v* # CMSHLT-2914
 
 HLT_HIZeroBias_HighRateRAW_v*		   # CMSHLT-2963
 HLT_HIUPC_Random_HighRate_v*		   # CMSHLT-2963
-HLT_HIUPC_TestSeedsCombined_v*		   # CMSHLT-2963
+HLT_HIUPC_HFafterglowCombined_v*           # CMSHLT-3335
 
 HLTriggerFinalPath
 
