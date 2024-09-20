@@ -193,7 +193,7 @@ elif (runTypeName == 'cosmic_run' or runTypeName == 'cosmic_run_stage1'):
     process.ecalMonitorTask.workerParameters.PresampleTask.params.doPulseMaxCheck = False 
 elif runTypeName == 'hi_run':
     process.ecalMonitorTask.collectionTags.Source = "rawDataRepacker"
-    process.ecalDigisCPU.InputLabel = 'rawDataRepacker'
+    process.ecalDigis.InputLabel = 'rawDataRepacker'
 elif runTypeName == 'hpu_run':
     if not unitTest:
         process.source.SelectEvents = cms.untracked.vstring("*")

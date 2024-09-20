@@ -89,7 +89,7 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.castorDigis.InputLabel = "rawDataRepacker"
     process.csctfDigis.producer = "rawDataRepacker"
     process.dttfDigis.DTTF_FED_Source = "rawDataRepacker"
-    process.ecalDigisCPU.InputLabel = "rawDataRepacker"
+    process.ecalDigis.InputLabel = "rawDataRepacker"
     process.ecalPreshowerDigis.sourceTag = "rawDataRepacker"
     process.gctDigis.inputLabel = "rawDataRepacker"
     process.gtDigis.DaqGtInputTag = "rawDataRepacker"
@@ -99,7 +99,7 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.muonDTDigis.inputLabel = "rawDataRepacker"
     process.muonRPCDigis.InputLabel = "rawDataRepacker"
     process.scalersRawToDigi.scalersInputTag = "rawDataRepacker"
-    process.siPixelDigis.cpu.InputLabel = "rawDataRepacker"
+    process.siPixelDigis.InputLabel = "rawDataRepacker"
     process.siStripDigis.ProductLabel = "rawDataRepacker"
 
 

@@ -49,7 +49,7 @@ process.l1tStage2Fed.FEDDirName = cms.untracked.string(path)
 # Pixel sequence:
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('EventFilter.SiPixelRawToDigi.SiPixelRawToDigi_cfi')
-process.siPixelDigis.cpu.IncludeErrors = True
+process.siPixelDigis.IncludeErrors = True
 process.load('DQM.SiPixelMonitorRawData.SiPixelMonitorHLT_cfi')
 process.SiPixelHLTSource.saveFile = False
 process.SiPixelHLTSource.slowDown = False
@@ -95,7 +95,7 @@ process.cscDQMEvF.EventProcessor.FOLDER_EMU = path
 # Setting raw data collection label for all subsytem modules, depending on run type:
 if (process.runType.getRunType() == process.runType.hi_run):
     process.l1tStage2Fed.rawTag = 'rawDataRepacker'
-    process.siPixelDigis.cpu.InputLabel = 'rawDataRepacker'
+    process.siPixelDigis.InputLabel = 'rawDataRepacker'
     process.SiPixelHLTSource.RawInput = 'rawDataRepacker'
     process.siStripFEDCheck.RawDataTag = 'rawDataRepacker'
     process.esRawToDigi.sourceTag = 'rawDataRepacker'
@@ -109,7 +109,7 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.cscDQMEvF.InputObjects = 'rawDataRepacker'
 else:
     process.l1tStage2Fed.rawTag = 'rawDataCollector'
-    process.siPixelDigis.cpu.InputLabel = 'rawDataCollector'
+    process.siPixelDigis.InputLabel = 'rawDataCollector'
     process.SiPixelHLTSource.RawInput = 'rawDataCollector'
     process.siStripFEDCheck.RawDataTag = 'rawDataCollector'
     process.esRawToDigi.sourceTag = 'rawDataCollector'

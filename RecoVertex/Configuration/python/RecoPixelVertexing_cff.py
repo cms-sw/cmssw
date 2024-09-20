@@ -1,7 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 from HeterogeneousCore.AlpakaCore.functions import *
-from HeterogeneousCore.CUDACore.SwitchProducerCUDA import SwitchProducerCUDA
-
 from RecoTracker.PixelTrackFitting.PixelTracks_cff import *
 from RecoVertex.PixelVertexFinding.PixelVertices_cff import *
 
@@ -22,24 +20,26 @@ from RecoVertex.PixelVertexFinding.pixelVertexProducerCUDAPhase1_cfi import pixe
 from RecoVertex.PixelVertexFinding.pixelVertexProducerCUDAPhase2_cfi import pixelVertexProducerCUDAPhase2 as _pixelVerticesCUDAPhase2
 from RecoVertex.PixelVertexFinding.pixelVertexProducerCUDAHIonPhase1_cfi import pixelVertexProducerCUDAHIonPhase1 as _pixelVerticesCUDAHIonPhase1
 
-pixelVerticesSoA = SwitchProducerCUDA(
-    cpu = _pixelVerticesCUDA.clone(
+pixelVerticesSoA = _pixelVerticesCUDA.clone(
+    pixelTrackSrc = "pixelTracksSoA",
+    onGPU = False
+)
+
+phase2_tracker.toReplaceWith(pixelVerticesSoA,
+     _pixelVerticesCUDAPhase2.clone(
         pixelTrackSrc = "pixelTracksSoA",
-        onGPU = False
+        onGPU = False,
+        PtMin = 2.0
     )
 )
 
-phase2_tracker.toModify(pixelVerticesSoA,cpu = _pixelVerticesCUDAPhase2.clone(
-    pixelTrackSrc = "pixelTracksSoA",
-    onGPU = False,
-    PtMin = 2.0
-))
-
-(pp_on_AA & ~phase2_tracker).toModify(pixelVerticesSoA,cpu = _pixelVerticesCUDAHIonPhase1.clone(
-    pixelTrackSrc = "pixelTracksSoA",
-    doSplitting = False,
-    onGPU = False,
-))
+(pp_on_AA & ~phase2_tracker).toReplaceWith(pixelVerticesSoA,
+    _pixelVerticesCUDAHIonPhase1.clone(
+        pixelTrackSrc = "pixelTracksSoA",
+        doSplitting = False,
+        onGPU = False,
+    )
+)
 
 # convert the pixel vertices from SoA to legacy format
 from RecoVertex.PixelVertexFinding.pixelVertexFromSoA_cfi import pixelVertexFromSoA as _pixelVertexFromSoA
@@ -55,49 +55,6 @@ from RecoVertex.PixelVertexFinding.pixelVertexFromSoA_cfi import pixelVertexFrom
     pixelVertices
 ))
 
-
-# "Patatrack" sequence running on the GPU
-from Configuration.ProcessModifiers.gpu_cff import gpu
-
-# build pixel vertices in SoA format on the GPU
-pixelVerticesCUDA = _pixelVerticesCUDA.clone(
-    pixelTrackSrc = "pixelTracksCUDA",
-    onGPU = True
-)
-
-phase2_tracker.toReplaceWith(pixelVerticesCUDA,_pixelVerticesCUDAPhase2.clone(
-    pixelTrackSrc = "pixelTracksCUDA",
-    onGPU = True,
-    PtMin = 2.0
-))
-
-(pp_on_AA & ~phase2_tracker).toReplaceWith(pixelVerticesCUDA,_pixelVerticesCUDAHIonPhase1.clone(
-    pixelTrackSrc = "pixelTracksCUDA",
-    doSplitting = False,
-    onGPU = True
-))
-
-# transfer the pixel vertices in SoA format to the CPU
-from RecoVertex.PixelVertexFinding.pixelVerticesSoA_cfi import pixelVerticesSoA as _pixelVerticesSoA
-gpu.toModify(pixelVerticesSoA,
-    cuda = _pixelVerticesSoA.clone(
-        src = cms.InputTag("pixelVerticesCUDA")
-    )
-)
-
-## GPU vs CPU validation
-# force CPU vertexing to use track SoA from CPU chain and not the converted one from GPU chain
-from Configuration.ProcessModifiers.gpuValidationPixel_cff import gpuValidationPixel
-(pixelNtupletFit & gpu & gpuValidationPixel).toModify(pixelVerticesSoA.cpu,
-    pixelTrackSrc = "pixelTracksSoA@cpu"
-)
-
-(pixelNtupletFit & gpu).toReplaceWith(pixelVerticesTask, cms.Task(
-    # build pixel vertices in SoA format on the GPU
-    pixelVerticesCUDA,
-    # transfer the pixel vertices in SoA format to the CPU and convert them to legacy format
-    pixelVerticesTask.copy()
-))
 
 ## pixel vertex reconstruction with Alpaka
 

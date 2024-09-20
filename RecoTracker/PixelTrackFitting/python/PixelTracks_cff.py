@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 from HeterogeneousCore.AlpakaCore.functions import *
-from HeterogeneousCore.CUDACore.SwitchProducerCUDA import SwitchProducerCUDA
 
 from RecoLocalTracker.SiStripRecHitConverter.StripCPEfromTrackAngle_cfi import *
 from RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitMatcher_cfi import *
@@ -28,6 +27,10 @@ from RecoTracker.FinalTrackSelectors.trackAlgoPriorityOrder_cfi import trackAlgo
 # Eras
 from Configuration.Eras.Modifier_trackingLowPU_cff import trackingLowPU
 from Configuration.Eras.Modifier_run3_common_cff import run3_common
+from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
+
+# HIon modifier
+from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 
 # seeding layers
 from RecoTracker.IterativeTracking.InitialStep_cff import initialStepSeedLayers, initialStepHitDoublets, _initialStepCAHitQuadruplets
@@ -96,25 +99,27 @@ from RecoTracker.PixelSeeding.caHitNtupletCUDAPhase1_cfi import caHitNtupletCUDA
 from RecoTracker.PixelSeeding.caHitNtupletCUDAPhase2_cfi import caHitNtupletCUDAPhase2 as _pixelTracksCUDAPhase2
 from RecoTracker.PixelSeeding.caHitNtupletCUDAHIonPhase1_cfi import caHitNtupletCUDAHIonPhase1 as _pixelTracksCUDAHIonPhase1
 
-# Phase 2 modifier
-from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
-# HIon modifiers
-from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
-
-# SwitchProducer providing the pixel tracks in SoA format on the CPU
-pixelTracksSoA = SwitchProducerCUDA(
-    # build pixel ntuplets and pixel tracks in SoA format on the CPU
-    cpu = _pixelTracksCUDA.clone(
-        pixelRecHitSrc = "siPixelRecHitsPreSplittingSoA",
-        idealConditions = False,
-        onGPU = False
-    )
+# pixel tracks in SoA format
+pixelTracksSoA = _pixelTracksCUDA.clone(
+    pixelRecHitSrc = "siPixelRecHitsPreSplittingSoA",
+    idealConditions = False,
+    onGPU = False
 )
 
 # use quality cuts tuned for Run 2 ideal conditions for all Run 3 workflows
-run3_common.toModify(pixelTracksSoA.cpu,
+run3_common.toModify(pixelTracksSoA,
     idealConditions = True
 )
+
+phase2_tracker.toReplaceWith(pixelTracksSoA, _pixelTracksCUDAPhase2.clone(
+    pixelRecHitSrc = "siPixelRecHitsPreSplittingSoA",
+    onGPU = False
+))
+
+(pp_on_AA & ~phase2_tracker).toReplaceWith(pixelTracksSoA, _pixelTracksCUDAHIonPhase1.clone(
+    pixelRecHitSrc = "siPixelRecHitsPreSplittingSoA",
+    onGPU = False
+))
 
 # convert the pixel tracks from SoA to legacy format
 from RecoTracker.PixelTrackFitting.pixelTrackProducerFromSoAPhase1_cfi import pixelTrackProducerFromSoAPhase1 as _pixelTrackProducerFromSoA
@@ -139,71 +144,6 @@ pixelNtupletFit.toReplaceWith(pixelTracksTask, cms.Task(
     # convert the pixel tracks from SoA to legacy format
     pixelTracks
 ))
-
-# "Patatrack" sequence running on GPU (or CPU if not available)
-from Configuration.ProcessModifiers.gpu_cff import gpu
-
-# build the pixel ntuplets and pixel tracks in SoA format on the GPU
-pixelTracksCUDA = _pixelTracksCUDA.clone(
-    pixelRecHitSrc = "siPixelRecHitsPreSplittingCUDA",
-    idealConditions = False,
-    onGPU = True,
-)
-
-# use quality cuts tuned for Run 2 ideal conditions for all Run 3 workflows
-run3_common.toModify(pixelTracksCUDA,
-    idealConditions = True
-)
-
-# SwitchProducer providing the pixel tracks in SoA format on the CPU
-from RecoTracker.PixelTrackFitting.pixelTrackSoAFromCUDAPhase1_cfi import pixelTrackSoAFromCUDAPhase1 as _pixelTracksSoA
-from RecoTracker.PixelTrackFitting.pixelTrackSoAFromCUDAPhase2_cfi import pixelTrackSoAFromCUDAPhase2 as _pixelTracksSoAPhase2
-from RecoTracker.PixelTrackFitting.pixelTrackSoAFromCUDAHIonPhase1_cfi import pixelTrackSoAFromCUDAHIonPhase1 as _pixelTracksSoAHIonPhase1
-
-gpu.toModify(pixelTracksSoA,
-    # transfer the pixel tracks in SoA format to the host
-    cuda = _pixelTracksSoA.clone()
-)
-
-(gpu & phase2_tracker).toModify(pixelTracksSoA,cuda = _pixelTracksSoAPhase2.clone(
-))
-
-(gpu & pp_on_AA).toModify(pixelTracksSoA,cuda = _pixelTracksSoAHIonPhase1.clone(
-))
-
-phase2_tracker.toModify(pixelTracksSoA,cpu = _pixelTracksCUDAPhase2.clone(
-    pixelRecHitSrc = "siPixelRecHitsPreSplittingSoA",
-    onGPU = False
-))
-
-(pp_on_AA & ~phase2_tracker).toModify(pixelTracksSoA,cpu = _pixelTracksCUDAHIonPhase1.clone(
-    pixelRecHitSrc = "siPixelRecHitsPreSplittingSoA",
-    onGPU = False
-))
-
-phase2_tracker.toReplaceWith(pixelTracksCUDA,_pixelTracksCUDAPhase2.clone(
-    pixelRecHitSrc = "siPixelRecHitsPreSplittingCUDA",
-    onGPU = True,
-))
-
-(pp_on_AA & ~phase2_tracker).toReplaceWith(pixelTracksCUDA,_pixelTracksCUDAHIonPhase1.clone(
-    pixelRecHitSrc = "siPixelRecHitsPreSplittingCUDA",
-    onGPU = True,
-))
-
-(pixelNtupletFit & gpu).toReplaceWith(pixelTracksTask, cms.Task(
-    # build the pixel ntuplets and pixel tracks in SoA format on the GPU
-    pixelTracksCUDA,
-    # transfer the pixel tracks in SoA format to the CPU, and convert them to legacy format
-    pixelTracksTask.copy()
-))
-
-## GPU vs CPU validation
-# force CPU vertexing to use hit SoA from CPU chain and not the converted one from GPU chain
-from Configuration.ProcessModifiers.gpuValidationPixel_cff import gpuValidationPixel
-(pixelNtupletFit & gpu & gpuValidationPixel).toModify(pixelTracksSoA.cpu,
-    pixelRecHitSrc = "siPixelRecHitsPreSplittingSoA@cpu"
-    )
 
 ######################################################################
 

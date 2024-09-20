@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-from Configuration.ProcessModifiers.gpu_cff import gpu
 
 # This object is used to selectively make changes for different running
 # scenarios. In this case it makes changes for Run 2.
@@ -73,14 +72,12 @@ RawToDigi_ecalOnly = cms.Sequence(RawToDigiTask_ecalOnly)
 RawToDigiTask_hcalOnly = cms.Task(hcalDigis)
 RawToDigi_hcalOnly = cms.Sequence(RawToDigiTask_hcalOnly)
 
-from Configuration.ProcessModifiers.gpu_cff import gpu
 from Configuration.ProcessModifiers.alpaka_cff import alpaka
 
 scalersRawToDigi.scalersInputTag = 'rawDataCollector'
-siPixelDigis.cpu.InputLabel = 'rawDataCollector'
-ecalDigisCPU.InputLabel = 'rawDataCollector'
-gpu.toModify(ecalDigisGPU, InputLabel = 'rawDataCollector')
-alpaka.toModify(ecalDigisPortable, InputLabel = 'rawDataCollector')
+siPixelDigis.InputLabel = 'rawDataCollector'
+ecalDigis.InputLabel = 'rawDataCollector'
+ecalDigisPortable.InputLabel = 'rawDataCollector'
 ecalPreshowerDigis.sourceTag = 'rawDataCollector'
 hcalDigis.InputLabel = 'rawDataCollector'
 muonCSCDigis.InputObjects = 'rawDataCollector'

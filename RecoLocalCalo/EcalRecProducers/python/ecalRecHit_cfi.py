@@ -86,31 +86,23 @@ ecalRecHit = cms.EDProducer("EcalRecHitProducer",
     bdtWeightFileNoCracks = cms.FileInPath("RecoLocalCalo/EcalDeadChannelRecoveryAlgos/data/BDTWeights/bdtgAllRH_8GT700MeV_noCracks_ZskimData2017_v1.xml"),
     bdtWeightFileCracks = cms.FileInPath("RecoLocalCalo/EcalDeadChannelRecoveryAlgos/data/BDTWeights/bdtgAllRH_8GT700MeV_onlyCracks_ZskimData2017_v1.xml"),
     triggerPrimitiveDigiCollection = cms.InputTag("ecalDigis:EcalTriggerPrimitives"),
-    cleaningConfig=cleaningAlgoConfig,
+    cleaningConfig = cleaningAlgoConfig,
+)
 
-    )
-
-from Configuration.Eras.Modifier_fastSim_cff import fastSim
 # no flags for bad channels in FastSim
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
 fastSim.toModify(ecalRecHit, 
-                 killDeadChannels = False,
-                 recoverEBFE = False,
-                 recoverEEFE = False,
-                 recoverEBIsolatedChannels = False
-                )
+    killDeadChannels = False,
+    recoverEBFE = False,
+    recoverEEFE = False,
+    recoverEBIsolatedChannels = False
+)
 
 # use CC timing method for Run3 and Phase 2 (carried over from Run3 era)
 from Configuration.ProcessModifiers.ecal_cctiming_cff import ecal_cctiming
 ecal_cctiming.toModify(ecalRecHit,
     timeCalibTag = ':CC',
     timeOffsetTag = ':CC'
-)
-
-# this overrides the modifications made by ecal_cctiming if both modifiers are active
-from Configuration.ProcessModifiers.gpuValidationEcal_cff import gpuValidationEcal
-gpuValidationEcal.toModify(ecalRecHit,
-    timeCalibTag = ':',
-    timeOffsetTag = ':'
 )
 
 # Phase 2 modifications
@@ -124,4 +116,3 @@ phase2_ecal_devel.toModify(ecalRecHit,
     recoverEBIsolatedChannels = False,
     recoverEEIsolatedChannels = False
 )
-

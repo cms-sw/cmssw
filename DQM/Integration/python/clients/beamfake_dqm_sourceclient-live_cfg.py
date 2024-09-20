@@ -118,10 +118,11 @@ if (process.runType.getRunType() == process.runType.hi_run and live):
 else:
     rawDataInputTag = "rawDataCollector"
 
-""" process.castorDigis.InputLabel           = rawDataInputTag
+"""
+process.castorDigis.InputLabel           = rawDataInputTag
 process.csctfDigis.producer              = rawDataInputTag 
 process.dttfDigis.DTTF_FED_Source        = rawDataInputTag
-process.ecalDigisCPU.InputLabel          = rawDataInputTag
+process.ecalDigis.InputLabel             = rawDataInputTag
 process.ecalPreshowerDigis.sourceTag     = rawDataInputTag
 process.gctDigis.inputLabel              = rawDataInputTag
 process.gtDigis.DaqGtInputTag            = rawDataInputTag
@@ -132,7 +133,7 @@ process.muonRPCDigis.InputLabel          = rawDataInputTag
 process.scalersRawToDigi.scalersInputTag = rawDataInputTag
 process.siPixelDigis.InputLabel          = rawDataInputTag
 process.siStripDigis.ProductLabel        = rawDataInputTag
- """
+"""
 process.dqmFakeBeamMonitor.OnlineMode = True
 process.dqmFakeBeamMonitor.recordName = BSOnlineRecordName
 
