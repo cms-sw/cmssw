@@ -1,6 +1,6 @@
 # hltGetConfiguration /dev/CMSSW_14_0_0/HIon --cff --data --type HIon
 
-# /dev/CMSSW_14_0_0/HIon/V181 (CMSSW_14_0_11)
+# /dev/CMSSW_14_0_0/HIon/V182 (CMSSW_14_0_11)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -9,7 +9,7 @@ fragment = cms.ProcessFragment( "HLT" )
 fragment.load("Configuration.StandardSequences.Accelerators_cff")
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string("/dev/CMSSW_14_0_0/HIon/V181")
+  tableName = cms.string("/dev/CMSSW_14_0_0/HIon/V182")
 )
 
 fragment.HLTIter4PSetTrajectoryBuilderIT = cms.PSet( 
@@ -1492,6 +1492,7 @@ fragment.datasets = cms.PSet(
     'HLT_HIUPC_DoubleMuOpen_BptxAND_MaxPixelCluster1000_v5',
     'HLT_HIUPC_DoubleMuOpen_NotMBHF2AND_MaxPixelCluster1000_v5',
     'HLT_HIUPC_DoubleMuOpen_NotMBHF2AND_v9',
+    'HLT_HIUPC_HFafterglowCombined_v1',
     'HLT_HIUPC_MBHF1AND_PixelTrackMultiplicity20400_v11',
     'HLT_HIUPC_MBHF1AND_PixelTrackMultiplicity30400_v11',
     'HLT_HIUPC_MBHF1AND_PixelTrackMultiplicity40400_v11',
@@ -1542,7 +1543,6 @@ fragment.datasets = cms.PSet(
     'HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2AND_v9',
     'HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2OR_MaxPixelCluster1000_v5',
     'HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2OR_v9',
-    'HLT_HIUPC_TestSeedsCombined_v3',
     'HLT_HIUPC_ZDC1nAsymXOR_MBHF1AND_PixelTrackMultiplicity20_v3',
     'HLT_HIUPC_ZDC1nAsymXOR_MBHF1AND_PixelTrackMultiplicity30_v3',
     'HLT_HIUPC_ZDC1nAsymXOR_MBHF1AND_PixelTrackMultiplicity40_v3',
@@ -1573,6 +1573,7 @@ fragment.datasets = cms.PSet(
     'HLT_HIUPC_DoubleMuOpen_BptxAND_MaxPixelCluster1000_v5',
     'HLT_HIUPC_DoubleMuOpen_NotMBHF2AND_MaxPixelCluster1000_v5',
     'HLT_HIUPC_DoubleMuOpen_NotMBHF2AND_v9',
+    'HLT_HIUPC_HFafterglowCombined_v1',
     'HLT_HIUPC_MBHF1AND_PixelTrackMultiplicity20400_v11',
     'HLT_HIUPC_MBHF1AND_PixelTrackMultiplicity30400_v11',
     'HLT_HIUPC_MBHF1AND_PixelTrackMultiplicity40400_v11',
@@ -1623,7 +1624,6 @@ fragment.datasets = cms.PSet(
     'HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2AND_v9',
     'HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2OR_MaxPixelCluster1000_v5',
     'HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2OR_v9',
-    'HLT_HIUPC_TestSeedsCombined_v3',
     'HLT_HIUPC_ZDC1nAsymXOR_MBHF1AND_PixelTrackMultiplicity20_v3',
     'HLT_HIUPC_ZDC1nAsymXOR_MBHF1AND_PixelTrackMultiplicity30_v3',
     'HLT_HIUPC_ZDC1nAsymXOR_MBHF1AND_PixelTrackMultiplicity40_v3',
@@ -1654,6 +1654,7 @@ fragment.datasets = cms.PSet(
     'HLT_HIUPC_DoubleMuOpen_BptxAND_MaxPixelCluster1000_v5',
     'HLT_HIUPC_DoubleMuOpen_NotMBHF2AND_MaxPixelCluster1000_v5',
     'HLT_HIUPC_DoubleMuOpen_NotMBHF2AND_v9',
+    'HLT_HIUPC_HFafterglowCombined_v1',
     'HLT_HIUPC_MBHF1AND_PixelTrackMultiplicity20400_v11',
     'HLT_HIUPC_MBHF1AND_PixelTrackMultiplicity30400_v11',
     'HLT_HIUPC_MBHF1AND_PixelTrackMultiplicity40400_v11',
@@ -1704,7 +1705,6 @@ fragment.datasets = cms.PSet(
     'HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2AND_v9',
     'HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2OR_MaxPixelCluster1000_v5',
     'HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2OR_v9',
-    'HLT_HIUPC_TestSeedsCombined_v3',
     'HLT_HIUPC_ZDC1nAsymXOR_MBHF1AND_PixelTrackMultiplicity20_v3',
     'HLT_HIUPC_ZDC1nAsymXOR_MBHF1AND_PixelTrackMultiplicity30_v3',
     'HLT_HIUPC_ZDC1nAsymXOR_MBHF1AND_PixelTrackMultiplicity40_v3',
@@ -1735,6 +1735,7 @@ fragment.datasets = cms.PSet(
     'HLT_HIUPC_DoubleMuOpen_BptxAND_MaxPixelCluster1000_v5',
     'HLT_HIUPC_DoubleMuOpen_NotMBHF2AND_MaxPixelCluster1000_v5',
     'HLT_HIUPC_DoubleMuOpen_NotMBHF2AND_v9',
+    'HLT_HIUPC_HFafterglowCombined_v1',
     'HLT_HIUPC_MBHF1AND_PixelTrackMultiplicity20400_v11',
     'HLT_HIUPC_MBHF1AND_PixelTrackMultiplicity30400_v11',
     'HLT_HIUPC_MBHF1AND_PixelTrackMultiplicity40400_v11',
@@ -1785,7 +1786,6 @@ fragment.datasets = cms.PSet(
     'HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2AND_v9',
     'HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2OR_MaxPixelCluster1000_v5',
     'HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2OR_v9',
-    'HLT_HIUPC_TestSeedsCombined_v3',
     'HLT_HIUPC_ZDC1nAsymXOR_MBHF1AND_PixelTrackMultiplicity20_v3',
     'HLT_HIUPC_ZDC1nAsymXOR_MBHF1AND_PixelTrackMultiplicity30_v3',
     'HLT_HIUPC_ZDC1nAsymXOR_MBHF1AND_PixelTrackMultiplicity40_v3',
@@ -1816,6 +1816,7 @@ fragment.datasets = cms.PSet(
     'HLT_HIUPC_DoubleMuOpen_BptxAND_MaxPixelCluster1000_v5',
     'HLT_HIUPC_DoubleMuOpen_NotMBHF2AND_MaxPixelCluster1000_v5',
     'HLT_HIUPC_DoubleMuOpen_NotMBHF2AND_v9',
+    'HLT_HIUPC_HFafterglowCombined_v1',
     'HLT_HIUPC_MBHF1AND_PixelTrackMultiplicity20400_v11',
     'HLT_HIUPC_MBHF1AND_PixelTrackMultiplicity30400_v11',
     'HLT_HIUPC_MBHF1AND_PixelTrackMultiplicity40400_v11',
@@ -1866,7 +1867,6 @@ fragment.datasets = cms.PSet(
     'HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2AND_v9',
     'HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2OR_MaxPixelCluster1000_v5',
     'HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2OR_v9',
-    'HLT_HIUPC_TestSeedsCombined_v3',
     'HLT_HIUPC_ZDC1nAsymXOR_MBHF1AND_PixelTrackMultiplicity20_v3',
     'HLT_HIUPC_ZDC1nAsymXOR_MBHF1AND_PixelTrackMultiplicity30_v3',
     'HLT_HIUPC_ZDC1nAsymXOR_MBHF1AND_PixelTrackMultiplicity40_v3',
@@ -1897,6 +1897,7 @@ fragment.datasets = cms.PSet(
     'HLT_HIUPC_DoubleMuOpen_BptxAND_MaxPixelCluster1000_v5',
     'HLT_HIUPC_DoubleMuOpen_NotMBHF2AND_MaxPixelCluster1000_v5',
     'HLT_HIUPC_DoubleMuOpen_NotMBHF2AND_v9',
+    'HLT_HIUPC_HFafterglowCombined_v1',
     'HLT_HIUPC_MBHF1AND_PixelTrackMultiplicity20400_v11',
     'HLT_HIUPC_MBHF1AND_PixelTrackMultiplicity30400_v11',
     'HLT_HIUPC_MBHF1AND_PixelTrackMultiplicity40400_v11',
@@ -1947,7 +1948,6 @@ fragment.datasets = cms.PSet(
     'HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2AND_v9',
     'HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2OR_MaxPixelCluster1000_v5',
     'HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2OR_v9',
-    'HLT_HIUPC_TestSeedsCombined_v3',
     'HLT_HIUPC_ZDC1nAsymXOR_MBHF1AND_PixelTrackMultiplicity20_v3',
     'HLT_HIUPC_ZDC1nAsymXOR_MBHF1AND_PixelTrackMultiplicity30_v3',
     'HLT_HIUPC_ZDC1nAsymXOR_MBHF1AND_PixelTrackMultiplicity40_v3',
@@ -1978,6 +1978,7 @@ fragment.datasets = cms.PSet(
     'HLT_HIUPC_DoubleMuOpen_BptxAND_MaxPixelCluster1000_v5',
     'HLT_HIUPC_DoubleMuOpen_NotMBHF2AND_MaxPixelCluster1000_v5',
     'HLT_HIUPC_DoubleMuOpen_NotMBHF2AND_v9',
+    'HLT_HIUPC_HFafterglowCombined_v1',
     'HLT_HIUPC_MBHF1AND_PixelTrackMultiplicity20400_v11',
     'HLT_HIUPC_MBHF1AND_PixelTrackMultiplicity30400_v11',
     'HLT_HIUPC_MBHF1AND_PixelTrackMultiplicity40400_v11',
@@ -2028,7 +2029,6 @@ fragment.datasets = cms.PSet(
     'HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2AND_v9',
     'HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2OR_MaxPixelCluster1000_v5',
     'HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2OR_v9',
-    'HLT_HIUPC_TestSeedsCombined_v3',
     'HLT_HIUPC_ZDC1nAsymXOR_MBHF1AND_PixelTrackMultiplicity20_v3',
     'HLT_HIUPC_ZDC1nAsymXOR_MBHF1AND_PixelTrackMultiplicity30_v3',
     'HLT_HIUPC_ZDC1nAsymXOR_MBHF1AND_PixelTrackMultiplicity40_v3',
@@ -2059,6 +2059,7 @@ fragment.datasets = cms.PSet(
     'HLT_HIUPC_DoubleMuOpen_BptxAND_MaxPixelCluster1000_v5',
     'HLT_HIUPC_DoubleMuOpen_NotMBHF2AND_MaxPixelCluster1000_v5',
     'HLT_HIUPC_DoubleMuOpen_NotMBHF2AND_v9',
+    'HLT_HIUPC_HFafterglowCombined_v1',
     'HLT_HIUPC_MBHF1AND_PixelTrackMultiplicity20400_v11',
     'HLT_HIUPC_MBHF1AND_PixelTrackMultiplicity30400_v11',
     'HLT_HIUPC_MBHF1AND_PixelTrackMultiplicity40400_v11',
@@ -2109,7 +2110,6 @@ fragment.datasets = cms.PSet(
     'HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2AND_v9',
     'HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2OR_MaxPixelCluster1000_v5',
     'HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2OR_v9',
-    'HLT_HIUPC_TestSeedsCombined_v3',
     'HLT_HIUPC_ZDC1nAsymXOR_MBHF1AND_PixelTrackMultiplicity20_v3',
     'HLT_HIUPC_ZDC1nAsymXOR_MBHF1AND_PixelTrackMultiplicity30_v3',
     'HLT_HIUPC_ZDC1nAsymXOR_MBHF1AND_PixelTrackMultiplicity40_v3',
@@ -2140,6 +2140,7 @@ fragment.datasets = cms.PSet(
     'HLT_HIUPC_DoubleMuOpen_BptxAND_MaxPixelCluster1000_v5',
     'HLT_HIUPC_DoubleMuOpen_NotMBHF2AND_MaxPixelCluster1000_v5',
     'HLT_HIUPC_DoubleMuOpen_NotMBHF2AND_v9',
+    'HLT_HIUPC_HFafterglowCombined_v1',
     'HLT_HIUPC_MBHF1AND_PixelTrackMultiplicity20400_v11',
     'HLT_HIUPC_MBHF1AND_PixelTrackMultiplicity30400_v11',
     'HLT_HIUPC_MBHF1AND_PixelTrackMultiplicity40400_v11',
@@ -2190,7 +2191,6 @@ fragment.datasets = cms.PSet(
     'HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2AND_v9',
     'HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2OR_MaxPixelCluster1000_v5',
     'HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2OR_v9',
-    'HLT_HIUPC_TestSeedsCombined_v3',
     'HLT_HIUPC_ZDC1nAsymXOR_MBHF1AND_PixelTrackMultiplicity20_v3',
     'HLT_HIUPC_ZDC1nAsymXOR_MBHF1AND_PixelTrackMultiplicity30_v3',
     'HLT_HIUPC_ZDC1nAsymXOR_MBHF1AND_PixelTrackMultiplicity40_v3',
@@ -2221,6 +2221,7 @@ fragment.datasets = cms.PSet(
     'HLT_HIUPC_DoubleMuOpen_BptxAND_MaxPixelCluster1000_v5',
     'HLT_HIUPC_DoubleMuOpen_NotMBHF2AND_MaxPixelCluster1000_v5',
     'HLT_HIUPC_DoubleMuOpen_NotMBHF2AND_v9',
+    'HLT_HIUPC_HFafterglowCombined_v1',
     'HLT_HIUPC_MBHF1AND_PixelTrackMultiplicity20400_v11',
     'HLT_HIUPC_MBHF1AND_PixelTrackMultiplicity30400_v11',
     'HLT_HIUPC_MBHF1AND_PixelTrackMultiplicity40400_v11',
@@ -2271,7 +2272,6 @@ fragment.datasets = cms.PSet(
     'HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2AND_v9',
     'HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2OR_MaxPixelCluster1000_v5',
     'HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2OR_v9',
-    'HLT_HIUPC_TestSeedsCombined_v3',
     'HLT_HIUPC_ZDC1nAsymXOR_MBHF1AND_PixelTrackMultiplicity20_v3',
     'HLT_HIUPC_ZDC1nAsymXOR_MBHF1AND_PixelTrackMultiplicity30_v3',
     'HLT_HIUPC_ZDC1nAsymXOR_MBHF1AND_PixelTrackMultiplicity40_v3',
@@ -2302,6 +2302,7 @@ fragment.datasets = cms.PSet(
     'HLT_HIUPC_DoubleMuOpen_BptxAND_MaxPixelCluster1000_v5',
     'HLT_HIUPC_DoubleMuOpen_NotMBHF2AND_MaxPixelCluster1000_v5',
     'HLT_HIUPC_DoubleMuOpen_NotMBHF2AND_v9',
+    'HLT_HIUPC_HFafterglowCombined_v1',
     'HLT_HIUPC_MBHF1AND_PixelTrackMultiplicity20400_v11',
     'HLT_HIUPC_MBHF1AND_PixelTrackMultiplicity30400_v11',
     'HLT_HIUPC_MBHF1AND_PixelTrackMultiplicity40400_v11',
@@ -2352,7 +2353,6 @@ fragment.datasets = cms.PSet(
     'HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2AND_v9',
     'HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2OR_MaxPixelCluster1000_v5',
     'HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2OR_v9',
-    'HLT_HIUPC_TestSeedsCombined_v3',
     'HLT_HIUPC_ZDC1nAsymXOR_MBHF1AND_PixelTrackMultiplicity20_v3',
     'HLT_HIUPC_ZDC1nAsymXOR_MBHF1AND_PixelTrackMultiplicity30_v3',
     'HLT_HIUPC_ZDC1nAsymXOR_MBHF1AND_PixelTrackMultiplicity40_v3',
@@ -2383,6 +2383,7 @@ fragment.datasets = cms.PSet(
     'HLT_HIUPC_DoubleMuOpen_BptxAND_MaxPixelCluster1000_v5',
     'HLT_HIUPC_DoubleMuOpen_NotMBHF2AND_MaxPixelCluster1000_v5',
     'HLT_HIUPC_DoubleMuOpen_NotMBHF2AND_v9',
+    'HLT_HIUPC_HFafterglowCombined_v1',
     'HLT_HIUPC_MBHF1AND_PixelTrackMultiplicity20400_v11',
     'HLT_HIUPC_MBHF1AND_PixelTrackMultiplicity30400_v11',
     'HLT_HIUPC_MBHF1AND_PixelTrackMultiplicity40400_v11',
@@ -2433,7 +2434,6 @@ fragment.datasets = cms.PSet(
     'HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2AND_v9',
     'HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2OR_MaxPixelCluster1000_v5',
     'HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2OR_v9',
-    'HLT_HIUPC_TestSeedsCombined_v3',
     'HLT_HIUPC_ZDC1nAsymXOR_MBHF1AND_PixelTrackMultiplicity20_v3',
     'HLT_HIUPC_ZDC1nAsymXOR_MBHF1AND_PixelTrackMultiplicity30_v3',
     'HLT_HIUPC_ZDC1nAsymXOR_MBHF1AND_PixelTrackMultiplicity40_v3',
@@ -2464,6 +2464,7 @@ fragment.datasets = cms.PSet(
     'HLT_HIUPC_DoubleMuOpen_BptxAND_MaxPixelCluster1000_v5',
     'HLT_HIUPC_DoubleMuOpen_NotMBHF2AND_MaxPixelCluster1000_v5',
     'HLT_HIUPC_DoubleMuOpen_NotMBHF2AND_v9',
+    'HLT_HIUPC_HFafterglowCombined_v1',
     'HLT_HIUPC_MBHF1AND_PixelTrackMultiplicity20400_v11',
     'HLT_HIUPC_MBHF1AND_PixelTrackMultiplicity30400_v11',
     'HLT_HIUPC_MBHF1AND_PixelTrackMultiplicity40400_v11',
@@ -2514,7 +2515,6 @@ fragment.datasets = cms.PSet(
     'HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2AND_v9',
     'HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2OR_MaxPixelCluster1000_v5',
     'HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2OR_v9',
-    'HLT_HIUPC_TestSeedsCombined_v3',
     'HLT_HIUPC_ZDC1nAsymXOR_MBHF1AND_PixelTrackMultiplicity20_v3',
     'HLT_HIUPC_ZDC1nAsymXOR_MBHF1AND_PixelTrackMultiplicity30_v3',
     'HLT_HIUPC_ZDC1nAsymXOR_MBHF1AND_PixelTrackMultiplicity40_v3',
@@ -2545,6 +2545,7 @@ fragment.datasets = cms.PSet(
     'HLT_HIUPC_DoubleMuOpen_BptxAND_MaxPixelCluster1000_v5',
     'HLT_HIUPC_DoubleMuOpen_NotMBHF2AND_MaxPixelCluster1000_v5',
     'HLT_HIUPC_DoubleMuOpen_NotMBHF2AND_v9',
+    'HLT_HIUPC_HFafterglowCombined_v1',
     'HLT_HIUPC_MBHF1AND_PixelTrackMultiplicity20400_v11',
     'HLT_HIUPC_MBHF1AND_PixelTrackMultiplicity30400_v11',
     'HLT_HIUPC_MBHF1AND_PixelTrackMultiplicity40400_v11',
@@ -2595,7 +2596,6 @@ fragment.datasets = cms.PSet(
     'HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2AND_v9',
     'HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2OR_MaxPixelCluster1000_v5',
     'HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2OR_v9',
-    'HLT_HIUPC_TestSeedsCombined_v3',
     'HLT_HIUPC_ZDC1nAsymXOR_MBHF1AND_PixelTrackMultiplicity20_v3',
     'HLT_HIUPC_ZDC1nAsymXOR_MBHF1AND_PixelTrackMultiplicity30_v3',
     'HLT_HIUPC_ZDC1nAsymXOR_MBHF1AND_PixelTrackMultiplicity40_v3',
@@ -2626,6 +2626,7 @@ fragment.datasets = cms.PSet(
     'HLT_HIUPC_DoubleMuOpen_BptxAND_MaxPixelCluster1000_v5',
     'HLT_HIUPC_DoubleMuOpen_NotMBHF2AND_MaxPixelCluster1000_v5',
     'HLT_HIUPC_DoubleMuOpen_NotMBHF2AND_v9',
+    'HLT_HIUPC_HFafterglowCombined_v1',
     'HLT_HIUPC_MBHF1AND_PixelTrackMultiplicity20400_v11',
     'HLT_HIUPC_MBHF1AND_PixelTrackMultiplicity30400_v11',
     'HLT_HIUPC_MBHF1AND_PixelTrackMultiplicity40400_v11',
@@ -2676,7 +2677,6 @@ fragment.datasets = cms.PSet(
     'HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2AND_v9',
     'HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2OR_MaxPixelCluster1000_v5',
     'HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2OR_v9',
-    'HLT_HIUPC_TestSeedsCombined_v3',
     'HLT_HIUPC_ZDC1nAsymXOR_MBHF1AND_PixelTrackMultiplicity20_v3',
     'HLT_HIUPC_ZDC1nAsymXOR_MBHF1AND_PixelTrackMultiplicity30_v3',
     'HLT_HIUPC_ZDC1nAsymXOR_MBHF1AND_PixelTrackMultiplicity40_v3',
@@ -2707,6 +2707,7 @@ fragment.datasets = cms.PSet(
     'HLT_HIUPC_DoubleMuOpen_BptxAND_MaxPixelCluster1000_v5',
     'HLT_HIUPC_DoubleMuOpen_NotMBHF2AND_MaxPixelCluster1000_v5',
     'HLT_HIUPC_DoubleMuOpen_NotMBHF2AND_v9',
+    'HLT_HIUPC_HFafterglowCombined_v1',
     'HLT_HIUPC_MBHF1AND_PixelTrackMultiplicity20400_v11',
     'HLT_HIUPC_MBHF1AND_PixelTrackMultiplicity30400_v11',
     'HLT_HIUPC_MBHF1AND_PixelTrackMultiplicity40400_v11',
@@ -2757,7 +2758,6 @@ fragment.datasets = cms.PSet(
     'HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2AND_v9',
     'HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2OR_MaxPixelCluster1000_v5',
     'HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2OR_v9',
-    'HLT_HIUPC_TestSeedsCombined_v3',
     'HLT_HIUPC_ZDC1nAsymXOR_MBHF1AND_PixelTrackMultiplicity20_v3',
     'HLT_HIUPC_ZDC1nAsymXOR_MBHF1AND_PixelTrackMultiplicity30_v3',
     'HLT_HIUPC_ZDC1nAsymXOR_MBHF1AND_PixelTrackMultiplicity40_v3',
@@ -2788,6 +2788,7 @@ fragment.datasets = cms.PSet(
     'HLT_HIUPC_DoubleMuOpen_BptxAND_MaxPixelCluster1000_v5',
     'HLT_HIUPC_DoubleMuOpen_NotMBHF2AND_MaxPixelCluster1000_v5',
     'HLT_HIUPC_DoubleMuOpen_NotMBHF2AND_v9',
+    'HLT_HIUPC_HFafterglowCombined_v1',
     'HLT_HIUPC_MBHF1AND_PixelTrackMultiplicity20400_v11',
     'HLT_HIUPC_MBHF1AND_PixelTrackMultiplicity30400_v11',
     'HLT_HIUPC_MBHF1AND_PixelTrackMultiplicity40400_v11',
@@ -2838,7 +2839,6 @@ fragment.datasets = cms.PSet(
     'HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2AND_v9',
     'HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2OR_MaxPixelCluster1000_v5',
     'HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2OR_v9',
-    'HLT_HIUPC_TestSeedsCombined_v3',
     'HLT_HIUPC_ZDC1nAsymXOR_MBHF1AND_PixelTrackMultiplicity20_v3',
     'HLT_HIUPC_ZDC1nAsymXOR_MBHF1AND_PixelTrackMultiplicity30_v3',
     'HLT_HIUPC_ZDC1nAsymXOR_MBHF1AND_PixelTrackMultiplicity40_v3',
@@ -2869,6 +2869,7 @@ fragment.datasets = cms.PSet(
     'HLT_HIUPC_DoubleMuOpen_BptxAND_MaxPixelCluster1000_v5',
     'HLT_HIUPC_DoubleMuOpen_NotMBHF2AND_MaxPixelCluster1000_v5',
     'HLT_HIUPC_DoubleMuOpen_NotMBHF2AND_v9',
+    'HLT_HIUPC_HFafterglowCombined_v1',
     'HLT_HIUPC_MBHF1AND_PixelTrackMultiplicity20400_v11',
     'HLT_HIUPC_MBHF1AND_PixelTrackMultiplicity30400_v11',
     'HLT_HIUPC_MBHF1AND_PixelTrackMultiplicity40400_v11',
@@ -2919,7 +2920,6 @@ fragment.datasets = cms.PSet(
     'HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2AND_v9',
     'HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2OR_MaxPixelCluster1000_v5',
     'HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2OR_v9',
-    'HLT_HIUPC_TestSeedsCombined_v3',
     'HLT_HIUPC_ZDC1nAsymXOR_MBHF1AND_PixelTrackMultiplicity20_v3',
     'HLT_HIUPC_ZDC1nAsymXOR_MBHF1AND_PixelTrackMultiplicity30_v3',
     'HLT_HIUPC_ZDC1nAsymXOR_MBHF1AND_PixelTrackMultiplicity40_v3',
@@ -2950,6 +2950,7 @@ fragment.datasets = cms.PSet(
     'HLT_HIUPC_DoubleMuOpen_BptxAND_MaxPixelCluster1000_v5',
     'HLT_HIUPC_DoubleMuOpen_NotMBHF2AND_MaxPixelCluster1000_v5',
     'HLT_HIUPC_DoubleMuOpen_NotMBHF2AND_v9',
+    'HLT_HIUPC_HFafterglowCombined_v1',
     'HLT_HIUPC_MBHF1AND_PixelTrackMultiplicity20400_v11',
     'HLT_HIUPC_MBHF1AND_PixelTrackMultiplicity30400_v11',
     'HLT_HIUPC_MBHF1AND_PixelTrackMultiplicity40400_v11',
@@ -3000,7 +3001,6 @@ fragment.datasets = cms.PSet(
     'HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2AND_v9',
     'HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2OR_MaxPixelCluster1000_v5',
     'HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2OR_v9',
-    'HLT_HIUPC_TestSeedsCombined_v3',
     'HLT_HIUPC_ZDC1nAsymXOR_MBHF1AND_PixelTrackMultiplicity20_v3',
     'HLT_HIUPC_ZDC1nAsymXOR_MBHF1AND_PixelTrackMultiplicity30_v3',
     'HLT_HIUPC_ZDC1nAsymXOR_MBHF1AND_PixelTrackMultiplicity40_v3',
@@ -3031,6 +3031,7 @@ fragment.datasets = cms.PSet(
     'HLT_HIUPC_DoubleMuOpen_BptxAND_MaxPixelCluster1000_v5',
     'HLT_HIUPC_DoubleMuOpen_NotMBHF2AND_MaxPixelCluster1000_v5',
     'HLT_HIUPC_DoubleMuOpen_NotMBHF2AND_v9',
+    'HLT_HIUPC_HFafterglowCombined_v1',
     'HLT_HIUPC_MBHF1AND_PixelTrackMultiplicity20400_v11',
     'HLT_HIUPC_MBHF1AND_PixelTrackMultiplicity30400_v11',
     'HLT_HIUPC_MBHF1AND_PixelTrackMultiplicity40400_v11',
@@ -3081,7 +3082,6 @@ fragment.datasets = cms.PSet(
     'HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2AND_v9',
     'HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2OR_MaxPixelCluster1000_v5',
     'HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2OR_v9',
-    'HLT_HIUPC_TestSeedsCombined_v3',
     'HLT_HIUPC_ZDC1nAsymXOR_MBHF1AND_PixelTrackMultiplicity20_v3',
     'HLT_HIUPC_ZDC1nAsymXOR_MBHF1AND_PixelTrackMultiplicity30_v3',
     'HLT_HIUPC_ZDC1nAsymXOR_MBHF1AND_PixelTrackMultiplicity40_v3',
@@ -19479,9 +19479,9 @@ fragment.hltPreHIUPCRandomHighRate = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 ),
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" )
 )
-fragment.hltL1sUPCTestSeedsCombined = cms.EDFilter( "HLTL1TSeed",
+fragment.hltL1sUPCHFafterglowCombined = cms.EDFilter( "HLTL1TSeed",
     saveTags = cms.bool( True ),
-    L1SeedsLogicalExpression = cms.string( "L1_SingleJet24_ETM10_ZDC1n_XOR_BptxAND OR L1_SingleJet24_HTM10_ZDC1n_XOR_BptxAND OR L1_SingleJet24_ETM10_ZDC1n_AsymXOR_BptxAND OR L1_SingleJet24_HTM10_ZDC1n_AsymXOR_BptxAND OR L1_SingleJet24_ETM15_ZDC1n_XOR_BptxAND OR L1_SingleJet24_HTM15_ZDC1n_XOR_BptxAND OR L1_SingleJet24_ETM15_ZDC1n_AsymXOR_BptxAND OR L1_SingleJet24_HTM15_ZDC1n_AsymXOR_BptxAND OR L1_SingleJet24_ETM30_ZDC1n_XOR_BptxAND OR L1_SingleJet24_HTM30_ZDC1n_XOR_BptxAND OR L1_SingleJet24_ETM30_ZDC1n_AsymXOR_BptxAND OR L1_SingleJet24_HTM30_ZDC1n_AsymXOR_BptxAND OR L1_SingleJet24_ETM50_ZDC1n_XOR_BptxAND OR L1_SingleJet24_HTM50_ZDC1n_XOR_BptxAND OR L1_SingleJet24_ETM50_ZDC1n_AsymXOR_BptxAND OR L1_SingleJet24_HTM50_ZDC1n_AsymXOR_BptxAND OR L1_SingleJet8_ZDC1n_XOR_MidEta2p5_BptxAND OR L1_SingleJet8_ZDC1n_AsymXOR_MidEta2p5_BptxAND OR L1_SingleJet12_ZDC1n_XOR_MidEta2p5_BptxAND OR L1_SingleJet12_ZDC1n_AsymXOR_MidEta2p5_BptxAND OR L1_SingleJet16_ZDC1n_XOR_MidEta2p5_BptxAND OR L1_SingleJet16_ZDC1n_AsymXOR_MidEta2p5_BptxAND OR L1_SingleJet20_ZDC1n_XOR_MidEta2p5_BptxAND OR L1_SingleJet20_ZDC1n_AsymXOR_MidEta2p5_BptxAND OR L1_SingleJet24_ZDC1n_XOR_MidEta2p5_BptxAND OR L1_SingleJet24_ZDC1n_AsymXOR_MidEta2p5_BptxAND OR L1_SingleJet28_ZDC1n_XOR_MidEta2p5_BptxAND OR L1_SingleJet28_ZDC1n_AsymXOR_MidEta2p5_BptxAND OR L1_SingleJet8_ZDC1n_XOR_NotPreBptx_BptxAND OR L1_SingleJet8_ZDC1n_AsymXOR_NotPreBptx_BptxAND OR L1_SingleJet12_ZDC1n_XOR_NotPreBptx_BptxAND OR L1_SingleJet12_ZDC1n_AsymXOR_NotPreBptx_BptxAND OR L1_SingleJet16_ZDC1n_XOR_NotPreBptx_BptxAND OR L1_SingleJet16_ZDC1n_AsymXOR_NotPreBptx_BptxAND OR L1_SingleJet20_ZDC1n_XOR_NotPreBptx_BptxAND OR L1_SingleJet20_ZDC1n_AsymXOR_NotPreBptx_BptxAND OR L1_SingleJet24_ZDC1n_XOR_NotPreBptx_BptxAND OR L1_SingleJet24_ZDC1n_AsymXOR_NotPreBptx_BptxAND OR L1_SingleJet28_ZDC1n_XOR_NotPreBptx_BptxAND OR L1_SingleJet28_ZDC1n_AsymXOR_NotPreBptx_BptxAND OR L1_DoubleJet_16_12_ZDC1n_XOR_BptxAND OR L1_DoubleJet_16_12_ZDC1n_AsymXOR_BptxAND OR L1_DoubleJet_24_16_ZDC1n_XOR_BptxAND OR L1_DoubleJet_24_16_ZDC1n_AsymXOR_BptxAND OR L1_DoubleJet_8_8_ZDC1n_XOR_BptxAND OR L1_DoubleJet_8_8_ZDC1n_AsymXOR_BptxAND OR L1_DoubleJet_12_8_ZDC1n_XOR_BptxAND OR L1_DoubleJet_12_8_ZDC1n_AsymXOR_BptxAND " ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleJet8_ZDC1n_XOR_NotPreBptx_BptxAND OR L1_SingleJet8_ZDC1n_AsymXOR_NotPreBptx_BptxAND OR L1_SingleJet16_ZDC1n_XOR_NotPreBptx_BptxAND OR L1_SingleJet16_ZDC1n_AsymXOR_NotPreBptx_BptxAND OR L1_SingleJet20_ZDC1n_XOR_NotPreBptx_BptxAND OR L1_SingleJet20_ZDC1n_AsymXOR_NotPreBptx_BptxAND OR L1_SingleJet24_ZDC1n_XOR_NotPreBptx_BptxAND OR L1_SingleJet24_ZDC1n_AsymXOR_NotPreBptx_BptxAND OR L1_SingleJet28_ZDC1n_XOR_NotPreBptx_BptxAND OR L1_SingleJet28_ZDC1n_AsymXOR_NotPreBptx_BptxAND" ),
     L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
     L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
     L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
@@ -19492,7 +19492,7 @@ fragment.hltL1sUPCTestSeedsCombined = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
     L1EtSumZdcInputTag = cms.InputTag( 'hltGtStage2Digis','EtSumZDC' )
 )
-fragment.hltPreHIUPCTestSeedsCombined = cms.EDFilter( "HLTPrescaler",
+fragment.hltPreHIUPCHFafterglowCombined = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 ),
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" )
 )
@@ -23921,6 +23921,7 @@ fragment.hltDatasetHIForward = cms.EDFilter( "TriggerResultsFilter",
       'HLT_HIUPC_DoubleMuOpen_BptxAND_MaxPixelCluster1000_v5',
       'HLT_HIUPC_DoubleMuOpen_NotMBHF2AND_MaxPixelCluster1000_v5',
       'HLT_HIUPC_DoubleMuOpen_NotMBHF2AND_v9',
+      'HLT_HIUPC_HFafterglowCombined_v1',
       'HLT_HIUPC_MBHF1AND_PixelTrackMultiplicity20400_v11',
       'HLT_HIUPC_MBHF1AND_PixelTrackMultiplicity30400_v11',
       'HLT_HIUPC_MBHF1AND_PixelTrackMultiplicity40400_v11',
@@ -23971,7 +23972,6 @@ fragment.hltDatasetHIForward = cms.EDFilter( "TriggerResultsFilter",
       'HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2AND_v9',
       'HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2OR_MaxPixelCluster1000_v5',
       'HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2OR_v9',
-      'HLT_HIUPC_TestSeedsCombined_v3',
       'HLT_HIUPC_ZDC1nAsymXOR_MBHF1AND_PixelTrackMultiplicity20_v3',
       'HLT_HIUPC_ZDC1nAsymXOR_MBHF1AND_PixelTrackMultiplicity30_v3',
       'HLT_HIUPC_ZDC1nAsymXOR_MBHF1AND_PixelTrackMultiplicity40_v3',
@@ -24745,7 +24745,7 @@ fragment.HLT_HIUPC_SingleJet20_NotMBHF2AND_MaxPixelCluster50000_v5 = cms.Path( f
 fragment.HLT_HIUPC_SingleJet28_NotMBHF2AND_MaxPixelCluster50000_v5 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleJet28NotMinimumBiasHF2ANDBptxAND + fragment.hltPreHIUPCSingleJet28NotMBHF2ANDMaxPixelCluster50000 + fragment.HLTDoLocalPixelPPOnAASequence + fragment.hltPixelActivityFilterMaxClusters5e4 + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
 fragment.HLT_HIUPC_SingleJet24_NotMBHF2AND_MaxPixelCluster50000_v5 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleJet24NotMinimumBiasHF2ANDBptxAND + fragment.hltPreHIUPCSingleJet24NotMBHF2ANDMaxPixelCluster50000 + fragment.HLTDoLocalPixelPPOnAASequence + fragment.hltPixelActivityFilterMaxClusters5e4 + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
 fragment.HLT_HIUPC_Random_HighRate_v1 = cms.Path( fragment.HLTBeginSequenceRandom + fragment.hltPreHIUPCRandomHighRate + fragment.HLTBeamSpot + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
-fragment.HLT_HIUPC_TestSeedsCombined_v3 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sUPCTestSeedsCombined + fragment.hltPreHIUPCTestSeedsCombined + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIUPC_HFafterglowCombined_v1 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sUPCHFafterglowCombined + fragment.hltPreHIUPCHFafterglowCombined + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
 fragment.HLT_HIL1SingleMu0_v6 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleMu0BptxAND + fragment.hltPreHIL1SingleMu0 + fragment.hltL1fL1sSingleMu0L1Filtered0 + fragment.HLTDoHIStripZeroSuppressionAndRawPrime + fragment.HLTEndSequence )
 fragment.HLT_HIL1SingleMu0_Open_v6 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleMuOpenBptxAND + fragment.hltPreHIL1SingleMu0Open + fragment.hltL1fL1sSingleMuOpenL1Filtered0 + fragment.HLTDoHIStripZeroSuppressionAndRawPrime + fragment.HLTEndSequence )
 fragment.HLT_HIL1SingleMu0_Cosmic_v6 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleMuCosmicBptxAND + fragment.hltPreHIL1SingleMu0Cosmic + fragment.hltL1fL1sSingleMuCosmicL1Filtered0 + fragment.HLTDoHIStripZeroSuppressionAndRawPrime + fragment.HLTEndSequence )
@@ -24871,7 +24871,7 @@ fragment.Dataset_TestEnablesEcalHcal = cms.Path( fragment.HLTDatasetPathBeginSeq
 fragment.Dataset_TestEnablesEcalHcalDQM = cms.Path( fragment.HLTDatasetPathBeginSequence + fragment.hltDatasetTestEnablesEcalHcalDQM + fragment.hltPreDatasetTestEnablesEcalHcalDQM )
 
 
-fragment.schedule = cms.Schedule( *(fragment.HLTriggerFirstPath, fragment.Status_OnCPU, fragment.Status_OnGPU, fragment.AlCa_EcalPhiSymForHI_v11, fragment.AlCa_EcalEtaEBonlyForHI_v12, fragment.AlCa_EcalEtaEEonlyForHI_v12, fragment.AlCa_EcalPi0EBonlyForHI_v12, fragment.AlCa_EcalPi0EEonlyForHI_v12, fragment.AlCa_RPCMuonNormalisationForHI_v10, fragment.DQM_HIPixelReconstruction_v11, fragment.DQM_HIEcalReconstruction_v9, fragment.DQM_HIHcalReconstruction_v7, fragment.DST_Physics_v15, fragment.HLT_HIEphemeralPhysics_v4, fragment.HLT_HIEphemeralZeroBias_v4, fragment.HLT_EcalCalibration_v4, fragment.HLT_HcalCalibration_v6, fragment.HLT_HIL1NotBptxOR_v13, fragment.HLT_HIL1UnpairedBunchBptxPlus_v13, fragment.HLT_HIL1UnpairedBunchBptxMinus_v13, fragment.HLT_HIPhysics_v13, fragment.HLT_HIPhysicsForZS_v13, fragment.HLT_HIRandom_v7, fragment.HLT_HIRandom_HighRate_v3, fragment.HLT_HIHcalNZS_v13, fragment.HLT_HIHcalPhiSym_v13, fragment.HLT_HIZeroBias_v13, fragment.HLT_HIZeroBias_HighRate_v6, fragment.HLT_HIZeroBias_FirstCollisionAfterAbortGap_v13, fragment.HLT_HIZeroBias_HighRateRAW_v3, fragment.HLT_HIMinimumBiasHF1AND_v6, fragment.HLT_HIMinimumBiasHF1AND_copy_v5, fragment.HLT_HIMinimumBiasHF1AND_Beamspot_v7, fragment.HLT_HIMinimumBiasHF1ANDZDC1nOR_v3, fragment.HLT_HIMinimumBiasHF1ANDZDC2nOR_v6, fragment.HLT_HIMinimumBiasHF1ANDZDC1nOR_copy_v3, fragment.HLT_HIMinimumBiasHF1ANDZDC2nOR_copy_v5, fragment.HLT_HIMinimumBiasHF1ANDZDC1nOR_Beamspot_v4, fragment.HLT_HIMinimumBiasHF1ANDZDC2nOR_Beamspot_v7, fragment.HLT_HICentrality30100_FirstCollisionAfterAbortGap_v13, fragment.HLT_HIL1Centrality30_50_v6, fragment.HLT_HIL1_UCC_0_0p5_v6, fragment.HLT_HIL1_UCC_0_1_v6, fragment.HLT_HIPuAK4CaloJet40Eta5p1_MinBiasHF1AND_v5, fragment.HLT_HIPuAK4CaloJet40Eta5p1_MinBiasHF1AND_ZDC1nOR_v3, fragment.HLT_HIPuAK4CaloJet40Eta5p1_MinBiasHF1AND_ZDC2nOR_v5, fragment.HLT_HIPuAK4CaloJet60Eta5p1_MinBiasHF1AND_v5, fragment.HLT_HIPuAK4CaloJet60Eta5p1_MinBiasHF1AND_ZDC1nOR_v3, fragment.HLT_HIPuAK4CaloJet60Eta5p1_MinBiasHF1AND_ZDC2nOR_v5, fragment.HLT_HIPuAK4CaloJet80Eta5p1_v13, fragment.HLT_HIPuAK4CaloJet100Eta5p1_v13, fragment.HLT_HIPuAK4CaloJet120Eta2p1_v6, fragment.HLT_HIPuAK4CaloJet120Eta5p1_v13, fragment.HLT_HIPuAK4CaloJet40Fwd_v6, fragment.HLT_HIPuAK4CaloJet60Fwd_v6, fragment.HLT_HIPuAK4CaloJet80Fwd_v6, fragment.HLT_HIPuAK4CaloJet100Fwd_v6, fragment.HLT_HIPuAK4CaloJet120Fwd_v6, fragment.HLT_HIGEDPhoton10_v13, fragment.HLT_HIGEDPhoton10_EB_v13, fragment.HLT_HIGEDPhoton20_v13, fragment.HLT_HIGEDPhoton20_EB_v13, fragment.HLT_HIGEDPhoton30_v13, fragment.HLT_HIGEDPhoton30_EB_v13, fragment.HLT_HIGEDPhoton40_v13, fragment.HLT_HIGEDPhoton40_EB_v13, fragment.HLT_HIGEDPhoton50_v13, fragment.HLT_HIGEDPhoton50_EB_v13, fragment.HLT_HIGEDPhoton60_v13, fragment.HLT_HIGEDPhoton60_EB_v13, fragment.HLT_HIDoubleGEDPhoton20_v6, fragment.HLT_HIEle10Gsf_v13, fragment.HLT_HIEle15Gsf_v13, fragment.HLT_HIEle20Gsf_v13, fragment.HLT_HIEle30Gsf_v13, fragment.HLT_HIEle40Gsf_v13, fragment.HLT_HIEle50Gsf_v13, fragment.HLT_HIEle15Ele10Gsf_v13, fragment.HLT_HIEle15Ele10GsfMass50_v13, fragment.HLT_HIDoubleEle10Gsf_v13, fragment.HLT_HIDoubleEle10GsfMass50_v13, fragment.HLT_HIDoubleEle15Gsf_v13, fragment.HLT_HIDoubleEle15GsfMass50_v13, fragment.HLT_HIUPC_ZeroBias_MinPixelCluster400_MaxPixelCluster10000_v11, fragment.HLT_HIUPC_ZeroBias_SinglePixelTrackLowPt_MaxPixelCluster400_v11, fragment.HLT_HIUPC_ZeroBias_SinglePixelTrack_MaxPixelTrack_v11, fragment.HLT_HIUPC_MBHF1AND_PixelTrackMultiplicity20400_v11, fragment.HLT_HIUPC_MBHF1AND_PixelTrackMultiplicity30400_v11, fragment.HLT_HIUPC_MBHF1AND_PixelTrackMultiplicity40400_v11, fragment.HLT_HIUPC_MBHF2AND_PixelTrackMultiplicity20400_v11, fragment.HLT_HIUPC_MBHF2AND_PixelTrackMultiplicity30400_v11, fragment.HLT_HIUPC_MBHF2AND_PixelTrackMultiplicity40400_v11, fragment.HLT_HIUPC_NotMBHF2_v4, fragment.HLT_HIUPC_ZDC1nOR_MinPixelCluster400_MaxPixelCluster10000_v11, fragment.HLT_HIUPC_ZDC1nOR_SinglePixelTrackLowPt_MaxPixelCluster400_v11, fragment.HLT_HIUPC_ZDC1nOR_SinglePixelTrack_MaxPixelTrack_v11, fragment.HLT_HIUPC_ZDC1nXOR_MBHF1AND_PixelTrackMultiplicity20_v11, fragment.HLT_HIUPC_ZDC1nXOR_MBHF1AND_PixelTrackMultiplicity30_v11, fragment.HLT_HIUPC_ZDC1nXOR_MBHF1AND_PixelTrackMultiplicity40_v11, fragment.HLT_HIUPC_ZDC1nXOR_MBHF2AND_PixelTrackMultiplicity20_v11, fragment.HLT_HIUPC_ZDC1nXOR_MBHF2AND_PixelTrackMultiplicity30_v11, fragment.HLT_HIUPC_ZDC1nXOR_MBHF2AND_PixelTrackMultiplicity40_v11, fragment.HLT_HIUPC_ZDC1nAsymXOR_MBHF1AND_PixelTrackMultiplicity20_v3, fragment.HLT_HIUPC_ZDC1nAsymXOR_MBHF1AND_PixelTrackMultiplicity30_v3, fragment.HLT_HIUPC_ZDC1nAsymXOR_MBHF1AND_PixelTrackMultiplicity40_v3, fragment.HLT_HIUPC_ZDC1nAsymXOR_MBHF2AND_PixelTrackMultiplicity20_v3, fragment.HLT_HIUPC_ZDC1nAsymXOR_MBHF2AND_PixelTrackMultiplicity30_v3, fragment.HLT_HIUPC_ZDC1nAsymXOR_MBHF2AND_PixelTrackMultiplicity40_v3, fragment.HLT_HIUPC_SingleMuCosmic_BptxAND_MaxPixelCluster1000_v5, fragment.HLT_HIUPC_SingleMuCosmic_NotMBHF2AND_v9, fragment.HLT_HIUPC_SingleMuCosmic_NotMBHF2AND_MaxPixelCluster1000_v5, fragment.HLT_HIUPC_SingleMuCosmic_NotMBHF2OR_v9, fragment.HLT_HIUPC_SingleMuCosmic_NotMBHF2OR_MaxPixelCluster1000_v5, fragment.HLT_HIUPC_SingleMuOpen_BptxAND_MaxPixelCluster1000_v5, fragment.HLT_HIUPC_SingleMuOpen_NotMBHF2AND_v11, fragment.HLT_HIUPC_SingleMuOpen_NotMBHF2AND_MaxPixelCluster1000_v5, fragment.HLT_HIUPC_SingleMuOpen_NotMBHF2OR_v11, fragment.HLT_HIUPC_SingleMuOpen_NotMBHF2OR_MaxPixelCluster1000_v5, fragment.HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_BptxAND_MaxPixelCluster1000_v5, fragment.HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2AND_v9, fragment.HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2AND_MaxPixelCluster1000_v5, fragment.HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2OR_v9, fragment.HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2OR_MaxPixelCluster1000_v5, fragment.HLT_HIUPC_DoubleMuCosmic_BptxAND_MaxPixelCluster1000_v5, fragment.HLT_HIUPC_DoubleMuCosmic_NotMBHF2AND_MaxPixelCluster1000_v5, fragment.HLT_HIUPC_DoubleMuCosmic_NotMBHF2AND_v9, fragment.HLT_HIUPC_DoubleMuOpen_BptxAND_MaxPixelCluster1000_v5, fragment.HLT_HIUPC_DoubleMuOpen_NotMBHF2AND_v9, fragment.HLT_HIUPC_DoubleMuOpen_NotMBHF2AND_MaxPixelCluster1000_v5, fragment.HLT_HIUPC_SingleEG2_NotMBHF2AND_ZDC1nOR_SinglePixelTrack_MaxPixelTrack_v10, fragment.HLT_HIUPC_SingleEG3_BptxAND_SinglePixelTrack_MaxPixelTrack_v13, fragment.HLT_HIUPC_SingleEG3_NotMBHF2AND_v11, fragment.HLT_HIUPC_SingleEG3_NotMBHF2AND_SinglePixelTrack_MaxPixelTrack_v12, fragment.HLT_HIUPC_SingleEG3_NotMBHF2OR_v11, fragment.HLT_HIUPC_SingleEG3_NotMBHF2OR_SinglePixelTrack_MaxPixelTrack_v12, fragment.HLT_HIUPC_SingleEG5_BptxAND_SinglePixelTrack_MaxPixelTrack_v13, fragment.HLT_HIUPC_SingleEG5_NotMBHF2AND_v11, fragment.HLT_HIUPC_SingleEG5_NotMBHF2AND_SinglePixelTrack_MaxPixelTrack_v12, fragment.HLT_HIUPC_DoubleEG2_BptxAND_SinglePixelTrack_MaxPixelTrack_v13, fragment.HLT_HIUPC_DoubleEG2_NotMBHF2AND_SinglePixelTrack_MaxPixelTrack_v12, fragment.HLT_HIUPC_DoubleEG2_NotMBHF2AND_v11, fragment.HLT_HIUPC_DoubleEG5_BptxAND_SinglePixelTrack_MaxPixelTrack_v13, fragment.HLT_HIUPC_DoubleEG5_NotMBHF2AND_SinglePixelTrack_MaxPixelTrack_v12, fragment.HLT_HIUPC_DoubleEG5_NotMBHF2AND_v11, fragment.HLT_HIUPC_SingleJet8_ZDC1nXOR_MaxPixelCluster50000_v5, fragment.HLT_HIUPC_SingleJet12_ZDC1nXOR_MaxPixelCluster50000_v5, fragment.HLT_HIUPC_SingleJet16_ZDC1nXOR_MaxPixelCluster50000_v5, fragment.HLT_HIUPC_SingleJet20_ZDC1nXOR_MaxPixelCluster50000_v5, fragment.HLT_HIUPC_SingleJet24_ZDC1nXOR_MaxPixelCluster50000_v5, fragment.HLT_HIUPC_SingleJet28_ZDC1nXOR_MaxPixelCluster50000_v5, fragment.HLT_HIUPC_SingleJet8_ZDC1nAsymXOR_MaxPixelCluster50000_v3, fragment.HLT_HIUPC_SingleJet12_ZDC1nAsymXOR_MaxPixelCluster50000_v3, fragment.HLT_HIUPC_SingleJet16_ZDC1nAsymXOR_MaxPixelCluster50000_v3, fragment.HLT_HIUPC_SingleJet20_ZDC1nAsymXOR_MaxPixelCluster50000_v3, fragment.HLT_HIUPC_SingleJet24_ZDC1nAsymXOR_MaxPixelCluster50000_v3, fragment.HLT_HIUPC_SingleJet28_ZDC1nAsymXOR_MaxPixelCluster50000_v3, fragment.HLT_HIUPC_SingleJet8_NotMBHF2AND_MaxPixelCluster50000_v5, fragment.HLT_HIUPC_SingleJet12_NotMBHF2AND_MaxPixelCluster50000_v5, fragment.HLT_HIUPC_SingleJet16_NotMBHF2AND_MaxPixelCluster50000_v5, fragment.HLT_HIUPC_SingleJet20_NotMBHF2AND_MaxPixelCluster50000_v5, fragment.HLT_HIUPC_SingleJet28_NotMBHF2AND_MaxPixelCluster50000_v5, fragment.HLT_HIUPC_SingleJet24_NotMBHF2AND_MaxPixelCluster50000_v5, fragment.HLT_HIUPC_Random_HighRate_v1, fragment.HLT_HIUPC_TestSeedsCombined_v3, fragment.HLT_HIL1SingleMu0_v6, fragment.HLT_HIL1SingleMu0_Open_v6, fragment.HLT_HIL1SingleMu0_Cosmic_v6, fragment.HLT_HIL1SingleMu5_SingleEG20Gsf_v6, fragment.HLT_HIL1SingleMu5_SingleGEDPhoton20_v6, fragment.HLT_HIL1SingleMu7_SingleEG20Gsf_v6, fragment.HLT_HIL1SingleMu7_SingleGEDPhoton10_v6, fragment.HLT_HIL1DoubleMu0_v6, fragment.HLT_HIL1DoubleMu0_MaxDr3p5_Open_v6, fragment.HLT_HIL1DoubleMu0_SQ_v6, fragment.HLT_HIL2SingleMu3_Open_v6, fragment.HLT_HIL2SingleMu5_v6, fragment.HLT_HIL2SingleMu7_v6, fragment.HLT_HIL2DoubleMu0_Open_v6, fragment.HLT_HIL2DoubleMu0_M1p5to6_Open_v6, fragment.HLT_HIL2DoubleMu0_M7to15_Open_v6, fragment.HLT_HIL2DoubleMu2p8_M1p5to6_Open_v6, fragment.HLT_HIL2DoubleMu3_M7to15_Open_v6, fragment.HLT_HIL3SingleMu3_Open_v6, fragment.HLT_HIL3SingleMu5_v6, fragment.HLT_HIL3SingleMu7_v6, fragment.HLT_HIL3SingleMu12_v6, fragment.HLT_HIL3SingleMu3_SinglePuAK4CaloJet40_v6, fragment.HLT_HIL3SingleMu3_SinglePuAK4CaloJet60_v6, fragment.HLT_HIL3SingleMu3_SinglePuAK4CaloJet80_v6, fragment.HLT_HIL3SingleMu5_SinglePuAK4CaloJet40_v6, fragment.HLT_HIL3SingleMu5_SinglePuAK4CaloJet60_v6, fragment.HLT_HIL3SingleMu5_SinglePuAK4CaloJet80_v6, fragment.HLT_HIL3DoubleMu0_M0toInf_Open_v6, fragment.HLT_HIL3DoubleMu0_M2to4p5_Open_v6, fragment.HLT_HIL3DoubleMu0_M7to15_Open_v6, fragment.HLT_HIL3DoubleMu0_Quarkonia_Open_v6, fragment.HLT_HIL3DoubleMu2_M2to4p5_Open_v6, fragment.HLT_HIL3DoubleMu2_M7to15_Open_v6, fragment.HLT_HIL3DoubleMu2_Quarkonia_Open_v6, fragment.HLT_HIDmesonPPOnAATrackingGlobal_Dpt30_v7, fragment.HLT_HIDmesonPPOnAATrackingGlobal_Dpt45_v7, fragment.HLT_HIDmesonPPOnAATrackingGlobal_Dpt60_v7, fragment.HLT_HICscCluster_Loose_v6, fragment.HLT_HICscCluster_Medium_v6, fragment.HLT_HICscCluster_Tight_v6, fragment.HLTriggerFinalPath, fragment.HLTAnalyzerEndpath, fragment.Dataset_AlCaP0, fragment.Dataset_AlCaPhiSym, fragment.Dataset_EcalLaser, fragment.Dataset_HIDQMGPUvsCPU, fragment.Dataset_HIDQMOnlineBeamspot, fragment.Dataset_HIEmptyBX, fragment.Dataset_HIEphemeralHLTPhysics, fragment.Dataset_HIEphemeralZeroBias0, fragment.Dataset_HIEphemeralZeroBias1, fragment.Dataset_HIEventDisplay, fragment.Dataset_HIExpressAlignment, fragment.Dataset_HIExpressPhysics, fragment.Dataset_HIExpressPhysicsRawPrime, fragment.Dataset_HIForward0, fragment.Dataset_HIForward1, fragment.Dataset_HIForward2, fragment.Dataset_HIForward3, fragment.Dataset_HIForward4, fragment.Dataset_HIForward5, fragment.Dataset_HIForward6, fragment.Dataset_HIForward7, fragment.Dataset_HIForward8, fragment.Dataset_HIForward9, fragment.Dataset_HIForward10, fragment.Dataset_HIForward11, fragment.Dataset_HIForward12, fragment.Dataset_HIForward13, fragment.Dataset_HIForward14, fragment.Dataset_HIForward15, fragment.Dataset_HIForward16, fragment.Dataset_HIForward17, fragment.Dataset_HIForward18, fragment.Dataset_HIForward19, fragment.Dataset_HIHLTPhysics, fragment.Dataset_HIHcalNZS, fragment.Dataset_HIOnlineMonitor, fragment.Dataset_HIMinimumBias0, fragment.Dataset_HIMinimumBias1, fragment.Dataset_HIMinimumBias2, fragment.Dataset_HIMinimumBias3, fragment.Dataset_HIPhysicsRawPrime0, fragment.Dataset_HIPhysicsRawPrime1, fragment.Dataset_HIPhysicsRawPrime2, fragment.Dataset_HIPhysicsRawPrime3, fragment.Dataset_HIPhysicsRawPrime4, fragment.Dataset_HIPhysicsRawPrime5, fragment.Dataset_HIPhysicsRawPrime6, fragment.Dataset_HIPhysicsRawPrime7, fragment.Dataset_HIPhysicsRawPrime8, fragment.Dataset_HIPhysicsRawPrime9, fragment.Dataset_HIPhysicsRawPrime10, fragment.Dataset_HIPhysicsRawPrime11, fragment.Dataset_HIPhysicsRawPrime12, fragment.Dataset_HIPhysicsRawPrime13, fragment.Dataset_HIPhysicsRawPrime14, fragment.Dataset_HIPhysicsRawPrime15, fragment.Dataset_HIPhysicsRawPrime16, fragment.Dataset_HIPhysicsRawPrime17, fragment.Dataset_HIPhysicsRawPrime18, fragment.Dataset_HIPhysicsRawPrime19, fragment.Dataset_HIPhysicsRawPrime20, fragment.Dataset_HIPhysicsRawPrime21, fragment.Dataset_HIPhysicsRawPrime22, fragment.Dataset_HIPhysicsRawPrime23, fragment.Dataset_HIPhysicsRawPrime24, fragment.Dataset_HIPhysicsRawPrime25, fragment.Dataset_HIPhysicsRawPrime26, fragment.Dataset_HIPhysicsRawPrime27, fragment.Dataset_HIPhysicsRawPrime28, fragment.Dataset_HIPhysicsRawPrime29, fragment.Dataset_HIPhysicsRawPrime30, fragment.Dataset_HIPhysicsRawPrime31, fragment.Dataset_HITrackerNZS, fragment.Dataset_HIZeroBias0, fragment.Dataset_HIZeroBias1, fragment.Dataset_HIZeroBias2, fragment.Dataset_L1Accept, fragment.Dataset_RPCMonitor, fragment.Dataset_TestEnablesEcalHcal, fragment.Dataset_TestEnablesEcalHcalDQM, ))
+fragment.schedule = cms.Schedule( *(fragment.HLTriggerFirstPath, fragment.Status_OnCPU, fragment.Status_OnGPU, fragment.AlCa_EcalPhiSymForHI_v11, fragment.AlCa_EcalEtaEBonlyForHI_v12, fragment.AlCa_EcalEtaEEonlyForHI_v12, fragment.AlCa_EcalPi0EBonlyForHI_v12, fragment.AlCa_EcalPi0EEonlyForHI_v12, fragment.AlCa_RPCMuonNormalisationForHI_v10, fragment.DQM_HIPixelReconstruction_v11, fragment.DQM_HIEcalReconstruction_v9, fragment.DQM_HIHcalReconstruction_v7, fragment.DST_Physics_v15, fragment.HLT_HIEphemeralPhysics_v4, fragment.HLT_HIEphemeralZeroBias_v4, fragment.HLT_EcalCalibration_v4, fragment.HLT_HcalCalibration_v6, fragment.HLT_HIL1NotBptxOR_v13, fragment.HLT_HIL1UnpairedBunchBptxPlus_v13, fragment.HLT_HIL1UnpairedBunchBptxMinus_v13, fragment.HLT_HIPhysics_v13, fragment.HLT_HIPhysicsForZS_v13, fragment.HLT_HIRandom_v7, fragment.HLT_HIRandom_HighRate_v3, fragment.HLT_HIHcalNZS_v13, fragment.HLT_HIHcalPhiSym_v13, fragment.HLT_HIZeroBias_v13, fragment.HLT_HIZeroBias_HighRate_v6, fragment.HLT_HIZeroBias_FirstCollisionAfterAbortGap_v13, fragment.HLT_HIZeroBias_HighRateRAW_v3, fragment.HLT_HIMinimumBiasHF1AND_v6, fragment.HLT_HIMinimumBiasHF1AND_copy_v5, fragment.HLT_HIMinimumBiasHF1AND_Beamspot_v7, fragment.HLT_HIMinimumBiasHF1ANDZDC1nOR_v3, fragment.HLT_HIMinimumBiasHF1ANDZDC2nOR_v6, fragment.HLT_HIMinimumBiasHF1ANDZDC1nOR_copy_v3, fragment.HLT_HIMinimumBiasHF1ANDZDC2nOR_copy_v5, fragment.HLT_HIMinimumBiasHF1ANDZDC1nOR_Beamspot_v4, fragment.HLT_HIMinimumBiasHF1ANDZDC2nOR_Beamspot_v7, fragment.HLT_HICentrality30100_FirstCollisionAfterAbortGap_v13, fragment.HLT_HIL1Centrality30_50_v6, fragment.HLT_HIL1_UCC_0_0p5_v6, fragment.HLT_HIL1_UCC_0_1_v6, fragment.HLT_HIPuAK4CaloJet40Eta5p1_MinBiasHF1AND_v5, fragment.HLT_HIPuAK4CaloJet40Eta5p1_MinBiasHF1AND_ZDC1nOR_v3, fragment.HLT_HIPuAK4CaloJet40Eta5p1_MinBiasHF1AND_ZDC2nOR_v5, fragment.HLT_HIPuAK4CaloJet60Eta5p1_MinBiasHF1AND_v5, fragment.HLT_HIPuAK4CaloJet60Eta5p1_MinBiasHF1AND_ZDC1nOR_v3, fragment.HLT_HIPuAK4CaloJet60Eta5p1_MinBiasHF1AND_ZDC2nOR_v5, fragment.HLT_HIPuAK4CaloJet80Eta5p1_v13, fragment.HLT_HIPuAK4CaloJet100Eta5p1_v13, fragment.HLT_HIPuAK4CaloJet120Eta2p1_v6, fragment.HLT_HIPuAK4CaloJet120Eta5p1_v13, fragment.HLT_HIPuAK4CaloJet40Fwd_v6, fragment.HLT_HIPuAK4CaloJet60Fwd_v6, fragment.HLT_HIPuAK4CaloJet80Fwd_v6, fragment.HLT_HIPuAK4CaloJet100Fwd_v6, fragment.HLT_HIPuAK4CaloJet120Fwd_v6, fragment.HLT_HIGEDPhoton10_v13, fragment.HLT_HIGEDPhoton10_EB_v13, fragment.HLT_HIGEDPhoton20_v13, fragment.HLT_HIGEDPhoton20_EB_v13, fragment.HLT_HIGEDPhoton30_v13, fragment.HLT_HIGEDPhoton30_EB_v13, fragment.HLT_HIGEDPhoton40_v13, fragment.HLT_HIGEDPhoton40_EB_v13, fragment.HLT_HIGEDPhoton50_v13, fragment.HLT_HIGEDPhoton50_EB_v13, fragment.HLT_HIGEDPhoton60_v13, fragment.HLT_HIGEDPhoton60_EB_v13, fragment.HLT_HIDoubleGEDPhoton20_v6, fragment.HLT_HIEle10Gsf_v13, fragment.HLT_HIEle15Gsf_v13, fragment.HLT_HIEle20Gsf_v13, fragment.HLT_HIEle30Gsf_v13, fragment.HLT_HIEle40Gsf_v13, fragment.HLT_HIEle50Gsf_v13, fragment.HLT_HIEle15Ele10Gsf_v13, fragment.HLT_HIEle15Ele10GsfMass50_v13, fragment.HLT_HIDoubleEle10Gsf_v13, fragment.HLT_HIDoubleEle10GsfMass50_v13, fragment.HLT_HIDoubleEle15Gsf_v13, fragment.HLT_HIDoubleEle15GsfMass50_v13, fragment.HLT_HIUPC_ZeroBias_MinPixelCluster400_MaxPixelCluster10000_v11, fragment.HLT_HIUPC_ZeroBias_SinglePixelTrackLowPt_MaxPixelCluster400_v11, fragment.HLT_HIUPC_ZeroBias_SinglePixelTrack_MaxPixelTrack_v11, fragment.HLT_HIUPC_MBHF1AND_PixelTrackMultiplicity20400_v11, fragment.HLT_HIUPC_MBHF1AND_PixelTrackMultiplicity30400_v11, fragment.HLT_HIUPC_MBHF1AND_PixelTrackMultiplicity40400_v11, fragment.HLT_HIUPC_MBHF2AND_PixelTrackMultiplicity20400_v11, fragment.HLT_HIUPC_MBHF2AND_PixelTrackMultiplicity30400_v11, fragment.HLT_HIUPC_MBHF2AND_PixelTrackMultiplicity40400_v11, fragment.HLT_HIUPC_NotMBHF2_v4, fragment.HLT_HIUPC_ZDC1nOR_MinPixelCluster400_MaxPixelCluster10000_v11, fragment.HLT_HIUPC_ZDC1nOR_SinglePixelTrackLowPt_MaxPixelCluster400_v11, fragment.HLT_HIUPC_ZDC1nOR_SinglePixelTrack_MaxPixelTrack_v11, fragment.HLT_HIUPC_ZDC1nXOR_MBHF1AND_PixelTrackMultiplicity20_v11, fragment.HLT_HIUPC_ZDC1nXOR_MBHF1AND_PixelTrackMultiplicity30_v11, fragment.HLT_HIUPC_ZDC1nXOR_MBHF1AND_PixelTrackMultiplicity40_v11, fragment.HLT_HIUPC_ZDC1nXOR_MBHF2AND_PixelTrackMultiplicity20_v11, fragment.HLT_HIUPC_ZDC1nXOR_MBHF2AND_PixelTrackMultiplicity30_v11, fragment.HLT_HIUPC_ZDC1nXOR_MBHF2AND_PixelTrackMultiplicity40_v11, fragment.HLT_HIUPC_ZDC1nAsymXOR_MBHF1AND_PixelTrackMultiplicity20_v3, fragment.HLT_HIUPC_ZDC1nAsymXOR_MBHF1AND_PixelTrackMultiplicity30_v3, fragment.HLT_HIUPC_ZDC1nAsymXOR_MBHF1AND_PixelTrackMultiplicity40_v3, fragment.HLT_HIUPC_ZDC1nAsymXOR_MBHF2AND_PixelTrackMultiplicity20_v3, fragment.HLT_HIUPC_ZDC1nAsymXOR_MBHF2AND_PixelTrackMultiplicity30_v3, fragment.HLT_HIUPC_ZDC1nAsymXOR_MBHF2AND_PixelTrackMultiplicity40_v3, fragment.HLT_HIUPC_SingleMuCosmic_BptxAND_MaxPixelCluster1000_v5, fragment.HLT_HIUPC_SingleMuCosmic_NotMBHF2AND_v9, fragment.HLT_HIUPC_SingleMuCosmic_NotMBHF2AND_MaxPixelCluster1000_v5, fragment.HLT_HIUPC_SingleMuCosmic_NotMBHF2OR_v9, fragment.HLT_HIUPC_SingleMuCosmic_NotMBHF2OR_MaxPixelCluster1000_v5, fragment.HLT_HIUPC_SingleMuOpen_BptxAND_MaxPixelCluster1000_v5, fragment.HLT_HIUPC_SingleMuOpen_NotMBHF2AND_v11, fragment.HLT_HIUPC_SingleMuOpen_NotMBHF2AND_MaxPixelCluster1000_v5, fragment.HLT_HIUPC_SingleMuOpen_NotMBHF2OR_v11, fragment.HLT_HIUPC_SingleMuOpen_NotMBHF2OR_MaxPixelCluster1000_v5, fragment.HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_BptxAND_MaxPixelCluster1000_v5, fragment.HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2AND_v9, fragment.HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2AND_MaxPixelCluster1000_v5, fragment.HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2OR_v9, fragment.HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2OR_MaxPixelCluster1000_v5, fragment.HLT_HIUPC_DoubleMuCosmic_BptxAND_MaxPixelCluster1000_v5, fragment.HLT_HIUPC_DoubleMuCosmic_NotMBHF2AND_MaxPixelCluster1000_v5, fragment.HLT_HIUPC_DoubleMuCosmic_NotMBHF2AND_v9, fragment.HLT_HIUPC_DoubleMuOpen_BptxAND_MaxPixelCluster1000_v5, fragment.HLT_HIUPC_DoubleMuOpen_NotMBHF2AND_v9, fragment.HLT_HIUPC_DoubleMuOpen_NotMBHF2AND_MaxPixelCluster1000_v5, fragment.HLT_HIUPC_SingleEG2_NotMBHF2AND_ZDC1nOR_SinglePixelTrack_MaxPixelTrack_v10, fragment.HLT_HIUPC_SingleEG3_BptxAND_SinglePixelTrack_MaxPixelTrack_v13, fragment.HLT_HIUPC_SingleEG3_NotMBHF2AND_v11, fragment.HLT_HIUPC_SingleEG3_NotMBHF2AND_SinglePixelTrack_MaxPixelTrack_v12, fragment.HLT_HIUPC_SingleEG3_NotMBHF2OR_v11, fragment.HLT_HIUPC_SingleEG3_NotMBHF2OR_SinglePixelTrack_MaxPixelTrack_v12, fragment.HLT_HIUPC_SingleEG5_BptxAND_SinglePixelTrack_MaxPixelTrack_v13, fragment.HLT_HIUPC_SingleEG5_NotMBHF2AND_v11, fragment.HLT_HIUPC_SingleEG5_NotMBHF2AND_SinglePixelTrack_MaxPixelTrack_v12, fragment.HLT_HIUPC_DoubleEG2_BptxAND_SinglePixelTrack_MaxPixelTrack_v13, fragment.HLT_HIUPC_DoubleEG2_NotMBHF2AND_SinglePixelTrack_MaxPixelTrack_v12, fragment.HLT_HIUPC_DoubleEG2_NotMBHF2AND_v11, fragment.HLT_HIUPC_DoubleEG5_BptxAND_SinglePixelTrack_MaxPixelTrack_v13, fragment.HLT_HIUPC_DoubleEG5_NotMBHF2AND_SinglePixelTrack_MaxPixelTrack_v12, fragment.HLT_HIUPC_DoubleEG5_NotMBHF2AND_v11, fragment.HLT_HIUPC_SingleJet8_ZDC1nXOR_MaxPixelCluster50000_v5, fragment.HLT_HIUPC_SingleJet12_ZDC1nXOR_MaxPixelCluster50000_v5, fragment.HLT_HIUPC_SingleJet16_ZDC1nXOR_MaxPixelCluster50000_v5, fragment.HLT_HIUPC_SingleJet20_ZDC1nXOR_MaxPixelCluster50000_v5, fragment.HLT_HIUPC_SingleJet24_ZDC1nXOR_MaxPixelCluster50000_v5, fragment.HLT_HIUPC_SingleJet28_ZDC1nXOR_MaxPixelCluster50000_v5, fragment.HLT_HIUPC_SingleJet8_ZDC1nAsymXOR_MaxPixelCluster50000_v3, fragment.HLT_HIUPC_SingleJet12_ZDC1nAsymXOR_MaxPixelCluster50000_v3, fragment.HLT_HIUPC_SingleJet16_ZDC1nAsymXOR_MaxPixelCluster50000_v3, fragment.HLT_HIUPC_SingleJet20_ZDC1nAsymXOR_MaxPixelCluster50000_v3, fragment.HLT_HIUPC_SingleJet24_ZDC1nAsymXOR_MaxPixelCluster50000_v3, fragment.HLT_HIUPC_SingleJet28_ZDC1nAsymXOR_MaxPixelCluster50000_v3, fragment.HLT_HIUPC_SingleJet8_NotMBHF2AND_MaxPixelCluster50000_v5, fragment.HLT_HIUPC_SingleJet12_NotMBHF2AND_MaxPixelCluster50000_v5, fragment.HLT_HIUPC_SingleJet16_NotMBHF2AND_MaxPixelCluster50000_v5, fragment.HLT_HIUPC_SingleJet20_NotMBHF2AND_MaxPixelCluster50000_v5, fragment.HLT_HIUPC_SingleJet28_NotMBHF2AND_MaxPixelCluster50000_v5, fragment.HLT_HIUPC_SingleJet24_NotMBHF2AND_MaxPixelCluster50000_v5, fragment.HLT_HIUPC_Random_HighRate_v1, fragment.HLT_HIUPC_HFafterglowCombined_v1, fragment.HLT_HIL1SingleMu0_v6, fragment.HLT_HIL1SingleMu0_Open_v6, fragment.HLT_HIL1SingleMu0_Cosmic_v6, fragment.HLT_HIL1SingleMu5_SingleEG20Gsf_v6, fragment.HLT_HIL1SingleMu5_SingleGEDPhoton20_v6, fragment.HLT_HIL1SingleMu7_SingleEG20Gsf_v6, fragment.HLT_HIL1SingleMu7_SingleGEDPhoton10_v6, fragment.HLT_HIL1DoubleMu0_v6, fragment.HLT_HIL1DoubleMu0_MaxDr3p5_Open_v6, fragment.HLT_HIL1DoubleMu0_SQ_v6, fragment.HLT_HIL2SingleMu3_Open_v6, fragment.HLT_HIL2SingleMu5_v6, fragment.HLT_HIL2SingleMu7_v6, fragment.HLT_HIL2DoubleMu0_Open_v6, fragment.HLT_HIL2DoubleMu0_M1p5to6_Open_v6, fragment.HLT_HIL2DoubleMu0_M7to15_Open_v6, fragment.HLT_HIL2DoubleMu2p8_M1p5to6_Open_v6, fragment.HLT_HIL2DoubleMu3_M7to15_Open_v6, fragment.HLT_HIL3SingleMu3_Open_v6, fragment.HLT_HIL3SingleMu5_v6, fragment.HLT_HIL3SingleMu7_v6, fragment.HLT_HIL3SingleMu12_v6, fragment.HLT_HIL3SingleMu3_SinglePuAK4CaloJet40_v6, fragment.HLT_HIL3SingleMu3_SinglePuAK4CaloJet60_v6, fragment.HLT_HIL3SingleMu3_SinglePuAK4CaloJet80_v6, fragment.HLT_HIL3SingleMu5_SinglePuAK4CaloJet40_v6, fragment.HLT_HIL3SingleMu5_SinglePuAK4CaloJet60_v6, fragment.HLT_HIL3SingleMu5_SinglePuAK4CaloJet80_v6, fragment.HLT_HIL3DoubleMu0_M0toInf_Open_v6, fragment.HLT_HIL3DoubleMu0_M2to4p5_Open_v6, fragment.HLT_HIL3DoubleMu0_M7to15_Open_v6, fragment.HLT_HIL3DoubleMu0_Quarkonia_Open_v6, fragment.HLT_HIL3DoubleMu2_M2to4p5_Open_v6, fragment.HLT_HIL3DoubleMu2_M7to15_Open_v6, fragment.HLT_HIL3DoubleMu2_Quarkonia_Open_v6, fragment.HLT_HIDmesonPPOnAATrackingGlobal_Dpt30_v7, fragment.HLT_HIDmesonPPOnAATrackingGlobal_Dpt45_v7, fragment.HLT_HIDmesonPPOnAATrackingGlobal_Dpt60_v7, fragment.HLT_HICscCluster_Loose_v6, fragment.HLT_HICscCluster_Medium_v6, fragment.HLT_HICscCluster_Tight_v6, fragment.HLTriggerFinalPath, fragment.HLTAnalyzerEndpath, fragment.Dataset_AlCaP0, fragment.Dataset_AlCaPhiSym, fragment.Dataset_EcalLaser, fragment.Dataset_HIDQMGPUvsCPU, fragment.Dataset_HIDQMOnlineBeamspot, fragment.Dataset_HIEmptyBX, fragment.Dataset_HIEphemeralHLTPhysics, fragment.Dataset_HIEphemeralZeroBias0, fragment.Dataset_HIEphemeralZeroBias1, fragment.Dataset_HIEventDisplay, fragment.Dataset_HIExpressAlignment, fragment.Dataset_HIExpressPhysics, fragment.Dataset_HIExpressPhysicsRawPrime, fragment.Dataset_HIForward0, fragment.Dataset_HIForward1, fragment.Dataset_HIForward2, fragment.Dataset_HIForward3, fragment.Dataset_HIForward4, fragment.Dataset_HIForward5, fragment.Dataset_HIForward6, fragment.Dataset_HIForward7, fragment.Dataset_HIForward8, fragment.Dataset_HIForward9, fragment.Dataset_HIForward10, fragment.Dataset_HIForward11, fragment.Dataset_HIForward12, fragment.Dataset_HIForward13, fragment.Dataset_HIForward14, fragment.Dataset_HIForward15, fragment.Dataset_HIForward16, fragment.Dataset_HIForward17, fragment.Dataset_HIForward18, fragment.Dataset_HIForward19, fragment.Dataset_HIHLTPhysics, fragment.Dataset_HIHcalNZS, fragment.Dataset_HIOnlineMonitor, fragment.Dataset_HIMinimumBias0, fragment.Dataset_HIMinimumBias1, fragment.Dataset_HIMinimumBias2, fragment.Dataset_HIMinimumBias3, fragment.Dataset_HIPhysicsRawPrime0, fragment.Dataset_HIPhysicsRawPrime1, fragment.Dataset_HIPhysicsRawPrime2, fragment.Dataset_HIPhysicsRawPrime3, fragment.Dataset_HIPhysicsRawPrime4, fragment.Dataset_HIPhysicsRawPrime5, fragment.Dataset_HIPhysicsRawPrime6, fragment.Dataset_HIPhysicsRawPrime7, fragment.Dataset_HIPhysicsRawPrime8, fragment.Dataset_HIPhysicsRawPrime9, fragment.Dataset_HIPhysicsRawPrime10, fragment.Dataset_HIPhysicsRawPrime11, fragment.Dataset_HIPhysicsRawPrime12, fragment.Dataset_HIPhysicsRawPrime13, fragment.Dataset_HIPhysicsRawPrime14, fragment.Dataset_HIPhysicsRawPrime15, fragment.Dataset_HIPhysicsRawPrime16, fragment.Dataset_HIPhysicsRawPrime17, fragment.Dataset_HIPhysicsRawPrime18, fragment.Dataset_HIPhysicsRawPrime19, fragment.Dataset_HIPhysicsRawPrime20, fragment.Dataset_HIPhysicsRawPrime21, fragment.Dataset_HIPhysicsRawPrime22, fragment.Dataset_HIPhysicsRawPrime23, fragment.Dataset_HIPhysicsRawPrime24, fragment.Dataset_HIPhysicsRawPrime25, fragment.Dataset_HIPhysicsRawPrime26, fragment.Dataset_HIPhysicsRawPrime27, fragment.Dataset_HIPhysicsRawPrime28, fragment.Dataset_HIPhysicsRawPrime29, fragment.Dataset_HIPhysicsRawPrime30, fragment.Dataset_HIPhysicsRawPrime31, fragment.Dataset_HITrackerNZS, fragment.Dataset_HIZeroBias0, fragment.Dataset_HIZeroBias1, fragment.Dataset_HIZeroBias2, fragment.Dataset_L1Accept, fragment.Dataset_RPCMonitor, fragment.Dataset_TestEnablesEcalHcal, fragment.Dataset_TestEnablesEcalHcalDQM, ))
 
 
 # dummify hltGetConditions in cff's
