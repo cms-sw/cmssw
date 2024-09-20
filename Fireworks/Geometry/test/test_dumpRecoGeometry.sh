@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 function die { echo $1: status $2 ; exit $2; }
 
 # Define the base directory where the geometry files are located
@@ -7,8 +7,14 @@ if [ ! -e ${GEOMETRY_DIR} ] ; then
   GEOMETRY_DIR="${CMSSW_RELEASE_BASE}/src/Configuration/Geometry/python"
 fi
 
-# Define the list of tags
-TAGS=("Run1" "2015" "2017" "2026") #"2021"
+# Check if the TAG is provided as an argument
+if [ -z "$1" ]; then
+  echo "Error: No TAG provided. Usage: ./script.sh <TAG>"
+  exit 1
+fi
+
+# Get the TAG from the command-line argument
+TAG=$1
 
 # Function to extract the available versions for 2026
 get_2026_versions() {
@@ -30,27 +36,38 @@ get_2026_versions() {
   echo "${versions[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '
 }
 
-# Iterate over each tag
-for TAG in "${TAGS[@]}"; do
-  if [ "$TAG" == "2026" ]; then
-    # Get all the versions for 2026
-    VERSIONS=($(get_2026_versions))
-    for VERSION in "${VERSIONS[@]}"; do
-      echo "Running for 2026 with version $VERSION"
-      cmsRun $CMSSW_BASE/src/Fireworks/Geometry/python/dumpRecoGeometry_cfg.py tag=2026 version=$VERSION
-      # Check the exit status of the command
-      if [ $? -ne 0 ]; then
-        echo "Error running cmsRun for tag=2026 and version=$VERSION"
-        exit 1
-      fi
-    done
-  else
-    echo "Running for tag $TAG"
-    cmsRun $CMSSW_BASE/src/Fireworks/Geometry/python/dumpRecoGeometry_cfg.py tag=$TAG
-    # Check the exit status of the command
-    if [ $? -ne 0 ]; then
-      echo "Error running cmsRun for tag=$TAG"
-      exit 1
-    fi
+# Set the number of parallel jobs (adjust based on system resources)
+MAX_JOBS=4
+
+# Function to run cmsRun and limit parallel jobs
+run_cmsrun() {
+  local tag=$1
+  local version=$2
+
+  cmsRun $CMSSW_BASE/src/Fireworks/Geometry/python/dumpRecoGeometry_cfg.py tag=$tag version=$version &
+
+  # Wait for jobs to finish if the number of background jobs reaches MAX_JOBS
+  while [ $(jobs -r | wc -l) -ge $MAX_JOBS ]; do
+    sleep 1
+  done
+}
+
+# Check if the tag is 2026
+if [ "$TAG" == "2026" ]; then
+  # Get all the versions for 2026
+  VERSIONS=($(get_2026_versions))
+  for VERSION in "${VERSIONS[@]}"; do
+    echo "Running for 2026 with version $VERSION"
+    run_cmsrun "2026" "$VERSION"  || die "Failure running dumpRecoGeometry_cfg.py tag=$TAG" $?
+  done
+
+  # Wait for all background jobs to finish
+  wait
+else
+  echo "Running for tag $TAG"
+  cmsRun $CMSSW_BASE/src/Fireworks/Geometry/python/dumpRecoGeometry_cfg.py tag=$TAG || die "Failure running dumpRecoGeometry_cfg.py tag=$TAG" $?
+  if [ $? -ne 0 ]; then
+    echo "Error running cmsRun for tag=$TAG"
+    exit 1
   fi
-done
+fi

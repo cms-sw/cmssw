@@ -220,7 +220,7 @@ recoGeoLoad(options.tag,properties)
 
 if ( options.tgeo == True):
     if (options.out == defaultOutputFileName ):
-        options.out = "cmsTGeoRecoGeom-" +  str(options.tag) + ".root"
+       options.out = "cmsTGeoRecoGeom-" + str(options.tag) + (f"_{options.version}" if options.version else "") + ".root"
     process.add_(cms.ESProducer("FWTGeoRecoGeometryESProducer",
                  Tracker = cms.untracked.bool(options.tracker),
                  Muon = cms.untracked.bool(options.muon),
@@ -232,7 +232,7 @@ if ( options.tgeo == True):
                               )
 else:
     if (options.out == defaultOutputFileName ):
-        options.out = "cmsRecoGeom-" +  str(options.tag) + ".root"
+       options.out = "cmsRecoGeom-" + str(options.tag) + (f"_{options.version}" if options.version else "") + ".root"
     process.add_(cms.ESProducer("FWRecoGeometryESProducer",
                  Tracker = cms.untracked.bool(options.tracker),
                  Muon = cms.untracked.bool(options.muon),
