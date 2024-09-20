@@ -262,14 +262,12 @@ def checkHLTfor43774(process):
     return process
 
 # Adding zdc Topology producer
-def customizeHLTfor46011(process):
+def customizeHLTfor46062(process):
     """Add topology producer for ZDC"""
 
-    if hasattr(process, 'ZdcGeometryFromDBEP'):
-        process.ZdcTopologyEP = cms.ESProducer( "ZdcTopologyEP",
-                                                Exclude = cms.untracked.string( "" ),
-                                                appendToDataLabel = cms.string( "" )
-        )
+    for esprod in esproducers_by_type(process, 'ZdcGeometryFromDBEP'):
+        process.load("Geometry.ForwardGeometry.zdcTopologyEP_cfi")
+        break
 
     return process
 
@@ -339,6 +337,6 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     process = checkHLTfor43774(process)
     process = customizeHLTfor44576(process)
     process = customizeHLTfor45063(process)
-    process = customizeHLTfor46011(process)
+    process = customizeHLTfor46062(process)
     
     return process
