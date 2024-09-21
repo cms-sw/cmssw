@@ -92,8 +92,8 @@ fatJetTable = simplePATJetFlatTableProducer.clone(
         neHEF = Var("?isPFJet()?neutralHadronEnergyFraction():-1", float, doc="neutral Hadron Energy Fraction", precision=10),
         chEmEF = Var("?isPFJet()?chargedEmEnergyFraction():-1", float, doc="charged Electromagnetic Energy Fraction", precision=10),
         neEmEF = Var("?isPFJet()?neutralEmEnergyFraction():-1", float, doc="neutral Electromagnetic Energy Fraction", precision=10),
-        hfHEF = Var("?isPFJet()?HFHadronEnergyFraction()",float,doc="hadronic Energy Fraction in HF",precision=10),
-        hfEmEF = Var("?isPFJet()?HFEMEnergyFraction()",float,doc="electromagnetic Energy Fraction in HF",precision=10),
+        hfHEF = Var("?isPFJet()?HFHadronEnergyFraction():-1",float,doc="hadronic Energy Fraction in HF",precision=10),
+        hfEmEF = Var("?isPFJet()?HFEMEnergyFraction():-1",float,doc="electromagnetic Energy Fraction in HF",precision=10),
         muEF = Var("?isPFJet()?muonEnergyFraction():-1", float, doc="muon Energy Fraction", precision=10),
     ),
     externalVariables = cms.PSet(
