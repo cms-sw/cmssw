@@ -532,6 +532,183 @@ namespace {
       return false;
     }
   };
+
+  /************************************************
+   Full Pixel Tracker Map class difference of two IOVs
+  *************************************************/
+  template <IOVMultiplicity nIOVs, int ntags>
+  class SiPixelQualityBadFractionComparisonBase : public PlotImage<SiPixelQuality, nIOVs, ntags> {
+  public:
+    SiPixelQualityBadFractionComparisonBase() : PlotImage<SiPixelQuality, nIOVs, ntags>("SiPixelQuality Map") {
+      label_ = "SiPixelQualityFullPixelMap";
+      payloadString = "Quality";
+    }
+
+    bool fill() override {
+      // Handle multi-IOV tag and two-tag case
+      auto iovs = PlotBase::getTag<0>().iovs;
+      std::string firstTagName = PlotBase::getTag<0>().name;
+      std::string lastTagName = "";
+
+      auto firstIOV = iovs.front();
+      std::tuple<cond::Time_t, cond::Hash> lastIOV;
+
+      // Ensure no more than two tags are supported
+      assert(this->m_plotAnnotations.ntags < 3);
+
+      if (this->m_plotAnnotations.ntags == 2) {
+        auto secondTagIOVs = PlotBase::getTag<1>().iovs;
+        lastTagName = PlotBase::getTag<1>().name;
+        lastIOV = secondTagIOVs.front();
+      } else {
+        lastIOV = iovs.back();
+      }
+
+      // Fetch payloads for the first and last IOVs
+      auto firstPayload = this->fetchPayload(std::get<1>(firstIOV));
+      auto lastPayload = this->fetchPayload(std::get<1>(lastIOV));
+
+      // Early exit if payloads are invalid
+      if (!firstPayload || !lastPayload) {
+        return false;
+      }
+
+      // Create summary map and base tracker map
+      Phase1PixelSummaryMap summaryMap(
+          "", fmt::sprintf("%s", payloadString), fmt::sprintf("bad %s fraction difference [%%]", payloadString));
+      summaryMap.createTrackerBaseMap();
+
+      // Get disabled modules for both IOVs
+      auto firstDisabledModules = firstPayload->getBadComponentList();
+      auto lastDisabledModules = lastPayload->getBadComponentList();
+
+      // Check if geometry is supported (Phase 1)
+      if (this->isPhase0(firstDisabledModules) || this->isPhase0(lastDisabledModules)) {
+        edm::LogError("SiPixelQuality_PayloadInspector")
+            << "SiPixelQuality maps are not supported for non-Phase1 Pixel geometries!";
+        TCanvas canvas("Canv", "Canv", 1200, 1000);
+        SiPixelPI::displayNotSupported(canvas, 0);
+        std::string fileName(this->m_imageFileName);
+        canvas.SaveAs(fileName.c_str());
+        return false;
+      }
+
+      // Fill tracker map with bad ROC fractions for both IOVs
+      const int NumROCsPerModule = 16;
+      for (const auto& mod : firstDisabledModules) {
+        std::bitset<NumROCsPerModule> badRocs(mod.BadRocs);
+        summaryMap.fillTrackerMap(mod.DetID, (badRocs.count() / double(NumROCsPerModule)) * 100);
+      }
+
+      for (const auto& mod : lastDisabledModules) {
+        std::bitset<NumROCsPerModule> badRocs(mod.BadRocs);
+        summaryMap.fillTrackerMap(mod.DetID, -(badRocs.count() / double(NumROCsPerModule)) * 100);
+      }
+
+      // Apply custom color palette
+      applyCustomPalette(summaryMap);
+
+      // Draw canvas
+      TCanvas canvas("Canv", "Canv", 3000, 2000);
+      summaryMap.printTrackerMap(canvas);
+
+      // Add header text with IOV information
+      auto firstUnpacked = SiPixelPI::unpack(std::get<0>(firstIOV));
+      auto lastUnpacked = SiPixelPI::unpack(std::get<0>(lastIOV));
+
+      std::string firstIOVString = formatIOVString(firstUnpacked);
+      std::string lastIOVString = formatIOVString(lastUnpacked);
+
+      std::string headerText =
+          formatHeaderText(this->m_plotAnnotations.ntags, firstTagName, firstIOVString, lastTagName, lastIOVString);
+
+      TLatex ltx;
+      ltx.SetTextFont(62);
+      ltx.SetTextSize(0.025);
+      ltx.SetTextAlign(11);
+      ltx.DrawLatexNDC(gPad->GetLeftMargin() + 0.01, gPad->GetBottomMargin() + 0.01, headerText.c_str());
+
+      // Save canvas
+      std::string fileName(this->m_imageFileName);
+      canvas.SaveAs(fileName.c_str());
+
+      return true;
+    }
+
+  protected:
+    std::string payloadString;
+    std::string label_;
+
+  private:
+    //_________________________________________________
+    bool isPhase0(std::vector<SiPixelQuality::disabledModuleType> mods) {
+      SiPixelDetInfoFileReader reader =
+          SiPixelDetInfoFileReader(edm::FileInPath(SiPixelDetInfoFileReader::kPh0DefaultFile).fullPath());
+      const auto& p0detIds = reader.getAllDetIds();
+
+      std::vector<uint32_t> ownDetIds;
+      std::transform(mods.begin(),
+                     mods.end(),
+                     std::back_inserter(ownDetIds),
+                     [](SiPixelQuality::disabledModuleType d) -> uint32_t { return d.DetID; });
+
+      for (const auto& det : ownDetIds) {
+        // if found at least one phase-0 detId early return
+        if (std::find(p0detIds.begin(), p0detIds.end(), det) != p0detIds.end()) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    // Helper function to apply custom palette
+    //_________________________________________________
+    void applyCustomPalette(Phase1PixelSummaryMap& map) {
+      double maxVal = map.getZAxisRange().second;
+      double minVal = map.getZAxisRange().first;
+      double whiteVal = 0.;
+      double whitePos = (maxVal != minVal) ? ((whiteVal - minVal) / (maxVal - minVal)) : 0.5;
+
+      const int numColors = 3;
+      double red[numColors] = {0., 1., 1.};
+      double green[numColors] = {0., 1., 0.};
+      double blue[numColors] = {1., 1., 0.};
+      double stops[numColors] = {0., whitePos, 1.};
+
+      int numBins = 256;
+      TColor::CreateGradientColorTable(numColors, stops, red, green, blue, numBins);
+    }
+
+    // Helper function to format IOV string
+    //_________________________________________________
+    std::string formatIOVString(const std::pair<int, int>& unpacked) {
+      return (unpacked.first == 0) ? std::to_string(unpacked.second)
+                                   : (std::to_string(unpacked.first) + "," + std::to_string(unpacked.second));
+    }
+
+    // Helper function to format header text
+    //_________________________________________________
+    std::string formatHeaderText(int nTAGs,
+                                 const std::string& firstTagName,
+                                 const std::string& firstIOVString,
+                                 const std::string& lastTagName,
+                                 const std::string& lastIOVString) {
+      if (nTAGs == 2) {
+        return fmt::sprintf("#Delta #color[2]{A: %s, %s} - #color[4]{B: %s, %s}",
+                            firstTagName,
+                            firstIOVString,
+                            lastTagName,
+                            lastIOVString);
+      } else {
+        return fmt::sprintf(
+            "%s, #Delta IOV #color[2]{A: %s} - #color[4]{B: %s}", firstTagName, firstIOVString, lastIOVString);
+      }
+    }
+  };
+
+  using SiPixelQualityBadFracCompareSingleTag = SiPixelQualityBadFractionComparisonBase<MULTI_IOV, 1>;
+  using SiPixelQualityBadFracCompareTwoTags = SiPixelQualityBadFractionComparisonBase<SINGLE_IOV, 2>;
+
 }  // namespace
 
 // Register the classes as boost python plugin
@@ -544,6 +721,8 @@ PAYLOAD_INSPECTOR_MODULE(SiPixelQuality) {
   PAYLOAD_INSPECTOR_CLASS(SiPixelFPixQualityMap);
   PAYLOAD_INSPECTOR_CLASS(SiPixelFullQualityMap);
   PAYLOAD_INSPECTOR_CLASS(SiPixelQualityBadFractionMap);
+  PAYLOAD_INSPECTOR_CLASS(SiPixelQualityBadFracCompareSingleTag);
+  PAYLOAD_INSPECTOR_CLASS(SiPixelQualityBadFracCompareTwoTags);
   PAYLOAD_INSPECTOR_CLASS(SiPixelBPixQualityMapCompareSingleTag);
   PAYLOAD_INSPECTOR_CLASS(SiPixelFPixQualityMapCompareSingleTag);
   PAYLOAD_INSPECTOR_CLASS(SiPixelFullQualityMapCompareSingleTag);
