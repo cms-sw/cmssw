@@ -23,56 +23,10 @@ updatedJetsAK8 = updatedPatJets.clone(
     jetCorrFactorsSource=cms.VInputTag(cms.InputTag("jetCorrFactorsAK8") ),
 )
 
-#
-# JetID
-#
-looseJetIdAK8 = cms.EDProducer("PatJetIDValueMapProducer",
-  filterParams=cms.PSet(
-    version = cms.string('WINTER16'),
-    quality = cms.string('LOOSE'),
-  ),
-  src = cms.InputTag("updatedJetsAK8")
-)
-tightJetIdAK8 = cms.EDProducer("PatJetIDValueMapProducer",
-    filterParams=cms.PSet(
-        version = cms.string('RUN3WINTER22PUPPI'),
-        quality = cms.string('TIGHT'),
-    ),
-    src = cms.InputTag("updatedJetsAK8")
-)
-tightJetIdLepVetoAK8 = cms.EDProducer("PatJetIDValueMapProducer",
-    filterParams=cms.PSet(
-        version = cms.string('RUN3WINTER22PUPPI'),
-        quality = cms.string('TIGHTLEPVETO'),
-    ),
-    src = cms.InputTag("updatedJetsAK8")
-)
-
-run2_jme_2016.toModify(
-    tightJetIdAK8.filterParams, version = "RUN2UL16PUPPI"
-).toModify(
-    tightJetIdLepVetoAK8.filterParams, version = "RUN2UL16PUPPI"
-)
-
-(run2_jme_2017 | run2_jme_2018 | run3_nanoAOD_122 | run3_nanoAOD_124).toModify(
-    tightJetIdAK8.filterParams, version = "RUN2ULPUPPI"
-).toModify(
-    tightJetIdLepVetoAK8.filterParams, version = "RUN2ULPUPPI"
-)
-
-run3_jme_Winter22runsBCDEprompt.toModify(
-    tightJetIdAK8.filterParams, version = "RUN3WINTER22PUPPIrunsBCDEprompt"
-).toModify(
-    tightJetIdLepVetoAK8.filterParams, version = "RUN3WINTER22PUPPIrunsBCDEprompt"
-)
-
 updatedJetsAK8WithUserData = cms.EDProducer("PATJetUserDataEmbedder",
     src = cms.InputTag("updatedJetsAK8"),
     userFloats = cms.PSet(),
-    userInts = cms.PSet(
-        tightId = cms.InputTag("tightJetIdAK8"),
-        tightIdLepVeto = cms.InputTag("tightJetIdLepVetoAK8"),
-    ),
+    userInts = cms.PSet(),
 )
 
 finalJetsAK8 = cms.EDFilter("PATJetRefSelector",
@@ -93,7 +47,6 @@ fatJetTable = simplePATJetFlatTableProducer.clone(
     name = cms.string("FatJet"),
     doc  = cms.string("slimmedJetsAK8, i.e. ak8 fat jets for boosted analysis"),
     variables = cms.PSet(P4Vars,
-        jetId = Var("userInt('tightId')*2+4*userInt('tightIdLepVeto')", "uint8",doc="Jet ID flags bit1 is loose (always false in 2017 since it does not exist), bit2 is tight, bit3 is tightLepVeto"),
         area = Var("jetArea()", float, doc="jet catchment area, for JECs",precision=10),
         rawFactor = Var("1.-jecFactor('Uncorrected')",float,doc="1 - Factor to get back to raw pT",precision=6),
         tau1 = Var("userFloat('NjettinessAK8Puppi:tau1')",float, doc="Nsubjettiness (1 axis)",precision=10),
@@ -135,11 +88,13 @@ fatJetTable = simplePATJetFlatTableProducer.clone(
         nConstituents = Var("numberOfDaughters()","uint8",doc="Number of particles in the jet"),
         chMultiplicity = Var("?isPFJet()?chargedMultiplicity():-1","int16",doc="(Puppi-weighted) Number of charged particles in the jet"),
         neMultiplicity = Var("?isPFJet()?neutralMultiplicity():-1","int16",doc="(Puppi-weighted) Number of neutral particles in the jet"),
-        chHEF = Var("?isPFJet()?chargedHadronEnergyFraction():-1", float, doc="charged Hadron Energy Fraction", precision=6),
-        neHEF = Var("?isPFJet()?neutralHadronEnergyFraction():-1", float, doc="neutral Hadron Energy Fraction", precision=6),
-        chEmEF = Var("?isPFJet()?chargedEmEnergyFraction():-1", float, doc="charged Electromagnetic Energy Fraction", precision=6),
-        neEmEF = Var("?isPFJet()?neutralEmEnergyFraction():-1", float, doc="neutral Electromagnetic Energy Fraction", precision=6),
-        muEF = Var("?isPFJet()?muonEnergyFraction():-1", float, doc="muon Energy Fraction", precision=6),
+        chHEF = Var("?isPFJet()?chargedHadronEnergyFraction():-1", float, doc="charged Hadron Energy Fraction", precision=10),
+        neHEF = Var("?isPFJet()?neutralHadronEnergyFraction():-1", float, doc="neutral Hadron Energy Fraction", precision=10),
+        chEmEF = Var("?isPFJet()?chargedEmEnergyFraction():-1", float, doc="charged Electromagnetic Energy Fraction", precision=10),
+        neEmEF = Var("?isPFJet()?neutralEmEnergyFraction():-1", float, doc="neutral Electromagnetic Energy Fraction", precision=10),
+        hfHEF = Var("?isPFJet()?HFHadronEnergyFraction()",float,doc="hadronic Energy Fraction in HF",precision=10),
+        hfEmEF = Var("?isPFJet()?HFEMEnergyFraction()",float,doc="electromagnetic Energy Fraction in HF",precision=10),
+        muEF = Var("?isPFJet()?muonEnergyFraction():-1", float, doc="muon Energy Fraction", precision=10),
     ),
     externalVariables = cms.PSet(
         lsf3 = ExtVar(cms.InputTag("lepInAK8JetVars:lsf3"),float, doc="Lepton Subjet Fraction (3 subjets)",precision=10),
@@ -356,7 +311,7 @@ finalJetsAK8ConstituentsTable = cms.EDProducer("SimplePatJetConstituentTableProd
     jetCut = fatJetTable.cut
 )
 
-jetAK8UserDataTask = cms.Task(tightJetIdAK8,tightJetIdLepVetoAK8)
+jetAK8UserDataTask = cms.Task()
 jetAK8Task = cms.Task(jetCorrFactorsAK8,updatedJetsAK8,jetAK8UserDataTask,updatedJetsAK8WithUserData,finalJetsAK8,finalJetsAK8PFConstituents,finalJetsPFConstituents)
 
 #after lepton collections have been run

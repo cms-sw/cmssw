@@ -234,75 +234,6 @@ CALOJETVARS = cms.PSet(P4Vars,
 #
 #
 #******************************************
-def AddJetID(proc, jetName="", jetSrc="", jetTableName="", jetTaskName=""):
-  """
-  Setup modules to calculate PF jet ID
-  """
-
-  isPUPPIJet = True if "PUPPI" in jetName.upper() else False
-
-  looseJetId = "looseJetId{}".format(jetName)
-  setattr(proc, looseJetId, proc.looseJetId.clone(
-      src = jetSrc,
-      filterParams = proc.looseJetId.filterParams.clone(
-        version = "WINTER16"
-      ),
-    )
-  )
-
-  tightJetId = "tightJetId{}".format(jetName)
-  setattr(proc, tightJetId, proc.tightJetId.clone(
-      src = jetSrc,
-      filterParams = proc.tightJetId.filterParams.clone(
-        version = "RUN3WINTER22{}".format("PUPPI" if isPUPPIJet else "CHS")
-      ),
-    )
-  )
-
-  tightJetIdLepVeto = "tightJetIdLepVeto{}".format(jetName)
-  setattr(proc, tightJetIdLepVeto, proc.tightJetIdLepVeto.clone(
-      src = jetSrc,
-      filterParams = proc.tightJetIdLepVeto.filterParams.clone(
-        version = "RUN3WINTER22{}".format("PUPPI" if isPUPPIJet else "CHS")
-      ),
-    )
-  )
-
-  run3_jme_Winter22runsBCDEprompt.toModify(
-    getattr(proc, tightJetId).filterParams, version = "RUN3WINTER22{}runsBCDEprompt".format("PUPPI" if isPUPPIJet else "CHS")
-  ).toModify(
-    getattr(proc, tightJetIdLepVeto).filterParams, version = "RUN3WINTER22{}runsBCDEprompt".format("PUPPI" if isPUPPIJet else "CHS")
-  )
-
-  (run2_jme_2017 | run2_jme_2018 | run3_nanoAOD_122 | run3_nanoAOD_124).toModify(
-    getattr(proc, tightJetId).filterParams, version = "RUN2UL{}".format("PUPPI" if isPUPPIJet else "CHS")
-  ).toModify(
-    getattr(proc, tightJetIdLepVeto).filterParams, version = "RUN2UL{}".format("PUPPI" if isPUPPIJet else "CHS")
-  )
-
-  run2_jme_2016.toModify(
-    getattr(proc, tightJetId).filterParams, version = "RUN2UL16{}".format("PUPPI" if isPUPPIJet else "CHS")
-  ).toModify(
-    getattr(proc, tightJetIdLepVeto).filterParams, version = "RUN2UL16{}".format("PUPPI" if isPUPPIJet else "CHS")
-  )
-
-  #
-  # Save variables as userInts in each jet
-  #
-  patJetWithUserData = "{}WithUserData".format(jetSrc)
-  getattr(proc, patJetWithUserData).userInts.tightId = cms.InputTag(tightJetId)
-  getattr(proc, patJetWithUserData).userInts.tightIdLepVeto = cms.InputTag(tightJetIdLepVeto)
-
-  #
-  # Specfiy variables in the jetTable to save in NanoAOD
-  #
-  getattr(proc, jetTableName).variables.jetId = Var("userInt('tightId')*2+4*userInt('tightIdLepVeto')",int,doc="Jet ID flags bit1 is loose (always false in 2017 since it does not exist), bit2 is tight, bit3 is tightLepVeto")
-
-  getattr(proc,jetTaskName).add(getattr(proc, tightJetId))
-  getattr(proc,jetTaskName).add(getattr(proc, tightJetIdLepVeto))
-
-  return proc
-
 def AddPileUpJetIDVars(proc, jetName="", jetSrc="", jetTableName="", jetTaskName=""):
   """
   Setup modules to calculate pileup jet ID input variables for PF jet
@@ -633,7 +564,6 @@ def SavePatJets(proc, jetName, payload, patJetFinalColl, jetTablePrefix, jetTabl
   # Schedule plugins to calculate Jet ID, PileUp Jet ID input variables, and Quark-Gluon Likehood input variables.
   #
   if doPF:
-    proc = AddJetID(proc, jetName=jetName, jetSrc=srcJets, jetTableName=jetTableName, jetTaskName=jetTaskName)
     if doPUIDVar:
       proc = AddPileUpJetIDVars(proc, jetName=jetName, jetSrc=srcJets, jetTableName=jetTableName, jetTaskName=jetTaskName)
     if doQGL:
@@ -674,15 +604,6 @@ def ReclusterAK4PuppiJets(proc, recoJA, runOnMC):
 
   jetName = recoJetInfo.jetUpper
   patJetFinalColl = recoJetInfo.patJetFinalCollection
-
-  #
-  # Set the jetID for UL 16 era
-  #
-  run2_jme_2016.toModify(
-    proc.tightJetPuppiId.filterParams, version = "RUN2UL16PUPPI"
-  ).toModify(
-    proc.tightJetIdLepVeto.filterParams, version = "RUN2UL16PUPPI"
-  )
 
   #
   # Change the input jet source for jetCorrFactorsNano

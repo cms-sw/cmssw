@@ -24,48 +24,6 @@ updatedJets = updatedPatJets.clone(
     jetCorrFactorsSource=cms.VInputTag(cms.InputTag("jetCorrFactorsNano") ),
 )
 
-#
-# JetID
-#
-looseJetId = cms.EDProducer("PatJetIDValueMapProducer",
-    filterParams=cms.PSet(
-        version = cms.string('WINTER16'),
-        quality = cms.string('LOOSE'),
-    ),
-    src = cms.InputTag("updatedJets")
-)
-tightJetId = cms.EDProducer("PatJetIDValueMapProducer",
-    filterParams=cms.PSet(
-        version = cms.string('RUN3CHSruns2022FGruns2023CD'),
-        quality = cms.string('TIGHT'),
-    ),
-    src = cms.InputTag("updatedJets")
-)
-tightJetIdLepVeto = cms.EDProducer("PatJetIDValueMapProducer",
-    filterParams=cms.PSet(
-        version = cms.string('RUN3CHSruns2022FGruns2023CD'),
-        quality = cms.string('TIGHTLEPVETO'),
-    ),
-    src = cms.InputTag("updatedJets")
-)
-run2_jme_2016.toModify(
-    tightJetId.filterParams, version = "RUN2UL16CHS"
-).toModify(
-    tightJetIdLepVeto.filterParams, version = "RUN2UL16CHS"
-)
-
-(run2_jme_2017 | run2_jme_2018).toModify(
-    tightJetId.filterParams, version = "RUN2ULCHS"
-).toModify(
-    tightJetIdLepVeto.filterParams, version = "RUN2ULCHS"
-)
-
-run3_jme_Winter22runsBCDEprompt.toModify(
-    tightJetId.filterParams, version = "RUN3CHSruns2022BCDEprompt"
-).toModify(
-    tightJetIdLepVeto.filterParams, version = "RUN3CHSruns2022BCDEprompt"
-)
-
 bJetVars = cms.EDProducer("JetRegressionVarProducer",
     pvsrc = cms.InputTag("offlineSlimmedPrimaryVertices"),
     src = cms.InputTag("updatedJets"),
@@ -95,8 +53,6 @@ updatedJetsWithUserData = cms.EDProducer("PATJetUserDataEmbedder",
         chFPV0EF = cms.InputTag("jercVars:chargedFromPV0EnergyFraction"),
     ),
     userInts = cms.PSet(
-        tightId = cms.InputTag("tightJetId"),
-        tightIdLepVeto = cms.InputTag("tightJetIdLepVeto"),
         vtxNtrk = cms.InputTag("bJetVars:vtxNtrk"),
         leptonPdgId = cms.InputTag("bJetVars:leptonPdgId"),
         puIdNanoId = cms.InputTag('pileupJetIdNano:fullId'),
@@ -161,7 +117,6 @@ jetTable = simplePATJetFlatTableProducer.clone(
         UParTAK4RegPtRawRes = Var("?(bDiscriminator('pfUnifiedParticleTransformerAK4JetTags:ptreshigh')+bDiscriminator('pfUnifiedParticleTransformerAK4JetTags:ptreslow'))>0?0.5*(bDiscriminator('pfUnifiedParticleTransformerAK4JetTags:ptreshigh')-bDiscriminator('pfUnifiedParticleTransformerAK4JetTags:ptreslow')):-1",float,precision=10,doc="UnifiedParT universal flavor-aware jet pT resolution estimator, (q84 - q16)/2"),
         puIdDisc = Var("userFloat('puIdNanoDisc')", float,doc="Pileup ID discriminant with 106X (2018) training",precision=10),
         puId = Var("userInt('puIdNanoId')", "uint8", doc="Pileup ID flags with 106X (2018) training"),
-        jetId = Var("userInt('tightId')*2+4*userInt('tightIdLepVeto')", "uint8", doc="Jet ID flags bit1 is loose (always false in 2017 since it does not exist), bit2 is tight, bit3 is tightLepVeto"),
         qgl = Var("?userFloat('qgl')>0?userFloat('qgl'):-1",float,doc="Quark vs Gluon likelihood discriminator",precision=10),
         hfsigmaEtaEta = Var("userFloat('hfJetShowerShape:sigmaEtaEta')",float,doc="sigmaEtaEta for HF jets (noise discriminating variable)",precision=10),
         hfsigmaPhiPhi = Var("userFloat('hfJetShowerShape:sigmaPhiPhi')",float,doc="sigmaPhiPhi for HF jets (noise discriminating variable)",precision=10),
@@ -171,13 +126,13 @@ jetTable = simplePATJetFlatTableProducer.clone(
         chMultiplicity = Var("chargedMultiplicity()","uint8",doc="Number of charged particles in the jet"),
         neMultiplicity = Var("neutralMultiplicity()","uint8",doc="Number of neutral particles in the jet"),
         rawFactor = Var("1.-jecFactor('Uncorrected')",float,doc="1 - Factor to get back to raw pT",precision=6),
-        chHEF = Var("chargedHadronEnergyFraction()", float, doc="charged Hadron Energy Fraction", precision= 6),
-        neHEF = Var("neutralHadronEnergyFraction()", float, doc="neutral Hadron Energy Fraction", precision= 6),
-        chEmEF = Var("chargedEmEnergyFraction()", float, doc="charged Electromagnetic Energy Fraction", precision= 6),
-        neEmEF = Var("neutralEmEnergyFraction()", float, doc="neutral Electromagnetic Energy Fraction", precision= 6),
-        hfHEF = Var("HFHadronEnergyFraction()",float,doc="hadronic Energy Fraction in HF",precision= 6),
-        hfEmEF = Var("HFEMEnergyFraction()",float,doc="electromagnetic Energy Fraction in HF",precision= 6),
-        muEF = Var("muonEnergyFraction()", float, doc="muon Energy Fraction", precision= 6),
+        chHEF = Var("chargedHadronEnergyFraction()", float, doc="charged Hadron Energy Fraction", precision=10),
+        neHEF = Var("neutralHadronEnergyFraction()", float, doc="neutral Hadron Energy Fraction", precision=10),
+        chEmEF = Var("chargedEmEnergyFraction()", float, doc="charged Electromagnetic Energy Fraction", precision=10),
+        neEmEF = Var("neutralEmEnergyFraction()", float, doc="neutral Electromagnetic Energy Fraction", precision=10),
+        hfHEF = Var("HFHadronEnergyFraction()",float,doc="hadronic Energy Fraction in HF",precision=10),
+        hfEmEF = Var("HFEMEnergyFraction()",float,doc="electromagnetic Energy Fraction in HF",precision=10),
+        muEF = Var("muonEnergyFraction()", float, doc="muon Energy Fraction", precision=10),
         chFPV0EF = Var("userFloat('chFPV0EF')", float, doc="charged fromPV==0 Energy Fraction (energy excluded from CHS jets). Previously called betastar.", precision= 6),
     )
 )
@@ -545,7 +500,7 @@ jetTable.variables.muonSubtrFactor = Var("1-userFloat('muonSubtrRawPt')/(pt()*je
 jetForMETTask =  cms.Task(basicJetsForMetForT1METNano,corrT1METJetTable)
 
 #before cross linking
-jetUserDataTask = cms.Task(bJetVars,qgtagger,jercVars,tightJetId,tightJetIdLepVeto,pileupJetIdNano)
+jetUserDataTask = cms.Task(bJetVars,qgtagger,jercVars,pileupJetIdNano)
 
 #before cross linking
 jetTask = cms.Task(jetCorrFactorsNano,updatedJets,jetUserDataTask,updatedJetsWithUserData,finalJets)
