@@ -317,10 +317,50 @@ run2_nanoAOD_ANY.toModify(
 fatJetTable.variables.pt.precision=10
 subJetTable.variables.pt.precision=10
 
+##############################################################
+# AK8 constituents
+###############################################################
+finalJetsAK8PFConstituents = cms.EDProducer("PatJetConstituentPtrSelector",
+    src = fatJetTable.src,
+    cut = cms.string("abs(eta) <= 2.5")
+)
+
+finalJetsPFConstituents = cms.EDProducer("PackedCandidatePtrMerger",
+    src = cms.VInputTag(cms.InputTag("finalJetsAK8PFConstituents", "constituents")),
+    skipNulls = cms.bool(True),
+    warnOnSkip = cms.bool(True)
+)
+
+pfCandidatesTable = cms.EDProducer("SimplePATCandidateFlatTableProducer",
+    src = cms.InputTag("finalJetsPFConstituents"),
+    cut = cms.string(""),
+    name = cms.string("PFCand"),
+    doc = cms.string("PF candidate constituents of AK8 puppi jets (FatJet) with |eta| <= 2.5."),
+    singleton = cms.bool(False),
+    extension = cms.bool(False),
+    variables = cms.PSet(
+        pt = Var("pt * puppiWeight()", float, doc="Puppi-weighted pt", precision=10),
+        mass = Var("mass * puppiWeight()", float, doc="Puppi-weighted mass", precision=10),
+        eta = Var("eta", float, precision=12),
+        phi = Var("phi", float, precision=12),
+        pdgId  = Var("pdgId", int, doc="PF candidate type (+/-211 = ChgHad, 130 = NeuHad, 22 = Photon, +/-11 = Electron, +/-13 = Muon, 1 = HFHad, 2 = HFEM)")
+    )
+)
+
+finalJetsAK8ConstituentsTable = cms.EDProducer("SimplePatJetConstituentTableProducer",
+    name = cms.string(fatJetTable.name.value()+"PFCand"),
+    candIdxName = cms.string("PFCandIdx"),
+    candIdxDoc = cms.string("Index in the PFCand table"),
+    jets = fatJetTable.src,
+    candidates = pfCandidatesTable.src,
+    jetCut = fatJetTable.cut
+)
+
 jetAK8UserDataTask = cms.Task(tightJetIdAK8,tightJetIdLepVetoAK8)
-jetAK8Task = cms.Task(jetCorrFactorsAK8,updatedJetsAK8,jetAK8UserDataTask,updatedJetsAK8WithUserData,finalJetsAK8)
+jetAK8Task = cms.Task(jetCorrFactorsAK8,updatedJetsAK8,jetAK8UserDataTask,updatedJetsAK8WithUserData,finalJetsAK8,finalJetsAK8PFConstituents,finalJetsPFConstituents)
 
 #after lepton collections have been run
 jetAK8LepTask = cms.Task(lepInAK8JetVars)
 
-jetAK8TablesTask = cms.Task(fatJetTable,subJetTable)
+jetAK8TablesTask = cms.Task(fatJetTable,subJetTable,pfCandidatesTable,finalJetsAK8ConstituentsTable)
+
