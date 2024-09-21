@@ -302,9 +302,9 @@ void DTTSPhi::runTSPhi() {
               }
             } else if (config()->TsmGetCarryFlag() == 1) {  // compare with 2nd tk in previous BX and get the tk
                                                             // with better quality
-              existSecondPrevBx =
-                  ((is - 1 - DTConfigTSPhi::NSTEPF >= 0) && (ntsm[is - 1 - DTConfigTSPhi::NSTEPF][i_tsmd] > 1) &&
-                   (secondPrevBx->tracoTr()->code() > 0));
+              existSecondPrevBx = secondPrevBx && ((is - 1 - DTConfigTSPhi::NSTEPF >= 0) &&
+                                                   (ntsm[is - 1 - DTConfigTSPhi::NSTEPF][i_tsmd] > 1) &&
+                                                   (secondPrevBx->tracoTr()->code() > 0));
               if ((!existSecondPrevBx) ||
                   !((secondPrevBx->isCorr() && secondPrevBx->isHtrig() && secondPrevBx->isInner()) ||
                     (secondPrevBx->isCorr() && secondPrevBx->isHtrig() && !secondPrevBx->isInner()) ||
@@ -347,9 +347,9 @@ void DTTSPhi::runTSPhi() {
 
             else if (config()->TsmGetCarryFlag() == 2) {  // neglect first tk if it is a low uncorrelated
                                                           // trigger
-              existSecondPrevBx =
-                  ((is - 1 - DTConfigTSPhi::NSTEPF >= 0) && (ntsm[is - 1 - DTConfigTSPhi::NSTEPF][i_tsmd] > 1) &&
-                   (secondPrevBx->tracoTr()->code() > 0));
+              existSecondPrevBx = secondPrevBx && ((is - 1 - DTConfigTSPhi::NSTEPF >= 0) &&
+                                                   (ntsm[is - 1 - DTConfigTSPhi::NSTEPF][i_tsmd] > 1) &&
+                                                   (secondPrevBx->tracoTr()->code() > 0));
               if ((!existSecondPrevBx) || first->isHtrig() || first->isCorr()) {
                 ntsm[is - DTConfigTSPhi::NSTEPF][i_tsmd]++;  // SM increment ntsm at current BX.
                 // SM sector collector: Load DTSectColl with output of DTTSM
