@@ -296,12 +296,10 @@ class _Parameterizable(object):
         """
         if type(d).__name__ not in ["PSet", "__PSet", "dict"]:
             raise ValueError("Only PSets or dicts can be passed to update_.  This is a "+type(d).__name__)
-        if isinstance(d,dict):
-            for k,v in d.items():
+
+        items = d.items() if isinstance(d, dict) else d.parameters_().items()
+        for k,v in items:
                 setattr(self, k, v)
-        else:
-            for k,v in d.parameters_().items():
-                setattr(self,k,v)
 
 
 
@@ -865,6 +863,7 @@ if __name__ == "__main__":
             self.assertEqual(a.a.value(), 3)
             a.update_(__PSet(a=__TestType(5)))
             self.assertEqual(a.a.value(), 5)
+            self.assertRaises(TypeError, lambda: a.update_(dict(c=6)))
 
         def testCopy(self):
             class __Test(_TypedParameterizable):
