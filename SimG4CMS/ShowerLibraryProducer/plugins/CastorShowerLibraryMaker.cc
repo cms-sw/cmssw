@@ -53,8 +53,6 @@
 #include <CLHEP/Random/Randomize.h>
 #include <CLHEP/Units/SystemOfUnits.h>
 #include <CLHEP/Units/PhysicalConstants.h>
-#include <CLHEP/Units/SystemOfUnits.h>
-#include <CLHEP/Units/GlobalPhysicalConstants.h>
 
 #include "TROOT.h"
 #include "TFile.h"
@@ -682,25 +680,6 @@ void CastorShowerLibraryMaker::update(const EndOfEvent* evt) {
                                   << " for an incident energy: " << tot_energy;
     }
   }
-
-  /*
-  for (int i=emSLHolder.SLEnergyBins.size()-1;i>0;i--) {
-      if (emSLHolder.nEvtInBinE.at(i)==(int)emSLHolder.nEvtPerBinE) {
-         std::ostringstream out;
-         out << emSLHolder.SLEnergyBins.at(i);
-         edm::LogVerbatim("HcalSim") << "Bin Limit: " << out.str();
-         setenv("CASTOR_SL_PG_MAXE",out.str().c_str(),1);
-       }
-       break;
-   }
-*/
-  //int iEvt = (*evt)()->GetEventID();
-  //double xint;
-  /*
-  if (modf(log10(iEvt),&xint)==0) 
-    edm::LogVerbatim("HcalSim") << " CastorShowerLibraryMaker Event " << iEvt;
-*/
-  // edm::LogVerbatim("HcalSim") << "\n===>>> Done writing user histograms ";
 }
 
 //========================= End of RUN ======================
