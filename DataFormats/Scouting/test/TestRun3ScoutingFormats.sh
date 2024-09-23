@@ -1,4 +1,4 @@
-#!/bin/sh -ex
+#!/bin/bash
 
 function die { echo $1: status $2 ;  exit $2; }
 
@@ -65,13 +65,15 @@ cmsRun ${LOCAL_TEST_DIR}/test_readRun3Scouting_cfg.py || die "Failure using test
 # one took the time to investigate that). When reading that file
 # the Service named "FixMissingStreamerInfos" needs to be used.
 
-oldFiles="testRun3Scouting_v3_v5_v3_v4_v5_v3_v5_v3_v3_CMSSW_12_4_0_split_99.root testRun3Scouting_v3_v5_v3_v4_v5_v3_v5_v3_v3_CMSSW_12_4_0_split_0.root"
-for file in $oldFiles; do
-  inputfile=$(edmFileInPath DataFormats/Scouting/data/$file) || die "Failure edmFileInPath DataFormats/Scouting/data/$file" $?
-  argsPassedToPython="--inputFile $inputfile --outputFileName testRun3Scouting2_CMSSW_12_4_0.root --electronVersion 5 --photonVersion 5 --vertexVersion 3"
-  cmsRun ${LOCAL_TEST_DIR}/test_readRun3Scouting_cfg.py $argsPassedToPython || die "Failed to read old file $file" $?
-done
+file=testRun3Scouting_v3_v5_v3_v4_v5_v3_v5_v3_v3_CMSSW_12_4_0_split_99.root
+inputfile=$(edmFileInPath DataFormats/Scouting/data/$file) || die "Failure edmFileInPath DataFormats/Scouting/data/$file" $?
+argsPassedToPython="--inputFile $inputfile --outputFileName testRun3Scouting2_CMSSW_12_4_0.root --electronVersion 5 --photonVersion 5 --vertexVersion 3"
+cmsRun ${LOCAL_TEST_DIR}/test_readRun3Scouting_cfg.py $argsPassedToPython || die "Failed to read old file $file" $?
 
+file=testRun3Scouting_v3_v5_v3_v4_v5_v3_v5_v3_v3_CMSSW_12_4_0_split_0.root
+inputfile=$(edmFileInPath DataFormats/Scouting/data/$file) || die "Failure edmFileInPath DataFormats/Scouting/data/$file" $?
+argsPassedToPython="--inputFile $inputfile --outputFileName testRun3Scouting2_CMSSW_12_4_0.root --electronVersion 5 --photonVersion 5 --vertexVersion 3 --fixStreamerInfo"
+cmsRun ${LOCAL_TEST_DIR}/test_readRun3Scouting_cfg.py $argsPassedToPython || die "Failed to read old file $file" $?
 
 oldFiles="testRun3Scouting_v3_v6_v3_v4_v5_v3_v5_v3_v3_CMSSW_13_0_3_split_99.root testRun3Scouting_v3_v6_v3_v4_v5_v3_v5_v3_v3_CMSSW_13_0_3_split_0.root"
 for file in $oldFiles; do
