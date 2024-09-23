@@ -240,7 +240,7 @@ class CheckForMask(Task):
 
         report = None
         if (hasattr(self.options,'check') and self.options.check) or not hasattr(self.options,'check'):
-            file_mask = castortools.matchingFiles(dir, '^%s_.*\.txt$' % mask)
+            file_mask = castortools.matchingFiles(dir, '^%s_.*\\.txt$' % mask)
 
             if file_mask:
                 p = PublishToFileSystem(mask)

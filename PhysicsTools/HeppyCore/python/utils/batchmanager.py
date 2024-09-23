@@ -219,7 +219,7 @@ class BatchManager:
             sys.exit(3)
         else:
             for line in ifile:
-                p = re.compile("\s*cp.*\$jobdir\s+(\S+)$");
+                p = re.compile("\\s*cp.*\\$jobdir\\s+(\\S+)$");
                 m=p.match(line)
                 if m:
                     if os.path.isdir( os.path.expandvars(m.group(1)) ):
