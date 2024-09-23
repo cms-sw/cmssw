@@ -160,7 +160,7 @@ Examples:
 
 python RunExpressProcessing.py --scenario cosmics --global-tag GLOBALTAG --lfn /store/whatever --fevt --dqmio --alcarecos=TkAlCosmics0T+SiStripCalZeroBias
 
-python RunExpressProcessing.py --scenario pp --global-tag GLOBALTAG --lfn /store/whatever --daq --fevt --dqmio --alcarecos=TkAlMinBias+SiStripCalZeroBias
+python RunExpressProcessing.py --scenario pp --global-tag GLOBALTAG --lfn /store/whatever --dat --fevt --dqmio --alcarecos=TkAlMinBias+SiStripCalZeroBias
 
 """
     try:
