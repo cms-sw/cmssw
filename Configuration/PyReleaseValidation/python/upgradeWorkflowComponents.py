@@ -2544,7 +2544,7 @@ class UpgradeWorkflowPremix(UpgradeWorkflow):
             d = merge([stepDict[self.getStepName(step)][k]])
             if "--filein" in d:
                 filein = d["--filein"]
-                m = re.search("step(?P<ind>\d+)_", filein)
+                m = re.search("step(?P<ind>\\d+)_", filein)
                 if m:
                     d["--filein"] = filein.replace(m.group(), "step%d_"%(int(m.group("ind"))+1))
             stepDict[stepName][k] = d
