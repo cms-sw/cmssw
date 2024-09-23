@@ -24,7 +24,7 @@ histDefinitions = cms.PSet(
     ),
     PHIvsPHI=cms.PSet(
         name=cms.untracked.string('PHIvsPHI'),
-        title=cms.untracked.string('Template for \phi vs \phi histograms'),
+        title=cms.untracked.string('Template for \\phi vs \\phi histograms'),
         nbinsX=cms.untracked.uint32(80),
         xmin=cms.untracked.double(-3.2),
         xmax=cms.untracked.double(3.2),
