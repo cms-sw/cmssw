@@ -50,7 +50,7 @@ def PixBary(config, validationDir, verbose=False):
                     "name": "{}_{}_{}_{}_{}".format(_validationName, alignment, jobType, jobName, IOV),
                     "dir": workDir,
                     "exe": "cmsRun",
-                    "cms-config": "{}/src/Alignment/OfflineValidation/test/PixelBaryCentreAnalyzer_cfg.py".format(os.environ["CMSSW_BASE"]),
+                    "cms-config": "{}/src/Alignment/OfflineValidation/python/TkAlAllInOneTool/PixelBaryCentreAnalyzer_cfg.py".format(os.environ["CMSSW_BASE"]),
                     "run-mode": "Condor",
                     "dependencies": [],
                     "config": local,
