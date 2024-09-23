@@ -126,7 +126,7 @@ void GflashHadronShowerModel::DoIt(const G4FastTrack &fastTrack, G4FastStep &fas
 }
 
 void GflashHadronShowerModel::makeHits(const G4FastTrack &fastTrack) {
-  std::vector<GflashHit>& gflashHitList = theProfile->getGflashHitList();
+  std::vector<GflashHit> &gflashHitList = theProfile->getGflashHitList();
 
   theGflashStep->SetTrack(const_cast<G4Track *>(fastTrack.GetPrimaryTrack()));
   theGflashStep->GetPostStepPoint()->SetProcessDefinedStep(
@@ -134,7 +134,7 @@ void GflashHadronShowerModel::makeHits(const G4FastTrack &fastTrack) {
   theGflashNavigator->SetWorldVolume(
       G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking()->GetWorldVolume());
 
-  for (auto & hit : gflashHitList) {
+  for (auto &hit : gflashHitList) {
     theGflashNavigator->LocateGlobalPointAndUpdateTouchableHandle(
         hit.getPosition(), G4ThreeVector(0, 0, 0), theGflashTouchableHandle, false);
     updateGflashStep(hit.getPosition(), hit.getTime());
