@@ -164,7 +164,7 @@ class EgammaDQMModuleMaker:
         #--------------------
         # find Et threshold of primary object
         #--------------------
-        mo = re.match("HLT_.*?(\d+).*",pathName)
+        mo = re.match("HLT_.*?(\\d+).*",pathName)
 
         if mo != None:
             etThreshold = float(mo.group(1))

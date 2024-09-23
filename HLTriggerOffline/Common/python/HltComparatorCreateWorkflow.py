@@ -131,7 +131,7 @@ def GetHltKeyForRun(run):
 # Formats an HLT CFF path into a suitable python include statement
 def FormatHltCff(cffPath):
    pathParts = cffPath.split(".")
-   if not re.match("^[_A-Za-z0-9]*\.[_A-Za-z0-9]*\.[_A-Za-z0-9]*$", cffPath):
+   if not re.match("^[_A-Za-z0-9]*\\.[_A-Za-z0-9]*\\.[_A-Za-z0-9]*$", cffPath):
       raise SystemExit("Expected cff in form Package.Module.configName_cff")
    return 'process.load("%s")' % cffPath
 
