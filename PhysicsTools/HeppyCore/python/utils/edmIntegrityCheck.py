@@ -63,7 +63,7 @@ class PublishToFileSystem(object):
     
     def get(self, dir):
         """Finds the lastest file and reads it"""
-        reg = '^%s_.*\.txt$' % self.parent
+        reg = '^%s_.*\\.txt$' % self.parent
         files = castortools.matchingFiles(dir, reg)
         files = sorted([ (os.path.basename(f), f) for f in files])
         if not files:
@@ -117,7 +117,7 @@ class IntegrityCheck(object):
         def isCrabFile(name):
             _, fname = os.path.split(name)
             base, _ = os.path.splitext(fname)
-            return re.match(".*_\d+_\d+_\w+$", base) is not None, base
+            return re.match(".*_\\d+_\\d+_\\w+$", base) is not None, base
         def getCrabIndex(base):
             tokens = base.split('_')
             if len(tokens) > 2:

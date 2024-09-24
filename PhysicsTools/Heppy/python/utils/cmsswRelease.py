@@ -20,13 +20,13 @@ def releaseNumber(release = None):
     # first check if this is an integration build
     if release is None:
         release = cmsswRelease()
-    ibrel = re.compile('^CMSSW_(\d+)_(\d+)_X.*$')
+    ibrel = re.compile('^CMSSW_(\\d+)_(\\d+)_X.*$')
     m = ibrel.match(release)
     if m:
         big = int(m.group(1))
         medium = int(m.group(2))
         return big, medium
-    rerel = re.compile('^CMSSW_(\d+)_(\d+)_(\d+)(_\S+)*$')
+    rerel = re.compile('^CMSSW_(\\d+)_(\\d+)_(\\d+)(_\\S+)*$')
     m = rerel.match(release)
     if m is None:
         raise ValueError('malformed release string '+release)
@@ -34,8 +34,8 @@ def releaseNumber(release = None):
     medium = int(m.group(2))
     small = int(m.group(3))
     if m.group(4): # that's either a patch or prerelease
-        prel = re.compile('_pre(\d+)')
-        patch = re.compile('_patch(\d+)')
+        prel = re.compile('_pre(\\d+)')
+        patch = re.compile('_patch(\\d+)')
         pm = prel.match(m.group(4))
         if pm: # prerelease
             pre = int(pm.group(1))
