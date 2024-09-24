@@ -19,6 +19,7 @@ from Configuration.Eras.Modifier_tracker_apv_vfp30_2016_cff import tracker_apv_v
 from Configuration.Eras.Modifier_run3_common_cff import run3_common
 from Configuration.Eras.Modifier_run3_nanoAOD_122_cff import run3_nanoAOD_122
 from Configuration.Eras.Modifier_run3_nanoAOD_124_cff import run3_nanoAOD_124
+from Configuration.Eras.Modifier_run3_nanoAOD_pre142X_cff import run3_nanoAOD_pre142X
 from Configuration.Eras.Modifier_run3_jme_Winter22runsBCDEprompt_cff import run3_jme_Winter22runsBCDEprompt
 
 run2_nanoAOD_ANY = (
