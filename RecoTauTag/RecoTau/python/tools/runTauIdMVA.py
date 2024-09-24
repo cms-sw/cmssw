@@ -1314,7 +1314,7 @@ class TauIDEmbedder(object):
         """returns the DeepTau year, version, subversion. File name should contain a version label with data takig year \
         (2011-2, 2015-8), version number (vX) and subversion (pX), e.g. 2017v0p6, in general the following format: \
         {year}v{version}p{subversion}"""
-        version_search = re.search('(20[1,2][125678])v([0-9]+)(p[0-9]+|)[\._]', file_name)
+        version_search = re.search('(20[1,2][125678])v([0-9]+)(p[0-9]+|)[\\._]', file_name)
         if not version_search:
             raise RuntimeError('File "{}" has an invalid name pattern, should be in the format "{year}v{version}p{subversion}". \
                                 Unable to extract version number.'.format(file_name))
