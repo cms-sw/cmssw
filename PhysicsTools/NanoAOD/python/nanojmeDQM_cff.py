@@ -119,7 +119,6 @@ nanojmeDQM.vplots.FatJetForJEC = cms.PSet(
         Count1D('_size', 20, -0.5, 19.5, 'AK8 PF Puppi jets with JECs applied. Reclustered for JEC studies so only minimal info stored.'),
         Plot1D('area', 'area', 20, 0.2, 0.8, 'jet catchment area, for JECs'),
         Plot1D('eta', 'eta', 20, -6, 6, 'eta'),
-        Plot1D('jetId', 'jetId', 8, -0.5, 7.5, 'Jet ID flags bit1 is loose (always false in 2017 since it does not exist), bit2 is tight, bit3 is tightLepVeto'),
         Plot1D('mass', 'mass', 20, 0, 200, 'mass'),
         Plot1D('phi', 'phi', 20, -3.14159, 3.14159, 'phi'),
         Plot1D('pt', 'pt', 20, 0, 400, 'pt'),
