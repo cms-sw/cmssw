@@ -27,7 +27,7 @@ class RRApiError(Exception):
                     m = re.search("<pre>(.*)", line)
                     if m != None:
                         self.stack = m.group(1)
-                        m = re.search("^.+\.([^\.]+: .*)$", self.stack)
+                        m = re.search("^.+\\.([^\\.]+: .*)$", self.stack)
                         if m != None:
                             self.message = m.group(1)
                         else:
