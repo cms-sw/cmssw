@@ -55,11 +55,9 @@ process.add_(cms.Service('CUDAService'))
   std::cout << "Testing CUDA backend" << std::endl;
   tensorflow::Backend backend = tensorflow::Backend::cuda;
   tensorflow::Options options{backend};
-  tensorflow::setLogging("0");
 
   // load the graph
   std::string pbFile = dataPath_ + "/constantgraph.pb";
-  tensorflow::setLogging();
   tensorflow::GraphDef* graphDef = tensorflow::loadGraphDef(pbFile);
   CPPUNIT_ASSERT(graphDef != nullptr);
 
