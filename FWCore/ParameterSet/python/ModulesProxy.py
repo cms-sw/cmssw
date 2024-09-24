@@ -7,10 +7,10 @@ class _ModuleProxy (object):
         self._package = package
         self._name = name
         self._caller = None
-    def __call__(self,**kwargs):
+    def __call__(self,*arg, **kwargs):
         if not self._caller:
             self._caller = getattr(importlib.import_module(self._package+'.'+self._name),self._name)
-        return self._caller(**kwargs)
+        return self._caller(*arg, **kwargs)
 
 
 def _setupProxies(fullName:str):
