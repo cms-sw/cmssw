@@ -4,11 +4,14 @@ NON_IBEOS_FILES=""
 # try to download cache
 IBEOS_CACHE=${LOCALRT}/ibeos_cache.txt
 if [ ! -f ${IBEOS_CACHE} ]; then
-  curl -L -s -o ${IBEOS_CACHE} https://raw.githubusercontent.com/cms-sw/cms-sw.github.io/master/das_queries/ibeos.txt
+  IBEOS_CACHE_TMP=${IBEOS_CACHE}.$$
+  curl -L -s -o ${IBEOS_CACHE_TMP} https://raw.githubusercontent.com/cms-sw/cms-sw.github.io/master/das_queries/ibeos.txt
   CURL_EXIT=$?
   if [ ${CURL_EXIT} -ne 0 ]; then
     rm -f ${IBEOS_CACHE}
     echo "Error: Unable to download ibeos cache information"
+  else
+    mv ${IBEOS_CACHE_TMP} ${IBEOS_CACHE}
   fi
 fi
 if [ -f ${IBEOS_CACHE} ] ; then
