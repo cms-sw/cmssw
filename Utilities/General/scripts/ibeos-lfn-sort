@@ -1,0 +1,23 @@
+#!/bin/bash
+
+ibeos_err(){
+	CMSSW_PREF=$1
+	echo "You have executed this command without the correct PATH setting. Please run the following and then rerun your command:"
+	echo 'PATH=$'$CMSSW_PREF':$PATH'
+	exit 1
+}
+
+# swallow piped input
+while read LFN ; do
+	:
+done
+
+CMSSW_PATH=src/Utilities/General/ibeos
+for CMSSW_VAR in CMSSW_BASE CMSSW_RELEASE_BASE; do
+	if [ -n ${!CMSSW_VAR} ] && [ -e ${!CMSSW_VAR}/${CMSSW_PATH} ]; then
+		ibeos_err ${CMSSW_VAR}/${CMSSW_PATH}
+	fi
+done
+
+echo "CMSSW environment not set"
+exit 1
