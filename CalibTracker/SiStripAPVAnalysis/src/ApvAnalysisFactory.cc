@@ -121,7 +121,7 @@ void ApvAnalysisFactory::constructAuxiliaryApvClasses(ApvAnalysis* theAPV, uint3
       return;
     }
   } else {
-    cout << "ApvAnalysisFactory: algorithm " << theAlgorithmType_ << " not supported" << endl:
+    cout << "ApvAnalysisFactory: algorithm " << theAlgorithmType_ << " not supported" << endl;
     return;
   }
 
