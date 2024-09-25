@@ -199,7 +199,9 @@ bool LHCOpticsApproximator::Transport_m_GeV(double in_pos[3],
   in[3] = in_momentum[1] / nominal_beam_momentum_;
   in[4] = (part_mom - nominal_beam_momentum_) / nominal_beam_momentum_;
 
-  if (!Transport(in, out, check_apertures, true)) { return false; }
+  if (!Transport(in, out, check_apertures, true)) {
+    return false;
+  }
 
   out_pos[0] = out[0];
   out_pos[1] = out[2];
@@ -209,7 +211,7 @@ bool LHCOpticsApproximator::Transport_m_GeV(double in_pos[3],
   out_momentum[1] = out[3] * nominal_beam_momentum_;
   double part_out_total_mom = (out[4] + 1) * nominal_beam_momentum_;
   out_momentum[2] = std::sqrt(part_out_total_mom * part_out_total_mom - out_momentum[0] * out_momentum[0] -
-                                out_momentum[1] * out_momentum[1]);
+                              out_momentum[1] * out_momentum[1]);
   out_momentum[2] = TMath::Sign(out_momentum[2], in_momentum[2]);
 
   return true;
@@ -231,7 +233,9 @@ bool LHCOpticsApproximator::Transport(const MadKinematicDescriptor *in,
   input[4] = in->ksi;
 
   //transport inverts the coordinate systems
-  if (!Transport(input, output, check_apertures, invert_beam_coord_sytems)) { return false; }
+  if (!Transport(input, output, check_apertures, invert_beam_coord_sytems)) {
+    return false;
+  }
 
   out->x = output[0];
   out->theta_x = output[1];
@@ -1033,13 +1037,17 @@ void LHCOpticsApproximator::PrintCoordinateOpticalFunctions(TMultiDimFet &parame
 void LHCOpticsApproximator::GetLinearApproximation(
     double atPoint[], double &Cx, double &Lx, double &vx, double &Cy, double &Ly, double &vy, double &D, double ep) {
   double out[2];
-  if (!Transport2D(atPoint, out)) { return; }
+  if (!Transport2D(atPoint, out)) {
+    return;
+  }
   Cx = out[0];
   Cy = out[1];
 
   for (int i = 0; i < 5; ++i) {
     atPoint[i] += ep;
-    if (!Transport2D(atPoint, out)) { continue; }
+    if (!Transport2D(atPoint, out)) {
+      continue;
+    }
     switch (i) {
       case 0:
         vx = (out[0] - Cx) / ep;
@@ -1081,18 +1089,24 @@ void LHCOpticsApproximator::GetLineariasedTransportMatrixX(double mad_init_x,
 
   double out[5];
 
-  if (!Transport(in, out)) { return; };
+  if (!Transport(in, out)) {
+    return;
+  };
   double x1 = out[0];
   double thx1 = out[1];
 
   in[0] = mad_init_x + d_mad_x;
-  if (!Transport(in, out)) { return; }
+  if (!Transport(in, out)) {
+    return;
+  }
   double x2_dx = out[0];
   double thx2_dx = out[1];
 
   in[0] = mad_init_x;
   in[1] = mad_init_thx + d_mad_thx;  //?
-  if (!Transport(in, out)) { return; }
+  if (!Transport(in, out)) {
+    return;
+  }
   double x2_dthx = out[0];
   double thx2_dthx = out[1];
 
@@ -1125,18 +1139,24 @@ void LHCOpticsApproximator::GetLineariasedTransportMatrixY(double mad_init_x,
 
   double out[5];
 
-  if (!Transport(in, out)) { return; };
+  if (!Transport(in, out)) {
+    return;
+  };
   double y1 = out[2];
   double thy1 = out[3];
 
   in[2] = mad_init_y + d_mad_y;
-  if (!Transport(in, out)) { return; }
+  if (!Transport(in, out)) {
+    return;
+  }
   double y2_dy = out[2];
   double thy2_dy = out[3];
 
   in[2] = mad_init_y;
   in[3] = mad_init_thy + d_mad_thy;  //?
-  if (!Transport(in, out)) { return; }
+  if (!Transport(in, out)) {
+    return;
+  }
   double y2_dthy = out[2];
   double thy2_dthy = out[3];
 
@@ -1165,11 +1185,15 @@ double LHCOpticsApproximator::GetDx(double mad_init_x,
 
   double out[5];
 
-  if (!Transport(in, out)) { return 0.0; }
+  if (!Transport(in, out)) {
+    return 0.0;
+  }
   double x1 = out[0];
 
   in[4] = mad_init_xi + d_mad_xi;
-  if (!Transport(in, out)) { return 0.0; }
+  if (!Transport(in, out)) {
+    return 0.0;
+  }
   double x2_dxi = out[0];
   double dispersion = (x2_dxi - x1) / d_mad_xi;
 
@@ -1194,11 +1218,15 @@ double LHCOpticsApproximator::GetDxds(double mad_init_x,
 
   double out[5];
 
-  if (!Transport(in, out)) { return 0.0; }
+  if (!Transport(in, out)) {
+    return 0.0;
+  }
   double thx1 = out[1] / MADX_momentum_correction_factor;
 
   in[4] = mad_init_xi + d_mad_xi;
-  if (!Transport(in, out)) { return 0.0; }
+  if (!Transport(in, out)) {
+    return 0.0;
+  }
   double thx2_dxi = out[1] / MADX_momentum_correction_factor;
   double dispersion = (thx2_dxi - thx1) / d_mad_xi;
 
