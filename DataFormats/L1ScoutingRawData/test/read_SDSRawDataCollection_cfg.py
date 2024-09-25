@@ -13,7 +13,8 @@ process.testReadSDSDRawDataCollection = cms.EDAnalyzer("TestReadSDSRawDataCollec
 )
 
 process.out = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('testSDSRawDataCollection2.root')
+    fileName = cms.untracked.string('testSDSRawDataCollection2.root'),
+    fastCloning = cms.untracked.bool(False)
 )
 
 process.path = cms.Path(process.testReadSDSDRawDataCollection)

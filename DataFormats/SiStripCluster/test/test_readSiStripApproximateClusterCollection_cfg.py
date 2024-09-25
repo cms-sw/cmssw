@@ -11,7 +11,8 @@ process.testReadSiStripApproximateClusterCollection = cms.EDAnalyzer("TestReadSi
 )
 
 process.out = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('testSiStripApproximateClusterCollection2.root')
+    fileName = cms.untracked.string('testSiStripApproximateClusterCollection2.root'),
+    fastCloning = cms.untracked.bool(False)
 )
 
 process.path = cms.Path(process.testReadSiStripApproximateClusterCollection)

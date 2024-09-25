@@ -15,8 +15,9 @@ args = parser.parse_args()
 
 process = cms.Process("READ")
 
-process = fixReading_12_4_X_Files(process)
-print("FixingStreamerInfos")
+if args.fixStreamerInfo:
+    process = fixReading_12_4_X_Files(process)
+    print("FixingStreamerInfos")
 
 process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring("file:"+args.inputFile))
 
@@ -113,7 +114,8 @@ process.testReadRun3Scouting = cms.EDAnalyzer("TestReadRun3Scouting",
 )
 
 process.out = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string(args.outputFileName)
+    fileName = cms.untracked.string(args.outputFileName),
+    fastCloning = cms.untracked.bool(False)
 )
 
 process.path = cms.Path(process.testReadRun3Scouting)
