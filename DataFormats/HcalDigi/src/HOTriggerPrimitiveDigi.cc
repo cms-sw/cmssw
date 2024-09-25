@@ -1,19 +1,24 @@
 #include "DataFormats/HcalDigi/interface/HOTriggerPrimitiveDigi.h"
-#include <cstdio>
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 HOTriggerPrimitiveDigi::HOTriggerPrimitiveDigi(
     int ieta, int iphi, int nsamples, int whichSampleTriggered, int databits) {
-  if ((nsamples < 0) || (nsamples > HO_TP_SAMPLES_MAX))
-    printf("HOTRiggerPrimitiveDigi: nsamples out of range.");
-  if ((whichSampleTriggered < 0) || (whichSampleTriggered > nsamples))
-    printf("HOTriggerPrimitiveDigi: specified Triggering Sample out of range");
-  if ((databits >> nsamples) != 0x0000)
-    printf("HOTRiggerPrimitiveDigi: Specified extra bits out of nsamples range.");
+  if ((nsamples < 0) || (nsamples > HO_TP_SAMPLES_MAX)) {
+    edm::LogWarning("HOTRiggerPrimitiveDigi") << "value " << nsamples << " of nsamples out of range.";
+    if (nsamples < 0) {
+      nsamples = 0;
+    } else {
+      nsamples = HO_TP_SAMPLES_MAX;
+    }
+  } else if ((whichSampleTriggered < 0) || (whichSampleTriggered > nsamples)) {
+    edm::LogWarning("HOTriggerPrimitiveDigi")
+        << "value " << whichSampleTriggered << " of specified Triggering Sample out of range.";
+  } else if ((databits >> nsamples) != 0x0000) {
+    edm::LogWarning("HOTRiggerPrimitiveDigi")
+        << "nsamples " << nsamples << " and databits " << databits << "caused specified extra bits ("
+        << (databits >> nsamples) << ") to be out of nsamples range.";
+  }
   int samples = nsamples;
-  if (samples < 0)
-    samples = 0;
-  if (samples > HO_TP_SAMPLES_MAX)
-    samples = HO_TP_SAMPLES_MAX;
 
   theHO_TP = (abs(ieta) & 0xf) | ((ieta < 0) ? (0x10) : (0x00)) | ((iphi & 0x7F) << 5) | ((samples & 0xF) << 12) |
              (((whichSampleTriggered) & 0xF) << 16) | ((databits & 0x3FF) << 20);
@@ -22,7 +27,7 @@ HOTriggerPrimitiveDigi::HOTriggerPrimitiveDigi(
 //Request the value of a given HO TP bit in the HO TP Digi.
 bool HOTriggerPrimitiveDigi::data(int whichbit) const {
   if ((whichbit < 0) || (whichbit > nsamples())) {
-    printf("HOTPDigi: Sample bit requested out of range.");
+    edm::LogWarning("HOTriggerPrimitiveDigi") << "value " << whichbit << " of sample bit requested out of range.";
     return false;
   }
   return ((theHO_TP >> (20 + whichbit)) & 0x0001);
