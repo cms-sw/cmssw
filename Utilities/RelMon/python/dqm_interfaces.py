@@ -96,8 +96,8 @@ class DQMcommunicator(object):
         data = self.open_url(full_url).read()
 
         data = sub("-inf", '0', data)
-        data = sub("\s+inf", '0', data)
-        data = sub("\s+nan", '0', data)
+        data = sub("\\s+inf", '0', data)
+        data = sub("\\s+nan", '0', data)
         data = sub('""(CMSSW.*?)""', '"\\1"', data)
 
         return data
