@@ -395,7 +395,7 @@ class MatrixInjector(object):
                                     chainDict['nowmTasklist'][-1]['EventsPerLumi'] = ns[1]
                                     #overwrite EventsPerLumi if numberEventsInLuminosityBlock is set in cmsDriver
                                     if 'numberEventsInLuminosityBlock' in s[2][index]:
-                                        nEventsInLuminosityBlock = re.findall('process.source.numberEventsInLuminosityBlock=cms.untracked.uint32\(([ 0-9 ]*)\)', s[2][index],re.DOTALL)
+                                        nEventsInLuminosityBlock = re.findall('process.source.numberEventsInLuminosityBlock=cms.untracked.uint32\\(([ 0-9 ]*)\\)', s[2][index],re.DOTALL)
                                         if nEventsInLuminosityBlock[-1].isdigit() and int(nEventsInLuminosityBlock[-1]) < ns[1]:
                                             chainDict['nowmTasklist'][-1]['EventsPerLumi'] = int(nEventsInLuminosityBlock[-1])
                                     if(self.numberEventsInLuminosityBlock > 0 and self.numberEventsInLuminosityBlock <= ns[1]):
