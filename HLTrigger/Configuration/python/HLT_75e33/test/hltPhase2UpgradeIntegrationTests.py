@@ -1,4 +1,5 @@
 import argparse
+import fnmatch
 import os
 import re
 import shutil
@@ -52,6 +53,8 @@ parser.add_argument("--era", default=_PH2_ERA_NAME, help="Era setting for the CM
 parser.add_argument("--events", type=int, default=10, help="Number of events to process")
 parser.add_argument("--parallelJobs", type=int, default=4, help="Number of parallel cmsRun HLT jobs")
 parser.add_argument("--threads", type=int, default=1, help="Number of threads to use")
+parser.add_argument("--restrictPathsTo", nargs='+', default=[], help="List of HLT paths to restrict to")
+
 
 # Step 0: Capture the start time and print the start timestamp
 start_time = time.time()
@@ -73,6 +76,7 @@ geometry = args.geometry
 num_events = args.events
 num_threads = args.threads
 num_parallel_jobs = args.parallelJobs
+restrict_paths_to = args.restrictPathsTo
 
 # Print the values in a nice formatted manner
 print(f"{'Configuration Summary':^40}")
@@ -83,6 +87,9 @@ print(f"Era:           {era}")
 print(f"Num Events:    {num_events}")
 print(f"Num Threads:   {num_threads}")
 print(f"Num Par. Jobs: {num_parallel_jobs}")
+# Print restrictPathsTo if provided
+if restrict_paths_to:
+    print(f"Restricting paths to: {', '.join(restrict_paths_to)}")
 print("=" * 40)
 
 # Directory where all test configurations will be stored
@@ -136,6 +143,34 @@ if not hlt_paths:
     exit(1)
 
 print(f"Found {len(hlt_paths)} HLT paths.")
+
+# Step 3b: Restrict paths using wildcard patterns if the option is provided
+if restrict_paths_to:
+    valid_paths = set()  # Using a set to store matched paths
+
+    # Iterate over each provided pattern
+    for pattern in restrict_paths_to:
+        # Use fnmatch to match the pattern to hlt_paths
+        matched = fnmatch.filter(hlt_paths, pattern)
+        valid_paths.update(matched)  # Add matches to the set of valid paths
+
+        # If no matches found, emit a warning for that pattern
+        if not matched:
+            print(f"Warning: No paths matched the pattern: {pattern}")
+
+    # Convert the set to a sorted list
+    valid_paths = sorted(valid_paths)
+
+    # If no valid paths remain after filtering, exit
+    if not valid_paths:
+        print("Error: None of the specified patterns matched any paths. Exiting.")
+        exit(1)
+
+    # Update hlt_paths to contain only the valid ones
+    hlt_paths = valid_paths
+
+    # Continue using the restricted hlt_paths further down the script
+    print(f"Using {len(hlt_paths)} HLT paths after applying restrictions.")
 
 # Step 4: Broadened Regex for Matching process.schedule
 schedule_match = re.search(
