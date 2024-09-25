@@ -80,8 +80,8 @@ class SVG:
 
   SVG in Python
 
-  >>> svg = SVG("g", SVG("rect", x=1, y=1, width=2, height=2), \ 
-  ...                SVG("rect", x=3, y=3, width=2, height=2), \ 
+  >>> svg = SVG("g", SVG("rect", x=1, y=1, width=2, height=2), \\ 
+  ...                SVG("rect", x=3, y=3, width=2, height=2), \\ 
   ...           id="mygroup", fill="blue")
 
   Sub-elements and attributes may be accessed through tree-indexing:
@@ -96,7 +96,7 @@ class SVG:
 
   Iteration is depth-first:
 
-  >>> svg = SVG("g", SVG("g", SVG("line", x1=0, y1=0, x2=1, y2=1)), \
+  >>> svg = SVG("g", SVG("g", SVG("line", x1=0, y1=0, x2=1, y2=1)), \\
   ...                SVG("text", SVG("tspan", "hello again")))
   ... 
   >>> for ti, s in svg:
@@ -419,7 +419,7 @@ class SVG:
     """
     fileName = self.interpret_fileName(fileName)
 
-    if compresslevel != None or re.search("\.svgz$", fileName, re.I) or re.search("\.gz$", fileName, re.I):
+    if compresslevel != None or re.search("\\.svgz$", fileName, re.I) or re.search("\\.gz$", fileName, re.I):
       import gzip
       if compresslevel == None:
         f = gzip.GzipFile(fileName, "w")
@@ -511,7 +511,7 @@ def canvas_outline(*sub, **attr):
   """Same as canvas(), but draws an outline around the drawable area,
   so that you know how close your image is to the edges."""
   svg = canvas(*sub, **attr)
-  match = re.match("[, \t]*([0-9e.+\-]+)[, \t]+([0-9e.+\-]+)[, \t]+([0-9e.+\-]+)[, \t]+([0-9e.+\-]+)[, \t]*", svg["viewBox"])
+  match = re.match("[, \t]*([0-9e.+\\-]+)[, \t]+([0-9e.+\\-]+)[, \t]+([0-9e.+\\-]+)[, \t]+([0-9e.+\\-]+)[, \t]*", svg["viewBox"])
   if match == None: raise ValueError("canvas viewBox is incorrectly formatted")
   x, y, width, height = [float(x) for x in match.groups()]
   svg.prepend(SVG("rect", x=x, y=y, width=width, height=height, stroke="none", fill="cornsilk"))
@@ -558,7 +558,7 @@ def load_stream(stream):
     def __init__(self):
       self.stack = []
       self.output = None
-      self.all_whitespace = re.compile("^\s*$")
+      self.all_whitespace = re.compile("^\\s*$")
 
     def startElement(self, name, attr):
       s = SVG(name)
