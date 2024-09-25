@@ -63,6 +63,15 @@ void PatternRecognitionbyPassthrough<TILES>::makeTracksters(
 }
 
 template <typename TILES>
+void PatternRecognitionbyPassthrough<TILES>::filter(
+    std::vector<Trackster> &output,
+    const std::vector<Trackster> &inTracksters,
+    const typename PatternRecognitionAlgoBaseT<TILES>::Inputs &input,
+    std::unordered_map<int, std::vector<int>> &seedToTracksterAssociation) {
+  output = inTracksters;
+}
+
+template <typename TILES>
 void PatternRecognitionbyPassthrough<TILES>::fillPSetDescription(edm::ParameterSetDescription &iDesc) {
   iDesc.add<int>("algo_verbosity", 0);
 }
