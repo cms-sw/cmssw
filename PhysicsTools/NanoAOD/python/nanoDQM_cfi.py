@@ -966,6 +966,9 @@ nanoDQM = DQMEDAnalyzer("NanoAODDQM",
                 Plot1D('rawIsodR03', 'rawIsodR03', 20, 0, 200, 'combined isolation (deltaBeta corrections, dR=0.3)'),
                 Plot1D('rawMVAnewDM2017v2', 'rawMVAnewDM2017v2', 20, -1, 1, 'byIsolationMVArun2017v2DBnewDMwLT raw output discriminator (2017v2)'),
                 Plot1D('rawMVAoldDM2017v2', 'rawMVAoldDM2017v2', 20, -1, 1, 'byIsolationMVArun2017v2DBoldDMwLT raw output discriminator (2017v2)'),
+                Plot1D('rawBoostedDeepTauRunIIv2p0VSe', 'rawBoostedDeepTauRunIIv2p0VSe', 20, 0, 1, 'BoostedDeepTau(v2p0) tagger for boostedTaus raw scores Vs e'),
+                Plot1D('rawBoostedDeepTauRunIIv2p0VSjet', 'rawBoostedDeepTauRunIIv2p0VSjet', 20, 0, 1, 'BoostedDeepTau(v2p0) tagger for boostedTaus raw scores Vs jet'),
+                Plot1D('rawBoostedDeepTauRunIIv2p0VSmu', 'rawBoostedDeepTauRunIIv2p0VSmu', 20, 0, 1, 'BoostedDeepTau(v2p0) tagger for boostedTaus raw scores Vs mu'),
             )
         ),
         L1PreFiringWeight = cms.PSet(
