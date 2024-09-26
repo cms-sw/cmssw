@@ -144,7 +144,7 @@ from Alignment.OfflineValidation.diMuonValidation_cfi import diMuonValidation as
 process.DiMuonMassValidation = _diMuonValidation.clone(
     TkTag = 'TrackRefitter',
     # mu mu mass
-    Pair_mass_min   = 80.,
+    Pair_mass_min   = 60.,
     Pair_mass_max   = 120.,
     Pair_mass_nbins = 80,
     Pair_etaminpos  = -2.4,
