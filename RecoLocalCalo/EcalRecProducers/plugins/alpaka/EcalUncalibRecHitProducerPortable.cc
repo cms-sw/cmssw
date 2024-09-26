@@ -162,9 +162,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     // copy the actual numbers of digis in the collections to host
     auto ebDigisSizeDevConstView =
-        cms::alpakatools::make_device_view<const uint32_t>(alpaka::getDev(queue), ebDigisDev.const_view().size());
+        cms::alpakatools::make_device_view<const uint32_t>(queue, ebDigisDev.const_view().size());
     auto eeDigisSizeDevConstView =
-        cms::alpakatools::make_device_view<const uint32_t>(alpaka::getDev(queue), eeDigisDev.const_view().size());
+        cms::alpakatools::make_device_view<const uint32_t>(queue, eeDigisDev.const_view().size());
     alpaka::memcpy(queue, ebDigisSizeHostBuf_, ebDigisSizeDevConstView);
     alpaka::memcpy(queue, eeDigisSizeHostBuf_, eeDigisSizeDevConstView);
   }
@@ -186,9 +186,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // reset the size scalar of the SoA
     // memset takes an alpaka view that is created from the scalar in a view to the portable device collection
     auto uncalibRecHitSizeViewEB =
-        cms::alpakatools::make_device_view<uint32_t>(alpaka::getDev(queue), uncalibRecHitsDevEB.view().size());
+        cms::alpakatools::make_device_view<uint32_t>(queue, uncalibRecHitsDevEB.view().size());
     auto uncalibRecHitSizeViewEE =
-        cms::alpakatools::make_device_view<uint32_t>(alpaka::getDev(queue), uncalibRecHitsDevEE.view().size());
+        cms::alpakatools::make_device_view<uint32_t>(queue, uncalibRecHitsDevEE.view().size());
     alpaka::memset(queue, uncalibRecHitSizeViewEB, 0);
     alpaka::memset(queue, uncalibRecHitSizeViewEE, 0);
 
