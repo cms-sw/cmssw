@@ -590,7 +590,6 @@ void Converter<DDLCompositeMaterial>::operator()(xml_h element) const {
   TGeoManager& mgr = description.manager();
   TGeoMaterial* mat = mgr.GetMaterial(nam.c_str());
   if (nullptr == mat) {
-    const char* matname = nam.c_str();
     double density = xmat.attr<double>(DD_CMU(density)) / (dd4hep::g / dd4hep::cm3);
     xml_coll_t composites(xmat, DD_CMU(MaterialFraction));
     TGeoMixture* mix = new TGeoMixture(nam.c_str(), composites.size(), density);
@@ -634,10 +633,10 @@ void Converter<DDLCompositeMaterial>::operator()(xml_h element) const {
     mix->SetPressure(ns.context()->description.stdConditions().pressure);
     mix->SetRadLen(0e0);
     /// Create medium from the material
-    TGeoMedium* medium = mgr.GetMedium(matname);
+    TGeoMedium* medium = mgr.GetMedium(nam.c_str());
     if (nullptr == medium) {
       --unique_mat_id;
-      medium = new TGeoMedium(matname, unique_mat_id, mix);
+      medium = new TGeoMedium(nam.c_str(), unique_mat_id, mix);
       medium->SetTitle("material");
       medium->SetUniqueID(unique_mat_id);
     }
