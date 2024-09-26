@@ -1,5 +1,14 @@
 #!/bin/bash
 
+# Explanation:
+# This is a *fake* version of ibeos-lfn-sort that is placed in $PATH by default
+# to provide a clearer warning to users who execute a command using ibeos-lfn-sort
+# without the correct temporary $PATH adjustment.
+# The real ibeos-lfn-sort needs a customized version of dasgoclient,
+# which should not be in $PATH by default.
+# Therefore, both the real ibeos-lfn-sort and the customized dasgoclient
+# are kept in Utilities/General/ibeos, which is only prepended to $PATH when specifically necessary.
+
 ibeos_err(){
 	CMSSW_PREF=$1
 	echo "You have executed this command without the correct PATH setting. Please run the following and then rerun your command:"
