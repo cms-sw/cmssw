@@ -52,3 +52,18 @@ pileUpJetIDTask = cms.Task(pileupJetId,
                            pileupJetIdCalculator,
                            pileupJetIdEvaluator
 )
+
+#
+#
+#
+_puppiV18algos_133X_Winter24 = cms.VPSet(full_133x_Winter24_puppi_v18_wp,cutbased)
+
+pileupJetIdPuppi = pileupJetId.clone(
+    jets = "ak4PFJetsPuppi",
+    jec  = "AK4PFPuppi",
+    srcConstituentWeights = "puppi",
+    algos = cms.VPSet(_puppiV18algos_133X_Winter24),
+)
+
+pileUpJetIDPuppiTask = cms.Task(pileupJetIdPuppi)
+
