@@ -233,8 +233,6 @@ std::unique_ptr<L2TauNNProducerAlpakaCacheData> L2TauNNProducerAlpaka::initializ
   cacheData->graphDef = tensorflow::loadGraphDef(graphPath);
   cacheData->session = tensorflow::createSession(cacheData->graphDef);
 
-  tensorflow::setLogging("2");
-
   boost::property_tree::ptree loadPtreeRoot;
   auto const normalizationDict = edm::FileInPath(cfg.getParameter<std::string>("normalizationDict")).fullPath();
   boost::property_tree::read_json(normalizationDict, loadPtreeRoot);

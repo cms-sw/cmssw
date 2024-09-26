@@ -582,7 +582,6 @@ void L1NNCaloTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& eSe
   }  // End while loop of endcap TowerClusters creation
 
   // Barrel TauMinator application
-  tensorflow::setLogging("2");
   int batchSize_CB = (int)(l1TowerClustersNxM_CB.size());
   tensorflow::TensorShape imageShape_CB({batchSize_CB, IEta_dim, IPhi_dim, 2});
   tensorflow::TensorShape positionShape_CB({batchSize_CB, 2});
