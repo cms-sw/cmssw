@@ -77,7 +77,7 @@ for i in range(0,3):
 refittedPV = patRefitVertexProducer.clone(
     srcVertices = "offlineSlimmedPrimaryVertices",
 )
-run2_nanoAOD_ANY.toModify(
+run2_nanoAOD_106Xv2.toModify(
     prod_common, pvSource = "refittedPV")
 
 # Definition of DQM plots
@@ -140,7 +140,7 @@ def addElectronTimeLifeInfoTask(process):
         setattr(process,'refittedPV',refittedPV)
     _electronTimeLifeInfoTaskRun2 = process.electronTimeLifeInfoTask.copy()
     _electronTimeLifeInfoTaskRun2.add(process.refittedPV)
-    run2_nanoAOD_ANY.toReplaceWith(process.electronTimeLifeInfoTask,
+    run2_nanoAOD_106Xv2.toReplaceWith(process.electronTimeLifeInfoTask,
                                    _electronTimeLifeInfoTaskRun2)
     process.electronTablesTask.add(process.electronTimeLifeInfoTask)
     return process
@@ -205,7 +205,7 @@ def addMuonTimeLifeInfoTask(process):
         setattr(process,'refittedPV',refittedPV)
     _muonTimeLifeInfoTaskRun2 = process.muonTimeLifeInfoTask.copy()
     _muonTimeLifeInfoTaskRun2.add(process.refittedPV)
-    run2_nanoAOD_ANY.toReplaceWith(process.muonTimeLifeInfoTask,
+    run2_nanoAOD_106Xv2.toReplaceWith(process.muonTimeLifeInfoTask,
                                    _muonTimeLifeInfoTaskRun2)
     process.muonTablesTask.add(process.muonTimeLifeInfoTask)
     return process
@@ -269,7 +269,7 @@ def addTauTimeLifeInfoTask(process):
         setattr(process,'refittedPV',refittedPV)
     _tauTimeLifeInfoTaskRun2 = process.tauTimeLifeInfoTask.copy()
     _tauTimeLifeInfoTaskRun2.add(process.refittedPV)
-    run2_nanoAOD_ANY.toReplaceWith(process.tauTimeLifeInfoTask,
+    run2_nanoAOD_106Xv2.toReplaceWith(process.tauTimeLifeInfoTask,
                                    _tauTimeLifeInfoTaskRun2)
     process.tauTablesTask.add(process.tauTimeLifeInfoTask)
     return process
@@ -334,7 +334,7 @@ def addExtendVertexInfo(process):
         setattr(process,'refittedPV',refittedPV)
     _pvbsTableTaskRun2 = process.pvbsTableTask.copy()
     _pvbsTableTaskRun2.add(process.refittedPV)
-    run2_nanoAOD_ANY.toReplaceWith(process.pvbsTableTask,
+    run2_nanoAOD_106Xv2.toReplaceWith(process.pvbsTableTask,
                                    _pvbsTableTaskRun2)
     process.vertexTablesTask.add(process.pvbsTableTask)
     return process
