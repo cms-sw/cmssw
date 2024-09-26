@@ -6,7 +6,7 @@
 echo
 echo "Create online version of the combined Special subtable"
 echo
-MASTER="/dev/CMSSW_14_0_0/HLT"             # no version, take the latest one
+MASTER="/dev/CMSSW_14_1_0/HLT"             # no version, take the latest one
 TARGET="/online/special/2024/v1.5/TABLE"   # where to store the online-compliant menu
 PREFIX="online_"
 TABLES="Special"
