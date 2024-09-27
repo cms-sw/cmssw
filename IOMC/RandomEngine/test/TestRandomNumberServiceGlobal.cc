@@ -80,7 +80,7 @@ the text file containing the states.
 #include <mutex>
 #include <sstream>
 #include <string>
-#include <unistd.h>
+#include <chrono>
 
 namespace {
   std::mutex write_mutex;
@@ -188,7 +188,8 @@ void TestRandomNumberServiceGlobal::analyze(edm::StreamID streamID,
                                             edm::EventSetup const&) const {
   // Add some sleep to encourage all the streams to get events to process.
   if (nStreams_ > 1) {
-    usleep(25000);
+    using namespace std::chrono_literals;
+    std::this_thread::sleep_for(25ms);
   }
 
   if (dump_) {
