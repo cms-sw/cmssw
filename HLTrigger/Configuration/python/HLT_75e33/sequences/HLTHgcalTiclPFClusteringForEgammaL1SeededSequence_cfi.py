@@ -52,25 +52,26 @@ hltTiclEGammaSuperClusterProducerL1Seeded = ticlEGammaSuperClusterProducer.clone
 from Configuration.ProcessModifiers.ticl_superclustering_dnn_cff import ticl_superclustering_dnn
 ticl_superclustering_dnn.toReplaceWith(_SuperclusteringUnseededSequence, 
                                        cms.Sequence(
-                                           hltTiclTracksterLinksSuperclusteringDNNL1Seeded
-                                           + hltTiclEGammaSuperClusterProducerL1Seeded
-                                           )
+                                                    hltTiclTracksterLinksSuperclusteringDNNL1Seeded
+                                                    + hltTiclEGammaSuperClusterProducerL1Seeded
+                                       )
 )
 ticl_superclustering_dnn.toModify(hltTiclEGammaSuperClusterProducerL1Seeded, 
                                   ticlSuperClusters=cms.InputTag("hltTiclTracksterLinksSuperclusteringDNNL1Seeded"),
                                   ticlTrackstersEM=cms.InputTag("hltTiclTrackstersCLUE3DHighL1Seeded"),
-                                  layerClusters=cms.InputTag("hltHgcalMergeLayerClustersL1Seeded"))
+                                  layerClusters=cms.InputTag("hltHgcalMergeLayerClustersL1Seeded")
+)
 
 # Mustache
 from Configuration.ProcessModifiers.ticl_superclustering_mustache_ticl_cff import ticl_superclustering_mustache_ticl
 ticl_superclustering_mustache_ticl.toReplaceWith(_SuperclusteringUnseededSequence, 
-                                       cms.Sequence(
-                                           hltTiclTracksterLinksSuperclusteringMustacheL1Seeded
-                                           + hltTiclEGammaSuperClusterProducerL1Seeded
-                                           )
+                                                cms.Sequence(
+                                                             hltTiclTracksterLinksSuperclusteringMustacheL1Seeded
+                                                             + hltTiclEGammaSuperClusterProducerL1Seeded
+                                                )
 )
 ticl_superclustering_mustache_ticl.toModify(hltTiclEGammaSuperClusterProducerL1Seeded, 
-                                  ticlSuperClusters=cms.InputTag("hltTiclTracksterLinksSuperclusteringMustacheL1Seeded"),
-                                  ticlTrackstersEM=cms.InputTag("hltTiclTrackstersCLUE3DHighL1Seeded"),
-                                  layerClusters=cms.InputTag("hltHgcalMergeLayerClustersL1Seeded")
-                                  )
+                                            ticlSuperClusters=cms.InputTag("hltTiclTracksterLinksSuperclusteringMustacheL1Seeded"),
+                                            ticlTrackstersEM=cms.InputTag("hltTiclTrackstersCLUE3DHighL1Seeded"),
+                                            layerClusters=cms.InputTag("hltHgcalMergeLayerClustersL1Seeded")
+)
