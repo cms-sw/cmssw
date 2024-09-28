@@ -29,13 +29,13 @@ void PatternRecognitionbyRecovery<TILES>::makeTracksters(
   edm::EventSetup const &es = input.es;
   const CaloGeometry &geom = es.getData(caloGeomToken_);
   rhtools_.setGeometry(geom);
-
+  const auto z_limit_em = rhtools_.getPositionLayer(rhtools_.lastLayerEE(false), false).z();
   // Clear the result vector
   result.clear();
 
   // Iterate over all layer clusters
   for (size_t i = 0; i < input.layerClusters.size(); ++i) {
-    if (input.mask[i] == 0.) {
+    if (input.mask[i] == 0.f) {
       continue;  // Skip masked clusters
     }
 
@@ -43,18 +43,21 @@ void PatternRecognitionbyRecovery<TILES>::makeTracksters(
     Trackster trackster;
     trackster.vertices().push_back(i);
     trackster.vertex_multiplicity().push_back(1);
+    const auto &lc = input.layerClusters[i];
+    trackster.setTimeAndError(input.layerClustersTime.get(i).first, input.layerClustersTime.get(i).second);
+    trackster.setRawEnergy(lc.energy());
+    trackster.setBarycenter({float(lc.x()), float(lc.y()), float(lc.z())});
+    float invcosh = 1.f / std::cosh(lc.position().eta());
+    trackster.setRawPt(lc.energy() * invcosh);
+
+    if (std::abs(lc.z()) <= z_limit_em) {
+      trackster.setRawEmEnergy(lc.energy());
+      trackster.setRawEmPt(lc.energy() * invcosh);
+    }
 
     // Add the trackster to the result vector
     result.push_back(trackster);
   }
-
-  // Assign PCA to tracksters
-  ticl::assignPCAtoTracksters(result,
-                              input.layerClusters,
-                              input.layerClustersTime,
-                              rhtools_.getPositionLayer(rhtools_.lastLayerEE(false), false).z(),
-                              rhtools_,
-                              false);
 
   // Log the number of tracksters created
   if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > VerbosityLevel::Advanced) {
@@ -63,11 +66,10 @@ void PatternRecognitionbyRecovery<TILES>::makeTracksters(
 }
 
 template <typename TILES>
-void PatternRecognitionbyRecovery<TILES>::filter(
-    std::vector<Trackster> &output,
-    const std::vector<Trackster> &inTracksters,
-    const typename PatternRecognitionAlgoBaseT<TILES>::Inputs &input,
-    std::unordered_map<int, std::vector<int>> &seedToTracksterAssociation) {
+void PatternRecognitionbyRecovery<TILES>::filter(std::vector<Trackster> &output,
+                                                 const std::vector<Trackster> &inTracksters,
+                                                 const typename PatternRecognitionAlgoBaseT<TILES>::Inputs &input,
+                                                 std::unordered_map<int, std::vector<int>> &seedToTracksterAssociation) {
   output = inTracksters;
 }
 
