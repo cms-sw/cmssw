@@ -71,7 +71,69 @@ def get_hlt_fcsr(session):
     return int(fcsr)
 
 ##############################################
+def fetch_data_from_url(url, proxy="", certs=""):
+##############################################
+    cmd = build_curl_command(url, proxy=proxy, certs=certs)
+
+    try:
+        out = subprocess.check_output(cmd, shell=True)
+    except subprocess.CalledProcessError as e:
+        print(f"Error executing curl command: {e}")
+        return None
+
+    if not out.strip():
+        print("Received an empty response from the server.")
+        return None
+
+    try:
+        response = json.loads(out)
+    except json.JSONDecodeError as e:
+        print(f"Failed to decode JSON: {e}")
+        print(f"Raw output was: {out}")
+        return None
+
+    # Ensure the expected structure is there
+    if "result" not in response or len(response["result"]) == 0:
+        print("Unexpected response format or empty result.")
+        return None
+
+    return response["result"][0]  # Return the first result entry (this is where individual functions can extract specific fields)
+
+##############################################
 def getFCSR(proxy="", certs=""):
+##############################################
+    url = "https://cmsweb.cern.ch/t0wmadatasvc/prod/firstconditionsaferun"
+    response = fetch_data_from_url(url, proxy, certs)
+
+    if response is None:
+        return None
+
+    return int(response)  # Assuming 'response' is already an integer value in this case
+
+##############################################
+def getPromptGT(proxy="", certs=""):
+##############################################
+    url = "https://cmsweb.cern.ch/t0wmadatasvc/prod/reco_config"
+    response = fetch_data_from_url(url, proxy, certs)
+
+    if response is None:
+        return None
+
+    return response.get('global_tag')
+
+##############################################
+def getExpressGT(proxy="", certs=""):
+##############################################
+    url = "https://cmsweb.cern.ch/t0wmadatasvc/prod/express_config"
+    response = fetch_data_from_url(url, proxy, certs)
+
+    if response is None:
+        return None
+
+    return response.get('global_tag')
+
+##############################################
+def _getFCSR(proxy="", certs=""):
 ##############################################
     url = "https://cmsweb.cern.ch/t0wmadatasvc/prod/firstconditionsaferun"
     cmd = build_curl_command(url, proxy=proxy, certs=certs)
@@ -80,7 +142,7 @@ def getFCSR(proxy="", certs=""):
     return int(response)
 
 ##############################################
-def getPromptGT(proxy="", certs=""):
+def _getPromptGT(proxy="", certs=""):
 ##############################################
     url = "https://cmsweb.cern.ch/t0wmadatasvc/prod/reco_config"
     cmd = build_curl_command(url, proxy=proxy, certs=certs)
@@ -89,7 +151,7 @@ def getPromptGT(proxy="", certs=""):
     return response
 
 ##############################################
-def getExpressGT(proxy="", certs=""):
+def _getExpressGT(proxy="", certs=""):
 ##############################################
     url = "https://cmsweb.cern.ch/t0wmadatasvc/prod/express_config"
     cmd = build_curl_command(url, proxy=proxy, certs=certs)
@@ -175,6 +237,11 @@ if __name__ == "__main__":
         filter(GTMAP.global_tag_name == str(expressGT)).\
         order_by(GTMAP.record, GTMAP.label).\
         all()
+
+    # Check if the query result is empty
+    if not myGTMap:
+        print("No records found in the GTMap.")
+        sys.exit(1)
 
     ## connect to prep DB and get the list of IOVs to look at
     con2 = conddb.connect(url = conddb.make_url("dev"))
