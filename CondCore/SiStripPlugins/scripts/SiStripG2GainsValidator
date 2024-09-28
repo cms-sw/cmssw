@@ -225,8 +225,8 @@ if __name__ == "__main__":
                 print(command)
                 getCommandOutput(command)
 
-                command = '${CMSSW_BASE}/src/CondCore/SiStripPlugins/scripts/testCompare.sh SiStripApvGain_FromParticles_GR10_v1_express '+str(lastG2Payload[0])+' '+str(theValidationTagSince)+' '+current_directory+'/toCompare.db'
+                command = '${CMSSW_BASE}/src/CondCore/SiStripPlugins/scripts/testCompareSiStripG2Gains.sh SiStripApvGain_FromParticles_GR10_v1_express '+str(lastG2Payload[0])+' '+str(theValidationTagSince)+' '+current_directory+'/toCompare.db'
                 if(theValidationTagSince < lastG2Payload[0]):
-                    command = '${CMSSW_BASE}/src/CondCore/SiStripPlugins/scripts/testCompare.sh SiStripApvGain_FromParticles_GR10_v1_express '+str(lastG2Payload[0])+' '+str(FCSR+i)+' '+current_directory+'/toCompare.db'
+                    command = '${CMSSW_BASE}/src/CondCore/SiStripPlugins/scripts/testCompareSiStripG2Gains.sh SiStripApvGain_FromParticles_GR10_v1_express '+str(lastG2Payload[0])+' '+str(FCSR+i)+' '+current_directory+'/toCompare.db'
                 print(command)
                 getCommandOutput(command)
