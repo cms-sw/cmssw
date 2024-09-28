@@ -81,7 +81,6 @@ L1NNTauProducer::L1NNTauProducer(const edm::ParameterSet& cfg, const tensorflow:
 }
 
 std::unique_ptr<tensorflow::SessionCache> L1NNTauProducer::initializeGlobalCache(const edm::ParameterSet& cfg) {
-  tensorflow::setLogging("3");
   std::string graphPath = edm::FileInPath(cfg.getParameter<std::string>("NNFileName")).fullPath();
   return std::make_unique<tensorflow::SessionCache>(graphPath);
 }
