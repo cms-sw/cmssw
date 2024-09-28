@@ -136,7 +136,7 @@ void HGCalRecHitWorkerSimple::run(const edm::Event& evt,
     int thickness = -1;
     float sigmaNoiseGeV = 0.f;
     unsigned int layer = tools_->getLayerWithOffset(detid);
-    float cce_correction = 1.0;
+    float cce_correction = 1.0f;
     int idtype(0);
 
     switch (detid.det()) {

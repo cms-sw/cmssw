@@ -142,7 +142,7 @@ bool ClusterTools::getWidths(const reco::CaloCluster& clus,
       // take w0=2 To be optimized
       double logweight = 0;
       if (clus.energy() != 0) {
-        logweight = std::max(0., 2 + log(hitEnergy / clus.energy()));
+        logweight = std::max(0., 2 + std::log(hitEnergy / clus.energy()));
       }
       double deltaetaeta2 = (cellPos.eta() - position.eta()) * (cellPos.eta() - position.eta());
       double deltaphiphi2 = (cellPos.phi() - position.phi()) * (cellPos.phi() - position.phi());
