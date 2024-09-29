@@ -1,6 +1,6 @@
-# hltGetConfiguration /dev/CMSSW_14_0_0/PIon --cff --data --type PIon
+# hltGetConfiguration /dev/CMSSW_14_1_0/PIon --cff --data --type PIon
 
-# /dev/CMSSW_14_0_0/PIon/V182 (CMSSW_14_0_11)
+# /dev/CMSSW_14_1_0/PIon/V13 (CMSSW_14_1_0)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -9,7 +9,7 @@ fragment = cms.ProcessFragment( "HLT" )
 fragment.load("Configuration.StandardSequences.Accelerators_cff")
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string("/dev/CMSSW_14_0_0/PIon/V182")
+  tableName = cms.string("/dev/CMSSW_14_1_0/PIon/V13")
 )
 
 fragment.HLTIter4PSetTrajectoryBuilderIT = cms.PSet( 
@@ -3415,6 +3415,9 @@ fragment.siStripLorentzAngleDepESProducer = cms.ESProducer( "SiStripLorentzAngle
     record = cms.string( "SiStripLorentzAngleRcd" )
   )
 )
+fragment.zdcTopologyEP = cms.ESProducer( "ZdcTopologyEP",
+  appendToDataLabel = cms.string( "" )
+)
 
 fragment.hltGetRaw = cms.EDAnalyzer( "HLTGetRaw",
     RawDataCollection = cms.InputTag( "rawDataCollector" )
@@ -3485,6 +3488,7 @@ fragment.hltGtStage2ObjectMap = cms.EDProducer( "L1TGlobalProducer",
     RequireMenuToMatchAlgoBlkInput = cms.bool( True ),
     AlgorithmTriggersUnmasked = cms.bool( True ),
     useMuonShowers = cms.bool( True ),
+    produceAXOL1TLScore = cms.bool( False ),
     resetPSCountersEachLumiSec = cms.bool( True ),
     semiRandomInitialPSCounters = cms.bool( False ),
     ProduceL1GtDaqRecord = cms.bool( True ),
