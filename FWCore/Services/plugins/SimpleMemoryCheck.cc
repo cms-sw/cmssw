@@ -123,6 +123,7 @@ namespace edm {
       //options
       bool showMallocInfo_;
       bool oncePerEventMode_;
+      bool printEachTime_;
       bool jobReportOutputOnly_;
       bool monitorPssAndPrivate_;
       std::atomic<int> count_;
@@ -338,6 +339,7 @@ namespace edm {
           num_to_skip_(iPS.getUntrackedParameter<int>("ignoreTotal")),
           showMallocInfo_(iPS.getUntrackedParameter<bool>("showMallocInfo")),
           oncePerEventMode_(iPS.getUntrackedParameter<bool>("oncePerEventMode")),
+          printEachTime_(oncePerEventMode_ or iPS.getUntrackedParameter<bool>("printEachSample")),
           jobReportOutputOnly_(iPS.getUntrackedParameter<bool>("jobReportOutputOnly")),
           monitorPssAndPrivate_(iPS.getUntrackedParameter<bool>("monitorPssAndPrivate")),
           count_(),
@@ -422,6 +424,8 @@ namespace edm {
           ->setComment(
               "Use a special thread to sample memory at the set rate. A value of 0 means no sampling. This option "
               "cannot be used with 'oncePerEventMode' or 'moduleMemorySummary'.");
+      desc.addUntracked<bool>("printEachSample", false)
+          ->setComment("If sampling on, print each sample taken else will print only when sample is the largest seen.");
       desc.addUntracked<bool>("showMallocInfo", false);
       desc.addUntracked<bool>("oncePerEventMode", false)
           ->setComment(
@@ -897,7 +901,7 @@ namespace edm {
     void SimpleMemoryCheck::andPrint(std::string const& type,
                                      std::string const& mdlabel,
                                      std::string const& mdname) const {
-      if (not jobReportOutputOnly_ && ((*current_ > max_) || oncePerEventMode_)) {
+      if (not jobReportOutputOnly_ && ((*current_ > max_) || printEachTime_)) {
         if (count_ >= num_to_skip_) {
           double deltaVSIZE = current_->vsize - max_.vsize;
           double deltaRSS = current_->rss - max_.rss;
