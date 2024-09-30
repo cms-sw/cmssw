@@ -52,7 +52,7 @@ namespace btagbtvdeep {
       }
     }
 
-  const std::unordered_map<std::string, std::vector<float>>& get_all() const { return feature_map_;}
+    const std::unordered_map<std::string, std::vector<float>>& get_all() const { return feature_map_; }
 
   private:
     bool is_empty_ = true;

@@ -283,7 +283,7 @@ namespace btagbtvdeep {
           prep_params.min_length = group_pset.at("min_length");
           prep_params.max_length = group_pset.at("max_length");
         }
-	input_shapes_.push_back({1, (int64_t)prep_params.var_names.size(), -1});
+        input_shapes_.push_back({1, (int64_t)prep_params.var_names.size(), -1});
         const auto &var_info_pset = group_pset.at("var_infos");
         for (const auto &var_name : prep_params.var_names) {
           const auto &var_pset = var_info_pset.at(var_name);

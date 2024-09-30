@@ -16,7 +16,6 @@
 //
 //
 
-
 #include <memory>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -28,17 +27,15 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 
-
 #include "CommonTools/Utils/interface/StringObjectFunction.h"
 #include "DataFormats/Common/interface/ValueMap.h"
-
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "PhysicsTools/ONNXRuntime/interface/ONNXRuntime.h"
 #include "RecoBTag/FeatureTools/interface/deep_helpers.h"
-#include "DataFormats/BTauReco/interface/DeepBoostedJetTagInfo.h" // this is flexible enough for our purposes
+#include "DataFormats/BTauReco/interface/DeepBoostedJetTagInfo.h"  // this is flexible enough for our purposes
 //#include "DataFormats/BTauReco/interface/DeepBoostedJetFeatures.h" // this will need to be moved to the dedicated producer
 #include "PhysicsTools/PatAlgos/interface/LeptonTagInfoCollectionProducer.h"
 
@@ -47,12 +44,11 @@
 // class declaration
 //
 
-
 template <typename T>
 class PNETLeptonProducer : public edm::stream::EDProducer<edm::GlobalCache<cms::Ort::ONNXRuntime>> {
 public:
   PNETLeptonProducer(const edm::ParameterSet&, const cms::Ort::ONNXRuntime*);
-   ~PNETLeptonProducer() override {}
+  ~PNETLeptonProducer() override {}
 
   /* void setValue(const std::string var, float val) { */
   /*   if (positions_.find(var) != positions_.end()) */
@@ -81,14 +77,13 @@ private:
   std::vector<std::string> input_names_;            // names of each input group - the ordering is important!
   std::vector<std::vector<int64_t>> input_shapes_;  // shapes of each input group (-1 for dynamic axis)
   std::vector<unsigned> input_sizes_;               // total length of each input vector
-  std::unordered_map<std::string, btagbtvdeep::PreprocessParams> prep_info_map_;  // preprocessing info for each input group
+  std::unordered_map<std::string, btagbtvdeep::PreprocessParams>
+      prep_info_map_;  // preprocessing info for each input group
 
   cms::Ort::FloatArrays data_;
   bool debug_ = false;
 
-  void make_inputs(const pat::LeptonTagInfo<T> &);
-
+  void make_inputs(const pat::LeptonTagInfo<T>&);
 };
-
 
 #endif
