@@ -285,7 +285,7 @@ def nanoAOD_customizeCommon(process):
     ).toModify(
         process, lambda p : nanoAOD_addBoostedTauIds(p, nanoAOD_boostedTau_switch.idsToAdd.value())
     )
-    (run3_nanoAOD_124 | run3_nanoAOD_pre142X).toModify(
+    run3_nanoAOD_pre142X.toModify(
         nanoAOD_boostedTau_switch, idsToAdd = ["boostedDeepTauRunIIv2p0"]
     ).toModify(
         process, lambda p : nanoAOD_addBoostedTauIds(p, nanoAOD_boostedTau_switch.idsToAdd.value())
