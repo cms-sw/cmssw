@@ -14,10 +14,13 @@
 <use name="FWCore/Utilities"/>
 <use name="PhysicsTools/IsolationAlgos"/>
 <use name="PhysicsTools/PatUtils"/>
+<use name="PhysicsTools/NanoAOD"/>
 <use name="PhysicsTools/TensorFlow"/>
 <use name="PhysicsTools/ONNXRuntime"/>
 <use name="PhysicsTools/XGBoost"/>
 <use name="TrackingTools/Records"/>
+<use name="RecoBTag/FeatureTools"/>
+<use name="DataFormats/BTauReco"/>
 <use name="clhep"/>
 <use name="xgboost"/>
 <export>
