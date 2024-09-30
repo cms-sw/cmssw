@@ -1,6 +1,6 @@
 # hltGetConfiguration /dev/CMSSW_14_1_0/Special --cff --data --type Special
 
-# /dev/CMSSW_14_1_0/Special/V13 (CMSSW_14_1_0)
+# /dev/CMSSW_14_1_0/Special/V25 (CMSSW_14_1_1)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -9,7 +9,7 @@ fragment = cms.ProcessFragment( "HLT" )
 fragment.load("Configuration.StandardSequences.Accelerators_cff")
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string("/dev/CMSSW_14_1_0/Special/V13")
+  tableName = cms.string("/dev/CMSSW_14_1_0/Special/V25")
 )
 
 fragment.HLTIter4PSetTrajectoryBuilderIT = cms.PSet( 
@@ -4739,7 +4739,8 @@ fragment.hltSiPixelRecHits = cms.EDProducer( "SiPixelRecHitFromSoAAlpakaPhase1",
 )
 fragment.hltAlcaPixelClusterCounts = cms.EDProducer( "AlcaPCCEventProducer",
     pixelClusterLabel = cms.InputTag( "hltSiPixelClusters" ),
-    trigstring = cms.untracked.string( "alcaPCCEvent" )
+    trigstring = cms.untracked.string( "alcaPCCEvent" ),
+    savePerROCInfo = cms.bool( True )
 )
 fragment.hltL1sZeroBias = cms.EDFilter( "HLTL1TSeed",
     saveTags = cms.bool( True ),
@@ -5377,7 +5378,6 @@ fragment.hltParticleFlowClusterHBHESoA = cms.EDProducer( "PFClusterSoAProducer@a
     pfClusterParams = cms.ESInputTag( "hltESPPFClusterParams","" ),
     topology = cms.ESInputTag( "hltESPPFRecHitHCALTopology","" ),
     synchronise = cms.bool( False ),
-    pfRecHitFractionAllocation = cms.int32( 250 ),
     alpaka = cms.untracked.PSet(  backend = cms.untracked.string( "" ) )
 )
 fragment.hltParticleFlowClusterHBHE = cms.EDProducer( "LegacyPFClusterProducer",
@@ -5504,8 +5504,7 @@ fragment.hltParticleFlowClusterHBHESoASerialSync = cms.EDProducer( "alpaka_seria
     pfRecHits = cms.InputTag( "hltParticleFlowRecHitHBHESoASerialSync" ),
     pfClusterParams = cms.ESInputTag( "hltESPPFClusterParams","" ),
     topology = cms.ESInputTag( "hltESPPFRecHitHCALTopology","" ),
-    synchronise = cms.bool( False ),
-    pfRecHitFractionAllocation = cms.int32( 250 )
+    synchronise = cms.bool( False )
 )
 fragment.hltParticleFlowClusterHBHESerialSync = cms.EDProducer( "LegacyPFClusterProducer",
     src = cms.InputTag( "hltParticleFlowClusterHBHESoASerialSync" ),
@@ -5795,7 +5794,8 @@ fragment.hltTowerMakerForAll = cms.EDProducer( "CaloTowersCreator",
     missingHcalRescaleFactorForEcal = cms.double( 0.0 ),
     AllowMissingInputs = cms.bool( False ),
     HcalPhase = cms.int32( 1 ),
-    usePFThresholdsFromDB = cms.bool( True )
+    usePFThresholdsFromDB = cms.bool( True ),
+    EcalRecHitThresh = cms.bool( False )
 )
 fragment.hltAK4CaloJetsPF = cms.EDProducer( "FastjetJetProducer",
     useMassDropTagger = cms.bool( False ),
