@@ -75,7 +75,7 @@ namespace pat {
   class LeptonTagInfoCollectionProducer : public edm::stream::EDProducer<> {
   public:
     explicit LeptonTagInfoCollectionProducer(const edm::ParameterSet& iConfig);
-    ~LeptonTagInfoCollectionProducer() override{};
+    ~LeptonTagInfoCollectionProducer() override {};
 
   private:
     void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
