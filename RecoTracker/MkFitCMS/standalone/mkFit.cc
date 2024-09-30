@@ -886,6 +886,9 @@ int main(int argc, const char* argv[]) {
       Config::backwardSearch = false;
     } else if (*i == "--include-pca") {
       Config::includePCA = true;
+    } else if (*i == "--use-p2p") {
+      next_arg_or_die(mArgs, i);
+      Config::usePropToPlane = (bool)atoi(i->c_str());
     } else if (*i == "--quality-val") {
       Config::quality_val = true;
     } else if (*i == "--dump-for-plots") {

@@ -234,7 +234,7 @@ namespace mkfit {
     }
 
     Quality Quality::s_quality_sum;
-  
+
     void Quality::add_to_quality_sum(const Quality &q) {
       static std::mutex q_mutex;
       std::lock_guard<std::mutex> q_lock(q_mutex);

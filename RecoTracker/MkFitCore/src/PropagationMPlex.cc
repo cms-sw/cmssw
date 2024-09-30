@@ -386,23 +386,23 @@ namespace mkfit {
 
 namespace {
 
-//========================================================================================
-// helixAtR
-//========================================================================================
+  //========================================================================================
+  // helixAtR
+  //========================================================================================
 
   void helixAtRFromIterativeCCS_impl(const MPlexLV& __restrict__ inPar,
-                                    const MPlexQI& __restrict__ inChg,
-                                    const MPlexQF& __restrict__ msRad,
-                                    MPlexLV& __restrict__ outPar,
-                                    MPlexLL& __restrict__ errorProp,
-                                    MPlexQI& __restrict__ outFailFlag,  // expected to be initialized to 0
-                                    const int nmin,
-                                    const int nmax,
-                                    const int N_proc,
-                                    const PropagationFlags& pf) {
+                                     const MPlexQI& __restrict__ inChg,
+                                     const MPlexQF& __restrict__ msRad,
+                                     MPlexLV& __restrict__ outPar,
+                                     MPlexLL& __restrict__ errorProp,
+                                     MPlexQI& __restrict__ outFailFlag,  // expected to be initialized to 0
+                                     const int nmin,
+                                     const int nmax,
+                                     const int N_proc,
+                                     const PropagationFlags& pf) {
     // bool debug = true;
 
-  #pragma omp simd
+#pragma omp simd
     for (int n = nmin; n < nmax; ++n) {
       //initialize erroProp to identity matrix
       errorProp(n, 0, 0) = 1.f;
@@ -413,25 +413,25 @@ namespace {
       errorProp(n, 5, 5) = 1.f;
     }
     float r0[nmax - nmin];
-  #pragma omp simd
+#pragma omp simd
     for (int n = nmin; n < nmax; ++n) {
       //initialize erroProp to identity matrix
       r0[n - nmin] = hipo(inPar(n, 0, 0), inPar(n, 1, 0));
     }
     float k[nmax - nmin];
     if (pf.use_param_b_field) {
-  #pragma omp simd
+#pragma omp simd
       for (int n = nmin; n < nmax; ++n) {
         k[n - nmin] = inChg(n, 0, 0) * 100.f / (-Const::sol * Config::bFieldFromZR(inPar(n, 2, 0), r0[n - nmin]));
       }
     } else {
-  #pragma omp simd
+#pragma omp simd
       for (int n = nmin; n < nmax; ++n) {
         k[n - nmin] = inChg(n, 0, 0) * 100.f / (-Const::sol * Config::Bfield);
       }
     }
     float r[nmax - nmin];
-  #pragma omp simd
+#pragma omp simd
     for (int n = nmin; n < nmax; ++n) {
       r[n - nmin] = msRad(n, 0, 0);
     }
@@ -440,7 +440,7 @@ namespace {
     float ipt[nmax - nmin];
     float phiin[nmax - nmin];
     float theta[nmax - nmin];
-  #pragma omp simd
+#pragma omp simd
     for (int n = nmin; n < nmax; ++n) {
       // if (std::abs(r-r0)<0.0001f) {
       // 	dprint("distance less than 1mum, skip");
@@ -469,7 +469,7 @@ namespace {
 
     float kinv[nmax - nmin];
     float pt[nmax - nmin];
-  #pragma omp simd
+#pragma omp simd
     for (int n = nmin; n < nmax; ++n) {
       kinv[n - nmin] = 1.f / k[n - nmin];
       pt[n - nmin] = 1.f / ipt[n - nmin];
@@ -481,7 +481,7 @@ namespace {
     float sinah[nmax - nmin];
     float id[nmax - nmin];
 
-  #pragma omp simd
+#pragma omp simd
     for (int n = nmin; n < nmax; ++n) {
       D[n - nmin] = 0.;
     }
@@ -489,18 +489,18 @@ namespace {
     //no trig approx here, phi can be large
     float cosPorT[nmax - nmin];
     float sinPorT[nmax - nmin];
-  #pragma omp simd
+#pragma omp simd
     for (int n = nmin; n < nmax; ++n) {
       cosPorT[n - nmin] = std::cos(phiin[n - nmin]);
     }
-  #pragma omp simd
+#pragma omp simd
     for (int n = nmin; n < nmax; ++n) {
       sinPorT[n - nmin] = std::sin(phiin[n - nmin]);
     }
 
     float pxin[nmax - nmin];
     float pyin[nmax - nmin];
-  #pragma omp simd
+#pragma omp simd
     for (int n = nmin; n < nmax; ++n) {
       pxin[n - nmin] = cosPorT[n - nmin] * pt[n - nmin];
       pyin[n - nmin] = sinPorT[n - nmin] * pt[n - nmin];
@@ -509,9 +509,9 @@ namespace {
     for (int n = nmin; n < nmax; ++n) {
       dprint_np(n,
                 "k=" << std::setprecision(9) << k[n - nmin] << " pxin=" << std::setprecision(9) << pxin[n - nmin]
-                    << " pyin=" << std::setprecision(9) << pyin[n - nmin] << " cosPorT=" << std::setprecision(9)
-                    << cosPorT[n - nmin] << " sinPorT=" << std::setprecision(9) << sinPorT[n - nmin]
-                    << " pt=" << std::setprecision(9) << pt[n - nmin]);
+                     << " pyin=" << std::setprecision(9) << pyin[n - nmin] << " cosPorT=" << std::setprecision(9)
+                     << cosPorT[n - nmin] << " sinPorT=" << std::setprecision(9) << sinPorT[n - nmin]
+                     << " pt=" << std::setprecision(9) << pt[n - nmin]);
     }
 
     float dDdx[nmax - nmin];
@@ -519,18 +519,18 @@ namespace {
     float dDdipt[nmax - nmin];
     float dDdphi[nmax - nmin];
 
-  #pragma omp simd
+#pragma omp simd
     for (int n = nmin; n < nmax; ++n) {
       dDdipt[n - nmin] = 0.;
       dDdphi[n - nmin] = 0.;
     }
-  #pragma omp simd
+#pragma omp simd
     for (int n = nmin; n < nmax; ++n) {
       //derivatives initialized to value for first iteration, i.e. distance = r-r0in
       dDdx[n - nmin] = r0[n - nmin] > 0.f ? -xin[n - nmin] / r0[n - nmin] : 0.f;
     }
 
-  #pragma omp simd
+#pragma omp simd
     for (int n = nmin; n < nmax; ++n) {
       dDdy[n - nmin] = r0[n - nmin] > 0.f ? -yin[n - nmin] / r0[n - nmin] : 0.f;
     }
@@ -553,7 +553,7 @@ namespace {
 
     CMS_UNROLL_LOOP_COUNT(Config::Niter)
     for (int i = 0; i < Config::Niter; ++i) {
-  #pragma omp simd
+#pragma omp simd
       for (int n = nmin; n < nmax; ++n) {
         //compute distance and path for the current iteration
         r0[n - nmin] = hipo(outPar(n, 0, 0), outPar(n, 1, 0));
@@ -565,13 +565,13 @@ namespace {
       // - Can / should we come up with a better approximation?
       // - Can / should take +/- curvature into account?
 
-  #pragma omp simd
+#pragma omp simd
       for (int n = nmin; n < nmax; ++n) {
         oodotp[n - nmin] =
             r0[n - nmin] * pt[n - nmin] / (pxin[n - nmin] * outPar(n, 0, 0) + pyin[n - nmin] * outPar(n, 1, 0));
       }
 
-  #pragma omp simd
+#pragma omp simd
       for (int n = nmin; n < nmax; ++n) {
         if (oodotp[n - nmin] > 5.0f || oodotp[n - nmin] < 0)  // 0.2 is 78.5 deg
         {
@@ -583,36 +583,36 @@ namespace {
         }
       }
 
-  #pragma omp simd
+#pragma omp simd
       for (int n = nmin; n < nmax; ++n) {
         // Can we come up with a better approximation?
         // Should take +/- curvature into account.
         id[n - nmin] = (r[n - nmin] - r0[n - nmin]) * oodotp[n - nmin];
       }
 
-  #pragma omp simd
+#pragma omp simd
       for (int n = nmin; n < nmax; ++n) {
         D[n - nmin] += id[n - nmin];
       }
 
       if constexpr (Config::useTrigApprox) {
-  #if !defined(__INTEL_COMPILER)
-  #pragma omp simd
-  #endif
+#if !defined(__INTEL_COMPILER)
+#pragma omp simd
+#endif
         for (int n = nmin; n < nmax; ++n) {
           sincos4(id[n - nmin] * ipt[n - nmin] * kinv[n - nmin] * 0.5f, sinah[n - nmin], cosah[n - nmin]);
         }
       } else {
-  #if !defined(__INTEL_COMPILER)
-  #pragma omp simd
-  #endif
+#if !defined(__INTEL_COMPILER)
+#pragma omp simd
+#endif
         for (int n = nmin; n < nmax; ++n) {
           cosah[n - nmin] = std::cos(id[n - nmin] * ipt[n - nmin] * kinv[n - nmin] * 0.5f);
           sinah[n - nmin] = std::sin(id[n - nmin] * ipt[n - nmin] * kinv[n - nmin] * 0.5f);
         }
       }
 
-  #pragma omp simd
+#pragma omp simd
       for (int n = nmin; n < nmax; ++n) {
         cosa[n - nmin] = 1.f - 2.f * sinah[n - nmin] * sinah[n - nmin];
         sina[n - nmin] = 2.f * sinah[n - nmin] * cosah[n - nmin];
@@ -625,25 +625,25 @@ namespace {
                       << "   x=" << xin[n - nmin] << " y=" << yin[n - nmin] << " z=" << inPar(n, 2, 0)
                       << " px=" << pxin[n - nmin] << " py=" << pyin[n - nmin]
                       << " pz=" << pt[n - nmin] * std::tan(theta[n - nmin]) << " q=" << inChg(n, 0, 0) << std::endl
-                      << "   r=" << std::setprecision(9) << r[n - nmin] << " r0=" << std::setprecision(9) << r0[n - nmin]
-                      << " id=" << std::setprecision(9) << id[n - nmin] << " dr=" << std::setprecision(9)
-                      << r[n - nmin] - r0[n - nmin] << " cosa=" << cosa[n - nmin] << " sina=" << sina[n - nmin]
-                      << " dir_cos(rad,pT)=" << 1.0f / oodotp[n - nmin]);
+                      << "   r=" << std::setprecision(9) << r[n - nmin] << " r0=" << std::setprecision(9)
+                      << r0[n - nmin] << " id=" << std::setprecision(9) << id[n - nmin]
+                      << " dr=" << std::setprecision(9) << r[n - nmin] - r0[n - nmin] << " cosa=" << cosa[n - nmin]
+                      << " sina=" << sina[n - nmin] << " dir_cos(rad,pT)=" << 1.0f / oodotp[n - nmin]);
       }
 
       //update derivatives on total distance
       if (i + 1 != Config::Niter) {
-  #pragma omp simd
+#pragma omp simd
         for (int n = nmin; n < nmax; ++n) {
           x[n - nmin] = outPar(n, 0, 0);
           y[n - nmin] = outPar(n, 1, 0);
         }
-  #pragma omp simd
+#pragma omp simd
         for (int n = nmin; n < nmax; ++n) {
           oor0[n - nmin] =
               (r0[n - nmin] > 0.f && std::abs(r[n - nmin] - r0[n - nmin]) > 0.0001f) ? 1.f / r0[n - nmin] : 0.f;
         }
-  #pragma omp simd
+#pragma omp simd
         for (int n = nmin; n < nmax; ++n) {
           dadipt[n - nmin] = id[n - nmin] * kinv[n - nmin];
           dadx[n - nmin] = -x[n - nmin] * ipt[n - nmin] * kinv[n - nmin] * oor0[n - nmin];
@@ -655,47 +655,47 @@ namespace {
           tmpx[n - nmin] = k[n - nmin] * dadx[n - nmin];
         }
 
-  #pragma omp simd
+#pragma omp simd
         for (int n = nmin; n < nmax; ++n) {
           dDdx[n - nmin] -= (x[n - nmin] * (1.f + tmpx[n - nmin] * (pxca[n - nmin] - pysa[n - nmin])) +
-                            y[n - nmin] * tmpx[n - nmin] * (pyca[n - nmin] + pxsa[n - nmin])) *
+                             y[n - nmin] * tmpx[n - nmin] * (pyca[n - nmin] + pxsa[n - nmin])) *
                             oor0[n - nmin];
         }
 
-  #pragma omp simd
+#pragma omp simd
         for (int n = nmin; n < nmax; ++n) {
           tmpy[n - nmin] = k[n - nmin] * dady[n - nmin];
         }
-  #pragma omp simd
+#pragma omp simd
         for (int n = nmin; n < nmax; ++n) {
           dDdy[n - nmin] -= (x[n - nmin] * tmpy[n - nmin] * (pxca[n - nmin] - pysa[n - nmin]) +
-                            y[n - nmin] * (1.f + tmpy[n - nmin] * (pyca[n - nmin] + pxsa[n - nmin]))) *
+                             y[n - nmin] * (1.f + tmpy[n - nmin] * (pyca[n - nmin] + pxsa[n - nmin]))) *
                             oor0[n - nmin];
         }
-  #pragma omp simd
+#pragma omp simd
         for (int n = nmin; n < nmax; ++n) {
           //now r0 depends on ipt and phi as well
           tmp[n - nmin] = dadipt[n - nmin] * ipt[n - nmin];
         }
-  #pragma omp simd
+#pragma omp simd
         for (int n = nmin; n < nmax; ++n) {
           dDdipt[n - nmin] -= k[n - nmin] *
                               (x[n - nmin] * (pxca[n - nmin] * tmp[n - nmin] - pysa[n - nmin] * tmp[n - nmin] -
                                               pyca[n - nmin] - pxsa[n - nmin] + pyin[n - nmin]) +
-                              y[n - nmin] * (pyca[n - nmin] * tmp[n - nmin] + pxsa[n - nmin] * tmp[n - nmin] -
+                               y[n - nmin] * (pyca[n - nmin] * tmp[n - nmin] + pxsa[n - nmin] * tmp[n - nmin] -
                                               pysa[n - nmin] + pxca[n - nmin] - pxin[n - nmin])) *
                               pt[n - nmin] * oor0[n - nmin];
         }
-  #pragma omp simd
+#pragma omp simd
         for (int n = nmin; n < nmax; ++n) {
           dDdphi[n - nmin] += k[n - nmin] *
                               (x[n - nmin] * (pysa[n - nmin] - pxin[n - nmin] + pxca[n - nmin]) -
-                              y[n - nmin] * (pxsa[n - nmin] - pyin[n - nmin] + pyca[n - nmin])) *
+                               y[n - nmin] * (pxsa[n - nmin] - pyin[n - nmin] + pyca[n - nmin])) *
                               oor0[n - nmin];
         }
       }
 
-  #pragma omp simd
+#pragma omp simd
       for (int n = nmin; n < nmax; ++n) {
         //update parameters
         outPar(n, 0, 0) = outPar(n, 0, 0) + 2.f * k[n - nmin] * sinah[n - nmin] *
@@ -709,14 +709,14 @@ namespace {
       for (int n = nmin; n < nmax; ++n) {
         dprint_np(n,
                   "outPar(n, 0, 0)=" << outPar(n, 0, 0) << " outPar(n, 1, 0)=" << outPar(n, 1, 0)
-                                    << " pxin=" << pxin[n - nmin] << " pyin=" << pyin[n - nmin]);
+                                     << " pxin=" << pxin[n - nmin] << " pyin=" << pyin[n - nmin]);
       }
     }  // iteration loop
 
     float alpha[nmax - nmin];
     float dadphi[nmax - nmin];
 
-  #pragma omp simd
+#pragma omp simd
     for (int n = nmin; n < nmax; ++n) {
       alpha[n - nmin] = D[n - nmin] * ipt[n - nmin] * kinv[n - nmin];
       dadx[n - nmin] = dDdx[n - nmin] * ipt[n - nmin] * kinv[n - nmin];
@@ -726,77 +726,77 @@ namespace {
     }
 
     if constexpr (Config::useTrigApprox) {
-  #pragma omp simd
+#pragma omp simd
       for (int n = nmin; n < nmax; ++n) {
         sincos4(alpha[n - nmin], sina[n - nmin], cosa[n - nmin]);
       }
     } else {
-  #pragma omp simd
+#pragma omp simd
       for (int n = nmin; n < nmax; ++n) {
         cosa[n - nmin] = std::cos(alpha[n - nmin]);
         sina[n - nmin] = std::sin(alpha[n - nmin]);
       }
     }
-  #pragma omp simd
+#pragma omp simd
     for (int n = nmin; n < nmax; ++n) {
       errorProp(n, 0, 0) = 1.f + k[n - nmin] * dadx[n - nmin] *
-                                    (cosPorT[n - nmin] * cosa[n - nmin] - sinPorT[n - nmin] * sina[n - nmin]) *
-                                    pt[n - nmin];
+                                     (cosPorT[n - nmin] * cosa[n - nmin] - sinPorT[n - nmin] * sina[n - nmin]) *
+                                     pt[n - nmin];
       errorProp(n, 0, 1) = k[n - nmin] * dady[n - nmin] *
-                          (cosPorT[n - nmin] * cosa[n - nmin] - sinPorT[n - nmin] * sina[n - nmin]) * pt[n - nmin];
+                           (cosPorT[n - nmin] * cosa[n - nmin] - sinPorT[n - nmin] * sina[n - nmin]) * pt[n - nmin];
       errorProp(n, 0, 2) = 0.f;
       errorProp(n, 0, 3) =
           k[n - nmin] *
           (cosPorT[n - nmin] * (ipt[n - nmin] * dadipt[n - nmin] * cosa[n - nmin] - sina[n - nmin]) +
-          sinPorT[n - nmin] * ((1.f - cosa[n - nmin]) - ipt[n - nmin] * dadipt[n - nmin] * sina[n - nmin])) *
+           sinPorT[n - nmin] * ((1.f - cosa[n - nmin]) - ipt[n - nmin] * dadipt[n - nmin] * sina[n - nmin])) *
           pt[n - nmin] * pt[n - nmin];
-      errorProp(n, 0, 4) =
-          k[n - nmin] *
-          (cosPorT[n - nmin] * dadphi[n - nmin] * cosa[n - nmin] - sinPorT[n - nmin] * dadphi[n - nmin] * sina[n - nmin] -
-          sinPorT[n - nmin] * sina[n - nmin] + cosPorT[n - nmin] * cosa[n - nmin] - cosPorT[n - nmin]) *
-          pt[n - nmin];
+      errorProp(n, 0, 4) = k[n - nmin] *
+                           (cosPorT[n - nmin] * dadphi[n - nmin] * cosa[n - nmin] -
+                            sinPorT[n - nmin] * dadphi[n - nmin] * sina[n - nmin] - sinPorT[n - nmin] * sina[n - nmin] +
+                            cosPorT[n - nmin] * cosa[n - nmin] - cosPorT[n - nmin]) *
+                           pt[n - nmin];
       errorProp(n, 0, 5) = 0.f;
     }
 
-  #pragma omp simd
+#pragma omp simd
     for (int n = nmin; n < nmax; ++n) {
       errorProp(n, 1, 0) = k[n - nmin] * dadx[n - nmin] *
-                          (sinPorT[n - nmin] * cosa[n - nmin] + cosPorT[n - nmin] * sina[n - nmin]) * pt[n - nmin];
+                           (sinPorT[n - nmin] * cosa[n - nmin] + cosPorT[n - nmin] * sina[n - nmin]) * pt[n - nmin];
       errorProp(n, 1, 1) = 1.f + k[n - nmin] * dady[n - nmin] *
-                                    (sinPorT[n - nmin] * cosa[n - nmin] + cosPorT[n - nmin] * sina[n - nmin]) *
-                                    pt[n - nmin];
+                                     (sinPorT[n - nmin] * cosa[n - nmin] + cosPorT[n - nmin] * sina[n - nmin]) *
+                                     pt[n - nmin];
       errorProp(n, 1, 2) = 0.f;
       errorProp(n, 1, 3) =
           k[n - nmin] *
           (sinPorT[n - nmin] * (ipt[n - nmin] * dadipt[n - nmin] * cosa[n - nmin] - sina[n - nmin]) +
-          cosPorT[n - nmin] * (ipt[n - nmin] * dadipt[n - nmin] * sina[n - nmin] - (1.f - cosa[n - nmin]))) *
+           cosPorT[n - nmin] * (ipt[n - nmin] * dadipt[n - nmin] * sina[n - nmin] - (1.f - cosa[n - nmin]))) *
           pt[n - nmin] * pt[n - nmin];
-      errorProp(n, 1, 4) =
-          k[n - nmin] *
-          (sinPorT[n - nmin] * dadphi[n - nmin] * cosa[n - nmin] + cosPorT[n - nmin] * dadphi[n - nmin] * sina[n - nmin] +
-          sinPorT[n - nmin] * cosa[n - nmin] + cosPorT[n - nmin] * sina[n - nmin] - sinPorT[n - nmin]) *
-          pt[n - nmin];
+      errorProp(n, 1, 4) = k[n - nmin] *
+                           (sinPorT[n - nmin] * dadphi[n - nmin] * cosa[n - nmin] +
+                            cosPorT[n - nmin] * dadphi[n - nmin] * sina[n - nmin] + sinPorT[n - nmin] * cosa[n - nmin] +
+                            cosPorT[n - nmin] * sina[n - nmin] - sinPorT[n - nmin]) *
+                           pt[n - nmin];
       errorProp(n, 1, 5) = 0.f;
     }
 
-  #pragma omp simd
+#pragma omp simd
     for (int n = nmin; n < nmax; ++n) {
       //no trig approx here, theta can be large
       cosPorT[n - nmin] = std::cos(theta[n - nmin]);
     }
 
-  #pragma omp simd
+#pragma omp simd
     for (int n = nmin; n < nmax; ++n) {
       sinPorT[n - nmin] = std::sin(theta[n - nmin]);
     }
 
-  #pragma omp simd
+#pragma omp simd
     for (int n = nmin; n < nmax; ++n) {
       //redefine sinPorT as 1./sinPorT to reduce the number of temporaries
       sinPorT[n - nmin] = 1.f / sinPorT[n - nmin];
     }
 
-  #pragma omp simd
+#pragma omp simd
     for (int n = nmin; n < nmax; ++n) {
       outPar(n, 2, 0) =
           inPar(n, 2, 0) + k[n - nmin] * alpha[n - nmin] * cosPorT[n - nmin] * pt[n - nmin] * sinPorT[n - nmin];
@@ -804,12 +804,12 @@ namespace {
       errorProp(n, 2, 1) = k[n - nmin] * cosPorT[n - nmin] * dady[n - nmin] * pt[n - nmin] * sinPorT[n - nmin];
       errorProp(n, 2, 2) = 1.f;
       errorProp(n, 2, 3) = k[n - nmin] * cosPorT[n - nmin] * (ipt[n - nmin] * dadipt[n - nmin] - alpha[n - nmin]) *
-                          pt[n - nmin] * pt[n - nmin] * sinPorT[n - nmin];
+                           pt[n - nmin] * pt[n - nmin] * sinPorT[n - nmin];
       errorProp(n, 2, 4) = k[n - nmin] * dadphi[n - nmin] * cosPorT[n - nmin] * pt[n - nmin] * sinPorT[n - nmin];
       errorProp(n, 2, 5) = -k[n - nmin] * alpha[n - nmin] * pt[n - nmin] * sinPorT[n - nmin] * sinPorT[n - nmin];
     }
 
-  #pragma omp simd
+#pragma omp simd
     for (int n = nmin; n < nmax; ++n) {
       outPar(n, 3, 0) = ipt[n - nmin];
       errorProp(n, 3, 0) = 0.f;
@@ -820,7 +820,7 @@ namespace {
       errorProp(n, 3, 5) = 0.f;
     }
 
-  #pragma omp simd
+#pragma omp simd
     for (int n = nmin; n < nmax; ++n) {
       outPar(n, 4, 0) = inPar(n, 4, 0) + alpha[n - nmin];
       errorProp(n, 4, 0) = dadx[n - nmin];
@@ -831,7 +831,7 @@ namespace {
       errorProp(n, 4, 5) = 0.f;
     }
 
-  #pragma omp simd
+#pragma omp simd
     for (int n = nmin; n < nmax; ++n) {
       outPar(n, 5, 0) = theta[n - nmin];
       errorProp(n, 5, 0) = 0.f;
@@ -843,72 +843,72 @@ namespace {
     }
 
     for (int n = nmin; n < nmax; ++n) {
-      dprint_np(n,
-                "propagation end, dump parameters\n"
-                    << "   D = " << D[n - nmin] << " alpha = " << alpha[n - nmin] << " kinv = " << kinv[n - nmin]
-                    << std::endl
-                    << "   pos = " << outPar(n, 0, 0) << " " << outPar(n, 1, 0) << " " << outPar(n, 2, 0) << "\t\t r="
-                    << std::sqrt(outPar(n, 0, 0) * outPar(n, 0, 0) + outPar(n, 1, 0) * outPar(n, 1, 0)) << std::endl
-                    << "   mom = " << outPar(n, 3, 0) << " " << outPar(n, 4, 0) << " " << outPar(n, 5, 0) << std::endl
-                    << "   cart= " << std::cos(outPar(n, 4, 0)) / outPar(n, 3, 0) << " "
-                    << std::sin(outPar(n, 4, 0)) / outPar(n, 3, 0) << " " << 1. / (outPar(n, 3, 0) * tan(outPar(n, 5, 0)))
-                    << "\t\tpT=" << 1. / std::abs(outPar(n, 3, 0)) << std::endl);
+      dprint_np(
+          n,
+          "propagation end, dump parameters\n"
+              << "   D = " << D[n - nmin] << " alpha = " << alpha[n - nmin] << " kinv = " << kinv[n - nmin] << std::endl
+              << "   pos = " << outPar(n, 0, 0) << " " << outPar(n, 1, 0) << " " << outPar(n, 2, 0) << "\t\t r="
+              << std::sqrt(outPar(n, 0, 0) * outPar(n, 0, 0) + outPar(n, 1, 0) * outPar(n, 1, 0)) << std::endl
+              << "   mom = " << outPar(n, 3, 0) << " " << outPar(n, 4, 0) << " " << outPar(n, 5, 0) << std::endl
+              << "   cart= " << std::cos(outPar(n, 4, 0)) / outPar(n, 3, 0) << " "
+              << std::sin(outPar(n, 4, 0)) / outPar(n, 3, 0) << " " << 1. / (outPar(n, 3, 0) * tan(outPar(n, 5, 0)))
+              << "\t\tpT=" << 1. / std::abs(outPar(n, 3, 0)) << std::endl);
     }
 
-  #ifdef DEBUG
+#ifdef DEBUG
     for (int n = nmin; n < nmax; ++n) {
       if (debug && g_debug && n < N_proc) {
         dmutex_guard;
         std::cout << n << ": jacobian" << std::endl;
         printf("%5f %5f %5f %5f %5f %5f\n",
-              errorProp(n, 0, 0),
-              errorProp(n, 0, 1),
-              errorProp(n, 0, 2),
-              errorProp(n, 0, 3),
-              errorProp(n, 0, 4),
-              errorProp(n, 0, 5));
+               errorProp(n, 0, 0),
+               errorProp(n, 0, 1),
+               errorProp(n, 0, 2),
+               errorProp(n, 0, 3),
+               errorProp(n, 0, 4),
+               errorProp(n, 0, 5));
         printf("%5f %5f %5f %5f %5f %5f\n",
-              errorProp(n, 1, 0),
-              errorProp(n, 1, 1),
-              errorProp(n, 1, 2),
-              errorProp(n, 1, 3),
-              errorProp(n, 1, 4),
-              errorProp(n, 1, 5));
+               errorProp(n, 1, 0),
+               errorProp(n, 1, 1),
+               errorProp(n, 1, 2),
+               errorProp(n, 1, 3),
+               errorProp(n, 1, 4),
+               errorProp(n, 1, 5));
         printf("%5f %5f %5f %5f %5f %5f\n",
-              errorProp(n, 2, 0),
-              errorProp(n, 2, 1),
-              errorProp(n, 2, 2),
-              errorProp(n, 2, 3),
-              errorProp(n, 2, 4),
-              errorProp(n, 2, 5));
+               errorProp(n, 2, 0),
+               errorProp(n, 2, 1),
+               errorProp(n, 2, 2),
+               errorProp(n, 2, 3),
+               errorProp(n, 2, 4),
+               errorProp(n, 2, 5));
         printf("%5f %5f %5f %5f %5f %5f\n",
-              errorProp(n, 3, 0),
-              errorProp(n, 3, 1),
-              errorProp(n, 3, 2),
-              errorProp(n, 3, 3),
-              errorProp(n, 3, 4),
-              errorProp(n, 3, 5));
+               errorProp(n, 3, 0),
+               errorProp(n, 3, 1),
+               errorProp(n, 3, 2),
+               errorProp(n, 3, 3),
+               errorProp(n, 3, 4),
+               errorProp(n, 3, 5));
         printf("%5f %5f %5f %5f %5f %5f\n",
-              errorProp(n, 4, 0),
-              errorProp(n, 4, 1),
-              errorProp(n, 4, 2),
-              errorProp(n, 4, 3),
-              errorProp(n, 4, 4),
-              errorProp(n, 4, 5));
+               errorProp(n, 4, 0),
+               errorProp(n, 4, 1),
+               errorProp(n, 4, 2),
+               errorProp(n, 4, 3),
+               errorProp(n, 4, 4),
+               errorProp(n, 4, 5));
         printf("%5f %5f %5f %5f %5f %5f\n",
-              errorProp(n, 5, 0),
-              errorProp(n, 5, 1),
-              errorProp(n, 5, 2),
-              errorProp(n, 5, 3),
-              errorProp(n, 5, 4),
-              errorProp(n, 5, 5));
+               errorProp(n, 5, 0),
+               errorProp(n, 5, 1),
+               errorProp(n, 5, 2),
+               errorProp(n, 5, 3),
+               errorProp(n, 5, 4),
+               errorProp(n, 5, 5));
         printf("\n");
       }
     }
-  #endif
+#endif
   }
 
-}
+}  // namespace
 
 // END STUFF FROM PropagationMPlex.icc
 // ============================================================================

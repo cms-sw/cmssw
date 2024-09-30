@@ -2333,7 +2333,7 @@ namespace mkfit {
       }
 
       frtree_->Fill();  // fill once per seed!
-    }                   // end of seed to seed loop
+    }  // end of seed to seed loop
   }
 
   void TTreeValidation::fillConfigTree() {

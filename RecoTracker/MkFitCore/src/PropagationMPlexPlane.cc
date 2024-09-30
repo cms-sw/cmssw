@@ -43,7 +43,7 @@ namespace {
 #include "MultHelixPlanePropTransp.ah"
   }
 
-}
+}  // namespace
 
 // ============================================================================
 // BEGIN STUFF FROM PropagationMPlex.icc
@@ -51,7 +51,7 @@ namespace {
 
   using MPF = MPlexQF;
 
-  MPF getBFieldFromZXY(const MPF &z, const MPF &x, const MPF &y) {
+  MPF getBFieldFromZXY(const MPF& z, const MPF& x, const MPF& y) {
     MPF b;
     for (int n = 0; n < NN; ++n)
       b[n] = Config::bFieldFromZR(z[n], hipo(x[n], y[n]));
@@ -70,7 +70,7 @@ namespace {
     T* c = C.fArray;
     ASSUME_ALIGNED(c, 64);
 
-  #include "JacErrPropCurv1.ah"
+#include "JacErrPropCurv1.ah"
   }
 
   void JacErrPropCurv2(const MPlex65& A, const MPlex56& B, MPlexLL& __restrict__ C) {
@@ -85,7 +85,7 @@ namespace {
     T* c = C.fArray;
     ASSUME_ALIGNED(c, 64);
 
-  #include "JacErrPropCurv2.ah"
+#include "JacErrPropCurv2.ah"
   }
 
   void parsFromPathL_impl(const MPlexLV& __restrict__ inPar,
@@ -110,22 +110,15 @@ namespace {
     MPF sin_mom_tht, cos_mom_tht;
     mpt::fast_sincos(inPar(5, 0), sin_mom_tht, cos_mom_tht);
 
-    outPar.aij(0, 0) =
-        inPar(0, 0) + 2.f * sinah *
-                              (cos_mom_phi * cosah - sin_mom_phi * sinah) /
-                              (inPar(3, 0) * kinv);
-    outPar.aij(1, 0) =
-        inPar(1, 0) + 2.f * sinah *
-                              (sin_mom_phi * cosah + cos_mom_phi * sinah) /
-                              (inPar(3, 0) * kinv);
-    outPar.aij(2, 0) = inPar(2, 0) + alpha / kinv * cos_mom_tht /
-                                            (inPar(3, 0) * sin_mom_tht);
+    outPar.aij(0, 0) = inPar(0, 0) + 2.f * sinah * (cos_mom_phi * cosah - sin_mom_phi * sinah) / (inPar(3, 0) * kinv);
+    outPar.aij(1, 0) = inPar(1, 0) + 2.f * sinah * (sin_mom_phi * cosah + cos_mom_phi * sinah) / (inPar(3, 0) * kinv);
+    outPar.aij(2, 0) = inPar(2, 0) + alpha / kinv * cos_mom_tht / (inPar(3, 0) * sin_mom_tht);
     outPar.aij(3, 0) = inPar(3, 0);
     outPar.aij(4, 0) = inPar(4, 0) + alpha;
     outPar.aij(5, 0) = inPar(5, 0);
   }
 
-//*****************************************************************************************************
+  //*****************************************************************************************************
 
   //should kinv and D be templated???
   void parsAndErrPropFromPathL_impl(const MPlexLV& __restrict__ inPar,
@@ -166,10 +159,8 @@ namespace {
     const MPF cosl1 = 1.f / sinT;
     // define average magnetic field and gradient
     // at initial point - inlike TRPRFN
-    const MPF bF =
-        (pf.use_param_b_field
-              ? Const::sol_over_100 * getBFieldFromZXY(inPar(2, 0), inPar(0, 0), inPar(1, 0))
-              : Const::sol_over_100 * Config::Bfield);
+    const MPF bF = (pf.use_param_b_field ? Const::sol_over_100 * getBFieldFromZXY(inPar(2, 0), inPar(0, 0), inPar(1, 0))
+                                         : Const::sol_over_100 * Config::Bfield);
     const MPF q = -bF * qbp;
     const MPF theta = q * s;
     MPF sint, cost;
@@ -206,11 +197,11 @@ namespace {
     //   phi
     errorPropCurv.aij(2, 0) = bF * v23 * (t21 * dx1 + t22 * dx2 + cosT * dx3) * cosl1;
     errorPropCurv.aij(2, 1) = (cost * (v11 * u21 + v12 * u22) + sint * (-v12 * u21 + v11 * u22) +
-                              v23 * (-sint * (v11 * t21 + v12 * t22 + v13 * cosT) +
-                                      omcost * (-v11 * t22 + v12 * t21) - tmsint * cosT * v13)) *
+                               v23 * (-sint * (v11 * t21 + v12 * t22 + v13 * cosT) + omcost * (-v11 * t22 + v12 * t21) -
+                                      tmsint * cosT * v13)) *
                               cosl1;
     errorPropCurv.aij(2, 2) = (cost * (u11 * u21 + u12 * u22) + sint * (-u12 * u21 + u11 * u22) +
-                              v23 * (-sint * (u11 * t21 + u12 * t22) + omcost * (-u11 * t22 + u12 * t21))) *
+                               v23 * (-sint * (u11 * t21 + u12 * t22) + omcost * (-u11 * t22 + u12 * t21))) *
                               cosl1 * sinT;
     errorPropCurv.aij(2, 3) = -q * v23 * (u11 * t21 + u12 * t22) * cosl1;
     errorPropCurv.aij(2, 4) = -q * v23 * (v11 * t21 + v12 * t22 + v13 * cosT) * cosl1;
@@ -256,46 +247,46 @@ namespace {
     errorPropCurv.aij(4, 3) = (u11 * v21 + u12 * v22);
     errorPropCurv.aij(4, 4) = (v11 * v21 + v12 * v22 + v13 * v23);
 
-  //debug = true;
-  #ifdef DEBUG
+//debug = true;
+#ifdef DEBUG
     for (int n = 0; n < NN; ++n) {
       if (debug && g_debug && n < N_proc) {
         dmutex_guard;
         std::cout << n << ": errorPropCurv" << std::endl;
         printf("%5f %5f %5f %5f %5f\n",
-              errorPropCurv(n, 0, 0),
-              errorPropCurv(n, 0, 1),
-              errorPropCurv(n, 0, 2),
-              errorPropCurv(n, 0, 3),
-              errorPropCurv(n, 0, 4));
+               errorPropCurv(n, 0, 0),
+               errorPropCurv(n, 0, 1),
+               errorPropCurv(n, 0, 2),
+               errorPropCurv(n, 0, 3),
+               errorPropCurv(n, 0, 4));
         printf("%5f %5f %5f %5f %5f\n",
-              errorPropCurv(n, 1, 0),
-              errorPropCurv(n, 1, 1),
-              errorPropCurv(n, 1, 2),
-              errorPropCurv(n, 1, 3),
-              errorPropCurv(n, 1, 4));
+               errorPropCurv(n, 1, 0),
+               errorPropCurv(n, 1, 1),
+               errorPropCurv(n, 1, 2),
+               errorPropCurv(n, 1, 3),
+               errorPropCurv(n, 1, 4));
         printf("%5f %5f %5f %5f %5f\n",
-              errorPropCurv(n, 2, 0),
-              errorPropCurv(n, 2, 1),
-              errorPropCurv(n, 2, 2),
-              errorPropCurv(n, 2, 3),
-              errorPropCurv(n, 2, 4));
+               errorPropCurv(n, 2, 0),
+               errorPropCurv(n, 2, 1),
+               errorPropCurv(n, 2, 2),
+               errorPropCurv(n, 2, 3),
+               errorPropCurv(n, 2, 4));
         printf("%5f %5f %5f %5f %5f\n",
-              errorPropCurv(n, 3, 0),
-              errorPropCurv(n, 3, 1),
-              errorPropCurv(n, 3, 2),
-              errorPropCurv(n, 3, 3),
-              errorPropCurv(n, 3, 4));
+               errorPropCurv(n, 3, 0),
+               errorPropCurv(n, 3, 1),
+               errorPropCurv(n, 3, 2),
+               errorPropCurv(n, 3, 3),
+               errorPropCurv(n, 3, 4));
         printf("%5f %5f %5f %5f %5f\n",
-              errorPropCurv(n, 4, 0),
-              errorPropCurv(n, 4, 1),
-              errorPropCurv(n, 4, 2),
-              errorPropCurv(n, 4, 3),
-              errorPropCurv(n, 4, 4));
+               errorPropCurv(n, 4, 0),
+               errorPropCurv(n, 4, 1),
+               errorPropCurv(n, 4, 2),
+               errorPropCurv(n, 4, 3),
+               errorPropCurv(n, 4, 4));
         printf("\n");
       }
     }
-  #endif
+#endif
 
     //now we need jacobians to convert to/from curvilinear and CCS
     // code from TrackState::jacobianCCSToCurvilinear
@@ -384,10 +375,10 @@ namespace {
     float sqb2m4ac = std::sqrt(B * B - 4.f * A * C);
     float s1 = (-B + sqb2m4ac) * 0.5f / C;
     float s2 = (-B - sqb2m4ac) * 0.5f / C;
-  #ifdef DEBUG
+#ifdef DEBUG
     if (debug)
       std::cout << "A=" << A << " B=" << B << " C=" << C << " s1=" << s1 << " s2=" << s2 << std::endl;
-  #endif
+#endif
     //take the closest
     return (std::abs(s1) > std::abs(s2) ? s2 : s1);
   }
@@ -405,7 +396,7 @@ namespace {
     namespace mpt = Matriplex;
     using MPF = MPlexQF;
 
-  #ifdef DEBUG
+#ifdef DEBUG
     for (int n = 0; n < N_proc; ++n) {
       dprint_np(n,
                 "input parameters"
@@ -415,7 +406,7 @@ namespace {
                     << " inPar(n, 4, 0)=" << std::setprecision(9) << inPar(n, 4, 0)
                     << " inPar(n, 5, 0)=" << std::setprecision(9) << inPar(n, 5, 0));
     }
-  #endif
+#endif
 
     MPF kinv = mpt::negate_if_ltz(MPF(-Const::sol_over_100), inChg);
     if (pf.use_param_b_field) {
@@ -435,28 +426,26 @@ namespace {
 
     // determine solution for straight line
     MPF sl = -(plNrm(0, 0) * delta0 + plNrm(1, 0) * delta1 + plNrm(2, 0) * delta2) /
-              (plNrm(0, 0) * cosP * sinT +
-              plNrm(1, 0) * sinP * sinT + plNrm(2, 0) * cosT);
+             (plNrm(0, 0) * cosP * sinT + plNrm(1, 0) * sinP * sinT + plNrm(2, 0) * cosT);
 
     //float s[nmax - nmin];
     //first iteration outside the loop
-  #pragma omp simd
+#pragma omp simd
     for (int n = 0; n < NN; ++n) {
-      s[n] = (std::abs(plNrm(n, 2, 0)) < 1.f
-                        ? getS(delta0[n],
-                                delta1[n],
-                                delta2[n],
-                                plNrm(n, 0, 0),
-                                plNrm(n, 1, 0),
-                                plNrm(n, 2, 0),
-                                sinP[n],
-                                cosP[n],
-                                sinT[n],
-                                cosT[n],
-                                inPar(n, 3, 0),
-                                inChg(n, 0, 0),
-                                kinv[n])
-                        : (plPnt.constAt(n, 2, 0) - inPar.constAt(n, 2, 0)) / cosT[n]);
+      s[n] = (std::abs(plNrm(n, 2, 0)) < 1.f ? getS(delta0[n],
+                                                    delta1[n],
+                                                    delta2[n],
+                                                    plNrm(n, 0, 0),
+                                                    plNrm(n, 1, 0),
+                                                    plNrm(n, 2, 0),
+                                                    sinP[n],
+                                                    cosP[n],
+                                                    sinT[n],
+                                                    cosT[n],
+                                                    inPar(n, 3, 0),
+                                                    inChg(n, 0, 0),
+                                                    kinv[n])
+                                             : (plPnt.constAt(n, 2, 0) - inPar.constAt(n, 2, 0)) / cosT[n]);
     }
 
     MPlexLV outParTmp;
@@ -472,47 +461,46 @@ namespace {
       mpt::fast_sincos(outParTmp(4, 0), sinP, cosP);
       // Note, sinT/cosT not updated
 
-  #pragma omp simd
+#pragma omp simd
       for (int n = 0; n < NN; ++n) {
-        s[n] += (std::abs(plNrm(n, 2, 0)) < 1.f ? getS(delta0[n],
-                                                      delta1[n],
-                                                      delta2[n],
-                                                      plNrm(n, 0, 0),
-                                                      plNrm(n, 1, 0),
-                                                      plNrm(n, 2, 0),
-                                                      sinP[n],
-                                                      cosP[n],
-                                                      sinT[n],
-                                                      cosT[n],
-                                                      inPar(n, 3, 0),
-                                                      inChg(n, 0, 0),
-                                                      kinv[n])
-                                                : (plPnt.constAt(n, 2, 0) - outParTmp.constAt(n, 2, 0)) /
-                                                      std::cos(outParTmp.constAt(n, 5, 0)));
+        s[n] += (std::abs(plNrm(n, 2, 0)) < 1.f
+                     ? getS(delta0[n],
+                            delta1[n],
+                            delta2[n],
+                            plNrm(n, 0, 0),
+                            plNrm(n, 1, 0),
+                            plNrm(n, 2, 0),
+                            sinP[n],
+                            cosP[n],
+                            sinT[n],
+                            cosT[n],
+                            inPar(n, 3, 0),
+                            inChg(n, 0, 0),
+                            kinv[n])
+                     : (plPnt.constAt(n, 2, 0) - outParTmp.constAt(n, 2, 0)) / std::cos(outParTmp.constAt(n, 5, 0)));
       }
     }  //end Niter-1
 
     // use linear approximation if s did not converge (for very high pT tracks)
     for (int n = 0; n < NN; ++n) {
-  #ifdef DEBUG
+#ifdef DEBUG
       if (debug)
-        std::cout << "s[n]=" << s[n] << " sl[n]=" << sl[n]
-                  << " std::isnan(s[n])=" << std::isnan(s[n])
-                  << " std::isfinite(s[n])=" << std::isfinite(s[n])
-                  << " std::isnormal(s[n])=" << std::isnormal(s[n]) << std::endl;
-  #endif
+        std::cout << "s[n]=" << s[n] << " sl[n]=" << sl[n] << " std::isnan(s[n])=" << std::isnan(s[n])
+                  << " std::isfinite(s[n])=" << std::isfinite(s[n]) << " std::isnormal(s[n])=" << std::isnormal(s[n])
+                  << std::endl;
+#endif
       if ((std::abs(sl[n]) > std::abs(s[n])) || std::isnormal(s[n]) == false)
         s[n] = sl[n];
     }
 
-  #ifdef DEBUG
+#ifdef DEBUG
     if (debug)
       std::cout << "s=" << s[0] << std::endl;
-  #endif
+#endif
     parsAndErrPropFromPathL_impl(inPar, inChg, outPar, kinv, s, errorProp, N_proc, pf);
   }
 
-}
+}  // namespace
 // END STUFF FROM PropagationMPlex.icc
 // ============================================================================
 
@@ -564,7 +552,7 @@ namespace mkfit {
               << "   pos = " << outPar(n, 0, 0) << " " << outPar(n, 1, 0) << " " << outPar(n, 2, 0) << "\t\t r="
               << std::sqrt(outPar(n, 0, 0) * outPar(n, 0, 0) + outPar(n, 1, 0) * outPar(n, 1, 0)) << std::endl
               << "   mom = " << outPar(n, 3, 0) << " " << outPar(n, 4, 0) << " " << outPar(n, 5, 0) << std::endl
-		          << " charge = " << inChg(n, 0, 0) << std::endl
+              << " charge = " << inChg(n, 0, 0) << std::endl
               << " cart= " << std::cos(outPar(n, 4, 0)) / outPar(n, 3, 0) << " "
               << std::sin(outPar(n, 4, 0)) / outPar(n, 3, 0) << " " << 1. / (outPar(n, 3, 0) * tan(outPar(n, 5, 0)))
               << "\t\tpT=" << 1. / std::abs(outPar(n, 3, 0)) << std::endl);
@@ -715,4 +703,4 @@ namespace mkfit {
     // }
   }
 
-}
+}  // namespace mkfit

@@ -43,12 +43,11 @@ namespace {
 #include "MultHelixPropTranspEndcap.ah"
   }
 
-}
+}  // namespace
 
 // ============================================================================
 // BEGIN STUFF FROM PropagationMPlex.icc
-namespace {
-}
+namespace {}
 
 // END STUFF FROM PropagationMPlex.icc
 // ============================================================================
@@ -516,5 +515,4 @@ namespace mkfit {
 #endif
   }
 
-}
-
+}  // namespace mkfit

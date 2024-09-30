@@ -2,8 +2,8 @@
 
 #include <ROOT/RNTuple.hxx>
 #include <ROOT/RNTupleModel.hxx>
-#if ROOT_VERSION_CODE >= ROOT_VERSION(6,32,0)
-  #include <ROOT/RNTupleWriter.hxx>
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6, 32, 0)
+#include <ROOT/RNTupleWriter.hxx>
 #endif
 
 #include "TFile.h"

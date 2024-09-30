@@ -150,4 +150,4 @@ namespace mkfit {
     }
   }
 
-}
+}  // namespace mkfit
