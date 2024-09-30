@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import argparse
 import fnmatch
 import os
@@ -23,13 +24,15 @@ def print_help():
     This script runs HLT test configurations for the CMS Phase2 upgrade.
 
     Arguments:
-    --globaltag    : GlobalTag for the CMS conditions (required)
-    --geometry     : Geometry setting for the CMS process (required)
-    --events       : Number of events to process (default: 1)
-    --threads      : Number of threads to use (default: 1)
+    --globaltag       : GlobalTag for the CMS conditions (required)
+    --geometry        : Geometry setting for the CMS process (required)
+    --events          : Number of events to process (default: 1)
+    --threads         : Number of threads to use (default: 1)
+    --restrictPathsTo : Restrict paths to be run to a user defined subset (e.g. "HLT_Ele*")
+    --procModifiers   : Optionally use one (or more) cmssw processModifier
 
     Example usage:
-    python script.py --globaltag auto:phase2_realistic_T33 --geometry Extended2026D110 --events 10 --threads 4
+    hltPhase2UpgradeIntegrationTests --globaltag auto:phase2_realistic_T33 --geometry Extended2026D110 --events 10 --threads 4
     """
     print(help_text)
 
@@ -54,7 +57,7 @@ parser.add_argument("--events", type=int, default=10, help="Number of events to 
 parser.add_argument("--parallelJobs", type=int, default=4, help="Number of parallel cmsRun HLT jobs")
 parser.add_argument("--threads", type=int, default=1, help="Number of threads to use")
 parser.add_argument("--restrictPathsTo", nargs='+', default=[], help="List of HLT paths to restrict to")
-
+parser.add_argument("--procModifiers", default=None, help="Optional process modifier for cmsDriver")  # New argument for procModifiers
 
 # Step 0: Capture the start time and print the start timestamp
 start_time = time.time()
@@ -77,19 +80,23 @@ num_events = args.events
 num_threads = args.threads
 num_parallel_jobs = args.parallelJobs
 restrict_paths_to = args.restrictPathsTo
+proc_modifiers = args.procModifiers  # Store the procModifiers option
 
 # Print the values in a nice formatted manner
 print(f"{'Configuration Summary':^40}")
 print("=" * 40)
-print(f"Global Tag:    {global_tag}")
-print(f"Geometry:      {geometry}")
-print(f"Era:           {era}")
-print(f"Num Events:    {num_events}")
-print(f"Num Threads:   {num_threads}")
-print(f"Num Par. Jobs: {num_parallel_jobs}")
+print(f"Global Tag:           {global_tag}")
+print(f"Geometry:             {geometry}")
+print(f"Era:                  {era}")
+print(f"Num Events:           {num_events}")
+print(f"Num Threads:          {num_threads}")
+print(f"Num Parallel Jobs:    {num_parallel_jobs}")
 # Print restrictPathsTo if provided
 if restrict_paths_to:
     print(f"Restricting paths to: {', '.join(restrict_paths_to)}")
+# Print procModifiers if provided
+if proc_modifiers:
+    print(f"Proc Modifiers:       {proc_modifiers}")
 print("=" * 40)
 
 # Directory where all test configurations will be stored
@@ -110,6 +117,10 @@ base_cmsdriver_command = (
     f"--customise SLHCUpgradeSimulations/Configuration/aging.customise_aging_1000 "
     f'--customise_commands "process.options.wantSummary=True"'
 )
+
+# Add procModifiers if provided
+if proc_modifiers:
+    base_cmsdriver_command += f" --procModifiers {proc_modifiers}"
 
 # The base configuration file and the dumped configuration file
 base_config_file = os.path.join(output_dir, "Phase2_L1P2GT_HLT.py")
@@ -278,7 +289,9 @@ with ThreadPoolExecutor(max_workers=num_parallel_jobs) as executor:
             print(f"cmsRun for {config_file} generated an exception: {exc}")
 
 if error_occurred:
+    print("-" * 40)
     print("One or more cmsRun jobs failed. Exiting with failure.")
+    print("-" * 40)
     exit(1)
 
 print("All cmsRun jobs submitted.")
@@ -314,7 +327,9 @@ def compare_hlt_results():
 
         # Check if the output contains the expected match string
         if expected_match_string not in output:
+            print("-" * 40)
             print(f"Error: {root_file} has different HLT results!")
+            print("-" * 40)
             exit(1)  # Exit with failure if differences are found
 
     print("All HLT comparisons passed with no differences.")
