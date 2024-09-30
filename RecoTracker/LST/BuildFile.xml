@@ -1,0 +1,9 @@
+<use name="DataFormats/Common"/>
+<use name="alpaka"/>
+<use name="DataFormats/TrackerRecHit2D"/>
+<use name="HeterogeneousCore/AlpakaInterface"/>
+<use name="RecoTracker/LSTCore"/>
+<flags ALPAKA_BACKENDS="1"/>
+<export>
+  <lib name="1"/>
+</export>

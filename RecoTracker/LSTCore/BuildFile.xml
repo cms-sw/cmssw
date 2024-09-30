@@ -1,0 +1,10 @@
+<use name="alpaka"/>
+<use name="boost_header"/>
+<use name="root"/>
+<use name="HeterogeneousCore/AlpakaInterface"/>
+<flags CXXFLAGS="-DCACHE_ALLOC -DT4FromT3 -DUSE_RZCHI2 -DUSE_T5_DNN -DPT_CUT=0.8 -DDUP_pLS -DDUP_T5 -DDUP_pT5 -DDUP_pT3 -DCrossclean_T5 -DCrossclean_pT3"/>
+<use name="RecoTracker/LSTCore" for="alpaka"/>
+<flags ALPAKA_BACKENDS="1"/>
+<export>
+  <lib name="1"/>
+</export>
