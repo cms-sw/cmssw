@@ -432,7 +432,6 @@ if __name__ == '__main__':
         cmssw_base = os.path.join(cmssw_base,"src/Utilities/General/ibeos")
         if os.path.exists(cmssw_base):
           os.environ["CMSSW_USE_IBEOS"]="true"
-          os.environ["CMSSW_IBEOS_PATH"]=cmssw_base
           break
     if opt.restricted:
         print('Deprecated, please use -l limited')
