@@ -34,17 +34,17 @@ testGlobalTag = False
 options.parseArguments()
 
 MagFieldValue = 10.*options.MagField #code needs it in deciTesla
-print '\nMagField = %f deciTesla \n'%(MagFieldValue)
+print('\nMagField = %f deciTesla \n'%(MagFieldValue))
 version = options.Version
-print'\nVersion = %s \n'%(version)
+print('\nVersion = %s \n'%(version))
 magfieldstrsplit = str(options.MagField).split('.')
 MagFieldString = magfieldstrsplit[0]
 if len(magfieldstrsplit)>1 :
 	MagFieldString+=magfieldstrsplit[1]
 
 template_base = 'SiPixelTemplateDBObject_'+MagFieldString+'T_'+options.Year+'_v'+version
-print "Testing sqlite file: "+template_base+".db"
-print "                tag: "+template_base
+print("Testing sqlite file: "+template_base+".db")
+print("                tag: "+template_base)
 
 
 from Configuration.StandardSequences.Eras import eras
