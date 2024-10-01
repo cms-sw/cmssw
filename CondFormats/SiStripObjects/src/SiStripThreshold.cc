@@ -143,19 +143,15 @@ void SiStripThreshold::printSummary(std::stringstream& ss, const TrackerTopology
     minHth = 10000;
     minCth = 10000;  //min value
     n = 0;
-    firstStrip = 0;
     for (; it != eit; ++it) {
       itp = it + 1;
       firstStrip = it->getFirstStrip();
       if (itp != eit)
         stripRange = (itp->getFirstStrip() - firstStrip);
       else
-        stripRange =
-            firstStrip > 511
-                ? 768 - firstStrip
-                : 512 -
-                      firstStrip;  //*FIXME, I dont' know ithis class the strip number of a detector, so I assume wrongly that if the last firstStrip<511 the detector has only 512 strips. Clearly wrong. to be fixed
-
+        //*FIXME In this class the number of strips in the detector is not known, therefore it is (wrongly) assumed that
+        //       if the last firstStrip<511 then the detector has just 512 strips: this is clearly wrong, and it needs to be fixed
+        stripRange = firstStrip > 511 ? 768 - firstStrip : 512 - firstStrip;
       addToStat(it->getLth(), stripRange, meanLth, rmsLth, minLth, maxLth);
       addToStat(it->getHth(), stripRange, meanHth, rmsHth, minHth, maxHth);
       addToStat(it->getClusth(), stripRange, meanCth, rmsCth, minCth, maxCth);
