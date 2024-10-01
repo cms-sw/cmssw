@@ -114,7 +114,6 @@ void SiPixelTemplateDBObjectReader::analyze(const edm::Event& iEvent, const edm:
     edm::LogPrint("SiPixelTemplateDBObjectReader") << std::endl;
 
     //local variables
-    const char* tempfile;
     int numOfTempl = dbobject.numOfTempl();
     int index = 0;
     float tempnum = 0, diff = 0;
@@ -139,8 +138,7 @@ void SiPixelTemplateDBObjectReader::analyze(const edm::Event& iEvent, const edm:
            << std::right << dbobject.sVector()[index] << ".out" << std::ends;
 
       edm::FileInPath file(tout.str());
-      tempfile = (file.fullPath()).c_str();
-      std::ifstream in_file(tempfile, std::ios::in);
+      std::ifstream in_file(file.fullPath(), std::ios::in);
 
       if (in_file.is_open()) {
         //Removes header in textfile from diff
