@@ -7,10 +7,10 @@ import re
 
 class config: pass
 config.runNumber = int(sys.argv[1])
-print config.runNumber
+print(config.runNumber)
 
 for arg in sys.argv: 
-   print arg
+   print(arg)
 
 readFiles = cms.untracked.vstring()
 
@@ -20,9 +20,9 @@ for argument in sys.argv[2:]:
       fileToRead = "file:"+argument
       readFiles.append(fileToRead)
 
-print "readFiles : \n", readFiles
+print("readFiles : \n", readFiles)
 
-print config.runNumber
+print(config.runNumber)
 
 ##########
 
