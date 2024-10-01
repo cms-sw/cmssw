@@ -56,7 +56,7 @@ if options.l1Tracks.count(':') != 1:
     raise RuntimeError("Value for 'l1Tracks' command-line argument (= '{}') should contain one colon".format(options.l1Tracks))
 
 l1TracksTag = cms.InputTag(options.l1Tracks.split(':')[0], options.l1Tracks.split(':')[1])
-print "Input Track Collection = {0}  {1}".format(*options.l1Tracks.split(':')) 
+print("Input Track Collection = {0}  {1}".format(*options.l1Tracks.split(':')))
 
 
 # PART 2: SETUP MAIN CMSSW PROCESS 
@@ -128,11 +128,11 @@ if options.runVariations:
                 for l in range(7):
                     seedTrackPt = 2.0 + float(l) * 0.5
 
-                    print
-                    print "dist       =", dist
-                    print "minPt      =", minPt
-                    print "minDensity =", minDensity
-                    print "seedTrkPt  =", seedTrackPt
+                    print()
+                    print("dist       =", dist)
+                    print("minPt      =", minPt)
+                    print("minDensity =", minDensity)
+                    print("seedTrkPt  =", seedTrackPt)
 
                     producer = process.l1tVertexProducer.clone()
                     producer.VertexReconstruction.VertexDistance = cms.double(dist)
@@ -142,16 +142,16 @@ if options.runVariations:
 
                     producerName = 'VertexProducerDBSCANDist{0}minPt{1}minDensity{2}seedTrackPt{3}'.format(dist, minPt, minDensity, seedTrackPt)
                     producerName = producerName.replace(".","p")
-                    print "producer name =", producerName
+                    print("producer name =", producerName)
                     setattr(process, producerName, producer)
                     producerNames += [producerName]
                     process.l1tVertexNTupler.extraVertexDescriptions += ['DBSCAN(dist={0},minPt={1},minDensity={2},seedTrackPt{3})'.format(dist, minPt, minDensity, seedTrackPt)]
                     process.l1tVertexNTupler.extraVertexInputTags.append( cms.InputTag(producerName, 'L1Vertices'))
                     producerSum += producer
 
-print "Total number of producers =", len(additionalProducerAlgorithms)+1
-print "  Producers = [{0}]".format(producerSum.dumpSequenceConfig().replace('&',', '))
-print "  Algorithms = [fastHisto, {0}]".format(', '.join(additionalProducerAlgorithms))
+print("Total number of producers =", len(additionalProducerAlgorithms)+1)
+print("  Producers = [{0}]".format(producerSum.dumpSequenceConfig().replace('&',', ')))
+print("  Algorithms = [fastHisto, {0}]".format(', '.join(additionalProducerAlgorithms)))
 
 # PART 4: UTILITIES
 
@@ -177,5 +177,5 @@ process.p = cms.Path(producerSum + process.l1tTPStubValueMapProducer + process.l
 
 # DUMP AND EXIT
 if options.dump:
-    print process.dumpPython()
+    print(process.dumpPython())
     sys.exit(0)
