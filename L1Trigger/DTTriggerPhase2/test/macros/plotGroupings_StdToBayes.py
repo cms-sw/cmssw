@@ -54,14 +54,14 @@ for st in ["MB1","MB2","MB3","MB4"]:
 outpath = "../../../../Groupings/"
 if not os.path.exists(outpath):
     os.mkdir(outpath)
-    print "cp /afs/cern.ch/user/n/ntrevisa/public/utils/index.php %s/" %outpath
+    print("cp /afs/cern.ch/user/n/ntrevisa/public/utils/index.php %s/" %outpath)
     os.system("cp /afs/cern.ch/user/n/ntrevisa/public/utils/index.php %s/" %outpath)
 os.system("cp EventDumpList_StdToBayes.log %s/" %outpath)
 
 outpath = outpath + "StdToBayes/"
 if not os.path.exists(outpath):
     os.mkdir(outpath)
-    print "cp /afs/cern.ch/user/n/ntrevisa/public/utils/index.php %s/" %outpath
+    print("cp /afs/cern.ch/user/n/ntrevisa/public/utils/index.php %s/" %outpath)
     os.system("cp /afs/cern.ch/user/n/ntrevisa/public/utils/index.php %s/" %outpath)
 
 
