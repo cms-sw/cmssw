@@ -124,7 +124,7 @@ namespace pat {
     for (auto& var : pf_vars_) {
       features.add(var->first);
       features.reserve(var->first, pfcands.size());
-      for (const auto _d : pfcands) {
+      for (const auto& _d : pfcands) {
         features.fill(var->first, var->second(_d));
       }
     }
@@ -139,7 +139,7 @@ namespace pat {
     features.add("PF_pt_rel_log");
     features.reserve("PF_pt_rel_log", pfcands.size());
 
-    for (const auto _d : pfcands) {
+    for (const auto& _d : pfcands) {
       features.fill("PF_phi_rel", deltaPhi(lep.phi(), _d.phi()));
       features.fill("PF_eta_rel", lep.eta() - _d.eta());
       features.fill("PF_dR_lep", deltaR(lep, _d));
