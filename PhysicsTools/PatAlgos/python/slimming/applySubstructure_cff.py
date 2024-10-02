@@ -73,7 +73,6 @@ def applySubstructure( process, postfix="" ) :
         'pfDeepFlavourJetTags:problepb',
         'pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:BvsAll'
       )
-      # + pfUnifiedParticleTransformerAK4JetTagsAll
     )
 
     addJetCollection(
