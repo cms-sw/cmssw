@@ -20,7 +20,7 @@ TauRefProducer = cms.EDProducer("HLTTauRefProducer",
                             phiMin = cms.untracked.double(-3.15),
                             phiMax = cms.untracked.double(3.15),
                             #PFTauProducer = cms.untracked.InputTag("hpsPFTauProducer")
-                            PFTauProducer = cms.untracked.InputTag("patTaus")
+                            PatTauProducer = cms.untracked.InputTag("patTaus")
                             ),
                     Electrons = cms.untracked.PSet(
                             ElectronCollection = cms.untracked.InputTag("gedGsfElectrons"),
@@ -87,7 +87,7 @@ TauRefProducerLowPurity = TauRefProducer.clone(
         phiMin = cms.untracked.double(-3.15),
         phiMax = cms.untracked.double(3.15),
         #PFTauProducer = cms.untracked.InputTag("hpsPFTauProducer")
-        PFTauProducer = cms.untracked.InputTag("patTaus")
+        PatTauProducer = cms.untracked.InputTag("patTaus")
     )
 )
 
