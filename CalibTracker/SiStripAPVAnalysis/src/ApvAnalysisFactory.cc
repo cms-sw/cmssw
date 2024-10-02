@@ -118,10 +118,12 @@ void ApvAnalysisFactory::constructAuxiliaryApvClasses(ApvAnalysis* theAPV, uint3
       theCM = new MedianCommonModeCalculator();
     } else {
       cout << "Sorry Only Median is available for now, Mean and FastLinear are coming soon" << endl;
+      delete theCommonMode;
       return;
     }
   } else {
     cout << "ApvAnalysisFactory: algorithm " << theAlgorithmType_ << " not supported" << endl;
+    delete theCommonMode;
     return;
   }
 
