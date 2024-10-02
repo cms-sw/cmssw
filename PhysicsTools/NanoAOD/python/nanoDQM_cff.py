@@ -222,6 +222,10 @@ for plot in nanoDQM.vplots.Jet.plots:
     and 'hfHEF' not in plot.name.value() and 'hfEmEF' not in plot.name.value():
         _Jet_EarlyRun3_plots.append(plot)
 
+_Jet_pre142X_plots = cms.VPSet()
+for plot in nanoDQM.vplots.Jet.plots:
+    if 'puIdDisc' not in plot.name.value():
+        _Jet_pre142X_plots.append(plot)
 
 _SubJet_Run2_plots = cms.VPSet()
 for plot in nanoDQM.vplots.SubJet.plots:
@@ -233,6 +237,15 @@ _SubJet_EarlyRun3_plots = cms.VPSet()
 for plot in nanoDQM.vplots.SubJet.plots:
     if 'area' not in plot.name.value():
         _SubJet_EarlyRun3_plots.append(plot)
+
+_SubJet_pre142X_plots = cms.VPSet()
+for plot in nanoDQM.vplots.SubJet.plots:
+    if 'btagDeepFlavB' not in plot.name.value() and 'btagUParTAK4B' not in plot.name.value():
+        _SubJet_pre142X_plots.append(plot)
+_SubJet_pre142X_plots.extend([
+    Plot1D('btagCMVA', 'btagCMVA', 20, -1, 1, 'CMVA V2 btag discriminator'),
+    Plot1D('btagDeepB', 'btagDeepB', 20, -1, 1, 'Deep B+BB btag discriminator'),
+])
 
 run2_nanoAOD_ANY.toModify(
     nanoDQM.vplots.FatJet,
@@ -256,6 +269,13 @@ run2_nanoAOD_ANY.toModify(
     plots = _SubJet_EarlyRun3_plots
 )
 
+run3_nanoAOD_pre142X.toModify(
+    nanoDQM.vplots.Jet,
+    plots = _Jet_pre142X_plots
+).toModify(
+    nanoDQM.vplots.SubJet,
+    plots = _SubJet_pre142X_plots
+)
 
 _Pileup_pre13X_plots = cms.VPSet()
 for plot in nanoDQM.vplots.Pileup.plots:
