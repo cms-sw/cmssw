@@ -38,7 +38,7 @@ for i in range(len(value)):
     errorParameters += prepend+"1"
     prepend = ", "
 
-print values
+print(values)
     
 cfgFile = open("template_MuScleFit_cfg.py", 'r')
 outputCfgFile = open("MuScleFit_cfg.py", 'w')
@@ -49,4 +49,4 @@ for line in cfgFile:
         outputCfgFile.write(line.replace("parResol = cms.vdouble(),","parResol = cms.vdouble("+values+"),"))
     else:
         outputCfgFile.write( line )
-    # print line
+    # print(line)
