@@ -1,6 +1,6 @@
+// -*- C++ -*-
 #ifndef FWCore_Framework_EventSetupProvider_h
 #define FWCore_Framework_EventSetupProvider_h
-// -*- C++ -*-
 //
 // Package:     Framework
 // Class:      EventSetupProvider
@@ -83,7 +83,7 @@ namespace edm {
 
       void finishConfiguration(NumberOfConcurrentIOVs const&, bool& hasNonconcurrentFinder);
 
-      ///Used when we need to force a Record to reset all its proxies
+      ///Used when we need to force a Record to reset all its resolvers
       void resetRecordPlusDependentRecords(EventSetupRecordKey const&);
 
       ///Used when testing that all code properly updates on IOV changes of all Records

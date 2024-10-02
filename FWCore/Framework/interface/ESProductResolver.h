@@ -1,13 +1,13 @@
+// -*- C++ -*-
 #ifndef FWCore_Framework_ESProductResolver_h
 #define FWCore_Framework_ESProductResolver_h
-// -*- C++ -*-
 //
 // Package:     Framework
 // Class  :     ESProductResolver
 //
 /**\class edm::eventsetup::ESProductResolver
 
- Description: Base class for data Proxies held by a EventSetupRecord
+ Description: Base class for product resolvers held by a EventSetupRecord
 
  Usage:
     This class defines the interface used to handle retrieving data from an

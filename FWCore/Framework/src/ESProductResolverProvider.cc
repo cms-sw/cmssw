@@ -47,19 +47,19 @@ namespace edm {
     }
 
     void ESProductResolverProvider::KeyedResolvers::insert(
-        std::vector<std::pair<DataKey, std::shared_ptr<ESProductResolver>>>&& proxies,
+        std::vector<std::pair<DataKey, std::shared_ptr<ESProductResolver>>>&& resolvers,
         std::string const& appendToDataLabel) {
       PerRecordInfo& perRecordInfo = productResolverContainer_->perRecordInfos_[recordIndex_];
       if (perRecordInfo.indexToDataKeys_ == kInvalidIndex) {
-        perRecordInfo.nDataKeys_ = proxies.size();
+        perRecordInfo.nDataKeys_ = resolvers.size();
         perRecordInfo.indexToDataKeys_ = productResolverContainer_->dataKeys_.size();
-        for (auto const& it : proxies) {
+        for (auto const& it : resolvers) {
           productResolverContainer_->dataKeys_.push_back(it.first);
         }
       } else {
-        assert(perRecordInfo.nDataKeys_ == proxies.size());
+        assert(perRecordInfo.nDataKeys_ == resolvers.size());
         unsigned index = 0;
-        for (auto const& it : proxies) {
+        for (auto const& it : resolvers) {
           if (appendToDataLabel.empty()) {
             assert(it.first == productResolverContainer_->dataKeys_[perRecordInfo.indexToDataKeys_ + index]);
           } else {
@@ -76,7 +76,7 @@ namespace edm {
       }
       assert(unInitialized());
       productResolversIndex_ = productResolverContainer_->productResolvers_.size();
-      for (auto const& it : proxies) {
+      for (auto const& it : resolvers) {
         productResolverContainer_->productResolvers_.emplace_back(it.second);
       }
     }
