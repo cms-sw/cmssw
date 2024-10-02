@@ -63,7 +63,19 @@ def applySubstructure( process, postfix="" ) :
         jetCorrections = ('AK8PFPuppi', ['L2Relative', 'L3Absolute'], 'None'),
         getJetMCFlavour = False # jet flavor disabled
     )
+
     ## PATify soft drop subjets
+    from RecoBTag.ONNXRuntime.pfUnifiedParticleTransformerAK4_cff import _pfUnifiedParticleTransformerAK4JetTagsAll as pfUnifiedParticleTransformerAK4JetTagsAll
+    _btagDiscriminatorsSubjets = cms.PSet(
+      names=cms.vstring(
+        'pfDeepFlavourJetTags:probb',
+        'pfDeepFlavourJetTags:probbb',
+        'pfDeepFlavourJetTags:problepb',
+        'pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:BvsAll'
+      )
+      # + pfUnifiedParticleTransformerAK4JetTagsAll
+    )
+
     addJetCollection(
         process,
         postfix=postfix,
@@ -71,21 +83,13 @@ def applySubstructure( process, postfix="" ) :
         jetSource = cms.InputTag('ak8PFJetsPuppiSoftDrop'+postfix,'SubJets'),
         algo = 'ak',  # needed for subjet flavor clustering
         rParam = 0.8, # needed for subjet flavor clustering
-        btagDiscriminators = ['pfDeepCSVJetTags:probb', 'pfDeepCSVJetTags:probbb', 'pfCombinedInclusiveSecondaryVertexV2BJetTags','pfCombinedMVAV2BJetTags'],
+        btagDiscriminators = _btagDiscriminatorsSubjets.names.value(),
         jetCorrections = ('AK4PFPuppi', ['L2Relative', 'L3Absolute'], 'None'),
         explicitJTA = True,  # needed for subjet b tagging
         svClustering = True, # needed for subjet b tagging
         genJetCollection = cms.InputTag('slimmedGenJetsAK8SoftDropSubJets'), 
         fatJets=cms.InputTag('ak8PFJetsPuppi'),             # needed for subjet flavor clustering
         groomedFatJets=cms.InputTag('ak8PFJetsPuppiSoftDrop') # needed for subjet flavor clustering
-    )
-
-    from Configuration.Eras.Modifier_run3_common_cff import run3_common
-    run3_common.toModify(process.patJetsAK8PFPuppiSoftDropSubjets,
-                         discriminatorSources = cms.VInputTag(
-                            cms.InputTag("pfDeepCSVJetTagsAK8PFPuppiSoftDropSubjets","probb"),
-                            cms.InputTag("pfDeepCSVJetTagsAK8PFPuppiSoftDropSubjets","probbb")
-                         )
     )
 
     # add groomed ECFs and N-subjettiness to soft dropped pat::Jets for fat jets and subjets
