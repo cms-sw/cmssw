@@ -54,4 +54,5 @@
 <use name="RecoEcal/EgammaCoreTools"/>
 <use name="TrackingTools/Records"/>
 <use name="TrackingTools/TransientTrack"/>
+<use name="PhysicsTools/CandUtils"/>
 <flags EDM_PLUGIN="1"/>
