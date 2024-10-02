@@ -5,6 +5,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include <thread>
+#include <chrono>
 namespace edmtest {
   class TransformAsyncIntProducer : public edm::global::EDProducer<edm::Transformer> {
   public:
@@ -27,7 +28,8 @@ namespace edmtest {
               throw cms::Exception("TransformShouldNotBeCalled");
             }
             WorkCache ret;
-            ret.thread_ = std::make_shared<std::thread>([iTask] { usleep(100000); });
+            using namespace std::chrono_literals;
+            ret.thread_ = std::make_shared<std::thread>([iTask] { std::this_thread::sleep_for(100ms); });
             ret.value_ = IntProduct(iFrom.value + offset);
             return ret;
           },

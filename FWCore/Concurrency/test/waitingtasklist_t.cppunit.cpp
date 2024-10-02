@@ -8,7 +8,7 @@
 #include <iostream>
 
 #include <cppunit/extensions/HelperMacros.h>
-#include <unistd.h>
+#include <chrono>
 #include <memory>
 #include <atomic>
 #include <thread>
@@ -66,6 +66,7 @@ namespace {
   };
 
 }  // namespace
+using namespace std::chrono_literals;
 
 void WaitingTaskList_test::addThenDone() {
   std::atomic<bool> called{false};
@@ -79,7 +80,7 @@ void WaitingTaskList_test::addThenDone() {
     oneapi::tbb::task_group group;
     waitList.add(edm::WaitingTaskHolder(group, t));
 
-    usleep(10);
+    std::this_thread::sleep_for(10us);
     CPPUNIT_ASSERT(false == called);
 
     waitList.doneWaiting(std::exception_ptr{});
@@ -100,7 +101,7 @@ void WaitingTaskList_test::addThenDone() {
 
     waitList.add(edm::WaitingTaskHolder(group, t));
 
-    usleep(10);
+    std::this_thread::sleep_for(10us);
     CPPUNIT_ASSERT(false == called);
 
     waitList.doneWaiting(std::exception_ptr{});
@@ -142,7 +143,7 @@ void WaitingTaskList_test::addThenDoneFailed() {
 
     waitList.add(edm::WaitingTaskHolder(group, t));
 
-    usleep(10);
+    std::this_thread::sleep_for(10us);
     CPPUNIT_ASSERT(false == called);
 
     waitList.doneWaiting(std::make_exception_ptr(std::string("failed")));

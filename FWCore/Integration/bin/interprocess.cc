@@ -5,6 +5,7 @@
 #include <iostream>
 #include <string>
 #include <thread>
+#include <chrono>
 
 #include "FWCore/TestProcessor/interface/TestProcessor.h"
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
@@ -184,7 +185,7 @@ int main(int argc, char* argv[]) {
 
             serializer.serialize(value);
             std::cerr << uniqueID << " process: " << value.size() << " " << counter << std::endl;
-            //usleep(10000000);
+            //std::this_thread::sleep_for(std::chrono::microseconds(10000000));
             break;
           }
           case edm::Transition::EndLuminosityBlock: {
