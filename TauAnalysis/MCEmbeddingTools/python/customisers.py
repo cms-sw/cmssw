@@ -3,7 +3,6 @@
 
 # Various set of customise functions needed for embedding
 import FWCore.ParameterSet.Config as cms
-
 from PhysicsTools.NanoAOD.common_cff import ExtVar
 
 ################################ Customizer for skimming ###########################
@@ -61,6 +60,7 @@ to_bemanipulate.append(
         module_name="generalTracks", manipulator_name="Track", steps=["SIM", "MERGE"]
     )
 )
+# needed by the PFLinker:particleFlow to create MuonProducer:muons
 to_bemanipulate.append(
     module_manipulate(
         module_name="cosmicsVetoTracksRaw", manipulator_name="Track", steps=["SIM", "MERGE"]
@@ -80,13 +80,7 @@ to_bemanipulate.append(
         steps=["SIM", "MERGE"],
     )
 )
-to_bemanipulate.append(
-    module_manipulate(
-        module_name="conversionStepTracks",
-        manipulator_name="Track",
-        steps=["SIM", "MERGE"],
-    )
-)
+# This is needed by displacedMuonReducedTrackExtras which is specifically added in the merging_step
 to_bemanipulate.append(
     module_manipulate(
         module_name="displacedTracks",
@@ -94,13 +88,7 @@ to_bemanipulate.append(
         steps=["SIM", "MERGE"],
     )
 )
-to_bemanipulate.append(
-    module_manipulate(
-        module_name="ckfInOutTracksFromConversions",
-        manipulator_name="Track",
-        steps=["SIM", "MERGE"],
-    )
-)
+# This is needed by the conversion producer which is run by the highlevelreco task
 to_bemanipulate.append(
     module_manipulate(
         module_name="ckfOutInTracksFromConversions",
@@ -114,6 +102,7 @@ to_bemanipulate.append(
         module_name="muons1stStep", manipulator_name="Muon", steps=["SIM", "MERGE"]
     )
 )
+# needed by  MuIsoDepositCopyProducer/'muIsoDepositTkDisplaced'
 to_bemanipulate.append(
     module_manipulate(
         module_name="displacedMuons1stStep", manipulator_name="Muon", steps=["SIM", "MERGE"]
@@ -133,6 +122,7 @@ to_bemanipulate.append(
         steps=["SIM", "MERGE"],
     )
 )
+# needed by the PFLinker:particleFlow to create MuonProducer:muons
 to_bemanipulate.append(
     module_manipulate(
         module_name="particleFlowTmp",
@@ -155,23 +145,10 @@ to_bemanipulate.append(
         module_name="ecalDigis", manipulator_name="EcalSrFlag", steps=["SIM", "MERGE"]
     )
 )
+# this is needed by the HcalNoiseInfoProducer/'hcalnoise'
 to_bemanipulate.append(
     module_manipulate(
         module_name="hcalDigis", manipulator_name="HcalDigi", steps=["SIM", "MERGE"]
-    )
-)
-to_bemanipulate.append(
-    module_manipulate(
-        module_name="electronMergedSeeds",
-        manipulator_name="ElectronSeed",
-        steps=["SIM", "MERGE"],
-    )
-)
-to_bemanipulate.append(
-    module_manipulate(
-        module_name="ecalDrivenElectronSeeds",
-        manipulator_name="EcalDrivenElectronSeed",
-        steps=["SIM", "MERGE"],
     )
 )
 
@@ -191,13 +168,7 @@ to_bemanipulate.append(
 )
 
 to_bemanipulate.append(
-    module_manipulate(module_name="hbheprereco", manipulator_name="HBHERecHit")
-)
-to_bemanipulate.append(
     module_manipulate(module_name="hbhereco", manipulator_name="HBHERecHit")
-)
-to_bemanipulate.append(
-    module_manipulate(module_name="zdcreco", manipulator_name="ZDCRecHit")
 )
 
 to_bemanipulate.append(
@@ -583,8 +554,6 @@ def customiseGenerator_preHLT(process, changeProcessname=True, reselect=False):
     )
 
     # Disable noise simulation
-    process.mix.digitizers.castor.doNoise = cms.bool(False)
-
     process.mix.digitizers.ecal.doESNoise = cms.bool(False)
     process.mix.digitizers.ecal.doENoise = cms.bool(False)
 
@@ -801,12 +770,10 @@ def customiseMerging(process, changeProcessname=True, reselect=False):
 
     print("**** Attention: overriding behaviour of 'removeMCMatching' ****")
 
-    from PhysicsTools.PatAlgos.slimming.miniAOD_tools import miniAOD_customizeMC
-    def performMCMatching(process, names, postfix, outputModules):
-        miniAOD_customizeMC(process)
-
     import PhysicsTools.PatAlgos.tools.coreTools
-    PhysicsTools.PatAlgos.tools.coreTools.removeMCMatching = performMCMatching
+    from PhysicsTools.PatAlgos.slimming.miniAOD_tools import miniAOD_customizeMC
+
+    PhysicsTools.PatAlgos.tools.coreTools.removeMCMatching = lambda process, names, postfix, outputModules : miniAOD_customizeMC(process)
 
     if changeProcessname:
         process._Process__name = "MERGE"
@@ -893,42 +860,10 @@ def customiseMerging(process, changeProcessname=True, reselect=False):
     )
     process.dedxHitInfo.clusterShapeCache = cms.InputTag("")
 
-    # process.muons.FillDetectorBasedIsolation = cms.bool(False)
-    # process.muons.FillSelectorMaps = cms.bool(False)
-    # process.muons.FillShoweringInfo = cms.bool(False)
-    # process.muons.FillCosmicsIdMap = cms.bool(False)
-
-    # process.displacedMuons.FillDetectorBasedIsolation = cms.bool(False)
-    # process.displacedMuons.FillSelectorMaps = cms.bool(False)
-    # process.displacedMuons.FillShoweringInfo = cms.bool(False)
-    # process.displacedMuons.FillCosmicsIdMap = cms.bool(False)
-
-    # seed configuration needed for seedmerger
-    #process.load(
-    #    "RecoEgamma.EgammaElectronProducers.ecalDrivenElectronSeedsParameters_cff"
-    #)
-    #process.ecalDrivenElectronSeeds.SeedConfiguration = cms.PSet(
-    #    process.ecalDrivenElectronSeedsParameters
-    #)
-
     process.merge_step += process.highlevelreco
-    # process.merge_step.remove(process.reducedEcalRecHitsEE)
-    # process.merge_step.remove(process.reducedEcalRecHitsEB)
-
-    # process.merge_step.remove(process.ak4JetTracksAssociatorExplicit)
-
-    # process.merge_step.remove(process.cosmicsVeto)
-    # process.merge_step.remove(process.cosmicsVetoTrackCandidates)
-    # process.merge_step.remove(process.ecalDrivenGsfElectronCores)
-    # process.merge_step.remove(process.ecalDrivenGsfElectrons)
-    # process.merge_step.remove(process.gedPhotonsTmp)
-    # process.merge_step.remove(process.particleFlowTmp)
-
-    # process.merge_step.remove(process.hcalnoise)
 
     process.load("CommonTools.ParticleFlow.genForPF2PAT_cff")
 
-    # process.muonsFromCosmics.ShowerDigiFillerParameters.dtDigiCollectionLabel = cms.InputTag("simMuonDTDigis")
 
     process.merge_step += process.genForPF2PATSequence
 
@@ -970,6 +905,7 @@ def customiseMerging(process, changeProcessname=True, reselect=False):
         if name in reconstruction_modules_list:
             modules_to_be_ordered[name] = reconstruction_modules_list.index(name)
         else:
+            import sys
             print("ERROR:",name,"not prepared in modules list. Please adapt 'customiseMerging'")
             sys.exit(1)
 
