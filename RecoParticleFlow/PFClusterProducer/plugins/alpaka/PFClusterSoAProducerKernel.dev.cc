@@ -1199,7 +1199,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                   reco::PFClusteringVarsDeviceCollection::View pfClusteringVars,
                                   reco::PFClusterDeviceCollection::View clusterView,
                                   uint32_t* __restrict__ nSeeds,
-                                  uint32_t* __restrict__ num_rhf_) const {
+                                  uint32_t* __restrict__ nRHF) const {
       const int nRH = pfRecHits.size();
       int& totalSeedOffset = alpaka::declareSharedVar<int, __COUNTER__>(acc);
       int& totalSeedFracOffset = alpaka::declareSharedVar<int, __COUNTER__>(acc);
@@ -1302,7 +1302,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         pfClusteringVars.pcrhFracSize() = totalSeedFracOffset;
         pfClusteringVars.nRHFracs() = totalSeedFracOffset;
         clusterView.nRHFracs() = totalSeedFracOffset;
-        *num_rhf_ = totalSeedFracOffset;
+        *nRHF = totalSeedFracOffset;
         clusterView.nSeeds() = *nSeeds;
         clusterView.nTopos() = pfClusteringVars.nTopos();
 
@@ -1468,14 +1468,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     alpaka::memset(queue, nSeeds, 0x00);  // Reset nSeeds
   }
 
-  void PFClusterProducerKernel::step1(Queue& queue,
-                                      const reco::PFClusterParamsDeviceCollection& params,
-                                      const reco::PFRecHitHCALTopologyDeviceCollection& topology,
-                                      reco::PFClusteringVarsDeviceCollection& pfClusteringVars,
-                                      reco::PFClusteringEdgeVarsDeviceCollection& pfClusteringEdgeVars,
-                                      const reco::PFRecHitHostCollection& pfRecHits,
-                                      reco::PFClusterDeviceCollection& pfClusters,
-                                      uint32_t* __restrict__ num_rhf_) {
+  void PFClusterProducerKernel::seedTopoAndContract(Queue& queue,
+                                                    const reco::PFClusterParamsDeviceCollection& params,
+                                                    const reco::PFRecHitHCALTopologyDeviceCollection& topology,
+                                                    reco::PFClusteringVarsDeviceCollection& pfClusteringVars,
+                                                    reco::PFClusteringEdgeVarsDeviceCollection& pfClusteringEdgeVars,
+                                                    const reco::PFRecHitHostCollection& pfRecHits,
+                                                    reco::PFClusterDeviceCollection& pfClusters,
+                                                    uint32_t* __restrict__ nRHF) {
     const int nRH = pfRecHits->size();
     const int threadsPerBlock = 256;
     const int blocks = divide_up_by(nRH, threadsPerBlock);
@@ -1525,17 +1525,17 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                         pfClusteringVars.view(),
                         pfClusters.view(),
                         nSeeds.data(),
-                        num_rhf_);
+                        nRHF);
   }
 
-  void PFClusterProducerKernel::step2(Queue& queue,
-                                      const reco::PFClusterParamsDeviceCollection& params,
-                                      const reco::PFRecHitHCALTopologyDeviceCollection& topology,
-                                      reco::PFClusteringVarsDeviceCollection& pfClusteringVars,
-                                      reco::PFClusteringEdgeVarsDeviceCollection& pfClusteringEdgeVars,
-                                      const reco::PFRecHitHostCollection& pfRecHits,
-                                      reco::PFClusterDeviceCollection& pfClusters,
-                                      reco::PFRecHitFractionDeviceCollection& pfrhFractions) {
+  void PFClusterProducerKernel::cluster(Queue& queue,
+                                        const reco::PFClusterParamsDeviceCollection& params,
+                                        const reco::PFRecHitHCALTopologyDeviceCollection& topology,
+                                        reco::PFClusteringVarsDeviceCollection& pfClusteringVars,
+                                        reco::PFClusteringEdgeVarsDeviceCollection& pfClusteringEdgeVars,
+                                        const reco::PFRecHitHostCollection& pfRecHits,
+                                        reco::PFClusterDeviceCollection& pfClusters,
+                                        reco::PFRecHitFractionDeviceCollection& pfrhFractions) {
     const int nRH = pfRecHits->size();
 
     // fillRhfIndex
