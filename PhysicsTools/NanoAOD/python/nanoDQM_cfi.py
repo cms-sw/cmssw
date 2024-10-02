@@ -816,8 +816,6 @@ nanoDQM = DQMEDAnalyzer("NanoAODDQM",
             sels = cms.PSet(),
             plots = cms.VPSet(
                 Count1D('_size', 9, -0.5, 8.5, 'slimmedJetsAK8PFPuppiSoftDropPacked::SubJets, i.e. soft-drop subjets for ak8 fat jets for boosted'),
-                Plot1D('btagCMVA', 'btagCMVA', 20, -1, 1, 'CMVA V2 btag discriminator'),
-                Plot1D('btagDeepB', 'btagDeepB', 20, -1, 1, 'Deep B+BB btag discriminator'),
                 Plot1D('btagDeepFlavB', 'btagDeepFlavB', 20, -1, 1, 'DeepJet b+bb+lepb tag discriminator'),
                 Plot1D('btagUParTAK4B', 'btagUParTAK4B', 20, -1, 1, 'UnifiedParT b vs. udscg'),
                 Plot1D('eta', 'eta', 20, -4, 4, 'eta'),

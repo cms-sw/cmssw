@@ -243,7 +243,6 @@ for plot in nanoDQM.vplots.SubJet.plots:
     if 'btagDeepFlavB' not in plot.name.value() and 'btagUParTAK4B' not in plot.name.value():
         _SubJet_pre142X_plots.append(plot)
 _SubJet_pre142X_plots.extend([
-    Plot1D('btagCMVA', 'btagCMVA', 20, -1, 1, 'CMVA V2 btag discriminator'),
     Plot1D('btagDeepB', 'btagDeepB', 20, -1, 1, 'Deep B+BB btag discriminator'),
 ])
 
