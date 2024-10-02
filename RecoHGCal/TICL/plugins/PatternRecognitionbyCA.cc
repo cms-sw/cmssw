@@ -204,7 +204,7 @@ void PatternRecognitionbyCA<TILES>::filter(std::vector<Trackster> &output,
     }
   }
   output.reserve(selectedTrackstersIds.size());
-  bool isRegionalIter = (input.regions[0].index != -1);
+  bool isRegionalIter = !input.regions.empty() && (input.regions[0].index != -1);
   for (unsigned i = 0; i < selectedTrackstersIds.size(); ++i) {
     const auto &t = inTracksters[selectedTrackstersIds[i]];
     if (isRegionalIter) {
