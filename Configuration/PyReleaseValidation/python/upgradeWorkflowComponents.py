@@ -40,6 +40,8 @@ upgradeKeys[2017] = [
     '2024HLTOnDigiPU',
     '2024GenOnly',
     '2024SimOnGen',
+    '2024FS',
+    '2024FSPU',
 ]
 
 upgradeKeys[2026] = [
@@ -2748,7 +2750,7 @@ class UpgradeWorkflow_Run3FStrackingOnly(UpgradeWorkflow):
         else:
             stepDict[stepName][k] = merge([stepDict[step][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
-        return ('2021FS' in key or '2023FS' in key)
+        return ('FS' in key)
 upgradeWFs['Run3FStrackingOnly'] = UpgradeWorkflow_Run3FStrackingOnly(
     steps = [
         'Gen',
@@ -2775,7 +2777,7 @@ class UpgradeWorkflow_Run3FSMBMixing(UpgradeWorkflow):
         else:
             stepDict[stepName][k] = None
     def condition(self, fragment, stepList, key, hasHarvest):
-        return ('2021FS' in key or '2023FS' in key) and fragment=="MinBias_14TeV"
+        return ('FS' in key) and fragment=="MinBias_14TeV"
 upgradeWFs['Run3FSMBMixing'] = UpgradeWorkflow_Run3FSMBMixing(
     steps = [
         'Gen',
@@ -3121,6 +3123,14 @@ upgradeProperties[2017] = {
         'Era' : 'Run3',
         'BeamSpot': 'DBrealistic',
         'ScenToRun' : ['Gen','Sim','Digi','RecoNano','HARVESTNano','ALCA'],
+    },
+    '2024FS' : {
+        'Geom' : 'DB:Extended',
+        'GT' : 'auto:phase1_2024_realistic',
+        'HLTmenu': '@relval2024',
+        'Era' : 'Run3_FastSim',
+        'BeamSpot': 'DBrealistic',
+        'ScenToRun' : ['Gen','FastSimRun3','HARVESTFastRun3'],
     },
 }
 
