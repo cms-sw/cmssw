@@ -28,8 +28,9 @@ process.HGCalHEParametersWriter = cms.EDAnalyzer("PHGCalParametersDBBuilder",
 process.HGCalHEScParametersWriter = cms.EDAnalyzer("PHGCalParametersDBBuilder",
                                                    Name = cms.untracked.string("HGCalHEScintillatorSensitive"),
                                                    NameW = cms.untracked.string("HGCalWafer"),
-                                                   NameC = cms.untracked.string("HGCalCell")),
-                                                 NameT = cms.untracked.string("HGCal")
+                                                   NameC = cms.untracked.string("HGCalCell"),
+                                                   NameT = cms.untracked.string("HGCal")
+)
 
 process.CondDB.timetype = cms.untracked.string('runnumber')
 process.CondDB.connect = cms.string('sqlite_file:myfile.db')
