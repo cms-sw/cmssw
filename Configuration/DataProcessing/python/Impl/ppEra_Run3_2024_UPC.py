@@ -18,6 +18,7 @@ class ppEra_Run3_2024_UPC(pp):
         pp.__init__(self)
         self.recoSeq=''
         self.cbSc='pp'
+        self.isRepacked=True
         self.eras=Run3_2024_UPC
         self.promptCustoms += [ 'Configuration/DataProcessing/RecoTLR.customisePostEra_Run3_2024_UPC' ]
         self.expressCustoms += [ 'Configuration/DataProcessing/RecoTLR.customisePostEra_Run3_2024_UPC' ]
