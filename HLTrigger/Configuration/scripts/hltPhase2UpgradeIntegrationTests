@@ -47,7 +47,29 @@ def run_command(command, log_file=None, workdir=None):
         return e.returncode  # Return the error code
        
     return 0  # Return 0 for success
-       
+
+# Function to compare the single file HLT results with the respect to a the base
+def compare_single_file(root_file, base_root_file, num_events, output_dir):
+    root_path = os.path.join(output_dir, root_file)
+    print(f"Comparing {root_path} with {base_root_file} using hltDiff...")
+
+    # Run the hltDiff command
+    hlt_diff_command = f"hltDiff -o {base_root_file} -n {root_path}"
+    result = subprocess.run(hlt_diff_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+    # Decode and process the output
+    output = result.stdout.decode("utf-8")
+    print(output)  # Print for debug purposes
+
+    # Use a dynamic check based on the number of events configured
+    expected_match_string = f"Found {num_events} matching events, out of which 0 have different HLT results"
+
+    # Check if the output contains the expected match string
+    if expected_match_string not in output:
+        return f"Error: {root_file} has different HLT results!"
+
+    return None  # Return None if no issues are found
+
 # Argument Parser for command-line configuration
 parser = argparse.ArgumentParser(description="Run HLT Test Configurations")
 parser.add_argument("--globaltag", default=_PH2_GLOBAL_TAG, help="GlobalTag for the CMS conditions")
@@ -297,46 +319,38 @@ if error_occurred:
 print("All cmsRun jobs submitted.")
 
 # Step 9: Compare all HLT root files using hltDiff
-def compare_hlt_results():
-    # List all root files starting with "HLT_" in the output directory
-    root_files = [f for f in os.listdir(output_dir) if f.endswith(".root") and (f.startswith("HLT_") or f.startswith("L1T_"))]
-    
+def compare_hlt_results(input_dir, num_events, max_workers=4):
+    # List all root files starting with "HLT_" or "L1T_" in the output directory
+    root_files = [f for f in os.listdir(input_dir) if f.endswith(".root") and (f.startswith("HLT_") or f.startswith("L1T_"))]
+
     # Base file (hltrun output) to compare against
-    base_root_file = os.path.join(output_dir, "hlt.root")
-    
+    base_root_file = os.path.join(input_dir, "hlt.root")
+
     # Check if base_root_file exists
     if not os.path.exists(base_root_file):
         print(f"Base root file {base_root_file} not found! Exiting...")
         exit(1)
 
-    # Compare each root file with the base using hltDiff
-    for root_file in root_files:
-        root_path = os.path.join(output_dir, root_file)
-        print(f"Comparing {root_path} with {base_root_file} using hltDiff...")
-        
-        # Run the hltDiff command
-        hlt_diff_command = f"hltDiff -o {base_root_file} -n {root_path}"
-        result = subprocess.run(hlt_diff_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        
-        # Decode and process the output
-        output = result.stdout.decode("utf-8")
-        print(output)  # Print for debug purposes
+    # Use ThreadPoolExecutor to run comparisons in parallel
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        futures = []
+        for root_file in root_files:
+            futures.append(executor.submit(compare_single_file, root_file, base_root_file, num_events, input_dir))
 
-        # Use a dynamic check based on the number of events configured
-        expected_match_string = f"Found {num_events} matching events, out of which 0 have different HLT results"
-
-        # Check if the output contains the expected match string
-        if expected_match_string not in output:
-            print("-" * 40)
-            print(f"Error: {root_file} has different HLT results!")
-            print("-" * 40)
-            exit(1)  # Exit with failure if differences are found
+        # Collect results as they complete
+        for future in as_completed(futures):
+            result = future.result()
+            if result:  # If there is an error message, print it and exit
+                print("-" * 40)
+                print(result)
+                print("-" * 40)
+                exit(1)
 
     print("All HLT comparisons passed with no differences.")
 
 # Step 10: Once all cmsRun jobs are completed, perform the hltDiff comparisons
 print("Performing HLT result comparisons...")
-compare_hlt_results()
+compare_hlt_results(output_dir,num_events,num_parallel_jobs)  # Adjust max_workers based on your CPU cores
 
 # Step 11: Capture the end time and print the end timestamp
 end_time = time.time()
