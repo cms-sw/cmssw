@@ -58,7 +58,7 @@ static void FFT_transform_internal(int N, double *data, int direction) {
     double t = sin(theta / 2.0);
     double s2 = 2.0 * t * t;
 
-    for (a = 0, b = 0; b < n; b += 2 * dual) {
+    for (b = 0; b < n; b += 2 * dual) {
       int i = 2 * b;
       int j = 2 * (b + dual);
 

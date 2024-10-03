@@ -28,7 +28,7 @@ double **new_Array2D_double(int M, int N) {
 
   if (failed) {
     i--;
-    for (; i <= 0; i--)
+    for (; i >= 0; i--)
       free(A[i]);
     free(A);
     return NULL;
