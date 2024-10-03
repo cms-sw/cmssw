@@ -87,7 +87,7 @@ G4double CMSSQNeutronAnnih::momDistr(G4double x_in) {
 
   //now interpolate the above points for x_in
   G4double result = 9999;
-  for (int i = 0; i < n_entries; i++) {
+  for (int i = 1; i < n_entries; i++) {
     if (x[i] > x_in) {
       result = (CDF_k[i] - CDF_k[i - 1]) / (x[i] - x[i - 1]) * (x_in - x[i - 1]) + CDF_k[i - 1];
       break;

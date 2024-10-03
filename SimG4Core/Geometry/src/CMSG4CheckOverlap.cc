@@ -240,6 +240,8 @@ void CMSG4CheckOverlap::makeReportForOverlaps(std::ofstream& fout,
         if (!reg) {
           fout << "### NO G4Region found - EXIT"
                << "\n";
+          if (gdml)
+            delete gdml;
           return;
         }
         std::vector<G4LogicalVolume*>::iterator rootLVItr = reg->GetRootLogicalVolumeIterator();

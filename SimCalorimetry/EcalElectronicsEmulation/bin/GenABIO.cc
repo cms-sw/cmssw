@@ -552,10 +552,8 @@ bool readSRF(FILE *f,
     ++line;
     char *pos = buffer;
     while (*pos == ' ' || *pos == '\t')
-      ++pos;                            // skip spaces
-    if (*pos != '#' && *pos != '\n') {  // not a comment line nor an empty line
-      // go back to beginning of line:
-      pos = buffer;
+      ++pos;                                 // skip spaces
+    if (*pos != '#' && *pos != '\n') {       // not a comment line nor an empty line
       if (iReadLine < nSupercrystalXBins) {  // EE- reading
         if (read - 1 != nSupercrystalYBins) {
           cerr << "Error: line " << line << " of file " << srfFilename << " has incorrect length"

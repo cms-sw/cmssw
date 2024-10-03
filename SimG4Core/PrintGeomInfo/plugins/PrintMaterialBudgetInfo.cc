@@ -104,7 +104,7 @@ PrintMaterialBudgetInfo::PrintMaterialBudgetInfo(const edm::ParameterSet& p) {
 PrintMaterialBudgetInfo::~PrintMaterialBudgetInfo() {}
 
 void PrintMaterialBudgetInfo::update(const BeginOfRun* run) {
-  G4Random::setTheEngine(new CLHEP::RanecuEngine);
+  [[clang::suppress]] G4Random::setTheEngine(new CLHEP::RanecuEngine);
   // Physical Volume
   G4VPhysicalVolume* theTopPV =
       G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking()->GetWorldVolume();
