@@ -51,7 +51,7 @@ namespace l1t {
     ap_int<14> eta;
 
     L1TGT_Common3Vector(int valid = 0, int pT = 0, int phi = 0, int eta = 0)
-        : valid(valid), pT(pT), phi(phi), eta(eta){};
+        : valid(valid), pT(pT), phi(phi), eta(eta) {};
 
     virtual ap_uint<44> pack_common() const { return l1t_pack_int<ap_uint<44>>(valid, pT, phi, eta); }
 
@@ -437,7 +437,7 @@ namespace l1t {
   struct L1TGT_GTT_Track : public L1TGT_Interface<96> {
     //TODO
 
-    L1TGT_GTT_Track(){};
+    L1TGT_GTT_Track() {};
 
     ap_uint<WIDTH> pack() const override { return ap_uint<WIDTH>(0); }
 
