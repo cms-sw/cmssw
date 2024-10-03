@@ -37,8 +37,8 @@ public:
 
 private:
   const edm::InputTag pixelClusterLabel_;
-  const std::string trigstring_;      //specifies the trigger Rand or ZeroBias
-  const bool savePerROCInfo_;  // save per ROC data (important for the special fills)
+  const std::string trigstring_;  //specifies the trigger Rand or ZeroBias
+  const bool savePerROCInfo_;     // save per ROC data (important for the special fills)
   const edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > pixelToken_;
 
   static constexpr int rowsperroc = 52;
