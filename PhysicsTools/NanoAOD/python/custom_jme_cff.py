@@ -662,9 +662,26 @@ def ReclusterAK4PuppiJets(proc, recoJA, runOnMC):
   proc.jetPuppiTable.variables.phoMultiplicity   = PFJETVARS.phoMultiplicity
 
   #
+  # Add Pileup Jet ID for Puppi jets
+  #
+  from RecoJets.JetProducers.PileupJetID_cfi import pileupJetIdPuppi
+  pileupJetIdName = "pileupJetId{}".format(jetName)
+  setattr(proc, pileupJetIdName, pileupJetIdPuppi.clone(
+      jets = "updatedJetsPuppi",
+      srcConstituentWeights = "packedpuppi",
+      vertexes  = "offlineSlimmedPrimaryVertices",
+      inputIsCorrected=True,
+      applyJec=False
+    )
+  )
+  proc.jetPuppiTask.add(getattr(proc, pileupJetIdName))
+  proc.updatedJetsPuppiWithUserData.userFloats.puIdDisc = cms.InputTag(pileupJetIdName+':fullDiscriminant')
+  proc.jetPuppiTable.variables.puIdDisc.expr = "userFloat('puIdDisc')"
+
+
+  #
   # Add variables for pileup jet ID studies.
   #
-
   proc = AddPileUpJetIDVars(proc,
     jetName = jetName,
     jetSrc = "updatedJetsPuppi",
