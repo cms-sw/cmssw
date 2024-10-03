@@ -22,6 +22,7 @@ namespace hitfit {
 
   template <>
   LeptonTranslatorBase<pat::Electron>::LeptonTranslatorBase() {
+    [[clang::suppress]]
     std::string CMSSW_BASE(std::getenv("CMSSW_BASE"));
     std::string resolution_filename =
         CMSSW_BASE + std::string("/src/TopQuarkAnalysis/PatHitFit/data/exampleElectronResolution.txt");
@@ -31,6 +32,7 @@ namespace hitfit {
 
   template <>
   LeptonTranslatorBase<pat::Electron>::LeptonTranslatorBase(const std::string& ifile) {
+    [[clang::suppress]]
     std::string CMSSW_BASE(std::getenv("CMSSW_BASE"));
     std::string resolution_filename;
 
