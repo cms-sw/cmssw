@@ -140,7 +140,7 @@ if __name__ == '__main__':
         if opt == "--dataset" :
             harvester.dataset = arg
         if opt == "--workflows":
-            harvester.workflows = [ x for x in arg.split(',') if len(x) > 0 ]
+            harvester.workflows = [ x for x in arg.split('+') if len(x) > 0 ]
         if opt == "--alcapromptdataset":
             harvester.alcapromptdataset = arg
 
