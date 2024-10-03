@@ -2,9 +2,9 @@
 namespace {
   namespace {
     class dummyfile {
-     public:
-      dummyfile() { };
-      virtual ~dummyfile() { };
+    public:
+      dummyfile() {};
+      virtual ~dummyfile() {};
     };
-  }
-}
+  }  // namespace
+}  // namespace
