@@ -4,10 +4,8 @@ using namespace Phase2L1GMT;
 
 TPSAlgorithm::TPSAlgorithm(const edm::ParameterSet& iConfig) : verbose_(iConfig.getParameter<int>("verbose")) {}
 
-TPSAlgorithm::~TPSAlgorithm() {}
-
 std::vector<PreTrackMatchedMuon> TPSAlgorithm::processNonant(const std::vector<ConvertedTTTrack>& convertedTracks,
-                                                             const l1t::MuonStubRefVector& stubs) {
+                                                             const l1t::MuonStubRefVector& stubs) const {
   std::vector<PreTrackMatchedMuon> preMuons;
   for (const auto& track : convertedTracks) {
     PreTrackMatchedMuon mu = processTrack(track, stubs);
@@ -21,7 +19,7 @@ std::vector<PreTrackMatchedMuon> TPSAlgorithm::processNonant(const std::vector<C
 std::vector<PreTrackMatchedMuon> TPSAlgorithm::cleanNeighbor(const std::vector<PreTrackMatchedMuon>& muons,
                                                              const std::vector<PreTrackMatchedMuon>& muonsPrevious,
                                                              const std::vector<PreTrackMatchedMuon>& muonsNext,
-                                                             bool equality) {
+                                                             bool equality) const {
   std::vector<PreTrackMatchedMuon> out;
 
   if (muons.empty())
@@ -55,7 +53,7 @@ std::vector<PreTrackMatchedMuon> TPSAlgorithm::cleanNeighbor(const std::vector<P
   return out;
 }
 
-std::vector<l1t::TrackerMuon> TPSAlgorithm::convert(std::vector<PreTrackMatchedMuon>& muons, uint maximum) {
+std::vector<l1t::TrackerMuon> TPSAlgorithm::convert(const std::vector<PreTrackMatchedMuon>& muons, uint maximum) const {
   std::vector<l1t::TrackerMuon> out;
   for (const auto& mu : muons) {
     if (out.size() == maximum)
@@ -83,7 +81,7 @@ std::vector<l1t::TrackerMuon> TPSAlgorithm::convert(std::vector<PreTrackMatchedM
   return out;
 }
 
-void TPSAlgorithm::SetQualityBits(std::vector<l1t::TrackerMuon>& muons) {
+void TPSAlgorithm::SetQualityBits(std::vector<l1t::TrackerMuon>& muons) const {
   for (auto& mu : muons) {
     // A preliminary suggestion. Need feedback from the menu group
     bool veryloose = mu.numberOfMatches() > 0;
@@ -96,7 +94,7 @@ void TPSAlgorithm::SetQualityBits(std::vector<l1t::TrackerMuon>& muons) {
   }
 }
 
-bool TPSAlgorithm::outputGT(std::vector<l1t::TrackerMuon>& muons) {
+bool TPSAlgorithm::outputGT(std::vector<l1t::TrackerMuon>& muons) const {
   for (auto& mu : muons) {
     wordtype word1 = 0;
     wordtype word2 = 0;
@@ -121,22 +119,17 @@ bool TPSAlgorithm::outputGT(std::vector<l1t::TrackerMuon>& muons) {
   return true;
 }
 
-std::vector<l1t::TrackerMuon> TPSAlgorithm::sort(std::vector<l1t::TrackerMuon>& muons, uint maximum) {
+std::vector<l1t::TrackerMuon> TPSAlgorithm::sort(std::vector<l1t::TrackerMuon>& muons, uint maximum) const {
   if (muons.size() < 2)
     return muons;
 
   std::sort(muons.begin(), muons.end(), [](l1t::TrackerMuon a, l1t::TrackerMuon b) { return a.hwPt() > b.hwPt(); });
-  std::vector<l1t::TrackerMuon> out;
-  for (unsigned int i = 0; i < muons.size(); ++i) {
-    out.push_back(muons[i]);
-    if (i == (maximum - 1))
-      break;
-  }
+  std::vector<l1t::TrackerMuon> out{muons.begin(), muons.begin() + (maximum < muons.size() ? maximum : muons.size())};
 
   return out;
 }
 
-propagation_t TPSAlgorithm::propagate(const ConvertedTTTrack& track, uint layer) {
+propagation_t TPSAlgorithm::propagate(const ConvertedTTTrack& track, uint layer) const {
   static const std::array<const ap_uint<BITSPROPCOORD>*, 5> lt_prop_coord1 = {
       {lt_prop_coord1_0, lt_prop_coord1_1, lt_prop_coord1_2, lt_prop_coord1_3, lt_prop_coord1_4}};
   static const std::array<const ap_uint<BITSPROPCOORD>*, 5> lt_prop_coord2 = {
@@ -255,7 +248,8 @@ propagation_t TPSAlgorithm::propagate(const ConvertedTTTrack& track, uint layer)
   return out;
 }
 
-ap_uint<BITSSIGMAETA + 1> TPSAlgorithm::deltaEta(const ap_int<BITSSTUBETA>& eta1, const ap_int<BITSSTUBETA>& eta2) {
+ap_uint<BITSSIGMAETA + 1> TPSAlgorithm::deltaEta(const ap_int<BITSSTUBETA>& eta1,
+                                                 const ap_int<BITSSTUBETA>& eta2) const {
   ap_fixed<BITSSIGMAETA + 2, BITSSIGMAETA + 2, AP_TRN_ZERO, AP_SAT_SYM> dEta = eta1 - eta2;
   if (dEta < 0)
     return ap_uint<BITSSIGMAETA + 1>(-dEta);
@@ -264,7 +258,7 @@ ap_uint<BITSSIGMAETA + 1> TPSAlgorithm::deltaEta(const ap_int<BITSSTUBETA>& eta1
 }
 
 ap_uint<BITSSIGMACOORD + 1> TPSAlgorithm::deltaCoord(const ap_int<BITSSTUBCOORD>& phi1,
-                                                     const ap_int<BITSSTUBCOORD>& phi2) {
+                                                     const ap_int<BITSSTUBCOORD>& phi2) const {
   ap_int<BITSSTUBCOORD> dPhiRoll = phi1 - phi2;
   ap_ufixed<BITSSIGMACOORD + 1, BITSSIGMACOORD + 1, AP_TRN_ZERO, AP_SAT_SYM> dPhi;
   if (dPhiRoll < 0)
@@ -275,7 +269,7 @@ ap_uint<BITSSIGMACOORD + 1> TPSAlgorithm::deltaCoord(const ap_int<BITSSTUBCOORD>
   return ap_uint<BITSSIGMACOORD + 1>(dPhi);
 }
 
-match_t TPSAlgorithm::match(const propagation_t prop, const l1t::MuonStubRef& stub, uint trackID) {
+match_t TPSAlgorithm::match(const propagation_t prop, const l1t::MuonStubRef& stub, uint trackID) const {
   if (verbose_ == 1) {
     edm::LogInfo("TPSAlgo") << "Matching to coord1=" << stub->coord1() << " coord2=" << stub->coord2()
                             << " eta1=" << stub->eta1() << " eta2=" << stub->eta2();
@@ -385,12 +379,14 @@ match_t TPSAlgorithm::match(const propagation_t prop, const l1t::MuonStubRef& st
   return out;
 }
 
-match_t TPSAlgorithm::propagateAndMatch(const ConvertedTTTrack& track, const l1t::MuonStubRef& stub, uint trackID) {
+match_t TPSAlgorithm::propagateAndMatch(const ConvertedTTTrack& track,
+                                        const l1t::MuonStubRef& stub,
+                                        uint trackID) const {
   propagation_t prop = propagate(track, stub->tfLayer());
   return match(prop, stub, trackID);
 }
 
-match_t TPSAlgorithm::getBest(const std::vector<match_t> matches) {
+match_t TPSAlgorithm::getBest(const std::vector<match_t>& matches) const {
   match_t best = matches[0];
   for (const auto& m : matches) {
     if (m.quality > best.quality)
@@ -400,9 +396,9 @@ match_t TPSAlgorithm::getBest(const std::vector<match_t> matches) {
   return best;
 }
 
-void TPSAlgorithm::matchingInfos(std::vector<match_t> matchInfo,
+void TPSAlgorithm::matchingInfos(const std::vector<match_t>& matchInfo,
                                  PreTrackMatchedMuon& muon,
-                                 ap_uint<BITSMATCHQUALITY>& quality) {
+                                 ap_uint<BITSMATCHQUALITY>& quality) const {
   if (!matchInfo.empty()) {
     match_t b = getBest(matchInfo);
     if (b.valid != 0) {
@@ -414,7 +410,8 @@ void TPSAlgorithm::matchingInfos(std::vector<match_t> matchInfo,
   }
 }
 
-PreTrackMatchedMuon TPSAlgorithm::processTrack(const ConvertedTTTrack& track, const l1t::MuonStubRefVector& stubs) {
+PreTrackMatchedMuon TPSAlgorithm::processTrack(const ConvertedTTTrack& track,
+                                               const l1t::MuonStubRefVector& stubs) const {
   std::array<std::vector<match_t>, 6> matchInfos;
 
   if (verbose_ == 1 && !stubs.empty()) {
@@ -478,7 +475,7 @@ PreTrackMatchedMuon TPSAlgorithm::processTrack(const ConvertedTTTrack& track, co
   return muon;
 }
 
-ap_uint<5> TPSAlgorithm::cleanMuon(const PreTrackMatchedMuon& mu, const PreTrackMatchedMuon& other, bool eq) {
+ap_uint<5> TPSAlgorithm::cleanMuon(const PreTrackMatchedMuon& mu, const PreTrackMatchedMuon& other, bool eq) const {
   ap_uint<5> valid = 0;
   ap_uint<5> overlap = 0;
   constexpr int bittest = 0xfff;  // 4095, corresponding to 11bits
@@ -514,7 +511,7 @@ ap_uint<5> TPSAlgorithm::cleanMuon(const PreTrackMatchedMuon& mu, const PreTrack
     return valid;
 }
 
-std::vector<PreTrackMatchedMuon> TPSAlgorithm::clean(std::vector<PreTrackMatchedMuon>& muons) {
+std::vector<PreTrackMatchedMuon> TPSAlgorithm::clean(const std::vector<PreTrackMatchedMuon>& muons) const {
   std::vector<PreTrackMatchedMuon> out;
   if (muons.empty())
     return out;
