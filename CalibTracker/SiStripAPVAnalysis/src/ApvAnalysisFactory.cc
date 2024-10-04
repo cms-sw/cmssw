@@ -119,6 +119,9 @@ void ApvAnalysisFactory::constructAuxiliaryApvClasses(ApvAnalysis* theAPV, uint3
     } else {
       cout << "Sorry Only Median is available for now, Mean and FastLinear are coming soon" << endl;
       delete theCommonMode;
+      delete theMask;
+      delete thePedestal;
+      delete theNoise;
       return;
     }
   } else {
