@@ -40,7 +40,7 @@ public:
     m_hmax = hmax;
   };
 
-  ~RootPlot(){};
+  ~RootPlot() {};
 
   void init() {
     m_nbins[0] = m_nbins[1] = 100;
@@ -567,7 +567,7 @@ public:
   }
 
 private:
-  RootPlot(){};  // hidden default constructor
+  RootPlot() {};  // hidden default constructor
 
   bool m_isInit;
   TFile* m_rootfile;
