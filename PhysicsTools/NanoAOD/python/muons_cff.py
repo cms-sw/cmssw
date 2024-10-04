@@ -204,6 +204,9 @@ muonTable = simplePATMuonFlatTableProducer.clone(
         triggerIdLoose = Var("passed('TriggerIdLoose')",bool,doc="TriggerIdLoose ID"),
         inTimeMuon = Var("passed('InTimeMuon')",bool,doc="inTimeMuon ID"),
         jetNDauCharged = Var("?userCand('jetForLepJetVar').isNonnull()?userFloat('jetNDauChargedMVASel'):0", "uint8", doc="number of charged daughters of the closest jet"),
+        VXBS_Cov00 = Var("? muonBestTrack().isNonnull() && muonBestTrack().isAvailable() ? muonBestTrack().covariance(0,0) : -999",float,doc="0, 0 element of the VXBS Covariance matrix", precision=16),
+        VXBS_Cov03 = Var("? muonBestTrack().isNonnull() && muonBestTrack().isAvailable() ? muonBestTrack().covariance(0,3) : -999",float,doc="0, 3 element of the VXBS Covariance matrix", precision=16),
+        VXBS_Cov33 = Var("? muonBestTrack().isNonnull() && muonBestTrack().isAvailable() ? muonBestTrack().covariance(3,3) : -999",float,doc="3, 3 element of the VXBS Covariance matrix", precision=16),
         ),
     externalVariables = cms.PSet(
         promptMVA = ExtVar(cms.InputTag("muonPROMPTMVA"),float, doc="Prompt MVA lepton ID score. Corresponds to the previous mvaTTH",precision=14),
