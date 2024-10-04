@@ -31,11 +31,12 @@ ecalUncalibRecHitPhase2Portable = _ecalUncalibRecHitPhase2Portable.clone(
 
 from RecoLocalCalo.EcalRecProducers.ecalUncalibRecHitSoAToLegacy_cfi import ecalUncalibRecHitSoAToLegacy as _ecalUncalibRecHitSoAToLegacy
 alpaka.toModify(ecalUncalibRecHitPhase2,
-    cpu = _ecalUncalibRecHitSoAToLegacy.clone(),
+    cpu = _ecalUncalibRecHitSoAToLegacy.clone(
     isPhase2 = True,
     uncalibRecHitsPortableEB = 'ecalUncalibRecHitPhase2Portable:EcalUncalibRecHitsEB',
     uncalibRecHitsPortableEE = None,
     recHitsLabelCPUEE = None
+    )
 )
 
 
