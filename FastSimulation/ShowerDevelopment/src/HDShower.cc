@@ -381,7 +381,6 @@ void HDShower::makeSteps(int nsteps) {
     if (est < 0.) {
       LogInfo("FastCalorimetry") << "*** FamosHDShower::makeSteps "
                                  << " - negative step energy !!!" << std::endl;
-      est = 0.;
       break;
     }
 
