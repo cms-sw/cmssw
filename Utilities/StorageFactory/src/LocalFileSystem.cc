@@ -168,7 +168,7 @@ LocalFileSystem::FSInfo *LocalFileSystem::initFSInfo(void *arg) {
   i->fsname = static_cast<char *>(memcpy(p += infolen, m->mnt_fsname, fslen));
   i->type = static_cast<char *>(memcpy(p += fslen, m->mnt_type, typelen));
   i->dir = static_cast<char *>(memcpy(p += typelen, m->mnt_dir, dirlen));
-  i->origin = static_cast<char *>(memcpy(p += dirlen, m->mnt_fsname, originlen));
+  [[clang::suppress]] i->origin = static_cast<char *>(memcpy(p += dirlen, m->mnt_fsname, originlen));
   i->dev = -1;
   i->fstype = -1;
   i->freespc = 0;
@@ -361,6 +361,7 @@ LocalFileSystem::FSInfo *LocalFileSystem::findMount(const char *path,
 
     prev_paths.push_back(path);
     LocalFileSystem::FSInfo *new_best = findMount(fullpath, &sfs2, &s2, prev_paths);
+    free(fullpath);
     return new_best ? new_best : best;
   }
 

@@ -32,6 +32,7 @@ namespace clangcms {
       }
       if (qt->isPointerType()) {
         clang::PointerType const *pt = qt->getAs<clang::PointerType>();
+        assert(pt);
         return pt->getPointeeType().isConstQualified();
       }
 

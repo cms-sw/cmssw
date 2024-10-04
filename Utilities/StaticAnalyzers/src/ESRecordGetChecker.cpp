@@ -31,6 +31,7 @@ namespace clangcms {
     LangOpts.CPlusPlus = true;
     PrintingPolicy Policy(LangOpts);
     const Decl *D = AC->getDecl();
+    assert(D);
     std::string dname = "";
     if (const NamedDecl *ND = llvm::dyn_cast_or_null<NamedDecl>(D))
       dname = ND->getQualifiedNameAsString();
@@ -45,6 +46,7 @@ namespace clangcms {
       llvm::SmallString<100> buf;
       llvm::raw_svector_ostream os(buf);
       os << "function '";
+      assert(llvm::dyn_cast<FunctionDecl>(D));
       llvm::dyn_cast<FunctionDecl>(D)->getNameForDiagnostic(os, Policy, true);
       os << "' ";
       os << "calls function '";
