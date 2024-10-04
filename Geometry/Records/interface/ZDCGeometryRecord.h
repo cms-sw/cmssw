@@ -13,6 +13,7 @@
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "CondFormats/AlignmentRecord/interface/ZDCAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/ZDCAlignmentErrorRcd.h"
 #include "CondFormats/AlignmentRecord/interface/ZDCAlignmentErrorExtendedRcd.h"
@@ -23,6 +24,9 @@
 class ZDCGeometryRecord
     : public edm::eventsetup::DependentRecordImplementation<ZDCGeometryRecord,
                                                             edm::mpl::Vector<IdealGeometryRecord,
+                                                                             HcalParametersRcd,
+                                                                             HcalSimNumberingRecord,
+                                                                             HcalRecNumberingRecord,
                                                                              ZDCAlignmentRcd,
                                                                              ZDCAlignmentErrorRcd,
                                                                              ZDCAlignmentErrorExtendedRcd,

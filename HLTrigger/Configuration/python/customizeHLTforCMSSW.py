@@ -221,6 +221,17 @@ def customiseFor2018Input(process):
     return process
 
 
+# Adding zdc Topology producer
+def customizeHLTfor46062(process):
+    """Add topology producer for ZDC"""
+
+    for esprod in esproducers_by_type(process, 'ZdcGeometryFromDBEP'):
+        process.load("Geometry.ForwardGeometry.zdcTopologyEP_cfi")
+        break
+
+    return process
+
+
 def customiseForOffline(process):
     # For running HLT offline on Run-3 Data, use "(OnlineBeamSpotESProducer).timeThreshold = 1e6",
     # in order to pick the beamspot that was actually used by the HLT (instead of a "fake" beamspot).
@@ -270,5 +281,6 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     # process = customiseFor12718(process)
 
     process = checkHLTfor43774(process)
+    process = customizeHLTfor46062(process)
 
     return process
