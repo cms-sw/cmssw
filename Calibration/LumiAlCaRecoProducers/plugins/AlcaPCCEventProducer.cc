@@ -38,6 +38,7 @@ public:
 private:
   const edm::InputTag pixelClusterLabel_;
   const std::string trigstring_;  //specifies the trigger Rand or ZeroBias
+  const bool savePerROCInfo_;     // save per ROC data (important for the special fills)
   const edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > pixelToken_;
 
   static constexpr int rowsperroc = 52;
@@ -49,6 +50,7 @@ private:
 AlcaPCCEventProducer::AlcaPCCEventProducer(const edm::ParameterSet& iConfig)
     : pixelClusterLabel_(iConfig.getParameter<edm::InputTag>("pixelClusterLabel")),
       trigstring_(iConfig.getUntrackedParameter<std::string>("trigstring", "alcaPCCEvent")),
+      savePerROCInfo_(iConfig.getParameter<bool>("savePerROCInfo")),
       pixelToken_(consumes<edmNew::DetSetVector<SiPixelCluster> >(pixelClusterLabel_)) {
   produces<reco::PixelClusterCountsInEvent, edm::Transition::Event>(trigstring_);
 }
@@ -71,19 +73,21 @@ void AlcaPCCEventProducer::produce(edm::StreamID id, edm::Event& iEvent, edm::Ev
     }
     DetId detId = mod.id();
 
-    // Iterate over Clusters in module to fill per ROC histogram
-    for (auto const& cluster : mod) {
-      for (int i = 0; i < cluster.size(); ++i) {
-        const auto pix = cluster.pixel(i);
-        // TODO: add roc threshold to config if(di.adc > fRocThreshold_) {
-        if (pix.adc > 0) {
-          int irow = pix.x / rowsperroc; /* constant column direction is along x-axis */
-          int icol = pix.y / colsperroc; /* constant row direction is along y-axis */
-          /* generate the folling roc index that is going to map with ROC id as
-          8  9  10 11 12 13 14 15
-          0  1  2  3  4  5  6  7 */
-          int key = icol + irow * nROCcolumns;
-          thePCCob->incrementRoc(((detId << 7) + key), 1);
+    if (savePerROCInfo_) {
+      // Iterate over Clusters in module to fill per ROC histogram
+      for (auto const& cluster : mod) {
+        for (int i = 0; i < cluster.size(); ++i) {
+          const auto pix = cluster.pixel(i);
+          // TODO: add roc threshold to config if(di.adc > fRocThreshold_) {
+          if (pix.adc > 0) {
+            int irow = pix.x / rowsperroc; /* constant column direction is along x-axis */
+            int icol = pix.y / colsperroc; /* constant row direction is along y-axis */
+            /* generate the folling roc index that is going to map with ROC id as
+            8  9  10 11 12 13 14 15
+            0  1  2  3  4  5  6  7 */
+            int key = icol + irow * nROCcolumns;
+            thePCCob->incrementRoc(((detId << 7) + key), 1);
+          }
         }
       }
     }
@@ -101,6 +105,7 @@ void AlcaPCCEventProducer::fillDescriptions(edm::ConfigurationDescriptions& desc
   edm::ParameterSetDescription evtParamDesc;
   evtParamDesc.add<edm::InputTag>("pixelClusterLabel", edm::InputTag("siPixelClustersForLumi"));
   evtParamDesc.addUntracked<std::string>("trigstring", "alcaPCCEvent");
+  evtParamDesc.add<bool>("savePerROCInfo", true);
   descriptions.add("alcaPCCEventProducer", evtParamDesc);
 }
 
