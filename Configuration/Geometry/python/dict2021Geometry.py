@@ -1729,7 +1729,7 @@ forwardDict = {
             'Geometry/ForwardCommonData/data/zdcrotations.xml',
             'Geometry/ForwardCommonData/data/lumirotations.xml',
             'Geometry/ForwardCommonData/data/zdc/2021/v3/zdc.xml',
-            'Geometry/ForwardCommonData/data/rpd/2021/v1/rpd.xml',
+            'Geometry/ForwardCommonData/data/rpd/2021/v2/rpd.xml',
             'Geometry/ForwardCommonData/data/cmszdc.xml',
         ],
         3 : [
