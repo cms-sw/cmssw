@@ -127,7 +127,7 @@ namespace hcaltb {
                         Ecal7x7);
     } else {  /// this is TB06
       const CombinedTDCQDCDataFormat* qdctdc = (const CombinedTDCQDCDataFormat*)raw.data();
-      double qdc_calib_hits[32];
+      double qdc_calib_hits[32] = {0.};
       for (unsigned int i = 0; i < qdctdc->n_qdc_hits; i++)
         qdc_calib_hits[i] = ((qdctdc->qdc_values[i] & 0xFFF) - qdc_ped[i]) / qdc_gain[i];
 

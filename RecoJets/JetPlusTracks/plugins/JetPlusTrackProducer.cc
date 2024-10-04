@@ -107,7 +107,6 @@ void JetPlusTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
   auto pOut = std::make_unique<reco::JPTJetCollection>();
   auto pOut1 = std::make_unique<reco::CaloJetCollection>();
 
-  double scaleJPT = 1.;
   for (auto const& jet : iEvent.get(input_trackjets_token_)) {
     int icalo = -1;
     int i = 0;
@@ -152,8 +151,7 @@ void JetPlusTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
     jpt::MatchedTracks muons;
     jpt::MatchedTracks elecs;
 
-    scaleJPT =
-        mJPTalgo->correction(corrected, mycalo, iEvent, iSetup, tracksinvert, tracksincalo, p4, pions, muons, elecs);
+    mJPTalgo->correction(corrected, mycalo, iEvent, iSetup, tracksinvert, tracksincalo, p4, pions, muons, elecs);
     if (p4.pt() > ptCUT_) {
       reco::JPTJet::Specific jptspe;
       jptspe.pionsInVertexInCalo = pions.inVertexInCalo_;
@@ -184,9 +182,6 @@ void JetPlusTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
       factorZSP = mZSPalgo->correction(corrected, iEvent, iSetup);
     corrected.scaleEnergy(factorZSP);
 
-    // JPT corrections
-    scaleJPT = 1.;
-
     math::XYZTLorentzVector p4;
 
     jpt::MatchedTracks pions;
@@ -195,13 +190,13 @@ void JetPlusTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
     bool validMatches = false;
 
     if (!vectorial_) {
-      scaleJPT = mJPTalgo->correction(corrected, oldjet, iEvent, iSetup, pions, muons, elecs, validMatches);
+      double scaleJPT = mJPTalgo->correction(corrected, oldjet, iEvent, iSetup, pions, muons, elecs, validMatches);
       p4 = math::XYZTLorentzVector(corrected.px() * scaleJPT,
                                    corrected.py() * scaleJPT,
                                    corrected.pz() * scaleJPT,
                                    corrected.energy() * scaleJPT);
     } else {
-      scaleJPT = mJPTalgo->correction(corrected, oldjet, iEvent, iSetup, p4, pions, muons, elecs, validMatches);
+      mJPTalgo->correction(corrected, oldjet, iEvent, iSetup, p4, pions, muons, elecs, validMatches);
     }
 
     reco::JPTJet::Specific specific;

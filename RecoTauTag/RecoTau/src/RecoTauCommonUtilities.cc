@@ -111,6 +111,7 @@ namespace reco {
       if (pfCand)
         return pfCand->positionAtECALEntrance();
 
+      assert(part);
       math::XYZPointF pos;
       BaseParticlePropagator theParticle = BaseParticlePropagator(
           RawParticle(math::XYZTLorentzVector(part->px(), part->py(), part->pz(), part->energy()),
