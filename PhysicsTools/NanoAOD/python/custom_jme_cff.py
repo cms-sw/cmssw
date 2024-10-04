@@ -676,7 +676,7 @@ def ReclusterAK4PuppiJets(proc, recoJA, runOnMC):
   )
   proc.jetPuppiTask.add(getattr(proc, pileupJetIdName))
   proc.updatedJetsPuppiWithUserData.userFloats.puIdDisc = cms.InputTag(pileupJetIdName+':fullDiscriminant')
-  proc.jetPuppiTable.variables.puIdDisc.expr = "userFloat('puIdDisc')"
+  proc.jetPuppiTable.variables.puIdDisc = Var("userFloat('puIdDisc')", float, doc="Pileup ID BDT discriminant with 133X Winter24 PuppiV18 training",precision=10)
 
 
   #
