@@ -20,7 +20,7 @@ public:
   PerigeeTrajectoryError(AlgebraicSymMatrix aPerigeeError):
     thePerigeeError(asSMatrix<5>(aPerigeeError)), weightIsAvailable(false) {}
   */
-  PerigeeTrajectoryError(const AlgebraicSymMatrix55 &aPerigeeError)
+  explicit PerigeeTrajectoryError(const AlgebraicSymMatrix55 &aPerigeeError)
       : thePerigeeError(aPerigeeError), weightIsAvailable(false) {}
 
   /**
@@ -71,6 +71,6 @@ private:
   AlgebraicSymMatrix55 thePerigeeError;
   mutable AlgebraicSymMatrix55 thePerigeeWeight;
   mutable int inverseError;
-  mutable bool weightIsAvailable;
+  mutable bool weightIsAvailable = false;
 };
 #endif
