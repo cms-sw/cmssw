@@ -62,25 +62,25 @@ public:
     ++totalHistos_;
     totalBins_ += nBins;
     totalEmptyBins_ += nEmptyBins;
-    totalMemory_ += (nBins *= sizeof(float));
+    totalMemory_ += (nBins * sizeof(float));
   }
   void AddBinsS(unsigned int nBins, unsigned int nEmptyBins) {
     ++totalHistos_;
     totalBins_ += nBins;
     totalEmptyBins_ += nEmptyBins;
-    totalMemory_ += (nBins *= sizeof(short));
+    totalMemory_ += (nBins * sizeof(short));
   }
   void AddBinsD(unsigned int nBins, unsigned int nEmptyBins) {
     ++totalHistos_;
     totalBins_ += nBins;
     totalEmptyBins_ += nEmptyBins;
-    totalMemory_ += (nBins *= sizeof(double));
+    totalMemory_ += (nBins * sizeof(double));
   }
   void AddBinsI(unsigned int nBins, unsigned int nEmptyBins) {
     ++totalHistos_;
     totalBins_ += nBins;
     totalEmptyBins_ += nEmptyBins;
-    totalMemory_ += (nBins *= sizeof(int));
+    totalMemory_ += (nBins * sizeof(int));
   }
 };
 

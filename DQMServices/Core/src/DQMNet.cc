@@ -860,9 +860,8 @@ bool DQMNet::onPeerConnect(IOSelectEvent *ev) {
 bool DQMNet::onLocalNotify(IOSelectEvent *ev) {
   // Discard the data in the pipe, we care only about the wakeup.
   try {
-    IOSize sz;
     unsigned char buf[1024];
-    while ((sz = ev->source->read(buf, sizeof(buf))))
+    while ((ev->source->read(buf, sizeof(buf))))
       ;
   } catch (Error &e) {
     auto *next = dynamic_cast<SystemError *>(e.next());

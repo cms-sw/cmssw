@@ -1138,6 +1138,7 @@ void SiPixelDigiSource::buildStructure(const edm::EventSetup& iSetup) {
         uint32_t id = detId();
         SiPixelDigiModule* theModule = new SiPixelDigiModule(id, ncols, nrows);
 
+        /*
         PixelEndcapName::HalfCylinder side = PixelEndcapName(DetId(id), pTT, isUpgrade).halfCylinder();
         int disk = PixelEndcapName(DetId(id), pTT, isUpgrade).diskName();
         if (disk > noOfDisks)
@@ -1165,13 +1166,13 @@ void SiPixelDigiSource::buildStructure(const edm::EventSetup& iSetup) {
         mask = false;
         if (isPIB && mask)
           continue;
-
+        */
         thePixelStructure.insert(pair<uint32_t, SiPixelDigiModule*>(id, theModule));
       } else if ((detId.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)) && (isUpgrade)) {
         LogDebug("PixelDQM") << " ---> Adding Endcap Module " << detId.rawId() << endl;
         uint32_t id = detId();
         SiPixelDigiModule* theModule = new SiPixelDigiModule(id, ncols, nrows);
-
+        /*
         PixelEndcapName::HalfCylinder side = PixelEndcapName(DetId(id), pTT, isUpgrade).halfCylinder();
         int disk = PixelEndcapName(DetId(id), pTT, isUpgrade).diskName();
         if (disk > noOfDisks)
@@ -1199,7 +1200,7 @@ void SiPixelDigiSource::buildStructure(const edm::EventSetup& iSetup) {
         mask = false;
         if (isPIB && mask)
           continue;
-
+        */
         thePixelStructure.insert(pair<uint32_t, SiPixelDigiModule*>(id, theModule));
       }  //end_elseif(isUpgrade)
     }

@@ -605,7 +605,6 @@ double L1TOccupancyClient::getAvrg(TH2F* iHist, string iTestName, int iAxis, int
 
       // median
       case 2:
-        marked = hservice_->maskBins(iTestName, histo, iBinStrip, iAxis);
         proj = histo->ProjectionY("_py", iBinStrip, iBinStrip);
         for (int i = 0; i < iNBins; i++) {
           values.push_back(proj->GetBinContent(i + 1));
@@ -628,7 +627,6 @@ double L1TOccupancyClient::getAvrg(TH2F* iHist, string iTestName, int iAxis, int
         break;
       // median
       case 2:
-        marked = hservice_->maskBins(iTestName, histo, iBinStrip, iAxis);
         proj = histo->ProjectionX("_px", iBinStrip, iBinStrip);
         for (int i = 0; i < iNBins; i++) {
           values.push_back(proj->GetBinContent(i + 1));

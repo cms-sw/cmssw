@@ -215,7 +215,6 @@ void DTChamberEfficiencyTask::analyze(const edm::Event& event, const edm::EventS
       DTChamberId TopId14(wheel, top, 14);
       DTRecSegment4DCollection::range segsTop14 = segs->get(TopId14);
       int nSegsTop14 = segsTop14.second - segsTop14.first;
-      nSegsTop += nSegsTop14;
       if (nSegsTop14) {
         DTRecSegment4D* pBestTopSeg14 = const_cast<DTRecSegment4D*>(&getBestSegment(segsTop14));
         // get best between sector 10 and 14

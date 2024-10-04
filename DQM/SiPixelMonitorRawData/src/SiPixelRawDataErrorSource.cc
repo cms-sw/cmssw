@@ -188,7 +188,7 @@ void SiPixelRawDataErrorSource::buildStructure(const edm::EventSetup &iSetup) {
   edm::ESHandle<TrackerGeometry> pDD = iSetup.getHandle(trackerGeomTokenBeginRun_);
 
   edm::ESHandle<TrackerTopology> tTopoHandle = iSetup.getHandle(trackerTopoTokenBeginRun_);
-  const TrackerTopology *pTT = tTopoHandle.product();
+  // const TrackerTopology *pTT = tTopoHandle.product();
 
   LogVerbatim("PixelDQM") << " *** Geometry node for TrackerGeom is  " << &(*pDD) << std::endl;
   LogVerbatim("PixelDQM") << " *** I have " << pDD->detsPXB().size() << " barrel pixel detectors" << std::endl;
@@ -227,7 +227,7 @@ void SiPixelRawDataErrorSource::buildStructure(const edm::EventSetup &iSetup) {
     LogDebug("PixelDQM") << " ---> Adding Endcap Module " << detId.rawId() << endl;
     uint32_t id = detId();
     SiPixelRawDataErrorModule *theModule = new SiPixelRawDataErrorModule(id, ncols, nrows);
-
+    /*
     PixelEndcapName::HalfCylinder side = PixelEndcapName(DetId(id), pTT, isUpgrade).halfCylinder();
     int disk = PixelEndcapName(DetId(id), pTT, isUpgrade).diskName();
     int blade = PixelEndcapName(DetId(id), pTT, isUpgrade).bladeName();
@@ -252,7 +252,7 @@ void SiPixelRawDataErrorSource::buildStructure(const edm::EventSetup &iSetup) {
     mask = false;
     if (isPIB && mask)
       continue;
-
+    */
     thePixelStructure.insert(pair<uint32_t, SiPixelRawDataErrorModule *>(id, theModule));
   }
 

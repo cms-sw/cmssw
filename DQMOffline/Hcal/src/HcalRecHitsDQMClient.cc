@@ -261,10 +261,10 @@ int HcalRecHitsDQMClient::HcalRecHitsEndjob(const std::vector<MonitorElement *> 
     float cnorm;
     float enorm;
 
-    unsigned int vsIetaIdx = occupancy_vs_ieta.size();
+    unsigned int vsIetaIdx = 0;
     omatched = false;
 
-    for (vsIetaIdx = 0; vsIetaIdx < occupancy_vs_ieta.size(); vsIetaIdx++) {
+    for (; vsIetaIdx < occupancy_vs_ieta.size(); vsIetaIdx++) {
       if (occupancyID[occupancyIdx] == occupancy_vs_ietaID[vsIetaIdx]) {
         omatched = true;
         break;

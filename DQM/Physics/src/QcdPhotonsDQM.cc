@@ -340,7 +340,6 @@ void QcdPhotonsDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
   float photon_eta = -9.0;
   float photon_phi = -9.0;
   bool photon_passPhotonID = false;
-  bool found_lead_pho = false;
   int photon_count_bar = 0;
   int photon_count_end = 0;
   // False Assumption: reco photons are ordered by Et
@@ -389,13 +388,10 @@ void QcdPhotonsDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
       photon_count_end++;
     }
 
-    if (!found_lead_pho) {
-      found_lead_pho = true;
-      photon_passPhotonID = pho_current_passPhotonID;
-      photon_et = pho_maxet->et();
-      photon_eta = pho_maxet->eta();
-      photon_phi = pho_maxet->phi();
-    }
+    photon_passPhotonID = pho_current_passPhotonID;
+    photon_et = pho_maxet->et();
+    photon_eta = pho_maxet->eta();
+    photon_phi = pho_maxet->phi();
   }
 
   // If user requires a photon to be found, but none is, return.

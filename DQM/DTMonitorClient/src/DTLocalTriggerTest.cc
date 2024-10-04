@@ -297,8 +297,6 @@ void DTLocalTriggerTest::runClientDiagnostic(DQMStore::IBooker& ibooker, DQMStor
                   delete QualDistr;
                 }
 
-                std::map<std::string, MonitorElement*>* innerME = &(secME[sector_id]);
-
                 if (whME[wh].find(fullName("CorrectBXPhiOut")) == whME[wh].end()) {
                   bookWheelHistos(ibooker, wh, "ResidualBXPhiOut");
                   bookWheelHistos(ibooker, wh, "CorrectBXPhiOut");
@@ -307,7 +305,7 @@ void DTLocalTriggerTest::runClientDiagnostic(DQMStore::IBooker& ibooker, DQMStor
                   bookWheelHistos(ibooker, wh, "TriggerInclusivePhiOut");
                 }
 
-                innerME = &(whME[wh]);
+                std::map<std::string, MonitorElement*>* innerME = &(whME[wh]);
                 innerME->find(fullName("CorrectBXPhiOut"))->second->setBinContent(sect, stat, BX_OK + 0.00001);
                 innerME->find(fullName("ResidualBXPhiOut"))
                     ->second->setBinContent(sect, stat, round(25. * (BXMean - BX_OK)) + 0.00001);

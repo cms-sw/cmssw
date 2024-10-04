@@ -344,6 +344,7 @@ void SiPixelClusterSource::buildStructure(const edm::EventSetup &iSetup) {
           thePixelStructure.insert(pair<uint32_t, SiPixelClusterModule *>(id, theModule));
         } else if (detId.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)) {
           LogDebug("PixelDQM") << " ---> Adding Endcap Module " << detId.rawId() << endl;
+          /*
           PixelEndcapName::HalfCylinder side = PixelEndcapName(DetId(id), pTT, isUpgrade).halfCylinder();
           int disk = PixelEndcapName(DetId(id), pTT, isUpgrade).diskName();
           if (disk > noOfDisks)
@@ -370,6 +371,7 @@ void SiPixelClusterSource::buildStructure(const edm::EventSetup &iSetup) {
           mask = false;
           if (isPIB && mask)
             continue;
+          */
           SiPixelClusterModule *theModule = new SiPixelClusterModule(id, ncols, nrows);
           thePixelStructure.insert(pair<uint32_t, SiPixelClusterModule *>(id, theModule));
         }
