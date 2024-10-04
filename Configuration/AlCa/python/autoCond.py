@@ -102,7 +102,7 @@ autoCond = {
     # GlobalTag for MC production with realistic conditions for Phase1 2024 detector for ppRef5TeV
     'phase1_2024_realistic_ppRef5TeV'     :    '141X_mcRun3_2024_realistic_ppRef5TeV_v4',
     # GlobalTag for MC production with realistic conditions for Phase2
-    'phase2_realistic'             :    '141X_mcRun4_realistic_v1'
+    'phase2_realistic'             :    '141X_mcRun4_realistic_v2'
 }
 
 aliases = {
