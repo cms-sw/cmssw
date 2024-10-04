@@ -258,8 +258,6 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
   }
 
   // second object
-  reqObjResult = false;
-
   switch (cond1Categ) {
     case CondMuon: {
       corrMuon = static_cast<const MuonTemplate*>(m_gtCond1);
@@ -337,8 +335,6 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
   }
 
   // third object (used for overlap removal)
-  reqObjResult = false;
-
   switch (cond2Categ) {
     case CondMuon: {
       corrMuon = static_cast<const MuonTemplate*>(m_gtCond2);

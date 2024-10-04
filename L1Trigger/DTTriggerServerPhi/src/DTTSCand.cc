@@ -241,25 +241,24 @@ void DTTSCand::setBitsTsm() {
         std::cout << "DTTSCand::DTTSCand(): masking not correct: ";
         std::cout << config()->TssMasking(itk);
         std::cout << " All bits set to 1" << std::endl;
-
-        // Masking:
-        bool enaH = config()->TsmHtrigEna(itk);
-        bool enaI = config()->TsmInOutEna(itk);
-        bool enaC = config()->TsmCorrEna(itk);
-        if (isCarry()) {
-          // Special setting for carry
-          enaH = config()->TsmHtrigEnaCarry();
-          enaI = config()->TsmInOutEnaCarry();
-          enaC = config()->TsmCorrEnaCarry();
-        }
-        // Bits set to 0 give higher priority:
-        if (isHtrig() && enaH && posH > 0)
-          _dataword.unset(posH);
-        if (isInner() && enaI && posI > 0)
-          _dataword.unset(posI);
-        if (isCorr() && enaC && posC > 0)
-          _dataword.unset(posC);
     }
+    // Masking:
+    bool enaH = config()->TsmHtrigEna(itk);
+    bool enaI = config()->TsmInOutEna(itk);
+    bool enaC = config()->TsmCorrEna(itk);
+    if (isCarry()) {
+      // Special setting for carry
+      enaH = config()->TsmHtrigEnaCarry();
+      enaI = config()->TsmInOutEnaCarry();
+      enaC = config()->TsmCorrEnaCarry();
+    }
+    // Bits set to 0 give higher priority:
+    if (isHtrig() && enaH && posH > 0)
+      _dataword.unset(posH);
+    if (isInner() && enaI && posI > 0)
+      _dataword.unset(posI);
+    if (isCorr() && enaC && posC > 0)
+      _dataword.unset(posC);
   }
 }
 void DTTSCand::print() const {

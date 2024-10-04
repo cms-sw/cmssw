@@ -148,8 +148,6 @@ const bool l1t::CorrThreeBodyCondition::evaluateCondition(const int bxEval) cons
   }
 
   // SECOND OBJECT
-  reqObjResult = false;
-
   if (cond1Categ == CondMuon) {
     LogDebug("L1TGlobal") << "\n --------------------- Second muon checks ---------------------" << std::endl;
     corrMuon = static_cast<const MuonTemplate*>(m_gtCond1);
@@ -183,8 +181,6 @@ const bool l1t::CorrThreeBodyCondition::evaluateCondition(const int bxEval) cons
   }
 
   // THIRD OBJECT
-  reqObjResult = false;
-
   if (cond2Categ == CondMuon) {
     LogDebug("L1TGlobal") << "\n --------------------- Third muon checks ---------------------" << std::endl;
     corrMuon = static_cast<const MuonTemplate*>(m_gtCond2);
