@@ -89,7 +89,7 @@ bool PythiaAllDauVFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::E
   int OK(1);
   vector<int> vparticles;
   vector<bool> foundDaughter(dauIDs.size(), false);
-  auto dauCollection = &dauIDs;
+  const std::vector<int>* dauCollection = nullptr;
 
   HepMC::GenEvent* myGenEvent = new HepMC::GenEvent(*(evt->GetEvent()));
 

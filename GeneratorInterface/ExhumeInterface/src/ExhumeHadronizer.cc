@@ -211,7 +211,6 @@ namespace gen {
       (static_cast<Exhume::DiPhoton*>(exhumeProcess_))->SetThetaMin(thetaMin);
       sigID = 400;
     } else {
-      sigID = -1;
       throw edm::Exception(edm::errors::Configuration, "ExhumeError") << " No valid Exhume Process";
     }
 
