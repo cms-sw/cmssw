@@ -67,27 +67,28 @@ private:
   edm::ESHandle<Propagator> propagator_, propagatorAny_, propagatorOpposite_;
   edm::ESHandle<MuonDetLayerGeometry> muonGeometry_;
 
-  bool useSimpleGeometry_;
+  bool useSimpleGeometry_ = false;
 
-  bool useMB2_;
+  bool useMB2_ = false;
 
   /// Fallback to ME1 if propagation to ME2 fails
-  bool fallbackToME1_;
+  bool fallbackToME1_ = false;
 
   /// Labels for input collections
-  WhichTrack whichTrack_;
-  WhichState whichState_;
+  WhichTrack whichTrack_ = None;
+  WhichState whichState_ = AtVertex;
 
   /// for cosmics, some things change: the along-opposite is not in-out, nor the innermost/outermost states are in-out really
-  bool cosmicPropagation_;
+  bool cosmicPropagation_ = false;
 
-  bool useMB2InOverlap_;
+  bool useMB2InOverlap_ = false;
 
   // simplified geometry for track propagation
-  const BoundCylinder *barrelCylinder_;
-  const BoundDisk *endcapDiskPos_[3], *endcapDiskNeg_[3];
-  double barrelHalfLength_;
-  std::pair<float, float> endcapRadii_[3];
+  const BoundCylinder *barrelCylinder_ = nullptr;
+  const BoundDisk *endcapDiskPos_[3] = {nullptr, nullptr, nullptr};
+  const BoundDisk *endcapDiskNeg_[3] = {nullptr, nullptr, nullptr};
+  double barrelHalfLength_ = 0.;
+  std::pair<float, float> endcapRadii_[3] = {{0.f, 0.f}, {0.f, 0.f}, {0.f, 0.f}};
 
   /// Starting state for the propagation
   FreeTrajectoryState startingState(const reco::Candidate &reco) const;
