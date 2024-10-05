@@ -201,9 +201,9 @@ private:
   CaloGeometry const* caloGeom_ = nullptr;
 
   //MIP
-  std::unique_ptr<PhotonMIPHaloTagger> photonMIPHaloTagger_ = nullptr;
+  std::unique_ptr<const PhotonMIPHaloTagger> photonMIPHaloTagger_ = nullptr;
   //MVA based Halo tagger for the EE photons
-  std::unique_ptr<PhotonMVABasedHaloTagger> photonMVABasedHaloTagger_ = nullptr;
+  std::unique_ptr<const PhotonMVABasedHaloTagger> photonMVABasedHaloTagger_ = nullptr;
 
   std::vector<double> preselCutValuesBarrel_;
   std::vector<double> preselCutValuesEndcap_;
@@ -434,9 +434,8 @@ GEDPhotonProducer::GEDPhotonProducer(const edm::ParameterSet& config, const Cach
                                 severitiesexclEB_,
                                 severitiesexclEE_,
                                 consumesCollector());
-    photonMIPHaloTagger_ = std::make_unique<PhotonMIPHaloTagger>();
     edm::ParameterSet mipVariableSet = config.getParameter<edm::ParameterSet>("mipVariableSet");
-    photonMIPHaloTagger_->setup(mipVariableSet, consumesCollector());
+    photonMIPHaloTagger_ = std::make_unique<PhotonMIPHaloTagger>(mipVariableSet, consumesCollector());
   }
 
   if (recoStep_.isFinal() && runMVABasedHaloTagger_) {
@@ -1010,9 +1009,8 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     }
 
     // fill MIP Vairables for Halo: Block for MIP are filled from PhotonMIPHaloTagger
-    reco::Photon::MIPVariables mipVar;
     if (subdet == EcalBarrel && runMIPTagger_) {
-      photonMIPHaloTagger_->MIPcalculate(&newCandidate, evt, es, mipVar);
+      auto mipVar = photonMIPHaloTagger_->mipCalculate(newCandidate, evt, es);
       newCandidate.setMIPVariables(mipVar);
     }
 
