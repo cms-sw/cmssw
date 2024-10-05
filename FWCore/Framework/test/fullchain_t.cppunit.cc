@@ -53,14 +53,14 @@ namespace {
 
     void prefetch(edm::EventSetupImpl const& iImpl) const {
       auto const& recs = this->esGetTokenRecordIndicesVector(edm::Transition::Event);
-      auto const& proxies = this->esGetTokenIndicesVector(edm::Transition::Event);
-      for (size_t i = 0; i != proxies.size(); ++i) {
+      auto const& resolvers = this->esGetTokenIndicesVector(edm::Transition::Event);
+      for (size_t i = 0; i != resolvers.size(); ++i) {
         auto rec = iImpl.findImpl(recs[i]);
         if (rec) {
           oneapi::tbb::task_group group;
           edm::FinalWaitingTask waitTask{group};
           rec->prefetchAsync(
-              WaitingTaskHolder(group, &waitTask), proxies[i], &iImpl, edm::ServiceToken{}, edm::ESParentContext{});
+              WaitingTaskHolder(group, &waitTask), resolvers[i], &iImpl, edm::ServiceToken{}, edm::ESParentContext{});
           waitTask.wait();
         }
       }

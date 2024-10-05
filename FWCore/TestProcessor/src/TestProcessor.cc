@@ -212,7 +212,7 @@ namespace edm {
       schedule_->clearCounters();
       if (esHelper_) {
         //We want each test to have its own ES data products
-        esHelper_->resetAllProxies();
+        esHelper_->resetAllResolvers();
       }
       return edm::test::Event(
           principalCache_.eventPrincipal(0), labelOfTestModule_, processConfiguration_->processName(), result);
@@ -246,7 +246,7 @@ namespace edm {
 
       if (esHelper_) {
         //We want each test to have its own ES data products
-        esHelper_->resetAllProxies();
+        esHelper_->resetAllResolvers();
       }
       return edm::test::LuminosityBlock(lumiPrincipal_, labelOfTestModule_, processConfiguration_->processName());
     }
@@ -278,7 +278,7 @@ namespace edm {
       });
       if (esHelper_) {
         //We want each test to have its own ES data products
-        esHelper_->resetAllProxies();
+        esHelper_->resetAllResolvers();
       }
 
       return edm::test::LuminosityBlock(std::move(lumi), labelOfTestModule_, processConfiguration_->processName());
@@ -307,7 +307,7 @@ namespace edm {
       });
       if (esHelper_) {
         //We want each test to have its own ES data products
-        esHelper_->resetAllProxies();
+        esHelper_->resetAllResolvers();
       }
       return edm::test::Run(runPrincipal_, labelOfTestModule_, processConfiguration_->processName());
     }
@@ -335,7 +335,7 @@ namespace edm {
       });
       if (esHelper_) {
         //We want each test to have its own ES data products
-        esHelper_->resetAllProxies();
+        esHelper_->resetAllResolvers();
       }
 
       return edm::test::Run(rp, labelOfTestModule_, processConfiguration_->processName());

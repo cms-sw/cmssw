@@ -16,7 +16,7 @@
  use to get data associated with a record.
 
  This class holds a pointer to an EventSetupRecordImpl class, which
- is the class used to get the DataProxies associated with a given Record.
+ is the class used to get the ESProductResolvers associated with a given Record.
  It also has a pointer to the EventSetupImpl which is used to lookup
  dependent records in DependentRecordImplementation.
 

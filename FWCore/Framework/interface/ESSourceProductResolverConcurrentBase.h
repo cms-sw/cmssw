@@ -1,16 +1,16 @@
+// -*- C++ -*-
 #ifndef FWCore_Framework_ESSourceProductResolverConcurrentBase_h
 #define FWCore_Framework_ESSourceProductResolverConcurrentBase_h
-// -*- C++ -*-
 //
 // Package:     FWCore/Framework
 // Class  :     ESSourceProductResolverConcurrentBase
 //
-/**\class ESSourceProductResolverConcurrentBase ESSourceProductResolverConcurrentBase.h "FWCore/Framework/interface/ESSourceProductResolverConcurrentBase.h"
+/**\class edm::eventsetup::ESSourceProductResolverConcurrentBase
 
- Description: Base class for DataProxies for ESSources that require no synchronization
+ Description: Base class for ESProductResolver for ESSources that require no synchronization
 
  Usage:
-    The ESSourceProductResolverConcurrentBase allows DataProxies from the same ESSource to be called concurrently.
+    The ESSourceProductResolverConcurrentBase allows ESProductResolvers from the same ESSource to be called concurrently.
 
     NOTE: if inheriting classes override `void invalidateCache()` they must be sure to call this classes
     implementation as part of the call.
