@@ -37,8 +37,9 @@
   <use name="roottmva"/>
   <flags EDM_PLUGIN="1"/>
 </library>
+<!-- Disable RNuple plugin: https://github.com/cms-sw/cmsdist/pull/9451#issuecomment-2393861542
 <library file="rntuple/*.cc" name="PhysicsToolsNanoAODRNuplePlugins">
   <use name="rootntuple"/>
   <flags EDM_PLUGIN="1"/>
 </library>
-
+-->
