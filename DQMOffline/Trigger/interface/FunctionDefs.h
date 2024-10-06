@@ -33,6 +33,7 @@
 
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
+#include "Validation/HLTrigger/interface/HLTGenValObject.h"
 
 namespace hltdqm {
   //here we define needed functions that otherwise dont exist
@@ -60,6 +61,8 @@ namespace hltdqm {
       varFunc = &ObjType::eta;
     else if (varName == "phi")
       varFunc = &ObjType::phi;
+    else if (varName == "mass")
+      varFunc = &ObjType::mass;
     else
       varFunc = getUnaryFuncExtraFloat<ObjType>(varName);
     //check if we never set varFunc and throw an error for anything but an empty input string
@@ -74,6 +77,8 @@ namespace hltdqm {
   std::function<float(const reco::GsfElectron&)> getUnaryFuncExtraFloat<reco::GsfElectron>(const std::string& varName);
   template <>
   std::function<float(const reco::Photon&)> getUnaryFuncExtraFloat<reco::Photon>(const std::string& varName);
+  template <>
+  std::function<float(const HLTGenValObject&)> getUnaryFuncExtraFloat<HLTGenValObject>(const std::string& varName);
 
 }  // namespace hltdqm
 
