@@ -426,13 +426,7 @@ if __name__ == '__main__':
             opt.testList = ','.join(rerunthese)
 
     if opt.IBEos:
-      for cmssw_env in [ "CMSSW_BASE", "CMSSW_RELEASE_BASE" ]:
-        cmssw_base = os.getenv(cmssw_env,None)
-        if not cmssw_base: continue
-        cmssw_base = os.path.join(cmssw_base,"src/Utilities/General/ibeos")
-        if os.path.exists(cmssw_base):
-          os.environ["CMSSW_USE_IBEOS"]="true"
-          break
+      os.environ["CMSSW_USE_IBEOS"]="true"
     if opt.restricted:
         print('Deprecated, please use -l limited')
         if opt.testList:            opt.testList+=',limited'
