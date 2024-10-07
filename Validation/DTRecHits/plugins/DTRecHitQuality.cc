@@ -593,6 +593,7 @@ void DTRecHitQuality::compute(const DTGeometry &dtGeom,
       }
 
       // Fill
+      assert(hRes);
       hRes->fill(simHitWireDist,
                  simHitTheta,
                  simHitFEDist,
@@ -685,6 +686,7 @@ void DTRecHitQuality::compute(const DTGeometry &dtGeom,
         }
       }
       // Fill
+      assert(hEff);
       hEff->fill(simHitWireDist, simHitGlobalPos.eta(), simHitGlobalPos.phi(), recHitReconstructed);
       if (hEffTot != nullptr) {
         hEffTot->fill(simHitWireDist, simHitGlobalPos.eta(), simHitGlobalPos.phi(), recHitReconstructed);
