@@ -69,7 +69,7 @@ private:
                           int bunchCrossing,
                           CLHEP::HepRandomEngine *,
                           const HcalTopology *h,
-			  const ZdcTopology *z);
+                          const ZdcTopology *z);
 
   /// some hits in each subdetector, just for testing purposes
   void fillFakeHits();

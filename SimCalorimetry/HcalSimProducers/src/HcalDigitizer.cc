@@ -431,12 +431,14 @@ void HcalDigitizer::accumulateCaloHits(edm::Handle<std::vector<PCaloHit>> const 
         DetId id(zdcHitsOrig[i].id());
         HcalZDCDetId hid(id);
         if (!ztopoP->valid(hid)) {
-          edm::LogError("HcalDigitizer") << "bad zdc id found in digitizer. Skipping " << std::hex << id.rawId() << std::dec << " " << hid;
+          edm::LogError("HcalDigitizer") << "bad zdc id found in digitizer. Skipping " << std::hex << id.rawId()
+                                         << std::dec << " " << hid;
           continue;
         }
         zdcHits.push_back(zdcHitsOrig[i]);
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("HcalSim") << "Hit " << i << " out of " << zdcHitsOrig.size() << " " << std::hex << id.rawId() << " " << hid;
+        edm::LogVerbatim("HcalSim") << "Hit " << i << " out of " << zdcHitsOrig.size() << " " << std::hex << id.rawId()
+                                    << " " << hid;
 #endif
       }
       theZDCDigitizer->add(zdcHits, bunchCrossing, engine);
