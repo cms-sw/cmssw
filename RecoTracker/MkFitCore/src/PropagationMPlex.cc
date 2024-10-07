@@ -809,14 +809,14 @@ namespace mkfit {
     for (int n = 0; n < NN; ++n) {
       dprint_np(n,
                 std::endl
-                    << "input parameters"
-                    << " inPar.constAt(n, 0, 0)=" << std::setprecision(9) << inPar.constAt(n, 0, 0)
-                    << " inPar.constAt(n, 1, 0)=" << std::setprecision(9) << inPar.constAt(n, 1, 0)
-                    << " inPar.constAt(n, 2, 0)=" << std::setprecision(9) << inPar.constAt(n, 2, 0)
-                    << " inPar.constAt(n, 3, 0)=" << std::setprecision(9) << inPar.constAt(n, 3, 0)
-                    << " inPar.constAt(n, 4, 0)=" << std::setprecision(9) << inPar.constAt(n, 4, 0)
-                    << " inPar.constAt(n, 5, 0)=" << std::setprecision(9) << inPar.constAt(n, 5, 0)
-                    << " inChg.constAt(n, 0, 0)=" << std::setprecision(9) << inChg.constAt(n, 0, 0));
+                    << "input parameters" << " inPar.constAt(n, 0, 0)=" << std::setprecision(9)
+                    << inPar.constAt(n, 0, 0) << " inPar.constAt(n, 1, 0)=" << std::setprecision(9)
+                    << inPar.constAt(n, 1, 0) << " inPar.constAt(n, 2, 0)=" << std::setprecision(9)
+                    << inPar.constAt(n, 2, 0) << " inPar.constAt(n, 3, 0)=" << std::setprecision(9)
+                    << inPar.constAt(n, 3, 0) << " inPar.constAt(n, 4, 0)=" << std::setprecision(9)
+                    << inPar.constAt(n, 4, 0) << " inPar.constAt(n, 5, 0)=" << std::setprecision(9)
+                    << inPar.constAt(n, 5, 0) << " inChg.constAt(n, 0, 0)=" << std::setprecision(9)
+                    << inChg.constAt(n, 0, 0));
     }
 #pragma omp simd
     for (int n = 0; n < NN; ++n) {
@@ -1262,7 +1262,6 @@ namespace mkfit {
       // const float pt = 1.f / outPar.constAt(n, 3, 0);  //fixme, make sure it is positive?
       const float ipt = outPar.constAt(n, 3, 0);
       const float pt = 1.f / ipt;  //fixme, make sure it is positive?
-      const float ipt2 = ipt * ipt;
       const float p = pt / std::sin(theta);
       const float pz = p * std::cos(theta);
       const float p2 = p * p;
@@ -1285,6 +1284,7 @@ namespace mkfit {
       const float thetaMSC = 0.0136f * (1.f + 0.038f * std::log(radL)) / (beta * p);  // eq 32.15
       const float thetaMSC2 = thetaMSC * thetaMSC * radL;
       if constexpr (Config::usePtMultScat) {
+        const float ipt2 = ipt * ipt;
         outErr.At(n, 3, 3) += thetaMSC2 * pz * pz * ipt2 * ipt2;
         outErr.At(n, 3, 5) -= thetaMSC2 * pz * ipt2;
         outErr.At(n, 4, 4) += thetaMSC2 * p2 * ipt2;
