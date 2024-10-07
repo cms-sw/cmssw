@@ -100,9 +100,9 @@ private:
   PhotonIsolationCalculator photonIsolationCalculator_;
 
   //MIP
-  PhotonMIPHaloTagger photonMIPHaloTagger_;
+  const PhotonMIPHaloTagger photonMIPHaloTagger_;
   //MVA based Halo tagger for the EE photons
-  std::unique_ptr<PhotonMVABasedHaloTagger> photonMVABasedHaloTagger_ = nullptr;
+  std::unique_ptr<const PhotonMVABasedHaloTagger> photonMVABasedHaloTagger_ = nullptr;
 
   std::vector<double> preselCutValuesBarrel_;
   std::vector<double> preselCutValuesEndcap_;
@@ -123,7 +123,10 @@ private:
 DEFINE_FWK_MODULE(PhotonProducer);
 
 PhotonProducer::PhotonProducer(const edm::ParameterSet& config)
-    : caloGeomToken_(esConsumes()), topologyToken_(esConsumes()), photonEnergyCorrector_(config, consumesCollector()) {
+    : caloGeomToken_(esConsumes()),
+      topologyToken_(esConsumes()),
+      photonMIPHaloTagger_(config.getParameter<edm::ParameterSet>("mipVariableSet"), consumesCollector()),
+      photonEnergyCorrector_(config, consumesCollector()) {
   // use configuration file to setup input/output collection names
 
   photonCoreProducer_ = consumes<reco::PhotonCoreCollection>(config.getParameter<edm::InputTag>("photonCoreProducer"));
@@ -245,9 +248,6 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& config)
   edm::ParameterSet isolationSumsCalculatorSet = config.getParameter<edm::ParameterSet>("isolationSumsCalculatorSet");
   photonIsolationCalculator_.setup(
       isolationSumsCalculatorSet, flagsexclEB_, flagsexclEE_, severitiesexclEB_, severitiesexclEE_, consumesCollector());
-
-  edm::ParameterSet mipVariableSet = config.getParameter<edm::ParameterSet>("mipVariableSet");
-  photonMIPHaloTagger_.setup(mipVariableSet, consumesCollector());
 
   // Register the product
   produces<reco::PhotonCollection>(PhotonCollection_);
@@ -505,9 +505,8 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
     }
 
     // fill MIP Vairables for Halo: Block for MIP are filled from PhotonMIPHaloTagger
-    reco::Photon::MIPVariables mipVar;
     if (subdet == EcalBarrel && runMIPTagger_) {
-      photonMIPHaloTagger_.MIPcalculate(&newCandidate, evt, es, mipVar);
+      auto mipVar = photonMIPHaloTagger_.mipCalculate(newCandidate, evt, es);
       newCandidate.setMIPVariables(mipVar);
     }
 
