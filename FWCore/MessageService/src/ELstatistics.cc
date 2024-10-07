@@ -248,10 +248,10 @@ namespace edm {
         //
         if (n == 0) {
           s << "\n";
-          s << " type     category        sev         module            "
-               "   subroutine          count    total\n"
-            << " ---- -------------------- -- --------------------- "
-               "---------------------  -----    -----\n";
+          s << " type     category        sev          module           "
+               "     subroutine         count   total\n"
+            << " ---- -------------------- -- ------------------------- "
+               "---------------------   -----   -----\n";
         }
         // -----  Emit detailed message information:
         //
