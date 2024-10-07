@@ -325,18 +325,18 @@ void MtdTracksHarvester::dqmEndJob(DQMStore::IBooker& ibook, DQMStore::IGetter& 
   meExtraPtEff_ =
       ibook.book1D("ExtraPtEff",
                    "MTD matching efficiency wrt extrapolated track associated to LV VS Pt;Pt [GeV];Efficiency",
-                   meTrackMatchedTPEffEtaTotLV->getNbinsX(),
-                   meTrackMatchedTPEffEtaTotLV->getTH1()->GetXaxis()->GetXmin(),
-                   meTrackMatchedTPEffEtaTotLV->getTH1()->GetXaxis()->GetXmax());
+                   meTrackMatchedTPEffPtTotLV->getNbinsX(),
+                   meTrackMatchedTPEffPtTotLV->getTH1()->GetXaxis()->GetXmin(),
+                   meTrackMatchedTPEffPtTotLV->getTH1()->GetXaxis()->GetXmax());
   meExtraPtEff_->getTH1()->SetMinimum(0.);
   computeEfficiency1D(meExtraPtMtd, meTrackMatchedTPEffPtTotLV, meExtraPtEff_);
 
   meExtraPtEtl2Eff_ =
       ibook.book1D("ExtraPtEtl2Eff",
                    "MTD matching efficiency (2 ETL) wrt extrapolated track associated to LV VS Pt;Pt [GeV];Efficiency",
-                   meTrackMatchedTPEffEtaTotLV->getNbinsX(),
-                   meTrackMatchedTPEffEtaTotLV->getTH1()->GetXaxis()->GetXmin(),
-                   meTrackMatchedTPEffEtaTotLV->getTH1()->GetXaxis()->GetXmax());
+                   meTrackMatchedTPEffPtTotLV->getNbinsX(),
+                   meTrackMatchedTPEffPtTotLV->getTH1()->GetXaxis()->GetXmin(),
+                   meTrackMatchedTPEffPtTotLV->getTH1()->GetXaxis()->GetXmax());
   meExtraPtEtl2Eff_->getTH1()->SetMinimum(0.);
   computeEfficiency1D(meExtraPtEtl2Mtd, meTrackMatchedTPEffPtTotLV, meExtraPtEtl2Eff_);
 

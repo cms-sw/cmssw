@@ -659,10 +659,10 @@ void Primary4DVertexValidation::bookHistograms(DQMStore::IBooker& ibook,
                    50,
                    -0.5,
                    0.5);
-  meTimeRes_ = ibook.book1D("TimeRes", "t_{rec} - t_{sim} ;t_{rec} - t_{sim} [ns] ", 40, -0.2, 0.2);
+  meTimeRes_ = ibook.book1D("TimeRes", "t_{rec} - t_{sim} ;t_{rec} - t_{sim} [ns] ", 100, -0.2, 0.2);
   meTimePull_ = ibook.book1D("TimePull", "Pull; t_{rec} - t_{sim}/#sigma_{t rec}", 100, -10., 10.);
   meTimeSignalRes_ =
-      ibook.book1D("TimeSignalRes", "t_{rec} - t_{sim} for signal ;t_{rec} - t_{sim} [ns] ", 40, -0.2, 0.2);
+      ibook.book1D("TimeSignalRes", "t_{rec} - t_{sim} for signal ;t_{rec} - t_{sim} [ns] ", 50, -0.1, 0.1);
   meTimeSignalPull_ =
       ibook.book1D("TimeSignalPull", "Pull for signal; t_{rec} - t_{sim}/#sigma_{t rec}", 100, -10., 10.);
   mePUvsRealV_ =
