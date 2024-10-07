@@ -193,7 +193,7 @@ SAMuon Phase2L1TGMTFwdMuonTranslator::Convertl1tMuon(const l1t::RegionalMuonCand
   bstart = wordconcat<wordtype>(word, bstart, eta, BITSETA);
   //  bstart = wordconcat<wordtype>(word, bstart, z0, BITSSAZ0); NOT YET SUPPORTED BY GMT
   bstart = wordconcat<wordtype>(word, bstart, d0, BITSSAD0);
-  bstart = wordconcat<wordtype>(
+  wordconcat<wordtype>(
       word, bstart, qual, 8);  //FOR NOW 8 bits to be efficienct with Ghost busting. THIS IS ***NOT*** THE FINAL QUALITY
 
   // Calculate Lorentz Vector
@@ -251,7 +251,7 @@ SAMuon Phase2L1TGMTFwdMuonTranslator::ConvertEMTFTrack(const l1t::phase2::EMTFTr
   float track_theta = emtf::phase2::tp::calcThetaRadFromInt(track.modelEta());
   float track_eta = -1 * std::log(std::tan(track_theta / 2));
 
-  track_theta *= track.endcap();
+  // track_theta *= track.endcap();
   track_eta *= track.endcap();
 
   // Calculate Lorentz Vector
@@ -277,7 +277,7 @@ SAMuon Phase2L1TGMTFwdMuonTranslator::ConvertEMTFTrack(const l1t::phase2::EMTFTr
   bstart = wordconcat<wordtype>(word, bstart, eta, BITSETA);
   //  bstart = wordconcat<wordtype>(word, bstart, z0, BITSSAZ0); NOT YET SUPPORTED BY GMT
   bstart = wordconcat<wordtype>(word, bstart, d0, BITSSAD0);
-  bstart = wordconcat<wordtype>(
+  wordconcat<wordtype>(
       word, bstart, qual, 8);  //FOR NOW 8 bits to be efficienct with Ghost busting. THIS IS ***NOT*** THE FINAL QUALITY
 
   SAMuon samuon(p4, charge, pt.to_uint(), eta.to_int(), phi.to_int(), z0.to_int(), d0.to_int(), qual.to_uint());

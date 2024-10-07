@@ -182,8 +182,8 @@ void MatchProcessor::execute(unsigned int iSector, double phimin) {
     
   */
 
-  bool print = getName() == "MP_L3PHIC" && iSector == 3;
-  print = false;
+  // bool print = getName() == "MP_L3PHIC" && iSector == 3;
+  bool print = false;
 
   phimin_ = phimin;
 

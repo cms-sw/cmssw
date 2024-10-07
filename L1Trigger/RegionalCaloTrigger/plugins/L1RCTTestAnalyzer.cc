@@ -153,27 +153,28 @@ void L1RCTTestAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup 
       if (showEmCands) {
         if ((*em).rank() > 0) {
           //		 std::cout << std::endl << "rank: " << (*em).rank();
-          unsigned short rgnPhi = 999;
-          unsigned short rgn = (unsigned short)(*em).rctRegion();
+          // unsigned short rgnPhi = 999;
+          // unsigned short rgn = (unsigned short)(*em).rctRegion();
           unsigned short card = (unsigned short)(*em).rctCard();
-          unsigned short crate = (unsigned short)(*em).rctCrate();
+          // unsigned short crate = (unsigned short)(*em).rctCrate();
 
-          if (card == 6) {
-            rgnPhi = rgn;
-          } else if (card < 6) {
-            rgnPhi = (card % 2);
-          } else {
-            std::cout << "rgnPhi not assigned (still " << rgnPhi << ") -- Weird card number! " << card;
+          // if (card == 6) {
+          //   rgnPhi = rgn;
+          // } else if (card < 6) {
+          //   rgnPhi = (card % 2);
+          // } else {
+          if (card > 6) {
+            std::cout << "rgnPhi not assigned -- Weird card number! " << card;
           }
 
           // unsigned short phi_bin = ((crate % 9) * 2) + rgnPhi;
-          short eta_bin = (card / 2) * 2 + 1;
-          if (card < 6) {
-            eta_bin = eta_bin + rgn;
-          }
-          if (crate < 9) {
-            eta_bin = -eta_bin;
-          }
+          // short eta_bin = (card / 2) * 2 + 1;
+          // if (card < 6) {
+          //   eta_bin = eta_bin + rgn;
+          // }
+          // if (crate < 9) {
+          //   eta_bin = -eta_bin;
+          // }
 
           //		   std::cout << /* "rank: " << (*em).rank() << */ "
           // eta_bin: " << eta_bin << "  phi_bin: " << phi_bin << ".  crate: "

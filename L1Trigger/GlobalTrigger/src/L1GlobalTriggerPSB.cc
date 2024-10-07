@@ -1110,7 +1110,7 @@ void L1GlobalTriggerPSB::fillPsbBlock(edm::Event &iEvent,
                   }
                 }
               } else {
-                iHf = nHfBitCounts % hfPerWord;
+                // iHf = nHfBitCounts % hfPerWord;
                 // LogTrace("L1GlobalTrigger")
                 //        << "\n No HfBitCounts collection - skip "
                 //        << iHf*hfBits << " bits "

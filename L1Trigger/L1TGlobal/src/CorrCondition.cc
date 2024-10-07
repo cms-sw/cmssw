@@ -204,8 +204,6 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
   }
 
   // second object
-  reqObjResult = false;
-
   switch (cond1Categ) {
     case CondMuon: {
       corrMuon = static_cast<const MuonTemplate*>(m_gtCond1);

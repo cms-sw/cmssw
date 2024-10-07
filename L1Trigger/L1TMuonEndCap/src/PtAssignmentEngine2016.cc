@@ -263,7 +263,6 @@ PtAssignmentEngine::address_t PtAssignmentEngine2016::calculate_address(const EM
     case 15:  // 1-2-3-4
       // Set sign23 and sign34 relative to sign12
       if (!sign12) {
-        sign12 = !sign12;
         sign23 = !sign23;
         sign34 = !sign34;
       }
