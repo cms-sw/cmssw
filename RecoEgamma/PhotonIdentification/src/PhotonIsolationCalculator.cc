@@ -515,7 +515,7 @@ double PhotonIsolationCalculator::calculateEcalRecHitIso(const reco::Photon* pho
   phoIsoEB.setUseNumCrystals(useNumXtals);
   phoIsoEB.doSeverityChecks(ecalhitsCollEB.product(), severityExclEB_);
   phoIsoEB.doFlagChecks(flagsEB_);
-  double ecalIsolEB = phoIsoEB.getEtSum(photon, thresholds);
+  double ecalIsolEB = phoIsoEB.getEtSum(photon, &thresholds);
 
   EgammaRecHitIsolation phoIsoEE(
       RCone, RConeInner, etaSlice, etMin, eMin, geoHandle, *rechitsCollectionEE_, sevLevel, DetId::Ecal);
@@ -525,7 +525,7 @@ double PhotonIsolationCalculator::calculateEcalRecHitIso(const reco::Photon* pho
   phoIsoEE.doSeverityChecks(ecalhitsCollEE.product(), severityExclEE_);
   phoIsoEE.doFlagChecks(flagsEE_);
 
-  double ecalIsolEE = phoIsoEE.getEtSum(photon, thresholds);
+  double ecalIsolEE = phoIsoEE.getEtSum(photon, &thresholds);
   //  delete phoIso;
   double ecalIsol = ecalIsolEB + ecalIsolEE;
 
