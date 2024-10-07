@@ -72,7 +72,7 @@ def main(rf, rt):
           d = get_single(TIME, { "p.run": int(r[0])}) 
           if d is not None:
             d = "\"" + d + "\""
-          print r[0], t, d, r[2]
+          print(r[0], t, d, r[2])
           break
   
 
