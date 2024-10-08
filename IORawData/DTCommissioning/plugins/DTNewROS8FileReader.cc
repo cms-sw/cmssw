@@ -100,7 +100,7 @@ int DTNewROS8FileReader::fillRawData(Event& e,
     //2.- Get the HEADER  ============================================================================
     int datahead[numberEventHeadWords];
     for (int iih = 0; iih < numberEventHeadWords; iih++) {
-      nread = inputFile.read(dataPointer<int>(&datahead[iih]), ros8WordLenght);
+      inputFile.read(dataPointer<int>(&datahead[iih]), ros8WordLenght);
     }
 
     //3.- ROS DATA  &  4.- PU DATA (Trigger)   =======================================================

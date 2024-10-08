@@ -167,7 +167,7 @@ void TriggerObjectTableProducer::produce(edm::Event &iEvent, const edm::EventSet
     for (unsigned int j = 0; j < i; ++j) {
       const auto &obj2 = *selected[j].first;
       const auto &sel2 = *selected[j].second;
-      if (sel.id == sel2.id && abs(obj.pt() - obj2.pt()) < 1e-6 && deltaR2(obj, obj2) < 1e-6) {
+      if (sel.id == sel2.id && deltaR2(obj, obj2) < 1e-6) {
         selected_bits[sel.id][&obj2] |= selected_bits[sel.id][&obj];  //Keep filters from all the objects
         selected.erase(selected.begin() + i);
         i--;

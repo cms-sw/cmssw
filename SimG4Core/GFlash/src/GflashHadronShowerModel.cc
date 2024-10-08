@@ -51,10 +51,8 @@ GflashHadronShowerModel::GflashHadronShowerModel(G4String modelName,
 }
 
 GflashHadronShowerModel::~GflashHadronShowerModel() {
-  if (theProfile)
-    delete theProfile;
-  if (theGflashStep)
-    delete theGflashStep;
+  delete theProfile;
+  delete theGflashStep;
 }
 
 G4bool GflashHadronShowerModel::IsApplicable(const G4ParticleDefinition &particleType) {
@@ -136,13 +134,10 @@ void GflashHadronShowerModel::makeHits(const G4FastTrack &fastTrack) {
   theGflashNavigator->SetWorldVolume(
       G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking()->GetWorldVolume());
 
-  std::vector<GflashHit>::const_iterator spotIter = gflashHitList.begin();
-  std::vector<GflashHit>::const_iterator spotIterEnd = gflashHitList.end();
-
-  for (; spotIter != spotIterEnd; spotIter++) {
+  for (auto &hit : gflashHitList) {
     theGflashNavigator->LocateGlobalPointAndUpdateTouchableHandle(
-        spotIter->getPosition(), G4ThreeVector(0, 0, 0), theGflashTouchableHandle, false);
-    updateGflashStep(spotIter->getPosition(), spotIter->getTime());
+        hit.getPosition(), G4ThreeVector(0, 0, 0), theGflashTouchableHandle, false);
+    updateGflashStep(hit.getPosition(), hit.getTime());
 
     const G4VPhysicalVolume *aCurrentVolume = theGflashStep->GetPreStepPoint()->GetPhysicalVolume();
     if (aCurrentVolume == nullptr)
@@ -166,7 +161,7 @@ void GflashHadronShowerModel::makeHits(const G4FastTrack &fastTrack) {
     } else if (nameCalor == "HE" || nameCalor == "HT") {
       samplingWeight = Gflash::scaleSensitiveHE;
     }
-    theGflashStep->SetTotalEnergyDeposit(spotIter->getEnergy() * samplingWeight);
+    theGflashStep->SetTotalEnergyDeposit(hit.getEnergy() * samplingWeight);
 
     aSensitive->Hit(theGflashStep);
   }

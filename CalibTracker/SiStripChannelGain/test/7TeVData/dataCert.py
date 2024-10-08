@@ -16,8 +16,8 @@ def splitByTag(line,tags=["td","th"]):
     for tag in tags:
       posTag=line.find("<"+tag,pos)
       if posTag<firstTagPos and posTag>-1:
-	firstTag=tag
-	firstTagPos=posTag
+        firstTag=tag
+        firstTagPos=posTag
     if not firstTag:
       break
     tag=firstTag

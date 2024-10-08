@@ -90,6 +90,7 @@ jetPuppiTable = simplePATJetFlatTableProducer.clone(
         UParTAK4RegPtRawCorr = Var("?bDiscriminator('pfUnifiedParticleTransformerAK4JetTags:ptcorr')>0?bDiscriminator('pfUnifiedParticleTransformerAK4JetTags:ptcorr'):-1",float,precision=10,doc="UnifiedParT universal flavor-aware visible pT regression (no neutrinos), correction relative to raw jet pT"),
         UParTAK4RegPtRawCorrNeutrino = Var("?bDiscriminator('pfUnifiedParticleTransformerAK4JetTags:ptnu')>0?bDiscriminator('pfUnifiedParticleTransformerAK4JetTags:ptnu'):-1",float,precision=10,doc="UnifiedParT universal flavor-aware pT regression neutrino correction, relative to visible. To apply full regression, multiply raw jet pT by both UParTAK4RegPtRawCorr and UParTAK4RegPtRawCorrNeutrino."),
         UParTAK4RegPtRawRes = Var("?(bDiscriminator('pfUnifiedParticleTransformerAK4JetTags:ptreshigh')+bDiscriminator('pfUnifiedParticleTransformerAK4JetTags:ptreslow'))>0?0.5*(bDiscriminator('pfUnifiedParticleTransformerAK4JetTags:ptreshigh')-bDiscriminator('pfUnifiedParticleTransformerAK4JetTags:ptreslow')):-1",float,precision=10,doc="UnifiedParT universal flavor-aware jet pT resolution estimator, (q84 - q16)/2"),
+        puIdDisc = Var("userFloat('pileupJetIdPuppi:fullDiscriminant')", float,doc="Pileup ID BDT discriminant with 133X Winter24 PuppiV18 training",precision=10),
         hfsigmaEtaEta = Var("userFloat('hfsigmaEtaEta')",float,doc="sigmaEtaEta for HF jets (noise discriminating variable)",precision=10),
         hfsigmaPhiPhi = Var("userFloat('hfsigmaPhiPhi')",float,doc="sigmaPhiPhi for HF jets (noise discriminating variable)",precision=10),
         hfcentralEtaStripSize = Var("userInt('hfcentralEtaStripSize')", int, doc="eta size of the central tower strip in HF (noise discriminating variable)"),
@@ -116,23 +117,11 @@ run2_nanoAOD_ANY.toModify(
     btagDeepCvB = Var("?bDiscriminator('pfDeepCSVJetTags:probc')>=0?bDiscriminator('pfDeepCSVJetTags:probc')/(bDiscriminator('pfDeepCSVJetTags:probc')+bDiscriminator('pfDeepCSVJetTags:probb')+bDiscriminator('pfDeepCSVJetTags:probbb')):-1",float,doc="DeepCSV c vs b+bb discriminator",precision=10)
 )
 
-(run3_nanoAOD_122 | run3_nanoAOD_124).toModify(
+run3_nanoAOD_pre142X.toModify(
     jetPuppiTable.variables,
-    # New ParticleNet trainings are not available in MiniAOD until Run3 13X
-    btagPNetB = None,
-    btagPNetCvL = None,
-    btagPNetCvB = None,
-    btagPNetQvG = None,
-    btagPNetTauVJet = None,
-    PNetRegPtRawCorr = None,
-    PNetRegPtRawCorrNeutrino = None,
-    PNetRegPtRawRes = None,
-    # Remove for V11 and earlier Run3 versions
-    chMultiplicity = None,
-    neMultiplicity = None,
-    hfHEF = None,
-    hfEmEF = None
+    puIdDisc = None,
 )
+
 
 #jets are not as precise as muons
 jetPuppiTable.variables.pt.precision=10

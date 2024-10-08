@@ -641,7 +641,7 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
         }  // time res and time pull
 
       }  // TP matching
-    }    // trkRecSel
+    }  // trkRecSel
 
     // ETL tracks with low pt (0.2 < Pt [GeV] < 0.7)
     if (trkRecSelLowPt(trackGen)) {
@@ -1253,12 +1253,10 @@ void MtdTracksValidation::fillDescriptions(edm::ConfigurationDescriptions& descr
   desc.add<edm::InputTag>("trackMVAQual", edm::InputTag("mtdTrackQualityMVA:mtdQualMVA"));
   desc.add<edm::InputTag>("outermostHitPositionSrc",
                           edm::InputTag("trackExtenderWithMTD:generalTrackOutermostHitPosition"));
-  desc.add<double>("trackMinimumPt", 0.7);  // [GeV]
   desc.add<double>("trackMaximumPt", 12.);  // [GeV]
   desc.add<double>("trackMaximumBtlEta", 1.5);
   desc.add<double>("trackMinimumEtlEta", 1.6);
   desc.add<double>("trackMaximumEtlEta", 3.);
-  desc.addUntracked<bool>("optionalPlots", true);
 
   descriptions.add("mtdTracksValid", desc);
 }

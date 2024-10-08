@@ -425,7 +425,7 @@ namespace notcub {
 
         // Attempt to allocate
         // CMS: silently ignore errors and retry or pass them to the caller
-        if ((error = cudaMalloc(&search_key.d_ptr, search_key.bytes)) == cudaErrorMemoryAllocation) {
+        if (cudaMalloc(&search_key.d_ptr, search_key.bytes) == cudaErrorMemoryAllocation) {
           // The allocation attempt failed: free all cached blocks on device and retry
           if (debug)
             // CMS: use raw printf

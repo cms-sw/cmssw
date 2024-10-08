@@ -259,6 +259,7 @@ void EcalEndcapDigisValidation::analyze(Event const& e, EventSetup const& c) {
 
 void EcalEndcapDigisValidation::checkCalibrations(edm::EventSetup const& eventSetup) {
   // ADC -> GeV Scale
+  [[clang::suppress]]
   const EcalADCToGeVConstant* agc = &eventSetup.getData(pAgc);
 
   EcalMGPAGainRatio* defaultRatios = new EcalMGPAGainRatio();
@@ -277,8 +278,6 @@ void EcalEndcapDigisValidation::checkCalibrations(edm::EventSetup const& eventSe
 
   delete defaultRatios;
 
-  const double barrelADCtoGeV_ = agc->getEBValue();
-  LogDebug("EcalDigi") << " Barrel GeV/ADC = " << barrelADCtoGeV_;
-  const double endcapADCtoGeV_ = agc->getEEValue();
-  LogDebug("EcalDigi") << " Endcap GeV/ADC = " << endcapADCtoGeV_;
+  LogDebug("EcalDigi") << " Barrel GeV/ADC = " << agc->getEBValue();
+  LogDebug("EcalDigi") << " Endcap GeV/ADC = " << agc->getEEValue();
 }

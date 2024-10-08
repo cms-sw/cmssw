@@ -2,14 +2,9 @@ import FWCore.ParameterSet.Config as cms
 
 hltTiclTracksterLinks = cms.EDProducer("TracksterLinksProducer",
     detector = cms.string('HGCAL'),
-    eid_input_name = cms.string('input'),
-    eid_min_cluster_energy = cms.double(2.5),
-    eid_n_clusters = cms.int32(10),
-    eid_n_layers = cms.int32(50),
-    eid_output_name_energy = cms.string('output/regressed_energy'),
-    eid_output_name_id = cms.string('output/id_probabilities'),
     layer_clusters = cms.InputTag("hltHgcalMergeLayerClusters"),
     layer_clustersTime = cms.InputTag("hltHgcalMergeLayerClusters","timeLayerCluster"),
+    inferenceAlgo = cms.string('TracksterInferenceByDNN'),
     linkingPSet = cms.PSet(
         algo_verbosity = cms.int32(0),
         cylinder_radius_sqr = cms.vdouble(9, 9),
@@ -25,10 +20,25 @@ hltTiclTracksterLinks = cms.EDProducer("TracksterLinksProducer",
         type = cms.string('Skeletons'),
         wind = cms.double(0.036)
     ),
+    pluginInferenceAlgoTracksterInferenceByDNN = cms.PSet(
+        algo_verbosity = cms.int32(0),
+        onnxPIDModelPath = cms.FileInPath('RecoHGCal/TICL/data/ticlv5/onnx_models/linking/id_v0.onnx'),
+        onnxEnergyModelPath = cms.FileInPath('RecoHGCal/TICL/data/ticlv5/onnx_models/linking/energy_v0.onnx'),
+        inputNames  = cms.vstring('input'),
+        output_en   = cms.vstring('enreg_output'),
+        output_id   = cms.vstring('pid_output'),
+        eid_min_cluster_energy = cms.double(1),
+        eid_n_layers = cms.int32(50),
+        eid_n_clusters = cms.int32(10),
+        doPID = cms.int32(1),
+        doRegression = cms.int32(1),
+        type = cms.string('TracksterInferenceByDNN')
+    ),
     mightGet = cms.optional.untracked.vstring,
     original_masks = cms.VInputTag("hltHgcalMergeLayerClusters:InitialLayerClustersMask"),
     propagator = cms.string('PropagatorWithMaterial'),
     regressionAndPid = cms.bool(True),
-    tfDnnLabel = cms.string('tracksterSelectionTf'),
     tracksters_collections = cms.VInputTag("hltTiclTrackstersCLUE3DHigh", "hltTiclTrackstersPassthrough")
 )
+
+

@@ -103,12 +103,3 @@ boostedTauMCTable = tauMCTable.clone(
 boostedTauTask = cms.Task(finalBoostedTaus)
 boostedTauTablesTask = cms.Task(boostedTauTable)
 boostedTauMCTask = cms.Task(boostedTausMCMatchLepTauForTable,boostedTausMCMatchHadTauForTable,boostedTauMCTable)
-
-#remove boosted tau from previous eras
-(run3_nanoAOD_122).toReplaceWith(
-    boostedTauTask,cms.Task()
-).toReplaceWith(
-    boostedTauTablesTask,cms.Task()
-).toReplaceWith(
-    boostedTauMCTask,cms.Task()
-)

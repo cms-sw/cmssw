@@ -51,11 +51,6 @@ run2_nanoAOD_ANY.toModify(
     linkedObjects, jets="finalJets"
 )
 
-# boosted taus don't exist in 122X MINI
-run3_nanoAOD_122.toModify(
-    linkedObjects, boostedTaus=None,
-)
-
 from PhysicsTools.NanoAOD.lhcInfoProducer_cfi import lhcInfoProducer
 lhcInfoTable = lhcInfoProducer.clone()
 (~run3_common).toModify(
@@ -214,13 +209,6 @@ def nanoAOD_customizeCommon(process):
         nanoAOD_addUnifiedParTAK4Tag_switch=True,
     )
   
-    # enable rerun of PNet for CHS jets for early run3 eras
-    # (it is rerun for run2 within jet tasks while is not needed for newer
-    # run3 eras as it is present in miniAOD)
-    (run3_nanoAOD_122 | run3_nanoAOD_124).toModify(
-        nanoAOD_addDeepInfoAK4CHS_switch, nanoAOD_addParticleNet_switch = True
-    )
-    
     # This function is defined in jetsAK4_Puppi_cff.py
     process = nanoAOD_addDeepInfoAK4(process,
         addParticleNet=nanoAOD_addDeepInfoAK4_switch.nanoAOD_addParticleNet_switch,
@@ -253,7 +241,7 @@ def nanoAOD_customizeCommon(process):
         addUParTInfo = cms.bool(True),
         addPNet = cms.bool(True)
     )
-    (run2_nanoAOD_106Xv2 | run3_nanoAOD_122).toModify(
+    (run2_nanoAOD_106Xv2).toModify(
         nanoAOD_tau_switch, idsToAdd = ["deepTau2018v2p5"]
     ).toModify(
         process, lambda p : nanoAOD_addTauIds(p, nanoAOD_tau_switch.idsToAdd.value())
@@ -261,7 +249,7 @@ def nanoAOD_customizeCommon(process):
     
     # Don't add Unified Tagger for PUPPI jets for Run 2 (as different PUPPI tune
     # and base jet algorithm) or early Run 3 eras
-    (run3_nanoAOD_122 | run3_nanoAOD_124 | run2_nanoAOD_106Xv2).toModify(
+    (run2_nanoAOD_106Xv2).toModify(
         nanoAOD_tau_switch, addUParTInfo = False
     )
     

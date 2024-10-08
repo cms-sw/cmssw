@@ -234,7 +234,6 @@ void MuonDTDigis::analyze(const Event &event, const EventSetup &eventSetup) {
     const DTDigiCollection::Range &range = (*detUnitIt).second;
 
     num_digis_layer = 0;
-    cham_num = 0;
     wire_touched = 0;
 
     // Loop over the digis of this DetUnit

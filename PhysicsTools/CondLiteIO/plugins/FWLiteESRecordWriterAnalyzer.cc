@@ -137,7 +137,7 @@ namespace edm {
         return;
       }
       assert(iResolverIndex.value() > -1 and
-             iResolverIndex.value() < static_cast<ESResolverIndex::Value_t>(keysForProxies_.size()));
+             iResolverIndex.value() < static_cast<ESResolverIndex::Value_t>(keysForResolvers_.size()));
       void const* pValue = this->getFromResolverAfterPrefetch(iResolverIndex, iTransientAccessOnly, oDesc, dataKey);
       if (nullptr == pValue) {
         throw cms::Exception("NoDataException")

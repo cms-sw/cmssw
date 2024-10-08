@@ -7,7 +7,7 @@
 //         Created:  12 October 2023
 
 // This source allows configuring both a time per lumi section
-// and events per lumi. Calls to usleep are inserted in the
+// and events per lumi. Calls to std::this_thread::sleep_for are inserted in the
 // getNextItemType function in the amount
 //
 //   (time per lumi) / (events per lumi + 1)
@@ -115,15 +115,13 @@ namespace edmtest {
   }
 
   edm::InputSource::ItemTypeInfo SourceWithWaits::getNextItemType() {
-    constexpr unsigned int secondsToMicroseconds = 1000000;
-
     if (startedNewRun_) {
-      usleep(secondsToMicroseconds * sleepAfterStartOfRun_);
+      std::this_thread::sleep_for(std::chrono::duration<double>(sleepAfterStartOfRun_));
       startedNewRun_ = false;
     }
 
     if (lastEventOfLumi_ || noEventsInLumi_) {
-      usleep(secondsToMicroseconds * timePerLumi_ / (eventsPerLumi_[currentLumi_ - 1] + 1));
+      std::this_thread::sleep_for(std::chrono::duration<double>(timePerLumi_ / (eventsPerLumi_[currentLumi_ - 1] + 1)));
       lastEventOfLumi_ = false;
       noEventsInLumi_ = false;
     }
@@ -193,8 +191,7 @@ namespace edmtest {
     }
     // Handle events in the current lumi
     else if (eventInCurrentLumi_ < eventsPerLumi_[currentLumi_ - 1] && lumisPerRun_ != 0) {
-      // note the argument to usleep is microseconds, timePerLumi_ is in seconds
-      usleep(secondsToMicroseconds * timePerLumi_ / (eventsPerLumi_[currentLumi_ - 1] + 1));
+      std::this_thread::sleep_for(std::chrono::duration<double>(timePerLumi_ / (eventsPerLumi_[currentLumi_ - 1] + 1)));
       ++eventInCurrentLumi_;
       ++currentEvent_;
       if (eventInCurrentLumi_ == eventsPerLumi_[currentLumi_ - 1]) {

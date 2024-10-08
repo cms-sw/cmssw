@@ -144,10 +144,6 @@ void JetPlusTrackProducerAA::produce(edm::Event& iEvent, const edm::EventSetup& 
 
     corrected.scaleEnergy(factorZSP);
 
-    // JPT corrections
-
-    double scaleJPT = 1.;
-
     math::XYZTLorentzVector p4;
 
     // Construct JPTJet constituent
@@ -157,13 +153,13 @@ void JetPlusTrackProducerAA::produce(edm::Event& iEvent, const edm::EventSetup& 
     bool validMatches = false;
 
     if (!vectorial_) {
-      scaleJPT = mJPTalgo->correction(corrected, oldjet, iEvent, iSetup, pions, muons, elecs, validMatches);
+      double scaleJPT = mJPTalgo->correction(corrected, oldjet, iEvent, iSetup, pions, muons, elecs, validMatches);
       p4 = math::XYZTLorentzVector(corrected.px() * scaleJPT,
                                    corrected.py() * scaleJPT,
                                    corrected.pz() * scaleJPT,
                                    corrected.energy() * scaleJPT);
     } else {
-      scaleJPT = mJPTalgo->correction(corrected, oldjet, iEvent, iSetup, p4, pions, muons, elecs, validMatches);
+      mJPTalgo->correction(corrected, oldjet, iEvent, iSetup, p4, pions, muons, elecs, validMatches);
     }
 
     reco::JPTJet::Specific specific;

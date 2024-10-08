@@ -377,7 +377,7 @@ def miniAOD_customizeCommon(process):
     (pp_on_AA).toReplaceWith(
         process.makePatTausTask, _makePatTausTaskWithTauReReco
         )
-    
+
     # Adding puppi jets
     process.load('CommonTools.PileupAlgos.Puppi_cff')
     process.load('RecoJets.JetProducers.ak4PFJets_cfi')
@@ -399,6 +399,10 @@ def miniAOD_customizeCommon(process):
     )
     task.add(process.patJetPuppiCharge)
 
+    ## PUJetID for ak4PFJetsPuppi
+    process.load("RecoJets.JetProducers.PileupJetID_cfi")
+    task.add(process.pileUpJetIDPuppiTask)
+
     def _add_jetsPuppi(process):
         from PhysicsTools.PatAlgos.tools.jetTools import addJetCollection
         noDeepFlavourDiscriminators = [x.value() if isinstance(x, cms.InputTag) else x for x in process.patJets.discriminatorSources 
@@ -410,9 +414,13 @@ def miniAOD_customizeCommon(process):
                      )
 
         process.patJetGenJetMatchPuppi.matched = 'slimmedGenJets'
-    
+
         process.patJetsPuppi.jetChargeSource = cms.InputTag("patJetPuppiCharge")
-    
+
+        ## Store PUJetID variables in patJetsPuppi
+        process.patJetsPuppi.userData.userFloats.src += [cms.InputTag("pileupJetIdPuppi:fullDiscriminant")]
+        process.patJetsPuppi.userData.userInts.src += [cms.InputTag("pileupJetIdPuppi:fullId")]
+
         process.selectedPatJetsPuppi.cut = cms.string("pt > 10")
     
         from PhysicsTools.PatAlgos.slimming.applyDeepBtagging_cff import applyDeepBtagging

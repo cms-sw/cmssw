@@ -1,6 +1,6 @@
-# hltGetConfiguration /dev/CMSSW_14_0_0/PIon --full --data --type PIon --unprescale --process HLTPIon --globaltag auto:run3_hlt_PIon --input file:RelVal_Raw_PIon_DATA.root
+# hltGetConfiguration /dev/CMSSW_14_1_0/PIon --full --data --type PIon --unprescale --process HLTPIon --globaltag auto:run3_hlt_PIon --input file:RelVal_Raw_PIon_DATA.root
 
-# /dev/CMSSW_14_0_0/PIon/V181 (CMSSW_14_0_11)
+# /dev/CMSSW_14_1_0/PIon/V13 (CMSSW_14_1_0)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -9,7 +9,7 @@ process = cms.Process( "HLTPIon" )
 process.load("Configuration.StandardSequences.Accelerators_cff")
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string("/dev/CMSSW_14_0_0/PIon/V181")
+  tableName = cms.string("/dev/CMSSW_14_1_0/PIon/V13")
 )
 
 process.HLTIter4PSetTrajectoryBuilderIT = cms.PSet( 
@@ -1814,6 +1814,9 @@ process.SteppingHelixPropagatorAny = cms.ESProducer( "SteppingHelixPropagatorESP
   ApplyRadX0Correction = cms.bool( True ),
   useMagVolumes = cms.bool( True ),
   returnTangentPlane = cms.bool( True )
+)
+process.TrackerAdditionalParametersPerDetESModule = cms.ESProducer( "TrackerAdditionalParametersPerDetESModule",
+  appendToDataLabel = cms.string( "" )
 )
 process.TrackerDigiGeometryESModule = cms.ESProducer( "TrackerDigiGeometryESModule",
   appendToDataLabel = cms.string( "" ),
@@ -3626,6 +3629,9 @@ process.sistripconn = cms.ESProducer( "SiStripConnectivity" )
 process.trackerTopology = cms.ESProducer( "TrackerTopologyEP",
   appendToDataLabel = cms.string( "" )
 )
+process.zdcTopologyEP = cms.ESProducer( "ZdcTopologyEP",
+  appendToDataLabel = cms.string( "" )
+)
 
 process.FastTimerService = cms.Service( "FastTimerService",
     printEventSummary = cms.untracked.bool( False ),
@@ -3768,6 +3774,7 @@ process.hltGtStage2ObjectMap = cms.EDProducer( "L1TGlobalProducer",
     RequireMenuToMatchAlgoBlkInput = cms.bool( True ),
     AlgorithmTriggersUnmasked = cms.bool( True ),
     useMuonShowers = cms.bool( True ),
+    produceAXOL1TLScore = cms.bool( False ),
     resetPSCountersEachLumiSec = cms.bool( True ),
     semiRandomInitialPSCounters = cms.bool( False ),
     ProduceL1GtDaqRecord = cms.bool( True ),

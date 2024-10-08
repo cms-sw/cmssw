@@ -441,14 +441,8 @@ MatchingResult CandidateSimMuonMatcher::match(const l1t::RegionalMuonCand* muonC
     result.muonCand = muonCand;
     result.procMuon = procMuon;
 
-    double treshold = 6. * sigma;
-    if (simTrack.momentum().pt() > 20)
-      treshold = 7. * sigma;
-    if (simTrack.momentum().pt() > 100)
-      treshold = 20. * sigma;
-
     //for displaced muons in H2ll
-    treshold = 0.15;  //pt > 30
+    double treshold = 0.15;  //pt > 30
     if (simTrack.momentum().pt() <
         10)  //TODO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! tune the threshold!!!!!!
       treshold = 0.3;

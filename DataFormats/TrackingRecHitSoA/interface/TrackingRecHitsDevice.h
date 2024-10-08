@@ -25,15 +25,13 @@ public:
   template <typename TQueue>
   explicit TrackingRecHitDevice(TQueue queue, uint32_t nHits, int32_t offsetBPIX2, uint32_t const* hitsModuleStart)
       : PortableDeviceCollection<TrackingRecHitLayout<TrackerTraits>, TDev>(nHits, queue), offsetBPIX2_{offsetBPIX2} {
-    const auto device = alpaka::getDev(queue);
-
-    auto start_h = cms::alpakatools::make_device_view(device, hitsModuleStart, TrackerTraits::numberOfModules + 1);
+    auto start_h = cms::alpakatools::make_device_view(queue, hitsModuleStart, TrackerTraits::numberOfModules + 1);
     auto start_d =
-        cms::alpakatools::make_device_view(device, view().hitsModuleStart().data(), TrackerTraits::numberOfModules + 1);
+        cms::alpakatools::make_device_view(queue, view().hitsModuleStart().data(), TrackerTraits::numberOfModules + 1);
     alpaka::memcpy(queue, start_d, start_h);
 
     auto off_h = cms::alpakatools::make_host_view(offsetBPIX2_);
-    auto off_d = cms::alpakatools::make_device_view(device, view().offsetBPIX2());
+    auto off_d = cms::alpakatools::make_device_view(queue, view().offsetBPIX2());
     alpaka::memcpy(queue, off_d, off_h);
   }
 
@@ -47,7 +45,7 @@ public:
   template <typename TQueue>
   void updateFromDevice(TQueue queue) {
     auto off_h = cms::alpakatools::make_host_view(offsetBPIX2_);
-    auto off_d = cms::alpakatools::make_device_view(alpaka::getDev(queue), view().offsetBPIX2());
+    auto off_d = cms::alpakatools::make_device_view(queue, view().offsetBPIX2());
     alpaka::memcpy(queue, off_h, off_d);
   }
 

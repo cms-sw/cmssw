@@ -7,7 +7,7 @@ from PhysicsTools.PythonAnalysis import *
 
 #print_options.set_float_precision(4)
 gSystem.Load("libFWCoreFWLite.so")
-FWLiteEnabler::enable()
+ROOT.FWLiteEnabler.enable()
 
 #import EcalDetId
 #from DataFormats.EcalDetId import *
@@ -1452,7 +1452,7 @@ file=[
 ]
 
 events = Events (file)
-print file
+print(file)
 handlePupInfo = Handle('std::vector< PileupSummaryInfo >')
 puTAG = 'addPileupInfo'
 
@@ -1476,7 +1476,7 @@ for event in events:
 #        continue
     event_counter+=1
     event.getByLabel(puTAG, handlePupInfo)
-    #    print file_format, file, electronTAG        
+    #    print(file_format, file, electronTAG)
     PupInfo = handlePupInfo.product()
     #std::vector<PileupSummaryInfo>::const_iterator PVI;
     for PVI in PupInfo:
@@ -1487,7 +1487,7 @@ for event in events:
 
 obsPU.SaveAs('mcPU_obs.root')
 truePU.SaveAs('mcPU_true.root')
-print event_counter
+print(event_counter)
 
 
 

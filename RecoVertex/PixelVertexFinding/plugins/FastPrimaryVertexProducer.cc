@@ -171,9 +171,9 @@ void FastPrimaryVertexProducer::produce(edm::StreamID, edm::Event& iEvent, const
               }
             }
           }  //if compatible cluster
-        }    // loop on module hits
-      }      // if compatible module
-    }        // loop on pixel modules
+        }  // loop on module hits
+      }  // if compatible module
+    }  // loop on pixel modules
 
   }  // loop on selected jets
   std::sort(zProjections.begin(), zProjections.end());

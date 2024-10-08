@@ -132,6 +132,12 @@ RawTask::RawTask(edm::ParameterSet const& ps)
                                new hcaldqm::quantity::FEDQuantity(vFEDs),
                                new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fState),
                                0);
+      _cBadQ_FEDvsLS.initialize(_name,
+                                "BadQ_FEDvsLS",
+                                new hcaldqm::quantity::LumiSectionCoarse(_maxLS, 10),
+                                new hcaldqm::quantity::FEDQuantity(vFEDs),
+                                new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),
+                                0);
       _cBadQ_FEDvsLSmod10.initialize(_name,
                                      "BadQ_FEDvsLSmod10",
                                      new hcaldqm::quantity::LumiSection(10),
@@ -174,6 +180,7 @@ RawTask::RawTask(edm::ParameterSet const& ps)
     _cSummaryvsLS_FED.book(ib, _emap, _subsystem);
     _cSummaryvsLS.book(ib, _subsystem);
     _cBadQ_FEDvsLSmod10.book(ib, _subsystem);
+    _cBadQ_FEDvsLS.book(ib, _subsystem);
     _cDataSizevsLS_FED.book(ib, _emap, _subsystem);
   }
 
@@ -226,12 +233,20 @@ RawTask::RawTask(edm::ParameterSet const& ps)
       return;
   }
 
+  if (_ptype == fOnline &&
+      lumiCache->EvtCntLS == 1) {  // Reset the bin for  _cBadQ_FEDvsLSmod10 at the beginning of each new LS
+    for (std::vector<uint32_t>::const_iterator it = _vhashFEDs.begin(); it != _vhashFEDs.end(); ++it) {
+      HcalElectronicsId eid = HcalElectronicsId(*it);
+      _cBadQ_FEDvsLSmod10.setBinContent(eid, _currentLS % 10, 0);
+    }
+  }
   int nn = 0;
   //	loop thru and fill the detIds with bad quality
   //	NOTE: Calibration Channels are skipped!
   //	TODO: Include for Online Calibration Channels marked as bad
   //	a comment below is left on purpose!
   //_cBadQualityvsBX.fill(bx, creport->badQualityDigis());
+
   int Nbadq = creport->badQualityDigis();
   if (lumiCache->EvtCntLS == 1)
     _NBadQEvent = 0;  // Reset at the beginning of each new LS
@@ -416,8 +431,6 @@ std::shared_ptr<hcaldqm::Cache> RawTask::globalBeginLuminosityBlock(edm::Luminos
       for (uint32_t iflag = 0; iflag < _vflags.size(); iflag++)
         _cSummaryvsLS_FED.setBinContent(eid, _currentLS, int(iflag), int(flag::fNCDAQ));
       _cSummaryvsLS.setBinContent(eid, _currentLS, int(flag::fNCDAQ));
-      if (!hcaldqm::utilities::isFEDHO(eid) && fed != 1136)
-        _cBadQ_FEDvsLSmod10.setBinContent(eid, _currentLS % 10, int(flag::fNCDAQ));
       continue;
     }
 
@@ -437,12 +450,8 @@ std::shared_ptr<hcaldqm::Cache> RawTask::globalBeginLuminosityBlock(edm::Luminos
         _vflags[fOrnMsm]._state = flag::fGOOD;
       if (double(_xBadQLS.get(eid)) > double(12 * _evsPerLS))
         _vflags[fBadQ]._state = flag::fBAD;
-      //else if (_xBadQLS.get(eid) > 0){
-      // Following line added due to https://gitlab.cern.ch/cmshcal/docs/-/issues/233
-      // BadQ > (5%) of number of events in this LS.
-      else if (double(_xBadQLS.get(eid)) > 0 && double(_NBadQEvent) > double(0.05 * _evsPerLS)) {
+      else if (_xBadQLS.get(eid) > 0) {
         _vflags[fBadQ]._state = flag::fPROBLEMATIC;
-
       } else
         _vflags[fBadQ]._state = flag::fGOOD;
     }
@@ -454,9 +463,11 @@ std::shared_ptr<hcaldqm::Cache> RawTask::globalBeginLuminosityBlock(edm::Luminos
     for (std::vector<flag::Flag>::iterator ft = _vflags.begin(); ft != _vflags.end(); ++ft) {
       _cSummaryvsLS_FED.setBinContent(eid, _currentLS, int(iflag), ft->_state);
 
-      if (ft->_name == "BadQ") {
+      // Following line added due to https://gitlab.cern.ch/cmshcal/docs/-/issues/233                                                                                                               // BadQ > (5%) of number of events in this LS.
+      if (ft->_name == "BadQ" && (double(_xBadQLS.get(eid)) > 0 && double(_NBadQEvent) > double(0.05 * _evsPerLS))) {
         if (!hcaldqm::utilities::isFEDHO(eid) && fed != 1136 && ft->_state != 3) {
           _cBadQ_FEDvsLSmod10.setBinContent(eid, _currentLS % 10, (double(_NBadQEvent) / double(_evsPerLS)) * 100);
+          _cBadQ_FEDvsLS.setBinContent(eid, _currentLS, (double(_NBadQEvent) / double(_evsPerLS)) * 100);
         }
       }
       fSum += (*ft);

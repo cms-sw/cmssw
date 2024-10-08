@@ -48,70 +48,15 @@ def customiseForOffline(process):
 
     return process
 
-# Adding zdc Topology producer
-def customizeHLTfor46033(process):
-    """Add topology producer for ZDC"""
-
-    for esprod in esproducers_by_type(process, 'ZdcGeometryFromDBEP'):
-        process.load("Geometry.ForwardGeometry.zdcTopologyEP_cfi")
-        break
-
+def customizeHLTfor46135(process):
+    """Remove pfRecHitFractionAllocation from PFClusterSoAProducer config"""
+    for producer in producers_by_type(process, "PFClusterSoAProducer@alpaka"):
+        if hasattr(producer, 'pfRecHitFractionAllocation'):
+            delattr(producer, 'pfRecHitFractionAllocation')
+    for producer in producers_by_type(process, "alpaka_serial_sync::PFClusterSoAProducer"):
+        if hasattr(producer, 'pfRecHitFractionAllocation'):
+            delattr(producer, 'pfRecHitFractionAllocation')
     return process
-
-def customizeHLTfor44576(process):
-    """Ensure TrackerAdditionalParametersPerDetRcd ESProducer is run when needed"""
-    for esprod in esproducers_by_type(process, 'TrackerGeometricDetESModule'):
-        process.load("Geometry.TrackerGeometryBuilder.TrackerAdditionalParametersPerDet_cfi")
-        break
-    return process
-
-def customizeHLTfor45063(process):
-    """Assigns value of MuonHLTSeedMVAClassifier mva input file, scales and mean values according to the value of isFromL1"""
-    for prod in producers_by_type(process, 'MuonHLTSeedMVAClassifier'):
-        if hasattr(prod, "isFromL1"):
-            if (prod.isFromL1 == True):
-                if hasattr(prod, "mvaFileBL1"):
-                    prod.mvaFileB = prod.mvaFileBL1
-                if hasattr(prod, "mvaFileEL1"):
-                    prod.mvaFileE = prod.mvaFileEL1
-                if hasattr(prod, "mvaScaleMeanBL1"):
-                    prod.mvaScaleMeanB = prod.mvaScaleMeanBL1
-                if hasattr(prod, "mvaScaleStdBL1"):
-                    prod.mvaScaleStdB = prod.mvaScaleStdBL1
-                if hasattr(prod, "mvaScaleMeanEL1"):
-                    prod.mvaScaleMeanE = prod.mvaScaleMeanEL1
-                if hasattr(prod, "mvaScaleStdEL1"):                    
-                    prod.mvaScaleStdE = prod.mvaScaleStdEL1                
-            else:
-                if hasattr(prod, "mvaFileBL2"):
-                    prod.mvaFileB = prod.mvaFileBL2
-                if hasattr(prod, "mvaFileEL2"):
-                    prod.mvaFileE = prod.mvaFileEL2
-                if hasattr(prod, "mvaScaleMeanBL2"):
-                    prod.mvaScaleMeanB = prod.mvaScaleMeanBL2
-                if hasattr(prod, "mvaScaleStdBL2"):
-                    prod.mvaScaleStdB = prod.mvaScaleStdBL2
-                if hasattr(prod, "mvaScaleMeanEL2"):
-                    prod.mvaScaleMeanE = prod.mvaScaleMeanEL2
-                if hasattr(prod, "mvaScaleStdEL2"):
-                    prod.mvaScaleStdE = prod.mvaScaleStdEL2
-                    
-    for prod in producers_by_type(process, 'MuonHLTSeedMVAClassifier'):
-        delattr(prod,"mvaFileBL1")
-        delattr(prod,"mvaFileEL1")
-        delattr(prod,"mvaScaleMeanBL1")
-        delattr(prod,"mvaScaleStdBL1")
-        delattr(prod,"mvaScaleMeanEL1")
-        delattr(prod,"mvaScaleStdEL1")
-        delattr(prod,"mvaFileBL2")
-        delattr(prod,"mvaFileEL2")
-        delattr(prod,"mvaScaleMeanBL2")
-        delattr(prod,"mvaScaleStdBL2")
-        delattr(prod,"mvaScaleMeanEL2")
-        delattr(prod,"mvaScaleStdEL2")       
-                    
-    return process
-            
 
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
@@ -121,8 +66,6 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
 
-    process = customizeHLTfor44576(process)
-    process = customizeHLTfor45063(process)
-    process = customizeHLTfor46033(process)
+    process = customizeHLTfor46135(process)
 
     return process

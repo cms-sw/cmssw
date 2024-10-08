@@ -31,7 +31,7 @@ if (options.type == "V18"):
 elif (options.type == "V17Shift"):
     geomFile = "Geometry.HGCalCommonData.testHGCal" + options.type + "Reco_cff"
 elif (options.type == "V17"):
-    geomFile = "Configuration.Geometry.GeometryExtended2026D110Reco_cffelse:
+    geomFile = "Configuration.Geometry.GeometryExtended2026D110Reco_cff"
 else:
     geomFile = "Configuration.Geometry.GeometryExtended2026D100Reco_cff"
 

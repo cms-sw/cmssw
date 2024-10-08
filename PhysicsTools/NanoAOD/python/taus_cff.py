@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.NanoAOD.common_cff import *
-from PhysicsTools.NanoAOD.nano_eras_cff import run3_nanoAOD_124
 from PhysicsTools.NanoAOD.simpleCandidateFlatTableProducer_cfi import simpleCandidateFlatTableProducer
 from PhysicsTools.NanoAOD.simpleGenParticleFlatTableProducer_cfi import simpleGenParticleFlatTableProducer
 from PhysicsTools.NanoAOD.simplePATTauFlatTableProducer_cfi import simplePATTauFlatTableProducer
@@ -19,11 +18,6 @@ from RecoTauTag.RecoTau.tauIdWPsDefs import WORKING_POINTS_v2p5
 finalTaus = cms.EDFilter("PATTauRefSelector",
     src = cms.InputTag("slimmedTaus"),
     cut = cms.string("pt > 18 && ((tauID('decayModeFindingNewDMs') > 0.5 && (tauID('byLooseCombinedIsolationDeltaBetaCorr3Hits') || (tauID('chargedIsoPtSumdR03')+max(0.,tauID('neutralIsoPtSumdR03')-0.072*tauID('puCorrPtSum'))<2.5) || tauID('byVVVLooseDeepTau2018v2p5VSjet'))) || (?isTauIDAvailable('byUTagCHSVSjetraw')?tauID('byUTagCHSVSjetraw'):-1) > {} || (?isTauIDAvailable('byUTagPUPPIVSjetraw')?tauID('byUTagPUPPIVSjetraw'):-1) > {})".format(0.05, 0.05))
-)
-
-run3_nanoAOD_124.toModify(
-    finalTaus,
-    cut = cms.string("pt > 18 && ((tauID('decayModeFindingNewDMs') > 0.5 && (tauID('byLooseCombinedIsolationDeltaBetaCorr3Hits') || (tauID('chargedIsoPtSumdR03')+max(0.,tauID('neutralIsoPtSumdR03')-0.072*tauID('puCorrPtSum'))<2.5) || (tauID('byDeepTau2018v2p5VSjetraw') > {}))) || (?isTauIDAvailable('byUTagCHSVSjetraw')?tauID('byUTagCHSVSjetraw'):-1) > {} || (?isTauIDAvailable('byUTagPUPPIVSjetraw')?tauID('byUTagPUPPIVSjetraw'):-1) > {})".format(WORKING_POINTS_v2p5["jet"]["VVVLoose"], 0.05, 0.05))
 )
 
 ##################### Tables for final output and docs ##########################
@@ -136,22 +130,6 @@ _variablesMiniV2 = cms.PSet(
 )
 
 tauTable.variables = _variablesMiniV2
-
-run3_nanoAOD_124.toModify(
-    tauTable.variables,
-    idDeepTau2018v2p5VSe = _tauIdWPMask("byDeepTau2018v2p5VSeraw",
-                 choices=("VVVLoose","VVLoose","VLoose","Loose","Medium","Tight","VTight","VVTight"),
-                 doc="byDeepTau2018v2p5VSe ID working points (deepTau2018v2p5)",
-                 from_raw=True, wp_thrs=WORKING_POINTS_v2p5["e"]),
-    idDeepTau2018v2p5VSmu = _tauIdWPMask("byDeepTau2018v2p5VSmuraw",
-                 choices=("VLoose", "Loose", "Medium", "Tight"),
-                 doc="byDeepTau2018v2p5VSmu ID working points (deepTau2018v2p5)",
-                 from_raw=True, wp_thrs=WORKING_POINTS_v2p5["mu"]),
-    idDeepTau2018v2p5VSjet = _tauIdWPMask("byDeepTau2018v2p5VSjetraw",
-                 choices=("VVVLoose","VVLoose","VLoose","Loose","Medium","Tight","VTight","VVTight"),
-                 doc="byDeepTau2018v2p5VSjet ID working points (deepTau2018v2p5)",
-                 from_raw=True, wp_thrs=WORKING_POINTS_v2p5["jet"])
-)
 
 tauSignalCands = patTauSignalCandidatesProducer.clone(
     src = tauTable.src,

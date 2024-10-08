@@ -305,7 +305,7 @@ def trace_python(prog_argv, path):
       code = compile(fp.read(), progname, 'exec')
       globals = {}
       try:
-        exec code in globals, globals
+        exec (code, globals, globals)
       except:
         print(traceback.format_exc())
       finally:

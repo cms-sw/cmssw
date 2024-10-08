@@ -115,33 +115,8 @@ run2_nanoAOD_ANY.toModify(
     neEmEF = None,
     muEF = None
 )
-(run3_nanoAOD_122 | run3_nanoAOD_124).toModify(
-    fatJetTable.variables,
-    # New ParticleNet trainings are not available in MiniAOD until Run3 13X
-    particleNet_QCD = None,
-    particleNet_QCD2HF = None,
-    particleNet_QCD1HF = None,
-    particleNet_QCD0HF = None,
-    particleNet_massCorr = None,
-    particleNet_XbbVsQCD = None,
-    particleNet_XccVsQCD = None,
-    particleNet_XqqVsQCD = None,
-    particleNet_XggVsQCD = None,
-    particleNet_XttVsQCD = None,
-    particleNet_XtmVsQCD = None,
-    particleNet_XteVsQCD = None,
-    particleNet_WVsQCD = None,
-    # Remove for V11 and earlier versions
-    chMultiplicity = None,
-    neMultiplicity = None,
-    chHEF = None,
-    neHEF = None,
-    chEmEF = None,
-    neEmEF = None,
-    muEF = None
-)
 
-(run2_nanoAOD_106Xv2 | run3_nanoAOD_122 | run3_nanoAOD_124).toModify(
+(run2_nanoAOD_106Xv2).toModify(
     fatJetTable.variables,
     # Restore taggers that were decommisionned for Run-3
     btagDeepB = Var("?(bDiscriminator('pfDeepCSVJetTags:probb')+bDiscriminator('pfDeepCSVJetTags:probbb'))>=0?bDiscriminator('pfDeepCSVJetTags:probb')+bDiscriminator('pfDeepCSVJetTags:probbb'):-1",float,doc="DeepCSV b+bb tag discriminator",precision=10),
@@ -246,7 +221,8 @@ subJetTable = simplePATJetFlatTableProducer.clone(
     name = cms.string("SubJet"),
     doc  = cms.string("slimmedJetsAK8PFPuppiSoftDropPacked::SubJets, i.e. soft-drop subjets for ak8 fat jets for boosted analysis"),
     variables = cms.PSet(P4Vars,
-        btagDeepB = Var("bDiscriminator('pfDeepCSVJetTags:probb')+bDiscriminator('pfDeepCSVJetTags:probbb')",float,doc="DeepCSV b+bb tag discriminator",precision=10),
+        btagDeepFlavB = Var("bDiscriminator('pfDeepFlavourJetTags:probb')+bDiscriminator('pfDeepFlavourJetTags:probbb')+bDiscriminator('pfDeepFlavourJetTags:problepb')",float,doc="DeepJet b+bb+lepb tag discriminator",precision=10),
+        btagUParTAK4B = Var("?bDiscriminator('pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:BvsAll')>0?bDiscriminator('pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:BvsAll'):-1",float,precision=10,doc="UnifiedParT b vs. udscg"),
         rawFactor = Var("1.-jecFactor('Uncorrected')",float,doc="1 - Factor to get back to raw pT",precision=6),
         area = Var("jetArea()", float, doc="jet catchment area, for JECs",precision=10),
         tau1 = Var("userFloat('NjettinessAK8Subjets:tau1')",float, doc="Nsubjettiness (1 axis)",precision=10),
@@ -263,10 +239,18 @@ run2_nanoAOD_ANY.toModify(
     btagCSVV2 = Var("bDiscriminator('pfCombinedInclusiveSecondaryVertexV2BJetTags')",float,doc=" pfCombinedInclusiveSecondaryVertexV2 b-tag discriminator (aka CSVV2)",precision=10)
 )
 
-(run2_nanoAOD_106Xv2 | run3_nanoAOD_122 | run3_nanoAOD_124).toModify(
+(run2_nanoAOD_106Xv2).toModify(
     subJetTable.variables,
     area = None,
 )
+
+run3_nanoAOD_pre142X.toModify(
+    subJetTable.variables,
+    btagDeepFlavB = None,
+    btagUParTAK4B = None,
+    btagDeepB = Var("bDiscriminator('pfDeepCSVJetTags:probb')+bDiscriminator('pfDeepCSVJetTags:probbb')",float,doc="DeepCSV b+bb tag discriminator",precision=10),
+)
+
 
 #jets are not as precise as muons
 fatJetTable.variables.pt.precision=10

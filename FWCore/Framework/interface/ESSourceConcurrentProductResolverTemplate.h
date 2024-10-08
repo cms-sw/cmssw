@@ -1,13 +1,13 @@
+// -*- C++ -*-
 #ifndef FWCore_Framework_ESSourceConcurrentESProductResolverTemplate_h
 #define FWCore_Framework_ESSourceConcurrentESProductResolverTemplate_h
-// -*- C++ -*-
 //
 // Package:     FWCore/Framework
 // Class  :     ESSourceConcurrentESProductResolverTemplate
 //
-/**\class ESSourceConcurrentESProductResolverTemplate ESSourceConcurrentESProductResolverTemplate.h "FWCore/Framework/interface/ESSourceConcurrentESProductResolverTemplate.h"
+/**\class edm::eventsetup::ESSourceConcurrentESProductResolverTemplate
 
- Description: An ESSource specific ESProductResolver which is type safe and can run concurrently with other DataProxies from the same ESSource.
+ Description: An ESSource specific ESProductResolver which is type safe and can run concurrently with other ESProductResolvers from the same ESSource.
 
  Usage:
     Inherit from this class and override

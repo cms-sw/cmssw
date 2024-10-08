@@ -2,6 +2,7 @@
 ----------------------------------------------------------------------*/
 
 #include <cerrno>
+#include <chrono>
 
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
@@ -149,7 +150,7 @@ namespace edm {
     EventID oldEventID = eventID_;
     advanceToNext(eventID_, presentTime_);
     if (eventCreationDelay_ > 0) {
-      usleep(eventCreationDelay_);
+      std::this_thread::sleep_for(std::chrono::microseconds(eventCreationDelay_));
     }
     size_t index = fileIndex();
     bool another = setRunAndEventInfo(eventID_, presentTime_, eType_);

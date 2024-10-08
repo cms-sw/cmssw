@@ -3,8 +3,8 @@
 # generate HLT tables from master table in ConfDB
 #
 
-MASTER="/dev/CMSSW_13_2_0/HLT"                      # no version, take the latest one
-TARGET="/online/collisions/2023/HIon/v1.1/HLT"      # where to store the online-compliant menu
+MASTER="/dev/CMSSW_14_1_0/HLT"                      # no version, take the latest one
+TARGET="/online/collisions/2024/HIon/v1.0/HLT"      # where to store the online-compliant menu
 PREFIX=""
 TABLES="online_hion"
 

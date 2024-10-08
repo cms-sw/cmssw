@@ -32,7 +32,7 @@ Toy EDProducers of Ints for testing purposes only.
 #include <cassert>
 #include <string>
 #include <vector>
-#include <unistd.h>
+#include <chrono>
 
 namespace edmtest {
 
@@ -790,7 +790,7 @@ namespace edmtest {
       // in multi-threaded processes. Otherwise, the modules are so
       // fast it is hard to tell whether a module finishes before the
       // the Framework starts the next module.
-      usleep(sleepTime_);
+      std::this_thread::sleep_for(std::chrono::microseconds(sleepTime_));
     }
     processBlock.emplace(bpbToken_, value_);
   }
@@ -799,7 +799,7 @@ namespace edmtest {
       check(processBlock.get(epbGet_), epbExpect_);
     }
     if (sleepTime_ > 0) {
-      usleep(sleepTime_);
+      std::this_thread::sleep_for(std::chrono::microseconds(sleepTime_));
     }
     processBlock.emplace(epbToken_, value_);
   }
@@ -808,7 +808,7 @@ namespace edmtest {
       check(processBlock.get(aipbGet_), aipbExpect_);
     }
     if (sleepTime_ > 0) {
-      usleep(sleepTime_);
+      std::this_thread::sleep_for(std::chrono::microseconds(sleepTime_));
     }
   }
   void NonEventIntProducer::globalBeginRunProduce(edm::Run& r, edm::EventSetup const&) const {
@@ -816,7 +816,7 @@ namespace edmtest {
       check(r.get(brGet_), brExpect_);
     }
     if (sleepTime_ > 0) {
-      usleep(sleepTime_);
+      std::this_thread::sleep_for(std::chrono::microseconds(sleepTime_));
     }
     r.emplace(brToken_, value_);
   }
@@ -825,7 +825,7 @@ namespace edmtest {
       check(r.get(erGet_), erExpect_);
     }
     if (sleepTime_ > 0) {
-      usleep(sleepTime_);
+      std::this_thread::sleep_for(std::chrono::microseconds(sleepTime_));
     }
     r.emplace(erToken_, value_);
   }
@@ -834,7 +834,7 @@ namespace edmtest {
       check(l.get(blGet_), blExpect_);
     }
     if (sleepTime_ > 0) {
-      usleep(sleepTime_);
+      std::this_thread::sleep_for(std::chrono::microseconds(sleepTime_));
     }
     l.emplace(blToken_, value_);
   }
@@ -843,7 +843,7 @@ namespace edmtest {
       check(l.get(elGet_), elExpect_);
     }
     if (sleepTime_ > 0) {
-      usleep(sleepTime_);
+      std::this_thread::sleep_for(std::chrono::microseconds(sleepTime_));
     }
     l.emplace(elToken_, value_);
   }

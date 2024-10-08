@@ -107,13 +107,13 @@ bool TPSAlgorithm::outputGT(std::vector<l1t::TrackerMuon>& muons) {
     bstart = wordconcat<wordtype>(word1, bstart, mu.hwPhi(), BITSGTPHI);
     bstart = wordconcat<wordtype>(word1, bstart, mu.hwEta(), BITSGTETA);
     bstart = wordconcat<wordtype>(word1, bstart, mu.hwZ0(), BITSGTZ0);
-    bstart = wordconcat<wordtype>(word1, bstart, (mu.hwD0() >> 2), BITSGTD0);
+    wordconcat<wordtype>(word1, bstart, (mu.hwD0() >> 2), BITSGTD0);
 
     bstart = 0;
     bstart = wordconcat<wordtype>(word2, bstart, mu.hwCharge(), 1);
     bstart = wordconcat<wordtype>(word2, bstart, mu.hwQual(), BITSGTQUAL);
     bstart = wordconcat<wordtype>(word2, bstart, mu.hwIso(), BITSGTISO);
-    bstart = wordconcat<wordtype>(word2, bstart, mu.hwBeta(), BITSGTBETA);
+    wordconcat<wordtype>(word2, bstart, mu.hwBeta(), BITSGTBETA);
 
     std::array<uint64_t, 2> wordout = {{word1, word2}};
     mu.setWord(wordout);

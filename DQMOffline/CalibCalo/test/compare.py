@@ -6,7 +6,7 @@ import errno
 
 #print error/help message and exit
 def help_message():
-    print "Usage:\n\
+    print("Usage:\n\
 compare [folder_name] [options] -v versions_to_compare -f files_to_compare\n\
 Versions and files must be whitespace separated.\n\
 If no folder is specified the pwd will be used.\n\
@@ -18,7 +18,7 @@ Options:\n\
 --html   produce html output\n\
 --canvas   with --html option and without --no_exec option produces output directly in png, if not specified output is produced in eps and then converted in png format with an external program (but can be used in batch mode).\n\
 Example:\n\
-./compare.py myDir -v CMSSW_X_Y_Z CMSSW_J_K_W -f file1.root file2.root --no_exec --outfile out.root"
+./compare.py myDir -v CMSSW_X_Y_Z CMSSW_J_K_W -f file1.root file2.root --no_exec --outfile out.root")
     sys.exit()
 
 #run command in the command line with specified environment
@@ -65,9 +65,9 @@ if len(sys.argv)>1:
         try:
             cwd=os.getcwd()
             os.chdir(name)
-        except OSError, inst:
+        except OSError as inst:
             if inst.errno==errno.ENOENT:
-                print "Error: the specified working folder does not exist"
+                print("Error: the specified working folder does not exist")
                 help_message()
 else: help_message()
 
@@ -109,7 +109,7 @@ if not execute:
 try:
     from ROOT import gSystem, TFile, TLegend, TCanvas, gDirectory
 except ImportError:
-    print "Warning: environment variables not set, proceeding anyway running this script with the environment variables of the higher version of CMSSW specified in -v"
+    print("Warning: environment variables not set, proceeding anyway running this script with the environment variables of the higher version of CMSSW specified in -v")
     #storing cmsenv environment variables
     os.chdir(max(ver))
     env=os.popen("scramv1 runtime -sh","r")
@@ -129,7 +129,7 @@ except ImportError:
         runcmd2(environment,"./compare.py",tuple(sys.argv[1:-1]))#works only if compare.py is located in the pwd
 else:    
     gSystem.Load("libFWCoreFWLite.so")
-    FWLiteEnabler::enable()
+    ROOT.FWLiteEnabler.enable()
     outfile=TFile(root_out,"recreate")
     histo=[]
     canvas=[]
@@ -165,7 +165,7 @@ else:
                 outfile.cd()
                 canvas[nf].Write()
     if execute:
-        print "Press enter to end the program"
+        print("Press enter to end the program")
         os.system("read")
     if html:
         if cnv:
@@ -173,9 +173,9 @@ else:
                 for nf,f in enumerate(fil):
                     try:
                         os.mkdir(f[:len(f)-5])
-                    except OSError,inst:
+                    except OSError as inst:
                         if inst.errno==errno.EEXIST:
-                            print "Possibly overwriting images"
+                            print("Possibly overwriting images")
                     os.system("cp "+cwd+"/temp.html "+f[:len(f)-5]+"/index.html")
                     os.chdir(f[:len(f)-5])
                     canvas[nf].cd()
@@ -193,14 +193,14 @@ else:
                     #os.system("sleep 2")
                     os.chdir("../")
             else:
-                print "Warning:to use --canvas option do not use --no_exec option. Rerun without --canvas option."
+                print("Warning:to use --canvas option do not use --no_exec option. Rerun without --canvas option.")
         else:
             for nf,f in enumerate(fil):
                 try:
                     os.mkdir(f[:len(f)-5])
-                except OSError,inst:
+                except OSError as inst:
                     if inst.errno==errno.EEXIST:
-                        print "Possibly overwriting images"
+                        print("Possibly overwriting images")
                 os.system("cp "+cwd+"temp.html "+f[:len(f)-5]+"/index.html")
                 os.chdir(f[:len(f)-5])
                 canvas[nf].cd()

@@ -100,9 +100,9 @@ private:
   PhotonIsolationCalculator photonIsolationCalculator_;
 
   //MIP
-  PhotonMIPHaloTagger photonMIPHaloTagger_;
+  const PhotonMIPHaloTagger photonMIPHaloTagger_;
   //MVA based Halo tagger for the EE photons
-  std::unique_ptr<PhotonMVABasedHaloTagger> photonMVABasedHaloTagger_ = nullptr;
+  std::unique_ptr<const PhotonMVABasedHaloTagger> photonMVABasedHaloTagger_ = nullptr;
 
   std::vector<double> preselCutValuesBarrel_;
   std::vector<double> preselCutValuesEndcap_;
@@ -123,7 +123,24 @@ private:
 DEFINE_FWK_MODULE(PhotonProducer);
 
 PhotonProducer::PhotonProducer(const edm::ParameterSet& config)
-    : caloGeomToken_(esConsumes()), topologyToken_(esConsumes()), photonEnergyCorrector_(config, consumesCollector()) {
+    : caloGeomToken_(esConsumes()),
+      topologyToken_(esConsumes()),
+      flagsexclEB_{StringToEnumValue<EcalRecHit::Flags>(
+          config.getParameter<std::vector<std::string>>("RecHitFlagToBeExcludedEB"))},
+      flagsexclEE_{StringToEnumValue<EcalRecHit::Flags>(
+          config.getParameter<std::vector<std::string>>("RecHitFlagToBeExcludedEE"))},
+      severitiesexclEB_{StringToEnumValue<EcalSeverityLevel::SeverityLevel>(
+          config.getParameter<std::vector<std::string>>("RecHitSeverityToBeExcludedEB"))},
+      severitiesexclEE_{StringToEnumValue<EcalSeverityLevel::SeverityLevel>(
+          config.getParameter<std::vector<std::string>>("RecHitSeverityToBeExcludedEE"))},
+      photonIsolationCalculator_(config.getParameter<edm::ParameterSet>("isolationSumsCalculatorSet"),
+                                 flagsexclEB_,
+                                 flagsexclEE_,
+                                 severitiesexclEB_,
+                                 severitiesexclEE_,
+                                 consumesCollector()),
+      photonMIPHaloTagger_(config.getParameter<edm::ParameterSet>("mipVariableSet"), consumesCollector()),
+      photonEnergyCorrector_(config, consumesCollector()) {
   // use configuration file to setup input/output collection names
 
   photonCoreProducer_ = consumes<reco::PhotonCoreCollection>(config.getParameter<edm::InputTag>("photonCoreProducer"));
@@ -150,28 +167,6 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& config)
   if (cutsFromDB_) {
     hcalCutsToken_ = esConsumes<HcalPFCuts, HcalPFCutsRcd>(edm::ESInputTag("", "withTopo"));
   }
-
-  //AA
-  //Flags and Severities to be excluded from photon calculations
-  const std::vector<std::string> flagnamesEB =
-      config.getParameter<std::vector<std::string>>("RecHitFlagToBeExcludedEB");
-
-  const std::vector<std::string> flagnamesEE =
-      config.getParameter<std::vector<std::string>>("RecHitFlagToBeExcludedEE");
-
-  flagsexclEB_ = StringToEnumValue<EcalRecHit::Flags>(flagnamesEB);
-
-  flagsexclEE_ = StringToEnumValue<EcalRecHit::Flags>(flagnamesEE);
-
-  const std::vector<std::string> severitynamesEB =
-      config.getParameter<std::vector<std::string>>("RecHitSeverityToBeExcludedEB");
-
-  severitiesexclEB_ = StringToEnumValue<EcalSeverityLevel::SeverityLevel>(severitynamesEB);
-
-  const std::vector<std::string> severitynamesEE =
-      config.getParameter<std::vector<std::string>>("RecHitSeverityToBeExcludedEE");
-
-  severitiesexclEE_ = StringToEnumValue<EcalSeverityLevel::SeverityLevel>(severitynamesEE);
 
   ElectronHcalHelper::Configuration cfgCone, cfgBc;
   cfgCone.hOverEConeSize = hOverEConeSize_;
@@ -241,13 +236,6 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& config)
   preselCutValuesEndcap_.push_back(config.getParameter<double>("trackPtSumHollowConeEndcap"));
   preselCutValuesEndcap_.push_back(config.getParameter<double>("sigmaIetaIetaCutEndcap"));
   //
-
-  edm::ParameterSet isolationSumsCalculatorSet = config.getParameter<edm::ParameterSet>("isolationSumsCalculatorSet");
-  photonIsolationCalculator_.setup(
-      isolationSumsCalculatorSet, flagsexclEB_, flagsexclEE_, severitiesexclEB_, severitiesexclEE_, consumesCollector());
-
-  edm::ParameterSet mipVariableSet = config.getParameter<edm::ParameterSet>("mipVariableSet");
-  photonMIPHaloTagger_.setup(mipVariableSet, consumesCollector());
 
   // Register the product
   produces<reco::PhotonCollection>(PhotonCollection_);
@@ -505,9 +493,8 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
     }
 
     // fill MIP Vairables for Halo: Block for MIP are filled from PhotonMIPHaloTagger
-    reco::Photon::MIPVariables mipVar;
     if (subdet == EcalBarrel && runMIPTagger_) {
-      photonMIPHaloTagger_.MIPcalculate(&newCandidate, evt, es, mipVar);
+      auto mipVar = photonMIPHaloTagger_.mipCalculate(newCandidate, evt, es);
       newCandidate.setMIPVariables(mipVar);
     }
 

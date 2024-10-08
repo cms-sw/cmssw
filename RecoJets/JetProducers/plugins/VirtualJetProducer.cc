@@ -752,6 +752,8 @@ void VirtualJetProducer::writeJets(edm::Event& iEvent, edm::EventSetup const& iS
         // Here it is assumed that fjJets_ is in decreasing order of pT,
         // which should happen in FastjetJetProducer::runAlgorithm()
         jetArea = M_PI;
+        //rij is properly initialized above
+        [[clang::suppress]]
         RIJ* distance = rij[ijet];
         for (unsigned jJet = 0; jJet < ijet; ++jJet) {
           distance[jJet].first = std::sqrt(reco::deltaR2(etaJ[ijet], phiJ[ijet], etaJ[jJet], phiJ[jJet])) * orParam_;
@@ -765,7 +767,7 @@ void VirtualJetProducer::writeJets(edm::Event& iEvent, edm::EventSetup const& iS
                                                                             distance[kJet].second,
                                                                             rij[jJet][kJet].second);
           }  // end loop over harder jets
-        }    // end loop over harder jets
+        }  // end loop over harder jets
         jetArea *= (rParam_ * rParam_);
       }
       auto& jet = (*jets)[ijet];

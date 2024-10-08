@@ -167,10 +167,11 @@ Example: protecting `std::cout` so printouts do not intertwine.
 ```C++
   edm::SerialTaskQueue queue;
   
+  using namespace std::chrono_literals;
   oneapi::tbb::task_group group;
   for(int i=0; i<3; ++i) {
     group.run([&queue, &group] {
-      usleep(1000);
+      std::this_thread::sleep_for(1000us);
       queue.push(group1, [i](){
         std::cout <<"loop 1"<<i<<"\n";
       });
@@ -179,7 +180,7 @@ Example: protecting `std::cout` so printouts do not intertwine.
   
   for(int i=0; i<6; ++i) {
     group.run([&queue, &group] {
-      usleep(1500);
+      std::this_thread::sleep_for(1500us);
       queue.push(group1, [i](){
         std::cout <<"loop 2"<<i<<"\n";
       });

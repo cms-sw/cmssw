@@ -53,7 +53,7 @@ def GetLabel(params):
     label += '-' + params['Version']
    
     if (params['PileUp']!='no'):
-   	label = 'PU' + params['PileUp']+ '_' + label
+        label = 'PU' + params['PileUp']+ '_' + label
 
     return label
 
@@ -98,13 +98,13 @@ def downloadfile(url):
     output=stream.readlines()
     if output[0]=='200':
         print('   + OK!')
-	return True
+        return True
     else:
         print('   + ERROR! ' + str(output[0]))
-	print("Skipping " + url)
-	print("Please check the name of the file in the repository: "+GetGuiRepository(new_userparams.NewParams))
+        print("Skipping " + url)
+        print("Please check the name of the file in the repository: "+GetGuiRepository(new_userparams.NewParams))
         sys.exit('Exiting...');
-	return False
+        return False
 
 def GetSamplePath(params, sample):
     return params['Release']+'/'+GetTag(params)+'/'+sample+'_'+params['Energy']

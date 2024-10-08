@@ -38,28 +38,32 @@ DumpDBToFile::DumpDBToFile(const ParameterSet& pset) {
   if (format != "Legacy" && format != "DTRecoConditions")
     throw cms::Exception("IncorrectSetup") << "Parameter format is not valid, check the cfg file" << endl;
 
+  auto esConsumesWithLabel = [&](auto& token) {
+    token = esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", dbLabel));
+  };
+
   if (dbToDump == "VDriftDB") {
     if (format == "Legacy") {
-      mTimeMapToken_ = esConsumes<edm::Transition::BeginRun>();
+      esConsumesWithLabel(mTimeMapToken_);
     } else {
-      vDriftToken_ = esConsumes<edm::Transition::BeginRun>();
+      esConsumesWithLabel(vDriftToken_);
     }
   } else if (dbToDump == "TTrigDB") {
     if (format == "Legacy") {
-      tTrigMapToken_ = esConsumes<edm::Transition::BeginRun>();
+      esConsumesWithLabel(tTrigMapToken_);
     } else {
-      tTrigToken_ = esConsumes<edm::Transition::BeginRun>();
+      esConsumesWithLabel(tTrigToken_);
     }
   } else if (dbToDump == "TZeroDB") {
-    t0MapToken_ = esConsumes<edm::Transition::BeginRun>();
+    esConsumesWithLabel(t0MapToken_);
   } else if (dbToDump == "NoiseDB") {
-    statusMapToken_ = esConsumes<edm::Transition::BeginRun>();
+    esConsumesWithLabel(statusMapToken_);
   } else if (dbToDump == "DeadDB") {
-    deadMapToken_ = esConsumes<edm::Transition::BeginRun>();
+    esConsumesWithLabel(deadMapToken_);
   } else if (dbToDump == "ChannelsDB") {
-    readOutMapToken_ = esConsumes<edm::Transition::BeginRun>();
+    esConsumesWithLabel(readOutMapToken_);
   } else if (dbToDump == "RecoUncertDB") {
-    uncertToken_ = esConsumes<edm::Transition::BeginRun>();
+    esConsumesWithLabel(uncertToken_);
   }
 }
 

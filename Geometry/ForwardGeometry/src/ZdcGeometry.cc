@@ -17,7 +17,7 @@ typedef CaloCellGeometry::Tr3D Tr3D;
 
 typedef CaloSubdetectorGeometry::CCGFloat CCGFloat;
 
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 
 ZdcGeometry::ZdcGeometry()
     : k_NumberOfCellsForCornersN(HcalZDCDetId::kSizeForDenseIndexingRun1),

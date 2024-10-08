@@ -109,7 +109,7 @@ process.L1TMuonSeq = cms.Sequence(process.RPCTwinMuxRawToDigi
 
 process.L1TMuonPath = cms.Path(process.L1TMuonSeq)
 
- process.out = cms.OutputModule("PoolOutputModule", 
+process.out = cms.OutputModule("PoolOutputModule", 
      outputCommands = cms.untracked.vstring(
          'drop *',
          #'keep *CSC*_*_*_*',
@@ -121,9 +121,9 @@ process.L1TMuonPath = cms.Path(process.L1TMuonSeq)
          'keep *_*TwinMux*_*_*',
          'keep *_*Bmtf*_*_*',
          'keep GenEventInfoProduct_generator_*_*'),
- 
-   fileName = cms.untracked.string("l1ttwinmux.root")
- )
+
+     fileName = cms.untracked.string("l1ttwinmux.root")
+)
 
 process.output_step = cms.EndPath(process.out)
 process.schedule = cms.Schedule(process.L1TMuonPath)

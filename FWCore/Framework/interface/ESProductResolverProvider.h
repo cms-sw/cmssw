@@ -1,6 +1,6 @@
+// -*- C++ -*-
 #ifndef FWCore_Framework_ESProductResolverProvider_h
 #define FWCore_Framework_ESProductResolverProvider_h
-// -*- C++ -*-
 //
 // Package:     Framework
 // Class  :     ESProductResolverProvider
@@ -22,7 +22,7 @@
     CondDBESSource is the main such class) then the registerResolvers
     function must be overridden. For the same EventSetupRecordKey, the
     vector returned should contain the same DataKeys in the same order for
-    all the different iovIndexes. DataProxies associated with the same
+    all the different iovIndexes. ESProductResolver's associated with the same
     EventSetupRecordKey should have caches that use different memory, but
     other than that they should also be the same.
 
@@ -33,7 +33,7 @@
     All other functions are intended for use by the Framework or tests
     and should not be called in classes derived from ESProductResolverProvider.
     They are primarily used when initializing the EventSetup system
-    so the DataProxies are available for use when needed.
+    so the ESProductResolver's are available for use when needed.
 */
 //
 // Author:      Chris Jones

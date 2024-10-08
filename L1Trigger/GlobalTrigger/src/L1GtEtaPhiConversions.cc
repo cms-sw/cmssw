@@ -489,8 +489,6 @@ const bool L1GtEtaPhiConversions::convertPhiIndex(const unsigned int pairIndex,
   // could be outside the scale size if there are hardware errors
   // or wrong scale conversions
   if (initialIndex >= (*(m_pairPhiConvVec.at(pairIndex))).size()) {
-    conversionStatus = false;
-
     if (m_verbosity && m_isDebugEnabled) {
       LogTrace("L1GlobalTrigger") << (positionPair ? "    Second" : "\n  First") << " object from pair " << pairIndex
                                   << ": initial phi index " << initialIndex

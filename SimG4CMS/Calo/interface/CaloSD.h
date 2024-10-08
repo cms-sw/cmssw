@@ -175,7 +175,7 @@ private:
 
   bool ignoreTrackID;
   bool isParameterized;
-  bool ignoreReject;
+  bool ignoreReject = false;
   bool useMap;  // use map for comparison of ID
   bool corrTOFBeam;
 
@@ -197,7 +197,7 @@ private:
   std::unordered_map<unsigned int, unsigned int> boundaryCrossingParentMap_;
   std::vector<std::unique_ptr<CaloG4Hit>> reusehit[2];
   std::vector<Detector> fineDetectors_;
-  bool doFineCaloThisStep_;
+  bool doFineCaloThisStep_ = false;
 };
 
 #endif  // SimG4CMS_CaloSD_h
