@@ -158,7 +158,7 @@ DQMOfflinePrePOG = cms.Sequence( DQMOfflineTracking *
 
 
 DQMOfflinePrePOGExpress = cms.Sequence( DQMOfflineTracking *
-                                 DQMOfflineMUO *
+                                 #DQMOfflineMUO *
                                  #DQMOfflineJetMET *
                                  #DQMOfflineEGamma *
                                  DQMOfflineTrigger *
