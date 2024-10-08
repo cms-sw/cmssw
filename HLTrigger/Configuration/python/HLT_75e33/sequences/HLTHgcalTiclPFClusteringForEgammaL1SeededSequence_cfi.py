@@ -73,5 +73,6 @@ ticl_superclustering_mustache_ticl.toReplaceWith(_SuperclusteringUnseededSequenc
 ticl_superclustering_mustache_ticl.toModify(hltTiclEGammaSuperClusterProducerL1Seeded, 
                                             ticlSuperClusters=cms.InputTag("hltTiclTracksterLinksSuperclusteringMustacheL1Seeded"),
                                             ticlTrackstersEM=cms.InputTag("hltTiclTrackstersCLUE3DHighL1Seeded"),
-                                            layerClusters=cms.InputTag("hltHgcalMergeLayerClustersL1Seeded")
+                                            layerClusters=cms.InputTag("hltHgcalMergeLayerClustersL1Seeded"),
+                                            enableRegression=cms.bool(False)
 )
