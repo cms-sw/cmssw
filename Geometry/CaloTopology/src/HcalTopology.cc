@@ -195,8 +195,7 @@ HcalTopology::HcalTopology(HcalTopologyMode::Mode mode,
       HFSize_(kHFSizePreLS1),
       HTSize_(kHTSizePreLS1),
       CALIBSize_(kCALIBSizePreLS1),
-      numberOfShapes_(
-          ((mode == HcalTopologyMode::SLHC) || (mode_ == HcalTopologyMode::Run4)) ? 500 : 87) {
+      numberOfShapes_(((mode == HcalTopologyMode::SLHC) || (mode_ == HcalTopologyMode::Run4)) ? 500 : 87) {
   if ((mode_ == HcalTopologyMode::LHC) || (mode_ == HcalTopologyMode::Run3)) {
     topoVersion_ = 0;         //DL
     HBSize_ = kHBSizePreLS1;  // qie-per-fiber * fiber/rm * rm/rbx * rbx/barrel * barrel/hcal
@@ -1134,7 +1133,9 @@ std::pair<double, double> HcalTopology::etaRange(HcalSubdetector subdet, int ket
         return std::pair<double, double>(etaTableHF[ii], etaTableHF[ii + 1]);
     }
   } else {
-    int ietal = (((mode_ == HcalTopologyMode::LHC) || (mode_ == HcalTopologyMode::Run3)) && ieta == lastHERing_ - 1) ? (ieta + 1) : ieta;
+    int ietal = (((mode_ == HcalTopologyMode::LHC) || (mode_ == HcalTopologyMode::Run3)) && ieta == lastHERing_ - 1)
+                    ? (ieta + 1)
+                    : ieta;
     if ((ietal < (int)(etaTable.size())) && (ieta > 0))
       return std::pair<double, double>(etaTable[ieta - 1], etaTable[ietal]);
   }
