@@ -171,6 +171,8 @@ public:
   HcalDetId idBack(const HcalDetId& id) const { return hcons_->idBack(id); }
 
 private:
+  bool phase1() const { return ((mode_ == HcalTopologyMode::LHC) || (mode_ == HcalTopologyMode::Run3)); }
+  bool phase2() const { return ((mode_ == HcalTopologyMode::SLHC) || (mode_ == HcalTopologyMode::Run4)); }
   /** Get the neighbors of the given cell with higher absolute ieta */
   int incAIEta(const HcalDetId& id, HcalDetId neighbors[2]) const;
   /** Get the neighbors of the given cell with lower absolute ieta */
