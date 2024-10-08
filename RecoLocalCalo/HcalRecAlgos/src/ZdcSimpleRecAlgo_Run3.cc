@@ -97,7 +97,7 @@ ZDCRecHit ZdcSimpleRecAlgo_Run3::reco0(const QIE10DataFrame& digi,
   double ta = 0;
   double energySOIp1 = 0;
   double ratioSOIp1 = -1.0;
-  double chargeWeightedTime = 0;
+  double chargeWeightedTime = -99.0;
 
   double Allnoise = 0;
   int noiseslices = 0;
@@ -223,9 +223,7 @@ ZDCRecHit ZdcSimpleRecAlgo_Run3::reco0(const QIE10DataFrame& digi,
 
   double tmp_energy = 0;
   double tmp_TSWeightedEnergy = 0;
-  for (int ts = 0; ts < nTs_; ++ts) {
-    if (CurrentTS >= digi_size)
-      continue;
+  for (int ts = 0; ts < digi_size; ++ts) {
     int capid = digi[ts].capid();
 
     // max sure there are no negative values in time calculation
@@ -237,7 +235,8 @@ ZDCRecHit ZdcSimpleRecAlgo_Run3::reco0(const QIE10DataFrame& digi,
     }
   }
 
-  chargeWeightedTime = (tmp_TSWeightedEnergy / tmp_energy - 1) * 25.0;
+  if (tmp_energy > 0)
+    chargeWeightedTime = (tmp_TSWeightedEnergy / tmp_energy - 1) * 25.0;
   auto rh = ZDCRecHit(digi.id(), ampl, time, -99);
   rh.setEnergySOIp1(energySOIp1);
 
