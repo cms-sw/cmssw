@@ -7,7 +7,7 @@ from RecoLocalTracker.SiPixelClusterizer.SiPixelClusterizerPreSplitting_cfi impo
 from RecoLocalTracker.SiStripZeroSuppression.SiStripZeroSuppression_cfi import *
 from RecoLocalTracker.SiStripClusterizer.SiStripClusterizer_cfi import *
 recolocal = cms.Sequence(siPixelDigis + siPixelClustersPreSplitting + siStripDigis + siStripZeroSuppression + siStripClusters)
-siPixelDigis.cpu.InputLabel = 'rawDataCollector'
+siPixelDigis.InputLabel = 'rawDataCollector'
 
 # tracking
 from RecoVertex.BeamSpotProducer.BeamSpot_cff import *

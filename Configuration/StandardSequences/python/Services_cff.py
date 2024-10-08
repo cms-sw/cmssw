@@ -9,15 +9,14 @@ from IOMC.RandomEngine.IOMC_cff import *
 from DQMServices.Core.DQMStore_cfi import *
 
 # load ProcessAccelerators (that set the e.g. the necessary CUDA
-# stuff) when the "gpu" or "pixelNtupletFit" modifiers are enabled
+# stuff) when the "pixelNtupletFit" or "alpaka" modifiers are enabled
 def _addProcessAccelerators(process):
     process.load("Configuration.StandardSequences.Accelerators_cff")
 
-from Configuration.ProcessModifiers.gpu_cff import gpu
 from Configuration.ProcessModifiers.pixelNtupletFit_cff import pixelNtupletFit
 from Configuration.ProcessModifiers.alpaka_cff import alpaka
 
-modifyConfigurationStandardSequencesServicesAddProcessAccelerators_ = (gpu | pixelNtupletFit | alpaka).makeProcessModifier(_addProcessAccelerators)
+modifyConfigurationStandardSequencesServicesAddProcessAccelerators_ = (pixelNtupletFit | alpaka).makeProcessModifier(_addProcessAccelerators)
 
 # load TritonService when SONIC workflow is enabled
 def _addTritonService(process):

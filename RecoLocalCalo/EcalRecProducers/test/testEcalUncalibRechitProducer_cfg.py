@@ -48,9 +48,6 @@ process.load("EventFilter.EcalRawToDigi.EcalUnpackerData_cfi")
 process.load("RecoLuminosity.LumiProducer.bunchSpacingProducer_cfi")
 
 # load both cpu and gpu plugins
-#
-# ../cfipython/slc7_amd64_gcc700/RecoLocalCalo/EcalRecProducers/ecalUncalibRecHitProducerGPU_cfi.py
-#
 process.load("RecoLocalCalo.EcalRecProducers.ecalUncalibRecHitProducerGPU_cfi")
 process.load("RecoLocalCalo.EcalRecProducers.ecalMultiFitUncalibRecHit_cfi")
 

@@ -512,7 +512,7 @@ if (process.runType.getRunType() == process.runType.hpu_run):
 process.castorDigis.InputLabel = rawDataCollectorLabel
 process.csctfDigis.producer = rawDataCollectorLabel
 process.dttfDigis.DTTF_FED_Source = rawDataCollectorLabel
-process.ecalDigisCPU.InputLabel = rawDataCollectorLabel
+process.ecalDigis.InputLabel = rawDataCollectorLabel
 process.ecalPreshowerDigis.sourceTag = rawDataCollectorLabel
 process.gctDigis.inputLabel = rawDataCollectorLabel
 process.gtDigis.DaqGtInputTag = rawDataCollectorLabel
@@ -521,7 +521,7 @@ process.muonCSCDigis.InputObjects = rawDataCollectorLabel
 process.muonDTDigis.inputLabel = rawDataCollectorLabel
 process.muonRPCDigis.InputLabel = rawDataCollectorLabel
 process.scalersRawToDigi.scalersInputTag = rawDataCollectorLabel
-process.siPixelDigis.cpu.InputLabel = rawDataCollectorLabel
+process.siPixelDigis.InputLabel = rawDataCollectorLabel
 process.siStripDigis.ProductLabel = rawDataCollectorLabel
 process.siStripFEDMonitor.RawDataTag = rawDataCollectorLabel
 #--------------------------------------------------
@@ -536,7 +536,7 @@ if process.runType.getRunType() == process.runType.hi_run:
     process.castorDigis.InputLabel = rawDataRepackerLabel
     process.csctfDigis.producer = rawDataRepackerLabel
     process.dttfDigis.DTTF_FED_Source = rawDataRepackerLabel
-    process.ecalDigisCPU.InputLabel = rawDataRepackerLabel
+    process.ecalDigis.InputLabel = rawDataRepackerLabel
     process.ecalPreshowerDigis.sourceTag = rawDataRepackerLabel
     process.gctDigis.inputLabel = rawDataRepackerLabel
     process.hcalDigis.InputLabel = rawDataRepackerLabel
@@ -544,7 +544,7 @@ if process.runType.getRunType() == process.runType.hi_run:
     process.muonDTDigis.inputLabel = rawDataRepackerLabel
     process.muonRPCDigis.InputLabel = rawDataRepackerLabel
     process.scalersRawToDigi.scalersInputTag = rawDataRepackerLabel
-    process.siPixelDigis.cpu.InputLabel = rawDataRepackerLabel
+    process.siPixelDigis.InputLabel = rawDataRepackerLabel
     process.siStripDigis.ProductLabel = rawDataRepackerLabel
     process.siStripFEDMonitor.RawDataTag = rawDataRepackerLabel
     process.tcdsDigis.InputLabel = rawDataRepackerLabel

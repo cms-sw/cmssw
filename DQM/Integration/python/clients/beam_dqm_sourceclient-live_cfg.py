@@ -307,7 +307,7 @@ else:
 process.castorDigis.InputLabel           = rawDataInputTag
 process.csctfDigis.producer              = rawDataInputTag 
 process.dttfDigis.DTTF_FED_Source        = rawDataInputTag
-process.ecalDigisCPU.InputLabel          = rawDataInputTag
+process.ecalDigis.InputLabel             = rawDataInputTag
 process.ecalPreshowerDigis.sourceTag     = rawDataInputTag
 process.gctDigis.inputLabel              = rawDataInputTag
 process.gtDigis.DaqGtInputTag            = rawDataInputTag
@@ -316,7 +316,7 @@ process.muonCSCDigis.InputObjects        = rawDataInputTag
 process.muonDTDigis.inputLabel           = rawDataInputTag
 process.muonRPCDigis.InputLabel          = rawDataInputTag
 process.scalersRawToDigi.scalersInputTag = rawDataInputTag
-process.siPixelDigis.cpu.InputLabel      = rawDataInputTag
+process.siPixelDigis.InputLabel          = rawDataInputTag
 process.siStripDigis.ProductLabel        = rawDataInputTag
 process.tcdsDigis.InputLabel             = rawDataInputTag
 
