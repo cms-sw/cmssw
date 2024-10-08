@@ -496,17 +496,6 @@ def add_BTV(process,  addAK4=False, addAK8=False, scheme="btvSF"):
                 get_ParticleNetAK4_outputs(),
                 #get_ParticleTransformerAK4_outputs(),# removed in 2024
             ))
-
-        # disable the ParT branches in default jetPuppi table
-        from PhysicsTools.NanoAOD.nano_eras_cff import run3_nanoAOD_122, run3_nanoAOD_124
-        (run3_nanoAOD_122 | run3_nanoAOD_124).toModify(
-            process.jetPuppiTable.variables,
-            btagRobustParTAK4B = None,
-            btagRobustParTAK4CvL = None,
-            btagRobustParTAK4CvB = None,
-            btagRobustParTAK4QG = None,
-        )
-    
     
          # from Run3 onwards, always set storeAK4Truth to True for MC
         process.customAK4ConstituentsForDeepJetTable = cms.EDProducer("PatJetDeepJetTableProducer",

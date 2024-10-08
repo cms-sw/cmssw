@@ -115,33 +115,8 @@ run2_nanoAOD_ANY.toModify(
     neEmEF = None,
     muEF = None
 )
-(run3_nanoAOD_122 | run3_nanoAOD_124).toModify(
-    fatJetTable.variables,
-    # New ParticleNet trainings are not available in MiniAOD until Run3 13X
-    particleNet_QCD = None,
-    particleNet_QCD2HF = None,
-    particleNet_QCD1HF = None,
-    particleNet_QCD0HF = None,
-    particleNet_massCorr = None,
-    particleNet_XbbVsQCD = None,
-    particleNet_XccVsQCD = None,
-    particleNet_XqqVsQCD = None,
-    particleNet_XggVsQCD = None,
-    particleNet_XttVsQCD = None,
-    particleNet_XtmVsQCD = None,
-    particleNet_XteVsQCD = None,
-    particleNet_WVsQCD = None,
-    # Remove for V11 and earlier versions
-    chMultiplicity = None,
-    neMultiplicity = None,
-    chHEF = None,
-    neHEF = None,
-    chEmEF = None,
-    neEmEF = None,
-    muEF = None
-)
 
-(run2_nanoAOD_106Xv2 | run3_nanoAOD_122 | run3_nanoAOD_124).toModify(
+(run2_nanoAOD_106Xv2).toModify(
     fatJetTable.variables,
     # Restore taggers that were decommisionned for Run-3
     btagDeepB = Var("?(bDiscriminator('pfDeepCSVJetTags:probb')+bDiscriminator('pfDeepCSVJetTags:probbb'))>=0?bDiscriminator('pfDeepCSVJetTags:probb')+bDiscriminator('pfDeepCSVJetTags:probbb'):-1",float,doc="DeepCSV b+bb tag discriminator",precision=10),
@@ -264,7 +239,7 @@ run2_nanoAOD_ANY.toModify(
     btagCSVV2 = Var("bDiscriminator('pfCombinedInclusiveSecondaryVertexV2BJetTags')",float,doc=" pfCombinedInclusiveSecondaryVertexV2 b-tag discriminator (aka CSVV2)",precision=10)
 )
 
-(run2_nanoAOD_106Xv2 | run3_nanoAOD_122 | run3_nanoAOD_124).toModify(
+(run2_nanoAOD_106Xv2).toModify(
     subJetTable.variables,
     area = None,
 )

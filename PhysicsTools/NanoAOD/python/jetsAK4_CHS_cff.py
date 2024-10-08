@@ -170,24 +170,6 @@ run2_nanoAOD_ANY.toModify(
     hfEmEF = None
 )
 
-(run3_nanoAOD_122 | run3_nanoAOD_124).toModify(
-    jetTable.variables,
-    # New ParticleNet trainings are not available in MiniAOD until Run3 13X
-    btagPNetB = None,
-    btagPNetCvL = None,
-    btagPNetCvB = None,
-    btagPNetQvG = None,
-    btagPNetTauVJet = None,
-    PNetRegPtRawCorr = None,
-    PNetRegPtRawCorrNeutrino = None,
-    PNetRegPtRawRes = None,
-    # Remove for V11 and earlier Run3 versions
-    chMultiplicity = None,
-    neMultiplicity = None,
-    hfHEF = None,
-    hfEmEF = None
-)
-
 bjetNN = cms.EDProducer("BJetEnergyRegressionMVA",
     backend = cms.string("ONNX"),
     batch_eval = cms.bool(True),
