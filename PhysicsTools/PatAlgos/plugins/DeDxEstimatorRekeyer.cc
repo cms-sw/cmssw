@@ -120,8 +120,10 @@ void DeDxEstimatorRekeyer::produce(edm::StreamID, edm::Event& iEvent, const edm:
   for (const auto& h : pcTrkMap) {
     std::vector<int> indices(h.first->size(), -1);
     for (const auto& p : h.second) {
-      indices[p.first.key()] = resultdedxHitColl->size();
       const auto& dedxHit = dedxHitAss[p.second];
+      if (dedxHit.isNull())
+        continue;
+      indices[p.first.key()] = resultdedxHitColl->size();
       resultdedxHitColl->emplace_back(*dedxHit);
       momenta.emplace_back(dedxHitMom[dedxHit]);
     }
