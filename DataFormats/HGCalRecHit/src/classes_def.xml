@@ -1,0 +1,6 @@
+<lcgdict>
+  <class name="hgcalrechit::HGCalRecHitSoA"/>
+  <class name="hgcalrechit::HGCalRecHitSoA::View"/>
+  <class name="hgcalrechit::HGCalRecHitHost"/>
+  <class name="edm::Wrapper<hgcalrechit::HGCalRecHitHost>" splitLevel="0"/>
+</lcgdict>
