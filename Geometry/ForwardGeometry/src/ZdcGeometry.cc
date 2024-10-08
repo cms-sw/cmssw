@@ -20,18 +20,22 @@ typedef CaloSubdetectorGeometry::CCGFloat CCGFloat;
 //#define EDM_ML_DEBUG
 
 ZdcGeometry::ZdcGeometry()
-    : theTopology(new ZdcTopology),
+    : k_NumberOfCellsForCornersN(HcalZDCDetId::kSizeForDenseIndexingRun1),
+      theTopology(nullptr),
       lastReqDet_(DetId::Detector(0)),
       lastReqSubdet_(0),
       m_ownsTopology(true),
-      m_cellVec(k_NumberOfCellsForCorners) {}
+      m_cellVec(k_NumberOfCellsForCornersN) {
+  edm::LogWarning("HCalGeom") << "ZdcGeometry::Wrong constructor called";
+}
 
 ZdcGeometry::ZdcGeometry(const ZdcTopology* topology)
-    : theTopology(topology),
+    : k_NumberOfCellsForCornersN(topology->kSizeForDenseIndexing()),
+      theTopology(topology),
       lastReqDet_(DetId::Detector(0)),
       lastReqSubdet_(0),
       m_ownsTopology(false),
-      m_cellVec(k_NumberOfCellsForCorners) {}
+      m_cellVec(k_NumberOfCellsForCornersN) {}
 
 ZdcGeometry::~ZdcGeometry() {
   if (m_ownsTopology)
@@ -81,7 +85,7 @@ void ZdcGeometry::newCell(const GlobalPoint& f1,
 #endif
   assert(cgid.isZDC());
 
-  const unsigned int di(cgid.denseIndex());
+  const unsigned int di(theTopology->detId2DenseIndex(detId));
 
   m_cellVec[di] = IdealZDCTrapezoid(f1, cornersMgr(), parm);
   addValidID(detId);

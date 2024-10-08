@@ -262,7 +262,7 @@
     <Include ref='Geometry/ForwardCommonData/data/zdcrotations.xml'/>
     <Include ref='Geometry/ForwardCommonData/data/lumirotations.xml'/>
     <Include ref='Geometry/ForwardCommonData/data/zdc/2021/v3/zdc.xml'/>
-    <Include ref='Geometry/ForwardCommonData/data/rpd/2021/v1/rpd.xml'/>
+    <Include ref='Geometry/ForwardCommonData/data/rpd/2021/v2/rpd.xml'/>
     <Include ref='Geometry/ForwardCommonData/data/cmszdc.xml'/>
     <Include ref='Geometry/VeryForwardData/data/RP_Box.xml'/>
     <Include ref='Geometry/VeryForwardData/data/RP_Box/v3/RP_Box_000.xml'/>
