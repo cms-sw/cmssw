@@ -97,7 +97,7 @@ EcalTBHodoscopeRecInfo EcalTBHodoscopeRecInfoAlgo::reconstruct(const EcalTBHodos
   float xSlope = 0.0, ySlope = 0.0;
   float xQuality = -100.0, yQuality = -100.0;
 
-  int nclus[4];
+  int nclus[4] = {0};
   std::vector<int> xclus[4];
   std::vector<int> wclus[4];
 
