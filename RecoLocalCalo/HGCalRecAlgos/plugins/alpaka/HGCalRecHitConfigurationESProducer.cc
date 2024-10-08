@@ -39,7 +39,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         if (iConfig.exists("gain"))
           gain_ = iConfig.getParameter<int>("gain");
         auto cc = setWhatProduced(this);  //HGCalConfigurationESProducer::produce
-        //findingRecord<HGCalModuleConfigurationRcd>();
         indexToken_ = cc.consumes(iConfig.getParameter<edm::ESInputTag>("indexSource"));
         configToken_ = cc.consumes(iConfig.getParameter<edm::ESInputTag>("configSource"));
       }

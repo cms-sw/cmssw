@@ -1,12 +1,9 @@
 // #include "FWCore/Framework/interface/MakerMacros.h"
 // #include "FWCore/Framework/interface/SourceFactory.h"
-// #include "FWCore/Framework/interface/ESHandle.h"
-// #include "FWCore/Framework/interface/ESProducer.h"
-// #include "FWCore/Framework/interface/ESTransientHandle.h"
 // #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/ESGetToken.h"
+//#include "FWCore/Utilities/interface/ESGetToken.h"
 // #include "DataFormats/Math/interface/libminifloat.h"
 
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/ESGetToken.h"
@@ -39,7 +36,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     class HGCalCalibrationESProducer : public ESProducer {
     public:
       HGCalCalibrationESProducer(const edm::ParameterSet& iConfig)
-          : ESProducer(iConfig), filename_(iConfig.getParameter<std::string>("filename")) {
+          : ESProducer(iConfig), filename_(iConfig.getParameter<edm::FileInPath>("filename")) {
         auto cc = setWhatProduced(this);
         indexToken_ = cc.consumes(iConfig.getParameter<edm::ESInputTag>("indexSource"));
         configToken_ = cc.consumes(iConfig.getParameter<edm::ESInputTag>("configSource"));
@@ -48,7 +45,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
         edm::ParameterSetDescription desc;
-        desc.add<std::string>("filename", "HGCalCommissioning/LocalCalibration/data/calibration_parameters_v2.json");
+        desc.add<edm::FileInPath>("filename")->setComment("Path to JSON file with calibration parameters");
         desc.add<edm::ESInputTag>("indexSource", edm::ESInputTag(""))
             ->setComment("Label for module indexer to set SoA size");
         desc.add<edm::ESInputTag>("configSource", edm::ESInputTag(""))
@@ -88,8 +85,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         //          << ", moduleMap.getMaxERxSize()=" << nmod << std::endl;
 
         // load calib parameters from JSON
-        edm::FileInPath fip(filename_);
-        std::ifstream infile(fip.fullPath().c_str());
+        std::ifstream infile(filename_.fullPath().c_str());
         json calib_data = json::parse(infile);
         for (const auto& it : calib_data.items()) {  // loop over module typecodes in JSON file
           std::string module = it.key();             // module typecode, e.g. "ML-F3PT-TX-0003"
@@ -163,7 +159,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     private:
       edm::ESGetToken<HGCalMappingModuleIndexer, HGCalElectronicsMappingRcd> indexToken_;
       edm::ESGetToken<HGCalConfiguration, HGCalModuleConfigurationRcd> configToken_;
-      const std::string filename_;
+      const edm::FileInPath filename_;
     };
 
   }  // namespace hgcalrechit

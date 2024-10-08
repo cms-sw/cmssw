@@ -1,5 +1,5 @@
-#ifndef __HGCalRecHitCalibrationAlgorithms_H__
-#define __HGCalRecHitCalibrationAlgorithms_H__
+#ifndef RecoLocalCalo_HGCalRecAlgos_interface_alpaka_HGCalRecHitCalibrationAlgorithms_h
+#define RecoLocalCalo_HGCalRecAlgos_interface_alpaka_HGCalRecHitCalibrationAlgorithms_h
 
 // Alpaka imports
 #include <alpaka/alpaka.hpp>
@@ -46,4 +46,4 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
 
-#endif  // __HGCalRecHitCalibrationAlgorithms_H__
+#endif  // RecoLocalCalo_HGCalRecAlgos_interface_alpaka_HGCalRecHitCalibrationAlgorithms_h
