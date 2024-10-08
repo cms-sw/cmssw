@@ -3,6 +3,7 @@
 <use name="FWCore/Utilities"/>
 <use name="SimCalorimetry/HcalSimAlgos"/>
 <use name="SimGeneral/MixingModule"/>
+<use name="Geometry/ForwardGeometry"/>
 <use name="DataFormats/HcalDetId"/>
 <export>
   <lib name="1"/>

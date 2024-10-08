@@ -14,6 +14,7 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
 #include "Geometry/HcalCommonData/interface/HcalHitRelabeller.h"
+#include "Geometry/ForwardGeometry/interface/ZdcTopology.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloTDigitizer.h"
@@ -164,6 +165,7 @@ private:
   std::vector<DetId> theHOSiPMDetIds;
   std::vector<DetId> theHFQIE8DetIds, theHFQIE10DetIds;
 
+  ZdcTopology zdctopo_;
   bool isZDC, isHCAL, zdcgeo, hbhegeo, hogeo, hfgeo;
   bool testNumbering_;
   bool doHFWindow_;
