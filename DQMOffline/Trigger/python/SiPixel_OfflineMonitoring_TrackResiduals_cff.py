@@ -134,8 +134,8 @@ hltSiPixelPhase1TrackResidualsConf = cms.VPSet(
 
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 hltSiPixelPhase1TrackResidualsAnalyzer = DQMEDAnalyzer('SiPixelPhase1TrackResiduals',
-        trajectoryInput = cms.string("hltrefittedForPixelDQM"),
-        Tracks        = cms.InputTag("hltrefittedForPixelDQM"),
+        trajectoryInput = cms.string("hltTrackRefitterForPixelDQM"),
+        Tracks        = cms.InputTag("hltTrackRefitterForPixelDQM"),
         vertices = cms.InputTag("hltPixelVertices"),
         histograms = hltSiPixelPhase1TrackResidualsConf,
         geometry = hltSiPixelPhase1Geometry,

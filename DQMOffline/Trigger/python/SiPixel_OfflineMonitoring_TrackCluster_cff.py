@@ -426,7 +426,7 @@ from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 hltSiPixelPhase1TrackClustersAnalyzer = DQMEDAnalyzer('SiPixelPhase1TrackClusters',
         VertexCut  = cms.untracked.bool(False),
         clusters   = cms.InputTag("hltSiPixelClusters"),
-        tracks     = cms.InputTag("hltrefittedForPixelDQM"), 
+        tracks     = cms.InputTag("hltTrackRefitterForPixelDQM"),
         clusterShapeCache = cms.InputTag("hltSiPixelClusterShapeCache"),
         vertices = cms.InputTag(""),
         histograms = hltSiPixelPhase1TrackClustersConf,
