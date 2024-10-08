@@ -897,6 +897,7 @@ namespace trklet {
         {"TB", 108},
         {"MP", 108},
         {"TP", 108},
+        {"TPD", 108},
         {"TRE", 108},
         {"DR", 108}};  //Specifies how many tracks allowed per bin in DR
 
