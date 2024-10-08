@@ -115,7 +115,7 @@ DQMOffline_SecondStep_PrePOG = cms.Sequence( DQMOffline_SecondStepTracking *
 
 
 DQMOffline_SecondStep_PrePOG_Express = cms.Sequence( DQMOffline_SecondStepTracking *
-                                             DQMOffline_SecondStepMUO *
+                                             #DQMOffline_SecondStepMUO *
                                              #DQMOffline_SecondStepEGamma *
                                              DQMOffline_SecondStepTrigger *
                                              DQMOffline_SecondStepBTag *
