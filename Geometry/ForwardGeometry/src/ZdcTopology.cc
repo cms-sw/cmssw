@@ -52,7 +52,7 @@ bool ZdcTopology::isExcluded(const HcalZDCDetId& id) const {
       exed = excludeRPD_;
       break;
     default:
-      exed = false;
+      exed = true;
   }
 
   // check the entire list
@@ -167,7 +167,6 @@ bool ZdcTopology::validRaw(const HcalZDCDetId& id) const {
     ok = false;
   else if (id.channel() <= 0)
     ok = false;
-  //else if (!(id.section() == HcalZDCDetId::EM || id.section() == HcalZDCDetId::HAD || id.section() == HcalZDCDetId::LUM))
   else if (!(id.section() == HcalZDCDetId::EM || id.section() == HcalZDCDetId::HAD ||
              id.section() == HcalZDCDetId::LUM || id.section() == HcalZDCDetId::RPD))
     ok = false;
@@ -178,6 +177,8 @@ bool ZdcTopology::validRaw(const HcalZDCDetId& id) const {
   else if (id.section() == HcalZDCDetId::LUM && id.channel() > HcalZDCDetId::kDepLUM)
     ok = false;
   else if (id.section() == HcalZDCDetId::RPD && id.channel() > HcalZDCDetId::kDepRPD)
+    ok = false;
+  else if (id.section() == HcalZDCDetId::Unknown)
     ok = false;
   return ok;
 }
