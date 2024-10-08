@@ -426,14 +426,13 @@ GEDPhotonProducer::GEDPhotonProducer(const edm::ParameterSet& config, const Cach
 
   //moved from beginRun to here, I dont see how this could cause harm as its just reading in the exactly same parameters each run
   if (!recoStep_.isFinal()) {
-    photonIsoCalculator_ = std::make_unique<PhotonIsolationCalculator>();
     edm::ParameterSet isolationSumsCalculatorSet = config.getParameter<edm::ParameterSet>("isolationSumsCalculatorSet");
-    photonIsoCalculator_->setup(isolationSumsCalculatorSet,
-                                flagsexclEB_,
-                                flagsexclEE_,
-                                severitiesexclEB_,
-                                severitiesexclEE_,
-                                consumesCollector());
+    photonIsoCalculator_ = std::make_unique<PhotonIsolationCalculator>(isolationSumsCalculatorSet,
+                                                                       flagsexclEB_,
+                                                                       flagsexclEE_,
+                                                                       severitiesexclEB_,
+                                                                       severitiesexclEE_,
+                                                                       consumesCollector());
     edm::ParameterSet mipVariableSet = config.getParameter<edm::ParameterSet>("mipVariableSet");
     photonMIPHaloTagger_ = std::make_unique<PhotonMIPHaloTagger>(mipVariableSet, consumesCollector());
   }

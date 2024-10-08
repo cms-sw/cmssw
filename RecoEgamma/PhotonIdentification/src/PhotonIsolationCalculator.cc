@@ -26,12 +26,12 @@
 
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 
-void PhotonIsolationCalculator::setup(const edm::ParameterSet& conf,
-                                      std::vector<int> const& flagsEB,
-                                      std::vector<int> const& flagsEE,
-                                      std::vector<int> const& severitiesEB,
-                                      std::vector<int> const& severitiesEE,
-                                      edm::ConsumesCollector&& iC) {
+PhotonIsolationCalculator::PhotonIsolationCalculator(const edm::ParameterSet& conf,
+                                                     std::vector<int> const& flagsEB,
+                                                     std::vector<int> const& flagsEE,
+                                                     std::vector<int> const& severitiesEB,
+                                                     std::vector<int> const& severitiesEE,
+                                                     edm::ConsumesCollector&& iC) {
   trackInputTag_ = iC.consumes<reco::TrackCollection>(conf.getParameter<edm::InputTag>("trackProducer"));
   beamSpotProducerTag_ = iC.consumes<reco::BeamSpot>(conf.getParameter<edm::InputTag>("beamSpotProducer"));
   barrelecalCollection_ =

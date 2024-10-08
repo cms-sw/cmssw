@@ -288,8 +288,9 @@ namespace reco {
                 //trying to get the global position of the hit
                 //const GeomDetUnit* geomDetUnit =  theGeometry->idToDetUnit( detid ).;
 
-                const GlobalPoint pos = theGeometry->idToDetUnit(detid)->surface().toGlobal(hit->localPosition());
-                LogDebug("CosmicTrackSplitter") << "hit pos: " << pos << ", dca pos: " << v;
+                LogDebug("CosmicTrackSplitter")
+                    << "hit pos: " << theGeometry->idToDetUnit(detid)->surface().toGlobal(hit->localPosition())
+                    << ", dca pos: " << v;
 
                 // top half
                 if ((i == 0) && (hitCtr < HITTOSPLITFROM)) {
