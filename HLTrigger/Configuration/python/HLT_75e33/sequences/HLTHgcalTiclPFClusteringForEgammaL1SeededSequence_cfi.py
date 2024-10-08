@@ -21,10 +21,10 @@ from ..modules.hltTiclTracksterLinksL1Seeded_cfi import *
 
 _HgcalLocalRecoL1SeededSequence = cms.Sequence(hltHgcalDigis+hltL1TEGammaHGCFilteredCollectionProducer+hltHgcalDigisL1Seeded+hltHGCalUncalibRecHitL1Seeded+hltHGCalRecHitL1Seeded+hltParticleFlowRecHitHGCL1Seeded+hltRechitInRegionsHGCAL+hltHgcalLayerClustersEEL1Seeded+hltHgcalLayerClustersHSciL1Seeded+hltHgcalLayerClustersHSiL1Seeded+hltHgcalMergeLayerClustersL1Seeded)
 _HgcalTICLPatternRecognitionL1SeededSequence = cms.Sequence(hltFilteredLayerClustersCLUE3DHighL1Seeded+hltTiclSeedingL1+hltTiclLayerTileProducerL1Seeded+hltTiclTrackstersCLUE3DHighL1Seeded)
-_SuperclusteringUnseededSequence = cms.Sequence(hltParticleFlowClusterHGCalFromTICLL1Seeded+hltParticleFlowSuperClusterHGCalFromTICLL1Seeded)
+_SuperclusteringL1SeededSequence = cms.Sequence(hltParticleFlowClusterHGCalFromTICLL1Seeded+hltParticleFlowSuperClusterHGCalFromTICLL1Seeded)
 
 # The baseline sequence
-HLTHgcalTiclPFClusteringForEgammaL1SeededSequence = cms.Sequence(_HgcalLocalRecoL1SeededSequence + _HgcalTICLPatternRecognitionL1SeededSequence + _SuperclusteringUnseededSequence)
+HLTHgcalTiclPFClusteringForEgammaL1SeededSequence = cms.Sequence(_HgcalLocalRecoL1SeededSequence + _HgcalTICLPatternRecognitionL1SeededSequence + _SuperclusteringL1SeededSequence)
 
 # Enable EGammaSuperClusterProducer at HLT in ticl v5
 hltTiclTracksterLinksSuperclusteringDNNL1Seeded = hltTiclTracksterLinksL1Seeded.clone(
@@ -50,7 +50,7 @@ hltTiclEGammaSuperClusterProducerL1Seeded = ticlEGammaSuperClusterProducer.clone
 
 # DNN
 from Configuration.ProcessModifiers.ticl_superclustering_dnn_cff import ticl_superclustering_dnn
-ticl_superclustering_dnn.toReplaceWith(_SuperclusteringUnseededSequence, 
+ticl_superclustering_dnn.toReplaceWith(_SuperclusteringL1SeededSequence, 
                                        cms.Sequence(
                                                     hltTiclTracksterLinksSuperclusteringDNNL1Seeded
                                                     + hltTiclEGammaSuperClusterProducerL1Seeded
@@ -64,7 +64,7 @@ ticl_superclustering_dnn.toModify(hltTiclEGammaSuperClusterProducerL1Seeded,
 
 # Mustache
 from Configuration.ProcessModifiers.ticl_superclustering_mustache_ticl_cff import ticl_superclustering_mustache_ticl
-ticl_superclustering_mustache_ticl.toReplaceWith(_SuperclusteringUnseededSequence, 
+ticl_superclustering_mustache_ticl.toReplaceWith(_SuperclusteringL1SeededSequence, 
                                                 cms.Sequence(
                                                              hltTiclTracksterLinksSuperclusteringMustacheL1Seeded
                                                              + hltTiclEGammaSuperClusterProducerL1Seeded
