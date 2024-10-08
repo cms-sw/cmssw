@@ -72,7 +72,8 @@ HcalTopology::HcalTopology(const HcalDDDRecConstants* hcons, const bool mergePos
     HFSize_ = kHFSizePreLS1;  // ieta * iphi * depth * 2
     CALIBSize_ = kCALIBSizePreLS1;
     numberOfShapes_ = 87;
-  } else if (mode_ == HcalTopologyMode::SLHC) {  // need to know more eventually
+  } else if ((mode_ == HcalTopologyMode::SLHC) || (mode_ == HcalTopologyMode::Run3) ||
+             (mode_ == HcalTopologyMode::Run4)) {  // need to know more eventually
     topoVersion_ = 10;
     HBSize_ = nEtaHB_ * IPHI_MAX * maxDepthHB_ * 2;
     HESize_ = nEtaHE_ * maxPhiHE_ * maxDepthHE_ * 2;
@@ -80,7 +81,10 @@ HcalTopology::HcalTopology(const HcalDDDRecConstants* hcons, const bool mergePos
     HFSize_ = (lastHFRing_ - firstHFRing_ + 1) * IPHI_MAX * maxDepthHF_ * 2;  // ieta * iphi * depth * 2
     CALIBSize_ = kOffCalibHFX_;
     numberOfShapes_ = (maxPhiHE_ > 72) ? 1200 : 500;
+  } else {
+    throw cms::Exception("UnknownTopologyMode") << "The mode value " << mode_ << "is unknown";
   }
+
   maxEta_ = (lastHERing_ > lastHFRing_) ? lastHERing_ : lastHFRing_;
   if (triggerMode_ == HcalTopologyMode::TriggerMode_2009) {
     HTSize_ = kHTSizePreLS1;
