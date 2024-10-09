@@ -66,6 +66,7 @@ if "goodlumi" in config["validation"]:
 
 else:
      goodLumiSecs = cms.untracked.VLuminosityBlockRange()
+process.source.lumisToProcess = goodLumiSecs
 
 ###################################################################
 # Runs and events
