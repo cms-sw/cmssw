@@ -217,7 +217,7 @@ HcalTopology::HcalTopology(HcalTopologyMode::Mode mode,
     HOSize_ = kHOSizePreLS1;  // ieta * iphi * 2
     HFSize_ = kHFSizePostLS2;
     CALIBSize_ = kOffCalibHFX_;
-  } else if (phase2()) {      // need to know more eventually
+  } else if (phase2()) {  // need to know more eventually
     HBSize_ = maxDepthHB * 16 * IPHI_MAX * 2;
     HESize_ = maxDepthHE * (29 - 16 + 1) * maxPhiHE_ * 2;
     HOSize_ = 15 * IPHI_MAX * 2;                // ieta * iphi * 2
