@@ -559,6 +559,9 @@ workflows[142.0] = ['',['RunHIPhysicsRawPrime2023A','HLTDR3_HI2023ARawprime','RE
 workflows[142.901] = ['',['RunUPC2023','RECODR3_2024_UPC','HARVESTDPROMPTR3']]
 workflows[142.902] = ['',['RunUPC2023','RECODR3_2024_HIN','HARVESTDPROMPTR3']]
 
+### run2-2016 (2024 PA UPC rereco data)
+workflows[142.903] = ['',['RunUPC2016PA','RECODR2_2016_UPC','HARVEST2016']]
+
 ##################################################################
 ### Golden Data Wfs
 # for a limited set of eras and PDs not to overflow the IB matrices

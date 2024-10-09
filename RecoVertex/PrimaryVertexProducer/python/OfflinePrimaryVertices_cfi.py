@@ -87,8 +87,8 @@ from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
          )
 )
 
-from Configuration.Eras.Modifier_highBetaStar_2018_cff import highBetaStar_2018
-highBetaStar_2018.toModify(offlinePrimaryVertices,
+from Configuration.Eras.Modifier_highBetaStar_cff import highBetaStar
+highBetaStar.toModify(offlinePrimaryVertices,
     TkClusParameters = dict(
         TkDAClusParameters = dict(
             Tmin = 4.0,
@@ -162,8 +162,7 @@ from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
                )
 )
 
-from Configuration.Eras.Modifier_highBetaStar_2018_cff import highBetaStar_2018
-highBetaStar_2018.toModify(offlinePrimaryVertices,
+highBetaStar.toModify(offlinePrimaryVertices,
      TkFilterParameters = dict(
          maxNormalizedChi2 = 80.0,
          minPixelLayersWithHits = 1,
