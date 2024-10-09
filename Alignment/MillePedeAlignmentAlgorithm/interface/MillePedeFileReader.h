@@ -166,6 +166,9 @@ private:
   // PixelTopologyMap
   const std::shared_ptr<const PixelTopologyMap> pixelTopologyMap_;
 
+  // switch to ignor inactive alignables when vetoing
+  const bool ignoreInactiveAlignables_;
+
   // SiPixelQuality
   const std::shared_ptr<const SiPixelQuality> quality_;
 

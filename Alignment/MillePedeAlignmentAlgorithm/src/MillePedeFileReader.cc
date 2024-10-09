@@ -22,6 +22,7 @@ MillePedeFileReader ::MillePedeFileReader(const edm::ParameterSet& config,
     : pedeLabeler_(pedeLabeler),
       theThresholds_(theThresholds),
       pixelTopologyMap_(pixelTopologyMap),
+      ignoreInactiveAlignables_(config.getParameter<bool>("ignoreInactiveAlignables")),
       quality_(pixelQualityMap),
       dirName_(config.getParameter<std::string>("fileDir")),
       millePedeEndFile_(config.getParameter<std::string>("millePedeEndFile")),
@@ -271,7 +272,7 @@ void MillePedeFileReader ::readMillePedeResultFile() {
             << "=============" << std::endl;
 
         if (std::abs(ObsMove) > thresholds_[detLabel][alignableIndex]) {
-          if (active) {
+          if (active || ignoreInactiveAlignables_) {
             edm::LogWarning("MillePedeFileReader")
                 << "Aborting payload creation."
                 << " Exceeding maximum thresholds for movement: " << std::abs(ObsMove) << " for " << detLabel << " ("
