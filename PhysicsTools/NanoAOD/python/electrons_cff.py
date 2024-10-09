@@ -266,7 +266,7 @@ finalElectrons = cms.EDFilter("PATElectronRefSelector",
 ################################################electronPROMPTMVA#####################
 electronPROMPTMVA= cms.EDProducer("EleBaseMVAValueMapProducer",
     src = cms.InputTag("linkedObjects","electrons"),
-    weightFile =  cms.FileInPath("PhysicsTools/NanoAOD/data/el_BDTG_2017.weights.xml"),
+    weightFile =  cms.FileInPath("PhysicsTools/NanoAOD/data/"),
     name = cms.string("electronPROMPTMVA"),
     backend = cms.string("TMVA"),
     isClassifier = cms.bool(True),
