@@ -47,6 +47,7 @@ from Geometry.CSCGeometryBuilder.idealForDigiCscGeometry_cff import *
 from Geometry.DTGeometryBuilder.idealForDigiDtGeometry_cff import *
 
 # forward
+from Geometry.ForwardGeometry.zdcTopologyEP_cfi import *
 from Geometry.ForwardGeometry.ZdcGeometry_cfi import *
 
 # timing
