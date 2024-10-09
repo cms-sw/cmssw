@@ -202,7 +202,7 @@ HcalTopology::HcalTopology(HcalTopologyMode::Mode mode,
     HESize_ = kHESizePreLS1;  // qie-per-fiber * fiber/rm * rm/rbx * rbx/endcap * endcap/hcal
     HOSize_ = kHOSizePreLS1;  // ieta * iphi * 2
     HFSize_ = kHFSizePreLS1;  // phi * eta * depth * pm
-  } else {  // need to know more eventually
+  } else {                    // need to know more eventually
     HBSize_ = maxDepthHB * 16 * IPHI_MAX * 2;
     HESize_ = maxDepthHE * (29 - 16 + 1) * maxPhiHE_ * 2;
     HOSize_ = 15 * IPHI_MAX * 2;                // ieta * iphi * 2
