@@ -195,7 +195,7 @@ HcalTopology::HcalTopology(HcalTopologyMode::Mode mode,
       HFSize_(kHFSizePreLS1),
       HTSize_(kHTSizePreLS1),
       CALIBSize_(kCALIBSizePreLS1),
-      numberOfShapes_(phase2() ? 500 : 87) {
+      numberOfShapes_((mode_ == HcalTopologyMode::LHC) ? 87 : 500) {
   if (mode_ == HcalTopologyMode::LHC) {
     topoVersion_ = 0;         //DL
     HBSize_ = kHBSizePreLS1;  // qie-per-fiber * fiber/rm * rm/rbx * rbx/barrel * barrel/hcal
