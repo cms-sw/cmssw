@@ -890,12 +890,12 @@ bool HcalTopology::incrementDepth(HcalDetId& detId) const {
       subdet = HcalEndcap;
       if (phase2() || (mode_ == HcalTopologyMode::H2HE))
         depth = hcons_->getDepthEta16(2, iphi, zside);
-    } else if ((subdet == HcalEndcap) && (etaRing == lastHERing() - 1) && phase2()) {
+    } else if ((subdet == HcalEndcap) && (etaRing == lastHERing() - 1) && !phase2()) {
       // guard ring HF29 is behind HE 28
       subdet = HcalForward;
       (ieta > 0) ? ++ieta : --ieta;
       depth = 1;
-    } else if ((subdet == HcalEndcap) && (etaRing == lastHERing()) && phase2()) {
+    } else if ((subdet == HcalEndcap) && (etaRing == lastHERing()) && !phase2()) {
       // split cells go to bigger granularity.  Ring 29 -> 28
       (ieta > 0) ? --ieta : ++ieta;
     } else {
@@ -929,7 +929,7 @@ bool HcalTopology::decrementDepth(HcalDetId& detId) const {
       }
     }
   } else if ((subdet == HcalEndcap) && (etaRing == lastHERing()) && (depth == hcons_->getDepthEta29(iphi, zside, 0)) &&
-             phase2()) {
+             !phase2()) {
     (ieta > 0) ? --ieta : ++ieta;
   } else if (depth <= 0) {
     if (subdet == HcalForward && etaRing == firstHFRing()) {
