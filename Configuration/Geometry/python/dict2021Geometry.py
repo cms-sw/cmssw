@@ -1363,6 +1363,7 @@ caloDict = {
         "sim" : [
             'from Geometry.EcalCommonData.ecalSimulationParameters_cff import *',
             'from Geometry.HcalCommonData.hcalDDDSimConstants_cff import *',
+            'from Geometry.ForwardGeometry.zdcTopologyEP_cfi import *',
         ],
         "reco" : [
             'from Geometry.CaloEventSetup.CaloTopology_cfi import *',
@@ -1382,7 +1383,6 @@ caloDict = {
             'from Geometry.HcalEventSetup.CaloTowerTopology_cfi import *',
             'from Geometry.HcalCommonData.hcalDDDRecConstants_cfi import *',
             'from Geometry.HcalEventSetup.hcalTopologyIdeal_cfi import *',
-            'from Geometry.ForwardGeometry.zdcTopologyEP_cfi import *',
             'from Geometry.ForwardGeometry.ForwardGeometry_cfi import *',
             'from Geometry.CaloEventSetup.EcalTrigTowerConstituents_cfi import *',
             'from Geometry.EcalMapping.EcalMapping_cfi import *',
@@ -1432,6 +1432,7 @@ caloDict = {
         "sim" : [
             'from Geometry.EcalCommonData.ecalSimulationParameters_cff import *',
             'from Geometry.HcalCommonData.hcalDDDSimConstants_cff import *',
+            'from Geometry.ForwardGeometry.zdcTopologyEP_cfi import *',
         ],
         "reco" : [
             'from Geometry.CaloEventSetup.CaloTopology_cfi import *',
@@ -1451,7 +1452,6 @@ caloDict = {
             'from Geometry.HcalEventSetup.CaloTowerTopology_cfi import *',
             'from Geometry.HcalCommonData.hcalDDDRecConstants_cfi import *',
             'from Geometry.HcalEventSetup.hcalTopologyIdeal_cfi import *',
-            'from Geometry.ForwardGeometry.zdcTopologyEP_cfi import *',
             'from Geometry.ForwardGeometry.ForwardGeometry_cfi import *',
             'from Geometry.CaloEventSetup.EcalTrigTowerConstituents_cfi import *',
             'from Geometry.EcalMapping.EcalMapping_cfi import *',
