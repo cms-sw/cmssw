@@ -64,7 +64,7 @@ HcalTopology::HcalTopology(const HcalDDDRecConstants* hcons, const bool mergePos
   } else {
     nEtaHE_ = (lastHERing_ - firstHERing_ + 1);
   }
-  if (phase1()) {
+  if (mode_ == HcalTopologyMode::LHC) {
     topoVersion_ = 0;         //DL
     HBSize_ = kHBSizePreLS1;  // qie-per-fiber * fiber/rm * rm/rbx * rbx/barrel * barrel/hcal
     HESize_ = kHESizePreLS1;  // qie-per-fiber * fiber/rm * rm/rbx * rbx/endcap * endcap/hcal
@@ -72,6 +72,14 @@ HcalTopology::HcalTopology(const HcalDDDRecConstants* hcons, const bool mergePos
     HFSize_ = kHFSizePreLS1;  // ieta * iphi * depth * 2
     CALIBSize_ = kCALIBSizePreLS1;
     numberOfShapes_ = 87;
+  } else if (mode_ == HcalTopologyMode::Run3) {
+    topoVersion_ = 10;
+    HBSize_ = kHBSizePostLS2;
+    HESize_ = kHESizePostLS2;
+    HOSize_ = kHOSizePreLS1;  // ieta * iphi * 2
+    HFSize_ = kHFSizePostLS2;
+    CALIBSize_ = kOffCalibHFX_;
+    numberOfShapes_ = (maxPhiHE_ > 72) ? 1200 : 500;
   } else if (phase2()) {  // need to know more eventually
     topoVersion_ = 10;
     HBSize_ = nEtaHB_ * IPHI_MAX * maxDepthHB_ * 2;
@@ -196,13 +204,20 @@ HcalTopology::HcalTopology(HcalTopologyMode::Mode mode,
       HTSize_(kHTSizePreLS1),
       CALIBSize_(kCALIBSizePreLS1),
       numberOfShapes_(phase2() ? 500 : 87) {
-  if (phase1()) {
+  if (mode_ == HcalTopologyMode::LHC) {
     topoVersion_ = 0;         //DL
     HBSize_ = kHBSizePreLS1;  // qie-per-fiber * fiber/rm * rm/rbx * rbx/barrel * barrel/hcal
     HESize_ = kHESizePreLS1;  // qie-per-fiber * fiber/rm * rm/rbx * rbx/endcap * endcap/hcal
     HOSize_ = kHOSizePreLS1;  // ieta * iphi * 2
     HFSize_ = kHFSizePreLS1;  // phi * eta * depth * pm
-  } else if (phase2()) {      // need to know more eventually
+  } else if (mode_ == HcalTopologyMode::Run3) {
+    topoVersion_ = 10;
+    HBSize_ = kHBSizePostLS2;
+    HESize_ = kHESizePostLS2;
+    HOSize_ = kHOSizePreLS1;  // ieta * iphi * 2
+    HFSize_ = kHFSizePostLS2;
+    CALIBSize_ = kOffCalibHFX_;
+  } else if (phase2()) {  // need to know more eventually
     HBSize_ = maxDepthHB * 16 * IPHI_MAX * 2;
     HESize_ = maxDepthHE * (29 - 16 + 1) * maxPhiHE_ * 2;
     HOSize_ = 15 * IPHI_MAX * 2;                // ieta * iphi * 2
