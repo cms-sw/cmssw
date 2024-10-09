@@ -1,4 +1,5 @@
 #include "OnlineDB/CSCCondDB/interface/CSCOnlineDB.h"
+#include <cassert>
 
 /**
    * Constructor for condbon
@@ -9,6 +10,8 @@ condbon::condbon() noexcept(false) {
   env = oracle::occi::Environment::createEnvironment(oracle::occi::Environment::OBJECT);
   char *c_user = std::getenv("CONDBON_AUTH_USER");
   char *c_pass = std::getenv("CONDBON_AUTH_PASSWORD");
+  assert(c_user);
+  assert(c_pass);
   db_user = std::string(c_user);
   db_pass = std::string(c_pass);
   con = env->createConnection(db_user, db_pass, "omds");
