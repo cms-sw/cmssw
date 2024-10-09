@@ -9,6 +9,7 @@
 /*** core framework functionality ***/
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 /*** Alignment ***/
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/PedeLabelerBase.h"
@@ -72,6 +73,8 @@ public:  //====================================================================
                                const std::shared_ptr<const SiPixelQuality>&);
 
   virtual ~MillePedeFileReader() = default;
+
+  static void fillPSetDescription(edm::ParameterSetDescription& desc);
 
   void read();
   bool storeAlignments();

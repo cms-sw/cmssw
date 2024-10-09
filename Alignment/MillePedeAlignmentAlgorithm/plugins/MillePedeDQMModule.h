@@ -16,13 +16,15 @@
 #include <memory>
 
 /*** core framework functionality ***/
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 /*** Geometry ***/
 #include "CondFormats/GeometryObjects/interface/PTrackerParameters.h"
@@ -56,9 +58,11 @@ class MillePedeDQMModule : public DQMEDHarvester {
   //========================== PUBLIC METHODS ==================================
 public:  //====================================================================
   MillePedeDQMModule(const edm::ParameterSet&);
-  ~MillePedeDQMModule() override;
+  ~MillePedeDQMModule() override = default;
 
   void dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter&) override;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   enum { SIZE_LG_STRUCTS = 6, SIZE_HG_STRUCTS = 820, SIZE_INDEX = 8 };
 

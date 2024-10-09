@@ -39,8 +39,6 @@ MillePedeDQMModule ::MillePedeDQMModule(const edm::ParameterSet& config)
   consumes<AlignmentToken, edm::InProcess>(config.getParameter<edm::InputTag>("alignmentTokenSrc"));
 }
 
-MillePedeDQMModule ::~MillePedeDQMModule() {}
-
 //=============================================================================
 //===   INTERFACE IMPLEMENTATION                                            ===
 //=============================================================================
@@ -539,4 +537,16 @@ int MillePedeDQMModule ::getIndexFromString(const std::string& alignableId) {
     throw cms::Exception("LogicError") << "@SUB=MillePedeDQMModule::getIndexFromString\n"
                                        << "Retrieving conversion for not supported Alignable partition" << alignableId;
   }
+}
+
+void MillePedeDQMModule::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<std::string>("outputFolder", "AlCaReco/SiPixelAli");
+  {
+    edm::ParameterSetDescription mpFileReaderPSet;
+    MillePedeFileReader::fillPSetDescription(mpFileReaderPSet);
+    desc.add<edm::ParameterSetDescription>("MillePedeFileReader", mpFileReaderPSet);
+  }
+  desc.add<edm::InputTag>("alignmentTokenSrc", edm::InputTag("SiPixelAliPedeAlignmentProducer"));
+  descriptions.addWithDefaultLabel(desc);
 }

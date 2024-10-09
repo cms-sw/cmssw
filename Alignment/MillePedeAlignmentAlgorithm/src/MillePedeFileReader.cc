@@ -624,3 +624,12 @@ int MillePedeFileReader::getIndexForHG(align::ID id, PclHLS HLS) {
 //===   STATIC CONST MEMBER DEFINITION                                      ===
 //=============================================================================
 constexpr std::array<double, 6> MillePedeFileReader::multiplier_;
+
+void MillePedeFileReader::fillPSetDescription(edm::ParameterSetDescription& desc) {
+  desc.add<std::string>("fileDir", std::string());
+  desc.add<bool>("ignoreInactiveAlignables", true);
+  desc.add<std::string>("millePedeEndFile", "millepede.end");
+  desc.add<std::string>("millePedeLogFile", "millepede.log");
+  desc.add<std::string>("millePedeResFile", "millepede.res");
+  desc.add<bool>("isHG", false);
+}
