@@ -44,7 +44,9 @@ HGCalCellOffset::HGCalCellOffset(double waferSize,
           double cutArea3 =
               sqrt3_ * std::pow(H, 2) - (1 / sqrt3By2_ * std::pow(h1, 2)) - (1 / sqrt3By2_ * std::pow(h2, 2));
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("HGCalGeomX") << "h1 " << h1 << " h2 " << h2 << " H " << H << " cutarea1 " << cutArea1 << " cutarea2 " << cutArea2 << " cutarea3 " << cutArea3 << "  " << cellX_[k] << " " << guardRingSizeOffset_;
+          edm::LogVerbatim("HGCalGeomX") << "h1 " << h1 << " h2 " << h2 << " H " << H << " cutarea1 " << cutArea1
+                                         << " cutarea2 " << cutArea2 << " cutarea3 " << cutArea3 << "  " << cellX_[k]
+                                         << " " << guardRingSizeOffset_;
 #endif
           double x3_1 = -(((2.0 * std::pow(h, 3)) / (3.0 * sqrt3_) - cellX_[k] * std::pow(h, 2)) / A1);
           double y3_1 = 0;
@@ -196,7 +198,8 @@ HGCalCellOffset::HGCalCellOffset(double waferSize,
           double y2 = 0.5 * cellX_[k] - (2.0 * h) / (3.0 * sqrt3_);
           cellArea[k][j] = totalArea - cutArea1 - cutArea2;
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("HGCalGeomX") << "trunMB h " << h << " tot " << totalArea << " cutArea1 " << cutArea1 << " cutArea2 " << cutArea2;
+          edm::LogVerbatim("HGCalGeomX") << "trunMB h " << h << " tot " << totalArea << " cutArea1 " << cutArea1
+                                         << " cutArea2 " << cutArea2;
 #endif
           double xMag1 =
               ((sqrt3_ * cellX_[k] / 15.0) * totalArea - (cutArea1 * x1) - (cutArea2 * x2)) / (cellArea[k][j]);
@@ -253,7 +256,8 @@ HGCalCellOffset::HGCalCellOffset(double waferSize,
         double y2 = -0.25 * cellX_[k] + h / 3.0;
         cellArea[k][j] = totalArea - cutArea1 - cutArea2;
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("HGCalGeomX") << H << "trunMB h " << h << " tot " << totalArea << " cutArea1 " << cutArea1 << " cutArea2 " << cutArea2;
+        edm::LogVerbatim("HGCalGeomX") << H << "trunMB h " << h << " tot " << totalArea << " cutArea1 " << cutArea1
+                                       << " cutArea2 " << cutArea2;
 #endif
         double xMag1 =
             ((-10.0 * sqrt3_ * cellX_[k] / 168.0) * totalArea - (cutArea1 * x1) - (cutArea2 * x2)) / (cellArea[k][j]);
