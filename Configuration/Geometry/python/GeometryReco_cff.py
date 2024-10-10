@@ -29,3 +29,5 @@ from Geometry.EcalMapping.EcalMappingRecord_cfi import *
 from Geometry.EcalCommonData.ecalSimulationParameters_cff import *
 from Geometry.HcalCommonData.hcalDDConstants_cff import *
 from Geometry.HcalEventSetup.hcalTopologyIdeal_cfi import *
+from Geometry.ForwardGeometry.zdcTopologyEP_cfi import *
+from Geometry.ForwardGeometry.ForwardGeometry_cfi import *

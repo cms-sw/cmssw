@@ -1363,6 +1363,7 @@ caloDict = {
         "sim" : [
             'from Geometry.EcalCommonData.ecalSimulationParameters_cff import *',
             'from Geometry.HcalCommonData.hcalDDDSimConstants_cff import *',
+            'from Geometry.ForwardGeometry.zdcTopologyEP_cfi import *',
         ],
         "reco" : [
             'from Geometry.CaloEventSetup.CaloTopology_cfi import *',
@@ -1431,6 +1432,7 @@ caloDict = {
         "sim" : [
             'from Geometry.EcalCommonData.ecalSimulationParameters_cff import *',
             'from Geometry.HcalCommonData.hcalDDDSimConstants_cff import *',
+            'from Geometry.ForwardGeometry.zdcTopologyEP_cfi import *',
         ],
         "reco" : [
             'from Geometry.CaloEventSetup.CaloTopology_cfi import *',

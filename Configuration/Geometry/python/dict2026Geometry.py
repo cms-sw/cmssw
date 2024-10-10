@@ -1237,6 +1237,7 @@ forwardDict = {
             'Geometry/ForwardSimData/data/ForwardShieldProdCuts.xml',
         ],
         "reco" :[
+            'from Geometry.ForwardGeometry.zdcTopologyEP_cfi import *',
             'from Geometry.ForwardGeometry.ZdcGeometry_cfi import *',
         ]
     },
