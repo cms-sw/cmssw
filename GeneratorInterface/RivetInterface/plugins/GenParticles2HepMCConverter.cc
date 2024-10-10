@@ -89,7 +89,7 @@ void GenParticles2HepMCConverter::produce(edm::Event& event, const edm::EventSet
 
   auto const& pTableData = eventSetup.getData(pTable_);
 
-  HepMC3::GenEvent* hepmc_event = new HepMC3::GenEvent();
+  auto hepmc_event = std::make_unique<HepMC3::GenEvent>();
   hepmc_event->set_event_number(event.id().event());
   hepmc_event->add_attribute("signal_process_id",
                              std::make_shared<HepMC3::IntAttribute>(genEventInfoHandle->signalProcessID()));
@@ -210,7 +210,7 @@ void GenParticles2HepMCConverter::produce(edm::Event& event, const edm::EventSet
 
   // Finalize HepMC event record
   std::unique_ptr<edm::HepMC3Product> hepmc_product(new edm::HepMC3Product());
-  hepmc_product->addHepMCData(hepmc_event);
+  hepmc_product->addHepMCData(hepmc_event.get());
   event.put(std::move(hepmc_product), "unsmeared");
 }
 
