@@ -51,7 +51,15 @@
   <flags EDM_PLUGIN="1"/>
 </library>  
 
+<library file="LHCInfoPerLSWriter.cc" name="LHCInfoPerLSWriter">
+  <flags EDM_PLUGIN="1"/>
+</library>
+
 <library file="LHCInfoPerLSAnalyzer.cc" name="LHCInfoPerLSAnalyzer">
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<library file="LHCInfoPerLSTester.cc" name="LHCInfoPerLSTester">
   <flags EDM_PLUGIN="1"/>
 </library>
 
@@ -63,14 +71,18 @@
   <flags EDM_PLUGIN="1"/>
 </library>
 
+<library file="LHCInfoPerFillTester.cc" name="LHCInfoPerFillTester">
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<library file="LHCInfoAnalyzer.cc" name="LHCInfoAnalyzer">
+  <flags EDM_PLUGIN="1"/>
+</library>
+
 <library file="LHCInfoPerLSPopConAnalyzer.cc" name="CondToolsLHCInfoPerLSPopConAnalyzer">
   <flags EDM_PLUGIN="1"/>
 </library>
 
 <library file="LHCInfoPerFillPopConAnalyzer.cc" name="CondToolsLHCInfoPerFillPopConAnalyzer">
-  <flags EDM_PLUGIN="1"/>
-</library>
-
-<library file="LHCInfoPerLSWriter.cc" name="LHCInfoPerLSWriter">
   <flags EDM_PLUGIN="1"/>
 </library>
