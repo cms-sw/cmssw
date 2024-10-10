@@ -23,7 +23,6 @@ std::unique_ptr<SiPixelGenErrorDBObject> SiPixelFakeGenErrorDBObjectESSource::pr
   SiPixelGenErrorDBObject* obj = new SiPixelGenErrorDBObject;
 
   // Local variables
-  const char* tempfile;
   int m;
 
   // Set the number of GenErrors to be passed to the dbobject
@@ -35,9 +34,9 @@ std::unique_ptr<SiPixelGenErrorDBObject> SiPixelFakeGenErrorDBObjectESSource::pr
   //  open the GenError file(s)
   for (m = 0; m < obj->numOfTempl(); ++m) {
     edm::FileInPath file(GenErrorCalibrations_[m].c_str());
-    tempfile = (file.fullPath()).c_str();
+    std::string tempfile = file.fullPath();
 
-    std::ifstream in_file(tempfile, std::ios::in);
+    std::ifstream in_file(tempfile.c_str(), std::ios::in);
 
     if (in_file.is_open()) {
       edm::LogInfo("SiPixelFakeGenErrorDBObjectESSource")
