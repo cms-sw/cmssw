@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 from SimPPS.DirectSimProducer.profile_base_cff import profile_base as _base
-from CalibPPS.ESProducers.ctppsOpticalFunctions_non_DB_cff import optics_2021 as _optics
+from CalibPPS.ESProducers.ctppsOpticalFunctions_non_DB_cff import optics_2022 as _optics
 
 # base profile settings for 2022
 _base_2022 = _base.clone(

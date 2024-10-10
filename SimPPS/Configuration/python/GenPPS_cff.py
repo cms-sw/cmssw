@@ -15,5 +15,9 @@ PPSTransportTask = cms.Task()
 #from Configuration.Eras.Modifier_ctpps_2018_cff import ctpps_2018
 #ctpps_2018.toReplaceWith(PPSTransportTask, cms.Task(LHCTransport))
 
+# on hold until proper conditions in place
 from Configuration.Eras.Modifier_ctpps_2022_cff import ctpps_2022
 ctpps_2022.toReplaceWith(PPSTransportTask, cms.Task(LHCTransport))
+
+from Configuration.Eras.Modifier_ctpps_2023_cff import ctpps_2023
+ctpps_2023.toReplaceWith(PPSTransportTask, cms.Task(LHCTransport))

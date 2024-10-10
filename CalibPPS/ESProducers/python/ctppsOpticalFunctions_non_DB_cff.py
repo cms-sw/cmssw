@@ -87,32 +87,8 @@ optics_2018 = cms.PSet(
 
 ctppsOpticalFunctionsESSource.configuration.append(optics_2018)
 
-optics_2021 = cms.PSet(
-  validityRange = cms.EventRange("1234:1 - 1234:max"), # NB: a fake IOV, this optics was never used for LHC
-
-  opticalFunctions = cms.VPSet(
-    cms.PSet( xangle = cms.double(110.444), fileName = cms.FileInPath("CalibPPS/ESProducers/data/optical_functions/2021/version_pre3/110.444urad.root") ),
-    cms.PSet( xangle = cms.double(184.017), fileName = cms.FileInPath("CalibPPS/ESProducers/data/optical_functions/2021/version_pre3/184.017urad.root") )
-  ),
-
-  scoringPlanes = cms.VPSet(
-    # z in cm
-    cms.PSet( rpId = cms.uint32(2014838784), dirName = cms.string("XRPH_D6L5_B2"), z = cms.double(-21255.0) ),  # RP 003, pixel
-    cms.PSet( rpId = cms.uint32(2056257536), dirName = cms.string("XRPH_A6L5_B2"), z = cms.double(-21507.8) ),  # RP 022, diamond
-    cms.PSet( rpId = cms.uint32(2054160384), dirName = cms.string("XRPH_E6L5_B2"), z = cms.double(-21570.0) ),  # RP 016, diamond
-    cms.PSet( rpId = cms.uint32(2023227392), dirName = cms.string("XRPH_B6L5_B2"), z = cms.double(-21955.0) ),  # RP 023, pixel
-
-    cms.PSet( rpId = cms.uint32(2031616000), dirName = cms.string("XRPH_D6R5_B1"), z = cms.double(+21255.0) ),  # RP 103, pixel
-    cms.PSet( rpId = cms.uint32(2073034752), dirName = cms.string("XRPH_A6R5_B1"), z = cms.double(+21507.8) ),  # RP 122, diamond
-    cms.PSet( rpId = cms.uint32(2070937600), dirName = cms.string("XRPH_E6R5_B1"), z = cms.double(+21570.0) ),  # RP 116, diamond
-    cms.PSet( rpId = cms.uint32(2040004608), dirName = cms.string("XRPH_B6R5_B1"), z = cms.double(+21955.0) ),  # RP 123, pixel
-  )
-)
-
-# NB: do not append the 2021 config - not used for any LHC data
-
 optics_2022 = cms.PSet(
-  validityRange = cms.EventRange("343890:min - 999999:max"),
+  validityRange = cms.EventRange("343890:min - 357101:max"),
 
   opticalFunctions = cms.VPSet(
     cms.PSet( xangle = cms.double(144.974), fileName = cms.FileInPath("CalibPPS/ESProducers/data/optical_functions/2022/version_pre1/144.974urad.root") ),
@@ -132,6 +108,31 @@ optics_2022 = cms.PSet(
     cms.PSet( rpId = cms.uint32(2040004608), dirName = cms.string("XRPH_B6R5_B1"), z = cms.double(+21955.0) ),  # RP 123, pixel
   )
 )
+
+optics_2023 = cms.PSet(
+  validityRange = cms.EventRange("366403:min - 370790:max"),
+
+  opticalFunctions = cms.VPSet(
+    cms.PSet( xangle = cms.double(135.000), fileName = cms.FileInPath("CalibPPS/ESProducers/data/optical_functions/2023/version_pre1/135.000urad_calib.root") ),
+    cms.PSet( xangle = cms.double(144.974), fileName = cms.FileInPath("CalibPPS/ESProducers/data/optical_functions/2023/version_pre1/144.974urad_calib.root") ),
+    cms.PSet( xangle = cms.double(160.000), fileName = cms.FileInPath("CalibPPS/ESProducers/data/optical_functions/2023/version_pre1/160.000urad_calib.root") )
+  ),
+
+  scoringPlanes = cms.VPSet(
+    # z in cm
+    cms.PSet( rpId = cms.uint32(2014838784), dirName = cms.string("XRPH_D6L5_B2"), z = cms.double(-21255.0) ),  # RP 003, pixel
+    cms.PSet( rpId = cms.uint32(2056257536), dirName = cms.string("XRPH_A6L5_B2"), z = cms.double(-21507.8) ),  # RP 022, diamond
+    cms.PSet( rpId = cms.uint32(2054160384), dirName = cms.string("XRPH_E6L5_B2"), z = cms.double(-21570.0) ),  # RP 016, diamond
+    cms.PSet( rpId = cms.uint32(2023227392), dirName = cms.string("XRPH_B6L5_B2"), z = cms.double(-21955.0) ),  # RP 023, pixel
+
+    cms.PSet( rpId = cms.uint32(2031616000), dirName = cms.string("XRPH_D6R5_B1"), z = cms.double(+21255.0) ),  # RP 103, pixel
+    cms.PSet( rpId = cms.uint32(2073034752), dirName = cms.string("XRPH_A6R5_B1"), z = cms.double(+21507.8) ),  # RP 122, diamond
+    cms.PSet( rpId = cms.uint32(2070937600), dirName = cms.string("XRPH_E6R5_B1"), z = cms.double(+21570.0) ),  # RP 116, diamond
+    cms.PSet( rpId = cms.uint32(2040004608), dirName = cms.string("XRPH_B6R5_B1"), z = cms.double(+21955.0) ),  # RP 123, pixel
+  )
+)
+
+ctppsOpticalFunctionsESSource.configuration.append(optics_2023)
 
 ctppsOpticalFunctionsESSource.configuration.append(optics_2022)
 

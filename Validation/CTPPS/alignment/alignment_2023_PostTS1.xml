@@ -1,0 +1,21 @@
+<!-- 
+     Shifts in um, rotations in mrad.
+
+For more details see RPAlignmentCorrections::LoadXMLFile in
+TotemAlignment/RPDataFormats/src/RPAlignmentCorrectionsSequence.cc
+<iov first="369873" last="370890">
+ -->
+<xml DocumentType="AlignmentDescription">
+        <!--  pixel, RP   3  -->
+        <rp id="2014838784" sh_x=" -599.29" sh_y=" 1936.20" sh_z=" +0.000" rot_x=" +0.000" rot_y=" +0.000" rot_z=" +0.000"/>
+        <!--  diamond, RP   16  -->
+        <rp id="2054160384" sh_x=" 0.00" sh_y=" 0.00" sh_z=" +0.000" rot_x=" +0.000" rot_y=" +0.000" rot_z=" +0.000"/>
+        <!--  pixel, RP   23  -->
+        <rp id="2023227392" sh_x=" 150.06" sh_y=" 2141.96" sh_z=" +0.000" rot_x=" +0.000" rot_y=" +0.000" rot_z=" +0.000"/>
+        <!--  pixel, RP   103  -->
+        <rp id="2031616000" sh_x=" 76.95" sh_y=" 574.67" sh_z=" +0.000" rot_x=" +0.000" rot_y=" +0.000" rot_z=" +0.000"/>
+        <!--  diamond, RP   116  -->
+        <rp id="2070937600" sh_x=" 0.00" sh_y=" 0.00" sh_z=" +0.000" rot_x=" +0.000" rot_y=" +0.000" rot_z=" +0.000"/>
+        <!--  pixel, RP   123  -->
+        <rp id="2040004608" sh_x=" 136.90" sh_y=" 2019.47" sh_z=" +0.000" rot_x=" +0.000" rot_y=" +0.000" rot_z=" +0.000"/>
+</xml>

@@ -87,7 +87,7 @@ class Eras (object):
                            'phase2_trigger',
                            'phase2_squarePixels', 'phase2_3DPixels',
                            'trackingLowPU', 'trackingPhase1',
-                           'ctpps', 'ctpps_2016', 'ctpps_2017', 'ctpps_2018', 'ctpps_2022',
+                           'ctpps', 'ctpps_2016', 'ctpps_2017', 'ctpps_2018', 'ctpps_2022', 'ctpps_2023',
                            'trackingPhase2PU140','highBetaStar_2018',
                            'tracker_apv_vfp30_2016', 'pf_badHcalMitigationOff',
                            'run2_nanoAOD_106Xv2',
