@@ -242,6 +242,8 @@ def _appendPhase2Digis(obj):
         'keep *_l1tSAMuonsGmt_*_*',
         'keep *_l1tTkMuonsGmtLowPtFix_*_*', # in the long run this should be removed, but these fix objects will be used for now.
 	'keep *_l1tPhase2L1CaloEGammaEmulator_*_*',
+        'keep *_l1tGTProducer_*_*',
+        'keep *_l1tGTAlgoBlockProducer_*_*',
         ]
     obj.outputCommands += l1Phase2Digis
 
