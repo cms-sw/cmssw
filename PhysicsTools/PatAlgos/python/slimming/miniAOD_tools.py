@@ -307,6 +307,23 @@ def miniAOD_customizeCommon(process):
     #-- Adding boosted taus
     from RecoTauTag.Configuration.boostedHPSPFTaus_cfi import addBoostedTaus
     addBoostedTaus(process)
+    #-- Adding DeepTauID for boosted taus
+    import RecoTauTag.RecoTau.tools.runTauIdMVA as tauIdConfig
+    _updatedBoostedTauName = 'slimmedTausBoostedDeepIDs'
+    _noUpdatedBoostedTauName = 'slimmedTausBoostedNoDeepIDs'
+    boostedTauIdEmbedder = tauIdConfig.TauIDEmbedder(
+        process, debug = False,
+        originalTauName = _noUpdatedBoostedTauName,
+        updatedTauName = _updatedBoostedTauName,
+        postfix = 'BoostedForMini',
+        toKeep = ['boostedDeepTauRunIIv2p0']
+    )
+    boostedTauIdEmbedder.runTauID()
+    addToProcessAndTask(_noUpdatedBoostedTauName, process.slimmedTausBoosted.clone(),process,task)
+    delattr(process, 'slimmedTausBoosted')
+    process.slimmedTausBoosted = getattr(process, _updatedBoostedTauName).clone()
+    process.rerunMvaIsolationTaskBoostedForMini.add(process.slimmedTausBoosted)
+    task.add(process.rerunMvaIsolationTaskBoostedForMini)
     process.load("RecoTauTag.Configuration.RecoPFTauTag_cff")
     process.load("RecoTauTag.Configuration.HPSPFTaus_cff")
     #-- Adding customization for 94X 2017 legacy reMniAOD
@@ -326,7 +343,6 @@ def miniAOD_customizeCommon(process):
     #-- Adding DeepTauID
     _updatedTauName = 'slimmedTausDeepIDs'
     _noUpdatedTauName = 'slimmedTausNoDeepIDs'
-    import RecoTauTag.RecoTau.tools.runTauIdMVA as tauIdConfig
     tauIdEmbedder = tauIdConfig.TauIDEmbedder(
         process, debug = False,
         originalTauName = _noUpdatedTauName,
