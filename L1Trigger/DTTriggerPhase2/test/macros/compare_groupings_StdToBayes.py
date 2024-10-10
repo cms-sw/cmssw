@@ -61,7 +61,7 @@ ROOT.gROOT.SetBatch(True)
 ##
 files = ['../../../../DTTriggerPhase2Primitives.root']
 
-print "Number of files: %d" % len(files)
+print("Number of files: %d" % len(files))
 
 events = Events(files)
 
@@ -191,7 +191,7 @@ for frac in [0.25,0.5,0.75,1.00]:
             hTimeRes_MB_q8.append(ROOT.TH1F("hTimeRes_MB_MB%i_MB_Wh%i_MB_q8_MB_%s" %(st, wh, fracname), "", 20, -100, 100.))
 
 
-    print "now save into dictionary"
+    print("now save into dictionary")
     outputDict[fracname] = {}
     for st in range(1,5):
         outputDict[fracname]['hMatchingEff_MB%i'%st] = hMatchingEff[st-1]
@@ -260,7 +260,7 @@ for frac in [0.25,0.5,0.75,1.00]:
         f= open("EventDumpList_StdToBayes.log","w+")
 
     for ev in events:
-        if not count%1000:  print count, events.size()
+        if not count%1000:  print(count, events.size())
         count = count+1
         
         ev.getByLabel(muoBayesLabel, muoBayesHandle)
