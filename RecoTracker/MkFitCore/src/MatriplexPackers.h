@@ -94,6 +94,7 @@ namespace mkfit {
 
     template <typename TMerr, typename TMpar>
     void pack(TMerr& err, TMpar& par) {
+      assert(this->m_base);
       assert(this->m_pos > 0 && this->m_pos <= NN);
 
 #if defined(GATHER_INTRINSICS)
