@@ -171,6 +171,8 @@ public:
   HcalDetId idBack(const HcalDetId& id) const { return hcons_->idBack(id); }
 
 private:
+  bool phase1() const { return ((mode_ == HcalTopologyMode::LHC) || (mode_ == HcalTopologyMode::Run3)); }
+  bool phase2() const { return ((mode_ == HcalTopologyMode::SLHC) || (mode_ == HcalTopologyMode::Run4)); }
   /** Get the neighbors of the given cell with higher absolute ieta */
   int incAIEta(const HcalDetId& id, HcalDetId neighbors[2]) const;
   /** Get the neighbors of the given cell with lower absolute ieta */
@@ -227,7 +229,10 @@ private:
   static constexpr int kHBhalf = 1296, kHEhalf = 1296, kHOhalf = 1080, kHFhalf = 864, kHThalf = 2088, kZDChalf = 11,
                        kCASTORhalf = 224, kCALIBhalf = 693, kHThalfPhase1 = 2520,
                        kHcalhalf = kHBhalf + kHEhalf + kHOhalf + kHFhalf;
+  static constexpr int kHBhalfPostLS2 = 4536, kHEhalfPostLS2 = 3384, kHFhalfPostLS2 = 1728;
+  static constexpr int kHcalhalfPostLS2 = kHBhalfPostLS2 + kHEhalfPostLS2 + kHOhalf + kHFhalfPostLS2;
   static constexpr int kSizeForDenseIndexingPreLS1 = 2 * kHcalhalf;
+  static constexpr int kSizeForDenseIndexingPostLS2 = 2 * kHcalhalfPostLS2;
   static constexpr int kHBSizePreLS1 = 2 * kHBhalf;
   static constexpr int kHESizePreLS1 = 2 * kHEhalf;
   static constexpr int kHOSizePreLS1 = 2 * kHOhalf;
@@ -235,6 +240,9 @@ private:
   static constexpr int kHTSizePreLS1 = 2 * kHThalf;
   static constexpr int kHTSizePhase1 = 2 * kHThalfPhase1;
   static constexpr int kCALIBSizePreLS1 = 2 * kCALIBhalf;
+  static constexpr int kHBSizePostLS2 = 2 * kHBhalfPostLS2;
+  static constexpr int kHESizePostLS2 = 2 * kHEhalfPostLS2;
+  static constexpr int kHFSizePostLS2 = 2 * kHFhalfPostLS2;
   static constexpr int minMaxDepth_ = 4;
   static constexpr unsigned int minPhi_ = 1, maxPhi_ = 72;
   static constexpr unsigned int kOffCalibHB_ = 0;
