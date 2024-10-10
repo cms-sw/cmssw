@@ -8,6 +8,7 @@
 
 /*** Alignment ***/
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //=============================================================================
 //===   PUBLIC METHOD IMPLEMENTATION                                        ===
@@ -16,10 +17,13 @@
 MillePedeFileReader ::MillePedeFileReader(const edm::ParameterSet& config,
                                           const std::shared_ptr<const PedeLabelerBase>& pedeLabeler,
                                           const std::shared_ptr<const AlignPCLThresholdsHG>& theThresholds,
-                                          const std::shared_ptr<const PixelTopologyMap>& pixelTopologyMap)
+                                          const std::shared_ptr<const PixelTopologyMap>& pixelTopologyMap,
+                                          const std::shared_ptr<const SiPixelQuality>& pixelQualityMap)
     : pedeLabeler_(pedeLabeler),
       theThresholds_(theThresholds),
       pixelTopologyMap_(pixelTopologyMap),
+      ignoreInactiveAlignables_(config.getParameter<bool>("ignoreInactiveAlignables")),
+      quality_(pixelQualityMap),
       dirName_(config.getParameter<std::string>("fileDir")),
       millePedeEndFile_(config.getParameter<std::string>("millePedeEndFile")),
       millePedeLogFile_(config.getParameter<std::string>("millePedeLogFile")),
@@ -158,9 +162,15 @@ void MillePedeFileReader ::readMillePedeResultFile() {
       auto alignableLabel = std::stoul(tokens[0]);
       const auto alignable = pedeLabeler_->alignableFromLabel(alignableLabel);
       auto det = getHLS(alignable);
+      // check if the modules associated to the alignable are active
+      const bool active = isAlignableActive(alignable, quality_);
       int detIndex = static_cast<int>(det);
       auto alignableIndex = alignableLabel % 10 - 1;
       std::string detLabel = getStringFromHLS(det);
+
+      if (!active) {
+        edm::LogPrint("MillePedeFileReader") << "Alignable :" << detLabel << " is inactive";
+      }
 
       if (tokens.size() > 4 /*3*/) {
         countsTotal_[detLabel][alignableIndex]++;  //Count aligned modules/ladders per structure
@@ -262,12 +272,19 @@ void MillePedeFileReader ::readMillePedeResultFile() {
             << "=============" << std::endl;
 
         if (std::abs(ObsMove) > thresholds_[detLabel][alignableIndex]) {
-          edm::LogWarning("MillePedeFileReader") << "Aborting payload creation."
-                                                 << " Exceeding maximum thresholds for movement: " << std::abs(ObsMove)
-                                                 << " for" << detLabel << "(" << coord << ")";
-          updateBits_.set(0);
-          vetoUpdateDB_ = true;
-          continue;
+          if (active || ignoreInactiveAlignables_) {
+            edm::LogWarning("MillePedeFileReader")
+                << "Aborting payload creation."
+                << " Exceeding maximum thresholds for movement: " << std::abs(ObsMove) << " for " << detLabel << " ("
+                << coord << ")";
+            updateBits_.set(0);
+            vetoUpdateDB_ = true;
+            continue;
+          } else {
+            edm::LogInfo("MillePedeFileReader")
+                << " Exceeding maximum thresholds for movement: " << std::abs(ObsMove) << " for " << detLabel << " ("
+                << coord << ") but continuing as the alignable is inactive!";
+          }
 
         } else if (std::abs(ObsMove) > cutoffs_[detLabel][alignableIndex]) {
           updateBits_.set(1);
@@ -332,6 +349,68 @@ void MillePedeFileReader ::readMillePedeResultFile() {
     }
     edm::LogWarning("MillePedeFileReader") << ss.str();
   }
+}
+
+bool MillePedeFileReader::isAlignableActive(const Alignable* alignable,
+                                            const std::shared_ptr<const SiPixelQuality>& pixelQual) {
+  std::vector<DetId> detIds;
+
+  // Get the list of deep components (lowest daughters) of the Alignable
+  const auto& deepComponents = alignable->deepComponents();
+
+  // Iterate through the deep components to retrieve their DetIds
+  for (const auto& component : deepComponents) {
+    DetId detId = component->geomDetId();
+    if (detId != DetId(0)) {
+      detIds.push_back(detId);
+    }
+  }
+
+  // Counter for bad modules
+  int badModuleCount = 0;
+  int totalDetIds = detIds.size();
+
+  const auto& theDisabledModules = pixelQual->getBadComponentList();
+  std::vector<SiPixelQuality::disabledModuleType> theDisabledModuleInAlignable;
+  for (const auto& mod : theDisabledModules) {
+    if (std::find(detIds.begin(), detIds.end(), mod.DetID) != detIds.end()) {
+      theDisabledModuleInAlignable.push_back(mod);
+    }
+  }
+
+  // nothing left to do
+  if (theDisabledModuleInAlignable.empty()) {
+    return true;
+  }
+
+  bool header{false};
+
+  std::stringstream out;
+  for (const auto& mod : theDisabledModuleInAlignable) {
+    if (!header)
+      out << " Alignable = " << getStringFromHLS(getHLS(alignable));
+    header = true;
+    bool isBad = pixelQual->IsModuleBad(mod.DetID);
+    std::bitset<16> bad_rocs(mod.BadRocs);
+    if (isBad || bad_rocs.all()) {
+      badModuleCount++;
+    }
+    out << " " << mod.DetID << " (" << (isBad || bad_rocs.all()) << ") , " << bad_rocs;
+  }
+  out << std::endl;
+
+  if (badModuleCount > 0) {
+    out << " " << badModuleCount << " modules are bad out of " << totalDetIds << std::endl;
+    edm::LogPrint("MillePedeFileReader") << out.str();
+  }
+
+  // Return false if at least half of the detIds are bad
+  if (badModuleCount >= (totalDetIds + 1) / 2) {
+    return false;
+  }
+
+  // If less than half are bad, return true
+  return true;
 }
 
 MillePedeFileReader::PclHLS MillePedeFileReader ::getHLS(const Alignable* alignable) {
@@ -545,3 +624,12 @@ int MillePedeFileReader::getIndexForHG(align::ID id, PclHLS HLS) {
 //===   STATIC CONST MEMBER DEFINITION                                      ===
 //=============================================================================
 constexpr std::array<double, 6> MillePedeFileReader::multiplier_;
+
+void MillePedeFileReader::fillPSetDescription(edm::ParameterSetDescription& desc) {
+  desc.add<std::string>("fileDir", std::string());
+  desc.add<bool>("ignoreInactiveAlignables", true);
+  desc.add<std::string>("millePedeEndFile", "millepede.end");
+  desc.add<std::string>("millePedeLogFile", "millepede.log");
+  desc.add<std::string>("millePedeResFile", "millepede.res");
+  desc.add<bool>("isHG", false);
+}
