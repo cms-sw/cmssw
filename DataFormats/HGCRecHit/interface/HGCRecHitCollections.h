@@ -6,8 +6,9 @@
 #include "DataFormats/HGCRecHit/interface/HGCUncalibratedRecHit.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefVector.h"
+#include <vector>
 
-typedef edm::SortedCollection<HGCRecHit> HGCRecHitCollection;
+typedef std::vector<HGCRecHit> HGCRecHitCollection;
 typedef edm::Ref<HGCRecHitCollection> HGCRecHitRef;
 typedef edm::RefVector<HGCRecHitCollection> HGCRecHitRefs;
 typedef edm::RefProd<HGCRecHitCollection> HGCRecHitsRef;

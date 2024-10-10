@@ -212,7 +212,7 @@ void SimTrackstersProducer::addTrackster(
   tmpTrackster.vertex_multiplicity().reserve(lcVec.size());
   for (auto const& [lc, energyScorePair] : lcVec) {
     if (inputClusterMask[lc.index()] > 0) {
-      double fraction = energyScorePair.first / lc->energy();
+      float fraction = energyScorePair.first / lc->energy();
       if (fraction < fractionCut_)
         continue;
       tmpTrackster.vertices().push_back(lc.index());

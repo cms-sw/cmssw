@@ -1,18 +1,18 @@
 // Author: Felice Pantaleo - felice.pantaleo@cern.ch
 // Date: 05/2024
 
-#ifndef __RecoHGCal_TICL_PatternRecognitionbyPassthrough_H__
-#define __RecoHGCal_TICL_PatternRecognitionbyPassthrough_H__
+#ifndef __RecoHGCal_TICL_PatternRecognitionbyRecovery_H__
+#define __RecoHGCal_TICL_PatternRecognitionbyRecovery_H__
 #include <memory>  // unique_ptr
 #include "RecoHGCal/TICL/interface/PatternRecognitionAlgoBase.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 
 namespace ticl {
   template <typename TILES>
-  class PatternRecognitionbyPassthrough final : public PatternRecognitionAlgoBaseT<TILES> {
+  class PatternRecognitionbyRecovery final : public PatternRecognitionAlgoBaseT<TILES> {
   public:
-    PatternRecognitionbyPassthrough(const edm::ParameterSet& conf, edm::ConsumesCollector);
-    ~PatternRecognitionbyPassthrough() override = default;
+    PatternRecognitionbyRecovery(const edm::ParameterSet& conf, edm::ConsumesCollector);
+    ~PatternRecognitionbyRecovery() override = default;
 
     void makeTracksters(const typename PatternRecognitionAlgoBaseT<TILES>::Inputs& input,
                         std::vector<Trackster>& result,
@@ -32,4 +32,4 @@ namespace ticl {
 
 }  // namespace ticl
 
-#endif  // __RecoHGCal_TICL_PatternRecognitionbyPassthrough_H__
+#endif  // __RecoHGCal_TICL_PatternRecognitionbyRecovery_H__

@@ -9,7 +9,7 @@ from RecoHGCal.TICL.EMStep_cff import *
 from RecoHGCal.TICL.HADStep_cff import *
 from RecoHGCal.TICL.CLUE3DEM_cff import *
 from RecoHGCal.TICL.CLUE3DHAD_cff import *
-from RecoHGCal.TICL.PRbyPassthrough_cff import *
+from RecoHGCal.TICL.PRbyRecovery_cff import *
 
 from RecoHGCal.TICL.ticlLayerTileProducer_cfi import ticlLayerTileProducer
 from RecoHGCal.TICL.pfTICLProducer_cfi import pfTICLProducer as _pfTICLProducer
@@ -23,6 +23,9 @@ from RecoHGCal.TICL.ticlCandidateProducer_cfi import ticlCandidateProducer as _t
 from RecoHGCal.TICL.mtdSoAProducer_cfi import mtdSoAProducer as _mtdSoAProducer
 
 from Configuration.ProcessModifiers.ticl_v5_cff import ticl_v5
+from Configuration.ProcessModifiers.ticl_superclustering_dnn_cff import ticl_superclustering_dnn
+from Configuration.ProcessModifiers.ticl_superclustering_mustache_pf_cff import ticl_superclustering_mustache_pf
+from Configuration.ProcessModifiers.ticl_superclustering_mustache_ticl_cff import ticl_superclustering_mustache_ticl
 
 ticlLayerTileTask = cms.Task(ticlLayerTileProducer)
 
@@ -30,7 +33,7 @@ ticlTrackstersMerge = _trackstersMergeProducer.clone()
 ticlTracksterLinks = _tracksterLinksProducer.clone(
     tracksters_collections = cms.VInputTag(
         'ticlTrackstersCLUE3DHigh',
-        'ticlTrackstersPassthrough'
+        'ticlTrackstersRecovery'
     ),
     regressionAndPid = cms.bool(True),
     inferenceAlgo = cms.string('TracksterInferenceByDNN'),
@@ -62,7 +65,7 @@ ticlIterationsTask = cms.Task(
     ticlCLUE3DHighStepTask
 )
 
-ticl_v5.toModify(ticlIterationsTask , func=lambda x : x.add(ticlPassthroughStepTask))
+ticl_v5.toModify(ticlIterationsTask , func=lambda x : x.add(ticlRecoveryStepTask))
 ''' For future separate iterations
 ,ticlCLUE3DEMStepTask,
 ,ticlCLUE3DHADStepTask
@@ -75,7 +78,9 @@ ticl_v5.toReplaceWith(ticlIterationsTask, ticlIterationsTask.copyAndExclude([tic
 from Configuration.ProcessModifiers.fastJetTICL_cff import fastJetTICL
 fastJetTICL.toModify(ticlIterationsTask, func=lambda x : x.add(ticlFastJetStepTask))
 
-ticlIterLabels = ["CLUE3DHigh"]
+ticlIterLabels = ["ticlTrackstersCLUE3DHigh", "ticlTrackstersMerge"]
+ticlIterLabels_v5 = ["ticlTrackstersCLUE3DHigh", "ticlTracksterLinks", "ticlCandidate"]
+
 ''' For future separate iterations
 "CLUE3DEM", "CLUE3DHAD",
 '''
@@ -88,17 +93,35 @@ mergeTICLTask = cms.Task(ticlLayerTileTask
     ,ticlIterationsTask
     ,ticlTracksterMergeTask
 )
+
 ticl_v5.toReplaceWith(mergeTICLTask, mergeTICLTask.copyAndExclude([ticlTracksterMergeTask]))
 ticl_v5.toModify(mergeTICLTask, func=lambda x : x.add(ticlTracksterLinksTask))
 
-ticlIterLabelsMerge = ticlIterLabels + ["Merge"]
 
 mtdSoATask = cms.Task(mtdSoA)
 ticlCandidateTask = cms.Task(ticlCandidate)
 
+
+if ticl_v5._isChosen():
+    ticlIterLabels = ticlIterLabels_v5.copy()
+    if ticl_superclustering_mustache_ticl._isChosen():
+        ticlIterLabels.append("ticlTracksterLinksSuperclusteringMustache")
+    if ticl_superclustering_dnn._isChosen():
+        ticlIterLabels.append("ticlTracksterLinksSuperclusteringDNN")
+
+
+associatorsInstances = []
+
+for labelts in ticlIterLabels:
+    for labelsts in ['ticlSimTracksters', 'ticlSimTrackstersfromCPs']:
+        associatorsInstances.append(labelts+'To'+labelsts)
+        associatorsInstances.append(labelsts+'To'+labelts)
+
 iterTICLTask = cms.Task(mergeTICLTask,
     ticlPFTask)
+
 ticl_v5.toModify(iterTICLTask, func=lambda x : x.add(mtdSoATask, ticlCandidateTask))
+
 
 ticlLayerTileHFNose = ticlLayerTileProducer.clone(
     detector = 'HFNose'

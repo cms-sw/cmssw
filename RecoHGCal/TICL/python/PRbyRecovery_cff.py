@@ -6,28 +6,28 @@ from RecoHGCal.TICL.filteredLayerClustersProducer_cfi import filteredLayerCluste
 
 # CLUSTER FILTERING/MASKING
 
-filteredLayerClustersPassthrough = _filteredLayerClustersProducer.clone(
+filteredLayerClustersRecovery = _filteredLayerClustersProducer.clone(
     clusterFilter = "ClusterFilterBySize",
     min_cluster_size = 2, # inclusive
-    iteration_label = "Passthrough",
+    iteration_label = "Recovery",
     LayerClustersInputMask = 'ticlTrackstersCLUE3DHigh',
 )
 
 # PATTERN RECOGNITION
 
-ticlTrackstersPassthrough = _trackstersProducer.clone(
-    filtered_mask = "filteredLayerClustersPassthrough:Passthrough",
+ticlTrackstersRecovery = _trackstersProducer.clone(
+    filtered_mask = "filteredLayerClustersRecovery:Recovery",
     original_mask = 'ticlTrackstersCLUE3DHigh',
     seeding_regions = "ticlSeedingGlobal",
-    itername = "PassThrough",
-    patternRecognitionBy = "Passthrough",
-    pluginPatternRecognitionByPassthrough = dict (
+    itername = "Recovery",
+    patternRecognitionBy = "Recovery",
+    pluginPatternRecognitionByRecovery = dict (
         algo_verbosity = 0
     )
 )
 
 from Configuration.ProcessModifiers.ticl_v5_cff import ticl_v5
 
-ticlPassthroughStepTask = cms.Task(ticlSeedingGlobal
-    ,filteredLayerClustersPassthrough
-    ,ticlTrackstersPassthrough)
+ticlRecoveryStepTask = cms.Task(ticlSeedingGlobal
+    ,filteredLayerClustersRecovery
+    ,ticlTrackstersRecovery)
