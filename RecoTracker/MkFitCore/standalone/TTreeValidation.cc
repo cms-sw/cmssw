@@ -4,7 +4,7 @@
 #include "RecoTracker/MkFitCore/standalone/ConfigStandalone.h"
 #include "RecoTracker/MkFitCore/interface/IterationConfig.h"
 
-#ifndef NO_ROOT
+#ifdef WITH_ROOT
 
 namespace mkfit {
 
@@ -2333,7 +2333,7 @@ namespace mkfit {
       }
 
       frtree_->Fill();  // fill once per seed!
-    }                   // end of seed to seed loop
+    }  // end of seed to seed loop
   }
 
   void TTreeValidation::fillConfigTree() {

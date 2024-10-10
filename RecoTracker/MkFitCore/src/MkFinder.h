@@ -115,7 +115,8 @@ namespace mkfit {
 
     HitOnTrack bestHitLastHoT(int itrack) const { return m_HoTArrs[itrack][m_NHits(itrack, 0, 0) - 1]; }
 
-    void packModuleNormDir(const LayerOfHits &layer_of_hits, int hit_cnt, MPlexHV &norm, MPlexHV &dir, int N_proc) const;
+    void packModuleNormDirPnt(
+        const LayerOfHits &layer_of_hits, int hit_cnt, MPlexHV &norm, MPlexHV &dir, MPlexHV &pnt, int N_proc) const;
 
     //----------------------------------------------------------------------------
 

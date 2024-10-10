@@ -21,6 +21,9 @@
 #include "RecoTracker/MkFitCMS/interface/LayerNumberConverter.h"
 #include "RecoTracker/MkFitCore/interface/Config.h"
 
+#include <list>
+#include <vector>
+#include <unordered_map>
 #include <sstream>
 
 // #define DUMP_MKF_GEO
@@ -57,7 +60,15 @@ private:
     std::list<Interval> m_coverage;
     Interval m_current;
   };
-  typedef std::unordered_map<int, GapCollector> layer_gap_map_t;
+  using layer_gap_map_t = std::unordered_map<int, GapCollector>;
+
+  struct ModuleShape_hash {
+    std::size_t operator()(const mkfit::ModuleShape &s) const noexcept {
+      return std::hash<float>{}(s.dx1 + s.dx2 + s.dy + s.dz);
+    }
+  };
+  using module_shape_hmap_t = std::unordered_map<mkfit::ModuleShape, unsigned short, ModuleShape_hash>;
+  using layer_module_shape_vec_t = std::vector<module_shape_hmap_t>;
 
   struct MatHistBin {
     float weight{0}, xi{0}, rl{0};
@@ -92,6 +103,7 @@ private:
   const TrackerTopology *trackerTopo_ = nullptr;
   const TrackerGeometry *trackerGeom_ = nullptr;
   mkfit::LayerNumberConverter layerNrConv_ = {mkfit::TkLayout::phase1};
+  layer_module_shape_vec_t layerModuleShapeVec_;
 };
 
 MkFitGeometryESProducer::MkFitGeometryESProducer(const edm::ParameterSet &iConfig) {
@@ -208,8 +220,9 @@ void MkFitGeometryESProducer::fillShapeAndPlacement(const GeomDet *det,
     doubleSide = trackerTopo_->tecIsDoubleSide(detid);
 
   float xy[4][2];
-  float half_length, dz;
+  float dz;
   const Bounds *b = &((det->surface()).bounds());
+  mkfit::ModuleShape ms;
 
   if (const TrapezoidalPlaneBounds *b2 = dynamic_cast<const TrapezoidalPlaneBounds *>(b)) {
     // See sec. "TrapezoidalPlaneBounds parameters" in doc/reco-geom-notes.txt
@@ -222,8 +235,8 @@ void MkFitGeometryESProducer::fillShapeAndPlacement(const GeomDet *det,
     xy[2][1] = par[3];
     xy[3][0] = par[0];
     xy[3][1] = -par[3];
-    half_length = par[3];
     dz = par[2];
+    ms.round_assign(par[0], par[1], par[3], par[2]);
 
 #ifdef DUMP_MKF_GEO
     printf("TRAP 0x%x %f %f %f %f  ", detid.rawId(), par[0], par[1], par[2], par[3]);
@@ -240,11 +253,11 @@ void MkFitGeometryESProducer::fillShapeAndPlacement(const GeomDet *det,
     xy[2][1] = dy;
     xy[3][0] = dx;
     xy[3][1] = -dy;
-    half_length = dy;
     dz = b2->thickness() * 0.5;  // half thickness
+    ms.round_assign(dx, 0.0f, dy, dz);
 
 #ifdef DUMP_MKF_GEO
-    printf("RECT 0x%x %f %f %f  ", detid.rawId(), dx, dy, dz);
+    printf("RECT 0x%x %f %f %f           ", detid.rawId(), dx, dy, dz);
 #endif
   } else {
     throw cms::Exception("UnimplementedFeature") << "unsupported Bounds class";
@@ -257,14 +270,26 @@ void MkFitGeometryESProducer::fillShapeAndPlacement(const GeomDet *det,
                                       useMatched,
                                       trackerTopo_->isStereo(detid),
                                       trackerTopo_->side(detid) == static_cast<unsigned>(TrackerDetSide::PosEndcap));
+
+  unsigned short shape_id = 9999;
+  if (!doubleSide) {
+    module_shape_hmap_t &bhm = layerModuleShapeVec_[lay];
+    auto bhmi = bhm.find(ms);
+    if (bhmi == bhm.end()) {
+      bhmi = bhm.insert({ms, (unsigned short)bhm.size()}).first;
+    }
+    shape_id = bhmi->second;
+  }
+
 #ifdef DUMP_MKF_GEO
-  printf("  subdet=%d layer=%d side=%d is_stereo=%d is_double_side=%d --> mkflayer=%d\n",
+  printf("  subdet=%d layer=%d side=%d is_stereo=%d is_double_side=%d --> mkflayer=%d; unique shape id=%hu\n",
          detid.subdetId(),
          trackerTopo_->layer(detid),
          trackerTopo_->side(detid),
          trackerTopo_->isStereo(detid),
          doubleSide,
-         lay);
+         lay,
+         shape_id);
 #endif
 
   mkfit::LayerInfo &layer_info = trk_info.layer_nc(lay);
@@ -292,6 +317,12 @@ void MkFitGeometryESProducer::fillShapeAndPlacement(const GeomDet *det,
 
   // Double-sided module (join of two modules) information is not used in mkFit and
   // also not needed for the material calculation.
+  // NOTE: This check should actually be performed even before the bounding box calculation
+  // as double-side module bounding box is a box-shaped union of bounding shapes of the
+  // constituent modules -- thus extending the layer bounding box unnecessarily.
+  // The 'if' is here as mkFit layer hit/miss logic has been tuned with this extended
+  // bounding boxes. To be moved higher up once this detection is improved through usage of
+  // the thin-thick layer concept (expected towards the end of 2024).
   if (doubleSide)
     return;
 
@@ -300,7 +331,7 @@ void MkFitGeometryESProducer::fillShapeAndPlacement(const GeomDet *det,
   auto z = det->rotation().z();
   auto x = det->rotation().x();
   layer_info.register_module(
-      {{p.x(), p.y(), p.z()}, {z.x(), z.y(), z.z()}, {x.x(), x.y(), x.z()}, half_length, detid.rawId()});
+      {{p.x(), p.y(), p.z()}, {z.x(), z.y(), z.z()}, {x.x(), x.y(), x.z()}, detid.rawId(), shape_id});
   // Set some layer parameters (repeatedly, would require hard-coding otherwise)
   layer_info.set_subdet(detid.subdetId());
   layer_info.set_is_pixel(detid.subdetId() <= 2);
@@ -520,11 +551,17 @@ std::unique_ptr<MkFitGeometry> MkFitGeometryESProducer::produce(const TrackerRec
     edm::LogInfo("MkFitGeometryESProducer") << "Extracting PhaseI geometry";
     trackerInfo->create_layers(18, 27, 27);
     qBinDefaults = phase1QBins;
-
     trackerInfo->create_material(300, 300.0f, 120, 120.0f);
   } else if (trackerGeom_->isThere(GeomDetEnumerators::P2PXB) || trackerGeom_->isThere(GeomDetEnumerators::P2PXEC) ||
              trackerGeom_->isThere(GeomDetEnumerators::P2OTB) || trackerGeom_->isThere(GeomDetEnumerators::P2OTEC)) {
     edm::LogInfo("MkFitGeometryESProducer") << "Extracting PhaseII geometry";
+#if !defined(MKFIT_PHASE2CUSTOMFLAGS)
+    // In Phase2, by default use prop-to-plane and pT-dependent MS.
+    // Option is kept to use custom flags, for R&D/test purposes.
+    using namespace mkfit;
+    Config::usePropToPlane = true;
+    Config::usePtMultScat = true;
+#endif
     layerNrConv_.reset(mkfit::TkLayout::phase2);
     trackerInfo->create_layers(16, 22, 22);
     qBinDefaults = phase2QBins;
@@ -533,13 +570,15 @@ std::unique_ptr<MkFitGeometry> MkFitGeometryESProducer::produce(const TrackerRec
     throw cms::Exception("UnimplementedFeature") << "unsupported / unknowen geometry version";
   }
 
-  // Prepare layer boundaries for bounding-box search
+  // Prepare layer boundaries for bounding-rz-box search
   for (int i = 0; i < trackerInfo->n_layers(); ++i) {
     auto &li = trackerInfo->layer_nc(i);
     li.set_limits(
         std::numeric_limits<float>::max(), 0, std::numeric_limits<float>::max(), -std::numeric_limits<float>::max());
     li.reserve_modules(256);
   }
+  // Resize the module bounds collector vector
+  layerModuleShapeVec_.resize(trackerInfo->n_layers());
 
   MaterialHistogram material_histogram(trackerInfo->mat_nbins_z(), trackerInfo->mat_nbins_r());
 
@@ -552,7 +591,7 @@ std::unique_ptr<MkFitGeometry> MkFitGeometryESProducer::produce(const TrackerRec
   addTOBGeometry(*trackerInfo, material_histogram);
   addTECGeometry(*trackerInfo, material_histogram);
 
-  // r_in/out kept as squares until here, root them
+  // r_in/out kept as squares until here, root them; fill ModuleShape vectors of layers
   unsigned int n_mod = 0;
   for (int i = 0; i < trackerInfo->n_layers(); ++i) {
     auto &li = trackerInfo->layer_nc(i);
@@ -566,6 +605,13 @@ std::unique_ptr<MkFitGeometry> MkFitGeometryESProducer::produce(const TrackerRec
     // Make sure the short id fits in the 14 bits...
     assert(maxsid < 1u << 13);
     assert(n_mod > 0);
+
+    // Fill ModuleShape vectors
+    int n_shapes = layerModuleShapeVec_[i].size();
+    li.resize_shapes(n_shapes);
+    for (auto &[shape, id] : layerModuleShapeVec_[i]) {
+      li.register_shape(shape, id);
+    }
   }
 
   // Material grid

@@ -5,8 +5,6 @@
 #include "RecoTracker/MkFitCMS/interface/MkStdSeqs.h"
 #include "RecoTracker/MkFitCMS/standalone/MkStandaloneSeqs.h"
 
-#include "oneapi/tbb/parallel_for.h"
-
 #include <memory>
 
 namespace mkfit {
@@ -194,7 +192,7 @@ namespace mkfit {
   }
 
   //==============================================================================
-  // runBuildTestPlex Combinatorial: Standard TBB
+  // runBuildTestPlex Combinatorial: Standard
   //==============================================================================
 
   double runBuildingTestPlexStandard(Event &ev, const EventOfHits &eoh, MkBuilder &builder) {
@@ -290,7 +288,7 @@ namespace mkfit {
   }
 
   //==============================================================================
-  // runBuildTestPlex Combinatorial: CloneEngine TBB
+  // runBuildTestPlex Combinatorial: CloneEngine
   //==============================================================================
 
   double runBuildingTestPlexCloneEngine(Event &ev, const EventOfHits &eoh, MkBuilder &builder) {

@@ -84,7 +84,6 @@ ${LIB_CORE}: ${OBJS} ${LIB_RNTDUMP}
 ifdef WITH_ROOT
 ${LIB_RNTDUMP}: ${RNTD_OBJS} MicRntDumpDict.o
 	${CXX} ${CXXFLAGS} ${VEC_HOST} ${RNTD_OBJS} MicRntDumpDict.o -shared -o $@ ${LDFLAGS_HOST} ${LDFLAGS} -lROOTEve
-
 MicRntDumpDict.cc ${RNTDUMP_DICT_PCM} &: ${SADIR}/RntDumper/RntStructs.h ${SADIR}/RntDumper/RntStructs_Linkdef.h
 	rootcling -I. -I${SRCDIR} -f MicRntDumpDict.cc ${SADIR}/RntDumper/RntStructs.h ${SADIR}/RntDumper/RntStructs_Linkdef.h
 	mv MicRntDumpDict_rdict.pcm ${RNTDUMP_DICT_PCM}

@@ -1,0 +1,204 @@
+#ifdef MPLEX_INTRINSICS
+
+for (int n = 0; n < N; n += MPLEX_INTRINSICS_WIDTH_BYTES / sizeof(T)) {
+  IntrVec_t a_0 = LD(a, 0);
+  IntrVec_t b_3 = LD(b, 3);
+  IntrVec_t c_3 = MUL(a_0, b_3);
+  IntrVec_t b_5 = LD(b, 5);
+  IntrVec_t c_5 = MUL(a_0, b_5);
+
+  IntrVec_t a_1 = LD(a, 1);
+  IntrVec_t b_11 = LD(b, 11);
+  c_5 = FMA(a_1, b_11, c_5);
+
+  IntrVec_t a_2 = LD(a, 2);
+  IntrVec_t c_4 = a_2;
+
+  IntrVec_t a_3 = LD(a, 3);
+  IntrVec_t b_18 = LD(b, 18);
+  IntrVec_t c_0 = MUL(a_3, b_18);
+  IntrVec_t b_19 = LD(b, 19);
+  IntrVec_t c_1 = MUL(a_3, b_19);
+
+  IntrVec_t a_4 = LD(a, 4);
+  IntrVec_t b_24 = LD(b, 24);
+  c_0 = FMA(a_4, b_24, c_0);
+  IntrVec_t b_25 = LD(b, 25);
+  c_1 = FMA(a_4, b_25, c_1);
+  IntrVec_t b_26 = LD(b, 26);
+  IntrVec_t c_2 = MUL(a_4, b_26);
+  ST(c, 0, c_0);
+
+  IntrVec_t a_5 = LD(a, 5);
+  IntrVec_t c_9 = MUL(a_5, b_3);
+  ST(c, 1, c_1);
+  ST(c, 2, c_2);
+  ST(c, 3, c_3);
+  ST(c, 4, c_4);
+  ST(c, 5, c_5);
+  IntrVec_t c_11 = MUL(a_5, b_5);
+
+  IntrVec_t a_6 = LD(a, 6);
+  c_11 = FMA(a_6, b_11, c_11);
+
+  IntrVec_t a_7 = LD(a, 7);
+  IntrVec_t c_10 = a_7;
+
+  IntrVec_t a_8 = LD(a, 8);
+  IntrVec_t c_6 = MUL(a_8, b_18);
+  IntrVec_t c_7 = MUL(a_8, b_19);
+
+  IntrVec_t a_9 = LD(a, 9);
+  c_6 = FMA(a_9, b_24, c_6);
+  c_7 = FMA(a_9, b_25, c_7);
+  IntrVec_t c_8 = MUL(a_9, b_26);
+
+  IntrVec_t a_10 = LD(a, 10);
+  IntrVec_t c_15 = MUL(a_10, b_3);
+  ST(c, 6, c_6);
+  ST(c, 7, c_7);
+  ST(c, 8, c_8);
+  ST(c, 9, c_9);
+  ST(c, 10, c_10);
+  ST(c, 11, c_11);
+  IntrVec_t c_17 = MUL(a_10, b_5);
+
+  IntrVec_t a_11 = LD(a, 11);
+  c_17 = FMA(a_11, b_11, c_17);
+
+  IntrVec_t a_12 = LD(a, 12);
+  IntrVec_t c_16 = a_12;
+
+  IntrVec_t a_13 = LD(a, 13);
+  IntrVec_t c_12 = MUL(a_13, b_18);
+  IntrVec_t c_13 = MUL(a_13, b_19);
+
+  IntrVec_t a_14 = LD(a, 14);
+  c_12 = FMA(a_14, b_24, c_12);
+  c_13 = FMA(a_14, b_25, c_13);
+  IntrVec_t c_14 = MUL(a_14, b_26);
+
+  IntrVec_t a_15 = LD(a, 15);
+  IntrVec_t c_21 = MUL(a_15, b_3);
+  ST(c, 12, c_12);
+  ST(c, 13, c_13);
+  ST(c, 14, c_14);
+  ST(c, 15, c_15);
+  ST(c, 16, c_16);
+  ST(c, 17, c_17);
+  IntrVec_t c_23 = MUL(a_15, b_5);
+
+  IntrVec_t a_16 = LD(a, 16);
+  c_23 = FMA(a_16, b_11, c_23);
+
+  IntrVec_t a_17 = LD(a, 17);
+  IntrVec_t c_22 = a_17;
+
+  IntrVec_t a_18 = LD(a, 18);
+  IntrVec_t c_18 = MUL(a_18, b_18);
+  IntrVec_t c_19 = MUL(a_18, b_19);
+
+  IntrVec_t a_19 = LD(a, 19);
+  c_18 = FMA(a_19, b_24, c_18);
+  c_19 = FMA(a_19, b_25, c_19);
+  IntrVec_t c_20 = MUL(a_19, b_26);
+
+  IntrVec_t a_20 = LD(a, 20);
+  IntrVec_t c_27 = MUL(a_20, b_3);
+  ST(c, 18, c_18);
+  ST(c, 19, c_19);
+  ST(c, 20, c_20);
+  ST(c, 21, c_21);
+  ST(c, 22, c_22);
+  ST(c, 23, c_23);
+  IntrVec_t c_29 = MUL(a_20, b_5);
+
+  IntrVec_t a_21 = LD(a, 21);
+  c_29 = FMA(a_21, b_11, c_29);
+
+  IntrVec_t a_22 = LD(a, 22);
+  IntrVec_t c_28 = a_22;
+
+  IntrVec_t a_23 = LD(a, 23);
+  IntrVec_t c_24 = MUL(a_23, b_18);
+  IntrVec_t c_25 = MUL(a_23, b_19);
+
+  IntrVec_t a_24 = LD(a, 24);
+  c_24 = FMA(a_24, b_24, c_24);
+  c_25 = FMA(a_24, b_25, c_25);
+  IntrVec_t c_26 = MUL(a_24, b_26);
+
+  IntrVec_t a_25 = LD(a, 25);
+  IntrVec_t c_33 = MUL(a_25, b_3);
+  ST(c, 24, c_24);
+  ST(c, 25, c_25);
+  ST(c, 26, c_26);
+  ST(c, 27, c_27);
+  ST(c, 28, c_28);
+  ST(c, 29, c_29);
+  IntrVec_t c_35 = MUL(a_25, b_5);
+
+  IntrVec_t a_26 = LD(a, 26);
+  c_35 = FMA(a_26, b_11, c_35);
+
+  IntrVec_t a_27 = LD(a, 27);
+  IntrVec_t c_34 = a_27;
+
+  IntrVec_t a_28 = LD(a, 28);
+  IntrVec_t c_30 = MUL(a_28, b_18);
+  IntrVec_t c_31 = MUL(a_28, b_19);
+
+  IntrVec_t a_29 = LD(a, 29);
+  c_30 = FMA(a_29, b_24, c_30);
+  c_31 = FMA(a_29, b_25, c_31);
+  IntrVec_t c_32 = MUL(a_29, b_26);
+  ST(c, 30, c_30);
+  ST(c, 31, c_31);
+  ST(c, 32, c_32);
+  ST(c, 33, c_33);
+  ST(c, 34, c_34);
+  ST(c, 35, c_35);
+}
+
+#else
+
+#pragma omp simd
+for (int n = 0; n < N; ++n) {
+  c[0 * N + n] = a[3 * N + n] * b[18 * N + n] + a[4 * N + n] * b[24 * N + n];
+  c[1 * N + n] = a[3 * N + n] * b[19 * N + n] + a[4 * N + n] * b[25 * N + n];
+  c[2 * N + n] = a[4 * N + n] * b[26 * N + n];
+  c[3 * N + n] = a[0 * N + n] * b[3 * N + n];
+  c[4 * N + n] = a[2 * N + n];
+  c[5 * N + n] = a[0 * N + n] * b[5 * N + n] + a[1 * N + n] * b[11 * N + n];
+  c[6 * N + n] = a[8 * N + n] * b[18 * N + n] + a[9 * N + n] * b[24 * N + n];
+  c[7 * N + n] = a[8 * N + n] * b[19 * N + n] + a[9 * N + n] * b[25 * N + n];
+  c[8 * N + n] = a[9 * N + n] * b[26 * N + n];
+  c[9 * N + n] = a[5 * N + n] * b[3 * N + n];
+  c[10 * N + n] = a[7 * N + n];
+  c[11 * N + n] = a[5 * N + n] * b[5 * N + n] + a[6 * N + n] * b[11 * N + n];
+  c[12 * N + n] = a[13 * N + n] * b[18 * N + n] + a[14 * N + n] * b[24 * N + n];
+  c[13 * N + n] = a[13 * N + n] * b[19 * N + n] + a[14 * N + n] * b[25 * N + n];
+  c[14 * N + n] = a[14 * N + n] * b[26 * N + n];
+  c[15 * N + n] = a[10 * N + n] * b[3 * N + n];
+  c[16 * N + n] = a[12 * N + n];
+  c[17 * N + n] = a[10 * N + n] * b[5 * N + n] + a[11 * N + n] * b[11 * N + n];
+  c[18 * N + n] = a[18 * N + n] * b[18 * N + n] + a[19 * N + n] * b[24 * N + n];
+  c[19 * N + n] = a[18 * N + n] * b[19 * N + n] + a[19 * N + n] * b[25 * N + n];
+  c[20 * N + n] = a[19 * N + n] * b[26 * N + n];
+  c[21 * N + n] = a[15 * N + n] * b[3 * N + n];
+  c[22 * N + n] = a[17 * N + n];
+  c[23 * N + n] = a[15 * N + n] * b[5 * N + n] + a[16 * N + n] * b[11 * N + n];
+  c[24 * N + n] = a[23 * N + n] * b[18 * N + n] + a[24 * N + n] * b[24 * N + n];
+  c[25 * N + n] = a[23 * N + n] * b[19 * N + n] + a[24 * N + n] * b[25 * N + n];
+  c[26 * N + n] = a[24 * N + n] * b[26 * N + n];
+  c[27 * N + n] = a[20 * N + n] * b[3 * N + n];
+  c[28 * N + n] = a[22 * N + n];
+  c[29 * N + n] = a[20 * N + n] * b[5 * N + n] + a[21 * N + n] * b[11 * N + n];
+  c[30 * N + n] = a[28 * N + n] * b[18 * N + n] + a[29 * N + n] * b[24 * N + n];
+  c[31 * N + n] = a[28 * N + n] * b[19 * N + n] + a[29 * N + n] * b[25 * N + n];
+  c[32 * N + n] = a[29 * N + n] * b[26 * N + n];
+  c[33 * N + n] = a[25 * N + n] * b[3 * N + n];
+  c[34 * N + n] = a[27 * N + n];
+  c[35 * N + n] = a[25 * N + n] * b[5 * N + n] + a[26 * N + n] * b[11 * N + n];
+}
+#endif

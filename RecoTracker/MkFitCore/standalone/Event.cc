@@ -5,10 +5,6 @@
 //#define DEBUG
 #include "RecoTracker/MkFitCore/src/Debug.h"
 
-#ifdef TBB
-#include "oneapi/tbb/parallel_for.h"
-#endif
-
 #include <memory>
 
 namespace {

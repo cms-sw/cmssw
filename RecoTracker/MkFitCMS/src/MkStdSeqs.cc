@@ -8,8 +8,6 @@
 
 #include "RecoTracker/MkFitCore/interface/binnor.h"
 
-#include "oneapi/tbb/parallel_for.h"
-
 namespace mkfit {
 
   namespace StdSeq {

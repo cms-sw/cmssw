@@ -17,9 +17,17 @@
 
 #include "RecoTracker/MkFitCore/standalone/Event.h"
 
-#ifndef NO_ROOT
+#include "RecoTracker/MkFitCore/interface/TrackerInfo.h"
+
 #include "TROOT.h"
 #include "TRint.h"
+
+#ifdef WITH_REVE
+#include "TRandom.h"
+#include "ROOT/REveJetCone.hxx"
+#include "ROOT/REveManager.hxx"
+#include "ROOT/REveScene.hxx"
+#include "ROOT/REveBoxSet.hxx"
 #endif
 
 #include "oneapi/tbb/task_arena.h"
@@ -46,29 +54,38 @@ namespace mkfit {
     m_backward_fit = Config::backwardFit;
 
     m_data_file = new DataFile;
-    m_evs_in_file = m_data_file->openRead(in_file, Config::TrkInfo.n_layers());
-
     m_event = new Event(0, Config::TrkInfo.n_layers());
-    GoToEvent(start_ev);
+
+    if ( ! in_file.empty() && Config::nEvents > 0) {
+      m_evs_in_file = m_data_file->openRead(in_file, Config::TrkInfo.n_layers());
+      GoToEvent(start_ev);
+    } else {
+      printf("Shell initialized but the %s, running on an empty Event.\n",
+      in_file.empty() ? "input-file not specified" : "requested number of events to process is 0");
+    }
+  }
+
+  Shell::~Shell() {
+    delete m_event;
+    delete m_data_file;
+    delete m_builder;
+    delete m_eoh;
+    delete gApplication;
   }
 
   void Shell::Run() {
-#ifndef NO_ROOT
     std::vector<const char *> argv = { "mkFit", "-l" };
     int argc = argv.size();
-    TRint rint("mkFit-shell", &argc, const_cast<char**>(argv.data()));
+    gApplication = new TRint("mkFit-shell", &argc, const_cast<char**>(argv.data()));
 
     char buf[256];
     sprintf(buf, "mkfit::Shell &s = * (mkfit::Shell*) %p;", this);
     gROOT->ProcessLine(buf);
-    printf("Shell &s variable is set\n");
+    printf("Shell &s variable is set: ");
+    gROOT->ProcessLine("s");
 
-    rint.Run(true);
+    gApplication->Run(true);
     printf("Shell::Run finished\n");
-#else
-    printf("Shell::Run() no root, we rot -- erroring out. Recompile with WITH_ROOT=1\n");
-    exit(1);
-#endif
   }
 
   void Shell::Status() {
@@ -79,6 +96,8 @@ namespace mkfit {
            b2a(g_debug), b2a(Config::useDeadModules),
            b2a(m_clean_seeds), b2a(m_backward_fit), b2a(m_remove_duplicates));
   }
+
+  TrackerInfo* Shell::tracker_info() { return &Config::TrkInfo; }
 
   //===========================================================================
   // Event navigation / processing
@@ -137,7 +156,8 @@ namespace mkfit {
             m_seeds.push_back(s);
           } else if (seed_select == SS_Label && s.label() == selected_seed) {
             m_seeds.push_back(s);
-            break;
+            if (--count <= 0)
+              break;
           } else if (seed_select == SS_IndexPreCleaning && n_algo >= selected_seed) {
             m_seeds.push_back(s);
             if (--count <= 0)
@@ -560,5 +580,88 @@ namespace mkfit {
     printf("-------------------------------------------------------------------------------------------\n");
     printf("\n");
   }
+
+  //===========================================================================
+  // Visualization helpers
+  //===========================================================================
+
+#ifdef WITH_REVE
+
+  void Shell::ShowTracker() {
+    namespace REX = ROOT::Experimental;
+    auto eveMng = REX::REveManager::Create();
+    eveMng->AllowMultipleRemoteConnections(false, false);
+
+    {
+      REX::REveElement *holder = new REX::REveElement("Jets");
+
+      int N_Jets = 4;
+      TRandom &r = *gRandom;
+
+      //const Double_t kR_min = 240;
+      const Double_t kR_max = 250;
+      const Double_t kZ_d   = 300;
+      for (int i = 0; i < N_Jets; i++)
+      {
+          auto jet = new REX::REveJetCone(Form("Jet_%d",i ));
+          jet->SetCylinder(2*kR_max, 2*kZ_d);
+          jet->AddEllipticCone(r.Uniform(-0.5, 0.5), r.Uniform(0, TMath::TwoPi()),
+                              0.1, 0.2);
+          jet->SetFillColor(kRed + 4);
+          jet->SetLineColor(kBlack);
+          jet->SetMainTransparency(90);
+
+          holder->AddElement(jet);
+      }
+      eveMng->GetEventScene()->AddElement(holder);
+    }
+
+    auto &ti = Config::TrkInfo;
+    for (int l = 0; l < ti.n_layers(); ++l) {
+      auto &li = ti[l];
+      auto* bs = new REX::REveBoxSet(Form("Layer %d", l));
+      bs->Reset(REX::REveBoxSet::kBT_InstancedScaledRotated, true, li.n_modules());
+      bs->SetMainColorPtr(new Color_t);
+      bs->UseSingleColor();
+      if (li.is_pixel())
+        bs->SetMainColor(li.is_barrel() ? kBlue - 3 : kCyan - 3);
+      else
+        bs->SetMainColor(li.is_barrel() ? kMagenta - 3 : kGreen - 3);
+
+      float t[16];
+      t[3] = t[7] = t[11] = 0;
+      t[15] = 1;
+      for (int m = 0; m < li.n_modules(); ++m) {
+        auto &mi = li.module_info(m);
+        auto &si = li.module_shape(mi.shapeid);
+
+        auto &x = mi.xdir;
+        t[0] = x[0] * si.dx1;
+        t[1] = x[1] * si.dx1;
+        t[2] = x[2] * si.dx1;
+        auto y = mi.calc_ydir();
+        t[4] = y[0] * si.dy;
+        t[5] = y[1] * si.dy;
+        t[6] = y[2] * si.dy;
+        auto &z = mi.zdir;
+        t[8] = z[0] * si.dz;
+        t[9] = z[1] * si.dz;
+        t[10] = z[2] * si.dz;
+        auto &p = mi.pos;
+        t[12] = p[0];
+        t[13] = p[1];
+        t[14] = p[2];
+
+        bs->AddInstanceMat4(t);
+      }
+      bs->SetMainTransparency(60);
+      bs->RefitPlex();
+
+      eveMng->GetEventScene()->AddElement(bs);
+    }
+    eveMng->Show();
+  }
+
+#endif // WITH_REVE
 
 }

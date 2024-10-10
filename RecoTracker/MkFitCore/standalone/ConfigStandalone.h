@@ -2,6 +2,7 @@
 #define RecoTracker_MkFitCore_standalone_ConfigStandalone_h
 
 #include "RecoTracker/MkFitCore/interface/Config.h"
+#include "RecoTracker/MkFitCore/interface/DeadRegion.h"
 
 #include <string>
 #include <map>
@@ -175,6 +176,10 @@ namespace mkfit {
     void recalculateDependentConstants();
 
   }  // end namespace Config
+
+  namespace internal {
+    extern std::vector<DeadVec> deadvectors;
+  }
 
 }  // end namespace mkfit
 

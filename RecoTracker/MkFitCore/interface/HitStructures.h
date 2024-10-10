@@ -3,6 +3,8 @@
 
 #include "RecoTracker/MkFitCore/interface/Config.h"
 #include "RecoTracker/MkFitCore/interface/Hit.h"
+#include "RecoTracker/MkFitCore/interface/BeamSpot.h"
+#include "RecoTracker/MkFitCore/interface/DeadRegion.h"
 #include "RecoTracker/MkFitCore/interface/TrackerInfo.h"
 #include "RecoTracker/MkFitCore/interface/binnor.h"
 
