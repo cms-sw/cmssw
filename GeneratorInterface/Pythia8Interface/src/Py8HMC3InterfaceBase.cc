@@ -27,7 +27,11 @@ namespace gen {
 
     if (ps.exists("useEvtGenPlugin")) {
       useEvtGen = true;
-      string evtgenpath(std::getenv("EVTGENDATA"));
+      auto env = std::getenv("EVTGENDATA");
+      if (not env) {
+        throw cms::Exception("EvtGenMissingEnv") << "The environment variable EVTGENDATA must be defined";
+      }
+      string evtgenpath(env);
       evtgenDecFile = evtgenpath + string("/DECAY_2010.DEC");
       evtgenPdlFile = evtgenpath + string("/evt.pdl");
 
