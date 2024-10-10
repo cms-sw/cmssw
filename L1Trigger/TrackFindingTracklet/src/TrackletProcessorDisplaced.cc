@@ -41,18 +41,19 @@ TrackletProcessorDisplaced::TrackletProcessorDisplaced(string name, Settings con
 
   if (layerdisk_ == LayerDisk::L1 || layerdisk_ == LayerDisk::L2 || layerdisk_ == LayerDisk::L3 ||
       layerdisk_ == LayerDisk::L5 || layerdisk_ == LayerDisk::D1 || layerdisk_ == LayerDisk::D3) {
-    innerTable_.initVMRTable(layerdisk_, TrackletLUT::VMRTableType::inner, region);  //projection to next layer/disk
+    innerTable_.initVMRTable(
+        layerdisk_, TrackletLUT::VMRTableType::inner, region, false);  //projection to next layer/disk
   }
 
   if (layerdisk_ == LayerDisk::L1 || layerdisk_ == LayerDisk::L2) {
     innerOverlapTable_.initVMRTable(
-        layerdisk_, TrackletLUT::VMRTableType::inneroverlap, region);  //projection to disk from layer
+        layerdisk_, TrackletLUT::VMRTableType::inneroverlap, region, false);  //projection to disk from layer
   }
 
   if (layerdisk_ == LayerDisk::L2 || layerdisk_ == LayerDisk::L3 || layerdisk_ == LayerDisk::L5 ||
       layerdisk_ == LayerDisk::D1) {
     innerThirdTable_.initVMRTable(
-        layerdisk_, TrackletLUT::VMRTableType::innerthird, region);  //projection to third layer/disk
+        layerdisk_, TrackletLUT::VMRTableType::innerthird, region, false);  //projection to third layer/disk
   }
 
   nbitszfinebintable_ = settings_.vmrlutzbits(layerdisk_);
