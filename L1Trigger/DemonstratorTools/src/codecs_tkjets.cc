@@ -29,12 +29,9 @@ namespace l1t::demo::codecs {
     std::vector<l1t::TkJetWord> tkJets;
 
     for (size_t f = 0; f < frames.size(); f += 2) {
-      // There is no valid bit in the definition right now.
-      // Uncomment the next two lines when this is available.
-      //if (not x.test(TkJetWord::kValidLSB))
-      //  break;
-
       TkJetWord j(
+          TkJetWord::tkjetvalid_t(
+              frames[f](TkJetWord::TkJetBitLocations::kValidMSB, TkJetWord::TkJetBitLocations::kValidLSB)),
           TkJetWord::pt_t(frames[f](TkJetWord::TkJetBitLocations::kPtMSB, TkJetWord::TkJetBitLocations::kPtLSB)),
           TkJetWord::glbphi_t(
               frames[f](TkJetWord::TkJetBitLocations::kGlbPhiMSB, TkJetWord::TkJetBitLocations::kGlbPhiLSB)),
@@ -47,6 +44,11 @@ namespace l1t::demo::codecs {
               frames[f](TkJetWord::TkJetBitLocations::kDispFlagMSB, TkJetWord::TkJetBitLocations::kDispFlagLSB)),
           TkJetWord::tkjetunassigned_t(
               frames[f](TkJetWord::TkJetBitLocations::kUnassignedMSB, TkJetWord::TkJetBitLocations::kUnassignedLSB)));
+      // There is no valid bit in the definition right now.
+      // Uncomment the next two lines when this is available.
+      if (not j.valid())
+        break;
+
       tkJets.push_back(j);
     }
 
