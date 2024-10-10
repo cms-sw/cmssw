@@ -63,6 +63,10 @@ _iterations_trackingPhase2PU140 = [
 ]
 from Configuration.ProcessModifiers.vectorHits_cff import vectorHits
 vectorHits.toModify(_iterations_trackingPhase2PU140, func=lambda x: x.append('PixelLessStep'))
+
+from Configuration.ProcessModifiers.jetCoreInPhase2_cff import jetCoreInPhase2
+jetCoreInPhase2.toModify(_iterations_trackingPhase2PU140, func=lambda x: x.append('JetCoreRegionalStep'))
+
 _iterations_muonSeeded = [
     "MuonSeededStepInOut",
     "MuonSeededStepOutIn",
