@@ -21,8 +21,6 @@ VMRouterCM::VMRouterCM(string name, Settings const& settings, Globals* global)
   unsigned int region = name[9] - 'A';
   assert(region < settings_.nallstubs(layerdisk_));
 
-  vmstubsMEPHI_.resize(1, nullptr);
-
   overlapbits_ = 7;
   nextrabits_ = overlapbits_ - (settings_.nbitsallstubs(layerdisk_) + settings_.nbitsvmme(layerdisk_));
 
@@ -83,8 +81,7 @@ void VMRouterCM::addOutput(MemoryBase* memory, string output) {
       VMStubsMEMemory* tmp = dynamic_cast<VMStubsMEMemory*>(memory);
       assert(tmp != nullptr);
       tmp->resize(nvmmebins_ * settings_.nvmme(layerdisk_));
-      assert(vmstubsMEPHI_[0] == nullptr);
-      vmstubsMEPHI_[0] = tmp;
+      vmstubsMEPHI_.push_back(tmp);
     } else {
       throw cms::Exception("LogicError") << __FILE__ << " " << __LINE__ << " memory: " << memory->getName()
                                          << " => should never get here!";
@@ -258,8 +255,11 @@ void VMRouterCM::execute(unsigned int) {
           FPGAWord(stub->bend().value(), nbendbits, true, __LINE__, __FILE__),
           allStubIndex);
 
-      if (vmstubsMEPHI_[0] != nullptr) {
-        vmstubsMEPHI_[0]->addStub(vmstub, ivm * nvmmebins_ + vmbin);
+      unsigned int nmems = vmstubsMEPHI_.size();
+
+      for (unsigned int i = 0; i < nmems; i++) {  // allows multiple VMStubs to be written for duplicated MPs
+        if (vmstubsMEPHI_[i] != nullptr)
+          vmstubsMEPHI_[i]->addStub(vmstub, ivm * nvmmebins_ + vmbin);
       }
 
       //Fill the TE VM memories
