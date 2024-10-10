@@ -51,11 +51,14 @@ enum : char {
   kTLuminosityBlockRange = 'A',
   kTVLuminosityBlockRange = 'a',
   kTEventRange = 'R',
-  kTVEventRange = 'r'
+  kTVEventRange = 'r',
+  kTfloat = 'H',
+  kTvfloat = 'h',
 };
 
-static constexpr const std::array<std::string_view, 32> s_types = {{"bool",
+static constexpr const std::array<std::string_view, 34> s_types = {{"bool",
                                                                     "double",
+                                                                    "float",
                                                                     "int32",
                                                                     "int64",
                                                                     "path",
@@ -64,6 +67,7 @@ static constexpr const std::array<std::string_view, 32> s_types = {{"bool",
                                                                     "uint32",
                                                                     "uint64",
                                                                     "vdouble",
+                                                                    "vfloat",
                                                                     "vint32",
                                                                     "vint64",
                                                                     "vstring",
@@ -87,8 +91,9 @@ static constexpr const std::array<std::string_view, 32> s_types = {{"bool",
                                                                     "VLuminosityBlockID",
                                                                     "VLuminosityBlockRange"}};
 
-static constexpr const std::array<char, 32> s_codes = {{kTbool,
+static constexpr const std::array<char, 34> s_codes = {{kTbool,
                                                         kTdouble,
+                                                        kTfloat,
                                                         kTint32,
                                                         kTint64,
                                                         kTpath,
@@ -97,6 +102,7 @@ static constexpr const std::array<char, 32> s_codes = {{kTbool,
                                                         kTuint32,
                                                         kTuint64,
                                                         kTvdouble,
+                                                        kTvfloat,
                                                         kTvint32,
                                                         kTvint64,
                                                         kTvstringRaw,
@@ -166,6 +172,10 @@ static constexpr std::array<std::string_view, 255> fillTable() {
   table_[kTvdouble] = c2t(kTvdouble);
   static_assert(not c2t(kTdouble).empty());
   table_[kTdouble] = c2t(kTdouble);
+  static_assert(not c2t(kTvfloat).empty());
+  table_[kTvfloat] = c2t(kTvfloat);
+  static_assert(not c2t(kTfloat).empty());
+  table_[kTfloat] = c2t(kTfloat);
   static_assert(not c2t(kTvPSet).empty());
   table_[kTvPSet] = c2t(kTvPSet);
   static_assert(not c2t(kTPSet).empty());
@@ -376,6 +386,18 @@ namespace edm {
           throwEntryError("vector<double>", rep_);
         break;
       }
+      case kTfloat: {  // Float
+        float val;
+        if (!decode(val, rep_))
+          throwEntryError("float", rep_);
+        break;
+      }
+      case kTvfloat: {  // vFloat
+        std::vector<float> val;
+        if (!decode(val, rep_))
+          throwEntryError("vector<float>", rep_);
+        break;
+      }
       case kTPSet: {  // ParameterSet
         ParameterSet val;
         if (!decode(val, rep_))
@@ -420,7 +442,7 @@ namespace edm {
         break;
       }
     }  // switch(type)
-  }    // Entry::validate()
+  }  // Entry::validate()
 
   // ----------------------------------------------------------------------
   // constructors
@@ -533,6 +555,26 @@ namespace edm {
       : name_(name), rep_(), type_(kTvdouble), tracked_(is_tracked ? '+' : '-') {
     if (!encode(rep_, val))
       throwEncodeError("vector<double>");
+    validate();
+  }
+
+  // ----------------------------------------------------------------------
+  // Float
+
+  Entry::Entry(std::string const& name, float val, bool is_tracked)
+      : name_(name), rep_(), type_(kTfloat), tracked_(is_tracked ? '+' : '-') {
+    if (!encode(rep_, val))
+      throwEncodeError("float");
+    validate();
+  }
+
+  // ----------------------------------------------------------------------
+  // vFloat
+
+  Entry::Entry(std::string const& name, std::vector<float> const& val, bool is_tracked)
+      : name_(name), rep_(), type_(kTvfloat), tracked_(is_tracked ? '+' : '-') {
+    if (!encode(rep_, val))
+      throwEncodeError("vector<float>");
     validate();
   }
 
@@ -970,6 +1012,30 @@ namespace edm {
     std::vector<double> val;
     if (!decode(val, rep_))
       throwEntryError("vector<double>", rep_);
+    return val;
+  }
+
+  // ----------------------------------------------------------------------
+  // Float
+
+  float Entry::getFloat() const {
+    if (type_ != kTfloat)
+      throwValueError("float");
+    float val;
+    if (!decode(val, rep_))
+      throwEntryError("float", rep_);
+    return val;
+  }
+
+  // ----------------------------------------------------------------------
+  // vFloat
+
+  std::vector<float> Entry::getVFloat() const {
+    if (type_ != kTvfloat)
+      throwValueError("vector<float>");
+    std::vector<float> val;
+    if (!decode(val, rep_))
+      throwEntryError("vector<float>", rep_);
     return val;
   }
 
