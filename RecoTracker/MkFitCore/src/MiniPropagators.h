@@ -6,7 +6,7 @@
 #include "Matrix.h"
 
 namespace mkfit {
-  class ModuleInfo;
+  struct ModuleInfo;
 }
 
 namespace mkfit::mini_propagators {

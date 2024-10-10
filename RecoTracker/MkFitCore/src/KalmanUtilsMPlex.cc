@@ -403,66 +403,11 @@ namespace {
     }
   }
 
-  /*
-  inline void RotateResidualsOnPlane(const MPlex2H& R,  //prj
-                                     const MPlexHV& A,  //res_glo
-                                     MPlex2V& B)        //res_loc
+  template <typename T1, typename T2>
+  void RotateResidualsOnPlane(const T1& R,  //prj     - at least MPlex_2_3
+                              const T2& A,  //res_glo - at least MPlex_3_1 (vector)
+                              MPlex2V& B)   //res_loc - fixed as MPlex_2_1 (vector)
   {
-    // typedef float T;
-    // const idx_t N = NN;
-
-    // const T* a = A.fArray;
-    // ASSUME_ALIGNED(a, 64);
-    // T* b = B.fArray;
-    // ASSUME_ALIGNED(b, 64);
-    // const T* r = R.fArray;
-    // ASSUME_ALIGNED(r, 64);
-
-#pragma omp simd
-    for (int n = 0; n < NN; ++n) {
-      B(n, 0, 0) = R(n, 0, 0) * A(n, 0, 0) + R(n, 0, 1) * A(n, 1, 0) + R(n, 0, 2) * A(n, 2, 0);
-      B(n, 1, 0) = R(n, 1, 0) * A(n, 0, 0) + R(n, 1, 1) * A(n, 1, 0) + R(n, 1, 2) * A(n, 2, 0);
-    }
-  }
-
-  inline void RotateResidualsOnPlane(const MPlex2H& R,  //prj
-				     const MPlexLV& A,  //res_glo
-				     MPlex2V& B)        //res_loc
-  {
-
-    // typedef float T;
-    // const idx_t N = NN;
-
-    // const T* a = A.fArray;
-    // ASSUME_ALIGNED(a, 64);
-    // T* b = B.fArray;
-    // ASSUME_ALIGNED(b, 64);
-    // const T* r = R.fArray;
-    // ASSUME_ALIGNED(r, 64);
-
-#pragma omp simd
-    for (int n = 0; n < NN; ++n) {
-      B(n, 0, 0) = R(n, 0, 0) * A(n, 0, 0) + R(n, 0, 1) * A(n, 1, 0) + R(n, 0, 2) * A(n, 2, 0);
-      B(n, 1, 0) = R(n, 1, 0) * A(n, 0, 0) + R(n, 1, 1) * A(n, 1, 0) + R(n, 1, 2) * A(n, 2, 0);
-    }
-  }
-  */
-
-  template <class T1, class T2>
-  inline void RotateResidualsOnPlane(const T1& R,  //prj
-                                     const T2& A,  //res_glo
-                                     MPlex2V& B)   //res_loc
-  {
-    // typedef float T;
-    // const idx_t N = NN;
-
-    // const T* a = A.fArray;
-    // ASSUME_ALIGNED(a, 64);
-    // T* b = B.fArray;
-    // ASSUME_ALIGNED(b, 64);
-    // const T* r = R.fArray;
-    // ASSUME_ALIGNED(r, 64);
-
 #pragma omp simd
     for (int n = 0; n < NN; ++n) {
       B(n, 0, 0) = R(n, 0, 0) * A(n, 0, 0) + R(n, 0, 1) * A(n, 1, 0) + R(n, 0, 2) * A(n, 2, 0);

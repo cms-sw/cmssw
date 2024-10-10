@@ -1010,8 +1010,6 @@ namespace mkfit {
             float new_q, new_phi, new_ddphi, new_ddq;
             bool prop_fail;
 
-            //X bool dumpehit = false;
-
             if (L.is_barrel()) {
               const Hit &hit = L.refHit(hi_orig);
               unsigned int mid = hit.detIDinLayer();
@@ -1049,8 +1047,7 @@ namespace mkfit {
 
             new_phi = vdt::fast_atan2f(mp_s.y, mp_s.x);
             new_ddphi = cdist(std::abs(new_phi - L.hit_phi(hi)));
-
-            bool dqdphi_presel = new_ddq < 3.5f*(B.dq_track[itrack] + DDQ_PRESEL_FAC * L.hit_q_half_length(hi)) &&
+            bool dqdphi_presel = new_ddq < B.dq_track[itrack] + DDQ_PRESEL_FAC * L.hit_q_half_length(hi) &&
                                  new_ddphi < B.dphi_track[itrack] + DDPHI_PRESEL_FAC * 0.0123f;
 
             // clang-format off
@@ -1089,14 +1086,6 @@ namespace mkfit {
                 false, IdxChi2List()
               });
               ci.hmi.back().ic2list.reset(); // zero initialize
-
-              //X if (dumpehit) {
-              //   printf("Was a %s hit. presel=%d q-presel=%d phi-presel=%d, q_hl=%.3f, track_dq=%.3f\n",
-              //          (sim_lbl == hit_lbl) ? "GOOD" : "BAD", dqdphi_presel,
-              //          new_ddq < B.dq_track[itrack] + DDQ_PRESEL_FAC * L.hit_q_half_length(hi),
-              //          new_ddphi < B.dphi_track[itrack] + DDPHI_PRESEL_FAC * 0.0123f,
-              //          L.hit_q_half_length(hi), B.dq_track[itrack]);
-              //X }
 
               bool new_dec = dqdphi_presel && !prop_fail;
               ++ci.n_all_hits;
@@ -1481,9 +1470,11 @@ namespace mkfit {
                   isStripQCompatible(itrack, layer_of_hits.is_barrel(), m_Err[iP], propPar, m_msErr, m_msPar);
 
               //rescale strip charge to track parameters and reapply the cut
-              isCompatible &= passStripChargePCMfromTrack(
+	      if (isCompatible && layer_of_hits.layer_info().has_charge()) {
+                isCompatible = passStripChargePCMfromTrack(
                   itrack, layer_of_hits.is_barrel(), charge_pcm[itrack], Hit::minChargePerCM(), propPar, m_msErr);
-            }
+	      }
+	    }
             // Select only SiStrip hits with cluster size < maxClusterSize
             if (!layer_of_hits.is_pixel()) {
               if (layer_of_hits.refHit(m_XHitArr.At(itrack, hit_cnt, 0)).spanRows() >=
