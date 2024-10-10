@@ -16,6 +16,11 @@
 #include "FWCore/Framework/interface/EventSetupRecordImpl.h"
 #include "FWCore/Utilities/interface/Likely.h"
 
+namespace {
+  constexpr int kInvalidLocation = 0;
+  void const* const kInvalid = &kInvalidLocation;
+}  // namespace
+
 namespace edm {
   namespace eventsetup {
 
@@ -25,17 +30,15 @@ namespace edm {
     }
 
     ESProductResolver::ESProductResolver()
-        : description_(dummyDescription()),
-          cache_(nullptr),
-          cacheIsValid_(false),
-          nonTransientAccessRequested_(false) {}
+        : description_(dummyDescription()), cache_(kInvalid), nonTransientAccessRequested_(false) {}
 
     ESProductResolver::~ESProductResolver() {}
 
+    bool ESProductResolver::cacheIsValid() const { return cache_.load() != kInvalid; }
+
     void ESProductResolver::clearCacheIsValid() {
       nonTransientAccessRequested_.store(false, std::memory_order_release);
-      cache_ = nullptr;
-      cacheIsValid_.store(false, std::memory_order_release);
+      cache_.store(kInvalid);
     }
 
     void ESProductResolver::resetIfTransient() {
@@ -74,15 +77,19 @@ namespace edm {
         nonTransientAccessRequested_.store(true, std::memory_order_release);
       }
 
-      if UNLIKELY (!cacheIsValid()) {
-        cache_ = getAfterPrefetchImpl();
-        cacheIsValid_.store(true, std::memory_order_release);
+      auto cache = cache_.load();
+      if UNLIKELY (cache == kInvalid) {
+        // This is safe even if multiple threads get in here simultaneously
+        // because cache_ is atomic and getAfterPrefetchImpl will return
+        // the same pointer on all threads for the same IOV.
+        // This is fast because the vast majority of the time only 1 thread per IOV
+        // will get in here so most of the time only 1 atomic operation.
+        cache = cache_ = getAfterPrefetchImpl();
       }
-
-      if UNLIKELY (nullptr == cache_) {
+      if UNLIKELY (cache == nullptr) {
         throwMakeException(iRecord, iKey);
       }
-      return cache_;
+      return cache;
     }
 
   }  // namespace eventsetup
