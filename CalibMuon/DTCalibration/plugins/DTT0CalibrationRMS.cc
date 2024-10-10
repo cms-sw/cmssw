@@ -479,6 +479,10 @@ void DTT0CalibrationRMS::endJob() {
     DTCalibDBUtils::writeToDB(t0Record, t0sWRTChamber);
   else
     DTCalibDBUtils::writeToDB(t0Record, t0sAbsolute);
+
+  delete t0sAbsolute;
+  delete t0sRelative;
+  delete t0sWRTChamber;
 }
 
 string DTT0CalibrationRMS::getHistoName(const DTWireId& wId) const {
