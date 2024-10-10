@@ -109,6 +109,8 @@ optics_2022 = cms.PSet(
   )
 )
 
+ctppsOpticalFunctionsESSource.configuration.append(optics_2022)
+
 optics_2023 = cms.PSet(
   validityRange = cms.EventRange("366403:min - 370790:max"),
 
@@ -133,8 +135,6 @@ optics_2023 = cms.PSet(
 )
 
 ctppsOpticalFunctionsESSource.configuration.append(optics_2023)
-
-ctppsOpticalFunctionsESSource.configuration.append(optics_2022)
 
 # optics interpolation between crossing angles
 from CalibPPS.ESProducers.ctppsInterpolatedOpticalFunctionsESSource_cfi import *
