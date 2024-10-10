@@ -388,12 +388,12 @@ for _eraName, _postfix, _era in _relevantEras:
                    "cutsRecoTracksBtvLike",
                    "cutsRecoTracksAK4PFJets"
                ],
-               doResolutionPlotsForLabels = [
-                   "generalTracks",
-                   locals()["_generalTracksHp"+_postfix],
-                   "generalTracksPt09",
+               doResolutionPlotsForLabels = ["generalTracks", locals()["_generalTracksHp"+_postfix]]  +
+                       locals()["_selectorsByOriginalAlgo"+_postfix] +
+                       ["generalTracksPt09"] +
+               [
                    "cutsRecoTracksBtvLike",
-                   "cutsRecoTracksJetCoreRegionalStepByOriginalAlgo",
+                   "cutsRecoTracksJetCoreRegionalStepByOriginalAlgo"
                ]
     )
     _setForEra(trackValidator.histoProducerAlgoBlock, _eraName, _era, seedingLayerSets=locals()["_seedingLayerSets"+_postfix])
@@ -534,12 +534,12 @@ _trackValidatorSeedingBuilding = trackValidator.clone( # common for built tracks
     dodEdxPlots = False,
     doPVAssociationPlots = False,
     doSimPlots = False,
-    doResolutionPlotsForLabels = ["disabled"],
+    doResolutionPlotsForLabels = ["disabled"]
 )
 trackValidatorBuilding = _trackValidatorSeedingBuilding.clone(
     dirName = "Tracking/TrackBuilding/",
     doMVAPlots = True,
-    doResolutionPlotsForLabels = ['jetCoreRegionalStepTracks'],
+    doResolutionPlotsForLabels = ['jetCoreRegionalStepTracks']
 )
 trackValidatorBuildingPreSplitting = trackValidatorBuilding.clone(
     associators = ["quickTrackAssociatorByHitsPreSplitting"],
