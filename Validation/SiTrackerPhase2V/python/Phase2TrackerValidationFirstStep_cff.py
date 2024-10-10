@@ -6,6 +6,7 @@ from Validation.SiTrackerPhase2V.Phase2ITValidateCluster_cff import *
 from Validation.SiTrackerPhase2V.Phase2OTValidateCluster_cff import *
 from Validation.SiTrackerPhase2V.Phase2OTValidateTrackingRecHit_cff import *
 from Validation.SiTrackerPhase2V.Phase2ValidateL1TTObjects_cff import *
+from Validation.SiTrackerPhase2V.Phase2OTValidateTrackingParticles_cfi import *
 
 trackerphase2ValidationSource = cms.Sequence(pixDigiValid  
                                              + otDigiValid 
