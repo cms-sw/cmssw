@@ -7,6 +7,7 @@ from Geometry.CMSCommonData.cmsExtendedGeometry2023FlatMinus10PercentXML_cfi imp
 from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cff import *
 from Geometry.EcalCommonData.ecalSimulationParameters_cff import *
 from Geometry.HcalCommonData.hcalDDDSimConstants_cff import *
+from Geometry.ForwardGeometry.zdcTopologyEP_cfi import *
 from Geometry.MuonNumbering.muonGeometryConstants_cff import *
 from Geometry.MuonNumbering.muonOffsetESProducer_cff import *
 
