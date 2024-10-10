@@ -51,6 +51,20 @@ _ak4puppiplots.extend([
     Plot1D('particleNetAK4_QvsG','particleNetAK4_QvsG',20, -1, 1,"ParticleNetAK4 tagger uds vs g discriminator"),
     Plot1D('particleNetAK4_G','particleNetAK4_G',20, -1, 1, "ParticleNetAK4 tagger g raw score"),
     Plot1D('particleNetAK4_puIdDisc','particleNetAK4_puIdDisc',20, -1, 1,"ParticleNetAK4 tagger pileup jet discriminator"),
+    Plot1D('leadConstNeHadEF','leadConstNeHadEF',10, 0, 1,"Leading PF neutral hadron constituent energy fraction w.r.t jet raw energy"),
+    Plot1D('leadConstChHadEF','leadConstChHadEF',10, 0, 1,"Leading PF charged hadron constituent energy fraction w.r.t jet raw energy"),
+    Plot1D('leadConstPhotonEF','leadConstPhotonEF',10, 0, 1,"Leading PF photon constituent energy fraction w.r.t jet raw energy"),
+    Plot1D('leadConstElectronEF','leadConstElectronEF',10, 0, 1,"Leading PF electron constituent energy fraction w.r.t jet raw energy"),
+    Plot1D('leadConstMuonEF','leadConstMuonEF',10, 0, 1,"Leading PF muon constituent energy fraction w.r.t jet raw energy"),
+    Plot1D('leadConstHFHADEF','leadConstHFHADEF',10, 0, 1,"Leading PF HF HAD constituent energy fraction w.r.t jet raw energy"),
+    Plot1D('leadConstHFEMEF','leadConstHFEMEF',10, 0, 1,"Leading PF HF EM constituent energy fraction w.r.t jet raw energy"),
+    Plot1D('leadConstNeHadPuppiWeight','leadConstNeHadPuppiWeight',10, 0, 1,"Leading PF neutral hadron constituent puppi weight"),
+    Plot1D('leadConstChHadPuppiWeight','leadConstChHadPuppiWeight',10, 0, 1,"Leading PF charged hadron constituent puppi weight"),
+    Plot1D('leadConstPhotonPuppiWeight','leadConstPhotonPuppiWeight',10, 0, 1,"Leading PF photon constituent puppi weight"),
+    Plot1D('leadConstElectronPuppiWeight','leadConstElectronPuppiWeight',10, 0, 1,"Leading PF electron constituent puppi weight"),
+    Plot1D('leadConstMuonPuppiWeight','leadConstMuonPuppiWeight',10, 0, 1,"Leading PF muon constituent puppi weight"),
+    Plot1D('leadConstHFHADPuppiWeight','leadConstHFHADPuppiWeight',10, 0, 1,"Leading PF HF HAD constituent puppi weight"),
+    Plot1D('leadConstHFEMPuppiWeight','leadConstHFEMPuppiWeight',10, 0, 1,"Leading PF HF EM constituent puppi weight"),
 ])
 
 #============================================
