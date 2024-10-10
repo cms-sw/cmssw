@@ -129,9 +129,9 @@ class WorkFlowRunner(Thread):
                         retStep = 1
                         dasOutput = None
                     else:
-                        # We consider only the files which have at least one logical filename
+                        # We consider only the files which have at least one logical or physical filename
                         # in it. This is because sometimes das fails and still prints out junk.
-                        dasOutput = [l for l in open(dasOutputPath).read().split("\n") if l.startswith("/")]
+                        dasOutput = [l for l in open(dasOutputPath).read().split("\n") if l.startswith("/") or l.startswith("root://eoscms.cern.ch")]
                     if not dasOutput:
                         retStep = 1
                         isInputOk = False

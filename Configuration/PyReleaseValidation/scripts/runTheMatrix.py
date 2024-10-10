@@ -426,28 +426,7 @@ if __name__ == '__main__':
             opt.testList = ','.join(rerunthese)
 
     if opt.IBEos:
-      from subprocess import getstatusoutput as run_cmd
-
-      ibeos_cache = os.path.join(os.getenv("LOCALRT"), "ibeos_cache.txt")
-      if not os.path.exists(ibeos_cache):
-        err, out = run_cmd("curl -L -s -o %s https://raw.githubusercontent.com/cms-sw/cms-sw.github.io/master/das_queries/ibeos.txt" % ibeos_cache)
-        if err:
-          run_cmd("rm -f %s" % ibeos_cache)
-          print("Error: Unable to download ibeos cache information")
-          print(out)
-          sys.exit(err)
-
-      for cmssw_env in [ "CMSSW_BASE", "CMSSW_RELEASE_BASE" ]:
-        cmssw_base = os.getenv(cmssw_env,None)
-        if not cmssw_base: continue
-        cmssw_base = os.path.join(cmssw_base,"src/Utilities/General/ibeos")
-        if os.path.exists(cmssw_base):
-          os.environ["PATH"]=cmssw_base+":"+os.getenv("PATH")
-          os.environ["CMS_PATH"]="/cvmfs/cms-ib.cern.ch"
-          os.environ["SITECONFIG_PATH"]="/cvmfs/cms-ib.cern.ch/SITECONF/local"
-          os.environ["CMSSW_USE_IBEOS"]="true"
-          print(">> WARNING: You are using SITECONF from /cvmfs/cms-ib.cern.ch")
-          break
+      os.environ["CMSSW_USE_IBEOS"]="true"
     if opt.restricted:
         print('Deprecated, please use -l limited')
         if opt.testList:            opt.testList+=',limited'

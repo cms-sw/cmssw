@@ -144,7 +144,8 @@ class InputInfo(object):
             command += " ".join(["-e '{0}'".format(pattern) for pattern in self.ib_blacklist])
         if not self.skimEvents: ## keep run-lumi sorting
             from os import getenv
-            if getenv("CMSSW_USE_IBEOS","false")=="true": return command + " | ibeos-lfn-sort"
+            if getenv("CMSSW_USE_IBEOS","false")=="true":
+                return "export CMSSW_USE_IBEOS=true; " + command + " | ibeos-lfn-sort"
             return command + " | sort -u"
         else:
             return command
