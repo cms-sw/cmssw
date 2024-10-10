@@ -833,6 +833,7 @@ nanoDQM = DQMEDAnalyzer("NanoAODDQM",
                 Plot1D('tau2', 'tau2', 20, 0, 1, 'Nsubjettiness (2 axis)'),
                 Plot1D('tau3', 'tau3', 20, 0, 1, 'Nsubjettiness (3 axis)'),
                 Plot1D('tau4', 'tau4', 20, 0, 1, 'Nsubjettiness (4 axis)'),
+                NoPlot('subGenJetAK8Idx'),
             )
         ),
         Tau = cms.PSet(
