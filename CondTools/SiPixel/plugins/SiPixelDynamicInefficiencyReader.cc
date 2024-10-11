@@ -270,11 +270,13 @@ void SiPixelDynamicInefficiencyReader::analyze(const edm::Event& e, const edm::E
       mismatch++;
     }
     for (unsigned int i = 0; i < pu_det; i++) {
+      [[clang::suppress]]
       if (_pu_scale[i] != 0 && _pu_scale_conf[i] != 0 && _pu_scale[i] == _pu_scale_conf[i]) {
         //printf("Config match! detid %x\t db_pu_scale %f\tconf_pu_scale %f\n",detid.rawId(),_pu_scale[i],_pu_scale_conf[i]);
         pu_match++;
         break;
       }
+      [[clang::suppress]]
       if (_pu_scale[i] != 0 && _pu_scale_conf[i] != 0 && _pu_scale[i] != _pu_scale_conf[i]) {
         //printf("Config mismatch! detid %x\t db_pu_scale %f\tconf_pu_scale %f\n",detid.rawId(),_pu_scale[i],_pu_scale_conf[i]);
         pu_mismatch++;

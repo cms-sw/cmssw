@@ -125,8 +125,10 @@ void DTStatusFlagHandler::getNewObjects() {
   cond::Time_t snc = runNumber;
   if (runNumber > last)
     m_to_transfer.push_back(std::make_pair(stFlag, snc));
-  else
+  else {
+    delete stFlag;
     std::cout << "More recent data already present - skipped" << std::endl;
+  }
 
   return;
 }

@@ -26,6 +26,7 @@ cond::persistency::CoralMsgReporter::CoralMsgReporter()
   // Use a non-default message level?
   if (getenv("CORAL_MSGLEVEL")) {
     // Check only the first char of the environment variable
+    [[clang::suppress]]
     switch (*getenv("CORAL_MSGLEVEL")) {
       case '0':
       case 'n':

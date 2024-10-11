@@ -61,8 +61,9 @@ int main(int argc, char** argv) {
   cout << "nevts:    " << nevts << endl;
   cout << "gaussian: " << doGaussian << endl << endl;
 
-  string cmssw_base(std::getenv("CMSSW_BASE"));
-  string cmssw_release_base(std::getenv("CMSSW_RELEASE_BASE"));
+  // CMSSW_BASE and CMSSW_RELEASE_BASE are always set
+  [[clang::suppress]] string cmssw_base(std::getenv("CMSSW_BASE"));
+  [[clang::suppress]] string cmssw_release_base(std::getenv("CMSSW_RELEASE_BASE"));
   string path = cmssw_base + "/src/CondFormats/JetMETObjects/data";
   struct stat st;
   if (stat(path.c_str(), &st) != 0)
