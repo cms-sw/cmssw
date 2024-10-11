@@ -73,21 +73,33 @@ namespace {
     }
   };
 
-  class SiStripNoiseCompareByPartition : public PlotImage<SiStripNoises, MULTI_IOV, 2> {
+  template <int ntags, IOVMultiplicity nIOVs>
+  class SiStripNoiseCompareByPartitionBase : public PlotImage<SiStripNoises, nIOVs, ntags> {
   public:
-    SiStripNoiseCompareByPartition() : PlotImage<SiStripNoises, MULTI_IOV, 2>("SiStrip Compare Noises By Partition") {}
+    SiStripNoiseCompareByPartitionBase()
+        : PlotImage<SiStripNoises, nIOVs, ntags>("SiStrip Compare Noises By Partition") {}
 
     bool fill() override {
       // trick to deal with the multi-ioved tag and two tag case at the same time
       auto theIOVs = PlotBase::getTag<0>().iovs;
       auto tagname1 = PlotBase::getTag<0>().name;
-      auto tag2iovs = PlotBase::getTag<1>().iovs;
-      auto tagname2 = PlotBase::getTag<1>().name;
-      SiStripPI::MetaData firstiov = theIOVs.front();
-      SiStripPI::MetaData lastiov = tag2iovs.front();
+      std::string tagname2{tagname1};
+      auto firstiov = theIOVs.front();
+      SiStripPI::MetaData lastiov;
 
-      std::shared_ptr<SiStripNoises> last_payload = fetchPayload(std::get<1>(lastiov));
-      std::shared_ptr<SiStripNoises> first_payload = fetchPayload(std::get<1>(firstiov));
+      // we don't support (yet) comparison with more than 2 tags
+      assert(this->m_plotAnnotations.ntags < 3);
+
+      if (this->m_plotAnnotations.ntags == 2) {
+        auto tag2iovs = PlotBase::getTag<1>().iovs;
+        tagname2 = PlotBase::getTag<1>().name;
+        lastiov = tag2iovs.front();
+      } else {
+        lastiov = theIOVs.back();
+      }
+
+      std::shared_ptr<SiStripNoises> last_payload = this->fetchPayload(std::get<1>(lastiov));
+      std::shared_ptr<SiStripNoises> first_payload = this->fetchPayload(std::get<1>(firstiov));
 
       SiStripNoiseContainer* l_objContainer = new SiStripNoiseContainer(last_payload, lastiov, tagname1);
       SiStripNoiseContainer* f_objContainer = new SiStripNoiseContainer(first_payload, firstiov, tagname2);
@@ -99,28 +111,42 @@ namespace {
       TCanvas canvas("Partition summary", "partition summary", 1400, 1000);
       l_objContainer->fillByPartition(canvas, 100, 0.1, 10.);
 
-      std::string fileName(m_imageFileName);
+      std::string fileName(this->m_imageFileName);
       canvas.SaveAs(fileName.c_str());
 
       return true;
     }  // fill
   };
 
-  class SiStripNoiseDiffByPartition : public PlotImage<SiStripNoises, MULTI_IOV, 2> {
+  using SiStripNoiseCompareByPartitionSingleTag = SiStripNoiseCompareByPartitionBase<1, MULTI_IOV>;
+  using SiStripNoiseCompareByPartitionTwoTags = SiStripNoiseCompareByPartitionBase<2, SINGLE_IOV>;
+
+  template <int ntags, IOVMultiplicity nIOVs>
+  class SiStripNoiseDiffByPartitionBase : public PlotImage<SiStripNoises, nIOVs, ntags> {
   public:
-    SiStripNoiseDiffByPartition() : PlotImage<SiStripNoises, MULTI_IOV, 2>("SiStrip Diff Noises By Partition") {}
+    SiStripNoiseDiffByPartitionBase() : PlotImage<SiStripNoises, nIOVs, ntags>("SiStrip Diff Noises By Partition") {}
 
     bool fill() override {
       // trick to deal with the multi-ioved tag and two tag case at the same time
       auto theIOVs = PlotBase::getTag<0>().iovs;
       auto tagname1 = PlotBase::getTag<0>().name;
-      auto tag2iovs = PlotBase::getTag<1>().iovs;
-      auto tagname2 = PlotBase::getTag<1>().name;
-      SiStripPI::MetaData firstiov = theIOVs.front();
-      SiStripPI::MetaData lastiov = tag2iovs.front();
+      std::string tagname2{tagname1};
+      auto firstiov = theIOVs.front();
+      SiStripPI::MetaData lastiov;
 
-      std::shared_ptr<SiStripNoises> last_payload = fetchPayload(std::get<1>(lastiov));
-      std::shared_ptr<SiStripNoises> first_payload = fetchPayload(std::get<1>(firstiov));
+      // we don't support (yet) comparison with more than 2 tags
+      assert(this->m_plotAnnotations.ntags < 3);
+
+      if (this->m_plotAnnotations.ntags == 2) {
+        auto tag2iovs = PlotBase::getTag<1>().iovs;
+        tagname2 = PlotBase::getTag<1>().name;
+        lastiov = tag2iovs.front();
+      } else {
+        lastiov = theIOVs.back();
+      }
+
+      std::shared_ptr<SiStripNoises> last_payload = this->fetchPayload(std::get<1>(lastiov));
+      std::shared_ptr<SiStripNoises> first_payload = this->fetchPayload(std::get<1>(firstiov));
 
       SiStripNoiseContainer* l_objContainer = new SiStripNoiseContainer(last_payload, lastiov, tagname1);
       SiStripNoiseContainer* f_objContainer = new SiStripNoiseContainer(first_payload, firstiov, tagname2);
@@ -132,12 +158,15 @@ namespace {
       TCanvas canvas("Partition summary", "partition summary", 1400, 1000);
       l_objContainer->fillByPartition(canvas, 100, -1., 1.);
 
-      std::string fileName(m_imageFileName);
+      std::string fileName(this->m_imageFileName);
       canvas.SaveAs(fileName.c_str());
 
       return true;
     }  // fill
   };
+
+  using SiStripNoiseDiffByPartitionSingleTag = SiStripNoiseDiffByPartitionBase<1, MULTI_IOV>;
+  using SiStripNoiseDiffByPartitionTwoTags = SiStripNoiseDiffByPartitionBase<2, SINGLE_IOV>;
 
   class SiStripNoiseCorrelationByPartition : public PlotImage<SiStripNoises> {
   public:
@@ -1992,8 +2021,10 @@ namespace {
 
 PAYLOAD_INSPECTOR_MODULE(SiStripNoises) {
   PAYLOAD_INSPECTOR_CLASS(SiStripNoiseConsistencyCheck);
-  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseCompareByPartition);
-  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseDiffByPartition);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseCompareByPartitionSingleTag);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseDiffByPartitionSingleTag);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseCompareByPartitionTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseDiffByPartitionTwoTags);
   PAYLOAD_INSPECTOR_CLASS(SiStripNoiseCorrelationByPartition);
   PAYLOAD_INSPECTOR_CLASS(SiStripNoisesTest);
   PAYLOAD_INSPECTOR_CLASS(SiStripNoisePerDetId);
