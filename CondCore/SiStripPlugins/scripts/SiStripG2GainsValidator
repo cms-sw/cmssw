@@ -261,7 +261,7 @@ if __name__ == "__main__":
                 IOVsToValidate.append(entry[0])
             
     for element in myGTMap:
-    #print element
+        #print element
         Record = element[0]
         Label  = element[1]
         Tag = element[2]
@@ -275,7 +275,12 @@ if __name__ == "__main__":
             current_directory = os.getcwd()
             print("Current Working Directory:", current_directory)
 
-            command = 'conddb_import -c sqlite_file:toCompare.db -f frontier://FrontierProd/CMS_CONDITIONS -i '+str(Tag) +' -t '+str(Tag)+' -b '+str(lastG2Payload[0])
+            # Construct the conddb_import command using f-strings for better readability
+            command = (
+                f'conddb_import -c sqlite_file:toCompare.db '
+                f'-f frontier://FrontierProd/CMS_CONDITIONS '
+                f'-i {Tag} -t {Tag} -b {lastG2Payload[0]}'
+            )
             print(command)
             getCommandOutput(command)
 
@@ -284,16 +289,28 @@ if __name__ == "__main__":
 
             for i,theValidationTagSince in enumerate(IOVsToValidate):
 
-                command = 'conddb_import -c sqlite_file:toCompare.db -f frontier://FrontierPrep/CMS_CONDITIONS -i '+str(options.validationTag) +' -t '+str(Tag)+' -b '+str(theValidationTagSince)
-                if(theValidationTagSince < lastG2Payload[0]):
+                # Construct the conddb_import command, modifying the 'since' value if necessary
+                since_value = FCSR + i if theValidationTagSince < lastG2Payload[0] else theValidationTagSince
+                command = (
+                    f'conddb_import -c sqlite_file:toCompare.db '
+                    f'-f frontier://FrontierPrep/CMS_CONDITIONS '
+                    f'-i {options.validationTag} -t {Tag} -b {since_value}'
+                )
+
+                # Print and execute the conddb_import command
+                if theValidationTagSince < lastG2Payload[0]:
                     print("The last available IOV in the validation tag is older than the current last express IOV, taking FCSR as a since!")
-                    command = 'conddb_import -c sqlite_file:toCompare.db -f frontier://FrontierPrep/CMS_CONDITIONS -i '+str(options.validationTag) +' -t '+str(Tag)+' -b '+str(FCSR+i)
 
                 print(command)
                 getCommandOutput(command)
 
-                command = '${CMSSW_BASE}/src/CondCore/SiStripPlugins/scripts/testCompareSiStripG2Gains.sh SiStripApvGain_FromParticles_GR10_v1_express '+str(lastG2Payload[0])+' '+str(theValidationTagSince)+' '+current_directory+'/toCompare.db'
-                if(theValidationTagSince < lastG2Payload[0]):
-                    command = '${CMSSW_BASE}/src/CondCore/SiStripPlugins/scripts/testCompareSiStripG2Gains.sh SiStripApvGain_FromParticles_GR10_v1_express '+str(lastG2Payload[0])+' '+str(FCSR+i)+' '+current_directory+'/toCompare.db'
+                # Construct the testCompareSiStripG2Gains.sh command, adjusting the 'since' value similarly
+                since_value = FCSR + i if theValidationTagSince < lastG2Payload[0] else theValidationTagSince
+                command = (
+                    f'${{CMSSW_BASE}}/src/CondCore/SiStripPlugins/scripts/testCompareSiStripG2Gains.sh '
+                    f'{Tag} {lastG2Payload[0]} {since_value} {current_directory}/toCompare.db'
+                )
+
+                # Print and execute the testCompareSiStripG2Gains.sh command
                 print(command)
                 getCommandOutput(command)
