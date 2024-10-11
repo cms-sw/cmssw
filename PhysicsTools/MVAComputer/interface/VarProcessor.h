@@ -105,7 +105,7 @@ namespace PhysicsTools {
       unsigned int size_;
     };
 
-    virtual ~VarProcessor();
+    virtual ~VarProcessor() {}
 
     /// called from the discriminator computer to configure processor
     void configure(ConfigCtx &config);
