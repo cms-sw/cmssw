@@ -31,6 +31,7 @@ def print_help():
     --parallelJobs    : Number of parallel cmsRun and hltDiff executions (default: 4)
     --restrictPathsTo : Restrict paths to be run to a user defined subset (e.g. "HLT_Ele*")
     --procModifiers   : Optionally use one (or more) cmssw processModifier
+    --cachedInput     : Optionally use an existing RAW data file (do not regenerate it from scratch)
 
     Example usage:
     hltPhase2UpgradeIntegrationTests --globaltag auto:phase2_realistic_T33 --geometry Extended2026D110 --events 10 --threads 4
@@ -121,6 +122,10 @@ if restrict_paths_to:
 # Print procModifiers if provided
 if proc_modifiers:
     print(f"Proc Modifiers:       {proc_modifiers}")
+if args.cachedInput:
+    print(f"Using cached input file: {args.cachedInput}")
+else:
+    print(f"Using regenerated GEN-SIM-DIGI-RAW file from scratch")
 print("=" * 40)
 
 # Directory where all test configurations will be stored
@@ -135,7 +140,6 @@ os.makedirs(output_dir)
 # Define the cmsDriver.py command to create the base configuration
 # If cachedInput is provided, use it as the input for the base cmsDriver command
 if args.cachedInput:
-    print(f"Using cached input file: {args.cachedInput}")
     base_cmsdriver_command = (
         f"cmsDriver.py Phase2 -s L1P2GT,HLT:75e33_timing "
         f"--conditions {global_tag} -n {num_events} --eventcontent FEVTDEBUGHLT "
@@ -147,7 +151,6 @@ if args.cachedInput:
         f'--customise_commands "process.options.wantSummary=True"'
     )
 else:
-    print(f"Using regenerated file from scratch")
     base_cmsdriver_command = (
         f"cmsDriver.py Phase2 -s L1P2GT,HLT:75e33_timing "
         f"--conditions {global_tag} -n {num_events} --eventcontent FEVTDEBUGHLT "
@@ -309,7 +312,10 @@ def run_cmsrun(config_file):
     return 0  # Return 0 for success
     
 # Step 8: Loop through all files in hlt_test_configs and run cmsRun on each in parallel
-config_files = [f for f in os.listdir(hlt_configs_dir) if f.endswith(".py") and f.startswith("Phase2_")]
+config_files = [
+    f for f in os.listdir(hlt_configs_dir)
+    if f.endswith(".py") and f.startswith("Phase2_") and f != "Phase2_dump.py"
+]
 print(f"Found {len(config_files)} configuration files in {hlt_configs_dir}.")
 
 # Run cmsRun on all config files in parallel and handle errors
