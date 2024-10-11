@@ -429,7 +429,7 @@ namespace ecaldqm {
       meSCNBCs.fill(getEcalDQMSetupObjects(), seedId, scItr->clustersSize());
       meSCNcrystals.fill(getEcalDQMSetupObjects(), seedId, size);
 
-      if (doExtra_)
+      if (doExtra_) [[clang::suppress]]
         meSCSizeVsEnergy->fill(getEcalDQMSetupObjects(), subdet, energy, size);
 
       meTrendSCSize.fill(getEcalDQMSetupObjects(), seedId, double(timestamp_.iLumi), size);
@@ -438,7 +438,7 @@ namespace ecaldqm {
       meSCClusterVsSeed.fill(getEcalDQMSetupObjects(), seedId, seedItr->energy(), energy);
 
       meSCSeedOccupancy.fill(getEcalDQMSetupObjects(), seedId);
-      if (doExtra_ && energy > energyThreshold_)
+      if (doExtra_ && energy > energyThreshold_) [[clang::suppress]]
         meSCSeedOccupancyHighE->fill(getEcalDQMSetupObjects(), seedId);
 
       if (scItr->size() == 1)
@@ -457,7 +457,7 @@ namespace ecaldqm {
           if (!triggered_[iT])
             continue;
 
-          static_cast<MESetMulti*>(meSCSeedOccupancyTrig)->use(trigTypeToME_[iT]);
+          [[clang::suppress]] static_cast<MESetMulti*>(meSCSeedOccupancyTrig)->use(trigTypeToME_[iT]);
           meSCSeedOccupancyTrig->fill(getEcalDQMSetupObjects(), seedId);
 
           // exclusive
