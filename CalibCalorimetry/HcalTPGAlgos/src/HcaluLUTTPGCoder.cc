@@ -652,7 +652,7 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
           lut[adc] = 0;
           lut_ootpu[adc] = 0;
         } else {
-          if ((adc2fC(adc) - ped) < (pedWidth * 5.)) {
+          if ((adc2fC(adc) - ped) < pedWidth) {
             lut[adc] = 0;
             lut_ootpu[adc] = 0;
           } else {
