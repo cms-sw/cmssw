@@ -928,7 +928,7 @@ void TEcnaRun::GetReadyToReadData(const TString& typ_ana,
             //................ Init the array to 0
             for (Int_t i0StexEcha = 0; i0StexEcha < fEcal->MaxCrysEcnaInStex(); i0StexEcha++) {
               for (Int_t i0Sample = 0; i0Sample < fNbSampForFic; i0Sample++) {
-                fT2d_NbOfEvts[i0StexEcha][i0Sample] = 0;
+                [[clang::suppress]] fT2d_NbOfEvts[i0StexEcha][i0Sample] = 0;
               }
             }
           } else {
@@ -1494,6 +1494,7 @@ void TEcnaRun::SampleMeans() {
   //................... init fT2d_ev to zero
   for (Int_t i0StexEcha = 0; i0StexEcha < fEcal->MaxCrysEcnaInStex(); i0StexEcha++) {
     for (Int_t i0Sample = 0; i0Sample < fNbSampForCalc; i0Sample++) {
+      [[clang::suppress]]
       if (fT2d_ev[i0StexEcha][i0Sample] != (Double_t)0) {
         fMiscDiag[1]++;
         fT2d_ev[i0StexEcha][i0Sample] = (Double_t)0;
@@ -1505,9 +1506,9 @@ void TEcnaRun::SampleMeans() {
   for (Int_t i0StexEcha = 0; i0StexEcha < fEcal->MaxCrysEcnaInStex(); i0StexEcha++) {
     for (Int_t i0Sample = 0; i0Sample < fNbSampForCalc; i0Sample++) {
       for (Int_t i_event = 0; i_event < fNumberOfEvents; i_event++) {
-        fT2d_ev[i0StexEcha][i0Sample] += fT3d_AdcValues[i0StexEcha][i0Sample][i_event];
+        [[clang::suppress]] fT2d_ev[i0StexEcha][i0Sample] += fT3d_AdcValues[i0StexEcha][i0Sample][i_event];
       }
-      fT2d_ev[i0StexEcha][i0Sample] /= fNumberOfEvents;
+      [[clang::suppress]] fT2d_ev[i0StexEcha][i0Sample] /= fNumberOfEvents;
     }
   }
   fTagMSp[0] = 1;
@@ -1557,6 +1558,7 @@ void TEcnaRun::SampleSigmas() {
   // ................... init fT2d_sig to zero
   for (Int_t i0StexEcha = 0; i0StexEcha < fEcal->MaxCrysEcnaInStex(); i0StexEcha++) {
     for (Int_t i0Sample = 0; i0Sample < fNbSampForCalc; i0Sample++) {
+      [[clang::suppress]]
       if (fT2d_sig[i0StexEcha][i0Sample] != (Double_t)0) {
         fMiscDiag[2]++;
         fT2d_sig[i0StexEcha][i0Sample] = (Double_t)0;
@@ -1573,7 +1575,7 @@ void TEcnaRun::SampleSigmas() {
         variance += ecart * ecart;
       }
       variance /= fNumberOfEvents;
-      fT2d_sig[i0StexEcha][i0Sample] = sqrt(variance);
+      [[clang::suppress]] fT2d_sig[i0StexEcha][i0Sample] = sqrt(variance);
     }
   }
   fTagSSp[0] = 1;
@@ -1641,7 +1643,7 @@ void TEcnaRun::CovariancesBetweenSamples() {
   for (Int_t j0StexEcha = 0; j0StexEcha < fEcal->MaxCrysEcnaInStex(); j0StexEcha++) {
     for (Int_t i0Sample = 0; i0Sample < fNbSampForCalc; i0Sample++) {
       for (Int_t j0Sample = 0; j0Sample <= i0Sample; j0Sample++) {
-        fT3d_cov_ss[j0StexEcha][i0Sample][j0Sample] = (Double_t)0;
+        [[clang::suppress]] fT3d_cov_ss[j0StexEcha][i0Sample][j0Sample] = (Double_t)0;
         for (Int_t i_event = 0; i_event < fNumberOfEvents; i_event++) {
           fT3d_cov_ss[j0StexEcha][i0Sample][j0Sample] +=
               (fT3d_AdcValues[j0StexEcha][i0Sample][i_event] - fT2d_ev[j0StexEcha][i0Sample]) *
@@ -1709,11 +1711,11 @@ void TEcnaRun::CorrelationsBetweenSamples() {
     for (Int_t i0Sample = 0; i0Sample < fNbSampForCalc; i0Sample++) {
       for (Int_t j0Sample = 0; j0Sample <= i0Sample; j0Sample++) {
         if ((fT3d_cov_ss[j0StexEcha][i0Sample][i0Sample] > 0) && (fT3d_cov_ss[j0StexEcha][j0Sample][j0Sample] > 0)) {
-          fT3d_cor_ss[j0StexEcha][i0Sample][j0Sample] =
+          [[clang::suppress]] fT3d_cor_ss[j0StexEcha][i0Sample][j0Sample] =
               fT3d_cov_ss[j0StexEcha][i0Sample][j0Sample] /
               (sqrt(fT3d_cov_ss[j0StexEcha][i0Sample][i0Sample]) * sqrt(fT3d_cov_ss[j0StexEcha][j0Sample][j0Sample]));
         } else {
-          (fT3d_cor_ss)[j0StexEcha][i0Sample][j0Sample] = (Double_t)0;  // prevoir compteur + fTTBELL
+          [[clang::suppress]] fT3d_cor_ss[j0StexEcha][i0Sample][j0Sample] = (Double_t)0;  // prevoir compteur + fTTBELL
         }
         fT3d_cor_ss[j0StexEcha][j0Sample][i0Sample] = fT3d_cor_ss[j0StexEcha][i0Sample][j0Sample];
       }
@@ -1758,6 +1760,7 @@ void TEcnaRun::Pedestals() {
     fCnew++;
   }
   for (Int_t i0StexEcha = 0; i0StexEcha < fEcal->MaxCrysEcnaInStex(); i0StexEcha++) {
+    [[clang::suppress]]
     if (fT1d_ev_ev[i0StexEcha] != (Double_t)0) {
       fMiscDiag[11]++;
       fT1d_ev_ev[i0StexEcha] = (Double_t)0;
@@ -1776,9 +1779,9 @@ void TEcnaRun::Pedestals() {
 
   for (Int_t i0StexEcha = 0; i0StexEcha < fEcal->MaxCrysEcnaInStex(); i0StexEcha++) {
     for (Int_t i0Sample = 0; i0Sample < fNbSampForCalc; i0Sample++) {
-      fT1d_ev_ev[i0StexEcha] += fT2d_ev[i0StexEcha][i0Sample];
+      [[clang::suppress]] fT1d_ev_ev[i0StexEcha] += fT2d_ev[i0StexEcha][i0Sample];
     }
-    fT1d_ev_ev[i0StexEcha] /= fNbSampForCalc;
+    [[clang::suppress]] fT1d_ev_ev[i0StexEcha] /= fNbSampForCalc;
   }
   fTagPed[0] = 1;
   fFileHeader->fPedCalc++;
@@ -1815,7 +1818,7 @@ void TEcnaRun::TotalNoise() {
   for (Int_t i0StexEcha = 0; i0StexEcha < fEcal->MaxCrysEcnaInStex(); i0StexEcha++) {
     if (fT1d_evsamp_of_sigevt[i0StexEcha] != (Double_t)0) {
       fMiscDiag[12]++;
-      fT1d_evsamp_of_sigevt[i0StexEcha] = (Double_t)0;
+      [[clang::suppress]] fT1d_evsamp_of_sigevt[i0StexEcha] = (Double_t)0;
     }
   }
 
@@ -1834,10 +1837,10 @@ void TEcnaRun::TotalNoise() {
       if (fT2d_sig[i0StexEcha][i0Sample] < 0) {
         std::cout << "!TEcnaRun::TotalNoise() *** ERROR ***> Negative sigma!" << fTTBELL << std::endl;
       } else {
-        fT1d_evsamp_of_sigevt[i0StexEcha] += fT2d_sig[i0StexEcha][i0Sample];
+        [[clang::suppress]] fT1d_evsamp_of_sigevt[i0StexEcha] += fT2d_sig[i0StexEcha][i0Sample];
       }
     }
-    fT1d_evsamp_of_sigevt[i0StexEcha] /= fNbSampForCalc;
+    [[clang::suppress]] fT1d_evsamp_of_sigevt[i0StexEcha] /= fNbSampForCalc;
   }
   fTagTno[0] = 1;
   fFileHeader->fTnoCalc++;
@@ -1867,7 +1870,7 @@ void TEcnaRun::LowFrequencyNoise() {
   for (Int_t i0StexEcha = 0; i0StexEcha < fEcal->MaxCrysEcnaInStex(); i0StexEcha++) {
     if (fT1d_sigevt_of_evsamp[i0StexEcha] != (Double_t)0) {
       fMiscDiag[13]++;
-      fT1d_sigevt_of_evsamp[i0StexEcha] = (Double_t)0;
+      [[clang::suppress]] fT1d_sigevt_of_evsamp[i0StexEcha] = (Double_t)0;
     }
   }
 
@@ -1940,7 +1943,7 @@ void TEcnaRun::HighFrequencyNoise() {
   for (Int_t i0StexEcha = 0; i0StexEcha < fEcal->MaxCrysEcnaInStex(); i0StexEcha++) {
     if (fT1d_evevt_of_sigsamp[i0StexEcha] != (Double_t)0) {
       fMiscDiag[14]++;
-      fT1d_evevt_of_sigsamp[i0StexEcha] = (Double_t)0;
+      [[clang::suppress]] fT1d_evevt_of_sigsamp[i0StexEcha] = (Double_t)0;
     }
   }
 
@@ -2653,7 +2656,7 @@ void TEcnaRun::LowFrequencyCovariancesBetweenChannels() {
     for (Int_t j0StexEcha = 0; j0StexEcha < fEcal->MaxCrysEcnaInStex(); j0StexEcha++) {
       if (fT2d_lf_cov[i0StexEcha][j0StexEcha] != (Double_t)0) {
         fMiscDiag[21]++;
-        fT2d_lf_cov[i0StexEcha][j0StexEcha] = (Double_t)0;
+        [[clang::suppress]] fT2d_lf_cov[i0StexEcha][j0StexEcha] = (Double_t)0;
       }
     }
   }
@@ -2769,7 +2772,7 @@ void TEcnaRun::LowFrequencyCorrelationsBetweenChannels() {
     for (Int_t j0StexEcha = 0; j0StexEcha < fEcal->MaxCrysEcnaInStex(); j0StexEcha++) {
       if (fT2d_lf_cor[i0StexEcha][j0StexEcha] != (Double_t)0) {
         fMiscDiag[22]++;
-        fT2d_lf_cor[i0StexEcha][j0StexEcha] = (Double_t)0;
+        [[clang::suppress]] fT2d_lf_cor[i0StexEcha][j0StexEcha] = (Double_t)0;
       }
     }
   }
@@ -2845,7 +2848,7 @@ void TEcnaRun::HighFrequencyCovariancesBetweenChannels() {
     for (Int_t j0StexEcha = 0; j0StexEcha < fEcal->MaxCrysEcnaInStex(); j0StexEcha++) {
       if (fT2d_hf_cov[i0StexEcha][j0StexEcha] != (Double_t)0) {
         fMiscDiag[23]++;
-        fT2d_hf_cov[i0StexEcha][j0StexEcha] = (Double_t)0;
+        [[clang::suppress]] fT2d_hf_cov[i0StexEcha][j0StexEcha] = (Double_t)0;
       }
     }
   }
@@ -2974,7 +2977,7 @@ void TEcnaRun::HighFrequencyCorrelationsBetweenChannels() {
     for (Int_t j0StexEcha = 0; j0StexEcha < fEcal->MaxCrysEcnaInStex(); j0StexEcha++) {
       if (fT2d_hf_cor[i0StexEcha][j0StexEcha] != (Double_t)0) {
         fMiscDiag[24]++;
-        fT2d_hf_cor[i0StexEcha][j0StexEcha] = (Double_t)0;
+        [[clang::suppress]] fT2d_hf_cor[i0StexEcha][j0StexEcha] = (Double_t)0;
       }
     }
   }
@@ -3061,7 +3064,7 @@ void TEcnaRun::LowFrequencyMeanCorrelationsBetweenStins() {
     for (Int_t j0StexStinEcna = 0; j0StexStinEcna < fEcal->MaxStinEcnaInStex(); j0StexStinEcna++) {
       if (fT2d_lfcc_mostins[i0StexStinEcna][j0StexStinEcna] != (Double_t)0) {
         fMiscDiag[31]++;
-        fT2d_lfcc_mostins[i0StexStinEcna][j0StexStinEcna] = (Double_t)0;
+        [[clang::suppress]] fT2d_lfcc_mostins[i0StexStinEcna][j0StexStinEcna] = (Double_t)0;
       }
     }
   }
@@ -3110,11 +3113,11 @@ void TEcnaRun::LowFrequencyMeanCorrelationsBetweenStins() {
         }
       }
       //...... Calculation of the mean absolute values of the LF mean Correlations(c,c')
-      fT2d_lfcc_mostins[i0StexStinEcna][j0StexStinEcna] = (Double_t)0;
+      [[clang::suppress]] fT2d_lfcc_mostins[i0StexStinEcna][j0StexStinEcna] = (Double_t)0;
       for (Int_t i_rcor = 0; i_rcor < ndim; i_rcor++) {
-        fT2d_lfcc_mostins[i0StexStinEcna][j0StexStinEcna] += fabs(half_LFccMos(i_rcor));
+        [[clang::suppress]] fT2d_lfcc_mostins[i0StexStinEcna][j0StexStinEcna] += fabs(half_LFccMos(i_rcor));
       }
-      fT2d_lfcc_mostins[i0StexStinEcna][j0StexStinEcna] /= (Double_t)ndim;
+      [[clang::suppress]] fT2d_lfcc_mostins[i0StexStinEcna][j0StexStinEcna] /= (Double_t)ndim;
     }
     if (i0StexStinEcna % 10 == 0) {
       std::cout << i0StexStinEcna << "[LFN MCtt], ";
@@ -3169,7 +3172,7 @@ void TEcnaRun::HighFrequencyMeanCorrelationsBetweenStins() {
     for (Int_t j0StexStinEcna = 0; j0StexStinEcna < fEcal->MaxStinEcnaInStex(); j0StexStinEcna++) {
       if (fT2d_hfcc_mostins[i0StexStinEcna][j0StexStinEcna] != (Double_t)0) {
         fMiscDiag[32]++;
-        fT2d_hfcc_mostins[i0StexStinEcna][j0StexStinEcna] = (Double_t)0;
+        [[clang::suppress]] fT2d_hfcc_mostins[i0StexStinEcna][j0StexStinEcna] = (Double_t)0;
       }
     }
   }
@@ -3220,9 +3223,9 @@ void TEcnaRun::HighFrequencyMeanCorrelationsBetweenStins() {
       //..... Calculation of the mean absolute values of the HF mean Correlations(c,c')
       fT2d_hfcc_mostins[i0StexStinEcna][j0StexStinEcna] = (Double_t)0;
       for (Int_t i_rcor = 0; i_rcor < ndim; i_rcor++) {
-        fT2d_hfcc_mostins[i0StexStinEcna][j0StexStinEcna] += fabs(half_HFccMos(i_rcor));
+        [[clang::suppress]] fT2d_hfcc_mostins[i0StexStinEcna][j0StexStinEcna] += fabs(half_HFccMos(i_rcor));
       }
-      fT2d_hfcc_mostins[i0StexStinEcna][j0StexStinEcna] /= (Double_t)ndim;
+      [[clang::suppress]] fT2d_hfcc_mostins[i0StexStinEcna][j0StexStinEcna] /= (Double_t)ndim;
     }
     if (i0StexStinEcna % 10 == 0) {
       std::cout << i0StexStinEcna << "[HFN MCtt], ";

@@ -1911,7 +1911,7 @@ void TEcnaWrite::fT2dWriteAscii(const Int_t& i_code,
     for (Int_t i = 0; i < fEcal->MaxSampADC(); i++) {
       for (Int_t j = 0; j < fEcal->MaxSampADC(); j++) {
         if (i_code == fCodeCovCss) {
-          fjustap_2d_ss[i][j] = read_matrix(i, j);
+          [[clang::suppress]] fjustap_2d_ss[i][j] = read_matrix(i, j);
         }
         if (i_code == fCodeCorCss) {
           fjustap_2d_ss[i][j] = read_matrix(i, j);
