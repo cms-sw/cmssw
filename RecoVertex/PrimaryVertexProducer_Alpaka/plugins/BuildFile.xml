@@ -1,0 +1,42 @@
+<!-- host-only plugins -->
+<library file="*.cc" name="RecoVertexPrimaryVertexProducer_AlpakaPlugins">
+  <use name="alpaka"/>
+  <use name="fmt"/>
+  <use name="DataFormats/PortableVertex"/>
+  <use name="DataFormats/TrackReco"/>
+  <use name="DataFormats/VertexReco"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/MessageLogger"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/Utilities"/>
+  <use name="HeterogeneousCore/CUDACore"/>
+  <use name="HeterogeneousCore/AlpakaTest"/>
+  <use name="HeterogeneousCore/AlpakaCore"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <use name="TrackingTools/Records"/>
+  <use name="TrackingTools/TransientTrack"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<!-- alpaka-based portable plugins -->
+<library file="alpaka/*.cc" name="RecoVertexPrimaryVertexProducer_AlpakaPluginsportable">
+  <use name="alpaka"/>
+  <!--
+  The dependency on "DataFormats/PortableVertex" automatically expands to include
+  the host-only library (if it exists) and the corresponding Alpaka libraries (if they exist)
+  -->
+  <use name="DataFormats/PortableVertex"/>
+  <use name="DataFormats/TrackReco"/>
+  <use name="DataFormats/VertexReco"/>
+  <use name="DataFormats/BeamSpot"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/Utilities"/>
+  <use name="HeterogeneousCore/CUDACore"/>
+  <use name="HeterogeneousCore/AlpakaCore"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <use name="TrackingTools/Records"/>
+  <use name="TrackingTools/TransientTrack"/>
+  <flags ALPAKA_BACKENDS="1"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
