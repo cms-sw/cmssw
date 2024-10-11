@@ -188,7 +188,6 @@ void SiPixelRawDataErrorSource::buildStructure(const edm::EventSetup &iSetup) {
   edm::ESHandle<TrackerGeometry> pDD = iSetup.getHandle(trackerGeomTokenBeginRun_);
 
   edm::ESHandle<TrackerTopology> tTopoHandle = iSetup.getHandle(trackerTopoTokenBeginRun_);
-  // const TrackerTopology *pTT = tTopoHandle.product();
 
   LogVerbatim("PixelDQM") << " *** Geometry node for TrackerGeom is  " << &(*pDD) << std::endl;
   LogVerbatim("PixelDQM") << " *** I have " << pDD->detsPXB().size() << " barrel pixel detectors" << std::endl;
