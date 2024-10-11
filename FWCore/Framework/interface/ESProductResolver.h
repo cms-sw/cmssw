@@ -45,7 +45,7 @@ namespace edm {
       virtual ~ESProductResolver();
 
       // ---------- const member functions ---------------------
-      bool cacheIsValid() const { return cacheIsValid_.load(std::memory_order_acquire); }
+      bool cacheIsValid() const;
 
       void prefetchAsync(WaitingTaskHolder,
                          EventSetupRecordImpl const&,
@@ -106,8 +106,7 @@ namespace edm {
     private:
       // ---------- member data --------------------------------
       ComponentDescription const* description_;
-      CMS_THREAD_SAFE mutable void const* cache_;  //protected by a global mutex
-      mutable std::atomic<bool> cacheIsValid_;
+      mutable std::atomic<void const*> cache_;
 
       // While implementing the set of code changes that enabled support
       // for concurrent IOVs, I have gone to some effort to maintain
