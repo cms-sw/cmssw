@@ -26,10 +26,6 @@
 class HcalTopology : public CaloSubdetectorTopology {
 public:
   HcalTopology(const HcalDDDRecConstants* hcons, const bool mergePosition = false);
-  HcalTopology(HcalTopologyMode::Mode mode,
-               int maxDepthHB,
-               int maxDepthHE,
-               HcalTopologyMode::TriggerMode tmode = HcalTopologyMode::TriggerMode_2009);
 
   HcalTopologyMode::Mode mode() const { return mode_; }
   HcalTopologyMode::TriggerMode triggerMode() const { return triggerMode_; }
