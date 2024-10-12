@@ -1,4 +1,5 @@
 #include "L1Trigger/Phase2L1GMT/interface/TrackConverter.h"
+#include <fstream>
 
 using namespace Phase2L1GMT;
 
@@ -46,5 +47,54 @@ ConvertedTTTrack TrackConverter::convert(const edm::Ptr<TTTrack<Ref_Phase2Tracke
   if (verbose_)
     convertedTrack.print();
   convertedTrack.setTrkPtr(track);
+
+  //printouts
+ /* 
+  fstream outfile("/uscms/home/hancelin/testing/CMSSW_14_1_0_pre3/src/trackconverter_printouts.txt", ios::app);
+  outfile << "Input track: ";
+  
+  outfile << "k=" + to_string(ap_int<BITSTTCURV>(track->getRinvBits())) + ", ";
+  outfile << "phi=" + to_string(ap_int<BITSTTPHI>(track->getPhiBits())) + ", ";
+  outfile << "tanL=" + to_string(ap_int<BITSTTTANL>(track->getTanlBits())) + ", ";
+  outfile << "z0=" + to_string(ap_int<BITSTTZ0>(track->getZ0Bits())) + ", ";
+  outfile << "d0=" + to_string(ap_int<BITSTTD0>(track->getD0Bits())) + ", ";
+  outfile << "chi2RPhi=" + to_string(track->getChi2RPhiBits()) + ", ";
+  outfile << "chi2RZ=" + to_string(track->getChi2RZBits()) + ", ";
+  outfile << "bend_chi2=" + to_string(track->getBendChi2Bits()) + ", ";
+  outfile << "hitmask=" + to_string(track->getHitPatternBits()) + ", ";
+  outfile << "trackMVA=" + to_string(track->getMVAQualityBits()) + ", ";
+  outfile << "otherMVA=" + to_string(track->getMVAOtherBits()) + ", ";
+  outfile << "valid=" + to_string(track->getValidBits()) + ", ";
+  outfile << "sector=" + to_string(track->phiSector()) + ", ";
+  
+  //outfile << "chi2RPhiBits=" + to_string(track->getChi2RPhiBits()) + ", ";
+  //outfile << "chi2RZBits=" + to_string(track->getChi2RZBits()) + ", ";
+  //outfile << "chi2RPhi=" + to_string(track->getChi2RPhi()) + ", ";
+  //outfile << "chi2RZ=" + to_string(track->getChi2RZ()) + ", ";
+  //outfile << "chi2=" + to_string(track->chi2()) + ", ";
+  //outfile << "chi2z=" + to_string(track->chi2Z()) + ", ";
+  //outfile << "chi2xy=" + to_string(track->chi2XY()) + ", ";
+  //outfile << "chi2red=" + to_string(track->chi2Red()) + ", ";
+  //outfile << "chi2zred=" + to_string(track->chi2ZRed()) + ", ";
+  //outfile << "chi2xyred=" + to_string(track->chi2XYRed()) + ", ";
+  //outfile << "sector=" + to_string(track->phiSector()) + ", ";
+  //if (track->phiSector() > 8) { outfile << "AAAAAAAAAAAAAAAAAAA";}
+  //outfile << "reserved=" + to_string(track->reserved()) + ", "; what is reserved????
+
+  outfile << "\n";
+
+  outfile << "Output track: ";
+  //q, pt, phi, eta, z0, d0, quality
+  outfile << "q=" + to_string(ap_uint<1>(convertedTrack.charge())) + ", ";
+  outfile << "pt=" + to_string(ap_uint<BITSPT>(convertedTrack.pt())) + ", ";
+  outfile << "phi=" + to_string(ap_int<BITSPHI>(convertedTrack.phi())) + ", ";
+  outfile << "eta=" + to_string(ap_int<BITSETA>(convertedTrack.eta())) + ", ";
+  outfile << "z0=" + to_string(ap_int<BITSZ0>(convertedTrack.z0())) + ", ";
+  outfile << "d0=" + to_string(ap_int<BITSD0>(convertedTrack.d0())) + ", ";
+  outfile << "quality=" + to_string(ap_uint<1>(convertedTrack.quality())) + ", ";
+
+  outfile << "\n\n";
+  outfile.close();
+  */
   return convertedTrack;
 }
