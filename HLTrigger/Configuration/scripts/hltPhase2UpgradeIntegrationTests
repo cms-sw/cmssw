@@ -28,8 +28,10 @@ def print_help():
     --geometry        : Geometry setting for the CMS process (required)
     --events          : Number of events to process (default: 1)
     --threads         : Number of threads to use (default: 1)
+    --parallelJobs    : Number of parallel cmsRun and hltDiff executions (default: 4)
     --restrictPathsTo : Restrict paths to be run to a user defined subset (e.g. "HLT_Ele*")
     --procModifiers   : Optionally use one (or more) cmssw processModifier
+    --cachedInput     : Optionally use an existing RAW data file (do not regenerate it from scratch)
 
     Example usage:
     hltPhase2UpgradeIntegrationTests --globaltag auto:phase2_realistic_T33 --geometry Extended2026D110 --events 10 --threads 4
@@ -79,6 +81,7 @@ parser.add_argument("--events", type=int, default=10, help="Number of events to 
 parser.add_argument("--parallelJobs", type=int, default=4, help="Number of parallel cmsRun HLT jobs")
 parser.add_argument("--threads", type=int, default=1, help="Number of threads to use")
 parser.add_argument("--restrictPathsTo", nargs='+', default=[], help="List of HLT paths to restrict to")
+parser.add_argument("--cachedInput", default=None, help="Predefined input file to use instead of running TTbar GEN,SIM step")
 parser.add_argument("--procModifiers", default=None, help="Optional process modifier for cmsDriver")  # New argument for procModifiers
 
 # Step 0: Capture the start time and print the start timestamp
@@ -119,6 +122,10 @@ if restrict_paths_to:
 # Print procModifiers if provided
 if proc_modifiers:
     print(f"Proc Modifiers:       {proc_modifiers}")
+if args.cachedInput:
+    print(f"Using cached input file: {args.cachedInput}")
+else:
+    print(f"Using regenerated GEN-SIM-DIGI-RAW file from scratch")
 print("=" * 40)
 
 # Directory where all test configurations will be stored
@@ -131,14 +138,27 @@ if os.path.exists(output_dir):
 os.makedirs(output_dir)
 
 # Define the cmsDriver.py command to create the base configuration
-base_cmsdriver_command = (
-    f"cmsDriver.py Phase2 -s L1P2GT,HLT:75e33_timing "
-    f"--conditions {global_tag} -n {num_events} --eventcontent FEVTDEBUGHLT "
-    f"--geometry {geometry} --era {era} --filein file:{output_dir}/step1.root --fileout {output_dir}/hlt.root --no_exec "
-    f"--nThreads {num_threads} "
-    f"--customise SLHCUpgradeSimulations/Configuration/aging.customise_aging_1000 "
-    f'--customise_commands "process.options.wantSummary=True"'
-)
+# If cachedInput is provided, use it as the input for the base cmsDriver command
+if args.cachedInput:
+    base_cmsdriver_command = (
+        f"cmsDriver.py Phase2 -s L1P2GT,HLT:75e33_timing "
+        f"--conditions {global_tag} -n {num_events} --eventcontent FEVTDEBUGHLT "
+        f"--geometry {geometry} --era {era} --filein {args.cachedInput} --fileout {output_dir}/hlt.root --no_exec "
+        f"--mc --nThreads {num_threads} "
+        f"--processName=HLTX "
+        f"--inputCommands='keep *, drop *_hlt*_*_HLT, drop triggerTriggerFilterObjectWithRefs_l1t*_*_HLT' "
+        f"--customise SLHCUpgradeSimulations/Configuration/aging.customise_aging_1000 "
+        f'--customise_commands "process.options.wantSummary=True"'
+    )
+else:
+    base_cmsdriver_command = (
+        f"cmsDriver.py Phase2 -s L1P2GT,HLT:75e33_timing "
+        f"--conditions {global_tag} -n {num_events} --eventcontent FEVTDEBUGHLT "
+        f"--geometry {geometry} --era {era} --filein file:{output_dir}/step1.root --fileout {output_dir}/hlt.root --no_exec "
+        f"--nThreads {num_threads} "
+        f"--customise SLHCUpgradeSimulations/Configuration/aging.customise_aging_1000 "
+        f'--customise_commands "process.options.wantSummary=True"'
+    )
 
 # Add procModifiers if provided
 if proc_modifiers:
@@ -262,8 +282,9 @@ ttbar_command = (
     f"--python_filename {ttbar_config_file}"
 )
 
-print("Running TTbar GEN,SIM step...")
-run_command(ttbar_command, log_file=os.path.join(output_dir, "ttbar_gen_sim.log"))
+if not args.cachedInput:
+    print("Running TTbar GEN,SIM step...")
+    run_command(ttbar_command, log_file=os.path.join(output_dir, "ttbar_gen_sim.log"))
 
 # Directory containing HLT test configurations
 hlt_configs_dir = output_dir
@@ -291,7 +312,10 @@ def run_cmsrun(config_file):
     return 0  # Return 0 for success
     
 # Step 8: Loop through all files in hlt_test_configs and run cmsRun on each in parallel
-config_files = [f for f in os.listdir(hlt_configs_dir) if f.endswith(".py") and f.startswith("Phase2_")]
+config_files = [
+    f for f in os.listdir(hlt_configs_dir)
+    if f.endswith(".py") and f.startswith("Phase2_") and f != "Phase2_dump.py"
+]
 print(f"Found {len(config_files)} configuration files in {hlt_configs_dir}.")
 
 # Run cmsRun on all config files in parallel and handle errors
