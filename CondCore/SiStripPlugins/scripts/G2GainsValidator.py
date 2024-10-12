@@ -29,6 +29,7 @@ def getCommandOutput(command):
     err = child.close()
     if err:
         print ('%s failed w/ exit code %d' % (command, err))
+        sys.exit(1)  # This will stop the script immediately with the failure exit code
     return data
 
 ##############################################
