@@ -8,6 +8,9 @@ StringToEnumParser<HcalTopologyMode::Mode>::StringToEnumParser() {
   enumMap["HcalTopologyMode::H2HE"] = HcalTopologyMode::H2HE;
   enumMap["HcalTopologyMode::Run3"] = HcalTopologyMode::Run3;
   enumMap["HcalTopologyMode::Run4"] = HcalTopologyMode::Run4;
+  enumMap["HcalTopologyMode::Run2A"] = HcalTopologyMode::Run2A;
+  enumMap["HcalTopologyMode::Run2B"] = HcalTopologyMode::Run2B;
+  enumMap["HcalTopologyMode::Run2C"] = HcalTopologyMode::Run2C;
 }
 
 template <>
