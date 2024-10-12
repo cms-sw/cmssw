@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    SiPixelFakeGainESSource
+// Package:    CalibTracker/SiPixelESProducers
 // Class:      SiPixelFakeGainESSource
 //
-/**\class SiPixelFakeGainESSource SiPixelFakeGainESSource.h CalibTracker/SiPixelESProducer/src/SiPixelFakeGainESSource.cc
+/**\class SiPixelFakeGainESSource SiPixelFakeGainESSource.cc CalibTracker/SiPixelGainESProducer/plugins/SiPixelFakeGainESSource.cc
 
  Description: <one line class summary>
 
@@ -12,17 +12,51 @@
 */
 //
 // Original Author:  Vincenzo Chiochia
-//         Created:  Fri Apr 27 12:31:25 CEST 2007
+//         Created:  Tue 8 12:31:25 CEST 2007
 //
 //
+
+// system include files
+#include <memory>
 
 // user include files
-
-#include "CalibTracker/SiPixelESProducers/interface/SiPixelFakeGainESSource.h"
 #include "CalibTracker/SiPixelESProducers/interface/SiPixelDetInfoFileReader.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "CondFormats/DataRecord/interface/SiPixelGainCalibrationRcd.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelGainCalibration.h"
+#include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/ModuleFactory.h"
+#include "FWCore/Framework/interface/SourceFactory.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+
+//
+// class decleration
+//
+
+class SiPixelFakeGainESSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
+public:
+  SiPixelFakeGainESSource(const edm::ParameterSet&);
+  ~SiPixelFakeGainESSource() override = default;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+  virtual std::unique_ptr<SiPixelGainCalibration> produce(const SiPixelGainCalibrationRcd&);
+
+protected:
+  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
+                      const edm::IOVSyncValue&,
+                      edm::ValidityInterval&) override;
+
+private:
+  edm::FileInPath fp_;
+};
+
 //
 // constructors and destructor
 //
@@ -33,11 +67,6 @@ SiPixelFakeGainESSource::SiPixelFakeGainESSource(const edm::ParameterSet& conf_)
   // data is being produced
   setWhatProduced(this);
   findingRecord<SiPixelGainCalibrationRcd>();
-}
-
-SiPixelFakeGainESSource::~SiPixelFakeGainESSource() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
 }
 
 std::unique_ptr<SiPixelGainCalibration> SiPixelFakeGainESSource::produce(const SiPixelGainCalibrationRcd&) {
@@ -78,3 +107,11 @@ void SiPixelFakeGainESSource::setIntervalFor(const edm::eventsetup::EventSetupRe
   edm::ValidityInterval infinity(iosv.beginOfTime(), iosv.endOfTime());
   oValidity = infinity;
 }
+
+void SiPixelFakeGainESSource::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::FileInPath>("file", edm::FileInPath("CalibTracker/SiPixelESProducers/data/PixelSkimmedGeometry.txt"));
+  descriptions.addWithDefaultLabel(desc);
+}
+
+DEFINE_FWK_EVENTSETUP_SOURCE(SiPixelFakeGainESSource);

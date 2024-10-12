@@ -124,9 +124,9 @@ void SiPixelTemplateDBObjectReader::analyze(const edm::Event& iEvent, const edm:
     */
 
     for (int i = 0; i < numOfTempl; ++i) {
-      //Removes header in db object from diff     
+      //Removes header in db object from diff
       index += 20;
-    
+
       //Tell the person viewing the output what the template ID and version are -- note that version is only valid for >=13
       edm::LogPrint("SiPixelTemplateDBObjectReader")
           << "Calibration " << i + 1 << " of " << numOfTempl << ", with Template ID " << dbobject.sVector()[index]
@@ -137,9 +137,9 @@ void SiPixelTemplateDBObjectReader::analyze(const edm::Event& iEvent, const edm:
       tout << theTemplateCalibrationLocation.c_str() << "/data/template_summary_zp" << std::setw(4) << std::setfill('0')
            << std::right << dbobject.sVector()[index] << ".out" << std::ends;
 
-      if(testGlobalTag)
-	continue;
-      
+      if (testGlobalTag)
+        continue;
+
       edm::FileInPath file(tout.str());
       std::ifstream in_file(file.fullPath(), std::ios::in);
 
