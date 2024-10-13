@@ -47,6 +47,12 @@ void HcalTopologyTester::fillDescriptions(edm::ConfigurationDescriptions& descri
 void HcalTopologyTester::analyze(edm::Event const&, edm::EventSetup const& iSetup) { doTest(iSetup.getData(tokTopo_)); }
 
 void HcalTopologyTester::doTest(const HcalTopology& topology) {
+  // Total number of valid cells
+  edm::LogVerbatim("HCalGeom") << "Total number of cells in HB:" << topology.getHBSize()
+                               << " HE: " << topology.getHESize() << " HF: " << topology.getHFSize()
+                               << " HO: " << topology.getHOSize() << " HT: " << topology.getHTSize()
+                               << " Calib: " << topology.getCALIBSize() << " Overall: " << topology.ncells();
+
   // First test on movements along eta/phi directions
   edm::LogVerbatim("HCalGeom") << "\nTest on movements along eta/phi directions"
                                << "\n==========================================";
