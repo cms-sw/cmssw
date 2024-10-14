@@ -13,7 +13,7 @@
 
 class PerigeeTrajectoryError {
 public:
-  PerigeeTrajectoryError() {}
+  PerigeeTrajectoryError() : weightIsAvailable(false) {}
   // ~PerigeeTrajectoryError() {}
 
   /*
