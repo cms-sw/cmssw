@@ -2,11 +2,26 @@ import FWCore.ParameterSet.Config as cms
 from PhysicsTools.PatAlgos.tools.puppiJetMETReclusteringTools import puppiAK4METReclusterFromMiniAOD
 from PhysicsTools.PatAlgos.tools.puppiJetMETReclusteringTools import puppiAK8ReclusterFromMiniAOD
 
-def puppiJetMETReclusterFromMiniAOD(process, runOnMC, useExistingWeights=False, doAK4MET=True, doAK8=True):
+def setupPuppiAK4AK8METReclustering(process, runOnMC, useExistingWeights=False, reclusterAK4MET=True, reclusterAK8=True, btagDiscriminatorsAK4=None, btagDiscriminatorsAK8=None, btagDiscriminatorsAK8Subjets=None):
 
-  #
-  # AK4 and MET
-  #
+  if reclusterAK4MET:
+    process = puppiAK4METReclusterFromMiniAOD(process, runOnMC,
+      useExistingWeights=useExistingWeights,
+      btagDiscriminatorsAK4=btagDiscriminatorsAK4
+    )
+
+  if reclusterAK8:
+    process = puppiAK8ReclusterFromMiniAOD(process, runOnMC,
+      useExistingWeights=useExistingWeights,
+      btagDiscriminatorsAK8=btagDiscriminatorsAK8,
+      btagDiscriminatorsAK8Subjets=btagDiscriminatorsAK8Subjets
+    )
+
+  return process
+
+def puppiJetMETReclusterFromMiniAOD(process, runOnMC, useExistingWeights=False, reclusterAK4MET=True, reclusterAK8=True):
+
+  # AK4 taggers
   from RecoBTag.ONNXRuntime.pfParticleNetFromMiniAODAK4_cff import _pfParticleNetFromMiniAODAK4PuppiCentralJetTagsAll as pfParticleNetFromMiniAODAK4PuppiCentralJetTagsAll
   from RecoBTag.ONNXRuntime.pfParticleNetFromMiniAODAK4_cff import _pfParticleNetFromMiniAODAK4PuppiForwardJetTagsAll as pfParticleNetFromMiniAODAK4PuppiForwardJetTagsAll
   from RecoBTag.ONNXRuntime.pfUnifiedParticleTransformerAK4_cff import _pfUnifiedParticleTransformerAK4JetTagsAll as pfUnifiedParticleTransformerAK4JetTagsAll
@@ -24,20 +39,11 @@ def puppiJetMETReclusterFromMiniAOD(process, runOnMC, useExistingWeights=False, 
     + pfUnifiedParticleTransformerAK4JetTagsAll
   )
 
-  if doAK4MET:
-    process = puppiAK4METReclusterFromMiniAOD(process, runOnMC,
-      useExistingWeights=useExistingWeights,
-      btagDiscriminatorsAK4=btagDiscriminatorsAK4
-    )
-
-  #
-  # AK8
-  #
+  # AK8 taggers
   from RecoBTag.ONNXRuntime.pfParticleNet_cff import _pfParticleNetJetTagsAll as pfParticleNetJetTagsAll
   from RecoBTag.ONNXRuntime.pfParticleNet_cff import _pfParticleNetMassRegressionOutputs as pfParticleNetMassRegressionOutputs
   from RecoBTag.ONNXRuntime.pfParticleNet_cff import _pfParticleNetMassCorrelatedJetTagsAll as pfParticleNetMassCorrelatedJetTagsAll
   from RecoBTag.ONNXRuntime.pfParticleNetFromMiniAODAK8_cff import _pfParticleNetFromMiniAODAK8JetTagsAll as pfParticleNetFromMiniAODAK8JetTagsAll
-
   btagDiscriminatorsAK8 = cms.PSet(names = cms.vstring(
       pfParticleNetMassCorrelatedJetTagsAll+
       pfParticleNetFromMiniAODAK8JetTagsAll+
@@ -46,6 +52,7 @@ def puppiJetMETReclusterFromMiniAOD(process, runOnMC, useExistingWeights=False, 
     )
   )
 
+  # AK8 Subjets taggers
   btagDiscriminatorsAK8Subjets = cms.PSet(names = cms.vstring(
       'pfDeepFlavourJetTags:probb',
       'pfDeepFlavourJetTags:probbb',
@@ -53,13 +60,13 @@ def puppiJetMETReclusterFromMiniAOD(process, runOnMC, useExistingWeights=False, 
       'pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:BvsAll'
     )
   )
-
-  if doAK8:
-    process = puppiAK8ReclusterFromMiniAOD(process, runOnMC,
-      useExistingWeights=useExistingWeights,
-      btagDiscriminatorsAK8=btagDiscriminatorsAK8,
-      btagDiscriminatorsAK8Subjets=btagDiscriminatorsAK8Subjets
-    )
+  process = setupPuppiAK4AK8METReclustering(process, runOnMC,
+    useExistingWeights=useExistingWeights,
+    reclusterAK4MET=reclusterAK4MET, reclusterAK8=reclusterAK8,
+    btagDiscriminatorsAK4=btagDiscriminatorsAK4,
+    btagDiscriminatorsAK8=btagDiscriminatorsAK8,
+    btagDiscriminatorsAK8Subjets=btagDiscriminatorsAK8Subjets
+  )
 
   return process
 
