@@ -38,14 +38,14 @@ private:
 // constructors and destructor
 //
 template <typename T>
-JetPFConstituentVarProducer<T>::JetPFConstituentVarProducer(const edm::ParameterSet &iConfig):
-  jet_token_(consumes<edm::View<T>>(iConfig.getParameter<edm::InputTag>("jets"))),
-  fallback_puppi_weight_(iConfig.getParameter<bool>("fallback_puppi_weight")),
-  use_puppi_value_map_(false){
+JetPFConstituentVarProducer<T>::JetPFConstituentVarProducer(const edm::ParameterSet& iConfig)
+    : jet_token_(consumes<edm::View<T>>(iConfig.getParameter<edm::InputTag>("jets"))),
+      fallback_puppi_weight_(iConfig.getParameter<bool>("fallback_puppi_weight")),
+      use_puppi_value_map_(false) {
   //
   // Puppi Value Map
   //
-  const auto &puppi_value_map_tag = iConfig.getParameter<edm::InputTag>("puppi_value_map");
+  const auto& puppi_value_map_tag = iConfig.getParameter<edm::InputTag>("puppi_value_map");
   if (!puppi_value_map_tag.label().empty()) {
     puppi_value_map_token_ = consumes<edm::ValueMap<float>>(puppi_value_map_tag);
     use_puppi_value_map_ = true;
@@ -66,7 +66,6 @@ JetPFConstituentVarProducer<T>::JetPFConstituentVarProducer(const edm::Parameter
   produces<edm::ValueMap<float>>("leadConstHFEMPuppiWeight");
 }
 
-
 template <typename T>
 JetPFConstituentVarProducer<T>::~JetPFConstituentVarProducer() {}
 
@@ -81,33 +80,33 @@ void JetPFConstituentVarProducer<T>::produce(edm::Event& iEvent, const edm::Even
     iEvent.getByToken(puppi_value_map_token_, puppi_value_map_);
   }
 
-  std::vector<float> jet_leadConstNeHadEF(jets->size(),0.f);
-  std::vector<float> jet_leadConstNeHadPuppiWeight(jets->size(),0.f);
+  std::vector<float> jet_leadConstNeHadEF(jets->size(), 0.f);
+  std::vector<float> jet_leadConstNeHadPuppiWeight(jets->size(), 0.f);
 
-  std::vector<float> jet_leadConstChHadEF(jets->size(),0.f);
-  std::vector<float> jet_leadConstChHadPuppiWeight(jets->size(),0.f);
+  std::vector<float> jet_leadConstChHadEF(jets->size(), 0.f);
+  std::vector<float> jet_leadConstChHadPuppiWeight(jets->size(), 0.f);
 
-  std::vector<float> jet_leadConstPhotonEF(jets->size(),0.f);
-  std::vector<float> jet_leadConstPhotonPuppiWeight(jets->size(),0.f);
+  std::vector<float> jet_leadConstPhotonEF(jets->size(), 0.f);
+  std::vector<float> jet_leadConstPhotonPuppiWeight(jets->size(), 0.f);
 
-  std::vector<float> jet_leadConstElectronEF(jets->size(),0.f);
-  std::vector<float> jet_leadConstElectronPuppiWeight(jets->size(),0.f);
+  std::vector<float> jet_leadConstElectronEF(jets->size(), 0.f);
+  std::vector<float> jet_leadConstElectronPuppiWeight(jets->size(), 0.f);
 
-  std::vector<float> jet_leadConstMuonEF(jets->size(),0.f);
-  std::vector<float> jet_leadConstMuonPuppiWeight(jets->size(),0.f);
+  std::vector<float> jet_leadConstMuonEF(jets->size(), 0.f);
+  std::vector<float> jet_leadConstMuonPuppiWeight(jets->size(), 0.f);
 
-  std::vector<float> jet_leadConstHFHADEF(jets->size(),0.f);
-  std::vector<float> jet_leadConstHFHADPuppiWeight(jets->size(),0.f);
+  std::vector<float> jet_leadConstHFHADEF(jets->size(), 0.f);
+  std::vector<float> jet_leadConstHFHADPuppiWeight(jets->size(), 0.f);
 
-  std::vector<float> jet_leadConstHFEMEF(jets->size(),0.f);
-  std::vector<float> jet_leadConstHFEMPuppiWeight(jets->size(),0.f);
+  std::vector<float> jet_leadConstHFEMEF(jets->size(), 0.f);
+  std::vector<float> jet_leadConstHFEMPuppiWeight(jets->size(), 0.f);
 
   // Loop over jet
   for (std::size_t jet_idx = 0; jet_idx < jets->size(); jet_idx++) {
-    const auto &jet = (*jets)[jet_idx];
+    const auto& jet = (*jets)[jet_idx];
 
     float jet_energy_raw = jet.energy();
-    if constexpr (std::is_same<T,pat::Jet>::value){
+    if constexpr (std::is_same<T, pat::Jet>::value) {
       jet_energy_raw = jet.correctedJet(0).energy();
     }
 
@@ -130,13 +129,13 @@ void JetPFConstituentVarProducer<T>::produce(edm::Event& iEvent, const edm::Even
     //
     // Loop over jet constituents
     //
-    for (const reco::CandidatePtr& dau: jet.daughterPtrVector()) {
+    for (const reco::CandidatePtr& dau : jet.daughterPtrVector()) {
       float puppiw = 1.f;
 
       //
       // Get Puppi weight from ValueMap, if provided.
       //
-      if (use_puppi_value_map_){
+      if (use_puppi_value_map_) {
         puppiw = (*puppi_value_map_)[dau];
       } else if (!fallback_puppi_weight_) {
         throw edm::Exception(edm::errors::InvalidReference, "PUPPI value map missing")
@@ -146,75 +145,74 @@ void JetPFConstituentVarProducer<T>::produce(edm::Event& iEvent, const edm::Even
       //
       // Find the highest energy constituents for each PF type
       //
-      if (abs(dau->pdgId()) == 130){
-        if (leadConstNeHad.isNull() || (puppiw * dau->energy() > leadConstNeHadPuppiWeight * leadConstNeHad->energy())){
+      if (abs(dau->pdgId()) == 130) {
+        if (leadConstNeHad.isNull() ||
+            (puppiw * dau->energy() > leadConstNeHadPuppiWeight * leadConstNeHad->energy())) {
           leadConstNeHad = dau;
           leadConstNeHadPuppiWeight = puppiw;
         }
-      }
-      else if (abs(dau->pdgId()) == 211){
-        if (leadConstChHad.isNull() || (puppiw * dau->energy() > leadConstChHadPuppiWeight * leadConstChHad->energy())){
+      } else if (abs(dau->pdgId()) == 211) {
+        if (leadConstChHad.isNull() ||
+            (puppiw * dau->energy() > leadConstChHadPuppiWeight * leadConstChHad->energy())) {
           leadConstChHad = dau;
           leadConstChHadPuppiWeight = puppiw;
         }
-      }
-      else if (abs(dau->pdgId()) == 22){
-        if (leadConstPhoton.isNull() || (puppiw * dau->energy() > leadConstPhotonPuppiWeight * leadConstPhoton->energy())){
+      } else if (abs(dau->pdgId()) == 22) {
+        if (leadConstPhoton.isNull() ||
+            (puppiw * dau->energy() > leadConstPhotonPuppiWeight * leadConstPhoton->energy())) {
           leadConstPhoton = dau;
           leadConstPhotonPuppiWeight = puppiw;
         }
-      }
-      else if (abs(dau->pdgId()) == 11){
-        if (leadConstElectron.isNull() || (puppiw * dau->energy() > leadConstElectronPuppiWeight * leadConstElectron->energy())){
+      } else if (abs(dau->pdgId()) == 11) {
+        if (leadConstElectron.isNull() ||
+            (puppiw * dau->energy() > leadConstElectronPuppiWeight * leadConstElectron->energy())) {
           leadConstElectron = dau;
           leadConstElectronPuppiWeight = puppiw;
         }
-      }
-      else if (abs(dau->pdgId()) == 13){
-        if (leadConstMuon.isNull() || (puppiw * dau->energy() > leadConstMuonPuppiWeight * leadConstMuon->energy())){
+      } else if (abs(dau->pdgId()) == 13) {
+        if (leadConstMuon.isNull() || (puppiw * dau->energy() > leadConstMuonPuppiWeight * leadConstMuon->energy())) {
           leadConstMuon = dau;
           leadConstMuonPuppiWeight = puppiw;
         }
-      }
-      else if (abs(dau->pdgId()) == 1){
-        if(leadConstHFHAD.isNull() || (puppiw * dau->energy() > leadConstHFHADPuppiWeight * leadConstHFHAD->energy())){
+      } else if (abs(dau->pdgId()) == 1) {
+        if (leadConstHFHAD.isNull() ||
+            (puppiw * dau->energy() > leadConstHFHADPuppiWeight * leadConstHFHAD->energy())) {
           leadConstHFHAD = dau;
           leadConstHFHADPuppiWeight = puppiw;
         }
-      }
-      else if (abs(dau->pdgId()) == 2){
-        if(leadConstHFEM.isNull() || (puppiw * dau->energy() > leadConstHFEMPuppiWeight * leadConstHFEM->energy())){
+      } else if (abs(dau->pdgId()) == 2) {
+        if (leadConstHFEM.isNull() || (puppiw * dau->energy() > leadConstHFEMPuppiWeight * leadConstHFEM->energy())) {
           leadConstHFEM = dau;
           leadConstHFEMPuppiWeight = puppiw;
         }
       }
-    }// End of Jet Constituents Loop
+    }  // End of Jet Constituents Loop
 
-    if (leadConstNeHad.isNonnull()){
+    if (leadConstNeHad.isNonnull()) {
       jet_leadConstNeHadEF[jet_idx] = (leadConstNeHad->energy() * leadConstNeHadPuppiWeight) / jet_energy_raw;
       jet_leadConstNeHadPuppiWeight[jet_idx] = leadConstNeHadPuppiWeight;
     }
-    if (leadConstChHad.isNonnull()){
+    if (leadConstChHad.isNonnull()) {
       jet_leadConstChHadEF[jet_idx] = (leadConstChHad->energy() * leadConstChHadPuppiWeight) / jet_energy_raw;
       jet_leadConstChHadPuppiWeight[jet_idx] = leadConstChHadPuppiWeight;
     }
-    if (leadConstPhoton.isNonnull()){
+    if (leadConstPhoton.isNonnull()) {
       jet_leadConstPhotonEF[jet_idx] = (leadConstPhoton->energy() * leadConstPhotonPuppiWeight) / jet_energy_raw;
       jet_leadConstPhotonPuppiWeight[jet_idx] = leadConstPhotonPuppiWeight;
     }
-    if (leadConstElectron.isNonnull()){
+    if (leadConstElectron.isNonnull()) {
       jet_leadConstElectronEF[jet_idx] = (leadConstElectron->energy() * leadConstElectronPuppiWeight) / jet_energy_raw;
       jet_leadConstElectronPuppiWeight[jet_idx] = leadConstElectronPuppiWeight;
     }
-    if (leadConstMuon.isNonnull()){
+    if (leadConstMuon.isNonnull()) {
       jet_leadConstMuonEF[jet_idx] = (leadConstMuon->energy() * leadConstMuonPuppiWeight) / jet_energy_raw;
       jet_leadConstMuonPuppiWeight[jet_idx] = leadConstMuonPuppiWeight;
     }
-    if (leadConstHFHAD.isNonnull()){
+    if (leadConstHFHAD.isNonnull()) {
       jet_leadConstHFHADEF[jet_idx] = (leadConstHFHAD->energy() * leadConstHFHADPuppiWeight) / jet_energy_raw;
       jet_leadConstHFHADPuppiWeight[jet_idx] = leadConstHFHADPuppiWeight;
     }
-    if (leadConstHFEM.isNonnull()){
+    if (leadConstHFEM.isNonnull()) {
       jet_leadConstHFEMEF[jet_idx] = (leadConstHFEM->energy() * leadConstHFEMPuppiWeight) / jet_energy_raw;
       jet_leadConstHFEMPuppiWeight[jet_idx] = leadConstHFEMPuppiWeight;
     }
@@ -242,9 +240,10 @@ void JetPFConstituentVarProducer<T>::produce(edm::Event& iEvent, const edm::Even
   PutValueMapInEvent(iEvent, jets, jet_leadConstHFEMPuppiWeight, "leadConstHFEMPuppiWeight");
 }
 template <typename T>
-void JetPFConstituentVarProducer<T>::PutValueMapInEvent(edm::Event& iEvent, const edm::Handle<edm::View<T>>&  coll,
-  const std::vector<float>& vec_var, std::string VMName)
-{
+void JetPFConstituentVarProducer<T>::PutValueMapInEvent(edm::Event& iEvent,
+                                                        const edm::Handle<edm::View<T>>& coll,
+                                                        const std::vector<float>& vec_var,
+                                                        std::string VMName) {
   std::unique_ptr<edm::ValueMap<float>> VM(new edm::ValueMap<float>());
   edm::ValueMap<float>::Filler fillerVM(*VM);
   fillerVM.insert(coll, vec_var.begin(), vec_var.end());
@@ -253,7 +252,7 @@ void JetPFConstituentVarProducer<T>::PutValueMapInEvent(edm::Event& iEvent, cons
 }
 
 template <typename T>
-void JetPFConstituentVarProducer<T>::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+void JetPFConstituentVarProducer<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("jets", edm::InputTag("finalJetsPuppi"));
   desc.add<edm::InputTag>("puppi_value_map", edm::InputTag("packedpuppi"));
