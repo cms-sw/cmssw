@@ -1268,6 +1268,12 @@ def RecomputePuppiMET(proc):
   )
   return proc
 
+#===========================================================================
+#
+# Functions to setup recomputation of Puppi weights and recluster PuppiMET
+# and AK8 Puppi jets (slimmedJetsAK8)
+#
+#===========================================================================
 def RecomputePuppiWeightsAndMET(proc):
   """
   Recompute Puppi weights and PuppiMET.
@@ -1287,9 +1293,38 @@ def RecomputePuppiWeightsMETAK8(proc):
     runOnMC = False
 
   proc = RecomputePuppiWeightsAndMET(proc)
-  from PhysicsTools.PatAlgos.tools.puppiJetMETReclusteringFromMiniAOD_cff import puppiJetMETReclusterFromMiniAOD
-  proc = puppiJetMETReclusterFromMiniAOD(proc, runOnMC=runOnMC,
-    useExistingWeights=False, doAK4MET=False, doAK8=True
+
+  from RecoBTag.ONNXRuntime.pfParticleNet_cff import _pfParticleNetJetTagsAll as pfParticleNetJetTagsAll
+  from RecoBTag.ONNXRuntime.pfParticleNet_cff import _pfParticleNetMassRegressionOutputs as pfParticleNetMassRegressionOutputs
+  from RecoBTag.ONNXRuntime.pfParticleNet_cff import _pfParticleNetMassCorrelatedJetTagsAll as pfParticleNetMassCorrelatedJetTagsAll
+  from RecoBTag.ONNXRuntime.pfParticleNetFromMiniAODAK8_cff import _pfParticleNetFromMiniAODAK8JetTagsAll as pfParticleNetFromMiniAODAK8JetTagsAll
+
+  btagDiscriminatorsAK8 = cms.PSet(names = cms.vstring(
+      pfParticleNetMassCorrelatedJetTagsAll+
+      pfParticleNetFromMiniAODAK8JetTagsAll+
+      pfParticleNetJetTagsAll+
+      pfParticleNetMassRegressionOutputs
+    )
+  )
+
+  btagDiscriminatorsAK8Subjets = cms.PSet(names = cms.vstring(
+      'pfDeepFlavourJetTags:probb',
+      'pfDeepFlavourJetTags:probbb',
+      'pfDeepFlavourJetTags:problepb',
+      'pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:BvsAll'
+    )
+  )
+
+  run3_nanoAOD_pre142X.toModify(btagDiscriminatorsAK8Subjets,
+    names = cms.vstring('pfDeepCSVJetTags:probb','pfDeepCSVJetTags:probbb')
+  )
+
+  from PhysicsTools.PatAlgos.tools.puppiJetMETReclusteringFromMiniAOD_cff import setupPuppiAK4AK8METReclustering
+  proc = setupPuppiAK4AK8METReclustering(proc, runOnMC=runOnMC, useExistingWeights=False,
+    reclusterAK4MET=False, # Already setup to recluster AK4 Puppi jets and PuppiMET
+    reclusterAK8=True,
+    btagDiscriminatorsAK8=btagDiscriminatorsAK8,
+    btagDiscriminatorsAK8Subjets=btagDiscriminatorsAK8Subjets
   )
 
   return proc
