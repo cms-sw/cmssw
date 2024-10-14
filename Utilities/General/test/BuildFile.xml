@@ -14,3 +14,6 @@
   <else/>
   <test name="CudaGCCSupport" command="echo ERROR: Unsupported GCC version; exit 1"/>
 </iftool>
+
+<bin file="test_modulo_zero.cpp" name="test_modulo_zero">
+</bin>
