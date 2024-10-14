@@ -78,6 +78,11 @@ void DTPerformanceHandler::getNewObjects() {
   std::map<std::string, popcon::PayloadIOV>::iterator itag =
     mp.find( dataTag );
 */
+  cond::Time_t snc = runNumber;
+  if (runNumber <= last) {
+    std::cout << "More recent data already present - skipped" << std::endl;
+    return;
+  }
 
   DTPerformance* dtPerf = new DTPerformance(dataTag);
 
@@ -125,15 +130,7 @@ void DTPerformanceHandler::getNewObjects() {
 */
 
   //for each payload provide IOV information (say in this case we use since)
-  cond::Time_t snc = runNumber;
-  if (runNumber > last)
-    m_to_transfer.push_back(std::make_pair(dtPerf, snc));
-  else {
-    delete dtPerf;
-    std::cout << "More recent data already present - skipped" << std::endl;
-  }
-
-  return;
+  m_to_transfer.push_back(std::make_pair(dtPerf, snc));
 }
 
 std::string DTPerformanceHandler::id() const { return dataTag; }
