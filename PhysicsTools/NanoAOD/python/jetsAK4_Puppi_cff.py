@@ -215,6 +215,7 @@ corrT1METJetPuppiTable = simplePATJetFlatTableProducer.clone(
     doc  = cms.string("Additional low-pt ak4 Puppi jets for Type-1 MET re-correction"),
     variables = cms.PSet(
         rawPt = Var("pt()*jecFactor('Uncorrected')",float,precision=10),
+        rawMass = Var("mass()*jecFactor('Uncorrected')",float,precision=10),
         eta  = Var("eta",  float,precision=12),
         phi = Var("phi", float, precision=12),
         area = Var("jetArea()", float, doc="jet catchment area, for JECs",precision=10),
