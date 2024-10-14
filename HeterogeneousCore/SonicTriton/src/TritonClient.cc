@@ -98,7 +98,7 @@ TritonClient::TritonClient(const edm::ParameterSet& params, const std::string& d
   //get fixed parameters from local config
   inference::ModelConfig localModelConfig;
   {
-    const std::string& localModelConfigPath(params.getParameter<edm::FileInPath>("modelConfigPath").fullPath());
+    const std::string localModelConfigPath(params.getParameter<edm::FileInPath>("modelConfigPath").fullPath());
     int fileDescriptor = open(localModelConfigPath.c_str(), O_RDONLY);
     if (fileDescriptor < 0)
       throw TritonException("LocalFailure")
