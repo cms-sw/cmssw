@@ -71,22 +71,33 @@ namespace {
     }
   };
 
-  class SiStripPedestalCompareByPartition : public PlotImage<SiStripPedestals, MULTI_IOV, 2> {
+  template <int ntags, IOVMultiplicity nIOVs>
+  class SiStripPedestalCompareByPartitionBase : public PlotImage<SiStripPedestals, nIOVs, ntags> {
   public:
-    SiStripPedestalCompareByPartition()
-        : PlotImage<SiStripPedestals, MULTI_IOV, 2>("SiStrip Compare Pedestals By Partition") {}
+    SiStripPedestalCompareByPartitionBase()
+        : PlotImage<SiStripPedestals, nIOVs, ntags>("SiStrip Compare Pedestals By Partition") {}
 
     bool fill() override {
       // trick to deal with the multi-ioved tag and two tag case at the same time
       auto theIOVs = PlotBase::getTag<0>().iovs;
       auto tagname1 = PlotBase::getTag<0>().name;
-      auto tag2iovs = PlotBase::getTag<1>().iovs;
-      auto tagname2 = PlotBase::getTag<1>().name;
-      SiStripPI::MetaData firstiov = theIOVs.front();
-      SiStripPI::MetaData lastiov = tag2iovs.front();
+      std::string tagname2{tagname1};
+      auto firstiov = theIOVs.front();
+      SiStripPI::MetaData lastiov;
 
-      std::shared_ptr<SiStripPedestals> last_payload = fetchPayload(std::get<1>(lastiov));
-      std::shared_ptr<SiStripPedestals> first_payload = fetchPayload(std::get<1>(firstiov));
+      // we don't support (yet) comparison with more than 2 tags
+      assert(this->m_plotAnnotations.ntags < 3);
+
+      if (this->m_plotAnnotations.ntags == 2) {
+        auto tag2iovs = PlotBase::getTag<1>().iovs;
+        tagname2 = PlotBase::getTag<1>().name;
+        lastiov = tag2iovs.front();
+      } else {
+        lastiov = theIOVs.back();
+      }
+
+      std::shared_ptr<SiStripPedestals> last_payload = this->fetchPayload(std::get<1>(lastiov));
+      std::shared_ptr<SiStripPedestals> first_payload = this->fetchPayload(std::get<1>(firstiov));
 
       SiStripPedestalContainer* l_objContainer = new SiStripPedestalContainer(last_payload, lastiov, tagname1);
       SiStripPedestalContainer* f_objContainer = new SiStripPedestalContainer(first_payload, firstiov, tagname2);
@@ -98,29 +109,43 @@ namespace {
       TCanvas canvas("Partition summary", "partition summary", 1400, 1000);
       l_objContainer->fillByPartition(canvas, 300, 0.1, 300.);
 
-      std::string fileName(m_imageFileName);
+      std::string fileName(this->m_imageFileName);
       canvas.SaveAs(fileName.c_str());
 
       return true;
     }  // fill
   };
 
-  class SiStripPedestalDiffByPartition : public PlotImage<SiStripPedestals, MULTI_IOV, 2> {
+  using SiStripPedestalCompareByPartitionSingleTag = SiStripPedestalCompareByPartitionBase<1, MULTI_IOV>;
+  using SiStripPedestalCompareByPartitionTwoTags = SiStripPedestalCompareByPartitionBase<2, SINGLE_IOV>;
+
+  template <int ntags, IOVMultiplicity nIOVs>
+  class SiStripPedestalDiffByPartitionBase : public PlotImage<SiStripPedestals, nIOVs, ntags> {
   public:
-    SiStripPedestalDiffByPartition()
-        : PlotImage<SiStripPedestals, MULTI_IOV, 2>("SiStrip Diff Pedestals By Partition") {}
+    SiStripPedestalDiffByPartitionBase()
+        : PlotImage<SiStripPedestals, nIOVs, ntags>("SiStrip Diff Pedestals By Partition") {}
 
     bool fill() override {
       // trick to deal with the multi-ioved tag and two tag case at the same time
       auto theIOVs = PlotBase::getTag<0>().iovs;
       auto tagname1 = PlotBase::getTag<0>().name;
-      auto tag2iovs = PlotBase::getTag<1>().iovs;
-      auto tagname2 = PlotBase::getTag<1>().name;
-      SiStripPI::MetaData firstiov = theIOVs.front();
-      SiStripPI::MetaData lastiov = tag2iovs.front();
+      std::string tagname2{tagname1};
+      auto firstiov = theIOVs.front();
+      SiStripPI::MetaData lastiov;
 
-      std::shared_ptr<SiStripPedestals> last_payload = fetchPayload(std::get<1>(lastiov));
-      std::shared_ptr<SiStripPedestals> first_payload = fetchPayload(std::get<1>(firstiov));
+      // we don't support (yet) comparison with more than 2 tags
+      assert(this->m_plotAnnotations.ntags < 3);
+
+      if (this->m_plotAnnotations.ntags == 2) {
+        auto tag2iovs = PlotBase::getTag<1>().iovs;
+        tagname2 = PlotBase::getTag<1>().name;
+        lastiov = tag2iovs.front();
+      } else {
+        lastiov = theIOVs.back();
+      }
+
+      std::shared_ptr<SiStripPedestals> last_payload = this->fetchPayload(std::get<1>(lastiov));
+      std::shared_ptr<SiStripPedestals> first_payload = this->fetchPayload(std::get<1>(firstiov));
 
       SiStripPedestalContainer* l_objContainer = new SiStripPedestalContainer(last_payload, lastiov, tagname1);
       SiStripPedestalContainer* f_objContainer = new SiStripPedestalContainer(first_payload, firstiov, tagname2);
@@ -132,12 +157,15 @@ namespace {
       TCanvas canvas("Partition summary", "partition summary", 1400, 1000);
       l_objContainer->fillByPartition(canvas, 100, -30., 30.);
 
-      std::string fileName(m_imageFileName);
+      std::string fileName(this->m_imageFileName);
       canvas.SaveAs(fileName.c_str());
 
       return true;
     }  // fill
   };
+
+  using SiStripPedestalDiffByPartitionSingleTag = SiStripPedestalDiffByPartitionBase<1, MULTI_IOV>;
+  using SiStripPedestalDiffByPartitionTwoTags = SiStripPedestalDiffByPartitionBase<2, SINGLE_IOV>;
 
   class SiStripPedestalCorrelationByPartition : public PlotImage<SiStripPedestals> {
   public:
@@ -251,7 +279,7 @@ namespace {
           the_detids.push_back(atoi(t.c_str()));
         }
       } else {
-        edm::LogWarning("SiStripNoisePerDetId")
+        edm::LogWarning("SiStripPedestalPerDetId")
             << "\n WARNING!!!! \n The needed parameter DetIds has not been passed. Will use all Strip DetIds! \n\n";
         the_detids.push_back(0xFFFFFFFF);
       }
@@ -274,7 +302,7 @@ namespace {
         const auto detInfo =
             SiStripDetInfoFileReader::read(edm::FileInPath(SiStripDetInfoFileReader::kDefaultFile).fullPath());
         for (const auto& the_detid : the_detids) {
-          edm::LogPrint("SiStripNoisePerDetId") << "DetId:" << the_detid << std::endl;
+          edm::LogPrint("SiStripPedestalPerDetId") << "DetId:" << the_detid << std::endl;
 
           unsigned int nAPVs = detInfo.getNumberOfApvsAndStripLength(the_detid).first;
           if (nAPVs == 0)
@@ -1107,8 +1135,10 @@ namespace {
 }  // namespace
 
 PAYLOAD_INSPECTOR_MODULE(SiStripPedestals) {
-  PAYLOAD_INSPECTOR_CLASS(SiStripPedestalCompareByPartition);
-  PAYLOAD_INSPECTOR_CLASS(SiStripPedestalDiffByPartition);
+  PAYLOAD_INSPECTOR_CLASS(SiStripPedestalCompareByPartitionSingleTag);
+  PAYLOAD_INSPECTOR_CLASS(SiStripPedestalDiffByPartitionSingleTag);
+  PAYLOAD_INSPECTOR_CLASS(SiStripPedestalCompareByPartitionTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(SiStripPedestalDiffByPartitionTwoTags);
   PAYLOAD_INSPECTOR_CLASS(SiStripPedestalCorrelationByPartition);
   PAYLOAD_INSPECTOR_CLASS(SiStripPedestalsTest);
   PAYLOAD_INSPECTOR_CLASS(SiStripPedestalPerDetId);
