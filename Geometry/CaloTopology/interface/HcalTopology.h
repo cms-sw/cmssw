@@ -169,8 +169,14 @@ public:
 
 private:
   bool phase1() const { return ((mode_ == HcalTopologyMode::LHC) || (mode_ == HcalTopologyMode::H2HE)); }
-  bool phase1A() const { return ((mode_ == HcalTopologyMode::LHC) || (mode_ == HcalTopologyMode::Run2A) || (mode_ == HcalTopologyMode::H2) || (mode_ == HcalTopologyMode::H2HE)); }
-  bool phase1B() const { return ((mode_ == HcalTopologyMode::Run2B) || (mode_ == HcalTopologyMode::Run2C) || (mode_ == HcalTopologyMode::Run3) || (mode_ == HcalTopologyMode::SLHC)); }
+  bool phase1A() const {
+    return ((mode_ == HcalTopologyMode::LHC) || (mode_ == HcalTopologyMode::Run2A) || (mode_ == HcalTopologyMode::H2) ||
+            (mode_ == HcalTopologyMode::H2HE));
+  }
+  bool phase1B() const {
+    return ((mode_ == HcalTopologyMode::Run2B) || (mode_ == HcalTopologyMode::Run2C) ||
+            (mode_ == HcalTopologyMode::Run3) || (mode_ == HcalTopologyMode::SLHC));
+  }
   bool phase2() const { return ((mode_ == HcalTopologyMode::Run4)); }
   /** Get the neighbors of the given cell with higher absolute ieta */
   int incAIEta(const HcalDetId& id, HcalDetId neighbors[2]) const;
@@ -179,7 +185,7 @@ private:
 
   /** Is this a valid cell id, ignoring the exclusion list */
   bool validDetIdPreLS1(const HcalDetId& id) const;
-  bool validRaw(const HcalDetId& id, const bool debug=false) const;
+  bool validRaw(const HcalDetId& id, const bool debug = false) const;
   unsigned int detId2denseIdPreLS1(const DetId& id) const;
   bool isExcluded(const HcalDetId& id) const;
 

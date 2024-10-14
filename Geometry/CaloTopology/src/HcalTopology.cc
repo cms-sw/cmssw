@@ -158,7 +158,8 @@ HcalTopology::HcalTopology(const HcalDDDRecConstants* hcons, const bool mergePos
 
   // Now redfine some of the sizes
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HCalGeom") << "Redefined sizes could be for HB:" << ncells(HcalBarrel) << " HE:" << ncells(HcalEndcap) << " HF: " << ncells(HcalForward);
+  edm::LogVerbatim("HCalGeom") << "Redefined sizes could be for HB:" << ncells(HcalBarrel)
+                               << " HE:" << ncells(HcalEndcap) << " HF: " << ncells(HcalForward);
 #endif
 }
 
@@ -495,7 +496,7 @@ bool HcalTopology::validDetIdPreLS1(const HcalDetId& id) const {
 /** Is this a valid cell id? */
 bool HcalTopology::validRaw(const HcalDetId& id,
 #ifdef EDM_ML_DEBUG
-			    const bool debug) const {
+                            const bool debug) const {
 #else
                             const bool) const {
 #endif
@@ -568,7 +569,13 @@ bool HcalTopology::validRaw(const HcalDetId& id,
   }
 #ifdef EDM_ML_DEBUG
   if (debug)
-    edm::LogVerbatim("HCalGeom") << "HcalValdRaw ID: " << subdet << ":" << aieta << ":" << depth << ":" << iphi << ":" << zside << " Mode " << mode_ << ":" << phase1() << ":" << phase1A() << ":" << phase1B() << ":" << phase2() << " Limits HB " << lastHBRing() << " HE " << firstHERing() << ":" << lastHERing() << ":" << firstHEDoublePhiRing() << ":" << firstHEQuadPhiRing() << " Depth " << hcons_->getMaxDepth(0, aieta, iphi, zside) << ":" << hcons_->getMinDepth(0, aieta, iphi, zside) << ":" << hcons_->getDepthEta16(2, iphi, zside) << " OK " << ok;
+    edm::LogVerbatim("HCalGeom") << "HcalValdRaw ID: " << subdet << ":" << aieta << ":" << depth << ":" << iphi << ":"
+                                 << zside << " Mode " << mode_ << ":" << phase1() << ":" << phase1A() << ":"
+                                 << phase1B() << ":" << phase2() << " Limits HB " << lastHBRing() << " HE "
+                                 << firstHERing() << ":" << lastHERing() << ":" << firstHEDoublePhiRing() << ":"
+                                 << firstHEQuadPhiRing() << " Depth " << hcons_->getMaxDepth(0, aieta, iphi, zside)
+                                 << ":" << hcons_->getMinDepth(0, aieta, iphi, zside) << ":"
+                                 << hcons_->getDepthEta16(2, iphi, zside) << " OK " << ok;
 #endif
   return ok;
 }
@@ -836,13 +843,13 @@ bool HcalTopology::incrementDepth(HcalDetId& detId) const {
       depth = 4;
     } else if (subdet == HcalBarrel && etaRing == lastHBRing()) {
       // overlap
-      if (phase2()) { // No more chance
-	detId = HcalDetId();
-	return false;
+      if (phase2()) {  // No more chance
+        detId = HcalDetId();
+        return false;
       } else {
-	subdet = HcalEndcap;
-	if (phase1B())
-	  depth = hcons_->getDepthEta16(2, iphi, zside);
+        subdet = HcalEndcap;
+        if (phase1B())
+          depth = hcons_->getDepthEta16(2, iphi, zside);
       }
     } else if ((subdet == HcalEndcap) && (etaRing == lastHERing() - 1) && !phase1B()) {
       // guard ring HF29 is behind HE 28
@@ -1650,9 +1657,9 @@ unsigned int HcalTopology::ncells(int subdet) const {
   for (int eta = -maxEta_; eta <= maxEta_; eta++) {
     for (unsigned int phi = 1; phi <= maxPhi_; phi++) {
       for (int depth = 1; depth <= 7; depth++) {
-	HcalDetId cell((HcalSubdetector)subdet, eta, phi, depth);
-	if (validRaw(cell, true))
-	  ++ncell;
+        HcalDetId cell((HcalSubdetector)subdet, eta, phi, depth);
+        if (validRaw(cell, true))
+          ++ncell;
       }
     }
   }

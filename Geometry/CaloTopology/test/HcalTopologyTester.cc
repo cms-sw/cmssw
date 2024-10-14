@@ -54,8 +54,8 @@ void HcalTopologyTester::doTest(const HcalTopology& topology) {
                                << " Calib: " << topology.getCALIBSize() << " Overall: " << topology.ncells();
   std::vector<std::string> dets = {"HB", "HE", "HO", "HF"};
   for (int det = 1; det <= 4; ++det)
-    edm::LogVerbatim("HCalGeom") << "Valid cells for " << dets[det-1] << " = " << topology.ncells(det);
-  
+    edm::LogVerbatim("HCalGeom") << "Valid cells for " << dets[det - 1] << " = " << topology.ncells(det);
+
   // First test on movements along eta/phi directions
   edm::LogVerbatim("HCalGeom") << "\nTest on movements along eta/phi directions"
                                << "\n==========================================";
