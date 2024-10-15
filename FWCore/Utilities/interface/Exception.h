@@ -80,7 +80,7 @@ namespace cms {
     std::list<std::string> const& additionalInfo() const;
     int returnCode() const;
 
-    [[noreturn]] void raise() { rethrow(); }
+    void raise() { rethrow(); }
 
     void append(Exception const& another);
     void append(std::string const& more_information);
