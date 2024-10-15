@@ -8,4 +8,4 @@
 <use name="CalibTracker/SiStripCommon"/>
 <bin file="testSiStripPayloadInspector.cpp" name="testSiStripPayloadInspector">
 </bin>
-<test name="test_G2GainsValidator" command="test_G2GainsValidator.sh"/>
+<test name="test_SiStripG2GainsValidator" command="test_SiStripG2GainsValidator.sh"/>
