@@ -272,4 +272,22 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::reconstruction {
     return ilmr;
   }
 
+  ALPAKA_FN_ACC int32_t rechitSetMasked(uint32_t value, uint32_t x, uint32_t offset, uint32_t width) {
+    const uint32_t mask = ((1 << width) - 1) << offset;
+    value &= ~mask;
+    value |= (x & ((1U << width) - 1)) << offset;
+    return value;
+  }
+
+  ALPAKA_STATIC_ACC_MEM_CONSTANT constexpr float p10[] = {
+      1.e-2f, 1.e-1f, 1.f, 1.e1f, 1.e2f, 1.e3f, 1.e4f, 1.e5f, 1.e6f};
+
+  ALPAKA_FN_ACC int32_t rechitGetPower10(float e) {
+    int b = e < p10[4] ? 0 : 5;
+    for (; b < 9; ++b)
+      if (e < p10[b])
+        break;
+    return b;
+  }
+
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::reconstruction
