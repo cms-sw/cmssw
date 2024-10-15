@@ -22,6 +22,7 @@ nanoDQM = DQMEDAnalyzer("NanoAODDQM",
                 Plot1D('muonSubtrFactor', 'muonSubtrFactor', 20, 0, 1, '1-(muon-subtracted raw pt)/(raw pt)'),
                 Plot1D('phi', 'phi', 20, -3.14159, 3.14159, 'phi'),
                 Plot1D('rawPt', 'rawPt', 20, 5, 25, "pt()*jecFactor('Uncorrected')"),
+                Plot1D('rawMass', 'rawMass', 20, 5, 25, "mass()*jecFactor('Uncorrected')"),
                 Plot1D('EmEF', 'EmEF', 20, 0., 1., "charged+neutral Electromagnetic Energy Fraction"),
             )
         ),
@@ -835,6 +836,7 @@ nanoDQM = DQMEDAnalyzer("NanoAODDQM",
                 Plot1D('tau2', 'tau2', 20, 0, 1, 'Nsubjettiness (2 axis)'),
                 Plot1D('tau3', 'tau3', 20, 0, 1, 'Nsubjettiness (3 axis)'),
                 Plot1D('tau4', 'tau4', 20, 0, 1, 'Nsubjettiness (4 axis)'),
+                NoPlot('subGenJetAK8Idx'),
             )
         ),
         Tau = cms.PSet(
