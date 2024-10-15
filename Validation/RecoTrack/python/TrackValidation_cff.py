@@ -388,10 +388,10 @@ for _eraName, _postfix, _era in _relevantEras:
                    "cutsRecoTracksBtvLike",
                    "cutsRecoTracksAK4PFJets"
                ],
-               doResolutionPlotsForLabels = ["generalTracks", locals()["_generalTracksHp"+_postfix]]  +
-                       locals()["_selectorsByOriginalAlgo"+_postfix] +
-                       ["generalTracksPt09"] +
-               [
+               doResolutionPlotsForLabels = [
+                   "generalTracks",
+                   locals()["_generalTracksHp"+_postfix],
+                   "generalTracksPt09",
                    "cutsRecoTracksBtvLike",
                    "cutsRecoTracksJetCoreRegionalStepByOriginalAlgo"
                ]
@@ -932,6 +932,7 @@ tracksValidationSeedSelectorsTrackingOnly.add(tracksValidationSeedSelectorsPreSp
 # MTV instances
 trackValidatorTrackingOnly = trackValidatorStandalone.clone(
     label = [ x for x in trackValidatorStandalone.label if x != "cutsRecoTracksAK4PFJets"],
+    doResolutionPlotsForLabels = trackValidatorStandalone.doResolutionPlotsForLabels + locals()["_selectorsByOriginalAlgo"+_postfix],
     cores = "highPtJetsForTrk"
  )
 
