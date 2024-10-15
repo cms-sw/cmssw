@@ -225,19 +225,33 @@ void PixelCPEFastParamsHost<TrackerTraits>::fillParamsForDevice() {
     int qbin = pixelCPEforDevice::kGenErrorQBins;  // low charge
     int k = 0;
     int qClusIncrement = 100;
-    for (int qclus = 1000; k < pixelCPEforDevice::kGenErrorQBins;
-         qclus += qClusIncrement) {  //increase charge until we cover all qBin categories
+    for (int qclus = 100; k < pixelCPEforDevice::kGenErrorQBins; qclus += qClusIncrement) {
       errorFromTemplates(p, cp, qclus);
-      if (cp.qBin_ == qbin)
+      if (cp.qBin_ == qbin) {
         continue;
+      }
+
+      // Check if we have skipped a qBin
+      if (cp.qBin_ < qbin - 1) {
+        //qBin=4 (second lowest charge) sometimes may get skipped
+        //In that case, set its threshold at halfway to threshold of qBin=3 and fill with sigmax/y values of qBin=5
+        //In reality, it does not really matter because we will not encounter this qBin for any cluster (otherwise we would not have skipped it)
+        qbin += 1;
+        qclus -= qClusIncrement;
+        errorFromTemplates(p, cp, qclus);
+        g.xfact[k] = cp.sigmax;
+        g.yfact[k] = cp.sigmay;
+        g.minCh[k++] = qclus / 2;
+        continue;
+      }
+
       qbin = cp.qBin_;
-      //There are two qBin categories with low charge. Their qBins are 5 and 4 (pixelCPEforDevice::kGenErrorQBins, pixelCPEforDevice::kGenErrorQBins-1)
-      //We increment charge until qBin gets switched from 5 and then we start writing detParams as we are not interested in cases with qBin=5
-      //The problem is that with a too large qClusIncrement, we may go directly from 5 to 3, breaking the logic of the for loop
-      //Therefore, we start with lower increment (100) until we get to qBin=4
+
+      //The difference in charge between first two qBins is small, so for other steps we can have a larger increment
       if (qbin < pixelCPEforDevice::kGenErrorQBins) {
         qClusIncrement = 1000;
       }
+
       g.xfact[k] = cp.sigmax;
       g.yfact[k] = cp.sigmay;
       g.minCh[k++] = qclus;
@@ -247,7 +261,7 @@ void PixelCPEFastParamsHost<TrackerTraits>::fillParamsForDevice() {
                                          << m * cp.sx2 << ' ' << m * cp.sigmay << ' ' << m * cp.sy1 << ' ' << m * cp.sy2
                                          << std::endl;
 #endif  // EDM_ML_DEBUG
-    }
+    }  //for (int qclus = 100; k < pixelCPEforDevice::kGenErrorQBins; qclus += qClusIncrement) {
 
     assert(k <= pixelCPEforDevice::kGenErrorQBins);
 
