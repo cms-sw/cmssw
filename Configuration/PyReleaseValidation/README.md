@@ -37,6 +37,7 @@ The offsets currently in use are:
 * 0.407: Alpaka, pixel only triplets, portable vs. CPU validation
 * 0.407: Alpaka, pixel only triplets, portable profiling
 * 0.412: Alpaka, ECAL only, portable
+* 0.413: Alpaka, ECAL only, portable vs. CPU validation
 * 0.422: Alpaka, HCAL only, portable
 * 0.423: Alpaka, HCAL only, portable vs CPU validation
 * 0.424: Alpaka, HCAL only, portable profiling

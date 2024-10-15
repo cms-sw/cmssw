@@ -127,4 +127,49 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::multifit {
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::multifit
 
+//
+// ECAL Rechit producer
+//
+
+namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::rechit {
+
+  // parameters that are read from the configuration file for rechit producer
+  struct ConfigurationParameters {
+    // device ptrs
+    const int* channelStatusToBeExcluded = nullptr;
+    uint32_t channelStatusToBeExcludedSize;
+
+    bool killDeadChannels;
+
+    bool recoverEBIsolatedChannels;
+    bool recoverEEIsolatedChannels;
+    bool recoverEBVFE;
+    bool recoverEEVFE;
+    bool recoverEBFE;
+    bool recoverEEFE;
+
+    float EBLaserMIN;
+    float EELaserMIN;
+    float EBLaserMAX;
+    float EELaserMAX;
+
+    uint32_t flagmask;
+  };
+
+  //// const refs products to conditions
+  //struct ConditionsProducts {
+  //  EcalRechitADCToGeVConstantGPU::Product const& ADCToGeV;
+  //  EcalIntercalibConstantsGPU::Product const& Intercalib;
+  //  EcalRechitChannelStatusGPU::Product const& ChannelStatus;
+
+  //  EcalLaserAPDPNRatiosGPU::Product const& LaserAPDPNRatios;
+  //  EcalLaserAPDPNRatiosRefGPU::Product const& LaserAPDPNRatiosRef;
+  //  EcalLaserAlphasGPU::Product const& LaserAlphas;
+  //  EcalLinearCorrectionsGPU::Product const& LinearCorrections;
+
+  //  uint32_t offsetForHashes;
+  //};
+
+}  // namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::rechit
+
 #endif  // RecoLocalCalo_EcalRecProducers_plugins_alpaka_DeclsForKernels_h
