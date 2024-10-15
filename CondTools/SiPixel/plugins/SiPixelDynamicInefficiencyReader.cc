@@ -197,8 +197,8 @@ void SiPixelDynamicInefficiencyReader::analyze(const edm::Event& e, const edm::E
     }
 
     //DB PU factor calculation
-    unsigned int pu_iterator = 0;
-    for (it_pu = map_pufactor.begin(); it_pu != map_pufactor.end(); it_pu++, pu_iterator++) {
+    it_pu = map_pufactor.begin();
+    for (unsigned int pu_iterator = 0; pu_iterator < pu_det; it_pu++, pu_iterator++) {
       const DetId mapid = DetId(it_pu->first);
       if (mapid.subdetId() != detid.subdetId())
         continue;
@@ -270,13 +270,11 @@ void SiPixelDynamicInefficiencyReader::analyze(const edm::Event& e, const edm::E
       mismatch++;
     }
     for (unsigned int i = 0; i < pu_det; i++) {
-      [[clang::suppress]]
       if (_pu_scale[i] != 0 && _pu_scale_conf[i] != 0 && _pu_scale[i] == _pu_scale_conf[i]) {
         //printf("Config match! detid %x\t db_pu_scale %f\tconf_pu_scale %f\n",detid.rawId(),_pu_scale[i],_pu_scale_conf[i]);
         pu_match++;
         break;
       }
-      [[clang::suppress]]
       if (_pu_scale[i] != 0 && _pu_scale_conf[i] != 0 && _pu_scale[i] != _pu_scale_conf[i]) {
         //printf("Config mismatch! detid %x\t db_pu_scale %f\tconf_pu_scale %f\n",detid.rawId(),_pu_scale[i],_pu_scale_conf[i]);
         pu_mismatch++;

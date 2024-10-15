@@ -76,8 +76,6 @@ void DTStatusFlagHandler::getNewObjects() {
   std::map<std::string, popcon::PayloadIOV>::iterator itag =
     mp.find( dataTag );
 */
-  cond::Time_t snc = runNumber;
-
   if (runNumber <= last) {
     std::cout << "More recent data already present - skipped" << std::endl;
     return;
@@ -128,7 +126,7 @@ void DTStatusFlagHandler::getNewObjects() {
 */
 
   //for each payload provide IOV information (say in this case we use since)
-  m_to_transfer.push_back(std::make_pair(stFlag, snc));
+  m_to_transfer.emplace_back(stFlag, runNumber);
 }
 
 std::string DTStatusFlagHandler::id() const { return dataTag; }
