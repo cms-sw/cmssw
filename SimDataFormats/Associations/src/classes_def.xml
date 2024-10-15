@@ -31,6 +31,17 @@
   <class name="ticl::LayerClusterToSimTracksterAssociator" persistent="false"/>
   <class name="edm::Wrapper<ticl::LayerClusterToSimTracksterAssociator>" persistent="false"/>
 
+  <class name="ticl::AssociationMap<std::vector<std::vector<std::pair<unsigned int, float> > >, std::vector<reco::CaloCluster>, std::vector<ticl::Trackster>>" persistent="false"/>
+  <class name="edm::Wrapper<ticl::AssociationMap<std::vector<std::vector<std::pair<unsigned int, float> > >, std::vector<reco::CaloCluster>, std::vector<ticl::Trackster>>>" persistent="false"/>
+  <class name="ticl::AssociationMap<std::vector<std::vector<std::pair<unsigned int, std::pair<float,float> > > >, std::vector<ticl::Trackster>, std::vector<ticl::Trackster>>" persistent="false"/>
+  <class name="edm::Wrapper<ticl::AssociationMap<std::vector<std::vector<std::pair<unsigned int, std::pair<float,float> > > >, std::vector<ticl::Trackster>, std::vector<ticl::Trackster>>>" persistent="false"/>
+  <class name="ticl::AssociationMap<std::vector<std::vector<std::pair<unsigned int,float> > >,void,void>" persistent="false"/>
+  <class name="edm::Wrapper<ticl::AssociationMap<std::vector<std::vector<std::pair<unsigned int,float> > >,void,void> >" persistent="false"/>
+  <class name="ticl::AssociationMap<std::vector<std::pair<unsigned int,float> >,std::vector<SimCluster>,std::vector<CaloParticle> >" persistent="false"/>
+  <class name="edm::Wrapper<ticl::AssociationMap<std::vector<std::pair<unsigned int,float> >,std::vector<SimCluster>,std::vector<CaloParticle> > >" persistent="false"/>
+
+
+
   <class name="reco::VertexSimToRecoCollection" >
     <field name="transientMap_" transient="true"/>
   </class>

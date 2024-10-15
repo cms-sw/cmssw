@@ -9,6 +9,8 @@
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/HGCalMultiCluster.h"
+#include "CommonTools/RecoAlgos/interface/MultiVectorManager.h"
+
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 
@@ -60,9 +62,12 @@ namespace hgcal {
 
     RecHitTools rhtools_;
     const edm::EDGetTokenT<HGCRecHitCollection> eetok, fhtok, bhtok;
+    const edm::EDGetTokenT<std::unordered_map<DetId, const unsigned int>> hitMapToken_;
     const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometryToken_;
 
     const HGCRecHitCollection *eerh_, *fhrh_, *bhrh_;
+    const std::unordered_map<DetId, const unsigned int> *hitMap_;
+    std::unique_ptr<MultiVectorManager<HGCRecHit>> rechitManager_;
   };
 }  // namespace hgcal
 

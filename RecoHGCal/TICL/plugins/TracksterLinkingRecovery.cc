@@ -1,9 +1,9 @@
 #include "RecoHGCal/TICL/interface/TracksterLinkingAlgoBase.h"
-#include "RecoHGCal/TICL/plugins/TracksterLinkingPassthrough.h"
+#include "RecoHGCal/TICL/plugins/TracksterLinkingRecovery.h"
 
 using namespace ticl;
 
-void TracksterLinkingPassthrough::linkTracksters(
+void TracksterLinkingRecovery::linkTracksters(
     const Inputs& input,
     std::vector<Trackster>& resultTracksters,
     std::vector<std::vector<unsigned int>>& linkedResultTracksters,

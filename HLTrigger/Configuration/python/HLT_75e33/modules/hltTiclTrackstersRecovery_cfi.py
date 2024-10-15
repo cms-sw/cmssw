@@ -1,15 +1,15 @@
 import FWCore.ParameterSet.Config as cms
 
-hltTiclTrackstersPassthrough = cms.EDProducer("TrackstersProducer",
+hltTiclTrackstersRecovery = cms.EDProducer("TrackstersProducer",
     detector = cms.string('HGCAL'),
-    filtered_mask = cms.InputTag("hltFilteredLayerClustersPassthrough","Passthrough"),
-    itername = cms.string('PassThrough'),
+    filtered_mask = cms.InputTag("hltFilteredLayerClustersRecovery","Recovery"),
+    itername = cms.string('Recovery'),
     layer_clusters = cms.InputTag("hltHgcalMergeLayerClusters"),
     layer_clusters_hfnose_tiles = cms.InputTag("ticlLayerTileHFNose"),
     layer_clusters_tiles = cms.InputTag("hltTiclLayerTileProducer"),
     mightGet = cms.optional.untracked.vstring,
     original_mask = cms.InputTag("hltTiclTrackstersCLUE3DHigh"),
-    patternRecognitionBy = cms.string('Passthrough'),
+    patternRecognitionBy = cms.string('Recovery'),
     inferenceAlgo = cms.string('TracksterInferenceByDNN'),
     pluginPatternRecognitionByCA = cms.PSet(
         algo_verbosity = cms.int32(0),
@@ -64,9 +64,9 @@ hltTiclTrackstersPassthrough = cms.EDProducer("TrackstersProducer",
         minNumLayerCluster = cms.int32(5),
         type = cms.string('FastJet')
     ),
-    pluginPatternRecognitionByPassthrough = cms.PSet(
+    pluginPatternRecognitionByRecovery = cms.PSet(
         algo_verbosity = cms.int32(0),
-        type = cms.string('Passthrough')
+        type = cms.string('Recovery')
     ),
 
     pluginInferenceAlgoTracksterInferenceByDNN = cms.PSet(
