@@ -80,7 +80,7 @@ namespace cms {
     std::list<std::string> const& additionalInfo() const;
     int returnCode() const;
 
-    void raise() { rethrow(); }
+    [[noreturn]] void raise() { rethrow(); }
 
     void append(Exception const& another);
     void append(std::string const& more_information);
@@ -132,7 +132,7 @@ namespace cms {
 
   private:
     void init(std::string const& message);
-    virtual void rethrow();
+    [[noreturn]] virtual void rethrow();
     virtual int returnCode_() const;
 
     // data members
