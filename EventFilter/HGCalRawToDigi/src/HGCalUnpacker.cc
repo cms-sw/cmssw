@@ -206,6 +206,8 @@ uint8_t HGCalUnpacker::parseFEDData(unsigned fedId,
           LogDebug("[HGCalUnpacker]") << "fedId = " << fedId << ", captureblockIdx = " << captureblockIdx
                                       << ", econdIdx = " << econdIdx << ", erxIdx=" << erxIdx;
 
+          econdPacketInfo.view()[ECONDdenseIdx].cm()(erxIdx,0) = (econd_payload[iword] >> ECOND_FRAME::COMMONMODE0_POS) & ECOND_FRAME::COMMONMODE0_MASK;
+          econdPacketInfo.view()[ECONDdenseIdx].cm()(erxIdx,1) = (econd_payload[iword] >> ECOND_FRAME::COMMONMODE1_POS) & ECOND_FRAME::COMMONMODE1_MASK;
           // check if the eRx sub-packet is empty (the "F" flag in the eRx sub-packet header)
           if (((econd_payload[iword] >> ECOND_FRAME::ERXFORMAT_POS) & ECOND_FRAME::ERXFORMAT_MASK) == 1) {
             LogDebug("[HGCalUnpacker]") << "eRx " << erxIdx << " is empty";
@@ -262,6 +264,8 @@ uint8_t HGCalUnpacker::parseFEDData(unsigned fedId,
           LogDebug("[HGCalUnpacker]") << "fedId = " << fedId << ", captureblockIdx = " << captureblockIdx
                                       << ", econdIdx = " << econdIdx << ", erxIdx=" << erxIdx;
 
+          econdPacketInfo.view()[ECONDdenseIdx].cm()(erxIdx,0) = (econd_payload[iword] >> ECOND_FRAME::COMMONMODE0_POS) & ECOND_FRAME::COMMONMODE0_MASK;
+          econdPacketInfo.view()[ECONDdenseIdx].cm()(erxIdx,1) = (econd_payload[iword] >> ECOND_FRAME::COMMONMODE1_POS) & ECOND_FRAME::COMMONMODE1_MASK;
           // check if the eRx sub-packet is empty (the "F" flag in the eRx sub-packet header)
           if (((econd_payload[iword] >> ECOND_FRAME::ERXFORMAT_POS) & ECOND_FRAME::ERXFORMAT_MASK) == 1) {
             LogDebug("[HGCalUnpacker]") << "eRx " << erxIdx << " is empty";
@@ -336,7 +340,6 @@ uint8_t HGCalUnpacker::parseFEDData(unsigned fedId,
   if (ptr + 2 != trailer) {
     uint32_t ECONDdenseIdx = moduleIndexer.getIndexForModule(fedId, 0);
     econdPacketInfo.view()[ECONDdenseIdx].exception() = 6;
-    econdPacketInfo.view()[ECONDdenseIdx].location() = 0;
     edm::LogWarning("[HGCalUnpacker]") << "Error finding the S-link trailer, expected at" << std::dec
                                        << (uint32_t)(trailer - header) << "/0x" << std::hex
                                        << (uint32_t)(trailer - header) << "Unpacked trailer at" << std::dec

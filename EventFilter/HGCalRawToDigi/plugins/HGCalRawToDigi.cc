@@ -20,8 +20,10 @@
 #include "CondFormats/DataRecord/interface/HGCalModuleConfigurationRcd.h"
 #include "CondFormats/HGCalObjects/interface/HGCalConfiguration.h"
 
-#include "EventFilter/HGCalRawToDigi/interface/HGCalUnpacker.h"
+#include "oneapi/tbb/task_arena.h"
+#include "oneapi/tbb.h"
 
+#include "EventFilter/HGCalRawToDigi/interface/HGCalUnpacker.h"
 class HGCalRawToDigi : public edm::stream::EDProducer<> {
 public:
   explicit HGCalRawToDigi(const edm::ParameterSet&);
@@ -106,13 +108,25 @@ void HGCalRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
   for (int32_t i = 0; i < digis.view().metadata().size(); i++) {
     digis.view()[i].flags() = hgcal::DIGI_FLAG::NotAvailable;
   }
-  for (unsigned fedId = 0; fedId < moduleIndexer_.nfeds_; ++fedId) {
-    const auto& fed_data = raw_data.FEDData(fedId);
-    if (fed_data.size() == 0)
-      continue;
-    unpacker_.parseFEDData(fedId, fed_data, moduleIndexer_, config_, digis, econdPacketInfo, /*headerOnlyMode*/ false);
-  }
+  // TODO: comparing timing of multithread and FED-level parrallelization
+  // for (unsigned fedId = 0; fedId < moduleIndexer_.nfeds_; ++fedId) {
+  //   const auto& fed_data = raw_data.FEDData(fedId);
+  //   if (fed_data.size() == 0)
+  //     continue;
+  //   unpacker_.parseFEDData(fedId, fed_data, moduleIndexer_, config_, digis, econdPacketInfo, /*headerOnlyMode*/ false);
+  // }
 
+  //Parallelization
+  tbb::this_task_arena::isolate([&]() {
+    tbb::parallel_for(0U, moduleIndexer_.nfeds_, [&](unsigned fedId) {
+      const auto& fed_data = raw_data.FEDData(fedId);
+      if (fed_data.size() == 0)
+        return;
+      unpacker_.parseFEDData(
+          fedId, fed_data, moduleIndexer_, config_, digis, econdPacketInfo, /*headerOnlyMode*/ false);
+      return;
+    });
+  });
   // put information to the event
   iEvent.emplace(digisToken_, std::move(digis));
   iEvent.emplace(econdPacketInfoToken_, std::move(econdPacketInfo));

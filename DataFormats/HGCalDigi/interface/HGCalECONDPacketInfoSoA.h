@@ -12,6 +12,8 @@
 
 namespace hgcaldigi {
 
+  // use Matrix for common modes
+  using Matrix = Eigen :: Matrix < uint16_t , 12 , 2 >;
   // enum for getting ECONDFlag
   namespace ECONDFlag {
     constexpr uint8_t BITT_POS = 0, BITM_POS = 1, EBO_POS = 2, EBO_MASK = 0b11, HT_POS = 4, HT_MASK = 0b11,
@@ -67,7 +69,8 @@ namespace hgcaldigi {
                       // Payload length
                       // If exception found before ECON-D, this would be 0
                       // Otherwise the payload length of the ECON-D
-                      SOA_COLUMN(uint16_t, payloadLength))
+                      SOA_COLUMN(uint16_t, payloadLength),
+                      SOA_EIGEN_COLUMN(Matrix, cm))
   using HGCalECONDPacketInfoSoA = HGCalECONDPacketInfoSoALayout<>;
 }  // namespace hgcaldigi
 
