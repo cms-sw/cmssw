@@ -181,7 +181,7 @@ private:
 
   const double scPtMin_;
   const double scAbsetaMax_;
-  const bool relinkSupercluster_;
+  const double relinkSuperclusterPtMin_;
 
   const bool applyPhotonCalibOnData_;
   const bool applyPhotonCalibOnMC_;
@@ -288,7 +288,7 @@ ReducedEGProducer::ReducedEGProducer(const edm::ParameterSet& config)
               : edm::EDGetTokenT<reco::HIPhotonIsolationMap>{}},
       scPtMin_(config.getParameter<double>("keepPfSuperclusterPtMin")),
       scAbsetaMax_(config.getParameter<double>("keepPfSuperclusterAbsetaMax")),
-      relinkSupercluster_(config.getParameter<bool>("relinkSupercluster")),
+      relinkSuperclusterPtMin_(config.getParameter<double>("relinkSuperclusterPtMin")),
       //calibration flags
       applyPhotonCalibOnData_(config.getParameter<bool>("applyPhotonCalibOnData")),
       applyPhotonCalibOnMC_(config.getParameter<bool>("applyPhotonCalibOnMC")),
@@ -697,14 +697,18 @@ void ReducedEGProducer::produce(edm::Event& event, const edm::EventSetup& eventS
   for (const auto& superCluster : *scHandle) {
     index++;
 
-    if ( superCluster.energy()/std::cosh(superCluster.eta()) < scPtMin_ )
+    const double superclusPt = superCluster.energy()/std::cosh(superCluster.eta());
+
+    if ( superclusPt < scPtMin_ )
       continue;
 
     if ( std::abs(superCluster.eta()) > scAbsetaMax_ )
       continue;
 
+    bool relinkSupercluster = superclusPt > relinkSuperclusterPtMin_;
+
     reco::SuperClusterRef superClusterRef(scHandle, index);
-    linkSuperCluster(superClusterRef, superClusterMap, superClusters, relinkSupercluster_, superClusterFullRelinkMap);
+    linkSuperCluster(superClusterRef, superClusterMap, superClusters, relinkSupercluster, superClusterFullRelinkMap);
   }
 
   //loop over output SuperClusters and fill maps
