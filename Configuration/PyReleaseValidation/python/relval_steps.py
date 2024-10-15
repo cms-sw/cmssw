@@ -2045,8 +2045,8 @@ steps['RESIM']=merge([{'-s':'reGEN,reSIM','-n':10},steps['DIGI']])
 #steps['RESIMDIGI']=merge([{'-s':'reGEN,reSIM,DIGI,L1,DIGI2RAW,HLT:@fake,RAW2DIGI,L1Reco','-n':10,'--restoreRNDSeeds':'','--process':'HLT'},steps['DIGI']])
 
 
-steps['DIGIHI2024APPROXCLUSTERS']=merge([{'-s':'DIGI:pdigi_hi_nogen,L1,DIGI2RAW,HLT:@fake2'}, hiDefaults2024_approxClusters, {'--pileup':'HiMixNoPU'}, step2Upg2015Defaults])
-steps['DIGIHI2024']=merge([{'-s':'DIGI:pdigi_hi_nogen,L1,DIGI2RAW,HLT:@fake2'}, hiDefaults2024, {'--pileup':'HiMixNoPU'}, step2Upg2015Defaults])
+steps['DIGIHI2024APPROXCLUSTERS']=merge([{'-s':'DIGI:pdigi_hi_nogen,L1,DIGI2RAW,HLT:HIon'}, hiDefaults2024_approxClusters, {'--pileup':'HiMixNoPU'}, step2Upg2015Defaults])
+steps['DIGIHI2024']=merge([{'-s':'DIGI:pdigi_hi_nogen,L1,DIGI2RAW,HLT:HIon'}, hiDefaults2024, {'--pileup':'HiMixNoPU'}, step2Upg2015Defaults])
 steps['DIGIHI2023PPRECOAPPROXCLUSTERS']=merge([{'-s':'DIGI:pdigi_hi_nogen,L1,DIGI2RAW,HLT:@fake2'}, hiDefaults2023_ppReco_approxClusters, {'--pileup':'HiMixNoPU'}, step2Upg2015Defaults])
 steps['DIGIHI2023PPRECO']=merge([{'-s':'DIGI:pdigi_hi_nogen,L1,DIGI2RAW,HLT:@fake2'}, hiDefaults2023_ppReco, {'--pileup':'HiMixNoPU'}, step2Upg2015Defaults])
 steps['DIGIHI2022PPRECOAPPROXCLUSTERS']=merge([{'-s':'DIGI:pdigi_hi_nogen,L1,DIGI2RAW,HLT:@fake2'}, hiDefaults2022_ppReco_approxClusters, {'--pileup':'HiMixNoPU'}, step2Upg2015Defaults])
@@ -3239,7 +3239,7 @@ steps['RERECOPU1']=merge([{'--hltProcess':'REDIGI'},steps['RECOPU1']])
 
 steps['RECOUP15_ID']=merge([{'--hltProcess':'HLT2'},steps['RECOUP15']])
 
-steps['RECOUPC2024']=merge([upcDefaults2024,{'-s':'RAW2DIGI,L1Reco,RECO,PAT,VALIDATION:@standardValidationNoHLT+@miniAODValidation,DQM:@standardDQMFakeHLT+@miniAODDQM','--datatier':'GEN-SIM-RECO,MINIAODSIM,DQMIO','--eventcontent':'RECOSIM,MINIAODSIM,DQM'},step3Up2015Defaults])
+steps['RECOUPC2024']=merge([upcDefaults2024,{'-s':'RAW2DIGI,L1Reco,RECO,PAT,VALIDATION:@standardValidation+@miniAODValidation,DQM:@standardDQM+@miniAODDQM','--datatier':'GEN-SIM-RECO,MINIAODSIM,DQMIO','--eventcontent':'RECOSIM,MINIAODSIM,DQM'},step3Up2015Defaults])
 steps['MINIUPC2024']=merge([upcDefaults2024,{'-s':'PAT','--datatier':'MINIAODSIM','--eventcontent':'MINIAODSIM'},step3Up2015Defaults])
 steps['ALCARECOUPC2024']=merge([upcDefaults2024,{'-s':'ALCA:TkAlMinBias+SiStripCalMinBias','--datatier':'ALCARECO','--eventcontent':'ALCARECO'}])
 
@@ -3248,11 +3248,11 @@ steps['MINIUPC2023']=merge([upcDefaults2023,{'-s':'PAT','--datatier':'MINIAODSIM
 steps['ALCARECOUPC2023']=merge([upcDefaults2023,{'-s':'ALCA:TkAlMinBias+SiStripCalMinBias','--datatier':'ALCARECO','--eventcontent':'ALCARECO'}])
 
 
-steps['RECOHI2024']=merge([hiDefaults2024,{'-s':'RAW2DIGI,L1Reco,RECO,PAT,VALIDATION:@standardValidationNoHLT+@miniAODValidation,DQM:@standardDQMFakeHLT+@miniAODDQM',
+steps['RECOHI2024']=merge([hiDefaults2024,{'-s':'RAW2DIGI,L1Reco,RECO,PAT,VALIDATION:@standardValidation+@miniAODValidation,DQM:@standardDQM+@miniAODDQM',
                                            '--datatier':'GEN-SIM-RECO,MINIAODSIM,DQMIO',
                                            '--eventcontent':'RECOSIM,MINIAODSIM,DQM',
                                            },step3Up2015Defaults])
-steps['RECOHI2024MB']=merge([hiDefaults2024,{'-s':'RAW2DIGI,L1Reco,RECO,PAT,VALIDATION:@standardValidationNoHLT+@miniAODValidation,DQM:@standardDQMFakeHLT+@miniAODDQM',
+steps['RECOHI2024MB']=merge([hiDefaults2024,{'-s':'RAW2DIGI,L1Reco,RECO,PAT,VALIDATION:@standardValidation+@miniAODValidation,DQM:@standardDQM+@miniAODDQM',
                                              '--datatier':'GEN-SIM-RECO,MINIAODSIM,DQMIO',
                                              '--eventcontent':'RECOSIM,MINIAODSIM,DQM',
                                              '--era':'Run3_pp_on_PbPb_2024',
@@ -3264,7 +3264,7 @@ steps['RECOHI2024PROD']=merge([hiDefaults2024_approxClusters,{'-s':'RAW2DIGI,L1R
                                                               '--era':'Run3_pp_on_PbPb_2024',
                                                               },step3Up2015Defaults])
 
-steps['RECOHI2024MBAPPROXCLUSTERS']=merge([hiDefaults2024_approxClusters,{'-s':'RAW2DIGI,L1Reco,RECO,PAT,VALIDATION:@standardValidationNoHLT+@miniAODValidation,DQM:@standardDQMFakeHLT+@miniAODDQM',
+steps['RECOHI2024MBAPPROXCLUSTERS']=merge([hiDefaults2024_approxClusters,{'-s':'RAW2DIGI,L1Reco,RECO,PAT,VALIDATION:@standardValidation+@miniAODValidation,DQM:@standardDQM+@miniAODDQM',
                                                                           '--datatier':'GEN-SIM-RECO,MINIAODSIM,DQMIO',
                                                                           '--eventcontent':'RECOSIM,MINIAODSIM,DQM',
                                                                           '--era':'Run3_pp_on_PbPb_2024',
@@ -3994,16 +3994,16 @@ steps['HARVESTFS']={'-s':'HARVESTING:validationHarvestingFS',
                     '--filetype':'DQM',
                    '--scenario':'pp'}
 
-steps['HARVESTUPC2024']=merge([upcDefaults2024,{'-s':'HARVESTING:validationHarvestingNoHLT+dqmHarvestingFakeHLT','--filein':'file:step3_inDQM.root','--mc':'','--filetype':'DQM'}])
+steps['HARVESTUPC2024']=merge([upcDefaults2024,{'-s':'HARVESTING:validationHarvesting+dqmHarvesting','--filein':'file:step3_inDQM.root','--mc':'','--filetype':'DQM'}])
 steps['HARVESTUPC2023']=merge([upcDefaults2023,{'-s':'HARVESTING:validationHarvestingNoHLT+dqmHarvestingFakeHLT','--filein':'file:step3_inDQM.root','--mc':'','--filetype':'DQM'}])
 
-steps['HARVESTHI2024']=merge([hiDefaults2024,{'-s':'HARVESTING:validationHarvestingNoHLT+dqmHarvestingFakeHLT',
+steps['HARVESTHI2024']=merge([hiDefaults2024,{'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
                                               '--filein':'file:step3_inDQM.root',
                                               '--mc':'',
                                               '--era' : 'Run3_pp_on_PbPb_2024',
                                               '--filetype':'DQM'}])
 
-steps['HARVESTHI2024S4']=merge([hiDefaults2024,{'-s':'HARVESTING:validationHarvestingNoHLT+dqmHarvestingFakeHLT',
+steps['HARVESTHI2024S4']=merge([hiDefaults2024,{'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
                                                 '--filein':'file:step4_inDQM.root',
                                                 '--mc':'',
                                                 '--era' : 'Run3_pp_on_PbPb_2024',
