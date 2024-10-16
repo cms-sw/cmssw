@@ -35,7 +35,7 @@ namespace edm {
     ExceptionCollector(std::string const& initialMessage);
     ~ExceptionCollector();
     bool hasThrown() const;
-    [[noreturn]] void rethrow() const;
+    void rethrow() const;
     void call(std::function<void(void)>);
     void addException(cms::Exception const& exception);
 
