@@ -56,7 +56,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     edm::ParameterSetDescription desc;
     // channel statuses to be exluded from reconstruction
     desc.add<std::vector<std::string>>("ChannelStatusToBeExcluded",
-                                       {"kNoisy",
+                                       {"kDAC",
+                                        "kNoisy",
                                         "kNNoisy",
                                         "kFixedG6",
                                         "kFixedG1",

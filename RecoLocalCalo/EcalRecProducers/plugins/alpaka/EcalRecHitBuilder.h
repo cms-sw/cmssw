@@ -21,14 +21,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::rechit {
 
   // host version, to be called by the plugin
   void create_ecal_rechit(Queue& queue,
-                          InputProduct const& ebUncalibRecHits,
-                          InputProduct const& eeUncalibRecHits,
+                          InputProduct const* ebUncalibRecHits,
+                          InputProduct const* eeUncalibRecHits,
                           OutputProduct& ebRecHits,
                           OutputProduct& eeRecHits,
                           EcalRecHitConditionsDevice const& conditionsDev,
                           EcalRecHitParametersDevice const& parametersDev,
                           edm::TimeValue_t const& eventTime,
-                          ConfigurationParameters const& configParams);
+                          ConfigurationParameters const& configParams,
+                          bool const isPhase2);
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::rechit
 

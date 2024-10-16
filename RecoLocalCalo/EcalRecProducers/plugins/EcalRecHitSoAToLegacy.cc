@@ -58,11 +58,16 @@ void EcalRecHitSoAToLegacy::produce(edm::Event &event, edm::EventSetup const &se
   recHitsCPUEB->reserve(recHitsEBCollView.size());
 
   for (uint32_t i = 0; i < recHitsEBCollView.size(); ++i) {
-    recHitsCPUEB->emplace_back(DetId{recHitsEBCollView.id()[i]},
-                               recHitsEBCollView.energy()[i],
-                               recHitsEBCollView.time()[i],
-                               recHitsEBCollView.extra()[i],
-                               recHitsEBCollView.flagBits()[i]);
+    // Save only if energy is >= 0 !
+    // This is important because the channels that were supposed
+    // to be excluded get "-1" as energy
+    if (recHitsEBCollView.energy()[i] >= 0.) {
+      recHitsCPUEB->emplace_back(DetId{recHitsEBCollView.id()[i]},
+                                 recHitsEBCollView.energy()[i],
+                                 recHitsEBCollView.time()[i],
+                                 recHitsEBCollView.extra()[i],
+                                 recHitsEBCollView.flagBits()[i]);
+    }
   }
   event.put(recHitsCPUEBToken_, std::move(recHitsCPUEB));
 
@@ -73,11 +78,16 @@ void EcalRecHitSoAToLegacy::produce(edm::Event &event, edm::EventSetup const &se
     recHitsCPUEE->reserve(recHitsEECollView.size());
 
     for (uint32_t i = 0; i < recHitsEECollView.size(); ++i) {
-      recHitsCPUEE->emplace_back(DetId{recHitsEECollView.id()[i]},
-                                 recHitsEECollView.energy()[i],
-                                 recHitsEECollView.time()[i],
-                                 recHitsEECollView.extra()[i],
-                                 recHitsEECollView.flagBits()[i]);
+      // Save only if energy is >= 0 !
+      // This is important because the channels that were supposed
+      // to be excluded get "-1" as energy
+      if (recHitsEECollView.energy()[i] >= 0.) {
+        recHitsCPUEE->emplace_back(DetId{recHitsEECollView.id()[i]},
+                                   recHitsEECollView.energy()[i],
+                                   recHitsEECollView.time()[i],
+                                   recHitsEECollView.extra()[i],
+                                   recHitsEECollView.flagBits()[i]);
+      }
     }
     event.put(recHitsCPUEEToken_, std::move(recHitsCPUEE));
   }
