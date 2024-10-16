@@ -55,7 +55,7 @@ void ZdcTopologyTester::doTest(const ZdcTopology& topology) {
       det = "HAD";
       section = HcalZDCDetId::HAD;
     } else if (idet == 2) {
-      det ="LUM";
+      det = "LUM";
       section = HcalZDCDetId::LUM;
     } else if (idet == 3) {
       det = "RPD";
@@ -63,15 +63,15 @@ void ZdcTopologyTester::doTest(const ZdcTopology& topology) {
     }
     for (int depth = 1; depth <= HcalZDCDetId::kDepTot; ++depth) {
       for (int zside = 0; zside <= 1; ++zside) {
-	bool forward = (zside == 0) ? true : false;
-	const HcalZDCDetId id(section, forward, depth);
-	if (topology.valid(id))
-	  ++ndet;
+        bool forward = (zside == 0) ? true : false;
+        const HcalZDCDetId id(section, forward, depth);
+        if (topology.valid(id))
+          ++ndet;
       }
     }
     edm::LogVerbatim("HCalGeom") << "Number of valid cells in " << det << ": " << ndet;
   }
-  
+
   // First test on movements along eta/phi directions
   edm::LogVerbatim("HCalGeom") << "\nTest on movements along transverse/longiudnal directions"
                                << "\n========================================================";
@@ -85,23 +85,23 @@ void ZdcTopologyTester::doTest(const ZdcTopology& topology) {
       section = HcalZDCDetId::RPD;
     for (int depth = 1; depth <= HcalZDCDetId::kDepTot; ++depth) {
       for (int zside = 0; zside <= 1; ++zside) {
-	bool forward = (zside == 0) ? true : false;
-	const HcalZDCDetId id(section, forward, depth);
-	if (topology.valid(id)) {
-            std::vector<DetId> idT = topology.transverse(id);
-            std::vector<DetId> idL = topology.longitudinal(id);
-            edm::LogVerbatim("HCalGeom") << "Neighbours for : Tower " << id;
-            std::ostringstream st1;
-            st1 << "          " << idT.size() << " sets transverse:";
-            for (auto& i : idT)
-              st1 << " " << (HcalZDCDetId)(i());
-            edm::LogVerbatim("HCalGeom") << st1.str();
-            std::ostringstream st2;
-            st2 << "          " << idL.size() << " sets along Longitunal:";
-            for (auto& i : idL)
-              st2 << " " << (HcalZDCDetId)(i());
-            edm::LogVerbatim("HCalGeom") << st2.str();
-	}
+        bool forward = (zside == 0) ? true : false;
+        const HcalZDCDetId id(section, forward, depth);
+        if (topology.valid(id)) {
+          std::vector<DetId> idT = topology.transverse(id);
+          std::vector<DetId> idL = topology.longitudinal(id);
+          edm::LogVerbatim("HCalGeom") << "Neighbours for : Tower " << id;
+          std::ostringstream st1;
+          st1 << "          " << idT.size() << " sets transverse:";
+          for (auto& i : idT)
+            st1 << " " << (HcalZDCDetId)(i());
+          edm::LogVerbatim("HCalGeom") << st1.str();
+          std::ostringstream st2;
+          st2 << "          " << idL.size() << " sets along Longitunal:";
+          for (auto& i : idL)
+            st2 << " " << (HcalZDCDetId)(i());
+          edm::LogVerbatim("HCalGeom") << st2.str();
+        }
       }
     }
   }
@@ -119,14 +119,14 @@ void ZdcTopologyTester::doTest(const ZdcTopology& topology) {
       section = HcalZDCDetId::RPD;
     for (int depth = 1; depth <= HcalZDCDetId::kDepTot; ++depth) {
       for (int zside = 0; zside <= 1; ++zside) {
-	bool forward = (zside == 0) ? true : false;
-	HcalZDCDetId cell(section, forward, depth);
-	if (topology.valid(cell)) {
-	  unsigned int dense = topology.detId2DenseIndex(DetId(cell));
-	  DetId id = topology.denseId2detId(dense);
-	  std::string cherr = (cell.rawId() != id.rawId()) ? " **** ERROR *****" : "";
-	  edm::LogVerbatim("HCalGeom") << cell << " Dense " << std::hex << dense << std::dec << " o/p "
-				       << HcalZDCDetId(id) << cherr;
+        bool forward = (zside == 0) ? true : false;
+        HcalZDCDetId cell(section, forward, depth);
+        if (topology.valid(cell)) {
+          unsigned int dense = topology.detId2DenseIndex(DetId(cell));
+          DetId id = topology.denseId2detId(dense);
+          std::string cherr = (cell.rawId() != id.rawId()) ? " **** ERROR *****" : "";
+          edm::LogVerbatim("HCalGeom") << cell << " Dense " << std::hex << dense << std::dec << " o/p "
+                                       << HcalZDCDetId(id) << cherr;
         }
       }
     }
