@@ -54,6 +54,9 @@ void RivetAnalyzer::beginJob() {
   //set the environment, very ugly but rivet is monolithic when it comes to paths
   char* cmsswbase = std::getenv("CMSSW_BASE");
   char* cmsswrelease = std::getenv("CMSSW_RELEASE_BASE");
+  // These should never fail
+  assert(cmsswbase);
+  assert(cmsswrelease);
   if (!std::getenv("RIVET_REF_PATH")) {
     const std::string rivetref = string(cmsswbase) +
                                  "/src/GeneratorInterface/RivetInterface/data:" + string(cmsswrelease) +
