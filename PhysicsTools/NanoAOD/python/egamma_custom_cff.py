@@ -81,6 +81,24 @@ customPhotonFilterBits = cms.PSet(
     )
 )
 
+superclusterTable = cms.EDProducer("SimpleSuperclusterFlatTableProducer",
+  src = cms.InputTag("reducedEgamma","reducedSuperClusters"),
+  name = cms.string("Supercluster"),
+  doc = cms.string("Supercluster collection"),
+  variables = cms.PSet(
+    energy = Var("energy()",float,doc="supercluster energy",precision=10),
+    eta = Var("eta()",float,doc="supercluster eta",precision=10),
+    phi = Var("phi()",float,doc="supercluster phi",precision=10),
+    rawEnergy = Var("rawEnergy()",float,doc="sum of basic clusters energy",precision=10),
+    preshowerEnergy = Var("preshowerEnergy()",float,doc="sum of energy in preshower",precision=10),
+    etaWidth = Var("etaWidth()",float,doc="supercluster eta width",precision=10),
+    phiWidth = Var("etaWidth()",float,doc="supercluster phi width",precision=10),
+    seedClusEnergy = Var("seed().energy()",float,doc="seed cluster energy",precision=10),
+    seedClusterEta = Var("seed().eta()",float,doc="seed cluster eta",precision=10),
+    seedClusterPhi = Var("seed().phi()",float,doc="seed cluster phi",precision=10),
+  )
+)
+
 def addExtraEGammaVarsCustomize(process):
     #photon
     process.finalPhotons.cut = cms.string("pt > 1 ")
@@ -97,5 +115,11 @@ def addExtraEGammaVarsCustomize(process):
 
     if hasattr(process,'nanoDQM'):
       process.nanoDQM.vplots.Electron.plots = _Electron_extra_plots
+
+    #superCluster
+    process.superclusterTable = superclusterTable
+
+    process.superclusterTask = cms.Task(process.superclusterTable)
+    process.nanoTableTaskCommon.add(process.superclusterTask)
       
     return process
