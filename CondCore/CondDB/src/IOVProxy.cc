@@ -1,6 +1,7 @@
 #include <memory>
 
 #include "CondCore/CondDB/interface/IOVProxy.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SessionImpl.h"
 
 namespace cond {
@@ -293,6 +294,7 @@ namespace cond {
     }
 
     void IOVProxy::fetchSequence(cond::Time_t lowerGroup, cond::Time_t higherGroup) {
+      bool firstTime = m_data->iovSequence.empty();
       m_data->iovSequence.clear();
       m_session->iovSchema().iovTable().select(
           m_data->tagInfo.name, lowerGroup, higherGroup, m_data->snapshotTime, m_data->iovSequence);
@@ -312,6 +314,11 @@ namespace cond {
         } else {
           m_data->groupHigherIov = cond::time::MAX_VAL;
         }
+      }
+      if (not firstTime) {
+        edm::LogSystem("NewIOV") << "Fetched new IOV for '" << m_data->tagInfo.name << "' request interval [ "
+                                 << lowerGroup << " , " << higherGroup << " ] new range [ " << m_data->groupLowerIov
+                                 << " , " << m_data->groupHigherIov << " ] #entries " << m_data->iovSequence.size();
       }
 
       m_data->numberOfQueries++;
