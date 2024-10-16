@@ -1,21 +1,13 @@
 #!/usr/bin/env python3
-from __future__ import print_function 
-
 from datetime import datetime
-import ROOT
 import configparser as ConfigParser
-import datetime
-import glob
 import json
-import numpy
 import optparse
 import os
-import re
 import sqlalchemy
 import string
 import subprocess
 import sys
-import time
 import CondCore.Utilities.conddblib as conddb
 
 ##############################################
