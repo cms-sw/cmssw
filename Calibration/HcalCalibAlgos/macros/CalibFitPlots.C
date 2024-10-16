@@ -269,13 +269,13 @@ const double fitrangeFactor = 1.5;
 struct cfactors {
   int ieta, depth;
   double corrf, dcorr;
-  cfactors(int ie = 0, int dp = 0, double cor = 1, double dc = 0) : ieta(ie), depth(dp), corrf(cor), dcorr(dc){};
+  cfactors(int ie = 0, int dp = 0, double cor = 1, double dc = 0) : ieta(ie), depth(dp), corrf(cor), dcorr(dc) {};
 };
 
 struct results {
   double mean, errmean, width, errwidth;
   results(double v1 = 0, double er1 = 0, double v2 = 0, double er2 = 0)
-      : mean(v1), errmean(er1), width(v2), errwidth(er2){};
+      : mean(v1), errmean(er1), width(v2), errwidth(er2) {};
 };
 
 std::pair<double, double> GetMean(TH1D* hist, double xmin, double xmax, double& rms) {
