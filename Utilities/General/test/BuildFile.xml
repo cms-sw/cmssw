@@ -9,6 +9,10 @@
   <use name="google-benchmark-main"/>
 </bin>
 
+<test name="test-import-root-openat" command="test-import-root-openat.sh">
+  <use name="root_interface"/>
+</test>
+
 <iftool name="cuda-gcc-support">
   <test name="CudaGCCSupport" command="echo Supported GCC version"/>
   <else/>
