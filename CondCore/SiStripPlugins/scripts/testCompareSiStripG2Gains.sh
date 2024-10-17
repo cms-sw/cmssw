@@ -24,6 +24,12 @@ W_DIR=$(pwd)
 STARTIOV=$2
 ENDIOV=$3
 
+# Check if ENDIOV is greater than or equal to STARTIOV
+if (( $ENDIOV < $STARTIOV )); then
+    echo "Error: ENDIOV ($ENDIOV) is less than STARTIOV ($STARTIOV). Skipping comparisons"
+    exit 0
+fi
+
 source /cvmfs/cms.cern.ch/cmsset_default.sh
 eval "$(scram run -sh)"
 
