@@ -2014,7 +2014,7 @@ steps['DIGIHI2022PPRECOAPPROXCLUSTERS']=merge([{'-s':'DIGI:pdigi_hi_nogen,L1,DIG
 steps['DIGIHI2022PPRECO']=merge([{'-s':'DIGI:pdigi_hi_nogen,L1,DIGI2RAW,HLT:@fake2'}, hiDefaults2022_ppReco, {'--pileup':'HiMixNoPU'}, step2Upg2015Defaults])
 steps['DIGIHI2018PPRECO']=merge([{'-s':'DIGI:pdigi_hi_nogen,L1,DIGI2RAW,HLT:@fake2'}, hiDefaults2018_ppReco, {'--pileup':'HiMixNoPU'}, step2Upg2015Defaults])
 steps['DIGIHI2017']=merge([{'-s':'DIGI:pdigi_hi_nogen,L1,DIGI2RAW,HLT:@fake2'}, hiDefaults2017, step2Upg2015Defaults])
-steps['DIGIHI2024MIX']=merge([{'-s':'DIGI:pdigi_hi_nogen,L1,DIGI2RAW,HLT:@fake2', '-n':2}, hiDefaults2024, {'--pileup':'HiMix'}, PUHI2024, step2Upg2015Defaults])
+steps['DIGIHI2024MIX']=merge([{'-s':'DIGI:pdigi_hi_nogen,L1,DIGI2RAW,HLT:HIon', '-n':2}, hiDefaults2024, {'--pileup':'HiMix'}, PUHI2024, step2Upg2015Defaults])
 steps['DIGIHI2023MIX']=merge([{'-s':'DIGI:pdigi_hi_nogen,L1,DIGI2RAW,HLT:@fake2', '-n':2}, hiDefaults2023_ppReco, {'--pileup':'HiMix'}, PUHI2023, step2Upg2015Defaults])
 steps['DIGIHI2022MIX']=merge([{'-s':'DIGI:pdigi_hi_nogen,L1,DIGI2RAW,HLT:@fake2', '-n':2}, hiDefaults2022_ppReco, {'--pileup':'HiMix'}, PUHI2022, step2Upg2015Defaults])
 steps['DIGIHIMIX']=merge([{'-s':'DIGI:pdigi_hi_nogen,L1,DIGI2RAW,HLT:@fake2', '-n':2}, hiDefaults2018_ppReco, {'--pileup':'HiMix'}, PUHI, step2Upg2015Defaults])
@@ -3361,7 +3361,7 @@ steps['RECOHI2018PPRECOMB']=merge([hiDefaults2018_ppReco,{'-s':'RAW2DIGI,L1Reco,
                                                           '--procModifiers':'genJetSubEvent',
                                                       },step3Up2015Defaults])
 
-steps['RECOHI2024MIX']=merge([hiDefaults2024,{'-s':'RAW2DIGI,L1Reco,RECO,PAT,VALIDATION:@standardValidationNoHLTHiMix+@miniAODValidation,DQM:@standardDQMFakeHLT+@miniAODDQM',
+steps['RECOHI2024MIX']=merge([hiDefaults2024,{'-s':'RAW2DIGI,L1Reco,RECO,PAT,VALIDATION:@standardValidationHiMix+@miniAODValidation,DQM:@standardDQM+@miniAODDQM',
                                                      '--pileup':'HiMix',
                                                      '--pileup_input':'das:/RelValHydjetQ_MinBias_5362GeV_2024/%s/GEN-SIM'%(baseDataSetRelease[26])
                                                  },step3Up2015Defaults])
