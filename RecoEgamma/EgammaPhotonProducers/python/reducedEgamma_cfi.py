@@ -4,9 +4,9 @@ from RecoEgamma.EgammaIsolationAlgos.interestingEgammaIsoDetIdsSequence_cff impo
 from RecoJets.Configuration.CaloTowersES_cfi import *
 
 reducedEgamma = cms.EDProducer("ReducedEGProducer",
-  keepPfSuperclusterPtMin = cms.double(5.),
+  keepPfSuperclusterPtMin = cms.double(10.),
   keepPfSuperclusterAbsetaMax = cms.double(2.5),
-  relinkSuperclusterPtMin = cms.double(10.),
+  relinkSuperclusterPtMin = cms.double(99999.), # no SC linking
   keepPhotons = cms.string("hadTowOverEm()<0.15 && pt>10 && (pt>14 || chargedHadronIso()<10)"), #keep in output
   slimRelinkPhotons = cms.string("hadTowOverEm()<0.15 && pt>10 && (pt>14 || chargedHadronIso()<10)"), #keep only slimmed SuperCluster plus seed cluster
   relinkPhotons = cms.string("(r9()>0.8 || chargedHadronIso()<20 || chargedHadronIso()<0.3*pt())"), #keep all associated clusters/rechits/conversions
