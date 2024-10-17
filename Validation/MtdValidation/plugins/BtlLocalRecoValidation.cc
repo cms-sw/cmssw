@@ -377,6 +377,11 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
   unsigned int n_reco_btl = 0;
   unsigned int n_reco_btl_nosimhit = 0;
   for (const auto& recHit : *btlRecHitsHandle) {
+    LogTrace("BtlLocalRecoValidation") << "@RH detid " << recHit.id().rawId() << " r/c/X/dX " << recHit.row() << " "
+                                       << recHit.column() << " " << recHit.position() << " " << recHit.positionError()
+                                       << " E,T,dT " << recHit.energy() << " " << recHit.time() << " "
+                                       << recHit.timeError();
+
     BTLDetId detId = recHit.id();
     DetId geoId = detId.geographicalId(MTDTopologyMode::crysLayoutFromTopoMode(topology->getMTDTopologyMode()));
     const MTDGeomDet* thedet = geom->idToDet(geoId);
@@ -843,6 +848,10 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
     for (const auto& uRecHit : *btlUncalibRecHitsHandle) {
       BTLDetId detId = uRecHit.id();
 
+      LogTrace("BtlLocalRecoValidation") << "@URH detid " << detId.rawId() << " A " << uRecHit.amplitude().first << " "
+                                         << uRecHit.amplitude().second << " T " << uRecHit.time().first << " "
+                                         << uRecHit.time().second;
+
       // --- Skip UncalibratedRecHits not matched to SimHits
       if (m_btlSimHits.count(detId.rawId()) != 1)
         continue;
@@ -869,10 +878,19 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
       hit_amplitude /= nHits;
       hit_time /= nHits;
 
-      // --- Fill the histograms
+      LogDebug("BtlLocalRecoValidation") << "#unc " << nHits << " A/T " << hit_amplitude << " " << hit_time;
+      if (nHits == 0.) {
+        edm::LogWarning("BtlLocalRecoValidation") << "Empty uncalibrated hit in DetId " << detId;
+        continue;
+      }
+
+      hit_amplitude /= nHits;
+      hit_time /= nHits;
 
       if (hit_amplitude < hitMinAmplitude_)
         continue;
+
+      // --- Fill the histograms
 
       meUncEneRVsX_->Fill(uRecHit.position(), uRecHit.amplitude().first - hit_amplitude);
       meUncEneLVsX_->Fill(uRecHit.position(), uRecHit.amplitude().second - hit_amplitude);
