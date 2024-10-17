@@ -4,6 +4,7 @@
 #include "DataFormats/Common/interface/Ptr.h"
 #include "DataFormats/L1TrackTrigger/interface/TTTrack.h"
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
+#include <ap_int.h>
 
 namespace l1t {
 
@@ -36,10 +37,11 @@ namespace l1t {
 
   class DisplacedTrackVertex {
   public:
+    typedef ap_fixed<12,8> score_t;
+    
+  public:
     DisplacedTrackVertex(int firstIndexTrk,
                          int secondIndexTrk,
-                         int firstIndexPt,
-                         int secondIndexPt,
                          int inTraj,
                          float d_T,
                          float R_T,
@@ -50,12 +52,9 @@ namespace l1t {
                          float z,
                          float openingAngle,
                          float parentPt,
-                         int delIndexPt,
                          bool isReal)
         : firstIndexTrk_(firstIndexTrk),
           secondIndexTrk_(secondIndexTrk),
-          firstIndexPt_(firstIndexPt),
-          secondIndexPt_(secondIndexPt),
           inTraj_(inTraj),
           d_T_(d_T),
           R_T_(R_T),
@@ -66,11 +65,11 @@ namespace l1t {
           z_(z),
           openingAngle_(openingAngle),
           parentPt_(parentPt),
-          delIndexPt_(delIndexPt),
           isReal_(isReal) {}
     DisplacedTrackVertex() {}
     ~DisplacedTrackVertex() {}
     void setScore(float score) { score_ = score; }
+    void setScoreEmu(score_t scoreEmu) { scoreEmu_ = scoreEmu; }
     float d_T() const { return d_T_; }
     float R_T() const { return R_T_; }
     float cos_T() const { return cos_T_; }
@@ -81,19 +80,15 @@ namespace l1t {
     float parentPt() const { return parentPt_; }
     int firstIndexTrk() const { return firstIndexTrk_; }
     int secondIndexTrk() const { return secondIndexTrk_; }
-    int firstIndexPt() const { return firstIndexPt_; }
-    int secondIndexPt() const { return secondIndexPt_; }
     int inTraj() const { return inTraj_; }
     float del_Z() const { return del_Z_; }
-    int delIndexPt() const { return delIndexPt_; }
     bool isReal() const { return isReal_; }
     float score() const { return score_; }
+    score_t scoreEmu() const { return scoreEmu_; }
 
   private:
     int firstIndexTrk_;
     int secondIndexTrk_;
-    int firstIndexPt_;
-    int secondIndexPt_;
     int inTraj_;
     float d_T_;
     float R_T_;
@@ -104,9 +99,9 @@ namespace l1t {
     float z_;
     float openingAngle_;
     float parentPt_;
-    int delIndexPt_;
     bool isReal_;
     float score_;
+    score_t scoreEmu_;
   };
 
   typedef std::vector<DisplacedTrackVertex> DisplacedTrackVertexCollection;

@@ -2,10 +2,12 @@ import FWCore.ParameterSet.Config as cms
 
 DisplacedVertexProducer = cms.EDProducer('DisplacedVertexProducer',
   l1TracksInputTag = cms.InputTag("l1tTTTracksFromExtendedTrackletEmulation", "Level1TTTracks"),
+  l1TracksGTTInputTag = cms.InputTag("l1tGTTInputProducerExtended","Level1TTTracksExtendedConverted"),
   l1TrackVertexCollectionName = cms.string("dispVertices"),
+  l1TrackEmulationVertexCollectionName = cms.string("dispVerticesEmulation"),
   mcTruthTrackInputTag = cms.InputTag("TTTrackAssociatorFromPixelDigisExtended", "Level1TTTracks"),
-  ONNXmodel = cms.string("/afs/cern.ch/user/r/rmccarth/private/dispVert/l1tOfflinePR/CMSSW_14_0_0_pre3/src/L1Trigger/L1TTrackMatch/test/dispVertMixedTraining.onnx"),
-  ONNXInputName = cms.string("feature_input"),
+  model = cms.string("/afs/cern.ch/user/r/rmccarth/private/dispVert/l1tOfflinePR/CMSSW_14_0_0_pre3/src/L1Trigger/L1TTrackMatch/test/dispVertTaggerEmulationFixedPoint.json"),
+  runEmulation = cms.bool(True),                                  
   cutSet = cms.PSet(
       chi2rzMax = cms.double(3.0), # chi2rz value for all tracks must be less than this
       dispMVAMin = cms.double(0.2), # displaced track quality MVA score for all tracks must be greater than this
@@ -26,7 +28,7 @@ DisplacedVertexProducer = cms.EDProducer('DisplacedVertexProducer',
 )
 
 '''
-Features for displaced vertex BDT: ['trkExt_pt_firstTrk', 'trkExt_pt', 'trkExt_eta_firstTrk', 'trkExt_eta', 'trkExt_phi_firstTrk', 'trkExt_phi', 'trkExt_d0_firstTrk', 'trkExt_d0', 'trkExt_z0_firstTrk', 'trkExt_z0', 'trkExt_chi2rz_firstTrk', 'trkExt_chi2rz', 'trkExt_bendchi2_firstTrk', 'trkExt_bendchi2', 'trkExt_MVA_firstTrk', 'trkExt_MVA', 'trkExt_MVA2_firstTrk', 'trkExt_MVA2', 'dv_d_T', 'dv_R_T', 'dv_cos_T', 'dv_del_Z'])
+Features for displaced vertex BDT: ['trkExt_pt_firstTrk', 'trkExt_pt', 'trkExt_eta_firstTrk', 'trkExt_eta', 'trkExt_phi_firstTrk', 'trkExt_phi', 'trkExt_d0_firstTrk', 'trkExt_d0', 'trkExt_z0_firstTrk', 'trkExt_z0', 'trkExt_chi2rz_firstTrk', 'trkExt_chi2rz', 'trkExt_bendchi2_firstTrk', 'trkExt_bendchi2', 'trkExt_MVA_firstTrk', 'trkExt_MVA', 'dv_d_T', 'dv_R_T', 'dv_cos_T', 'dv_del_Z'])
 
 dv inputs are vertex quantities and trkExt is a displaced track property. The firstTrk suffix means the track quantity comes from the higher pt track associated to a vertex. If there's no firstTrk suffix, then the track property is from the lower pt track associated to a vertex.
 '''

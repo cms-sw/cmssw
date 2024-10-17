@@ -16,11 +16,12 @@ namespace l1trackunpacker {
   const unsigned int ETA_INTPART_BITS{3};
   const unsigned int kExtraGlobalPhiBit{4};
 
-  typedef ap_ufixed<TTTrack_TrackWord::TrackBitWidths::kRinvSize - 1, PT_INTPART_BITS, AP_TRN, AP_SAT> pt_intern;
+  typedef ap_ufixed<TTTrack_TrackWord::TrackBitWidths::kRinvSize - 1, PT_INTPART_BITS, AP_RND_CONV, AP_SAT> pt_intern;
   typedef ap_fixed<TTTrack_TrackWord::TrackBitWidths::kTanlSize, ETA_INTPART_BITS, AP_TRN, AP_SAT> glbeta_intern;
   typedef ap_int<TTTrack_TrackWord::TrackBitWidths::kPhiSize + kExtraGlobalPhiBit> glbphi_intern;
   typedef ap_int<TTTrack_TrackWord::TrackBitWidths::kZ0Size> z0_intern;  // 40cm / 0.1
-  typedef ap_uint<TTTrack_TrackWord::TrackBitWidths::kD0Size> d0_intern;
+  typedef ap_int<TTTrack_TrackWord::TrackBitWidths::kD0Size> d0_intern;
+  typedef ap_int<TTTrack_TrackWord::TrackBitWidths::kRinvSize> rinv_intern;
 
   inline const unsigned int DoubleToBit(double value, unsigned int maxBits, double step) {
     unsigned int digitized_value = std::floor(std::abs(value) / step);

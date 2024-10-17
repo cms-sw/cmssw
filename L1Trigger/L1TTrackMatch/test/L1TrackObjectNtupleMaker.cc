@@ -1,3 +1,4 @@
+
 //////////////////////////////////////////////////////////////////////
 //                                                                  //
 //  Analyzer for making mini-ntuple for L1 track performance plots  //
@@ -25,6 +26,7 @@
 #include "DataFormats/L1TrackTrigger/interface/TTCluster.h"
 #include "DataFormats/L1TrackTrigger/interface/TTStub.h"
 #include "DataFormats/L1TrackTrigger/interface/TTTrack.h"
+#include "DataFormats/L1TrackTrigger/interface/TTTrack_TrackWord.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertex.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
@@ -91,6 +93,8 @@
 #include <string>
 #include <iostream>
 
+#include <ap_int.h>
+
 //////////////
 // NAMESPACES
 using namespace std;
@@ -111,6 +115,8 @@ private:
   typedef std::vector<L1Track> L1TrackCollection;
   typedef edm::Ref<L1TrackCollection> L1TrackRef;
   typedef edm::RefVector<L1TrackCollection> L1TrackRefCollection;
+  typedef ap_fixed<TTTrack_TrackWord::TrackBitWidths::kTanlSize, 3, AP_TRN, AP_SAT> glbeta_intern;
+  typedef ap_int<TTTrack_TrackWord::TrackBitWidths::kPhiSize + 4> glbphi_intern;
 
 public:
   // Constructor/destructor
@@ -123,7 +129,32 @@ public:
   bool findHiggsToBAncestor(T particle);
   template <typename T>
   bool isHard(T particle);
+  double DoublePtFromBits(const L1Track&) const;
+  double DoubleEtaFromBits(const L1Track&) const;
+  double DoublePhiFromBits(const L1Track&) const;
+  int ChargeFromBits(const L1Track&) const;
+  double convertPtToR(double pt);
 
+  inline const unsigned int DoubleToBit(double value, unsigned int maxBits, double step) const {
+    unsigned int digitized_value = std::floor(std::abs(value) / step);
+    unsigned int digitized_maximum = (1 << (maxBits - 1)) - 1;  // The remove 1 bit from nBits to account for the sign
+    if (digitized_value > digitized_maximum)
+      digitized_value = digitized_maximum;
+    if (value < 0)
+      digitized_value = (1 << maxBits) - digitized_value;  // two's complement encoding
+    return digitized_value;
+  }
+  
+  inline const double BitToDouble(unsigned int bits, unsigned int maxBits, double step) const {
+    int isign = 1;
+    unsigned int digitized_maximum = (1 << maxBits) - 1;
+    if (bits & (1 << (maxBits - 1))) {  // check the sign
+      isign = -1;
+      bits = (1 << (maxBits + 1)) - bits;
+    }
+    return (double(bits & digitized_maximum) + 0.5) * step * isign;
+  }
+  
   // Mandatory methods
   void beginJob() override;
   void endJob() override;
@@ -132,7 +163,9 @@ public:
   // Other member functions
   int getSelectedTrackIndex(const L1TrackRef& trackRef,
                             const edm::Handle<L1TrackRefCollection>& selectedTrackRefs) const;
-
+  int getSelectedTrackPtrIndex(const L1TrackPtr& trackPtr,
+			       const edm::Handle<L1TrackCollection>& trackCollection) const;
+  
 private:
   //-----------------------------------------------------------------------------------------------
   // Containers of parameters passed by python configuration file
@@ -194,6 +227,7 @@ private:
   edm::InputTag RecoVertexEmuInputTag;
   edm::InputTag GenParticleInputTag;
   edm::InputTag DisplacedVertexInputTag;
+  edm::InputTag DisplacedVertexEmulationInputTag;
 
   edm::InputTag TrackFastJetsInputTag;
   edm::InputTag TrackJetsInputTag;
@@ -255,6 +289,7 @@ private:
   edm::EDGetTokenT<std::vector<reco::GenParticle>> GenParticleToken_;
   edm::EDGetTokenT<std::vector<SimVertex>> SimVertexToken_;
   edm::EDGetTokenT<std::vector<l1t::DisplacedTrackVertex>> DispVertToken_;
+  edm::EDGetTokenT<std::vector<l1t::DisplacedTrackVertex>> DispVertEmulationToken_;
   edm::EDGetTokenT<l1t::VertexCollection> L1VertexToken_;
   edm::EDGetTokenT<l1t::VertexWordCollection> L1VertexEmuToken_;
 
@@ -308,14 +343,33 @@ private:
   std::vector<float>* m_dv_parentPt;
   std::vector<int>* m_dv_firstIndexTrk;
   std::vector<int>* m_dv_secondIndexTrk;
-  std::vector<int>* m_dv_firstIndexPt;
-  std::vector<int>* m_dv_secondIndexPt;
   std::vector<int>* m_dv_inTraj;
   std::vector<float>* m_dv_del_Z;
-  std::vector<int>* m_dv_delIndexPt;
   std::vector<bool>* m_dv_isReal;
   std::vector<float>* m_dv_score;
 
+  //displaced vertices emulation
+  std::vector<float>* m_dvEmu_d_T;
+  std::vector<float>* m_dvEmu_R_T;
+  std::vector<float>* m_dvEmu_cos_T;
+  std::vector<float>* m_dvEmu_x;
+  std::vector<float>* m_dvEmu_y;
+  std::vector<float>* m_dvEmu_z;
+  std::vector<float>* m_dvEmu_openingAngle;
+  std::vector<float>* m_dvEmu_parentPt;
+  std::vector<int>* m_dvEmu_firstIndexTrk;
+  std::vector<int>* m_dvEmu_secondIndexTrk;
+  std::vector<int>* m_dvEmu_inTraj;
+  std::vector<float>* m_dvEmu_del_Z;
+  std::vector<bool>* m_dvEmu_isReal;
+  std::vector<float>* m_dvEmu_score;
+  std::vector<float>* m_dvEmu_scoreEmu;
+
+  std::vector<float>* m_dvEmuFixed_d_T;
+  std::vector<float>* m_dvEmuFixed_R_T;
+  std::vector<float>* m_dvEmuFixed_cos_T;
+  std::vector<float>* m_dvEmuFixed_del_Z;
+  
   // all L1 tracks (prompt)
   std::vector<float>* m_trk_pt;
   std::vector<float>* m_trk_eta;
@@ -421,6 +475,28 @@ private:
   std::vector<int>* m_trkExt_selected_associated_foretmiss_index;
   std::vector<int>* m_trkExt_selected_associated_emulation_foretmiss_index;
 
+  // extended L1 tracks emulation
+  std::vector<float>* m_trkExtEmu_pt;
+  std::vector<float>* m_trkExtEmu_eta;
+  std::vector<float>* m_trkExtEmu_phi;
+  std::vector<float>* m_trkExtEmu_d0;  // (filled if nFitPar==5, else 999)
+  std::vector<float>* m_trkExtEmu_rho;
+  std::vector<float>* m_trkExtEmu_z0;
+  std::vector<float>* m_trkExtEmu_chi2rphi;
+  std::vector<float>* m_trkExtEmu_chi2rz;
+  std::vector<float>* m_trkExtEmu_bendchi2;
+  std::vector<float>* m_trkExtEmu_MVA;
+  std::vector<int>* m_trkExtEmu_nstub;
+
+  std::vector<float>* m_trkExtEmuFixed_pt;
+  std::vector<float>* m_trkExtEmuFixed_eta;
+  std::vector<float>* m_trkExtEmuFixed_phi;
+  std::vector<float>* m_trkExtEmuFixed_d0;  // (filled if nFitPar==5, else 999)
+  std::vector<float>* m_trkExtEmuFixed_z0;
+  std::vector<float>* m_trkExtEmuFixed_chi2rz;
+  std::vector<float>* m_trkExtEmuFixed_bendchi2;
+  std::vector<float>* m_trkExtEmuFixed_MVA;
+  
   // all tracking particles
   std::vector<float>* m_tp_pt;
   std::vector<float>* m_tp_eta;
@@ -482,6 +558,28 @@ private:
   std::vector<int>* m_matchtrkExt_seed;
   std::vector<int>* m_matchtrkExt_hitpattern;
 
+  // *L1 track* emulation properties if m_tp_nmatch > 0 (extended)
+  std::vector<float>* m_matchtrkExtEmu_pt;
+  std::vector<float>* m_matchtrkExtEmu_eta;
+  std::vector<float>* m_matchtrkExtEmu_phi;
+  std::vector<float>* m_matchtrkExtEmu_d0;  // (filled if nFitPar==5, else 999)
+  std::vector<float>* m_matchtrkExtEmu_rho;
+  std::vector<float>* m_matchtrkExtEmu_z0;
+  std::vector<float>* m_matchtrkExtEmu_chi2rphi;
+  std::vector<float>* m_matchtrkExtEmu_chi2rz;
+  std::vector<float>* m_matchtrkExtEmu_bendchi2;
+  std::vector<float>* m_matchtrkExtEmu_MVA;
+  std::vector<int>* m_matchtrkExtEmu_nstub;
+
+  std::vector<float>* m_matchtrkExtEmuFixed_pt;
+  std::vector<float>* m_matchtrkExtEmuFixed_eta;
+  std::vector<float>* m_matchtrkExtEmuFixed_phi;
+  std::vector<float>* m_matchtrkExtEmuFixed_d0;  // (filled if nFitPar==5, else 999)
+  std::vector<float>* m_matchtrkExtEmuFixed_z0;
+  std::vector<float>* m_matchtrkExtEmuFixed_chi2rz;
+  std::vector<float>* m_matchtrkExtEmuFixed_bendchi2;
+  std::vector<float>* m_matchtrkExtEmuFixed_MVA;
+  
   // ALL stubs
   std::vector<float>* m_allstub_x;
   std::vector<float>* m_allstub_y;
@@ -648,6 +746,7 @@ L1TrackObjectNtupleMaker::L1TrackObjectNtupleMaker(edm::ParameterSet const& iCon
   GenParticleInputTag = iConfig.getParameter<InputTag>("GenParticleInputTag");
   SimVertexInputTag = iConfig.getParameter<InputTag>("SimVertexInputTag");
   DisplacedVertexInputTag = iConfig.getParameter<InputTag>("DisplacedVertexInputTag");
+  DisplacedVertexEmulationInputTag = iConfig.getParameter<InputTag>("DisplacedVertexEmulationInputTag");
 
   if (Displaced == "Prompt" || Displaced == "Both") {
     L1TrackInputTag = iConfig.getParameter<edm::InputTag>("L1TrackInputTag");
@@ -785,8 +884,10 @@ L1TrackObjectNtupleMaker::L1TrackObjectNtupleMaker(edm::ParameterSet const& iCon
   GenJetToken_ = consumes<std::vector<reco::GenJet>>(GenJetInputTag);
   GenParticleToken_ = consumes<std::vector<reco::GenParticle>>(GenParticleInputTag);
   SimVertexToken_ = consumes<std::vector<SimVertex>>(SimVertexInputTag);
-  if (runDispVert)
+  if (runDispVert){
     DispVertToken_ = consumes<std::vector<l1t::DisplacedTrackVertex>>(DisplacedVertexInputTag);
+    DispVertEmulationToken_ = consumes<std::vector<l1t::DisplacedTrackVertex>>(DisplacedVertexEmulationInputTag);
+  }
   L1VertexToken_ = consumes<l1t::VertexCollection>(RecoVertexInputTag);
   L1VertexEmuToken_ = consumes<l1t::VertexWordCollection>(RecoVertexEmuInputTag);
   tTopoToken_ = esConsumes<TrackerTopology, TrackerTopologyRcd>(edm::ESInputTag("", ""));
@@ -908,6 +1009,27 @@ void L1TrackObjectNtupleMaker::endJob() {
   delete m_trkExt_selected_associated_foretmiss_index;
   delete m_trkExt_selected_associated_emulation_foretmiss_index;
 
+  delete m_trkExtEmu_pt;
+  delete m_trkExtEmu_eta;
+  delete m_trkExtEmu_phi;
+  delete m_trkExtEmu_d0;
+  delete m_trkExtEmu_rho;
+  delete m_trkExtEmu_z0;
+  delete m_trkExtEmu_chi2rphi;
+  delete m_trkExtEmu_chi2rz;
+  delete m_trkExtEmu_bendchi2;
+  delete m_trkExtEmu_MVA;
+  delete m_trkExtEmu_nstub;
+
+  delete m_trkExtEmuFixed_pt;
+  delete m_trkExtEmuFixed_eta;
+  delete m_trkExtEmuFixed_phi;
+  delete m_trkExtEmuFixed_d0;
+  delete m_trkExtEmuFixed_z0;
+  delete m_trkExtEmuFixed_chi2rz;
+  delete m_trkExtEmuFixed_bendchi2;
+  delete m_trkExtEmuFixed_MVA;
+  
   delete m_tp_pt;
   delete m_tp_eta;
   delete m_tp_phi;
@@ -945,14 +1067,32 @@ void L1TrackObjectNtupleMaker::endJob() {
   delete m_dv_parentPt;
   delete m_dv_firstIndexTrk;
   delete m_dv_secondIndexTrk;
-  delete m_dv_firstIndexPt;
-  delete m_dv_secondIndexPt;
   delete m_dv_inTraj;
   delete m_dv_del_Z;
-  delete m_dv_delIndexPt;
   delete m_dv_isReal;
   delete m_dv_score;
 
+  delete m_dvEmu_d_T;
+  delete m_dvEmu_R_T;
+  delete m_dvEmu_cos_T;
+  delete m_dvEmu_x;
+  delete m_dvEmu_y;
+  delete m_dvEmu_z;
+  delete m_dvEmu_openingAngle;
+  delete m_dvEmu_parentPt;
+  delete m_dvEmu_firstIndexTrk;
+  delete m_dvEmu_secondIndexTrk;
+  delete m_dvEmu_inTraj;
+  delete m_dvEmu_del_Z;
+  delete m_dvEmu_isReal;
+  delete m_dvEmu_score;
+  delete m_dvEmu_scoreEmu;
+
+  delete m_dvEmuFixed_d_T;
+  delete m_dvEmuFixed_R_T;
+  delete m_dvEmuFixed_cos_T;
+  delete m_dvEmuFixed_del_Z;
+  
   delete m_matchtrk_pt;
   delete m_matchtrk_eta;
   delete m_matchtrk_phi;
@@ -991,6 +1131,27 @@ void L1TrackObjectNtupleMaker::endJob() {
   delete m_matchtrkExt_seed;
   delete m_matchtrkExt_hitpattern;
 
+  delete m_matchtrkExtEmu_pt;
+  delete m_matchtrkExtEmu_eta;
+  delete m_matchtrkExtEmu_phi;
+  delete m_matchtrkExtEmu_d0;
+  delete m_matchtrkExtEmu_rho;
+  delete m_matchtrkExtEmu_z0;
+  delete m_matchtrkExtEmu_chi2rphi;
+  delete m_matchtrkExtEmu_chi2rz;
+  delete m_matchtrkExtEmu_bendchi2;
+  delete m_matchtrkExtEmu_MVA;
+  delete m_matchtrkExtEmu_nstub;
+
+  delete m_matchtrkExtEmuFixed_pt;
+  delete m_matchtrkExtEmuFixed_eta;
+  delete m_matchtrkExtEmuFixed_phi;
+  delete m_matchtrkExtEmuFixed_d0;
+  delete m_matchtrkExtEmuFixed_z0;
+  delete m_matchtrkExtEmuFixed_chi2rz;
+  delete m_matchtrkExtEmuFixed_bendchi2;
+  delete m_matchtrkExtEmuFixed_MVA;
+  
   delete m_allstub_x;
   delete m_allstub_y;
   delete m_allstub_z;
@@ -1166,6 +1327,50 @@ bool L1TrackObjectNtupleMaker::isHard(T particle) {
   return false;
 }
 
+double L1TrackObjectNtupleMaker::DoublePtFromBits(const L1Track &track) const {
+  ap_uint<14> ptEmulationBits = track.getTrackWord()(TTTrack_TrackWord::TrackBitLocations::kRinvMSB - 1, TTTrack_TrackWord::TrackBitLocations::kRinvLSB);
+  ap_ufixed<14, 9> ptEmulation;
+  ptEmulation.V = (ptEmulationBits.range());
+  return ptEmulation.to_double();
+}
+
+double L1TrackObjectNtupleMaker::DoubleEtaFromBits(const L1Track &track) const {
+  TTTrack_TrackWord::tanl_t etaBits = track.getTanlWord();
+  glbeta_intern digieta;
+  digieta.V = etaBits.range();
+  return (double)digieta;
+}
+
+double L1TrackObjectNtupleMaker::DoublePhiFromBits(const L1Track &track) const {
+  int Sector = track.phiSector();
+  double sector_phi_value = 0;
+  if (Sector < 5) {
+    sector_phi_value = 2.0 * M_PI * Sector / 9.0;
+  } else {
+    sector_phi_value = (-1.0 * M_PI + M_PI / 9.0 + (Sector - 5) * 2.0 * M_PI / 9.0);
+  }
+  glbphi_intern trkphiSector = DoubleToBit(
+					   sector_phi_value, TTTrack_TrackWord::TrackBitWidths::kPhiSize + 4, TTTrack_TrackWord::stepPhi0);
+  glbphi_intern local_phiBits = 0;
+  local_phiBits.V = track.getPhiWord();
+  glbphi_intern local_phi =
+    DoubleToBit(BitToDouble(local_phiBits, TTTrack_TrackWord::TrackBitWidths::kPhiSize, TTTrack_TrackWord::stepPhi0),
+		TTTrack_TrackWord::TrackBitWidths::kPhiSize + 4,
+		TTTrack_TrackWord::stepPhi0);
+  glbphi_intern digiphi = local_phi + trkphiSector;
+  return BitToDouble(
+		     digiphi, TTTrack_TrackWord::TrackBitWidths::kPhiSize + 4, TTTrack_TrackWord::stepPhi0);
+}
+
+int L1TrackObjectNtupleMaker::ChargeFromBits(const L1Track &track) const {
+  ap_uint<1> chargeBit = track.getTrackWord()[TTTrack_TrackWord::TrackBitLocations::kRinvMSB];
+  return 1 - (2*chargeBit.to_uint());
+}
+
+double L1TrackObjectNtupleMaker::convertPtToR(double pt){
+  return 100.0 * (1.0 / (0.3 * 3.8)) * pt; //returns R in cm
+}
+
 ////////////
 // BEGIN JOB
 void L1TrackObjectNtupleMaker::beginJob() {
@@ -1283,6 +1488,27 @@ void L1TrackObjectNtupleMaker::beginJob() {
   m_trkExt_selected_associated_foretmiss_index = new std::vector<int>;
   m_trkExt_selected_associated_emulation_foretmiss_index = new std::vector<int>;
 
+  m_trkExtEmu_pt = new std::vector<float>;
+  m_trkExtEmu_eta = new std::vector<float>;
+  m_trkExtEmu_phi = new std::vector<float>;
+  m_trkExtEmu_d0 = new std::vector<float>;
+  m_trkExtEmu_rho = new std::vector<float>;
+  m_trkExtEmu_z0 = new std::vector<float>;
+  m_trkExtEmu_chi2rphi = new std::vector<float>;
+  m_trkExtEmu_chi2rz = new std::vector<float>;
+  m_trkExtEmu_bendchi2 = new std::vector<float>;
+  m_trkExtEmu_MVA = new std::vector<float>;
+  m_trkExtEmu_nstub = new std::vector<int>;
+
+  m_trkExtEmuFixed_pt = new std::vector<float>;
+  m_trkExtEmuFixed_eta = new std::vector<float>;
+  m_trkExtEmuFixed_phi = new std::vector<float>;
+  m_trkExtEmuFixed_d0 = new std::vector<float>;
+  m_trkExtEmuFixed_z0 = new std::vector<float>;
+  m_trkExtEmuFixed_chi2rz = new std::vector<float>;
+  m_trkExtEmuFixed_bendchi2 = new std::vector<float>;
+  m_trkExtEmuFixed_MVA = new std::vector<float>;
+
   m_tp_pt = new std::vector<float>;
   m_tp_eta = new std::vector<float>;
   m_tp_phi = new std::vector<float>;
@@ -1320,14 +1546,32 @@ void L1TrackObjectNtupleMaker::beginJob() {
   m_dv_parentPt = new std::vector<float>;
   m_dv_firstIndexTrk = new std::vector<int>;
   m_dv_secondIndexTrk = new std::vector<int>;
-  m_dv_firstIndexPt = new std::vector<int>;
-  m_dv_secondIndexPt = new std::vector<int>;
   m_dv_inTraj = new std::vector<int>;
   m_dv_del_Z = new std::vector<float>;
-  m_dv_delIndexPt = new std::vector<int>;
   m_dv_isReal = new std::vector<bool>;
   m_dv_score = new std::vector<float>;
 
+  m_dvEmu_d_T = new std::vector<float>;
+  m_dvEmu_R_T = new std::vector<float>;
+  m_dvEmu_cos_T = new std::vector<float>;
+  m_dvEmu_x = new std::vector<float>;
+  m_dvEmu_y = new std::vector<float>;
+  m_dvEmu_z = new std::vector<float>;
+  m_dvEmu_openingAngle = new std::vector<float>;
+  m_dvEmu_parentPt = new std::vector<float>;
+  m_dvEmu_firstIndexTrk = new std::vector<int>;
+  m_dvEmu_secondIndexTrk = new std::vector<int>;
+  m_dvEmu_inTraj = new std::vector<int>;
+  m_dvEmu_del_Z = new std::vector<float>;
+  m_dvEmu_isReal = new std::vector<bool>;
+  m_dvEmu_score = new std::vector<float>;
+  m_dvEmu_scoreEmu = new std::vector<float>;
+
+  m_dvEmuFixed_d_T = new std::vector<float>;
+  m_dvEmuFixed_R_T = new std::vector<float>;
+  m_dvEmuFixed_cos_T = new std::vector<float>;
+  m_dvEmuFixed_del_Z = new std::vector<float>;
+    
   m_matchtrk_pt = new std::vector<float>;
   m_matchtrk_eta = new std::vector<float>;
   m_matchtrk_phi = new std::vector<float>;
@@ -1366,6 +1610,27 @@ void L1TrackObjectNtupleMaker::beginJob() {
   m_matchtrkExt_seed = new std::vector<int>;
   m_matchtrkExt_hitpattern = new std::vector<int>;
 
+  m_matchtrkExtEmu_pt = new std::vector<float>;
+  m_matchtrkExtEmu_eta = new std::vector<float>;
+  m_matchtrkExtEmu_phi = new std::vector<float>;
+  m_matchtrkExtEmu_d0 = new std::vector<float>;
+  m_matchtrkExtEmu_rho = new std::vector<float>;
+  m_matchtrkExtEmu_z0 = new std::vector<float>;
+  m_matchtrkExtEmu_chi2rphi = new std::vector<float>;
+  m_matchtrkExtEmu_chi2rz = new std::vector<float>;
+  m_matchtrkExtEmu_bendchi2 = new std::vector<float>;
+  m_matchtrkExtEmu_MVA = new std::vector<float>;
+  m_matchtrkExtEmu_nstub = new std::vector<int>;
+
+  m_matchtrkExtEmuFixed_pt = new std::vector<float>;
+  m_matchtrkExtEmuFixed_eta = new std::vector<float>;
+  m_matchtrkExtEmuFixed_phi = new std::vector<float>;
+  m_matchtrkExtEmuFixed_d0 = new std::vector<float>;
+  m_matchtrkExtEmuFixed_z0 = new std::vector<float>;
+  m_matchtrkExtEmuFixed_chi2rz = new std::vector<float>;
+  m_matchtrkExtEmuFixed_bendchi2 = new std::vector<float>;
+  m_matchtrkExtEmuFixed_MVA = new std::vector<float>;
+  
   m_allstub_x = new std::vector<float>;
   m_allstub_y = new std::vector<float>;
   m_allstub_z = new std::vector<float>;
@@ -1587,6 +1852,27 @@ void L1TrackObjectNtupleMaker::beginJob() {
     eventTree->Branch("trkExt_gtt_selected_associated_foretmiss_index", &m_trkExt_selected_associated_foretmiss_index);
     eventTree->Branch("trkExt_gtt_selected_associated_emulation_foretmiss_index",
                       &m_trkExt_selected_associated_emulation_foretmiss_index);
+
+    eventTree->Branch("trkExtEmu_pt", &m_trkExtEmu_pt);
+    eventTree->Branch("trkExtEmu_eta", &m_trkExtEmu_eta);
+    eventTree->Branch("trkExtEmu_phi", &m_trkExtEmu_phi);
+    eventTree->Branch("trkExtEmu_d0", &m_trkExtEmu_d0);
+    eventTree->Branch("trkExtEmu_rho", &m_trkExtEmu_rho);
+    eventTree->Branch("trkExtEmu_z0", &m_trkExtEmu_z0);
+    eventTree->Branch("trkExtEmu_chi2rphi", &m_trkExtEmu_chi2rphi);
+    eventTree->Branch("trkExtEmu_chi2rz", &m_trkExtEmu_chi2rz);
+    eventTree->Branch("trkExtEmu_bendchi2", &m_trkExtEmu_bendchi2);
+    eventTree->Branch("trkExtEmu_MVA", &m_trkExtEmu_MVA);
+    eventTree->Branch("trkExtEmu_nstub", &m_trkExtEmu_nstub);
+
+    eventTree->Branch("trkExtEmuFixed_pt", &m_trkExtEmuFixed_pt);
+    eventTree->Branch("trkExtEmuFixed_eta", &m_trkExtEmuFixed_eta);
+    eventTree->Branch("trkExtEmuFixed_phi", &m_trkExtEmuFixed_phi);
+    eventTree->Branch("trkExtEmuFixed_d0", &m_trkExtEmuFixed_d0);
+    eventTree->Branch("trkExtEmuFixed_z0", &m_trkExtEmuFixed_z0);
+    eventTree->Branch("trkExtEmuFixed_chi2rz", &m_trkExtEmuFixed_chi2rz);
+    eventTree->Branch("trkExtEmuFixed_bendchi2", &m_trkExtEmuFixed_bendchi2);
+    eventTree->Branch("trkExtEmuFixed_MVA", &m_trkExtEmuFixed_MVA);
   }
   eventTree->Branch("tp_pt", &m_tp_pt);
   eventTree->Branch("tp_eta", &m_tp_eta);
@@ -1648,6 +1934,27 @@ void L1TrackObjectNtupleMaker::beginJob() {
     eventTree->Branch("matchtrkExt_dhits", &m_matchtrkExt_dhits);
     eventTree->Branch("matchtrkExt_seed", &m_matchtrkExt_seed);
     eventTree->Branch("matchtrkExt_hitpattern", &m_matchtrkExt_hitpattern);
+
+    eventTree->Branch("matchtrkExtEmu_pt", &m_matchtrkExtEmu_pt);
+    eventTree->Branch("matchtrkExtEmu_eta", &m_matchtrkExtEmu_eta);
+    eventTree->Branch("matchtrkExtEmu_phi", &m_matchtrkExtEmu_phi);
+    eventTree->Branch("matchtrkExtEmu_d0", &m_matchtrkExtEmu_d0);
+    eventTree->Branch("matchtrkExtEmu_rho", &m_matchtrkExtEmu_rho);
+    eventTree->Branch("matchtrkExtEmu_z0", &m_matchtrkExtEmu_z0);
+    eventTree->Branch("matchtrkExtEmu_chi2rphi", &m_matchtrkExtEmu_chi2rphi);
+    eventTree->Branch("matchtrkExtEmu_chi2rz", &m_matchtrkExtEmu_chi2rz);
+    eventTree->Branch("matchtrkExtEmu_bendchi2", &m_matchtrkExtEmu_bendchi2);
+    eventTree->Branch("matchtrkExtEmu_MVA", &m_matchtrkExtEmu_MVA);
+    eventTree->Branch("matchtrkExtEmu_nstub", &m_matchtrkExtEmu_nstub);
+
+    eventTree->Branch("matchtrkExtEmuFixed_pt", &m_matchtrkExtEmuFixed_pt);
+    eventTree->Branch("matchtrkExtEmuFixed_eta", &m_matchtrkExtEmuFixed_eta);
+    eventTree->Branch("matchtrkExtEmuFixed_phi", &m_matchtrkExtEmuFixed_phi);
+    eventTree->Branch("matchtrkExtEmuFixed_d0", &m_matchtrkExtEmuFixed_d0);
+    eventTree->Branch("matchtrkExtEmuFixed_z0", &m_matchtrkExtEmuFixed_z0);
+    eventTree->Branch("matchtrkExtEmuFixed_chi2rz", &m_matchtrkExtEmuFixed_chi2rz);
+    eventTree->Branch("matchtrkExtEmuFixed_bendchi2", &m_matchtrkExtEmuFixed_bendchi2);
+    eventTree->Branch("matchtrkExtEmuFixed_MVA", &m_matchtrkExtEmuFixed_MVA);
   }
 
   if (SaveStubs) {
@@ -1691,13 +1998,31 @@ void L1TrackObjectNtupleMaker::beginJob() {
     eventTree->Branch("dv_parentPt", &m_dv_parentPt);
     eventTree->Branch("dv_firstIndexTrk", &m_dv_firstIndexTrk);
     eventTree->Branch("dv_secondIndexTrk", &m_dv_secondIndexTrk);
-    eventTree->Branch("dv_firstIndexPt", &m_dv_firstIndexPt);
-    eventTree->Branch("dv_secondIndexPt", &m_dv_secondIndexPt);
     eventTree->Branch("dv_inTraj", &m_dv_inTraj);
     eventTree->Branch("dv_del_Z", &m_dv_del_Z);
-    eventTree->Branch("dv_delIndexPt", &m_dv_delIndexPt);
     eventTree->Branch("dv_isReal", &m_dv_isReal);
     eventTree->Branch("dv_score", &m_dv_score);
+
+    eventTree->Branch("dvEmu_d_T", &m_dvEmu_d_T);
+    eventTree->Branch("dvEmu_R_T", &m_dvEmu_R_T);
+    eventTree->Branch("dvEmu_cos_T", &m_dvEmu_cos_T);
+    eventTree->Branch("dvEmu_x", &m_dvEmu_x);
+    eventTree->Branch("dvEmu_y", &m_dvEmu_y);
+    eventTree->Branch("dvEmu_z", &m_dvEmu_z);
+    eventTree->Branch("dvEmu_openingAngle", &m_dvEmu_openingAngle);
+    eventTree->Branch("dvEmu_parentPt", &m_dvEmu_parentPt);
+    eventTree->Branch("dvEmu_firstIndexTrk", &m_dvEmu_firstIndexTrk);
+    eventTree->Branch("dvEmu_secondIndexTrk", &m_dvEmu_secondIndexTrk);
+    eventTree->Branch("dvEmu_inTraj", &m_dvEmu_inTraj);
+    eventTree->Branch("dvEmu_del_Z", &m_dvEmu_del_Z);
+    eventTree->Branch("dvEmu_isReal", &m_dvEmu_isReal);
+    eventTree->Branch("dvEmu_score", &m_dvEmu_score);
+    eventTree->Branch("dvEmu_scoreEmu", &m_dvEmu_scoreEmu);
+
+    eventTree->Branch("dvEmuFixed_d_T", &m_dvEmuFixed_d_T);
+    eventTree->Branch("dvEmuFixed_R_T", &m_dvEmuFixed_R_T);
+    eventTree->Branch("dvEmuFixed_cos_T", &m_dvEmuFixed_cos_T);
+    eventTree->Branch("dvEmuFixed_del_Z", &m_dvEmuFixed_del_Z);
   }
   if (SaveTrackJets) {
     eventTree->Branch("genjet_eta", &m_genjet_eta);
@@ -1930,6 +2255,27 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
     m_trkExt_selected_emulation_foretmiss_index->clear();
     m_trkExt_selected_associated_foretmiss_index->clear();
     m_trkExt_selected_associated_emulation_foretmiss_index->clear();
+
+    m_trkExtEmu_pt->clear();
+    m_trkExtEmu_eta->clear();
+    m_trkExtEmu_phi->clear();
+    m_trkExtEmu_d0->clear();
+    m_trkExtEmu_rho->clear();
+    m_trkExtEmu_z0->clear();
+    m_trkExtEmu_chi2rphi->clear();
+    m_trkExtEmu_chi2rz->clear();
+    m_trkExtEmu_bendchi2->clear();
+    m_trkExtEmu_MVA->clear();
+    m_trkExtEmu_nstub->clear();
+
+    m_trkExtEmuFixed_pt->clear();
+    m_trkExtEmuFixed_eta->clear();
+    m_trkExtEmuFixed_phi->clear();
+    m_trkExtEmuFixed_d0->clear();
+    m_trkExtEmuFixed_z0->clear();
+    m_trkExtEmuFixed_chi2rz->clear();
+    m_trkExtEmuFixed_bendchi2->clear();
+    m_trkExtEmuFixed_MVA->clear();
   }
   m_tp_pt->clear();
   m_tp_eta->clear();
@@ -1968,13 +2314,31 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
     m_dv_parentPt->clear();
     m_dv_firstIndexTrk->clear();
     m_dv_secondIndexTrk->clear();
-    m_dv_firstIndexPt->clear();
-    m_dv_secondIndexPt->clear();
     m_dv_inTraj->clear();
     m_dv_del_Z->clear();
-    m_dv_delIndexPt->clear();
     m_dv_isReal->clear();
     m_dv_score->clear();
+
+    m_dvEmu_d_T->clear();
+    m_dvEmu_R_T->clear();
+    m_dvEmu_cos_T->clear();
+    m_dvEmu_x->clear();
+    m_dvEmu_y->clear();
+    m_dvEmu_z->clear();
+    m_dvEmu_openingAngle->clear();
+    m_dvEmu_parentPt->clear();
+    m_dvEmu_firstIndexTrk->clear();
+    m_dvEmu_secondIndexTrk->clear();
+    m_dvEmu_inTraj->clear();
+    m_dvEmu_del_Z->clear();
+    m_dvEmu_isReal->clear();
+    m_dvEmu_score->clear();
+    m_dvEmu_scoreEmu->clear();
+
+    m_dvEmuFixed_d_T->clear();
+    m_dvEmuFixed_R_T->clear();
+    m_dvEmuFixed_cos_T->clear();
+    m_dvEmuFixed_del_Z->clear();
   }
   if (Displaced == "Prompt" || Displaced == "Both") {
     m_matchtrk_pt->clear();
@@ -2016,6 +2380,27 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
     m_matchtrkExt_dhits->clear();
     m_matchtrkExt_seed->clear();
     m_matchtrkExt_hitpattern->clear();
+
+    m_matchtrkExtEmu_pt->clear();
+    m_matchtrkExtEmu_eta->clear();
+    m_matchtrkExtEmu_phi->clear();
+    m_matchtrkExtEmu_d0->clear();
+    m_matchtrkExtEmu_rho->clear();
+    m_matchtrkExtEmu_z0->clear();
+    m_matchtrkExtEmu_chi2rphi->clear();
+    m_matchtrkExtEmu_chi2rz->clear();
+    m_matchtrkExtEmu_bendchi2->clear();
+    m_matchtrkExtEmu_MVA->clear();
+    m_matchtrkExtEmu_nstub->clear();
+
+    m_matchtrkExtEmuFixed_pt->clear();
+    m_matchtrkExtEmuFixed_eta->clear();
+    m_matchtrkExtEmuFixed_phi->clear();
+    m_matchtrkExtEmuFixed_d0->clear();
+    m_matchtrkExtEmuFixed_z0->clear();
+    m_matchtrkExtEmuFixed_chi2rz->clear();
+    m_matchtrkExtEmuFixed_bendchi2->clear();
+    m_matchtrkExtEmuFixed_MVA->clear();
   }
 
   if (SaveStubs) {
@@ -2166,9 +2551,12 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
 
   //Displaced vertices
   edm::Handle<std::vector<l1t::DisplacedTrackVertex>> DispVertHandle;
-  if (runDispVert)
+  edm::Handle<std::vector<l1t::DisplacedTrackVertex>> DispVertEmulationHandle;
+  if (runDispVert){
     iEvent.getByToken(DispVertToken_, DispVertHandle);
-
+    iEvent.getByToken(DispVertEmulationToken_, DispVertEmulationHandle);
+  }
+  
   //Vertex
   edm::Handle<l1t::VertexCollection> L1PrimaryVertexHandle;
   iEvent.getByToken(L1VertexToken_, L1PrimaryVertexHandle);
@@ -2339,11 +2727,8 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
       m_dv_parentPt->push_back(dispVertIter->parentPt());
       m_dv_firstIndexTrk->push_back(dispVertIter->firstIndexTrk());
       m_dv_secondIndexTrk->push_back(dispVertIter->secondIndexTrk());
-      m_dv_firstIndexPt->push_back(dispVertIter->firstIndexPt());
-      m_dv_secondIndexPt->push_back(dispVertIter->secondIndexPt());
       m_dv_inTraj->push_back(dispVertIter->inTraj());
       m_dv_del_Z->push_back(dispVertIter->del_Z());
-      m_dv_delIndexPt->push_back(dispVertIter->delIndexPt());
       m_dv_isReal->push_back(dispVertIter->isReal());
       m_dv_score->push_back(dispVertIter->score());
     }
@@ -2354,6 +2739,44 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
     m_pv_MC->push_back(simPVh.position().z());
   } else {
     edm::LogWarning("DataNotFound") << "\nWarning: SimVertexHandle not found in the event" << std::endl;
+  }
+  
+  // loop over emulated displaced vertices
+  if (DispVertEmulationHandle.isValid()) {
+    vector<l1t::DisplacedTrackVertex>::const_iterator dispVertEmulationIter;
+    for (dispVertEmulationIter = DispVertEmulationHandle->begin(); dispVertEmulationIter != DispVertEmulationHandle->end(); ++dispVertEmulationIter) {
+
+      float tmp_dvEmu_d_T = dispVertEmulationIter->d_T();
+      float tmp_dvEmu_R_T = dispVertEmulationIter->R_T();
+      float tmp_dvEmu_cos_T = dispVertEmulationIter->cos_T();
+      float tmp_dvEmu_del_Z = dispVertEmulationIter->del_Z();
+      
+      ap_fixed<12, 8, AP_RND_CONV, AP_SAT> tmp_dvEmuFixed_d_T = tmp_dvEmu_d_T;
+      ap_fixed<12, 8, AP_RND_CONV, AP_SAT> tmp_dvEmuFixed_R_T = tmp_dvEmu_R_T;
+      ap_fixed<12, 8, AP_RND_CONV, AP_SAT> tmp_dvEmuFixed_cos_T = tmp_dvEmu_cos_T;
+      ap_fixed<12, 8, AP_RND_CONV, AP_SAT> tmp_dvEmuFixed_del_Z = tmp_dvEmu_del_Z;
+	
+      m_dvEmu_d_T->push_back(tmp_dvEmu_d_T);
+      m_dvEmu_R_T->push_back(tmp_dvEmu_R_T);
+      m_dvEmu_cos_T->push_back(tmp_dvEmu_cos_T);
+      m_dvEmu_x->push_back(dispVertEmulationIter->x());
+      m_dvEmu_y->push_back(dispVertEmulationIter->y());
+      m_dvEmu_z->push_back(dispVertEmulationIter->z());
+      m_dvEmu_openingAngle->push_back(dispVertEmulationIter->openingAngle());
+      m_dvEmu_parentPt->push_back(dispVertEmulationIter->parentPt());
+      m_dvEmu_firstIndexTrk->push_back(dispVertEmulationIter->firstIndexTrk());
+      m_dvEmu_secondIndexTrk->push_back(dispVertEmulationIter->secondIndexTrk());
+      m_dvEmu_inTraj->push_back(dispVertEmulationIter->inTraj());
+      m_dvEmu_del_Z->push_back(tmp_dvEmu_del_Z);
+      m_dvEmu_isReal->push_back(dispVertEmulationIter->isReal());
+      m_dvEmu_score->push_back(dispVertEmulationIter->score());
+      m_dvEmu_scoreEmu->push_back(dispVertEmulationIter->scoreEmu().to_float());
+
+      m_dvEmuFixed_d_T->push_back(tmp_dvEmuFixed_d_T.to_float());
+      m_dvEmuFixed_R_T->push_back(tmp_dvEmuFixed_R_T.to_float());
+      m_dvEmuFixed_cos_T->push_back(tmp_dvEmuFixed_cos_T.to_float());
+      m_dvEmuFixed_del_Z->push_back(tmp_dvEmuFixed_del_Z.to_float());
+    }
   }
 
   // ----------------------------------------------------------------------------------------------
@@ -2727,6 +3150,27 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
       tmp_trk_hitpattern = (int)iterL1Track->hitPattern();
       unsigned int tmp_trk_phiSector = iterL1Track->phiSector();
 
+      float tmp_trkEmu_pt = DoublePtFromBits(*l1track_ref);
+      float tmp_trkEmu_eta = DoubleEtaFromBits(*l1track_ref);
+      float tmp_trkEmu_phi = DoublePhiFromBits(*l1track_ref);
+      float tmp_trkEmu_z0 = l1track_ref->getZ0();
+      float tmp_trkEmu_d0 = l1track_ref->getD0();
+      float tmp_trkEmu_rho = ChargeFromBits(*l1track_ref)*convertPtToR(tmp_trkEmu_pt);
+      float tmp_trkEmu_chi2rphi = l1track_ref->getChi2RPhi();
+      float tmp_trkEmu_chi2rz = l1track_ref->getChi2RZ();
+      float tmp_trkEmu_bendchi2 = l1track_ref->getBendChi2();
+      float tmp_trkEmu_MVA = l1track_ref->getMVAQuality();
+      int tmp_trkEmu_nstub = l1track_ref->getNStubs();
+
+      ap_fixed<12, 8, AP_RND_CONV, AP_SAT> tmp_trkEmuFixed_pt = tmp_trkEmu_pt;
+      ap_fixed<12, 8, AP_RND_CONV, AP_SAT> tmp_trkEmuFixed_eta = tmp_trkEmu_eta;
+      ap_fixed<12, 8, AP_RND_CONV, AP_SAT> tmp_trkEmuFixed_phi = tmp_trkEmu_phi;
+      ap_fixed<12, 8, AP_RND_CONV, AP_SAT> tmp_trkEmuFixed_z0 = tmp_trkEmu_z0;
+      ap_fixed<12, 8, AP_RND_CONV, AP_SAT> tmp_trkEmuFixed_d0 = tmp_trkEmu_d0;
+      ap_fixed<12, 8, AP_RND_CONV, AP_SAT> tmp_trkEmuFixed_chi2rz = tmp_trkEmu_chi2rz;
+      ap_fixed<12, 8, AP_RND_CONV, AP_SAT> tmp_trkEmuFixed_bendchi2 = tmp_trkEmu_bendchi2;
+      ap_fixed<12, 8, AP_RND_CONV, AP_SAT> tmp_trkEmuFixed_MVA = tmp_trkEmu_MVA;
+
       // ----------------------------------------------------------------------------------------------
       // loop over stubs on tracks
       int tmp_trk_dhits = 0;
@@ -2817,6 +3261,26 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
       m_trkExt_unknown->push_back(tmp_trk_unknown);
       m_trkExt_combinatoric->push_back(tmp_trk_combinatoric);
 
+      m_trkExtEmu_pt->push_back(tmp_trkEmu_pt);
+      m_trkExtEmu_eta->push_back(tmp_trkEmu_eta);
+      m_trkExtEmu_phi->push_back(tmp_trkEmu_phi);
+      m_trkExtEmu_d0->push_back(tmp_trkEmu_d0);
+      m_trkExtEmu_rho->push_back(tmp_trkEmu_rho);
+      m_trkExtEmu_z0->push_back(tmp_trkEmu_z0);
+      m_trkExtEmu_chi2rphi->push_back(tmp_trkEmu_chi2rphi);
+      m_trkExtEmu_chi2rz->push_back(tmp_trkEmu_chi2rz);
+      m_trkExtEmu_bendchi2->push_back(tmp_trkEmu_bendchi2);
+      m_trkExtEmu_MVA->push_back(tmp_trkEmu_MVA);
+      m_trkExtEmu_nstub->push_back(tmp_trkEmu_nstub);
+
+      m_trkExtEmuFixed_pt->push_back(tmp_trkEmuFixed_pt.to_float());
+      m_trkExtEmuFixed_eta->push_back(tmp_trkEmuFixed_eta.to_float());
+      m_trkExtEmuFixed_phi->push_back(tmp_trkEmuFixed_phi.to_float());
+      m_trkExtEmuFixed_d0->push_back(tmp_trkEmuFixed_d0.to_float());
+      m_trkExtEmuFixed_z0->push_back(tmp_trkEmuFixed_z0.to_float());
+      m_trkExtEmuFixed_chi2rz->push_back(tmp_trkEmuFixed_chi2rz.to_float());
+      m_trkExtEmuFixed_bendchi2->push_back(tmp_trkEmuFixed_bendchi2.to_float());
+      m_trkExtEmuFixed_MVA->push_back(tmp_trkEmuFixed_MVA.to_float());
       // ----------------------------------------------------------------------------------------------
       // for studying the fake rate
       // ----------------------------------------------------------------------------------------------
@@ -3289,7 +3753,7 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
       m_matchtrk_seed->push_back(tmp_matchtrk_seed);
       m_matchtrk_hitpattern->push_back(tmp_matchtrk_hitpattern);
     }
-
+  
     // ----------------------------------------------------------------------------------------------
     // look for L1 tracks (extended) matched to the tracking particle
     if (Displaced == "Displaced" || Displaced == "Both") {
@@ -3395,10 +3859,54 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
       int tmp_matchtrkExt_hitpattern = -999;
       int tmp_matchtrkExt_nFitPars = -999;
 
+      float tmp_matchtrkExtEmu_pt = -999;
+      float tmp_matchtrkExtEmu_eta = -999;
+      float tmp_matchtrkExtEmu_phi = -999;
+      float tmp_matchtrkExtEmu_d0 = -999;
+      float tmp_matchtrkExtEmu_rho = -999;
+      float tmp_matchtrkExtEmu_z0 = -999;
+      float tmp_matchtrkExtEmu_chi2rphi = -999;
+      float tmp_matchtrkExtEmu_chi2rz = -999;
+      float tmp_matchtrkExtEmu_bendchi2 = -999;
+      float tmp_matchtrkExtEmu_MVA = -999;
+      int tmp_matchtrkExtEmu_nstub = -999;
+
+      ap_fixed<12, 8, AP_RND_CONV, AP_SAT> tmp_matchtrkExtEmuFixed_pt = -999;
+      ap_fixed<12, 8, AP_RND_CONV, AP_SAT> tmp_matchtrkExtEmuFixed_eta = -999;
+      ap_fixed<12, 8, AP_RND_CONV, AP_SAT> tmp_matchtrkExtEmuFixed_phi = -999;
+      ap_fixed<12, 8, AP_RND_CONV, AP_SAT> tmp_matchtrkExtEmuFixed_d0 = -999;
+      ap_fixed<12, 8, AP_RND_CONV, AP_SAT> tmp_matchtrkExtEmuFixed_z0 = -999;
+      ap_fixed<12, 8, AP_RND_CONV, AP_SAT> tmp_matchtrkExtEmuFixed_chi2rz = -999;
+      ap_fixed<12, 8, AP_RND_CONV, AP_SAT> tmp_matchtrkExtEmuFixed_bendchi2 = -999;
+      ap_fixed<12, 8, AP_RND_CONV, AP_SAT> tmp_matchtrkExtEmuFixed_MVA = -999;
+      
       if (nMatch > 1 && DebugMode)
         edm::LogVerbatim("Tracklet") << "WARNING *** 2 or more matches to genuine L1 tracks ***";
 
       if (nMatch > 0) {
+	int index = getSelectedTrackPtrIndex(matchedTracks.at(i_track),TTTrackExtendedHandle);
+	L1TrackRef l1track_ref(TTTrackExtendedGTTHandle, index);
+	tmp_matchtrkExtEmu_pt = DoublePtFromBits(*l1track_ref);
+	tmp_matchtrkExtEmu_eta = DoubleEtaFromBits(*l1track_ref);
+	tmp_matchtrkExtEmu_phi = DoublePhiFromBits(*l1track_ref);
+	tmp_matchtrkExtEmu_z0 = l1track_ref->getZ0();
+	tmp_matchtrkExtEmu_d0 = l1track_ref->getD0();
+	tmp_matchtrkExtEmu_rho = ChargeFromBits(*l1track_ref)*convertPtToR(tmp_matchtrkExtEmu_pt);
+	tmp_matchtrkExtEmu_chi2rphi = l1track_ref->getChi2RPhi();
+	tmp_matchtrkExtEmu_chi2rz = l1track_ref->getChi2RZ();
+	tmp_matchtrkExtEmu_bendchi2 = l1track_ref->getBendChi2();
+	tmp_matchtrkExtEmu_MVA = l1track_ref->getMVAQuality();
+	tmp_matchtrkExtEmu_nstub = l1track_ref->getNStubs();
+
+	tmp_matchtrkExtEmuFixed_pt = tmp_matchtrkExtEmu_pt;
+	tmp_matchtrkExtEmuFixed_eta = tmp_matchtrkExtEmu_eta;
+	tmp_matchtrkExtEmuFixed_phi = tmp_matchtrkExtEmu_phi;
+	tmp_matchtrkExtEmuFixed_z0 = tmp_matchtrkExtEmu_z0;
+	tmp_matchtrkExtEmuFixed_d0 = tmp_matchtrkExtEmu_d0;
+	tmp_matchtrkExtEmuFixed_chi2rz = tmp_matchtrkExtEmu_chi2rz;
+	tmp_matchtrkExtEmuFixed_bendchi2 = tmp_matchtrkExtEmu_bendchi2;
+	tmp_matchtrkExtEmuFixed_MVA = tmp_matchtrkExtEmu_MVA;
+	
         tmp_matchtrkExt_pt = matchedTracks.at(i_track)->momentum().perp();
         tmp_matchtrkExt_eta = matchedTracks.at(i_track)->momentum().eta();
         tmp_matchtrkExt_phi = matchedTracks.at(i_track)->momentum().phi();
@@ -3465,6 +3973,27 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
       m_matchtrkExt_lhits->push_back(tmp_matchtrkExt_lhits);
       m_matchtrkExt_seed->push_back(tmp_matchtrkExt_seed);
       m_matchtrkExt_hitpattern->push_back(tmp_matchtrkExt_hitpattern);
+
+      m_matchtrkExtEmu_pt->push_back(tmp_matchtrkExtEmu_pt);
+      m_matchtrkExtEmu_eta->push_back(tmp_matchtrkExtEmu_eta);
+      m_matchtrkExtEmu_phi->push_back(tmp_matchtrkExtEmu_phi);
+      m_matchtrkExtEmu_d0->push_back(tmp_matchtrkExtEmu_d0);
+      m_matchtrkExtEmu_rho->push_back(tmp_matchtrkExtEmu_rho);
+      m_matchtrkExtEmu_z0->push_back(tmp_matchtrkExtEmu_z0);
+      m_matchtrkExtEmu_chi2rphi->push_back(tmp_matchtrkExtEmu_chi2rphi);
+      m_matchtrkExtEmu_chi2rz->push_back(tmp_matchtrkExtEmu_chi2rz);
+      m_matchtrkExtEmu_bendchi2->push_back(tmp_matchtrkExtEmu_bendchi2);
+      m_matchtrkExtEmu_MVA->push_back(tmp_matchtrkExtEmu_MVA);
+      m_matchtrkExtEmu_nstub->push_back(tmp_matchtrkExtEmu_nstub);
+
+      m_matchtrkExtEmuFixed_pt->push_back(tmp_matchtrkExtEmuFixed_pt.to_float());
+      m_matchtrkExtEmuFixed_eta->push_back(tmp_matchtrkExtEmuFixed_eta.to_float());
+      m_matchtrkExtEmuFixed_phi->push_back(tmp_matchtrkExtEmuFixed_phi.to_float());
+      m_matchtrkExtEmuFixed_d0->push_back(tmp_matchtrkExtEmuFixed_d0.to_float());
+      m_matchtrkExtEmuFixed_z0->push_back(tmp_matchtrkExtEmuFixed_z0.to_float());
+      m_matchtrkExtEmuFixed_chi2rz->push_back(tmp_matchtrkExtEmuFixed_chi2rz.to_float());
+      m_matchtrkExtEmuFixed_bendchi2->push_back(tmp_matchtrkExtEmuFixed_bendchi2.to_float());
+      m_matchtrkExtEmuFixed_MVA->push_back(tmp_matchtrkExtEmuFixed_MVA.to_float());
     }
   }  //end loop tracking particles
   trueTkMET = sqrt(trueTkMETx * trueTkMETx + trueTkMETy * trueTkMETy);
@@ -3667,6 +4196,15 @@ int L1TrackObjectNtupleMaker::getSelectedTrackIndex(const L1TrackRef& trackRef,
     return std::distance(selectedTrackRefs->begin(), it);
   else
     return -1;
+}
+
+int L1TrackObjectNtupleMaker::getSelectedTrackPtrIndex(const L1TrackPtr& trackPtr,
+						       const edm::Handle<L1TrackCollection>& trackCollection) const {
+  for(uint i=0;i<trackCollection->size();i++){
+    L1TrackPtr l1track_ptr(trackCollection,i);
+    if(trackPtr==l1track_ptr) return (int)i;
+  }
+  return -1;
 }
 
 ///////////////////////////

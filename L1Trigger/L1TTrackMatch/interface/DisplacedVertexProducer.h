@@ -4,12 +4,13 @@
 #include "DataFormats/L1Trigger/interface/DisplacedVertex.h"
 #include "FWCore/Framework/interface/global/EDProducer.h"
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
+#include "DataFormats/L1TrackTrigger/interface/TTTrack.h"
+#include "DataFormats/L1TrackTrigger/interface/TTTrack_TrackWord.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "PhysicsTools/ONNXRuntime/interface/ONNXRuntime.h"
 #include "SimTracker/TrackTriggerAssociation/interface/TTTrackAssociationMap.h"
 #include "TMath.h"
 #include <iostream>
@@ -18,6 +19,8 @@
 #include <string>
 #include <vector>
 #include <valarray>
+#include <ap_int.h>
+#include "conifer.h"
 
 using namespace std;
 
@@ -44,7 +47,6 @@ public:
   float chi2rz;
   float bendchi2;
   float MVA1;
-  float MVA2;
 
   float z(float x, float y) {
     float t = std::sinh(eta);
@@ -63,23 +65,22 @@ public:
                    float vx_in,
                    float vy_in,
                    float vz_in,
-                   float charge_in = 0,
+                   float rho_in = 0,
                    int index_in = -1,
                    Track_Parameters* tp_in = nullptr,
                    int nstubs_in = 0,
                    float chi2rphi_in = 0,
                    float chi2rz_in = 0,
                    float bendchi2_in = 0,
-                   float MVA1_in = 0,
-                   float MVA2_in = 0) {
+                   float MVA1_in = 0) {
     pt = pt_in;
     d0 = d0_in;
     z0 = z0_in;
     eta = eta_in;
     phi = phi_in;
-    if (charge_in > 0) {
+    if (rho_in > 0) {
       charge = 1;
-    } else if (charge_in < 0) {
+    } else if (rho_in < 0) {
       charge = -1;
     } else {
       charge = 0;
@@ -90,7 +91,7 @@ public:
     vy = vy_in;
     vz = vz_in;
     tp = tp_in;
-    rho = fabs(1 / charge_in);
+    rho = fabs(rho_in);
     x0 = (rho + charge * d0) * TMath::Cos(phi - (charge * TMath::Pi() / 2));
     y0 = (rho + charge * d0) * TMath::Sin(phi - (charge * TMath::Pi() / 2));
     nstubs = nstubs_in;
@@ -98,7 +99,6 @@ public:
     chi2rz = chi2rz_in;
     bendchi2 = bendchi2_in;
     MVA1 = MVA1_in;
-    MVA2 = MVA2_in;
   }
   Track_Parameters(){};
   ~Track_Parameters(){};
@@ -139,7 +139,6 @@ public:
   float chi2rzdofSum;
   float bendchi2Sum;
   float MVA1Sum;
-  float MVA2Sum;
   int numStubsSum;
   float delta_z;
   float delta_eta;
@@ -187,7 +186,6 @@ public:
     chi2rzdofSum = chi2rzdof_1 + chi2rzdof_2;
     bendchi2Sum = bendchi2_1 + bendchi2_2;
     MVA1Sum = a_in.MVA1 + b_in.MVA1;
-    MVA2Sum = a_in.MVA2 + b_in.MVA2;
     numStubsSum = a_in.nstubs + b_in.nstubs;
     p2_mag = pow(a_in.pt, 2) + pow(b_in.pt, 2);
     delta_z = fabs(a_in.z(x_dv_in, y_dv_in) - b_in.z(x_dv_in, y_dv_in));
@@ -202,23 +200,31 @@ class DisplacedVertexProducer : public edm::global::EDProducer<> {
 public:
   explicit DisplacedVertexProducer(const edm::ParameterSet&);
   ~DisplacedVertexProducer() override = default;
+  typedef TTTrack<Ref_Phase2TrackerDigi_> L1TTTrackType;
 
 private:
   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  double FloatPtFromBits(const L1TTTrackType &) const;
+  double FloatEtaFromBits(const L1TTTrackType &) const;
+  double FloatPhiFromBits(const L1TTTrackType &) const;
+  double FloatZ0FromBits(const L1TTTrackType &) const;
+  double FloatD0FromBits(const L1TTTrackType &) const;
+  int ChargeFromBits(const L1TTTrackType &) const;
 
 private:
   const edm::EDGetTokenT<TTTrackAssociationMap<Ref_Phase2TrackerDigi_>> ttTrackMCTruthToken_;
   const edm::EDGetTokenT<std::vector<TTTrack<Ref_Phase2TrackerDigi_>>> trackToken_;
+  const edm::EDGetTokenT<std::vector<TTTrack<Ref_Phase2TrackerDigi_>>> trackGTTToken_;
   const std::string outputTrackCollectionName_;
+  const std::string outputTrackEmulationCollectionName_;
   const std::string qualityAlgorithm_;
-  const std::string ONNXmodel_;
-  const std::string ONNXInputName_;
+  const std::string model_;
+  const bool runEmulation_;
   const edm::ParameterSet cutSet_;
   const double chi2rzMax_, dispMVAMin_, promptMVAMin_, ptMin_, etaMax_, dispD0Min_, promptMVADispTrackMin_,
       overlapEtaMin_, overlapEtaMax_;
   const int overlapNStubsMin_;
   const double diskEtaMin_, diskD0Min_, barrelD0Min_, RTMin_, RTMax_;
-  std::unique_ptr<cms::Ort::ONNXRuntime> runTime_;
 };
 
 #endif
