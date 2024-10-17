@@ -122,7 +122,11 @@ end;
 
 // valid for -87.3365 < x < 88.7228
 template <int DEGREE>
-constexpr float unsafe_expf_impl(float x) {
+#ifdef CMS_UNDEFINED_SANITIZER
+__attribute__((no_sanitize("signed-integer-overflow")))
+#endif
+constexpr float
+unsafe_expf_impl(float x) {
   using namespace approx_math;
   /* Sollya for the following constants:
      display=hexadecimal;
