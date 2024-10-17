@@ -38,7 +38,7 @@
   <SpecPar name="HGCalEELayer">
     <PartSelector path="//HGCalEELayer.*"/>    
     <Parameter name="Volume" value="HGCalEELayer" eval="false"/>
-    <Parameter name="GeometryMode" value="HGCalGeometryMode::Hexagon8FineCell" eval="false"/>
+    <Parameter name="GeometryMode" value="HGCalGeometryMode::Hexagon8CalibCell" eval="false"/>
     <Parameter name="LevelZSide"          value="3"/>
     <Parameter name="LevelTop"            value="9"/>
     <Parameter name="LevelTop"            value="12"/>
@@ -102,7 +102,7 @@
   <SpecPar name="HGCalHESiliconLayer">
     <PartSelector path="//HGCalHESiliconLayer.*"/>
     <Parameter name="Volume" value="HGCalHESiliconLayer" eval="false"/>
-    <Parameter name="GeometryMode" value="HGCalGeometryMode::Hexagon8FineCell" eval="false"/>
+    <Parameter name="GeometryMode" value="HGCalGeometryMode::Hexagon8CalibCell" eval="false"/>
     <Parameter name="LevelZSide"          value="3"/>
     <Parameter name="LevelTop"            value="9"/>
     <Parameter name="LevelTop"            value="12"/>
