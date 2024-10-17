@@ -1189,7 +1189,12 @@ namespace edm {
         ServiceRegistry::Operate operate(weakToken.lock());
 
         if (iPtr) {
-          //this is used to prioritize this error over one
+          // free previous value of pathErrorPtr, if any
+          auto currentPtr = pathErrorPtr->load();
+          if (currentPtr) {
+            delete currentPtr;
+          }
+          // this is used to prioritize this error over one
           // that happens in EndPath or Accumulate
           pathErrorPtr->store(new std::exception_ptr(*iPtr));
         }
