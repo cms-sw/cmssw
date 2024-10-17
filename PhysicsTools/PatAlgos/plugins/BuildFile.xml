@@ -35,5 +35,6 @@
   <use name="TrackingTools/IPTools"/>
   <use name="TrackingTools/Records"/>
   <use name="RecoTauTag/RecoTau"/>
+  <use name="RecoBTag/FeatureTools"/>
   <use name="root"/>
 </library>
