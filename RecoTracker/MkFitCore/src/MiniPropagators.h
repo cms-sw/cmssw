@@ -5,6 +5,10 @@
 #include "RecoTracker/MkFitCore/interface/MatrixSTypes.h"
 #include "Matrix.h"
 
+namespace mkfit {
+  struct ModuleInfo;
+}
+
 namespace mkfit::mini_propagators {
 
   enum PropAlgo_e { PA_Line, PA_Quadratic, PA_Exact };
@@ -33,6 +37,8 @@ namespace mkfit::mini_propagators {
 
     bool propagate_to_r(PropAlgo_e algo, float R, State& c, bool update_momentum) const;
     bool propagate_to_z(PropAlgo_e algo, float Z, State& c, bool update_momentum) const;
+
+    bool propagate_to_plane(PropAlgo_e algo, const ModuleInfo& mi, State& c, bool update_momentum) const;
   };
 
   //-----------------------------------------------------------

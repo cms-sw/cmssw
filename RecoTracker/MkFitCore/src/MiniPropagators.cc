@@ -1,4 +1,5 @@
 #include "RecoTracker/MkFitCore/src/MiniPropagators.h"
+#include "RecoTracker/MkFitCore/interface/TrackerInfo.h"
 #include "vdt/atan2.h"
 #include "vdt/tan.h"
 #include "vdt/sincos.h"
@@ -100,6 +101,53 @@ namespace mkfit::mini_propagators {
     }
     c.fail_flag = 0;
     return c.fail_flag;
+  }
+
+  bool InitialState::propagate_to_plane(PropAlgo_e algo, const ModuleInfo& mi, State& c, bool update_momentum) const {
+    switch (algo) {
+      case PA_Line: {
+        // Momentum is never changed ... we simply step along its direction
+        // to hit the plane.
+        // const float k = 1.0f / inv_k;
+
+        // const float curv = 0.5f * inv_k * inv_pt;
+        // const float oo_curv = 1.0f / curv;  // 2 * radius of curvature
+        // const float lambda = pz * inv_pt;
+
+        //X float dist = (x - mi.pos(0)) * mi.zdir(0) +
+        //X              (y - mi.pos(1)) * mi.zdir(1) +
+        //X              (z - mi.pos(2)) * mi.zdir(2);
+
+        // t * p_vec intersects the plane:
+        float t = (mi.pos(0) * mi.zdir(0) + mi.pos(1) * mi.zdir(1) + mi.pos(2) * mi.zdir(2) - x * mi.zdir(0) -
+                   y * mi.zdir(1) - z * mi.zdir(2)) /
+                  (px * mi.zdir(0) + py * mi.zdir(1) + pz * mi.zdir(2));
+
+        //X printf("  module-center: %.2f,%.2f,%.2f  pos: %.2f,%.2f,%.2f  normal: %.2f,%.2f,%.2f\n",
+        //X        mi.pos(0),mi.pos(1),mi.pos(2), x, y, z, mi.zdir(0),mi.zdir(1),mi.zdir(2));
+
+        c = *this;
+        c.x += t * c.px;
+        c.y += t * c.py;
+        c.z += t * c.pz;
+
+        //X re-check ditance to plane
+        //X float dist2 = (c.x - mi.pos(0)) * mi.zdir(0) +
+        //X               (c.y - mi.pos(1)) * mi.zdir(1) +
+        //X               (c.z - mi.pos(2)) * mi.zdir(2);
+        //X printf("  dist = %.3f, t = %.4f ..... dist2 = %.4f\n", dist, t, dist2);
+        break;
+      }
+
+      case PA_Quadratic: {
+        throw std::runtime_error("Quadratic prop_to_plane not implemented");
+      }
+
+      case PA_Exact: {
+        throw std::runtime_error("Exact prop_to_plane not implemented");
+      }
+    }
+    return false;
   }
 
   //===========================================================================

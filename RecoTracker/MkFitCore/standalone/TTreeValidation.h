@@ -3,7 +3,7 @@
 
 #include "Validation.h"
 
-#ifdef NO_ROOT
+#ifndef WITH_ROOT
 namespace mkfit {
 
   class TTreeValidation : public Validation {

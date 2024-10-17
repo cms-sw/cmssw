@@ -2,8 +2,6 @@
 #include "RecoTracker/MkFitCore/interface/MkBuilder.h"
 #include "RecoTracker/MkFitCMS/interface/MkStdSeqs.h"
 
-#include "oneapi/tbb/parallel_for.h"
-
 #include <memory>
 
 namespace mkfit {
