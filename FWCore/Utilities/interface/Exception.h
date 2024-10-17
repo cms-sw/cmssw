@@ -132,7 +132,7 @@ namespace cms {
 
   private:
     void init(std::string const& message);
-    virtual void rethrow();
+    [[noreturn]] virtual void rethrow();
     virtual int returnCode_() const;
 
     // data members
