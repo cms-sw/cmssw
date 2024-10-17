@@ -22,7 +22,7 @@ ZdcTopology::ZdcTopology(const HcalDDDRecConstants* hcons)
       firstRPDModule_(1),
       lastRPDModule_(HcalZDCDetId::kDepRPD) {
   mode_ = (HcalTopologyMode::Mode)(hcons_->getTopoMode());
-  excludeRPD_ = (mode_ < HcalTopologyMode::Mode::Run3);
+  excludeRPD_ = ((mode_ != HcalTopologyMode::Mode::Run3) && (mode_ != HcalTopologyMode::Mode::Run4));
   edm::LogVerbatim("ForwardGeom") << "ZdcTopology : Mode " << mode_ << ":" << HcalTopologyMode::Mode::Run3
                                   << " ExcludeRPD " << excludeRPD_;
 }
