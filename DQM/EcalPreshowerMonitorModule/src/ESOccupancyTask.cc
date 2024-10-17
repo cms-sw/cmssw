@@ -39,12 +39,28 @@ ESOccupancyTask::ESOccupancyTask(const edm::ParameterSet& ps) {
 
       hSelEng_[i][j] = nullptr;
       hSelOCC_[i][j] = nullptr;
+      hSelOCCByLS_[i][j] = nullptr;
       hSelEnDensity_[i][j] = nullptr;
     }
 
   for (int i = 0; i < 2; ++i)
     hE1E2_[i] = nullptr;
 }
+
+std::shared_ptr<ESOccLSCache> ESOccupancyTask::globalBeginLuminosityBlock(const edm::LuminosityBlock& lumi,
+                                                                          const edm::EventSetup& c) const {
+  auto lumiCache = std::make_shared<ESOccLSCache>();
+  lumiCache->ievtLS_ = 0;
+
+  for (int iz = 0; iz < 2; ++iz) {
+    for (int ip = 0; ip < 2; ++ip) {
+      hSelOCCByLS_[iz][ip]->Reset();
+    }
+  }
+  return lumiCache;
+}
+
+void ESOccupancyTask::globalEndLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup& c) {}
 
 void ESOccupancyTask::bookHistograms(DQMStore::IBooker& iBooker, Run const&, EventSetup const&) {
   iBooker.setCurrentFolder(prefixME_ + "/ESOccupancyTask");
@@ -105,6 +121,18 @@ void ESOccupancyTask::bookHistograms(DQMStore::IBooker& iBooker, Run const&, Eve
 
   hE1E2_[0] = iBooker.book2D("ES+ EP1 vs EP2", "ES+ EP1 vs EP2", 50, 0, 0.1, 50, 0, 0.1);
   hE1E2_[1] = iBooker.book2D("ES- EP1 vs EP2", "ES- EP1 vs EP2", 50, 0, 0.1, 50, 0, 0.1);
+
+  // LS-based histos
+  iBooker.setCurrentFolder(prefixME_ + "/ByLumiSection");
+  for (int i = 0; i < 2; ++i) {
+    for (int j = 0; j < 2; ++j) {
+      int iz = (i == 0) ? 1 : -1;
+      sprintf(histo, "ES Occupancy with selected hits Z %d P %d", iz, j + 1);
+      hSelOCCByLS_[i][j] = iBooker.book2D(histo, histo, 40, 0.5, 40.5, 40, 0.5, 40.5);
+      hSelOCCByLS_[i][j]->setAxisTitle("Si X", 1);
+      hSelOCCByLS_[i][j]->setAxisTitle("Si Y", 2);
+    }
+  }
 }
 
 void ESOccupancyTask::analyze(const edm::Event& e, const edm::EventSetup& iSetup) {
@@ -150,6 +178,7 @@ void ESOccupancyTask::analyze(const edm::Event& e, const edm::EventSetup& iSetup
         hSelEng_[i][j]->Fill(hitItr->energy());
         hSelEnDensity_[i][j]->Fill(ix, iy, hitItr->energy());
         hSelOCC_[i][j]->Fill(ix, iy);
+        hSelOCCByLS_[i][j]->Fill(ix, iy);
       }
     }
   } else {
@@ -168,6 +197,7 @@ void ESOccupancyTask::analyze(const edm::Event& e, const edm::EventSetup& iSetup
       hEnDensity_[i][j]->setBinContent(40, 40, eCount_);
 
       hSelOCC_[i][j]->setBinContent(40, 40, eCount_);
+      hSelOCCByLS_[i][j]->setBinContent(40, 40, eCount_);
       hSelEnDensity_[i][j]->setBinContent(40, 40, eCount_);
     }
 
