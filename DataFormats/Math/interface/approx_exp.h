@@ -123,6 +123,9 @@ end;
 // valid for -87.3365 < x < 88.7228
 template <int DEGREE>
 #ifdef CMS_UNDEFINED_SANITIZER
+//Supress UBSan runtime error about signed integer overflow: -2147483648 - 1
+//This function is an unsafe implementation of expf and rely on overflow feature
+//Vectorization is affected on x86_64 if change to unsigned int
 __attribute__((no_sanitize("signed-integer-overflow")))
 #endif
 constexpr float
