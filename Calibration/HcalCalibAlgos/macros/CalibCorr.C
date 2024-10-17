@@ -189,7 +189,7 @@ unsigned int truncateId(unsigned int detId, int truncateFlag, bool debug = false
       depth = 1;
     }
   } else if (truncate0 == 9) {
-    //Depths 1 and 2 considered as depth = 1; rest of the depths are kept as it is
+    //Depths 1 and 2 considered as depth = 2; rest of the depths are kept as it is
     if (depth <= 2)
       depth = 2;
   }
