@@ -456,8 +456,13 @@ void HLTMuonMatchAndPlot::book2D(DQMStore::IBooker& iBooker,
     hists_[name] = iBooker.book2D(name.c_str(), title.c_str(), nBinsX, edgesX, nBinsY, edgesY);
     if (hists_[name]->getTH2F()->GetSumw2N())
       hists_[name]->enableSumw2();
+  }
 
+  if (edgesX != nullptr) {
     delete[] edgesX;
+  }
+
+  if (edgesY != nullptr) {
     delete[] edgesY;
   }
 }

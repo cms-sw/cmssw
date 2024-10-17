@@ -268,7 +268,7 @@ void SiStripCertificationInfo::fillSiStripCertificationMEs(DQMStore& dqm_store, 
       if (SiStripCertificationSummaryMap)
         SiStripCertificationSummaryMap->Fill(xbin, ilayer + 1, fraction_layer);
     }
-    if (ybin <= SiStripCertificationSummaryMap->getNbinsY()) {
+    if (SiStripCertificationSummaryMap && ybin <= SiStripCertificationSummaryMap->getNbinsY()) {
       for (int k = ybin + 1; k <= SiStripCertificationSummaryMap->getNbinsY(); k++)
         SiStripCertificationSummaryMap->Fill(xbin, k, -1.0);
     }

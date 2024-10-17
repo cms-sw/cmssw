@@ -542,9 +542,9 @@ void SiPixelActionExecutor::fillSummary(DQMStore::IBooker &iBooker,
                       }
                     }
                   }
+                  if (notReset)
+                    (*isum)->Fill(ndet, me1->getEntries());
                 }
-                if (notReset)
-                  (*isum)->Fill(ndet, me1->getEntries());
               } else if ((sname.find("_charge_") != string::npos && sname.find("Track_") == string::npos &&
                           me->getName().find("Track_") == string::npos) ||
                          (sname.find("_charge_") != string::npos && sname.find("_OnTrack_") != string::npos &&
