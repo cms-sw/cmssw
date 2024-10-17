@@ -389,3 +389,5 @@ And Heavy Ion workflows:
 |  	|  	|  	|  	|  	|  	
 | 158.01 	| RelValHydjetQ_B12_5020GeV_2018_ppReco (reMINIAOD) | phase1_2018_realistic_hi 	| Run2_2018_pp_on_AA 	| (HI MC with pp-like reco) 	|  	  	
 | 312.0 	| Pyquen_ZeemumuJets_pt10_2760GeV 	|  phase1_2022_realistic_hi	| Run3_pp_on_PbPb 	| PU = HiMixGEN 	|  
+| 322.0 	| Pyquen_ZeemumuJets_pt10_5362GeV_2023 	|  phase1_2023_realistic_hi	| Run3_pp_on_PbPb_2023 	| PU = HiMixGEN 	|  
+| 332.0 	| Pyquen_ZeemumuJets_pt10_5362GeV_2024 	|  phase1_2024_realistic_hi	| Run3_pp_on_PbPb_2024 	| PU = HiMixGEN 	|  
