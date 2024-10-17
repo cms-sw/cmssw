@@ -20,6 +20,7 @@ import Alignment.OfflineValidation.TkAlAllInOneTool.SplitV as SplitV
 import Alignment.OfflineValidation.TkAlAllInOneTool.JetHT as JetHT
 import Alignment.OfflineValidation.TkAlAllInOneTool.DiMuonV as DiMuonV
 import Alignment.OfflineValidation.TkAlAllInOneTool.MTS as MTS
+import Alignment.OfflineValidation.TkAlAllInOneTool.PixBary as PixBary
 
 ##############################################
 def parser():
@@ -268,6 +269,8 @@ def main():
             jobs.extend(DiMuonV.DiMuonV(config, validationDir))
         elif validation == "MTS":
             jobs.extend(MTS.MTS(config, validationDir))
+        elif validation == "PixBary":
+            jobs.extend(PixBary.PixBary(config, validationDir, args.verbose))
         else:
             raise Exception("Unknown validation method: {}".format(validation)) 
             

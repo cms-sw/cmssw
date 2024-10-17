@@ -289,7 +289,19 @@
                     }
                 }
             }
-        }
+        },
+        "PixBary": {
+            "single": {
+                "testSinglePixBary": {
+                    "firstRun": 376370,
+                    "lastRun": 379254,
+                    "alignments": [
+                        "unitTest",
+                        "mp3619"
+                    ]
+                }
+            }
+	}
     },
     "style":{
         "trends":{
