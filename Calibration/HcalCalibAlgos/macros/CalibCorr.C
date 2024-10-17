@@ -189,13 +189,9 @@ unsigned int truncateId(unsigned int detId, int truncateFlag, bool debug = false
       depth = 1;
     }
   } else if (truncate0 == 9) {
-    //Depths 1 and 2 in HB considered as depth = 1; rest of the depths in HB as depth = 2
-    if (subdet == 1) {
-      if (depth > 1)
-        depth = 2;
-      else
-        depth = 1;
-    }
+    //Depths 1 and 2 considered as depth = 2; rest of the depths are kept as it is
+    if (depth <= 2)
+      depth = 2;
   }
   id = (subdet << 25) | (0x1000000) | ((depth & 0xF) << 20) | ((zside > 0) ? (0x80000 | (ieta << 10)) : (ieta << 10));
   if (debug) {

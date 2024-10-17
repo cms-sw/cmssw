@@ -87,18 +87,18 @@
 //                      infile4, text4, infile5, text5, prefixF, ratio,
 //                      drawStatBox, nmin, isRealData, year, iformat, save)
 //      Defaults: ratio=false, drawStatBox=true, nmin=100, isRealData=false,
-//                year=2018, iformat=0, save=0
+//                year="2024", iformat=0, save=0
 //
 //  PlotHistCorr2Factors(infile1, text1, infile2, text2, depth, prefixF, ratio,
 //                      drawStatBox, nmin, isRealData, year, iformat, save)
 //      Defaults: ratio=true, drawStatBox=false, nmin=100, isRealData=true,
-//                year=2023, iformat=0, save=0
+//                year="2024", iformat=0, save=0
 //
 //  PlotHistCorrDFactors(infile1, text1, infile2, text2, infile3, text3,
 //                      infile4, text4, infile5, text5, depth, prefixF, ratio,
 //                      drawStatBox, nmin, isRealData, year, iformat, save)
 //      Defaults: ratio=true, drawStatBox=false, nmin=100, isRealData=true,
-//                year=2024, iformat=0, save=0
+//                year="2024", iformat=0, save=0
 //
 //             For plotting correction factors including systematics
 //  PlotHistCorrSys(infilec, conds, text, save)
@@ -166,7 +166,7 @@
 //                    text0, etaMin, etaMax, doFit, isRealData, year, iformat,
 //                    save)
 //      Defaults etaMin = -1, etaMax = -1, doFit = true, isRealData = true,
-//               year = 2022, iformat = 0, save = 0
+//               year = "2024", iformat = 0, save = 0
 //      text0 is a general description common to both sets of corr factors
 //      etaMin < 0 and etaMax > 0 will take ieta range from -etaMax to +etaMax;
 //      etaMin > 0 will select ieta's where |ieta| is greater than etaMin
@@ -219,7 +219,7 @@
 //  scale    (double)       = constant scale factor applied to the factors
 //  ratio    (bool)         = set to show the ratio plot (false)
 //  drawStatBox (bool)      = set to show the statistical box (true)
-//  year     (int)          = Year of data taking (applicable to Data)
+//  year     (char *)       = Year of data taking (applicable to Data)
 //  infilc   (string)       = prefix of the file names of correction factors
 //                            (assumes file name would be the prefix followed
 //                            by _condX.txt where X=0 for the default version
@@ -269,13 +269,13 @@ const double fitrangeFactor = 1.5;
 struct cfactors {
   int ieta, depth;
   double corrf, dcorr;
-  cfactors(int ie = 0, int dp = 0, double cor = 1, double dc = 0) : ieta(ie), depth(dp), corrf(cor), dcorr(dc){};
+  cfactors(int ie = 0, int dp = 0, double cor = 1, double dc = 0) : ieta(ie), depth(dp), corrf(cor), dcorr(dc) {};
 };
 
 struct results {
   double mean, errmean, width, errwidth;
   results(double v1 = 0, double er1 = 0, double v2 = 0, double er2 = 0)
-      : mean(v1), errmean(er1), width(v2), errwidth(er2){};
+      : mean(v1), errmean(er1), width(v2), errwidth(er2) {};
 };
 
 std::pair<double, double> GetMean(TH1D* hist, double xmin, double xmax, double& rms) {
@@ -2583,7 +2583,7 @@ void PlotHistCorrFactors(char* infile1,
                          bool drawStatBox = true,
                          int nmin = 100,
                          bool isRealData = false,
-                         int year = 2018,
+                         const char* year = "2024",
                          int iformat = 0,
                          int save = 0) {
   std::map<int, cfactors> cfacs[5];
@@ -2801,9 +2801,9 @@ void PlotHistCorrFactors(char* infile1,
     txt0->SetFillColor(0);
     char txt[40];
     if (isRealData)
-      sprintf(txt, "CMS Preliminary (%d)", year);
+      sprintf(txt, "CMS Preliminary (%s)", year);
     else
-      sprintf(txt, "CMS Simulation Preliminary (%d)", year);
+      sprintf(txt, "CMS Simulation Preliminary (%s)", year);
     txt0->AddText(txt);
     txt0->Draw("same");
     pad->Update();
@@ -2838,7 +2838,7 @@ void PlotHistCorr2Factors(char* infile1,
                           bool drawStatBox = false,
                           int nmin = 100,
                           bool isRealData = true,
-                          int year = 2023,
+                          const char* year = "2024",
                           int iformat = 0,
                           int save = 0) {
   std::map<int, cfactors> cfacs[5];
@@ -2922,7 +2922,7 @@ void PlotHistCorr2Factors(char* infile1,
         h->GetYaxis()->SetLabelOffset(0.005);
         h->GetYaxis()->SetTitleSize(0.036);
         h->GetYaxis()->SetTitleOffset(1.20);
-        h->GetYaxis()->SetRangeUser(0.50, 1.50);
+        h->GetYaxis()->SetRangeUser(0.80, 1.20);
         hists.push_back(h);
         fitr.push_back(fit);
         htype.push_back(ih);
@@ -2967,7 +2967,7 @@ void PlotHistCorr2Factors(char* infile1,
         h->GetYaxis()->SetTitle("Correction Factor");
         h->GetYaxis()->SetLabelOffset(0.005);
         h->GetYaxis()->SetTitleOffset(1.20);
-        h->GetYaxis()->SetRangeUser(0.5, 1.5);
+        h->GetYaxis()->SetRangeUser(0.8, 1.2);
         hists.push_back(h);
         entries.push_back(nent);
         if (drawStatBox)
@@ -3017,9 +3017,9 @@ void PlotHistCorr2Factors(char* infile1,
     txt0->SetFillColor(0);
     char txt[40];
     if (isRealData)
-      sprintf(txt, "CMS Preliminary (%d)", year);
+      sprintf(txt, "CMS Preliminary (%s)", year);
     else
-      sprintf(txt, "CMS Simulation Preliminary (%d)", year);
+      sprintf(txt, "CMS Simulation Preliminary (%s)", year);
     txt0->AddText(txt);
     txt0->Draw("same");
     pad->Update();
@@ -3060,7 +3060,7 @@ void PlotHistCorrDFactors(char* infile1,
                           bool drawStatBox = false,
                           int nmin = 100,
                           bool isRealData = true,
-                          int year = 2024,
+                          const char* year = "2024",
                           int iformat = 0,
                           int save = 0) {
   std::map<int, cfactors> cfacs[5];
@@ -3169,7 +3169,7 @@ void PlotHistCorrDFactors(char* infile1,
         h->GetYaxis()->SetLabelOffset(0.005);
         h->GetYaxis()->SetTitleSize(0.036);
         h->GetYaxis()->SetTitleOffset(1.20);
-        h->GetYaxis()->SetRangeUser(0.50, 1.50);
+        h->GetYaxis()->SetRangeUser(0.80, 1.20);
         hists.push_back(h);
         fitr.push_back(fit);
         htype.push_back(ih);
@@ -3214,7 +3214,7 @@ void PlotHistCorrDFactors(char* infile1,
         h->GetYaxis()->SetTitle("Correction Factor");
         h->GetYaxis()->SetLabelOffset(0.005);
         h->GetYaxis()->SetTitleOffset(1.20);
-        h->GetYaxis()->SetRangeUser(0.5, 1.5);
+        h->GetYaxis()->SetRangeUser(0.8, 1.2);
         hists.push_back(h);
         entries.push_back(nent);
         if (drawStatBox)
@@ -3264,9 +3264,9 @@ void PlotHistCorrDFactors(char* infile1,
     txt0->SetFillColor(0);
     char txt[40];
     if (isRealData)
-      sprintf(txt, "CMS Preliminary (%d)", year);
+      sprintf(txt, "CMS Preliminary (%s)", year);
     else
-      sprintf(txt, "CMS Simulation Preliminary (%d)", year);
+      sprintf(txt, "CMS Simulation Preliminary (%s)", year);
     txt0->AddText(txt);
     txt0->Draw("same");
     pad->Update();
@@ -4779,7 +4779,7 @@ void PlotHistCorrRatio(char* infile1,
                        int etaMax = -1,
                        bool doFit = true,
                        bool isRealData = true,
-                       int year = 2022,
+                       const char* year = "2024",
                        int iformat = 0,
                        int save = 0) {
   std::map<int, cfactors> cfacs[2];
@@ -4920,9 +4920,9 @@ void PlotHistCorrRatio(char* infile1,
     txt0->SetFillColor(0);
     char txt[40];
     if (isRealData)
-      sprintf(txt, "CMS Preliminary (%d)", year);
+      sprintf(txt, "CMS Preliminary (%s)", year);
     else
-      sprintf(txt, "CMS Simulation Preliminary (%d)", year);
+      sprintf(txt, "CMS Simulation Preliminary (%s)", year);
     txt0->AddText(txt);
     txt0->Draw("same");
     TPaveText* txt2 = new TPaveText(0.65, 0.91, 0.90, 0.96, "blNDC");
