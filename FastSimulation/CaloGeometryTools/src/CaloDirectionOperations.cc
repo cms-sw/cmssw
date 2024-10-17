@@ -1,13 +1,16 @@
+#include <cassert>
 #include "FastSimulation/CaloGeometryTools/interface/CaloDirectionOperations.h"
 
 CaloDirection CaloDirectionOperations::add2d(const CaloDirection& dir1, const CaloDirection& dir2) {
-  //  unsigned d1=Side(dir1);
-  //  unsigned d2=Side(dir2);
+  unsigned d1 = Side(dir1);
+  unsigned d2 = Side(dir2);
+  assert(d1 != 999);
+  assert(d2 != 999);
   constexpr CaloDirection tab[4][4] = {{NORTH, NORTHEAST, NONE, NORTHWEST},
                                        {NORTHEAST, EAST, SOUTHEAST, NONE},
                                        {NONE, SOUTHEAST, SOUTH, SOUTHWEST},
                                        {NORTHWEST, NONE, SOUTHWEST, WEST}};
-  return tab[Side(dir1)][Side(dir2)];
+  return tab[d1][d2];
 }
 
 CaloDirection CaloDirectionOperations::Side(unsigned i) {
