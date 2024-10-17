@@ -41,6 +41,9 @@ pL1TkPhotonsHGC = cms.Path( L1TkPhotonsHGC )
 
 #Other tk Objects
 
+from L1Trigger.L1TTrackMatch.DisplacedVertexProducer_cfi.py import DisplacedVertexProducer
+pDisplacedVertexProducer = cms.Path( DisplacedVertexProducer)
+
 # from L1Trigger.L1TTrackMatch.L1TrackerJetProducer_cfi import L1TrackerJets
 # pL1TrackerJets = cms.Path( L1TrackerJets)
 
