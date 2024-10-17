@@ -697,12 +697,12 @@ void ReducedEGProducer::produce(edm::Event& event, const edm::EventSetup& eventS
   for (const auto& superCluster : *scHandle) {
     index++;
 
-    const double superclusPt = superCluster.energy()/std::cosh(superCluster.eta());
+    const double superclusPt = superCluster.energy() / std::cosh(superCluster.eta());
 
-    if ( superclusPt < scPtMin_ )
+    if (superclusPt < scPtMin_)
       continue;
 
-    if ( std::abs(superCluster.eta()) > scAbsetaMax_ )
+    if (std::abs(superCluster.eta()) > scAbsetaMax_)
       continue;
 
     bool relinkSupercluster = superclusPt > relinkSuperclusterPtMin_;
