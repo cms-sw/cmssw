@@ -129,14 +129,14 @@ void AllocMonitorRegistry::deregisterMonitor(AllocMonitorBase* iMonitor) {
 //
 // const member functions
 //
-void AllocMonitorRegistry::allocCalled_(size_t iRequested, size_t iActual) {
+void AllocMonitorRegistry::allocCalled_(size_t iRequested, size_t iActual, void const* iPtr) {
   for (auto& m : monitors_) {
-    m->allocCalled(iRequested, iActual);
+    m->allocCalled(iRequested, iActual, iPtr);
   }
 }
-void AllocMonitorRegistry::deallocCalled_(size_t iActual) {
+void AllocMonitorRegistry::deallocCalled_(size_t iActual, void const* iPtr) {
   for (auto& m : monitors_) {
-    m->deallocCalled(iActual);
+    m->deallocCalled(iActual, iPtr);
   }
 }
 

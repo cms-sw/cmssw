@@ -11,12 +11,12 @@ namespace {
   public:
     TestMonitor(size_t& iRequested, size_t& iTotal) : requested_(iRequested), total_(iTotal) {}
 
-    void allocCalled(size_t iRequested, size_t iActual) {
+    void allocCalled(size_t iRequested, size_t iActual, void const*) {
       requested_ = iRequested;
       total_ += iActual;
     }
 
-    void deallocCalled(size_t iActual) { total_ -= iActual; }
+    void deallocCalled(size_t iActual, void const*) { total_ -= iActual; }
 
   private:
     size_t& requested_;
