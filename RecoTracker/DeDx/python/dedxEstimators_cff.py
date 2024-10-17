@@ -116,4 +116,4 @@ dedxPixelLikelihood = dedxAllLikelihood.clone(UseStrip = False, UsePixel = True)
 dedxStripLikelihood = dedxAllLikelihood.clone(UseStrip = True,  UsePixel = False)
 
 from Configuration.Eras.Modifier_run3_egamma_2023_cff import run3_egamma_2023
-(run3_upc & ~run3_egamma_2023).toReplaceWith(doAlldEdXEstimatorsTask, cms.Task(doAlldEdXEstimatorsTask.copy(), dedxHitCalibrator, dedxStripLikelihood, dedxPixelLikelihood, dedxAllLikelihood))
+run3_upc.toReplaceWith(doAlldEdXEstimatorsTask, cms.Task(doAlldEdXEstimatorsTask.copy(), dedxHitCalibrator, dedxStripLikelihood, dedxPixelLikelihood, dedxAllLikelihood))
