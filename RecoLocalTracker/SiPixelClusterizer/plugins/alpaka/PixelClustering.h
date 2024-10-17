@@ -182,8 +182,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
                                                       TrackerTraits::maxPixInModule,
                                                       TrackerTraits::clusterBits,
                                                       uint16_t>;
+#if defined(__HIP_DEVICE_COMPILE__)
+        constexpr auto warpSize = __AMDGCN_WAVEFRONT_SIZE;
+#else
+        constexpr auto warpSize = 32;
+#endif
         auto& hist = alpaka::declareSharedVar<Hist, __COUNTER__>(acc);
-        auto& ws = alpaka::declareSharedVar<typename Hist::Counter[32], __COUNTER__>(acc);
+        auto& ws = alpaka::declareSharedVar<typename Hist::Counter[warpSize], __COUNTER__>(acc);
         for (uint32_t j : cms::alpakatools::independent_group_elements(acc, Hist::totbins())) {
           hist.off[j] = 0;
         }
@@ -254,7 +259,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
           }
         }
         alpaka::syncBlockThreads(acc);  // FIXME this can be removed
-        for (uint32_t i : cms::alpakatools::independent_group_elements(acc, 32u)) {
+        for (uint32_t i : cms::alpakatools::independent_group_elements(acc, warpSize)) {
           ws[i] = 0;  // used by prefix scan...
         }
         alpaka::syncBlockThreads(acc);
