@@ -979,30 +979,30 @@ Category timer   Module UTC_T2:ssm_2c   Severity Error   Count 1
 
 MessageLogger Summary
 
- type     category        sev    module        subroutine        count    total
- ---- -------------------- -- ---------------- ----------------  -----    -----
-    1 summary              -i UTC_T2:ssm_2a                          4        4
-    2 summary              -i UTC_T2:ssm_2b                          4        4
-    3 summary              -i UTC_T2:ssm_2c                          4        4
-    4 FwkReport            -f AfterSource                           16       16
-    5 cat_A                -w UTC_T1:ssm_1a                         16       16
-    6 cat_A                -w UTC_T1:ssm_1b                         16       16
-    7 cat_A                -w UTC_T1:ssm_1c                         16       16
-    8 cat_A                -w UTC_T2:ssm_2a                         16       16
-    9 cat_A                -w UTC_T2:ssm_2b                         16       16
-   10 cat_A                -w UTC_T2:ssm_2c                         16       16
-   11 cat_A                -e UTC_T1:ssm_1a                         16       16
-   12 cat_A                -e UTC_T1:ssm_1b                         16       16
-   13 cat_A                -e UTC_T1:ssm_1c                         16       16
-   14 cat_A                -e UTC_T2:ssm_2a                         16       16
-   15 cat_A                -e UTC_T2:ssm_2b                         16       16
-   16 cat_A                -e UTC_T2:ssm_2c                         16       16
-   17 timer                -e UTC_T1:ssm_1a                         16       16
-   18 timer                -e UTC_T1:ssm_1b                         16       16
-   19 timer                -e UTC_T1:ssm_1c                         16       16
-   20 timer                -e UTC_T2:ssm_2a                         16       16
-   21 timer                -e UTC_T2:ssm_2b                         16       16
-   22 timer                -e UTC_T2:ssm_2c                         16       16
+ type     category        sev          module                subroutine         count   total
+ ---- -------------------- -- ------------------------- ---------------------   -----   -----
+    1 summary              -i UTC_T2:ssm_2a                                        4        4
+    2 summary              -i UTC_T2:ssm_2b                                        4        4
+    3 summary              -i UTC_T2:ssm_2c                                        4        4
+    4 FwkReport            -f AfterSource                                         16       16
+    5 cat_A                -w UTC_T1:ssm_1a                                       16       16
+    6 cat_A                -w UTC_T1:ssm_1b                                       16       16
+    7 cat_A                -w UTC_T1:ssm_1c                                       16       16
+    8 cat_A                -w UTC_T2:ssm_2a                                       16       16
+    9 cat_A                -w UTC_T2:ssm_2b                                       16       16
+   10 cat_A                -w UTC_T2:ssm_2c                                       16       16
+   11 cat_A                -e UTC_T1:ssm_1a                                       16       16
+   12 cat_A                -e UTC_T1:ssm_1b                                       16       16
+   13 cat_A                -e UTC_T1:ssm_1c                                       16       16
+   14 cat_A                -e UTC_T2:ssm_2a                                       16       16
+   15 cat_A                -e UTC_T2:ssm_2b                                       16       16
+   16 cat_A                -e UTC_T2:ssm_2c                                       16       16
+   17 timer                -e UTC_T1:ssm_1a                                       16       16
+   18 timer                -e UTC_T1:ssm_1b                                       16       16
+   19 timer                -e UTC_T1:ssm_1c                                       16       16
+   20 timer                -e UTC_T2:ssm_2a                                       16       16
+   21 timer                -e UTC_T2:ssm_2b                                       16       16
+   22 timer                -e UTC_T2:ssm_2c                                       16       16
 
  type    category    Examples: run/evt        run/evt          run/evt
  ---- -------------------- ---------------- ---------------- ----------------

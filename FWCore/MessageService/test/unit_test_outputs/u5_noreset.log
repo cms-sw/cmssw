@@ -3,11 +3,11 @@
 
 MessageLogger Summary
 
- type     category        sev    module        subroutine        count    total
- ---- -------------------- -- ---------------- ----------------  -----    -----
-    1 FwkReport            -f AfterSource                            1*       1
-    2 cat_A                -e UnitTestClient_B                       1        1
-    3 cat_B                -e UnitTestClient_B                       1        1
+ type     category        sev          module                subroutine         count   total
+ ---- -------------------- -- ------------------------- ---------------------   -----   -----
+    1 FwkReport            -f AfterSource                                          1*       1
+    2 cat_A                -e UnitTestClient_B:sendSome                            1        1
+    3 cat_B                -e UnitTestClient_B:sendSome                            1        1
 
 * Some occurrences of this message were suppressed in all logs, due to limits.
 
@@ -28,11 +28,11 @@ dropped waiting message count 0
 
 MessageLogger Summary
 
- type     category        sev    module        subroutine        count    total
- ---- -------------------- -- ---------------- ----------------  -----    -----
-    1 FwkReport            -f AfterSource                            2*       2
-    2 cat_A                -e UnitTestClient_B                       3        3
-    3 cat_B                -e UnitTestClient_B                       2        2
+ type     category        sev          module                subroutine         count   total
+ ---- -------------------- -- ------------------------- ---------------------   -----   -----
+    1 FwkReport            -f AfterSource                                          2*       2
+    2 cat_A                -e UnitTestClient_B:sendSome                            3        3
+    3 cat_B                -e UnitTestClient_B:sendSome                            2        2
 
 * Some occurrences of this message were suppressed in all logs, due to limits.
 
@@ -53,11 +53,11 @@ dropped waiting message count 0
 
 MessageLogger Summary
 
- type     category        sev    module        subroutine        count    total
- ---- -------------------- -- ---------------- ----------------  -----    -----
-    1 FwkReport            -f AfterSource                            3*       3
-    2 cat_A                -e UnitTestClient_B                       6        6
-    3 cat_B                -e UnitTestClient_B                       3        3
+ type     category        sev          module                subroutine         count   total
+ ---- -------------------- -- ------------------------- ---------------------   -----   -----
+    1 FwkReport            -f AfterSource                                          3*       3
+    2 cat_A                -e UnitTestClient_B:sendSome                            6        6
+    3 cat_B                -e UnitTestClient_B:sendSome                            3        3
 
 * Some occurrences of this message were suppressed in all logs, due to limits.
 
@@ -78,11 +78,11 @@ dropped waiting message count 0
 
 MessageLogger Summary
 
- type     category        sev    module        subroutine        count    total
- ---- -------------------- -- ---------------- ----------------  -----    -----
-    1 FwkReport            -f AfterSource                            3*       3
-    2 cat_A                -e UnitTestClient_B                       6        6
-    3 cat_B                -e UnitTestClient_B                       3        3
+ type     category        sev          module                subroutine         count   total
+ ---- -------------------- -- ------------------------- ---------------------   -----   -----
+    1 FwkReport            -f AfterSource                                          3*       3
+    2 cat_A                -e UnitTestClient_B:sendSome                            6        6
+    3 cat_B                -e UnitTestClient_B:sendSome                            3        3
 
 * Some occurrences of this message were suppressed in all logs, due to limits.
 
