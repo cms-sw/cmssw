@@ -141,5 +141,6 @@ hltTiclTrackstersCLUE3DHighL1Seeded = cms.EDProducer("TrackstersProducer",
 )
 
 from Configuration.ProcessModifiers.ticl_v5_cff import ticl_v5
-ticl_v5.toModify(hltTiclTrackstersCLUE3DHighL1Seeded.pluginPatternRecognitionByCLUE3D, computeLocalTime = cms.bool(True), doPidCut = cms.bool(False))
+ticl_v5.toModify(hltTiclTrackstersCLUE3DHighL1Seeded.pluginPatternRecognitionByCLUE3D, computeLocalTime = cms.bool(True))
 ticl_v5.toModify(hltTiclTrackstersCLUE3DHighL1Seeded.inferenceAlgo, type = cms.string('TracksterInferenceByDNN'))
+
