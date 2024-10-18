@@ -43,7 +43,7 @@ echo "MVA track quality Histograms written to MVA_plots/"
 # Run track performance plotting macro
 set plotMacro = $CMSSW_BASE/src/L1Trigger/TrackFindingTracklet/test/L1TrackNtuplePlot.C
 if (-e TrkPlots) rm -r TrkPlots
-\root -b -q ${plotMacro}'("'${inputFileStem}'","'${dirName}'")' | tail -n 24 >! results.out 
+\root -b -q ${plotMacro}'("'${inputFileStem}'","'${dirName}'")' | tail -n 26 >! results.out 
 cat results.out
 echo "Tracking performance summary written to results.out"
 echo "Track performance histograms written to TrkPlots/"  

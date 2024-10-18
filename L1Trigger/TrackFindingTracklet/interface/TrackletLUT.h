@@ -102,7 +102,7 @@ namespace trklet {
 
     //In the VMR we used the position of the stub (r, z) to calculate the bin and fine rz position the stub has
     //region only used for name - should be removed
-    void initVMRTable(unsigned int layerdisk, VMRTableType type, int region = -1);
+    void initVMRTable(unsigned int layerdisk, VMRTableType type, int region = -1, bool combined = true);
 
     //Used in barrel to calculate the phi position of a stub at the nominal radis of the layer based on the stub radial
     //psotion and bend
@@ -115,6 +115,8 @@ namespace trklet {
     int lookup(unsigned int index) const;
 
     unsigned int size() const { return table_.size(); }
+
+    unsigned int nbits() const { return nbits_; }
 
   private:
     const Settings& settings_;
