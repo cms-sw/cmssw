@@ -4,6 +4,9 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
@@ -43,6 +46,7 @@ public:
   HITrackClusterRemover(const edm::ParameterSet &iConfig);
   ~HITrackClusterRemover() override;
   void produce(edm::Event &iEvent, const edm::EventSetup &iSetup) override;
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
 private:
   edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> const tTrackerGeom_;
@@ -145,14 +149,12 @@ void HITrackClusterRemover::readPSet(
 HITrackClusterRemover::HITrackClusterRemover(const ParameterSet &iConfig)
     : tTrackerGeom_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>()),
       doTracks_(iConfig.exists("trajectories")),
-      doStrip_(iConfig.existsAs<bool>("doStrip") ? iConfig.getParameter<bool>("doStrip") : true),
-      doPixel_(iConfig.existsAs<bool>("doPixel") ? iConfig.getParameter<bool>("doPixel") : true),
+      doStrip_(iConfig.getParameter<bool>("doStrip")),
+      doPixel_(iConfig.getParameter<bool>("doPixel")),
       mergeOld_(iConfig.exists("oldClusterRemovalInfo")),
       clusterWasteSolution_(true),
-      doStripChargeCheck_(
-          iConfig.existsAs<bool>("doStripChargeCheck") ? iConfig.getParameter<bool>("doStripChargeCheck") : false),
-      doPixelChargeCheck_(
-          iConfig.existsAs<bool>("doPixelChargeCheck") ? iConfig.getParameter<bool>("doPixelChargeCheck") : false),
+      doStripChargeCheck_(iConfig.getParameter<bool>("doStripChargeCheck")),
+      doPixelChargeCheck_(iConfig.getParameter<bool>("doPixelChargeCheck")),
       stripRecHits_(doStripChargeCheck_ ? iConfig.getParameter<std::string>("stripRecHits")
                                         : std::string("siStripMatchedRecHits")),
       pixelRecHits_(doPixelChargeCheck_ ? iConfig.getParameter<std::string>("pixelRecHits")
@@ -215,10 +217,7 @@ HITrackClusterRemover::HITrackClusterRemover(const ParameterSet &iConfig)
   if (iConfig.exists("TrackQuality")) {
     filterTracks_ = true;
     trackQuality_ = reco::TrackBase::qualityByName(iConfig.getParameter<std::string>("TrackQuality"));
-    minNumberOfLayersWithMeasBeforeFiltering_ =
-        iConfig.existsAs<int>("minNumberOfLayersWithMeasBeforeFiltering")
-            ? iConfig.getParameter<int>("minNumberOfLayersWithMeasBeforeFiltering")
-            : 0;
+    minNumberOfLayersWithMeasBeforeFiltering_ = iConfig.getParameter<int>("minNumberOfLayersWithMeasBeforeFiltering");
   }
 
   if (doTracks_)
@@ -590,6 +589,16 @@ void HITrackClusterRemover::produce(Event &iEvent, const EventSetup &iSetup) {
   }
   collectedStrips_.clear();
   collectedPixels_.clear();
+}
+
+void HITrackClusterRemover::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<bool>("doStrip", true);
+  desc.add<bool>("doPixel", true);
+  desc.add<bool>("doStripChargeCheck", false);
+  desc.add<bool>("doPixelChargeCheck", false);
+  desc.add<int>("minNumberOfLayersWithMeasBeforeFiltering", 0);
+  descriptions.add("HITrackClusterRemover", desc);
 }
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"
