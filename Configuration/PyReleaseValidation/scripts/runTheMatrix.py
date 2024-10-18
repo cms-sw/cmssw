@@ -85,6 +85,7 @@ if __name__ == '__main__':
                     12846.0,    # RelValZEE_13                  2024
                     13034.0,    # RelValTTbar_14TeV             2024 PU = Run3_Flat55To75_PoissonOOTPU
                     12834.7,    # RelValTTbar_14TeV             2024 mkFit
+                    16834.0,    # RelValTTbar_14TeV             2025
                     14034.0,    # RelValTTbar_14TeV             Run3_2023_FastSim 
                     14234.0,    # RelValTTbar_14TeV             Run3_2023_FastSim   PU = Run3_Flat55To75_PoissonOOTPU
                     2500.201,   # RelValTTbar_14TeV             NanoAOD from existing MINI
