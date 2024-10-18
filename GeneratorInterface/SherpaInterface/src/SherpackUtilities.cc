@@ -417,7 +417,6 @@ namespace spu {
             printf("%c", buff[ll]);
           }
           printf("\n");
-          bytes_read = fread(buff, 1, 512, a);
           for (int ll = 0; ll < 512; ll++) {
             printf("%c", buff[ll]);
           }
@@ -431,7 +430,6 @@ namespace spu {
           }
           //~ printf("NEW LinkNAME: %s\n",newlonglinkname);
         } else if (buff[156] == 'L') {
-          bytes_read = fread(buff, 1, 512, a);
           for (int k = 0; k < filesize; k++) {
             newlongpathname[k] = buff[k];
           }
