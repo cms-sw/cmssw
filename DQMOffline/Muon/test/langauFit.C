@@ -167,7 +167,7 @@ Int_t langaupro(Double_t *params, Double_t &maxx, Double_t &FWHM) {
   if (i == MAXCALLS)
     return (-1);
 
-  maxx = x;
+  [[clang::suppress]] maxx = x;
 
   fy = l / 2;
 

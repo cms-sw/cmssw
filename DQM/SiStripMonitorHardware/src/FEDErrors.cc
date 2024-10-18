@@ -580,8 +580,8 @@ bool FEDErrors::fillChannelErrors(const sistrip::FEDBuffer& aBuffer,
           }
         } else {
           //if (header->checkChannelStatusBits(iCh)) activeChannel = true;
-          apvBad[0] = !header->checkStatusBits(iCh, 0);
-          apvBad[1] = !header->checkStatusBits(iCh, 1);
+          [[clang::suppress]] apvBad[0] = !header->checkStatusBits(iCh, 0);
+          [[clang::suppress]] apvBad[1] = !header->checkStatusBits(iCh, 1);
           if (!apvBad[0] && !apvBad[1]) {
             lChErr.IsActive = true;
             continue;

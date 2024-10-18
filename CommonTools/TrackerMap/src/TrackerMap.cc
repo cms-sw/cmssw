@@ -2918,7 +2918,8 @@ void TrackerMap::save_as_fedtrackermap(
       }
     }
     if (filetype == "svg") {
-      *savefile << "</g> </svg> </svg> " << std::endl;
+      // savefile is only deleted for filetype "xml"
+      [[clang::suppress]] * savefile << "</g> </svg> </svg> " << std::endl;
       savefile->close();
       delete savefile;
     }
@@ -2940,9 +2941,11 @@ void TrackerMap::save_as_fedtrackermap(
 
     if (temporary_file) {
       if (printflag && !saveWebInterface)
+          // savefile is only deleted for filetype "xml", for this filetype temporary_file is false
+          [[clang::suppress]]
         drawPalette(savefile, rangex - 140, rangey - 100);
-      savefile->close();
-      delete savefile;
+      [[clang::suppress]] savefile->close();
+      [[clang::suppress]] delete savefile;
 
       float content;
       std::string named;
