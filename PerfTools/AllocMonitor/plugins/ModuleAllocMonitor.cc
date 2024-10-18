@@ -46,7 +46,7 @@ namespace {
       thread_local ThreadAllocInfo s_info;
       return s_info;
     }
-    void allocCalled(size_t iRequested, size_t iActual) final {
+    void allocCalled(size_t iRequested, size_t iActual, void const*) final {
       auto& allocInfo = threadAllocInfo();
       if (not allocInfo.active_) {
         return;
@@ -63,7 +63,7 @@ namespace {
         allocInfo.maxActual_ = allocInfo.presentActual_;
       }
     }
-    void deallocCalled(size_t iActual) final {
+    void deallocCalled(size_t iActual, void const*) final {
       auto& allocInfo = threadAllocInfo();
       if (not allocInfo.active_) {
         return;
