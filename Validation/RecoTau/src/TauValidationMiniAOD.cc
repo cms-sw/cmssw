@@ -621,7 +621,8 @@ void TauValidationMiniAOD::analyze(const edm::Event &iEvent, const edm::EventSet
         string currentDiscriminator = it.getParameter<string>("discriminator");
         double selectionCut = it.getParameter<double>("selectionCut");
         summaryMap.find("Den")->second->Fill(j);
-        if (matchedTau->tauID(currentDiscriminator) >= selectionCut)
+        if (matchedTau->isTauIDAvailable(currentDiscriminator) &&
+            matchedTau->tauID(currentDiscriminator) >= selectionCut)
           summaryMap.find("Num")->second->Fill(j);
         j = j + 1;
       }
@@ -631,7 +632,8 @@ void TauValidationMiniAOD::analyze(const edm::Event &iEvent, const edm::EventSet
       if (extensionName_.compare(qcd) == 0 || extensionName_.compare(real_data) == 0 ||
           extensionName_.compare(ztt) == 0) {
         // vsJet/tight
-        if (matchedTau->tauID("byTightDeepTau2018v2p5VSjet") >= 0.5) {
+        if (matchedTau->isTauIDAvailable("byTightDeepTau2018v2p5VSjet") &&
+            matchedTau->tauID("byTightDeepTau2018v2p5VSjet") >= 0.5) {
           ptTightvsJetMap.find("")->second->Fill(matchedTau->pt());
           etaTightvsJetMap.find("")->second->Fill(matchedTau->eta());
           phiTightvsJetMap.find("")->second->Fill(matchedTau->phi());
@@ -639,7 +641,8 @@ void TauValidationMiniAOD::analyze(const edm::Event &iEvent, const edm::EventSet
           puTightvsJetMap.find("")->second->Fill(pvHandle->size());
         }
         // vsJet/medium
-        if (matchedTau->tauID("byMediumDeepTau2018v2p5VSjet") >= 0.5) {
+        if (matchedTau->isTauIDAvailable("byMediumDeepTau2018v2p5VSjet") &&
+            matchedTau->tauID("byMediumDeepTau2018v2p5VSjet") >= 0.5) {
           ptMediumvsJetMap.find("")->second->Fill(matchedTau->pt());
           etaMediumvsJetMap.find("")->second->Fill(matchedTau->eta());
           phiMediumvsJetMap.find("")->second->Fill(matchedTau->phi());
@@ -647,7 +650,8 @@ void TauValidationMiniAOD::analyze(const edm::Event &iEvent, const edm::EventSet
           puMediumvsJetMap.find("")->second->Fill(pvHandle->size());
         }
         // vsJet/loose
-        if (matchedTau->tauID("byLooseDeepTau2018v2p5VSjet") >= 0.5) {
+        if (matchedTau->isTauIDAvailable("byLooseDeepTau2018v2p5VSjet") &&
+            matchedTau->tauID("byLooseDeepTau2018v2p5VSjet") >= 0.5) {
           ptLoosevsJetMap.find("")->second->Fill(matchedTau->pt());
           etaLoosevsJetMap.find("")->second->Fill(matchedTau->eta());
           phiLoosevsJetMap.find("")->second->Fill(matchedTau->phi());
@@ -659,7 +663,8 @@ void TauValidationMiniAOD::analyze(const edm::Event &iEvent, const edm::EventSet
       if (extensionName_.compare(real_eledata) == 0 || extensionName_.compare(zee) == 0 ||
           extensionName_.compare(ztt) == 0) {
         // vsEle/tight
-        if (matchedTau->tauID("byTightDeepTau2018v2p5VSe") >= 0.5) {
+        if (matchedTau->isTauIDAvailable("byTightDeepTau2018v2p5VSe") &&
+            matchedTau->tauID("byTightDeepTau2018v2p5VSe") >= 0.5) {
           ptTightvsEleMap.find("")->second->Fill(matchedTau->pt());
           etaTightvsEleMap.find("")->second->Fill(matchedTau->eta());
           phiTightvsEleMap.find("")->second->Fill(matchedTau->phi());
@@ -667,7 +672,8 @@ void TauValidationMiniAOD::analyze(const edm::Event &iEvent, const edm::EventSet
           puTightvsEleMap.find("")->second->Fill(pvHandle->size());
         }
         // vsEle/medium
-        if (matchedTau->tauID("byMediumDeepTau2018v2p5VSe") >= 0.5) {
+        if (matchedTau->isTauIDAvailable("byMediumDeepTau2018v2p5VSe") &&
+            matchedTau->tauID("byMediumDeepTau2018v2p5VSe") >= 0.5) {
           ptMediumvsEleMap.find("")->second->Fill(matchedTau->pt());
           etaMediumvsEleMap.find("")->second->Fill(matchedTau->eta());
           phiMediumvsEleMap.find("")->second->Fill(matchedTau->phi());
@@ -675,7 +681,8 @@ void TauValidationMiniAOD::analyze(const edm::Event &iEvent, const edm::EventSet
           puMediumvsEleMap.find("")->second->Fill(pvHandle->size());
         }
         // vsEle/loose
-        if (matchedTau->tauID("byLooseDeepTau2018v2p5VSe") >= 0.5) {
+        if (matchedTau->isTauIDAvailable("byLooseDeepTau2018v2p5VSe") &&
+            matchedTau->tauID("byLooseDeepTau2018v2p5VSe") >= 0.5) {
           ptLoosevsEleMap.find("")->second->Fill(matchedTau->pt());
           etaLoosevsEleMap.find("")->second->Fill(matchedTau->eta());
           phiLoosevsEleMap.find("")->second->Fill(matchedTau->phi());
@@ -687,7 +694,8 @@ void TauValidationMiniAOD::analyze(const edm::Event &iEvent, const edm::EventSet
       if (extensionName_.compare(real_mudata) == 0 || extensionName_.compare(zmm) == 0 ||
           extensionName_.compare(ztt) == 0) {
         // vsMuo/tight
-        if (matchedTau->tauID("byTightDeepTau2018v2p5VSmu") >= 0.5) {
+        if (matchedTau->isTauIDAvailable("byTightDeepTau2018v2p5VSmu") &&
+            matchedTau->tauID("byTightDeepTau2018v2p5VSmu") >= 0.5) {
           ptTightvsMuoMap.find("")->second->Fill(matchedTau->pt());
           etaTightvsMuoMap.find("")->second->Fill(matchedTau->eta());
           phiTightvsMuoMap.find("")->second->Fill(matchedTau->phi());
@@ -695,7 +703,8 @@ void TauValidationMiniAOD::analyze(const edm::Event &iEvent, const edm::EventSet
           puTightvsMuoMap.find("")->second->Fill(pvHandle->size());
         }
         // vsMuo/medium
-        if (matchedTau->tauID("byMediumDeepTau2018v2p5VSmu") >= 0.5) {
+        if (matchedTau->isTauIDAvailable("byMediumDeepTau2018v2p5VSmu") &&
+            matchedTau->tauID("byMediumDeepTau2018v2p5VSmu") >= 0.5) {
           ptMediumvsMuoMap.find("")->second->Fill(matchedTau->pt());
           etaMediumvsMuoMap.find("")->second->Fill(matchedTau->eta());
           phiMediumvsMuoMap.find("")->second->Fill(matchedTau->phi());
@@ -703,7 +712,8 @@ void TauValidationMiniAOD::analyze(const edm::Event &iEvent, const edm::EventSet
           puMediumvsMuoMap.find("")->second->Fill(pvHandle->size());
         }
         // vsMuo/loose
-        if (matchedTau->tauID("byLooseDeepTau2018v2p5VSmu") >= 0.5) {
+        if (matchedTau->isTauIDAvailable("byLooseDeepTau2018v2p5VSmu") &&
+            matchedTau->tauID("byLooseDeepTau2018v2p5VSmu") >= 0.5) {
           ptLoosevsMuoMap.find("")->second->Fill(matchedTau->pt());
           etaLoosevsMuoMap.find("")->second->Fill(matchedTau->eta());
           phiLoosevsMuoMap.find("")->second->Fill(matchedTau->phi());
