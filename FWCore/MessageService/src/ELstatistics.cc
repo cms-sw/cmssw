@@ -248,16 +248,16 @@ namespace edm {
         //
         if (n == 0) {
           s << "\n";
-          s << " type     category        sev    module        "
-               "subroutine        count    total\n"
-            << " ---- -------------------- -- ---------------- "
-               "----------------  -----    -----\n";
+          s << " type     category        sev          module           "
+               "     subroutine         count   total\n"
+            << " ---- -------------------- -- ------------------------- "
+               "---------------------   -----   -----\n";
         }
         // -----  Emit detailed message information:
         //
         s << right << std::setw(5) << ++n << ' ' << left << std::setw(20) << (*i).first.id.substr(0, 20) << ' ' << left
-          << std::setw(2) << (*i).first.severity.getSymbol() << ' ' << left << std::setw(16)
-          << (*i).first.module.substr(0, 16) << ' ' << left << std::setw(16) << (*i).first.subroutine.substr(0, 16)
+          << std::setw(2) << (*i).first.severity.getSymbol() << ' ' << left << std::setw(25)
+          << (*i).first.module.substr(0, 25) << ' ' << left << std::setw(21) << (*i).first.subroutine.substr(0, 21)
           << right << std::setw(7) << (*i).second.n << left << std::setw(1) << ((*i).second.ignoredFlag ? '*' : ' ')
           << right << std::setw(8) << (*i).second.aggregateN << '\n';
         ftnote = ftnote || (*i).second.ignoredFlag;
