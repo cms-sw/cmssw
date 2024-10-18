@@ -43,4 +43,45 @@ from ..sequences.HLTPFClusteringForEgammaUnseededSequence_cfi import *
 from ..sequences.HLTPFHcalClusteringForEgammaSequence_cfi import *
 from ..sequences.HLTTrackingV61Sequence_cfi import *
 
-HLTEle5OpenUnseededSequence = cms.Sequence(HLTL1Sequence+HLTDoFullUnpackingEgammaEcalSequence+HLTEGammaDoLocalHcalSequence+HLTPFClusteringForEgammaUnseededSequence+HLTHgcalTiclPFClusteringForEgammaUnseededSequence+HLTFastJetForEgammaSequence+HLTPFHcalClusteringForEgammaSequence+HLTElePixelMatchUnseededSequence+HLTTrackingV61Sequence+HLTGsfElectronUnseededSequence+(hltEgammaCandidatesUnseeded+hltEgammaClusterShapeUnseeded+hltEgammaR9Unseeded+hltEgammaHGCALIDVarsUnseeded+hltEgammaHoverEUnseeded+hltEgammaEcalPFClusterIsoUnseeded+hltEgammaHGCalLayerClusterIsoUnseeded+hltEgammaHcalPFClusterIsoUnseeded+hltEgammaEleGsfTrackIsoUnseeded+hltEgammaEleGsfTrackIsoV6Unseeded+hltEgammaEleL1TrkIsoUnseeded+hltEgammaHollowTrackIsoUnseeded)+hltEgammaCandidatesWrapperUnseeded+hltEG5EtUnseededFilter+hltEle5DphiUnseededFilter+cms.ignore(hltEle5WPTightClusterShapeUnseededFilter)+cms.ignore(hltEle5WPTightClusterShapeSigmavvUnseededFilter)+cms.ignore(hltEle5WPTightClusterShapeSigmawwUnseededFilter)+cms.ignore(hltEle5WPTightHgcalHEUnseededFilter)+cms.ignore(hltEle5WPTightHEUnseededFilter)+cms.ignore(hltEle5WPTightEcalIsoUnseededFilter)+cms.ignore(hltEle5WPTightHgcalIsoUnseededFilter)+cms.ignore(hltEle5WPTightHcalIsoUnseededFilter)+cms.ignore(hltEle5WPTightPixelMatchUnseededFilter)+cms.ignore(hltEle5WPTightPMS2UnseededFilter)+cms.ignore(hltEle5WPTightGsfOneOEMinusOneOPUnseededFilter)+cms.ignore(hltEle5WPTightGsfDetaUnseededFilter)+cms.ignore(hltEle5WPTightGsfDphiUnseededFilter)+cms.ignore(hltEle5WPTightBestGsfNLayerITUnseededFilter)+cms.ignore(hltEle5WPTightBestGsfChi2UnseededFilter)+cms.ignore(hltEle5WPTightGsfTrackIsoFromL1TracksUnseededFilter)+cms.ignore(hltEle5WPTightGsfTrackIsoUnseededFilter))
+HLTEle5OpenUnseededSequence = cms.Sequence(HLTL1Sequence
+                                           +HLTDoFullUnpackingEgammaEcalSequence
+                                           +HLTEGammaDoLocalHcalSequence
+                                           +HLTPFClusteringForEgammaUnseededSequence
+                                           +HLTHgcalTiclPFClusteringForEgammaUnseededSequence
+                                           +HLTFastJetForEgammaSequence
+                                           +HLTPFHcalClusteringForEgammaSequence
+                                           +HLTElePixelMatchUnseededSequence
+                                           +HLTTrackingV61Sequence
+                                           +HLTGsfElectronUnseededSequence
+                                           +hltEgammaCandidatesUnseeded
+                                           +hltEgammaClusterShapeUnseeded
+                                           +hltEgammaR9Unseeded
+                                           +hltEgammaHGCALIDVarsUnseeded
+                                           +hltEgammaHoverEUnseeded
+                                           +hltEgammaEcalPFClusterIsoUnseeded
+                                           +hltEgammaHGCalLayerClusterIsoUnseeded
+                                           +hltEgammaHcalPFClusterIsoUnseeded
+                                           +hltEgammaEleGsfTrackIsoUnseeded
+                                           +hltEgammaEleGsfTrackIsoV6Unseeded
+                                           +hltEgammaEleL1TrkIsoUnseeded
+                                           +hltEgammaHollowTrackIsoUnseeded
+                                           +hltEgammaCandidatesWrapperUnseeded
+                                           +hltEG5EtUnseededFilter
+                                           +hltEle5DphiUnseededFilter
+                                           +cms.ignore(hltEle5WPTightClusterShapeUnseededFilter)
+                                           +cms.ignore(hltEle5WPTightClusterShapeSigmavvUnseededFilter)
+                                           +cms.ignore(hltEle5WPTightClusterShapeSigmawwUnseededFilter)
+                                           +cms.ignore(hltEle5WPTightHgcalHEUnseededFilter)
+                                           +cms.ignore(hltEle5WPTightHEUnseededFilter)
+                                           +cms.ignore(hltEle5WPTightEcalIsoUnseededFilter)
+                                           +cms.ignore(hltEle5WPTightHgcalIsoUnseededFilter)
+                                           +cms.ignore(hltEle5WPTightHcalIsoUnseededFilter)
+                                           +cms.ignore(hltEle5WPTightPixelMatchUnseededFilter)
+                                           +cms.ignore(hltEle5WPTightPMS2UnseededFilter)
+                                           +cms.ignore(hltEle5WPTightGsfOneOEMinusOneOPUnseededFilter)
+                                           +cms.ignore(hltEle5WPTightGsfDetaUnseededFilter)
+                                           +cms.ignore(hltEle5WPTightGsfDphiUnseededFilter)
+                                           +cms.ignore(hltEle5WPTightBestGsfNLayerITUnseededFilter)
+                                           +cms.ignore(hltEle5WPTightBestGsfChi2UnseededFilter)
+                                           +cms.ignore(hltEle5WPTightGsfTrackIsoFromL1TracksUnseededFilter)
+                                           +cms.ignore(hltEle5WPTightGsfTrackIsoUnseededFilter))
