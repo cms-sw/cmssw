@@ -180,6 +180,7 @@ private:
 
   bool trackQuality_;
   std::unique_ptr<L1TrackQuality> trackQualityModel_;
+  std::unique_ptr<L1TrackQuality> trackQualityDispModel_;
 
   std::map<string, vector<int>> dtclayerdisk;
 
@@ -321,6 +322,8 @@ L1FPGATrackProducer::L1FPGATrackProducer(edm::ParameterSet const& iConfig)
   trackQuality_ = iConfig.getParameter<bool>("TrackQuality");
   if (trackQuality_) {
     trackQualityModel_ = std::make_unique<L1TrackQuality>(iConfig.getParameter<edm::ParameterSet>("TrackQualityPSet"));
+    trackQualityDispModel_ =
+        std::make_unique<L1TrackQuality>(iConfig.getParameter<edm::ParameterSet>("TrackQualityDispPSet"));
   }
   if (settings_.storeTrackBuilderOutput() && (settings_.doMultipleMatches() || !settings_.removalType().empty())) {
     cms::Exception exception("ConfigurationNotSupported.");
@@ -742,9 +745,10 @@ void L1FPGATrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     aTrack.setTrackWordBits();
 
     if (trackQuality_) {
-      trackQualityModel_->setL1TrackQuality(aTrack);
+      aTrack.settrkMVA1(trackQualityModel_->getL1TrackQuality(aTrack));
+      if (extended_)
+        aTrack.settrkMVA2(trackQualityDispModel_->getL1TrackQuality(aTrack));
     }
-
     //    hph::HitPatternHelper hph(setupHPH_, tmp_hit, tmp_tanL, tmp_z0);
     //    if (trackQuality_) {
     //      trackQualityModel_->setBonusFeatures(hph.bonusFeatures());

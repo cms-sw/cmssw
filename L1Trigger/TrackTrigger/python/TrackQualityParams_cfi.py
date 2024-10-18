@@ -9,3 +9,16 @@ TrackQualityParams = cms.PSet(# This emulation GBDT is optimised for the HYBRID_
                               tqemu_TanlScale = cms.double( 128.0),
                               tqemu_Z0Scale = cms.double( 64.0 ),
                               )
+
+TrackQualityDispParams = cms.PSet(
+                              model = cms.FileInPath("L1Trigger/TrackTrigger/data/clf_GBDT_newbin_disp_xgb.onnx"),
+                              ONNXInputName = cms.string("feature_input"),
+                              # The ONNX model should be found at this path, if you want a local version of the model:
+                              # git clone https://github.com/cms-data/L1Trigger-TrackTrigger.git L1Trigger/TrackTrigger/data
+                              #Vector of strings of training features, in the order that the model was trained with
+                              featureNames = cms.vstring(["phi", "eta", "z0", "bendchi2_bin", "nstub", 
+                                                          "nlaymiss_interior", "chi2rphi_bin", "chi2rz_bin",
+                                                          "d0" ]),
+                              tqemu_TanlScale = cms.double( 128.0),
+                              tqemu_Z0Scale = cms.double( 64.0 ),
+                              )
