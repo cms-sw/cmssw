@@ -87,30 +87,59 @@ if options.mode == 'endFill':
 else:
   timetype = 'lumiid'
 
-process.PoolDBOutputService = cms.Service("PoolDBOutputService",
-                                          CondDBConnection,
-                                          timetype = cms.untracked.string(timetype),
-                                          toPut = cms.VPSet(cms.PSet(record = cms.string('LHCInfoPerFillRcd'),
-                                                                     tag = cms.string( options.tag )
-                                                                     )
-                                                            )
-                                          )
+if options.mode == "endFill":
+  process.PoolDBOutputService = cms.Service("PoolDBOutputService",
+                                            CondDBConnection,
+                                            timetype = cms.untracked.string(timetype),
+                                            toPut = cms.VPSet(cms.PSet(record = cms.string('LHCInfoPerFillRcd'),
+                                                                      tag = cms.string( options.tag )
+                                                                      )
+                                                              )
+                                            )
+else:
+  process.OnlineDBOutputService = cms.Service("OnlineDBOutputService",
+    CondDBConnection,
+    # TODO work in progress, what is commented out is what comes from beam_dqm_sourceclient-live_cfg.py 
+    # and I'm not sure if it's needed or what value it should have
 
-process.Test1 = cms.EDAnalyzer("LHCInfoPerFillPopConAnalyzer",
+    # DBParameters = cms.PSet(
+    #                         messageLevel = cms.untracked.int32(0),
+    #                         authenticationPath = cms.untracked.string('.')
+    #                     ),
+
+    # connect =  cms.string( options.destinationConnection ),
+    preLoadConnectionString = cms.untracked.string('frontier://FrontierProd/CMS_CONDITIONS'),
+    lastLumiFile = cms.untracked.string('src/CondTools/RunInfo/test/last_lumi.txt'),
+    runNumber = cms.untracked.uint64(382454),
+    # omsServiceUrl = cms.untracked.string('http://cmsoms-eventing.cms:9949/urn:xdaq-application:lid=100/getRunAndLumiSection'),
+    latency = cms.untracked.uint32(2),
+    ### autoCommit = cms.untracked.bool(True),
+    ### jobName = cms.untracked.string(BSOnlineJobName), # name of the DB log record
+    timetype = cms.untracked.string(timetype),
+    toPut = cms.VPSet(cms.PSet(
+        record = cms.string('LHCInfoPerFillRcd'),
+        tag = cms.string( options.tag ),
+        onlyAppendUpdatePolicy = cms.untracked.bool(True)
+    )),
+    frontierKey = cms.untracked.string('wrong-key')
+)
+
+
+process.Test1 = cms.EDAnalyzer("LHCInfoPerFillPopConAnalyzer" if options.mode == "endFill" else "LHCInfoPerFillOnlinePopConAnalyzer",
                                SinceAppendMode = cms.bool(True),
                                record = cms.string('LHCInfoPerFillRcd'),
                                name = cms.untracked.string('LHCInfo'),
                                Source = cms.PSet(fill = cms.untracked.uint32(6417),
                                    startTime = cms.untracked.string(options.startTime),
                                    endTime = cms.untracked.string(options.endTime),
-                                   endFill = cms.untracked.bool(True if options.mode == "endFill" else False),
+                                   endFill = cms.untracked.bool(options.mode == "endFill"),
                                    name = cms.untracked.string("LHCInfoPerFillPopConSourceHandler"),
                                    connectionString = cms.untracked.string("oracle://cms_orcon_adg/CMS_RUNTIME_LOGGER"),
                                    ecalConnectionString = cms.untracked.string("oracle://cms_orcon_adg/CMS_DCS_ENV_PVSS_COND"),
                                    omsBaseUrl = cms.untracked.string("http://vocms0184.cern.ch/agg/api/v1"),
                                    authenticationPath = cms.untracked.string(""),
                                    debug=cms.untracked.bool(False)
-                                                 ),
+                               ),
                                loggingOn = cms.untracked.bool(True),
                                IsDestDbCheckedInQueryLog = cms.untracked.bool(False)
                                )
