@@ -47,7 +47,8 @@ void ZdcGeometryTester::fillDescriptions(edm::ConfigurationDescriptions& descrip
 
 void ZdcGeometryTester::analyze(edm::Event const&, edm::EventSetup const& iSetup) {
   auto geo = &iSetup.getData(tokGeom_);
-  const ZdcGeometry* geom = dynamic_cast<const ZdcGeometry*>(geo->getSubdetectorGeometry(DetId::Calo, HcalZDCDetId::SubdetectorId));
+  const ZdcGeometry* geom =
+      dynamic_cast<const ZdcGeometry*>(geo->getSubdetectorGeometry(DetId::Calo, HcalZDCDetId::SubdetectorId));
   doTest(*geom);
 }
 
@@ -59,7 +60,8 @@ void ZdcGeometryTester::doTest(const ZdcGeometry& geom) {
   CaloSubdetectorGeometry::DimVec dVec;
   CaloSubdetectorGeometry::IVec dins;
   geom.getSummary(tVec, iVec, dVec, dins);
-  edm::LogVerbatim("HCalGeom") << "\nTotal number of dense indices: " << dins.size() << " valid de IDs " << valids.size() << std::endl;
+  edm::LogVerbatim("HCalGeom") << "\nTotal number of dense indices: " << dins.size() << " valid de IDs "
+                               << valids.size() << std::endl;
   std::vector<int> ndet(4, 0);
   std::vector<std::string> dets = {"EM", "HAD", "LUM", "RPD"};
   int unknown(0);
