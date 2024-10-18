@@ -41,6 +41,8 @@ namespace {
       int layerOffset = 3;
       if (seed.subDet(hitNr) == PixelSubdetector::PixelEndcap)
         layerOffset += 4;
+      //layerOrDiskNr(hitNr) return numeric_limits<T>::max() only if hitNr>=seed.hitInfo().size()
+      [[clang::suppress]]
       int layerBit = 0x1 << layerOffset << seed.layerOrDiskNr(hitNr);
       info |= layerBit;
 
