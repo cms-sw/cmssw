@@ -374,9 +374,9 @@ void DTTSPhi::runTSPhi() {
                  ntsm[is - 1 - DTConfigTSPhi::NSTEPF][i_tsmd] >
                      0) {  // it means that the last BX with sort 2 was not the
                            // previous one
-        existSecondPrevBx =
-            ((is - 1 - DTConfigTSPhi::NSTEPF >= 0) && (ntsm[is - 1 - DTConfigTSPhi::NSTEPF][i_tsmd] > 1) &&
-             (secondPrevBx->tracoTr()->code() > 0));
+        existSecondPrevBx = secondPrevBx && ((is - 1 - DTConfigTSPhi::NSTEPF >= 0) &&
+                                             (ntsm[is - 1 - DTConfigTSPhi::NSTEPF][i_tsmd] > 1) &&
+                                             (secondPrevBx->tracoTr()->code() > 0));
         if (existSecondPrevBx) {
           _cache.push_back(DTChambPhSegm(ChamberId(), is - 1, secondPrevBx->tracoTr(), 2));
 
