@@ -18,10 +18,9 @@
 
 #include <vector>
 namespace zdchelper {
-  void setZDCSaturation(ZDCRecHit rh, QIE10DataFrame& digi, int maxValue) {
-    for (auto it = digi.begin(); it != digi.end(); it++) {
-      QIE10DataFrame::Sample sample = QIE10DataFrame::Sample(*it);
-      if (sample.adc() >= maxValue) {
+  void setZDCSaturation(ZDCRecHit& rh, QIE10DataFrame& digi, int maxValue) {
+    for (int i = 0; i < digi.samples(); i++) {
+      if (digi[i].adc() >= maxValue) {
         rh.setFlagField(1, HcalCaloFlagLabels::ADCSaturationBit);
         break;
       }
@@ -30,7 +29,6 @@ namespace zdchelper {
 
 }  // namespace zdchelper
 
-/*  Zdc Hit reconstructor allows for CaloRecHits with status words */
 ZdcHitReconstructor_Run3::ZdcHitReconstructor_Run3(edm::ParameterSet const& conf)
 
     : reco_(conf.getParameter<int>("recoMethod")),
@@ -227,7 +225,7 @@ void ZdcHitReconstructor_Run3::fillDescriptions(edm::ConfigurationDescriptions& 
                                       {
                                           1,
                                       });
-  desc.add<bool>("setSaturationFlags", false);
+  desc.add<bool>("setSaturationFlags", true);
   {
     edm::ParameterSetDescription psd0;
     psd0.add<int>("maxADCvalue", 255);
