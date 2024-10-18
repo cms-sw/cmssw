@@ -2944,7 +2944,7 @@ void TrackerMap::save_as_fedtrackermap(
           // savefile is only deleted for filetype "xml", for this filetype temporary_file is false
           [[clang::suppress]]
         drawPalette(savefile, rangex - 140, rangey - 100);
-      savefile->close();
+      [[clang::suppress]] savefile->close();
       [[clang::suppress]] delete savefile;
 
       float content;
