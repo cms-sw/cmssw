@@ -64,7 +64,6 @@ DQMPPSRandomOutput
 EcalCalibrationOutput
 ExpressOutput
 ExpressAlignmentOutput
-HLTMonitorOutput
 PhysicsCommissioningOutput
 PhysicsSpecialZeroBias0Output
 PhysicsSpecialZeroBias1Output

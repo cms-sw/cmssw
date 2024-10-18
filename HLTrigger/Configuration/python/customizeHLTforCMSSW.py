@@ -261,15 +261,6 @@ def checkHLTfor43774(process):
 
     return process
 
-def customizeHLTfor46135(process):
-    """Remove pfRecHitFractionAllocation from PFClusterSoAProducer config"""
-    for producer in producers_by_type(process, "PFClusterSoAProducer@alpaka"):
-        if hasattr(producer, 'pfRecHitFractionAllocation'):
-            delattr(producer, 'pfRecHitFractionAllocation')
-    for producer in producers_by_type(process, "alpaka_serial_sync::PFClusterSoAProducer"):
-        if hasattr(producer, 'pfRecHitFractionAllocation'):
-            delattr(producer, 'pfRecHitFractionAllocation')
-    return process
 
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
@@ -280,6 +271,5 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     # process = customiseFor12718(process)
 
     process = checkHLTfor43774(process)
-    process = customizeHLTfor46135(process)
 
     return process
