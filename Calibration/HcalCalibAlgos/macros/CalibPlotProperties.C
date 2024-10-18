@@ -76,19 +76,22 @@
 //                               o =0/1/2 for tight / loose / flexible
 //                               selection). Default = 101111
 //   isRealData (bool)         = true/false for data/MC (default true)
-//   truncateFlag    (int)     = Flag to treat different depths differently (0)
-//                               both depths of ieta 15, 16 of HB as depth 1 (1)
-//                               all depths as depth 1 (2), ignore all depth
-//                               index in HE (depth index set 1) (3); ignore
-//                               depth index in HB (depth index set 1) (4); all
-//                               all depths in HB and HE with values > 1 as
-//                               depth 2 (5); for depth = 1 and 2, depth = 1,
-//                               else depth = 2 (6); in case of HB, depths 1
-//                               and 2 are set to 1, else depth = 2; for HE
-//                               ignore depth index (7); in case of HE, depths 1
-//                               and 2 are set to 1, else depth =2; for HB
-//                               ignore depth index (8); ignore depth index for
-//                               depth > 1 in HB and all depth index for HE (9).
+//   truncateFlag    (int)     = A two digit flag (dr) with the default value 0.
+//                               The digit *r* is used to treat depth values:
+//                               (0) treat each depth independently; (1) all
+//                               depths of ieta 15, 16 of HB as depth 1; (2)
+//                               all depths in HB and HE as depth 1; (3) ignore
+//                               depth index in HE (depth index set to 1); (4)
+//                               ignore depth index in HB (depth index set 1);
+//                               (5) all depths in HB and HE with values > 1
+//                               as depth 2; (6) for depth = 1 and 2, depth =
+//                               1, else depth = 2; (7) in case of HB, depths
+//                               1 and 2 are set to 1, else depth = 2; for HE
+//                               ignore depth index; (8) in case of HE, depths
+//                               1 and 2 are set to 1, else depth = 2; for HB
+//                               ignore depth index; (9) Assign all depth = 1
+//                               as depth = 2. The digit *d* is used if zside
+//                               is to be ignored (1) or not (0)
 //                               (Default 0)
 //   useGen (bool)             = true/false to use generator level momentum
 //                               or reconstruction level momentum (def false)

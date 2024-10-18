@@ -60,13 +60,12 @@
 //                              (5) all depths in HB and HE with values > 1
 //                              as depth 2; (6) for depth = 1 and 2, depth =
 //                              1, else depth = 2; (7) in case of HB, depths
-//                              1 and 2 are set to 1, else depth =2; for HE
+//                              1 and 2 are set to 1, else depth = 2; for HE
 //                              ignore depth index; (8) in case of HE, depths
-//                              1 and 2 are set to 1, else depth =2; for HB
-//                              ignore depth index; (9) Ignore depth index for
-//                              depth > 1 in HB and all depth index for HE.
-//                              The digit *d* is used if zside is to be
-//                              ignored (1) or not (0)
+//                              1 and 2 are set to 1, else depth = 2; for HB
+//                              ignore depth index; (9) Assign all depth = 1
+//                              as depth = 2. The digit *d* is used if zside
+//                              is to be ignored (1) or not (0)
 //                              (Default 0)
 //  maxIter         (int)     = number of iterations (30)
 //  drForm          (int)     = type of threshold/dupFileName/rcorFileName (hdr)
