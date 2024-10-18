@@ -748,6 +748,58 @@ ecalGpuTask = cms.untracked.PSet(
             ),
             description = cms.untracked.string('CPU Rec Hit Flags')
         ),
+        RecHitCpuChi2 = cms.untracked.PSet(
+            path = cms.untracked.string('%(subdet)s/%(prefix)sGpuTask/RecHits/%(prefix)sGT rec hit chi2 cpu'),
+            kind = cms.untracked.string('TH1F'),
+            otype = cms.untracked.string('Ecal2P'),
+            btype = cms.untracked.string('User'),
+            xaxis = cms.untracked.PSet(
+                nbins = cms.untracked.int32(100),
+                low = cms.untracked.double(0),
+                high = cms.untracked.double(50.),
+                title = cms.untracked.string('Chi2')
+            ),
+            description = cms.untracked.string('CPU Rec Hit Chi2')
+        ),
+        RecHitCpuEnergyError = cms.untracked.PSet(
+            path = cms.untracked.string('%(subdet)s/%(prefix)sGpuTask/RecHits/%(prefix)sGT rec hit energyerror cpu'),
+            kind = cms.untracked.string('TH1F'),
+            otype = cms.untracked.string('Ecal2P'),
+            btype = cms.untracked.string('User'),
+            xaxis = cms.untracked.PSet(
+                nbins = cms.untracked.int32(100),
+                low = cms.untracked.double(0),
+                high = cms.untracked.double(5.0),
+                title = cms.untracked.string('Energy error (Gev)')
+            ),
+            description = cms.untracked.string('CPU Rec Hit Energy Error (GeV)')
+        ),
+        RecHitCpuTimeError = cms.untracked.PSet(
+            path = cms.untracked.string('%(subdet)s/%(prefix)sGpuTask/RecHits/%(prefix)sGT rec hit timeerror cpu'),
+            kind = cms.untracked.string('TH1F'),
+            otype = cms.untracked.string('Ecal2P'),
+            btype = cms.untracked.string('User'),
+            xaxis = cms.untracked.PSet(
+                nbins = cms.untracked.int32(100),
+                low = cms.untracked.double(0),
+                high = cms.untracked.double(5.0),
+                title = cms.untracked.string('Time error (ns)')
+            ),
+            description = cms.untracked.string('CPU Rec Hit Time Error (ns)')
+        ),
+        RecHitCpuNonCorrectedTime = cms.untracked.PSet(
+            path = cms.untracked.string('%(subdet)s/%(prefix)sGpuTask/RecHits/%(prefix)sGT rec hit non corrected time cpu'),
+            kind = cms.untracked.string('TH1F'),
+            otype = cms.untracked.string('Ecal2P'),
+            btype = cms.untracked.string('User'),
+            xaxis = cms.untracked.PSet(
+                nbins = cms.untracked.int32(100),
+                low = cms.untracked.double(-25.),
+                high = cms.untracked.double(25.0),
+                title = cms.untracked.string('Non corrected time (ns)')
+            ),
+            description = cms.untracked.string('CPU Rec Hit non corrected time (ns)')
+        ),
         # GPU RecHit (optional)
         RecHitGpu = cms.untracked.PSet(
             path = cms.untracked.string('%(subdet)s/%(prefix)sGpuTask/RecHits/%(prefix)sGT rec hit nHits gpu'),
@@ -801,6 +853,58 @@ ecalGpuTask = cms.untracked.PSet(
             ),
             description = cms.untracked.string('GPU Rec Hit Flags')
         ),
+        RecHitGpuChi2 = cms.untracked.PSet(
+            path = cms.untracked.string('%(subdet)s/%(prefix)sGpuTask/RecHits/%(prefix)sGT rec hit chi2 gpu'),
+            kind = cms.untracked.string('TH1F'),
+            otype = cms.untracked.string('Ecal2P'),
+            btype = cms.untracked.string('User'),
+            xaxis = cms.untracked.PSet(
+                nbins = cms.untracked.int32(100),
+                low = cms.untracked.double(0),
+                high = cms.untracked.double(50.),
+                title = cms.untracked.string('Chi2')
+            ),
+            description = cms.untracked.string('GPU Rec Hit Chi2')
+        ),
+        RecHitGpuEnergyError = cms.untracked.PSet(
+            path = cms.untracked.string('%(subdet)s/%(prefix)sGpuTask/RecHits/%(prefix)sGT rec hit energyerror gpu'),
+            kind = cms.untracked.string('TH1F'),
+            otype = cms.untracked.string('Ecal2P'),
+            btype = cms.untracked.string('User'),
+            xaxis = cms.untracked.PSet(
+                nbins = cms.untracked.int32(100),
+                low = cms.untracked.double(0),
+                high = cms.untracked.double(5.0),
+                title = cms.untracked.string('Energy error (Gev)')
+            ),
+            description = cms.untracked.string('GPU Rec Hit Energy Error (GeV)')
+        ),
+        RecHitGpuTimeError = cms.untracked.PSet(
+            path = cms.untracked.string('%(subdet)s/%(prefix)sGpuTask/RecHits/%(prefix)sGT rec hit timeerror gpu'),
+            kind = cms.untracked.string('TH1F'),
+            otype = cms.untracked.string('Ecal2P'),
+            btype = cms.untracked.string('User'),
+            xaxis = cms.untracked.PSet(
+                nbins = cms.untracked.int32(100),
+                low = cms.untracked.double(0),
+                high = cms.untracked.double(5.0),
+                title = cms.untracked.string('Time error (ns)')
+            ),
+            description = cms.untracked.string('GPU Rec Hit Time Error (ns)')
+        ),
+        RecHitGpuNonCorrectedTime = cms.untracked.PSet(
+            path = cms.untracked.string('%(subdet)s/%(prefix)sGpuTask/RecHits/%(prefix)sGT rec hit non corrected time gpu'),
+            kind = cms.untracked.string('TH1F'),
+            otype = cms.untracked.string('Ecal2P'),
+            btype = cms.untracked.string('User'),
+            xaxis = cms.untracked.PSet(
+                nbins = cms.untracked.int32(100),
+                low = cms.untracked.double(-25.),
+                high = cms.untracked.double(25.0),
+                title = cms.untracked.string('Non corrected time (ns)')
+            ),
+            description = cms.untracked.string('GPU Rec Hit non corrected time (ns)')
+        ),
         # RecHit GPU-CPU Difference
         RecHitGpuCpu = cms.untracked.PSet(
             path = cms.untracked.string('%(subdet)s/%(prefix)sGpuTask/RecHits/%(prefix)sGT rec hit nHits gpu-cpu diff'),
@@ -853,6 +957,58 @@ ecalGpuTask = cms.untracked.PSet(
                 title = cms.untracked.string('GPU-CPU Flags')
             ),
             description = cms.untracked.string('GPU-CPU differnece of Rec Hit Flags')
+        ),
+        RecHitGpuCpuChi2 = cms.untracked.PSet(
+            path = cms.untracked.string('%(subdet)s/%(prefix)sGpuTask/RecHits/%(prefix)sGT rec hit chi2 gpu-cpu diff'),
+            kind = cms.untracked.string('TH1F'),
+            otype = cms.untracked.string('Ecal2P'),
+            btype = cms.untracked.string('User'),
+            xaxis = cms.untracked.PSet(
+                nbins = cms.untracked.int32(100),
+                low = cms.untracked.double(-10.0),
+                high = cms.untracked.double(10.0),
+                title = cms.untracked.string('GPU-CPU Chi2')
+            ),
+            description = cms.untracked.string('GPU-CPU difference of Rec Hit Chi2')
+        ),
+        RecHitGpuCpuEnergyError = cms.untracked.PSet(
+            path = cms.untracked.string('%(subdet)s/%(prefix)sGpuTask/RecHits/%(prefix)sGT rec hit energyerror gpu-cpu diff'),
+            kind = cms.untracked.string('TH1F'),
+            otype = cms.untracked.string('Ecal2P'),
+            btype = cms.untracked.string('User'),
+            xaxis = cms.untracked.PSet(
+                nbins = cms.untracked.int32(100),
+                low = cms.untracked.double(-1.0),
+                high = cms.untracked.double(1.0),
+                title = cms.untracked.string('GPU-CPU Energy Error (GeV)')
+            ),
+            description = cms.untracked.string('GPU-CPU difference of Rec Hit Energy Error (GeV)')
+        ),
+        RecHitGpuCpuTimeError = cms.untracked.PSet(
+            path = cms.untracked.string('%(subdet)s/%(prefix)sGpuTask/RecHits/%(prefix)sGT rec hit timeerror gpu-cpu diff'),
+            kind = cms.untracked.string('TH1F'),
+            otype = cms.untracked.string('Ecal2P'),
+            btype = cms.untracked.string('User'),
+            xaxis = cms.untracked.PSet(
+                nbins = cms.untracked.int32(100),
+                low = cms.untracked.double(-1.0),
+                high = cms.untracked.double(1.0),
+                title = cms.untracked.string('GPU-CPU Time Error (ns)')
+            ),
+            description = cms.untracked.string('GPU-CPU difference of Rec Hit Time Error (ns)')
+        ),
+        RecHitGpuCpuNonCorrectedTime = cms.untracked.PSet(
+            path = cms.untracked.string('%(subdet)s/%(prefix)sGpuTask/RecHits/%(prefix)sGT rec hit non corrected time gpu-cpu diff'),
+            kind = cms.untracked.string('TH1F'),
+            otype = cms.untracked.string('Ecal2P'),
+            btype = cms.untracked.string('User'),
+            xaxis = cms.untracked.PSet(
+                nbins = cms.untracked.int32(100),
+                low = cms.untracked.double(-2.5),
+                high = cms.untracked.double(2.5),
+                title = cms.untracked.string('GPU-CPU non corrected time (ns)')
+            ),
+            description = cms.untracked.string('GPU-CPU difference of Rec Hit non corrected time (ns)')
         ),
         # RecHit 2D plots
         RecHit2D = cms.untracked.PSet(
@@ -930,6 +1086,82 @@ ecalGpuTask = cms.untracked.PSet(
                 title = cms.untracked.string('GPU Flags')
             ),
             description = cms.untracked.string('Rec Hit Flags. GPU vs CPU comparison')
+        ),
+        RecHit2DChi2 = cms.untracked.PSet(
+            path = cms.untracked.string('%(subdet)s/%(prefix)sGpuTask/RecHits/%(prefix)sGT rec hit chi2 gpu-cpu map2D'),
+            kind = cms.untracked.string('TH2F'),
+            otype = cms.untracked.string('Ecal2P'),
+            btype = cms.untracked.string('User'),
+            xaxis = cms.untracked.PSet(
+                nbins = cms.untracked.int32(50),
+                low = cms.untracked.double(0),
+                high = cms.untracked.double(50.0),
+                title = cms.untracked.string('CPU Chi2')
+            ),
+            yaxis = cms.untracked.PSet(
+                nbins = cms.untracked.int32(50),
+                low = cms.untracked.double(0),
+                high = cms.untracked.double(50.0),
+                title = cms.untracked.string('GPU Chi2')
+            ),
+            description = cms.untracked.string('Rec Hit Chi2. GPU vs CPU comparison')
+        ),
+        RecHit2DEnergyError = cms.untracked.PSet(
+            path = cms.untracked.string('%(subdet)s/%(prefix)sGpuTask/RecHits/%(prefix)sGT rec hit energyerror gpu-cpu map2D'),
+            kind = cms.untracked.string('TH2F'),
+            otype = cms.untracked.string('Ecal2P'),
+            btype = cms.untracked.string('User'),
+            xaxis = cms.untracked.PSet(
+                nbins = cms.untracked.int32(50),
+                low = cms.untracked.double(0),
+                high = cms.untracked.double(5.0),
+                title = cms.untracked.string('CPU Energy Error (Gev)')
+            ),
+            yaxis = cms.untracked.PSet(
+                nbins = cms.untracked.int32(50),
+                low = cms.untracked.double(0),
+                high = cms.untracked.double(5.0),
+                title = cms.untracked.string('GPU Energy Error (Gev)')
+            ),
+            description = cms.untracked.string('Rec Hit Energy Error (GeV). GPU vs CPU comparison')
+        ),
+        RecHit2DTimeError = cms.untracked.PSet(
+            path = cms.untracked.string('%(subdet)s/%(prefix)sGpuTask/RecHits/%(prefix)sGT rec hit timeerror gpu-cpu map2D'),
+            kind = cms.untracked.string('TH2F'),
+            otype = cms.untracked.string('Ecal2P'),
+            btype = cms.untracked.string('User'),
+            xaxis = cms.untracked.PSet(
+                nbins = cms.untracked.int32(50),
+                low = cms.untracked.double(0),
+                high = cms.untracked.double(5.0),
+                title = cms.untracked.string('CPU Time Error (ns)')
+            ),
+            yaxis = cms.untracked.PSet(
+                nbins = cms.untracked.int32(50),
+                low = cms.untracked.double(0),
+                high = cms.untracked.double(5.0),
+                title = cms.untracked.string('GPU Time Error (ns)')
+            ),
+            description = cms.untracked.string('Rec Hit Time Error (ns). GPU vs CPU comparison')
+        ),
+        RecHit2DNonCorrectedTime = cms.untracked.PSet(
+            path = cms.untracked.string('%(subdet)s/%(prefix)sGpuTask/RecHits/%(prefix)sGT rec hit non corrected time gpu-cpu map2D'),
+            kind = cms.untracked.string('TH2F'),
+            otype = cms.untracked.string('Ecal2P'),
+            btype = cms.untracked.string('User'),
+            xaxis = cms.untracked.PSet(
+                nbins = cms.untracked.int32(50),
+                low = cms.untracked.double(-25.0),
+                high = cms.untracked.double(25.0),
+                title = cms.untracked.string('CPU Non Corrected Time (ns)')
+            ),
+            yaxis = cms.untracked.PSet(
+                nbins = cms.untracked.int32(50),
+                low = cms.untracked.double(-25.0),
+                high = cms.untracked.double(25.0),
+                title = cms.untracked.string('GPU Non Corrected Time (ns)')
+            ),
+            description = cms.untracked.string('Rec Hit non corrected time (ns). GPU vs CPU comparison')
         )
     )
 )
