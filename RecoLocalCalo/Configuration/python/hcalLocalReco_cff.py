@@ -3,6 +3,7 @@ from HeterogeneousCore.CUDACore.SwitchProducerCUDA import SwitchProducerCUDA
 
 from RecoLocalCalo.HcalRecAlgos.hcalRecAlgoESProd_cfi import *
 from RecoLocalCalo.HcalRecAlgos.hcalChannelPropertiesESProd_cfi import *
+from RecoLocalCalo.HcalRecAlgos.hcalPulseShapesESProd_cfi import *
 hcalOOTPileupESProducer = cms.ESProducer('OOTPileupDBCompatibilityESProducer')
 
 from RecoLocalCalo.HcalRecProducers.HBHEPhase1Reconstructor_cfi import hbheprereco as _phase1_hbheprereco
