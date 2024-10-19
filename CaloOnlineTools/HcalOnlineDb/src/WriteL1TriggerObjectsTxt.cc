@@ -66,32 +66,61 @@ void WriteL1TriggerObjectsTxt::analyze(const edm::Event& iEvent, const edm::Even
   std::unique_ptr<HcalL1TriggerObjects> HcalL1TrigObjCol(new HcalL1TriggerObjects);
 
   for (const auto& id : metadata->getAllChannels()) {
-    if (not(id.det() == DetId::Hcal and topo->valid(id)))
-      continue;
+    if (id.det() == DetId::Hcal and topo->valid(id)) {
+        std::cout << "HCAL: " << id.det() << std::endl;
+      HcalDetId cell(id);
+      HcalSubdetector subdet = cell.subdet();
+      if (subdet != HcalBarrel and subdet != HcalEndcap and subdet != HcalForward)
+        continue;
 
-    HcalDetId cell(id);
-    HcalSubdetector subdet = cell.subdet();
-    if (subdet != HcalBarrel and subdet != HcalEndcap and subdet != HcalForward)
-      continue;
+      HcalCalibrations calibrations = conditions->getHcalCalibrations(cell);
 
-    HcalCalibrations calibrations = conditions->getHcalCalibrations(cell);
+      float gain = 0.0;
+      float ped = 0.0;
 
-    float gain = 0.0;
-    float ped = 0.0;
+      for (auto i : {0, 1, 2, 3}) {
+        gain += calibrations.LUTrespcorrgain(i);
+        ped += calibrations.effpedestal(i);
+      }
 
-    for (auto i : {0, 1, 2, 3}) {
-      gain += calibrations.LUTrespcorrgain(i);
-      ped += calibrations.effpedestal(i);
+      gain /= 4.;
+      ped /= 4.;
+
+      const HcalChannelStatus* channelStatus = conditions->getHcalChannelStatus(cell);
+      uint32_t status = channelStatus->getValue();
+      HcalL1TriggerObject l1object(cell, ped, gain, status);
+      HcalL1TrigObjCol->setTopo(topo);
+      HcalL1TrigObjCol->addValues(l1object);
+    } else if (id.det() == DetId::Calo && id.subdetId() == HcalZDCDetId::SubdetectorId) {
+        std::cout << "ZDC: " << id.det() << std::endl;
+
+      HcalZDCDetId cell(id.rawId());
+
+      if (cell.section() != HcalZDCDetId::EM && cell.section() != HcalZDCDetId::HAD)
+        continue;
+        std::cout << "ZDC section: " << cell.section() << std::endl;
+
+      HcalCalibrations calibrations = conditions->getHcalCalibrations(cell);
+
+      float gain = 0.0;
+      float ped = 0.0;
+
+      for (auto i : {0, 1, 2, 3}) {
+        gain += calibrations.LUTrespcorrgain(i);
+        ped += calibrations.effpedestal(i);
+      }
+
+      gain /= 4.;
+      ped /= 4.;
+
+      const HcalChannelStatus* channelStatus = conditions->getHcalChannelStatus(cell);
+      uint32_t status = channelStatus->getValue();
+      HcalL1TriggerObject l1object(cell, ped, gain, status);
+      HcalL1TrigObjCol->setTopo(topo);
+      HcalL1TrigObjCol->addValues(l1object);
+    } else {
+        std::cout << "WE HARE FOR: " << id.det() << std::endl;
     }
-
-    gain /= 4.;
-    ped /= 4.;
-
-    const HcalChannelStatus* channelStatus = conditions->getHcalChannelStatus(cell);
-    uint32_t status = channelStatus->getValue();
-    HcalL1TriggerObject l1object(cell, ped, gain, status);
-    HcalL1TrigObjCol->setTopo(topo);
-    HcalL1TrigObjCol->addValues(l1object);
   }
 
   HcalL1TrigObjCol->setTagString(tagName_);
