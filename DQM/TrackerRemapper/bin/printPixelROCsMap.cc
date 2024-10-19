@@ -1,6 +1,7 @@
 #include "DQM/TrackerRemapper/interface/Phase1PixelROCMaps.h"
 #include <bitset>
-#include <cstdlib>
+#include <cstdint>  // for uint32_t
+#include <cstdlib>  // for std::exit
 #include <fstream>
 #include <iostream>
 #include <numeric>  // std::accumulate
@@ -11,27 +12,47 @@
 #include "TCanvas.h"
 #include "TStyle.h"
 
+void showHelp() {
+  std::cout << "Usage: \n"
+            << "  --input-file <filename>       Specify the input file\n"
+            << "  --input-ROCs <filename>       Specify the input ROCs file\n"
+            << "  --h or --help                 Show this help message\n"
+            << "  <detid>                       Provide DetId (list of DetIds)\n";
+}
+
 int main(int argc, char* argv[]) {
   std::string inputFile;
   std::string inputROCsFile;
   std::vector<std::pair<uint32_t, float>> detidValues;
   std::vector<std::pair<uint32_t, std::bitset<16>>> detidRocs;
 
+  // If no arguments are passed or --h/--help is passed, show the help message
+  if (argc == 1) {
+    showHelp();
+    return 0;
+  }
+
   // Parse command line arguments
   for (int i = 1; i < argc; ++i) {
-    if (std::string(argv[i]) == "--input-file" && i + 1 < argc) {
-      gStyle->SetPalette(kRainbow);
-      gStyle->SetNumberContours(256);
+    std::string arg = argv[i];
+
+    if (arg == "--h" || arg == "--help") {
+      showHelp();
+      return 0;  // Exit after displaying help
+    } else if (arg == "--input-file" && i + 1 < argc) {
       inputFile = argv[++i];
-    } else if (std::string(argv[i]) == "--input-ROCs" && i + 1 < argc) {
-      gStyle->SetPalette(kRainBow);
-      gStyle->SetNumberContours(256);
+    } else if (arg == "--input-ROCs" && i + 1 < argc) {
       inputROCsFile = argv[++i];
     } else {
-      gStyle->SetPalette(1);
-      // Treat as DetId list if no --input-file is provided
-      uint32_t detid = std::stoul(argv[i]);
-      detidValues.emplace_back(detid, 1.0);  // Default value is 1.0
+      // Assume it's a DetId, convert to uint32_t
+      try {
+        uint32_t detid = std::stoul(arg);
+        detidValues.emplace_back(detid, 1.0);  // Default value is 1.0
+      } catch (const std::invalid_argument&) {
+        std::cerr << "Invalid argument: " << arg << "\n";
+        showHelp();
+        return 1;
+      }
     }
   }
 
