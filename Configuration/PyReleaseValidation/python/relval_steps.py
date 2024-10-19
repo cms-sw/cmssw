@@ -2232,8 +2232,9 @@ hltKey2022='relval2022'
 steps['HLTDR3_2022']=merge( [ {'-s':'L1REPACK:Full,HLT:@%s'%hltKey2022,},{'--conditions':'auto:run3_hlt_relval'},{'--era' : 'Run3'},steps['HLTD'] ] )
 
 hltKey2023='relval2023' # currently points to Fake2
+hltKey2024='relval2024' # currently points to Fake2
+hltKey2025='relval2025' # currently points to GRUN (hacky solution to keep running GRun on real data)
 
-hltKey2024='relval2024' # currently points to GRUN (hacky solution to keep running GRun on real data)
 steps['HLTDR3_2023']=merge( [ {'-s':'L1REPACK:Full,HLT:@%s'%hltKey2024,},{'--conditions':'auto:run3_hlt_relval'},{'--era' : 'Run3_2023'},steps['HLTD'] ] )
 
 steps['HLTDR3_2023B']=merge( [ {'-s':'L1REPACK:Full,HLT:@%s'%hltKey2024,},{'--conditions':'auto:run3_hlt_relval'},{'--era' : 'Run3'},steps['HLTD'] ] )
@@ -2772,8 +2773,8 @@ steps['RECODR3_2023']=merge([{'--era':'Run3_2023'},steps['RECODR3']])
 steps['RECODR3_2024']=merge([{'--era':'Run3_2024'},steps['RECODR3']])
 
 steps['RECODR3_reHLT_2022']=merge([{'--conditions':'auto:run3_data_relval', '--hltProcess':'reHLT'},steps['RECODR3']])
-steps['RECODR3_reHLT_2023']=merge([{'--conditions':'auto:run3_data_prompt_relval', '--hltProcess':'reHLT'},steps['RECODR3_2023']])
-steps['RECODR3_reHLT_2023B']=merge([{'--conditions':'auto:run3_data_prompt_relval', '--hltProcess':'reHLT'},steps['RECODR3']])
+steps['RECODR3_reHLT_2023']=merge([{'--conditions':'auto:run3_data_relval', '--hltProcess':'reHLT'},steps['RECODR3_2023']])
+steps['RECODR3_reHLT_2023B']=merge([{'--conditions':'auto:run3_data_relval', '--hltProcess':'reHLT'},steps['RECODR3']])
 steps['RECODR3_reHLT_2024']=merge([{'--conditions':'auto:run3_data_prompt_relval', '--hltProcess':'reHLT'},steps['RECODR3']])
 
 steps['RECODR2_2016_UPC']=merge([{'--conditions':'auto:run2_data', '--era':'Run2_2016_UPC', '-s':'RAW2DIGI,L1Reco,RECO,DQM:@commonFakeHLT+@standardDQMFakeHLT', '--repacked':''},steps['RECODR2_2016']])

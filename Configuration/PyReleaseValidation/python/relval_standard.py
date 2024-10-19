@@ -572,8 +572,8 @@ offset_pd = 0.001 # less than 100 pds per year
 
 # 2024
 base_wf_number_2024 = 2024.0
-for e_n,era in enumerate(['Run2024D','Run2024C']):
-    for p_n,pd in enumerate(['JetMET0','ZeroBias']):
+for e_n,era in enumerate(['Run2024B','Run2024C','Run2024D','Run2024E']):
+    for p_n,pd in enumerate(['ZeroBias','BTagMu','JetMET0','RunDisplacedJet']):
         wf_number = base_wf_number_2024
         wf_number = wf_number + offset_era * e_n
         wf_number = wf_number + offset_pd * p_n
@@ -584,8 +584,8 @@ for e_n,era in enumerate(['Run2024D','Run2024C']):
 
 # 2023
 base_wf_number_2023 = 2023.0
-for e_n,era in enumerate(['Run2023C', 'Run2023D']):
-    for p_n,pd in enumerate(['MuonEG','DisplacedJet']):
+for e_n,era in enumerate(['Run2023D']):
+    for p_n,pd in enumerate(['MuonEG','DisplacedJet','ZeroBias']):
         wf_number = base_wf_number_2023
         wf_number = wf_number + offset_era * e_n
         wf_number = wf_number + offset_pd * p_n
@@ -596,8 +596,8 @@ for e_n,era in enumerate(['Run2023C', 'Run2023D']):
 
 # 2022
 base_wf_number_2022 = 2022.0
-for e_n,era in enumerate(['Run2022B', 'Run2022C']):
-    for p_n,pd in enumerate(['JetHT','EGamma']):
+for e_n,era in enumerate(['Run2022C']):
+    for p_n,pd in enumerate(['JetHT','EGamma','ZeroBias']):
         wf_number = base_wf_number_2022
         wf_number = wf_number + offset_era * e_n
         wf_number = wf_number + offset_pd * p_n

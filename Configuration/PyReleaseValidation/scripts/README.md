@@ -367,14 +367,12 @@ pp Data reRECO workflows:
 | 2021 	|  	|  	|  	|  	|  	
 | 139.001 	| Run2021 	MinimumBias 	| run3_hlt_relval 	| Run3 	| HLT@relval2022 (Commissioning2021) |	
 | 2022 	|  	|  	|  	|  	|  	
-| 140.023 	| Run2022B ZeroBias 	|  	run3_hlt_relval |  	Run3 |  	HLT:@relval2022 |  	
-| 140.043 	| Run2022C ZeroBias 	|  	run3_hlt_relval |  	Run3 |  	HLT:@relval2022 |  	
-| 140.063 	| Run2022D ZeroBias 	|  	run3_hlt_relval |  	Run3 |  	HLT:@relval2022 |  	
-| 2023 	|  	|  	|  	|  	|  	
-| 141.044 	| Run2023D JetMET0 	| run3_hlt_relval 	| Run3_2023 	| HLT@relval2024 	|  
-| 141.042 	| Run2023D ZeroBias 	| run3_hlt_relval 	| Run3_2023 	| HLT@relval2024 	|  	
-| 141.046 	| Run2023D EGamma0 	| run3_hlt_relval 	| Run3_2023 	| HLT@relval2024 	|  	
-
+| 2022.222005 	| Run2022D ZeroBias 	|  	run3_hlt_relval + run3_data_relval |  	Run3 |  	HLT:@relval2022 |  	
+| 2023.211005 	| Run2023D ZeroBias 	|  	run3_hlt_relval + run3_data_relval|  	Run3_2023 |  	HLT:@relval2023 | 
+| 2024.014005 	| Run2024B ZeroBias 	|  	run3_hlt_relval + run3_data_prompt_relval|  	Run3_2024 |  	HLT:@relval2023 |  
+| 2024.100005 	| Run2024C BTagMu 	|  	run3_hlt_relval + run3_data_prompt_relval|  	Run3_2024 |  	HLT:@relval2025 |  
+| 2024.204005 	| Run2024D JetMET0 	|  	run3_hlt_relval + run3_data_prompt_relval|  	Run3_2024 |  	HLT:@relval2025 |  
+| 2024.301005 	| Run2024E RunDisplacedJet 	|  	run3_hlt_relval + run3_data_prompt_relval|  	Run3_2024 |  	HLT:@relval2025 |  
 
 And Heavy Ion workflows:
 
