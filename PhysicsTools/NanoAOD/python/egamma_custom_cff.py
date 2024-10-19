@@ -8,6 +8,7 @@ from PhysicsTools.NanoAOD.NanoAODEDMEventContent_cff import *
 from PhysicsTools.NanoAOD.nanoDQM_cfi import nanoDQM
 from PhysicsTools.NanoAOD.nanoDQM_cff import _Photon_extra_plots, _Electron_extra_plots
 from PhysicsTools.NanoAOD.triggerObjects_cff import triggerObjectTable, mksel
+from RecoEgamma.EgammaIsolationAlgos.superclusValueMapProducer_cfi import superclusValueMaps
 
 customElectronFilterBits = cms.PSet(
     doc = cms.string("PixelMatched e/gamma"), # this may also select photons!
@@ -96,6 +97,9 @@ superclusterTable = cms.EDProducer("SimpleSuperclusterFlatTableProducer",
     seedClusEnergy = Var("seed().energy()",float,doc="seed cluster energy",precision=10),
     seedClusterEta = Var("seed().eta()",float,doc="seed cluster eta",precision=10),
     seedClusterPhi = Var("seed().phi()",float,doc="seed cluster phi",precision=10),
+  ),
+  externalVariables = cms.PSet(
+    trkIso = ExtVar("superclusValueMaps:superclusTkIso",float,doc="supercluster track iso within 0.06 < dR < 0.4 & |dEta| > 0.03",precision=10),
   )
 )
 
@@ -117,9 +121,11 @@ def addExtraEGammaVarsCustomize(process):
       process.nanoDQM.vplots.Electron.plots = _Electron_extra_plots
 
     #superCluster
+    process.superclusValueMaps = superclusValueMaps
     process.superclusterTable = superclusterTable
 
-    process.superclusterTask = cms.Task(process.superclusterTable)
+    process.superclusterTask = cms.Task(process.superclusValueMaps)
+    process.superclusterTask.add(process.superclusterTable)
     process.nanoTableTaskCommon.add(process.superclusterTask)
       
     return process
