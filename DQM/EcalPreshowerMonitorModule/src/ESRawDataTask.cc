@@ -34,6 +34,20 @@ ESRawDataTask::ESRawDataTask(const ParameterSet& ps) {
   ievt_ = 0;
 }
 
+std::shared_ptr<ESRawLSCache> ESRawDataTask::globalBeginLuminosityBlock(const edm::LuminosityBlock& lumi,
+                                                                        const edm::EventSetup& c) const {
+  auto lumiCache = std::make_shared<ESRawLSCache>();
+  lumiCache->ievtLS_ = 0;
+
+  meL1ADCCErrorsByLS_->Reset();
+  meBXDCCErrorsByLS_->Reset();
+  meOrbitNumberDCCErrorsByLS_->Reset();
+
+  return lumiCache;
+}
+
+void ESRawDataTask::globalEndLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup& c) {}
+
 void ESRawDataTask::bookHistograms(DQMStore::IBooker& iBooker, Run const&, EventSetup const&) {
   char histo[200];
 
@@ -73,6 +87,24 @@ void ESRawDataTask::bookHistograms(DQMStore::IBooker& iBooker, Run const&, Event
   meOrbitNumberDiff_ = iBooker.book1D(histo, histo, 201, -100.5, 100.5);
   meOrbitNumberDiff_->setAxisTitle("ES - GT orbit number", 1);
   meOrbitNumberDiff_->setAxisTitle("Num of Events", 2);
+
+  // LS-based histos
+  iBooker.setCurrentFolder(prefixME_ + "/ByLumiSection");
+
+  sprintf(histo, "ES L1A DCC errors");
+  meL1ADCCErrorsByLS_ = iBooker.book1D(histo, histo, 56, 519.5, 575.5);
+  meL1ADCCErrorsByLS_->setAxisTitle("ES FED", 1);
+  meL1ADCCErrorsByLS_->setAxisTitle("Num of Events", 2);
+
+  sprintf(histo, "ES BX DCC errors");
+  meBXDCCErrorsByLS_ = iBooker.book1D(histo, histo, 56, 519.5, 575.5);
+  meBXDCCErrorsByLS_->setAxisTitle("ES FED", 1);
+  meBXDCCErrorsByLS_->setAxisTitle("Num of Events", 2);
+
+  sprintf(histo, "ES Orbit Number DCC errors");
+  meOrbitNumberDCCErrorsByLS_ = iBooker.book1D(histo, histo, 56, 519.5, 575.5);
+  meOrbitNumberDCCErrorsByLS_->setAxisTitle("ES FED", 1);
+  meOrbitNumberDCCErrorsByLS_->setAxisTitle("Num of Events", 2);
 }
 
 void ESRawDataTask::analyze(const Event& e, const EventSetup& c) {
@@ -150,7 +182,7 @@ void ESRawDataTask::analyze(const Event& e, const EventSetup& c) {
 
       if (dcc.getLV1() != gt_L1A) {
         meL1ADCCErrors_->Fill(dcc.fedId());
-        //cout<<"L1A err : "<<dcc.getLV1()<<" "<<gt_L1A<<endl;
+        meL1ADCCErrorsByLS_->Fill(dcc.fedId());
         Float_t l1a_diff = dcc.getLV1() - gt_L1A;
         if (l1a_diff > 100)
           l1a_diff = 100;
@@ -161,7 +193,7 @@ void ESRawDataTask::analyze(const Event& e, const EventSetup& c) {
 
       if (dcc.getBX() != gt_BX) {
         meBXDCCErrors_->Fill(dcc.fedId());
-        //cout<<"BX err : "<<dcc.getBX()<<" "<<gt_BX<<endl;
+        meBXDCCErrorsByLS_->Fill(dcc.fedId());
         Float_t bx_diff = dcc.getBX() - gt_BX;
         if (bx_diff > 100)
           bx_diff = 100;
@@ -171,7 +203,7 @@ void ESRawDataTask::analyze(const Event& e, const EventSetup& c) {
       }
       if (dcc.getOrbitNumber() != gt_OrbitNumber) {
         meOrbitNumberDCCErrors_->Fill(dcc.fedId());
-        //cout<<"Orbit err : "<<dcc.getOrbitNumber()<<" "<<gt_OrbitNumber<<endl;
+        meOrbitNumberDCCErrorsByLS_->Fill(dcc.fedId());
         Float_t orbitnumber_diff = dcc.getOrbitNumber() - gt_OrbitNumber;
         if (orbitnumber_diff > 100)
           orbitnumber_diff = 100;
