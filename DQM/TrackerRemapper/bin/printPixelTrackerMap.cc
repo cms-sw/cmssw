@@ -11,8 +11,8 @@
 #include "TCanvas.h"
 #include "TStyle.h"
 
-void showHelp() {
-  std::cout << "Usage: \n"
+void showHelp(const std::string& scriptName) {
+  std::cout << "Usage: " << scriptName << " [options] <detid>\n"
             << "  --input-file <filename>       Specify the input file\n"
             << "  --h or --help                 Show this help message\n"
             << "  <detid>                       Provide DetId (list of DetIds)\n";
@@ -24,7 +24,7 @@ int main(int argc, char* argv[]) {
 
   // If no arguments are passed or --h/--help is passed, show the help message
   if (argc == 1) {
-    showHelp();
+    showHelp(argv[0]);
     return 0;
   }
 
@@ -33,7 +33,7 @@ int main(int argc, char* argv[]) {
     std::string arg = argv[i];
 
     if (arg == "--h" || arg == "--help") {
-      showHelp();
+      showHelp(argv[0]);
       return 0;  // Exit after displaying help
     } else if (arg == "--input-file" && i + 1 < argc) {
       gStyle->SetPalette(kRainbow);
@@ -47,7 +47,7 @@ int main(int argc, char* argv[]) {
         detidValues.emplace_back(detid, 1.0);  // Default value is 1.0
       } catch (const std::invalid_argument&) {
         std::cerr << "Invalid DetId: " << arg << "\n";
-        showHelp();
+        showHelp(argv[0]);
         return 1;
       }
     }
