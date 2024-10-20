@@ -15,13 +15,13 @@
 class SuperclusTkIsolFromCands : public EleTkIsolFromCands {
 public:
   explicit SuperclusTkIsolFromCands(Configuration const& cfg, reco::TrackCollection const& tracks)
-    : EleTkIsolFromCands(cfg,tracks) {}
+      : EleTkIsolFromCands(cfg, tracks) {}
   explicit SuperclusTkIsolFromCands(Configuration const& cfg,
-                              pat::PackedCandidateCollection const& cands,
-                              PIDVeto pidVeto = PIDVeto::NONE)
-    : EleTkIsolFromCands(cfg,cands,pidVeto) {}
+                                    pat::PackedCandidateCollection const& cands,
+                                    PIDVeto pidVeto = PIDVeto::NONE)
+      : EleTkIsolFromCands(cfg, cands, pidVeto) {}
 
-  Output operator() (const reco::SuperCluster& sc, const math::XYZPoint& vtx);
+  Output operator()(const reco::SuperCluster& sc, const math::XYZPoint& vtx);
 };
 
 #endif

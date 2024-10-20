@@ -18,10 +18,10 @@
 class SuperclusValueMapProducer : public edm::stream::EDProducer<> {
 public:
   explicit SuperclusValueMapProducer(const edm::ParameterSet&);
-  ~SuperclusValueMapProducer()=default;
+  ~SuperclusValueMapProducer() = default;
 
 private:
-  void produce(edm::Event&, const edm::EventSetup&) override; 
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
   std::vector<edm::EDGetTokenT<pat::PackedCandidateCollection>> setTokens(const std::vector<edm::InputTag>& tags);
 
@@ -45,14 +45,13 @@ private:
 };
 
 SuperclusValueMapProducer::SuperclusValueMapProducer(const edm::ParameterSet& iConfig)
-: candTags_(iConfig.getParameter<std::vector<edm::InputTag>>("cands")),
-  candTokens_(setTokens(candTags_)),
-  scToken_(consumes<edm::View<reco::SuperCluster>>(iConfig.getParameter<edm::InputTag>("srcSc"))),
-  pvToken_(consumes<edm::View<reco::Vertex>>(iConfig.getParameter<edm::InputTag>("srcPv"))),
-  bsToken_(consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("srcBs"))),
-  trkIsoCalcCfg_(iConfig.getParameter<edm::ParameterSet>("trkIsoConfig"))
-{
-  auto fillVetos = [] (const auto& in, auto& out) {
+    : candTags_(iConfig.getParameter<std::vector<edm::InputTag>>("cands")),
+      candTokens_(setTokens(candTags_)),
+      scToken_(consumes<edm::View<reco::SuperCluster>>(iConfig.getParameter<edm::InputTag>("srcSc"))),
+      pvToken_(consumes<edm::View<reco::Vertex>>(iConfig.getParameter<edm::InputTag>("srcPv"))),
+      bsToken_(consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("srcBs"))),
+      trkIsoCalcCfg_(iConfig.getParameter<edm::ParameterSet>("trkIsoConfig")) {
+  auto fillVetos = [](const auto& in, auto& out) {
     std::transform(in.begin(), in.end(), std::back_inserter(out), SuperclusTkIsolFromCands::pidVetoFromStr);
   };
 
@@ -66,27 +65,28 @@ SuperclusValueMapProducer::SuperclusValueMapProducer(const edm::ParameterSet& iC
 
 void SuperclusValueMapProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle<edm::View<reco::SuperCluster>> scHandle;
-  iEvent.getByToken(scToken_,scHandle);
+  iEvent.getByToken(scToken_, scHandle);
 
   edm::Handle<edm::View<reco::Vertex>> pvHandle;
-  iEvent.getByToken(pvToken_,pvHandle);
+  iEvent.getByToken(pvToken_, pvHandle);
 
   edm::Handle<reco::BeamSpot> bsHandle;
-  iEvent.getByToken(bsToken_,bsHandle);
+  iEvent.getByToken(bsToken_, bsHandle);
 
   math::XYZPoint pos;
 
   if (pvHandle.isValid() && !pvHandle->empty())
-    pos = pvHandle->front().position(); // first try PV
+    pos = pvHandle->front().position();  // first try PV
   else
-    pos = (*bsHandle).position(); // fall back to BS
+    pos = (*bsHandle).position();  // fall back to BS
 
   std::vector<edm::Handle<pat::PackedCandidateCollection>> candHandles(candTokens_.size());
   std::vector<std::unique_ptr<SuperclusTkIsolFromCands>> tkIsoCalc;
 
-  for (unsigned idx=0; idx<candTokens_.size(); idx++) {
-    iEvent.getByToken(candTokens_.at(idx),candHandles.at(idx));
-    tkIsoCalc.push_back(std::make_unique<SuperclusTkIsolFromCands>(trkIsoCalcCfg_,*(candHandles.at(idx)),candVetos_.at(idx)));
+  for (unsigned idx = 0; idx < candTokens_.size(); idx++) {
+    iEvent.getByToken(candTokens_.at(idx), candHandles.at(idx));
+    tkIsoCalc.push_back(
+        std::make_unique<SuperclusTkIsolFromCands>(trkIsoCalcCfg_, *(candHandles.at(idx)), candVetos_.at(idx)));
   }
 
   std::vector<float> vecTkIso;
@@ -96,15 +96,16 @@ void SuperclusValueMapProducer::produce(edm::Event& iEvent, const edm::EventSetu
     float tkIso = 0.;
 
     for (auto& calc : tkIsoCalc)
-      tkIso += (*calc)(sc,pos).ptSum;
+      tkIso += (*calc)(sc, pos).ptSum;
 
     vecTkIso.push_back(tkIso);
   }
 
-  writeValueMap(iEvent,scHandle,vecTkIso,superclusTkIsoLabel_);
+  writeValueMap(iEvent, scHandle, vecTkIso, superclusTkIsoLabel_);
 }
 
-std::vector<edm::EDGetTokenT<pat::PackedCandidateCollection>> SuperclusValueMapProducer::setTokens(const std::vector<edm::InputTag>& tags) {
+std::vector<edm::EDGetTokenT<pat::PackedCandidateCollection>> SuperclusValueMapProducer::setTokens(
+    const std::vector<edm::InputTag>& tags) {
   std::vector<edm::EDGetTokenT<pat::PackedCandidateCollection>> out;
 
   for (const auto& tag : tags)

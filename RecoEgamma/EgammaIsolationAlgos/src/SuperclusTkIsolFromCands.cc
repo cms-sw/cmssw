@@ -2,7 +2,8 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
-SuperclusTkIsolFromCands::Output SuperclusTkIsolFromCands::operator() (const reco::SuperCluster& sc, const math::XYZPoint& vtx) {
+SuperclusTkIsolFromCands::Output SuperclusTkIsolFromCands::operator()(const reco::SuperCluster& sc,
+                                                                      const math::XYZPoint& vtx) {
   using namespace edm::soa::col;
 
   float ptSum = 0.;
