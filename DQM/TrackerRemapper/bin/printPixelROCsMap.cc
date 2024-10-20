@@ -12,17 +12,55 @@
 #include "TCanvas.h"
 #include "TStyle.h"
 
+// Define an enum for region
+enum class Region {
+  Barrel = 0,   // Assume 0 for barrel
+  Forward = 1,  // 1 for forward
+  Full = 2      // 2 for full
+};
+
 void showHelp(const std::string& scriptName) {
   std::cout << "Usage: " << scriptName << " [options] <detid>\n"
-            << "  --input-file <filename>       Specify the input file\n"
-            << "  --input-ROCs <filename>       Specify the input ROCs file\n"
-            << "  --h or --help                 Show this help message\n"
-            << "  <detid>                       Provide DetId (list of DetIds)\n";
+            << "  --input-file <filename>        Specify the input file\n"
+            << "  --input-ROCs <filename>        Specify the input ROCs file\n"
+            << "  --region <barrel|forward|full> Specify the region (default: full)\n"
+            << "  --h or --help                  Show this help message\n"
+            << "  <detid>                        Provide DetId (list of DetIds)\n";
+}
+
+// Helper function to convert region enum to string (for displaying)
+std::string regionToString(Region region) {
+  switch (region) {
+    case Region::Barrel:
+      return "barrel";
+    case Region::Forward:
+      return "forward";
+    case Region::Full:
+      return "full";
+    default:
+      return "unknown";
+  }
+}
+
+// Helper function to parse region from string
+Region parseRegion(const std::string& regionStr) {
+  if (regionStr == "barrel") {
+    return Region::Barrel;
+  } else if (regionStr == "forward") {
+    return Region::Forward;
+  } else if (regionStr == "full") {
+    return Region::Full;
+  } else {
+    throw std::invalid_argument("Invalid region value");
+  }
 }
 
 int main(int argc, char* argv[]) {
+  static constexpr std::array<int, 3> k_height = {{1200, 600, 1600}};
+
   std::string inputFile;
   std::string inputROCsFile;
+  Region region = Region::Full;  // Default value: Full region
   std::vector<std::pair<uint32_t, float>> detidValues;
   std::vector<std::pair<uint32_t, std::bitset<16>>> detidRocs;
 
@@ -43,6 +81,15 @@ int main(int argc, char* argv[]) {
       inputFile = argv[++i];
     } else if (arg == "--input-ROCs" && i + 1 < argc) {
       inputROCsFile = argv[++i];
+    } else if (arg == "--region" && i + 1 < argc) {
+      std::string regionArg = argv[++i];
+      try {
+        region = parseRegion(regionArg);  // Parse region from string
+      } catch (const std::invalid_argument&) {
+        std::cerr << "Invalid value for --region: " << regionArg << "\n";
+        showHelp(argv[0]);
+        return 1;
+      }
     } else {
       // Assume it's a DetId, convert to uint32_t
       try {
@@ -117,10 +164,23 @@ int main(int argc, char* argv[]) {
     theMap.fillSelectedRocs(detid, rocs, 1.0);  // Default value 1.0
   }
 
+  // Construct the full label string
+  std::string title = "Marked Pixel ROCs - " + regionToString(region);
+
   // Draw and save the map
-  TCanvas canvas("Summary", "Summary", 1200, 1600);
-  theMap.drawMaps(canvas, "Marked Pixel ROCs");
-  canvas.SaveAs("Phase1PixelROCMap.png");
+  TCanvas canvas("Summary", "Summary", 1200, k_height[static_cast<int>(region)]);
+  if (region == Region::Full) {
+    theMap.drawMaps(canvas, title.c_str());
+  } else if (region == Region::Barrel) {
+    theMap.drawBarrelMaps(canvas, title.c_str());
+  } else if (region == Region::Forward) {
+    theMap.drawForwardMaps(canvas, title.c_str());
+  }
+
+  // Construct the filename string based on the region
+  std::string fileName = "Phase1PixelROCMap_" + regionToString(region) + ".png";
+  // Save the canvas with the constructed filename
+  canvas.SaveAs(fileName.c_str());
 
   std::cout << "Filled Phase1 Pixel ROC map with " << detidValues.size() + detidRocs.size() << " detids." << std::endl;
 
