@@ -4,6 +4,7 @@
 #include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
@@ -149,9 +150,9 @@ GlobalPoint RecHitTools::getPosition(const DetId& id) const {
   return position;
 }
 
-GlobalPoint RecHitTools::getPositionLayer(int layer, bool nose) const {
+GlobalPoint RecHitTools::getPositionLayer(int layer, bool nose, bool barrel) const {
   unsigned int lay = std::abs(layer);
-  double z(0);
+  double x(0), y(0), z(0);
   if (nose) {
     auto geomNose =
         static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::Forward, ForwardSubdetector::HFNose));
@@ -160,6 +161,18 @@ GlobalPoint RecHitTools::getPositionLayer(int layer, bool nose) const {
       if (ddd)
         z = (layer > 0) ? ddd->waferZ(lay, true) : -ddd->waferZ(lay, true);
     }
+  } else if (barrel) {
+    if (layer == 0) {
+      DetId firstValidDetId = (geom_->getValidDetIds(DetId::Ecal, EcalBarrel))[0];
+      x = getPosition(firstValidDetId).x();
+      y = getPosition(firstValidDetId).y();
+    } else {
+      const std::vector<DetId>& validDetIds = geom_->getValidDetIds(DetId::Hcal, HcalBarrel);
+      auto firstValidDetId = std::find_if(validDetIds.begin(), validDetIds.end(), 
+                                       [&](auto id){ return HcalDetId(id).depth() == layer; });
+      x = getPosition(*firstValidDetId).x();
+      y = getPosition(*firstValidDetId).y();
+    }    
   } else {
     const HGCalDDDConstants* ddd = get_ddd(geom_, geometryType_, fhOffset_, lay);
     if (geometryType_ == 1) {
@@ -168,7 +181,7 @@ GlobalPoint RecHitTools::getPositionLayer(int layer, bool nose) const {
     }
     z = (layer > 0) ? ddd->waferZ(lay, true) : -ddd->waferZ(lay, true);
   }
-  return GlobalPoint(0, 0, z);
+  return GlobalPoint(x, y, z);
 }
 
 int RecHitTools::zside(const DetId& id) const {
@@ -480,7 +493,11 @@ bool RecHitTools::isSilicon(const DetId& id) const {
           (id.det() == DetId::Forward && id.subdetId() == static_cast<int>(HFNose)));
 }
 
-bool RecHitTools::isScintillator(const DetId& id) const { return id.det() == DetId::HGCalHSc; }
+bool RecHitTools::isScintillator(const DetId& id) const { 
+  return (id.det() == DetId::HGCalHSc ||
+          id.det() == DetId::Ecal ||
+          id.det() == DetId::Hcal);
+}
 
 bool RecHitTools::isOnlySilicon(const unsigned int layer) const {
   // HFnose TODO
@@ -521,6 +538,20 @@ float RecHitTools::getPt(const DetId& id, const float& hitEnergy, const float& v
   float eta = getEta(position, vertex_z);
   float pt = hitEnergy / cosh(eta);
   return pt;
+}
+
+unsigned int RecHitTools::lastLayerEE(bool nose, bool barrel) const {
+  if(barrel)
+    return ecalBarrelLastLayer_;
+  else
+    return (nose ? HFNoseDetId::HFNoseLayerEEmax : fhOffset_);
+}
+
+unsigned int RecHitTools::lastLayer(bool nose, bool barrel) const {
+  if(barrel)
+    return hcalBarrelLastLayer_;
+  else
+    return (nose ? noseLastLayer_ : bhLastLayer_);
 }
 
 std::pair<uint32_t, uint32_t> RecHitTools::firstAndLastLayer(DetId::Detector det, int subdet) const {
