@@ -221,7 +221,7 @@
     <Include ref='Geometry/HcalCommonData/data/hcalforwardalgo.xml'/>
     <Include ref='Geometry/HcalCommonData/data/average/hcalforwardmaterial.xml'/>
     <Include ref='Geometry/HcalCommonData/data/hcalSimNumbering/2016/hcalSimNumbering.xml'/> 
-    <Include ref='Geometry/HcalCommonData/data/hcalRecNumbering/2016/hcalRecNumbering.xml'/> 
+    <Include ref='Geometry/HcalCommonData/data/hcalRecNumbering/2016/v2/hcalRecNumbering.xml'/> 
     <Include ref='Geometry/MuonCommonData/data/mbCommon/2015/v1/mbCommon.xml'/>
     <Include ref='Geometry/MuonCommonData/data/mb1/2015/v1/mb1.xml'/>
     <Include ref='Geometry/MuonCommonData/data/mb2/2015/v1/mb2.xml'/>
