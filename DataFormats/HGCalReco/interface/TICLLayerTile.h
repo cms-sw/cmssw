@@ -18,7 +18,11 @@ public:
     constexpr float etaRange = T::maxEta - T::minEta;
     static_assert(etaRange >= 0.f);
     float r = T::nEtaBins / etaRange;
-    int etaBin = (std::abs(eta) - T::minEta) * r;
+    int etaBin;
+    if constexpr (std::is_same_v<T, ticl::TileConstantsBarrel>)
+      etaBin = (eta - T::minEta) * r;
+    else
+      etaBin = (std::abs(eta) - T::minEta) * r;
     etaBin = std::clamp(etaBin, 0, T::nEtaBins - 1);
     return etaBin;
   }
@@ -34,8 +38,10 @@ public:
   std::array<int, 4> searchBoxEtaPhi(float etaMin, float etaMax, float phiMin, float phiMax) const {
     // The tile only handles one endcap at a time and does not hold mixed eta
     // values.
-    if (etaMin * etaMax < 0) {
-      return std::array<int, 4>({{0, 0, 0, 0}});
+    if (!std::is_same_v<T, ticl::TileConstantsBarrel>) {
+      if (etaMin * etaMax < 0) {
+        return std::array<int, 4>({{0, 0, 0, 0}});
+      }
     }
     if (etaMax - etaMin < 0) {
       return std::array<int, 4>({{0, 0, 0, 0}});
@@ -83,6 +89,9 @@ namespace ticl {
   using TilesHFNose = std::array<TICLLayerTileHFNose, TileConstantsHFNose::nLayers>;
   using TracksterTilesHFNose = std::array<TICLLayerTileHFNose, TileConstantsHFNose::iterations>;
 
+  using TICLLayerTileBarrel = TICLLayerTileT<TileConstantsBarrel>;
+  using TilesBarrel = std::array<TICLLayerTileBarrel, TileConstantsBarrel::nLayers>;
+  using TracksterTilesBarrel = std::array<TICLLayerTileBarrel, TileConstantsBarrel::iterations>;
 }  // namespace ticl
 
 template <typename T>
@@ -104,5 +113,7 @@ using TICLLayerTiles = TICLGenericTile<ticl::Tiles>;
 using TICLTracksterTiles = TICLGenericTile<ticl::TracksterTiles>;
 using TICLLayerTilesHFNose = TICLGenericTile<ticl::TilesHFNose>;
 using TICLTracksterTilesHFNose = TICLGenericTile<ticl::TracksterTilesHFNose>;
+using TICLLayerTilesBarrel = TICLGenericTile<ticl::TilesBarrel>;
+using TICLTracksterTilesBarrel = TICLGenericTile<ticl::TracksterTilesBarrel>;
 
 #endif
