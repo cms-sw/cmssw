@@ -7,3 +7,5 @@
   <use name="root"/>
   <use name="catch2"/>
 </bin>
+
+<test name="testPrintTkMaps" command="testPrintTkMaps.sh"/>
