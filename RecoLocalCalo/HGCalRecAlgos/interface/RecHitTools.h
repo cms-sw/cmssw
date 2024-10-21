@@ -30,6 +30,10 @@ namespace hgcal {
           bhOffset_(0),
           fhLastLayer_(0),
           noseLastLayer_(0),
+          hcalBarrelFirstLayer_(1),
+          hcalBarrelLastLayer_(4),
+          ecalBarrelFirstLayer_(0),
+          ecalBarrelLastLayer_(0),
           geometryType_(0) {}
     ~RecHitTools() {}
 
@@ -37,7 +41,7 @@ namespace hgcal {
     const CaloSubdetectorGeometry* getSubdetectorGeometry(const DetId& id) const;
 
     GlobalPoint getPosition(const DetId& id) const;
-    GlobalPoint getPositionLayer(int layer, bool nose = false) const;
+    GlobalPoint getPositionLayer(int layer, bool nose = false, bool barrel = false) const;
     // zside returns +/- 1
     int zside(const DetId& id) const;
 
@@ -73,11 +77,11 @@ namespace hgcal {
     float getPt(const DetId& id, const float& hitEnergy, const float& vertex_z = 0.) const;
 
     inline const CaloGeometry* getGeometry() const { return geom_; };
-    unsigned int lastLayerEE(bool nose = false) const { return (nose ? HFNoseDetId::HFNoseLayerEEmax : fhOffset_); }
+    unsigned int lastLayerEE(bool nose = false, bool barrel = false) const;
     unsigned int lastLayerFH() const { return fhLastLayer_; }
     unsigned int firstLayerBH() const { return bhFirstLayer_; }
     unsigned int lastLayerBH() const { return bhLastLayer_; }
-    unsigned int lastLayer(bool nose = false) const { return (nose ? noseLastLayer_ : bhLastLayer_); }
+    unsigned int lastLayer(bool nose = false, bool barrel = false) const;
     std::pair<uint32_t, uint32_t> firstAndLastLayer(DetId::Detector det, int subdet) const;
     unsigned int maxNumberOfWafersPerLayer(bool nose = false) const {
       return (nose ? maxNumberOfWafersNose_ : maxNumberOfWafersPerLayer_);
@@ -89,6 +93,7 @@ namespace hgcal {
   private:
     const CaloGeometry* geom_;
     unsigned int eeOffset_, fhOffset_, bhFirstLayer_, bhLastLayer_, bhOffset_, fhLastLayer_, noseLastLayer_;
+    unsigned int hcalBarrelFirstLayer_, hcalBarrelLastLayer_, ecalBarrelFirstLayer_, ecalBarrelLastLayer_;
     unsigned int maxNumberOfWafersPerLayer_, maxNumberOfWafersNose_;
     int geometryType_;
     int bhMaxIphi_;
