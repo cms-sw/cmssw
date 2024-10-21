@@ -387,16 +387,15 @@ void PFECALSuperClusterProducer::fillDescriptions(edm::ConfigurationDescriptions
   desc.add<bool>("dropUnseedable", false);
 
   edm::ParameterSetDescription deepSCParams;
-  deepSCParams.add<std::string>("modelFile", "");
+  deepSCParams.add<std::vector<std::string>>("modelFiles", {});
   deepSCParams.add<std::string>("configFileClusterFeatures", "");
   deepSCParams.add<std::string>("configFileWindowFeatures", "");
   deepSCParams.add<std::string>("configFileHitsFeatures", "");
   deepSCParams.add<uint>("nClusterFeatures", 12);
   deepSCParams.add<uint>("nWindowFeatures", 18);
   deepSCParams.add<uint>("nHitsFeatures", 4);
-  deepSCParams.add<uint>("maxNClusters", 40);
-  deepSCParams.add<uint>("maxNRechits", 40);
-  deepSCParams.add<uint>("batchSize", 64);
+  deepSCParams.add<std::vector<uint>>("maxNClusters", {15, 30});
+  deepSCParams.add<std::vector<uint>>("maxNRechits", {20, 60});
   deepSCParams.add<std::string>("collectionStrategy", "Cascade");
 
   EmptyGroupDescription emptyGroup;
