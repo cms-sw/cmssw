@@ -126,6 +126,8 @@ if process.runType.getRunType() == process.runType.cosmic_run:
 # Heavy-Ion run
 if process.runType.getRunType() == process.runType.hi_run:
     process.hltFatEventFilter.HLTPaths.append('HLT_HIPhysics_v*')
+    process.l1tStage2uGTTiming.firstBXInTrainAlgo=cms.untracked.string("L1_FirstBunchInTrain_50ns")
+    process.l1tStage2uGTTiming.lastBXInTrainAlgo=cms.untracked.string("L1_LastBunchInTrain_50ns")
     rawDataRepackerLabel = 'rawDataRepacker'
     process.onlineMetaDataDigis.onlineMetaDataInputLabel = rawDataRepackerLabel
     process.onlineMetaDataRawToDigi.onlineMetaDataInputLabel = rawDataRepackerLabel
