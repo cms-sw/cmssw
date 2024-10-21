@@ -220,7 +220,7 @@ int HcalRecHitsDQMClient::HcalRecHitsEndjob(const std::vector<MonitorElement *> 
   }
 
   // mean energies and occupancies evaluation
-
+  assert(Nhf);                        // Avoid LLVM analyzer warning
   double nevtot = Nhf->getEntries();  // Use the number of entries in the Nhf histogram to
                                       // give the total number of events
 
