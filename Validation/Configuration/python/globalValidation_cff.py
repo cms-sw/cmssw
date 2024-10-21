@@ -200,7 +200,23 @@ globalPrevalidationHGCal = cms.Sequence(hgcalAssociators, ticlSimTrackstersTask)
 
 globalValidationHGCal = cms.Sequence(hgcalValidation)
 
+globalPrevalidationBarrel = cms.Sequence()
+_globalPrevalidationBarrel = globalPrevalidationBarrel.copy()
+_globalPrevalidationBarrel += cms.Sequence(barrelAssociators)
+
+globalValidationBarrel = cms.Sequence()
+_globalValidationBarrel = globalValidationBarrel.copy()
+_globalValidationBarrel += barrelValidation
+
+from Configuration.ProcessModifiers.ticl_barrel_cff import ticl_barrel
+ticl_barrel.toReplaceWith(globalPrevalidationBarrel, _globalPrevalidationBarrel)
+ticl_barrel.toReplaceWith(globalValidationBarrel, _globalValidationBarrel)
+
 globalValidationMTD = cms.Sequence()
+
+globalPrevalidationBarrel = cms.Sequence(barrelAssociators)
+
+globalValidationBarrel = cms.Sequence(barrelValidation)
 
 globalPrevalidationMuons = cms.Sequence(
       gemSimValid

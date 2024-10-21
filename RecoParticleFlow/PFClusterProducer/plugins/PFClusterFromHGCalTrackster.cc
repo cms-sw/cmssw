@@ -102,6 +102,9 @@ void PFClusterFromHGCalTrackster::buildClusters(const edm::Handle<reco::PFRecHit
     std::for_each(std::begin(tst.vertices()), std::end(tst.vertices()), [&](unsigned int lcId) {
       const auto fraction = 1.f / tst.vertex_multiplicity(iLC++);
       for (const auto& cell : clusters[lcId].hitsAndFractions()) {
+        if (cell.first.det() == DetId::Ecal || cell.first.det() == DetId::Hcal) {
+          continue;
+        }
         hitsAndFractions.emplace_back(cell.first, cell.second * fraction);
       }
     });
@@ -131,7 +134,7 @@ void PFClusterFromHGCalTrackster::buildClusters(const edm::Handle<reco::PFRecHit
       back.setEnergy(energy);
       back.setCorrectedEnergy(energy);
     } else {
-      back.setSeed(0);
+      back.setSeed(-1);
       back.setEnergy(0.f);
     }
   }  // end of loop over hgcalTracksters (3D)
