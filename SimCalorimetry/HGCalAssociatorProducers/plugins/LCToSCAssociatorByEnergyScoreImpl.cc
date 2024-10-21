@@ -18,7 +18,7 @@ LCToSCAssociatorByEnergyScoreImpl<HIT>::LCToSCAssociatorByEnergyScoreImpl(
   if constexpr (std::is_same_v<HIT, HGCRecHit>)
     layers_ = recHitTools_->lastLayerBH();
   else
-    layers_ = 6;  //EB + 4 HB + HO
+    layers_ = recHitTools_->lastLayerBarrel() + 1;  //EB + 4 HB
 }
 
 template <typename HIT>
@@ -52,8 +52,11 @@ ticl::association LCToSCAssociatorByEnergyScoreImpl<HIT>::makeConnections(
   ticl::simClusterToLayerCluster lcsInSimCluster;
   lcsInSimCluster.resize(nSimClusters);
   for (unsigned int i = 0; i < nSimClusters; ++i) {
-    lcsInSimCluster[i].resize(layers_ * 2);
-    for (unsigned int j = 0; j < layers_ * 2; ++j) {
+    unsigned int nLayers = 2 * layers_;
+    if constexpr (std::is_same_v<HIT, reco::PFRecHit>)
+      nLayers = layers_;
+    lcsInSimCluster[i].resize(nLayers);
+    for (unsigned int j = 0; j < nLayers; ++j) {
       lcsInSimCluster[i][j].simClusterId = i;
       lcsInSimCluster[i][j].energy = 0.f;
       lcsInSimCluster[i][j].hits_and_fractions.clear();
@@ -353,6 +356,13 @@ ticl::association LCToSCAssociatorByEnergyScoreImpl<HIT>::makeConnections(
   for (unsigned int lcId = 0; lcId < nLayerClusters; ++lcId) {
     // The simclusters contributing to the layer clusters should already be unique.
     // find the unique simclusters id contributing to the layer clusters
+    if constexpr (std::is_same_v<HIT, HGCRecHit>) {
+      if (recHitTools_->isBarrel(clusters[lcId].seed()))
+        continue;
+    } else {
+      if (!recHitTools_->isBarrel(clusters[lcId].seed()))
+        continue;
+    }
     std::sort(scsInLayerCluster[lcId].begin(), scsInLayerCluster[lcId].end());
     auto last = std::unique(scsInLayerCluster[lcId].begin(), scsInLayerCluster[lcId].end());
     scsInLayerCluster[lcId].erase(last, scsInLayerCluster[lcId].end());
@@ -418,7 +428,10 @@ ticl::association LCToSCAssociatorByEnergyScoreImpl<HIT>::makeConnections(
 
   // Compute the SimCluster-To-LayerCluster score
   for (const auto& scId : sCIndices) {
-    for (unsigned int layerId = 0; layerId < layers_ * 2; ++layerId) {
+    unsigned int nLayers = layers_ * 2;
+    if constexpr (std::is_same_v<HIT, reco::PFRecHit>)
+      nLayers = layers_;
+    for (unsigned int layerId = 0; layerId < nLayers; ++layerId) {
       unsigned int SCNumberOfHits = lcsInSimCluster[scId][layerId].hits_and_fractions.size();
       if (SCNumberOfHits == 0)
         continue;
