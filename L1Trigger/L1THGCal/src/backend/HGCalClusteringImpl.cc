@@ -84,7 +84,7 @@ void HGCalClusteringImpl::clusterizeDR(const std::vector<edm::Ptr<l1t::HGCalTrig
       }
     }
 
-    if (targetClu < 0 && isSeed[itc])
+    [[clang::suppress]] if (targetClu < 0 && isSeed[itc])
       clustersTmp.emplace_back(*tc);
     else if (targetClu >= 0)
       clustersTmp.at(targetClu).addConstituent(*tc);
@@ -298,7 +298,7 @@ void HGCalClusteringImpl::clusterizeDRNN(const std::vector<edm::Ptr<l1t::HGCalTr
     /* continue if not passing the threshold */
     if ((*tc)->mipPt() < threshold)
       continue;
-    if (isSeed[itc])
+    [[clang::suppress]] if (isSeed[itc])
       continue;  //No sharing of seeds between clusters (TBC)
 
     /* searching for TC near the centre of the cluster  */
