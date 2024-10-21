@@ -1251,10 +1251,10 @@ inline p2eg::clusterInfo p2eg::getBremsValuesNeg(p2eg::crystal tempX[p2eg::CRYST
   }
 
   // Read the energies of the input crystal tempX into the slightly larger array temp, with an offset so temp is tempX
-  // except shifted in +1 in eta and +7 in phi
+  // except shifted in +1 in eta and +4 in phi
   for (int i = 0; i < (p2eg::CRYSTAL_IN_ETA); i++) {
     for (int j = 0; j < (p2eg::CRYSTAL_IN_PHI - 1); j++) {
-      temp[i + 1][j + 7] = tempX[i][j].energy;
+      temp[i + 1][j + 4] = tempX[i][j].energy;
     }
   }
 
@@ -1264,33 +1264,31 @@ inline p2eg::clusterInfo p2eg::getBremsValuesNeg(p2eg::crystal tempX[p2eg::CRYST
 
   // Loop over the shifted array, and at the original location of the seed (seed_eta1/seed_phi1),
   // read a 3 (eta) x 5 (phi) rectangle of crystals where the original location of the seed is in the bottom left corner
-  for (int j = 0; j < p2eg::CRYSTAL_IN_ETA; j++) {
-    if (j == seed_eta1) {
-      for (int k = 0; k < p2eg::CRYSTAL_IN_PHI; k++) {
-        if (k == seed_phi1) {
-          // Same eta as the seed, read next five crystals in phi
-          phi0eta[0] = temp[j][k];
-          phi1eta[0] = temp[j][k + 1];
-          phi2eta[0] = temp[j][k + 2];
-          phi3eta[0] = temp[j][k + 3];
-          phi4eta[0] = temp[j][k + 4];
+  if (seed_eta1 < p2eg::CRYSTAL_IN_ETA) {
+    if (seed_phi1 < p2eg::CRYSTAL_IN_PHI) {
+      int j = seed_eta1;
+      int k = seed_phi1;
 
-          // +1 eta from the seed, read next five crystals in phi
-          phi0eta[1] = temp[j + 1][k];
-          phi1eta[1] = temp[j + 1][k + 1];
-          phi2eta[1] = temp[j + 1][k + 2];
-          phi3eta[1] = temp[j + 1][k + 3];
-          phi4eta[1] = temp[j + 1][k + 4];
+      // Same eta as the seed, read next five crystals in phi
+      phi0eta[0] = temp[j][k];
+      phi1eta[0] = temp[j][k + 1];
+      phi2eta[0] = temp[j][k + 2];
+      phi3eta[0] = temp[j][k + 3];
+      phi4eta[0] = temp[j][k + 4];
 
-          // +2 eta from the seed, read next five crystals in phi
-          phi0eta[2] = temp[j + 2][k];
-          phi1eta[2] = temp[j + 2][k + 1];
-          phi2eta[2] = temp[j + 2][k + 2];
-          phi3eta[2] = temp[j + 2][k + 3];
-          phi4eta[2] = temp[j + 2][k + 4];
-          continue;
-        }
-      }
+      // +1 eta from the seed, read next five crystals in phi
+      phi0eta[1] = temp[j + 1][k];
+      phi1eta[1] = temp[j + 1][k + 1];
+      phi2eta[1] = temp[j + 1][k + 2];
+      phi3eta[1] = temp[j + 1][k + 3];
+      phi4eta[1] = temp[j + 1][k + 4];
+
+      // +2 eta from the seed, read next five crystals in phi
+      phi0eta[2] = temp[j + 2][k];
+      phi1eta[2] = temp[j + 2][k + 1];
+      phi2eta[2] = temp[j + 2][k + 2];
+      phi3eta[2] = temp[j + 2][k + 3];
+      phi4eta[2] = temp[j + 2][k + 4];
     }
   }
 
@@ -1339,48 +1337,45 @@ inline p2eg::clusterInfo p2eg::getClusterValues(p2eg::crystal tempX[p2eg::CRYSTA
   // now we are in the left bottom corner
   // Loop over the shifted array, and at the original location of the seed (seed_eta1/seed_phi1),
   // read a 5 (eta) x 5 (phi) rectangle of crystals where the original location of the seed is in the bottom left corner
-  for (int j = 0; j < p2eg::CRYSTAL_IN_ETA; j++) {
-    if (j == seed_eta1) {
-      for (int k = 0; k < p2eg::CRYSTAL_IN_PHI; k++) {
-        if (k == seed_phi1) {
-          // Same eta as the seed, read next five crystals in phi
-          phi0eta[0] = temp[j][k];
-          phi1eta[0] = temp[j][k + 1];
-          phi2eta[0] = temp[j][k + 2];
-          phi3eta[0] = temp[j][k + 3];
-          phi4eta[0] = temp[j][k + 4];
+  if (seed_eta1 < p2eg::CRYSTAL_IN_ETA) {
+    if (seed_phi1 < p2eg::CRYSTAL_IN_PHI) {
+      int j = seed_eta1;
+      int k = seed_phi1;
 
-          // +1 eta from the seed, read next five crystals in phi
-          phi0eta[1] = temp[j + 1][k];
-          phi1eta[1] = temp[j + 1][k + 1];
-          phi2eta[1] = temp[j + 1][k + 2];
-          phi3eta[1] = temp[j + 1][k + 3];
-          phi4eta[1] = temp[j + 1][k + 4];
+      // Same eta as the seed, read next five crystals in phi
+      phi0eta[0] = temp[j][k];
+      phi1eta[0] = temp[j][k + 1];
+      phi2eta[0] = temp[j][k + 2];
+      phi3eta[0] = temp[j][k + 3];
+      phi4eta[0] = temp[j][k + 4];
 
-          // +2 eta from the seed, read next five crystals in phi
-          phi0eta[2] = temp[j + 2][k];
-          phi1eta[2] = temp[j + 2][k + 1];
-          phi2eta[2] = temp[j + 2][k + 2];
-          phi3eta[2] = temp[j + 2][k + 3];
-          phi4eta[2] = temp[j + 2][k + 4];
+      // +1 eta from the seed, read next five crystals in phi
+      phi0eta[1] = temp[j + 1][k];
+      phi1eta[1] = temp[j + 1][k + 1];
+      phi2eta[1] = temp[j + 1][k + 2];
+      phi3eta[1] = temp[j + 1][k + 3];
+      phi4eta[1] = temp[j + 1][k + 4];
 
-          // +3 eta from the seed, read next five crystals in phi
-          phi0eta[3] = temp[j + 3][k];
-          phi1eta[3] = temp[j + 3][k + 1];
-          phi2eta[3] = temp[j + 3][k + 2];
-          phi3eta[3] = temp[j + 3][k + 3];
-          phi4eta[3] = temp[j + 3][k + 4];
+      // +2 eta from the seed, read next five crystals in phi
+      phi0eta[2] = temp[j + 2][k];
+      phi1eta[2] = temp[j + 2][k + 1];
+      phi2eta[2] = temp[j + 2][k + 2];
+      phi3eta[2] = temp[j + 2][k + 3];
+      phi4eta[2] = temp[j + 2][k + 4];
 
-          // +4 eta from the seed, read next five crystals in phi
-          phi0eta[4] = temp[j + 4][k];
-          phi1eta[4] = temp[j + 4][k + 1];
-          phi2eta[4] = temp[j + 4][k + 2];
-          phi3eta[4] = temp[j + 4][k + 3];
-          phi4eta[4] = temp[j + 4][k + 4];
+      // +3 eta from the seed, read next five crystals in phi
+      phi0eta[3] = temp[j + 3][k];
+      phi1eta[3] = temp[j + 3][k + 1];
+      phi2eta[3] = temp[j + 3][k + 2];
+      phi3eta[3] = temp[j + 3][k + 3];
+      phi4eta[3] = temp[j + 3][k + 4];
 
-          continue;
-        }
-      }
+      // +4 eta from the seed, read next five crystals in phi
+      phi0eta[4] = temp[j + 4][k];
+      phi1eta[4] = temp[j + 4][k + 1];
+      phi2eta[4] = temp[j + 4][k + 2];
+      phi3eta[4] = temp[j + 4][k + 3];
+      phi4eta[4] = temp[j + 4][k + 4];
     }
   }
 
