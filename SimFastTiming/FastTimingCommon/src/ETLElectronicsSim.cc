@@ -63,7 +63,9 @@ void ETLElectronicsSim::run(const mtd::MTDSimHitDataAccumulator& input,
         continue;
       // time of arrival
       double finalToA = (it->second).hit_info[1][i];
+      double initialToA = finalToA;
       double finalToC = (it->second).hit_info[1][i];
+      double initialToC = finalToC;
 
       // fill the time and charge arrays
       const unsigned int ibucket = std::floor(finalToA / bxTime_);
@@ -75,6 +77,8 @@ void ETLElectronicsSim::run(const mtd::MTDSimHitDataAccumulator& input,
           etlPulseShape_.maximum() * ((it->second).hit_info[0][i] / referenceChargeColl_) / noiseLevel_;
       double sigmaJitter1 = etlPulseShape_.timeOfMax() / SignalToNoise;
       double sigmaJitter2 = (etlPulseShape_.fallTime() - etlPulseShape_.timeOfMax()) / SignalToNoise;
+      std::cout << "[ETLElectronicsSim] noiseLevel_ = " << noiseLevel_ << std::endl;
+      std::cout << "[ETLElectronicsSim] (SignalToNoise, sigmaJitter1, sigmaJitter2) = (" << SignalToNoise << ", " << sigmaJitter1 << ", " << sigmaJitter2 << ")" << std::endl;
       //Calculate the distorsion
       double sigmaDistorsion = sigmaDistorsion_;
       //Calculate the TDC
@@ -117,6 +121,7 @@ void ETLElectronicsSim::run(const mtd::MTDSimHitDataAccumulator& input,
       }
 
       tot[i + ibucket] = finalToC - finalToA;
+      std::cout << "[ETLElectronicsSim::run] " << initialToA << " " << finalToA << " " << finalToC - finalToA << " " << initialToC - initialToA << std::endl;
     }
     // Run the shaper to create a new data frame
     ETLDataFrame rawDataFrame(it->first.detid_);
