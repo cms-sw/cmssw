@@ -7,6 +7,7 @@
 #include "RecoLocalCalo/HGCalRecProducers/interface/HGCalTilesConstants.h"
 #include "RecoLocalCalo/HGCalRecProducers/interface/HFNoseTilesConstants.h"
 #include "RecoLocalCalo/HGCalRecProducers/interface/HGCalTilesWrapper.h"
+#include "RecoLocalCalo/HGCalRecProducers/interface/BarrelTilesConstants.h"
 #include "DataFormats/Math/interface/normalizedPhi.h"
 
 #include <vector>
@@ -122,4 +123,7 @@ private:
 using HGCalSiliconLayerTiles = HGCalLayerTilesT<HGCalSiliconTilesConstants, NoPhiWrapper>;
 using HGCalScintillatorLayerTiles = HGCalLayerTilesT<HGCalScintillatorTilesConstants, PhiWrapper>;
 using HFNoseLayerTiles = HGCalLayerTilesT<HFNoseTilesConstants, NoPhiWrapper>;
+
+using EBLayerTiles = HGCalLayerTilesT<EBTilesConstants, PhiWrapper>;
+using HBLayerTiles = HGCalLayerTilesT<HBTilesConstants, PhiWrapper>;
 #endif
