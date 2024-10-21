@@ -323,9 +323,6 @@ void pat::PATPackedCandidateProducer::produce(edm::StreamID, edm::Event &iEvent,
       // these things are always for the CKF track
       outPtrP->back().setTrackHighPurity(cand.trackRef().isNonnull() &&
                                          cand.trackRef()->quality(reco::Track::highPurity));
-      if (cand.muonRef().isNonnull()) {
-        outPtrP->back().setMuonID(cand.muonRef()->isStandAloneMuon(), cand.muonRef()->isGlobalMuon());
-      }
     } else {
       if (!PVs->empty()) {
         PV = reco::VertexRef(PVs, 0);
@@ -336,6 +333,12 @@ void pat::PATPackedCandidateProducer::produce(edm::StreamID, edm::Event &iEvent,
           cand.polarP4(), PVpos, cand.pt(), cand.eta(), cand.phi(), cand.pdgId(), PVRefProd, PV.key()));
       outPtrP->back().setAssociationQuality(
           pat::PackedCandidate::PVAssociationQuality(pat::PackedCandidate::UsedInFitTight));
+    }
+
+    // Set Muon ID flags
+
+    if (cand.muonRef().isNonnull()) {
+      outPtrP->back().setMuonID(cand.muonRef()->isStandAloneMuon(), cand.muonRef()->isGlobalMuon());
     }
 
     // neutrals and isolated charged hadrons

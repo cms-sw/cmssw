@@ -536,6 +536,13 @@ void PATElectronProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     // This is needed by the IPTools methods from the tracking group
     trackBuilder = iSetup.getHandle(trackBuilderToken_);
 
+    if (beamSpotHandle.isValid()) {
+      beamSpot = *beamSpotHandle;
+      beamSpotIsValid = true;
+    } else {
+      edm::LogError("DataNotAvailable") << "No beam spot available from EventSetup, not adding high level selection \n";
+    }
+
     if (pvHandle.isValid() && !pvHandle->empty()) {
       primaryVertex = pvHandle->at(0);
       primaryVertexIsValid = true;
