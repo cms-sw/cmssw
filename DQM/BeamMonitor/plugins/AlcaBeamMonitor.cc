@@ -245,8 +245,8 @@ std::shared_ptr<alcabeammonitor::BeamSpotInfo> AlcaBeamMonitor::globalBeginLumin
     BeamSpot::Point apoint(spotDB->x(), spotDB->y(), spotDB->z());
 
     BeamSpot::CovarianceMatrix matrix;
-    for (int i = 0; i < 7; ++i) {
-      for (int j = 0; j < 7; ++j) {
+    for (int i = 0; i < reco::BeamSpot::dimension; ++i) {
+      for (int j = 0; j < reco::BeamSpot::dimension; ++j) {
         matrix(i, j) = spotDB->covariance(i, j);
       }
     }
@@ -296,7 +296,15 @@ void AlcaBeamMonitor::analyze(const Event& iEvent, const EventSetup& iSetup) {
   //------ Primary Vertices
   Handle<VertexCollection> PVCollection;
   if (iEvent.getByToken(primaryVertexLabel_, PVCollection)) {
-    beamSpotInfo->vertices_.push_back(*PVCollection.product());
+    std::vector<alcabeammonitor::pvPosAndErr> vertices;
+    vertices.reserve(PVCollection->size());
+    for (const auto& pv : *PVCollection.product()) {
+      if (pv.isFake() || pv.tracksSize() < 10)
+        continue;
+      vertices.emplace_back(pv);
+    }
+    vertices.shrink_to_fit();
+    beamSpotInfo->vertices_.emplace_back(std::move(vertices));
   }
 
   if (beamSpotInfo->beamSpotMap_.find("SC") == beamSpotInfo->beamSpotMap_.end()) {
@@ -363,24 +371,19 @@ void AlcaBeamMonitor::globalEndLuminosityBlock(const LuminosityBlock& iLumi, con
       }
     }
     vertexResults.clear();
-    for (vector<VertexCollection>::iterator itPV = beamSpotInfo->vertices_.begin();
-         itPV != beamSpotInfo->vertices_.end();
-         itPV++) {
-      if (!itPV->empty()) {
-        for (VertexCollection::const_iterator pv = itPV->begin(); pv != itPV->end(); pv++) {
-          if (pv->isFake() || pv->tracksSize() < 10)
-            continue;
-          if (*itV == "x") {
-            vertexResults.push_back(pair<double, double>(pv->x(), pv->xError()));
-          } else if (*itV == "y") {
-            vertexResults.push_back(pair<double, double>(pv->y(), pv->yError()));
-          } else if (*itV == "z") {
-            vertexResults.push_back(pair<double, double>(pv->z(), pv->zError()));
-          } else if (*itV != "sigmaX" && *itV != "sigmaY" && *itV != "sigmaZ") {
-            LogInfo("AlcaBeamMonitor") << "The histosMap_ has been built with the name " << *itV
-                                       << " that I can't recognize!";
-            //assert(0);
-          }
+
+    for (const auto& itPV : beamSpotInfo->vertices_) {
+      for (const auto& pv : itPV) {
+        if (*itV == "x") {
+          vertexResults.push_back(pv.xWithError());
+        } else if (*itV == "y") {
+          vertexResults.push_back(pv.yWithError());
+        } else if (*itV == "z") {
+          vertexResults.push_back(pv.zWithError());
+        } else if (*itV != "sigmaX" && *itV != "sigmaY" && *itV != "sigmaZ") {
+          LogInfo("AlcaBeamMonitor") << "The histosMap_ has been built with the name " << *itV
+                                     << " that I can't recognize!";
+          //assert(0);
         }
       }
     }
