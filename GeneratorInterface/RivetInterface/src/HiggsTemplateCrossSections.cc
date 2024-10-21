@@ -302,6 +302,29 @@ namespace Rivet {
       cat.jets25 = jets.jetsByPt(Cuts::pT > 25.0);
       cat.jets30 = jets.jetsByPt(Cuts::pT > 30.0);
 
+      // Temporary fix: add variables to perform STXS 1.3 classification with nanoAOD on-the-fly
+      // Vector-boson pt for VH production modes
+      if (isVH(prodMode)) {
+        cat.V_pt = cat.V.pt();
+      } else {
+        cat.V_pt = -999;
+      }
+      // Dijet variables using jets30 collection
+      if (cat.jets30.size() >= 2) {
+        cat.Mjj = (cat.jets30[0].mom() + cat.jets30[1].mom()).mass();
+        cat.ptHjj = (cat.jets30[0].mom() + cat.jets30[1].mom() + cat.higgs.momentum()).pt();
+        cat.dPhijj = cat.jets30[0].mom().phi() - cat.jets30[1].mom().phi();
+        // Return phi angle in the interval [-PI,PI)
+        if (cat.dPhijj >= Rivet::pi)
+          cat.dPhijj -= 2 * Rivet::pi;
+        else if (cat.dPhijj < -1 * Rivet::pi)
+          cat.dPhijj += 2 * Rivet::pi;
+      } else {
+        cat.Mjj = -999;
+        cat.ptHjj = -999;
+        cat.dPhijj = -999;
+      }
+
       // check that four mometum sum of all stable particles satisfies momentum consevation
       /*
       if ( sum.pt()>0.1 )
