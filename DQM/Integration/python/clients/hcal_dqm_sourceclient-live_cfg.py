@@ -33,7 +33,7 @@ if 'unitTest=True' in sys.argv:
 from DQM.Integration.config.online_customizations_cfi import *
 if useOfflineGT:
         process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-        process.GlobalTag.globaltag = '141X_dataRun3_Prompt_Candidate_2024_10_08_09_42_50'
+        process.GlobalTag.globaltag = autoCond['run3_data_prompt']
 else:
 	process.load('DQM.Integration.config.FrontierCondition_GT_cfi')
 
@@ -59,11 +59,11 @@ process.dqmSaverPB.runNumber = options.runNumber
 process = customise(process)
 process.DQMStore.verbose = 0
 
-'''
+
 if not unitTest and not useFileInput :
   if not options.BeamSplashRun :
     process.source.minEventsPerLumi = 100
-'''
+
 #-------------------------------------
 #	CMSSW/Hcal non-DQM Related Module import
 #-------------------------------------
@@ -253,10 +253,6 @@ process.options = cms.untracked.PSet(
 		)
 )
 process.options.wantSummary = True
-
-process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
-    )
 
 # tracer
 #process.Tracer = cms.Service("Tracer")

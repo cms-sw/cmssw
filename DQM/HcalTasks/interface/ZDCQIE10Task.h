@@ -48,9 +48,6 @@ public:
   ~ZDCQIE10Task() override {}
 
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  //    std::shared_ptr<hcaldqm::Cache> globalBeginLuminosityBlock(edm::LuminosityBlock const &,
-  //							       edm::EventSetup const &) const override;
-  //void globalEndLuminosityBlock(edm::LuminosityBlock const &, edm::EventSetup const &) override;
 
 protected:
   void _process(edm::Event const &, edm::EventSetup const &) override;
@@ -63,7 +60,6 @@ protected:
   edm::EDGetToken sumToken_;
   edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> htopoToken_;
   edm::ESGetToken<HcalLongRecoParams, HcalLongRecoParamsRcd> paramsToken_;
-  //edm::EDGetTokenT<l1t::EtSumBxCollection> sumZDCToken_;
 
   //emap
   hcaldqm::electronicsmap::ElectronicsMap _ehashmap;  // online only
